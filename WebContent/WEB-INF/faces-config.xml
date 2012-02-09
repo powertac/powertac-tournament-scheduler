@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_1_1.xsd"
+    version="1.1"
+>
+<!-- Listeners -->
+<lifecycle>
+		<phase-listener>
+			com.powertac.tourney.listeners.RestoreViewPhaseListener
+		</phase-listener>
+	</lifecycle>
+
+<!-- Objects -->
+<managed-bean>
+	<managed-bean-name>user</managed-bean-name>
+	<managed-bean-class>com.powertac.tourney.beans.User</managed-bean-class>
+	<managed-bean-scope>session</managed-bean-scope>
+</managed-bean>
+
+<!-- Actions -->
+<managed-bean>
+	<managed-bean-name>actionLogin</managed-bean-name>
+	<managed-bean-class>com.powertac.tourney.actions.ActionLogin</managed-bean-class>
+	<managed-bean-scope>request</managed-bean-scope>
+</managed-bean>
+
+<!-- Services -->
+<managed-bean>
+	<managed-bean-name>rest</managed-bean-name>
+	<managed-bean-class>com.powertac.tourney.services.Rest</managed-bean-class>
+	<managed-bean-scope>request</managed-bean-scope>
+</managed-bean>
+
+<!-- Navigation rules -->
+<navigation-rule>
+	<from-view-id>/index.jsp</from-view-id>
+	<navigation-case>
+		<from-outcome>Register</from-outcome>
+		<to-view-id>/register.jsp</to-view-id>
+	</navigation-case>
+	<navigation-case>
+		<from-outcome>Account</from-outcome>
+		<to-view-id>/account.jsp</to-view-id>
+	</navigation-case>
+</navigation-rule>
+
+
+</faces-config>
