@@ -18,6 +18,11 @@
 	<managed-bean-class>com.powertac.tourney.beans.User</managed-bean-class>
 	<managed-bean-scope>session</managed-bean-scope>
 </managed-bean>
+<managed-bean>
+	<managed-bean-name>game</managed-bean-name>
+	<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
+	<managed-bean-scope>application</managed-bean-scope>
+</managed-bean>
 
 <!-- Actions -->
 <managed-bean>
@@ -32,6 +37,13 @@
 	<managed-bean-class>com.powertac.tourney.services.Rest</managed-bean-class>
 	<managed-bean-scope>request</managed-bean-scope>
 </managed-bean>
+<managed-bean>
+	<managed-bean-name>jenkins</managed-bean-name>
+	<managed-bean-class>com.powertac.tourney.services.Jenkins</managed-bean-class>
+	<managed-bean-scope>request</managed-bean-scope>
+</managed-bean>
+
+
 
 <!-- Navigation rules -->
 <navigation-rule>
