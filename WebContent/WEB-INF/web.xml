@@ -96,9 +96,9 @@
 	</session-config>
 
 	<listener>
-		<listener-class>org.apache.myfaces.webapp.StartupServletContextListener
-		</listener-class>
+		<listener-class>com.powertac.tourney.listeners.Initializer</listener-class>
 	</listener>
+	
 	
 
 

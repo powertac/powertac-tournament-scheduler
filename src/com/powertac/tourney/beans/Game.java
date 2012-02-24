@@ -14,6 +14,18 @@ public class Game {
 	private int maxBrokers = 1;
 
 	public static final String key = "game";
+	
+	public HashMap<String, String> getBrokersToLogin() {
+		return brokersToLogin;
+	}
+
+	public void setBrokersToLogin(HashMap<String, String> brokersToLogin) {
+		this.brokersToLogin = brokersToLogin;
+	}
+
+	public static String getKey() {
+		return key;
+	}
 
 	public String getCompetitionName() {
 		return competitionName;
@@ -66,17 +78,23 @@ public class Game {
 	public void setGameId(int gameId) {
 		this.gameId = gameId;
 	}
+	
+	
 
-	public boolean setupGame(List<String> brokers) {
+	public boolean setupGame() {
 		// Read database for this game id and populate brokersToLogin with
 		// name->gameToken pairs
+		//if(competitionName.compareToIgnoreCase("test")){
+			
+		//}
+		
 		return false;
 
 	}
 
 	public boolean authorizeBroker(String brokerName, String gameToken) {
-		if (brokersToLogin != null
-				&& brokersToLogin.get(brokerName) == gameToken) {
+		if (getBrokersToLogin() != null
+				&& getBrokersToLogin().get(brokerName) == gameToken) {
 
 			// Send http response indicating success
 			return true;

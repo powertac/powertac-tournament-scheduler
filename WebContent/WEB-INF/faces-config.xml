@@ -6,11 +6,13 @@
     version="1.1"
 >
 <!-- Listeners -->
-<lifecycle>
+	<lifecycle>
 		<phase-listener>
 			com.powertac.tourney.listeners.RestoreViewPhaseListener
 		</phase-listener>
+		
 	</lifecycle>
+	
 
 <!-- Objects -->
 <managed-bean>
@@ -19,9 +21,14 @@
 	<managed-bean-scope>session</managed-bean-scope>
 </managed-bean>
 <managed-bean>
+	<managed-bean-name>games</managed-bean-name>
+	<managed-bean-class>com.powertac.tourney.beans.Games</managed-bean-class>
+	<managed-bean-scope>session</managed-bean-scope>
+</managed-bean>
+<managed-bean>
 	<managed-bean-name>game</managed-bean-name>
 	<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
-	<managed-bean-scope>application</managed-bean-scope>
+	<managed-bean-scope>session</managed-bean-scope>
 </managed-bean>
 
 <!-- Actions -->
