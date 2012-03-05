@@ -11,9 +11,13 @@ The Power TAC Tournament Schedudler is a dynamic jsf web application for schedul
 * Edit the tomcat-users.xml file and add the following markup in the tomcat-users tag:
 
 `<role rolename="manager-gui"/>`
+
 `<role rolename="admin-gui"/>`
+
 `<role rolename="manager-script"/>`
+
 `<role rolename="admin-script"/>`
+
 `<user username="admin" password="admin" roles="admin-gui,manager-gui,admin-script,manager-script"/>`
 
 * Run the ./startup.sh script for apache tomcat
