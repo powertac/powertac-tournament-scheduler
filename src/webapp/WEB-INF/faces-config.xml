@@ -38,6 +38,14 @@
 	<managed-bean-scope>request</managed-bean-scope>
 </managed-bean>
 
+<managed-bean>
+	<managed-bean-name>actionPrivileges</managed-bean-name>
+	<managed-bean-class>com.powertac.tourney.actions.ActionPrivileges</managed-bean-class>
+	<managed-bean-scope>request</managed-bean-scope>
+</managed-bean>
+
+
+
 <!-- Services -->
 <managed-bean>
 	<managed-bean-name>rest</managed-bean-name>
