@@ -62,15 +62,37 @@
 
 <!-- Navigation rules -->
 <navigation-rule>
-	<from-view-id>/index.jsp</from-view-id>
+	<!-- Nav Bar Navigation Only!!! -->
+	<from-view-id>/*</from-view-id>
 	<navigation-case>
 		<from-outcome>Register</from-outcome>
-		<to-view-id>/register.jsp</to-view-id>
+		<to-view-id>/register.xhtml</to-view-id>
 	</navigation-case>
 	<navigation-case>
 		<from-outcome>Account</from-outcome>
-		<to-view-id>/account.jsp</to-view-id>
+		<to-view-id>/account.xhtml</to-view-id>
 	</navigation-case>
+	<navigation-case>
+		<from-outcome>Login</from-outcome>
+		<to-view-id>/login.xhtml</to-view-id>
+	</navigation-case>
+	<navigation-case>
+		<from-outcome>Home</from-outcome>
+		<to-view-id>/index.xhtml</to-view-id>
+	</navigation-case>
+	<navigation-case>
+		<from-outcome>About</from-outcome>
+		<to-view-id>/about.xhtml</to-view-id>
+	</navigation-case>
+	
+	<navigation-case>
+		<from-outcome>Tournament</from-outcome>
+		<to-view-id>/tournamentManager.xhtml</to-view-id>
+	</navigation-case>
+	
+	<!-- Specific Navigation rules -->
+	
+	
 </navigation-rule>
 
 

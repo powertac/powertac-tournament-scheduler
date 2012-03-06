@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xmlns="http://java.sun.com/xml/ns/javaee" 
-	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" 
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
-	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" 
+	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	id="WebApp_ID" version="2.5">
 	<display-name>TournamentScheduler</display-name>
-	
-	
-	
+
+
+
 	<context-param>
-		<param-name>javax.servlet.jsp.jstl.fmt.localizationContext
-		</param-name>
+		<param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
 		<param-value>resources.application</param-value>
 	</context-param>
 	<context-param>
@@ -45,7 +43,7 @@
 		<param-name>org.apache.myfaces.ALLOW_JAVASCRIPT</param-name>
 		<param-value>true</param-value>
 	</context-param>
-	
+
 	<context-param>
 		<description>
 			The default suffix for extension-mapped resources that contain JSF components.
@@ -93,17 +91,14 @@
 	</context-param>
 
 	<session-config>
-		<session-timeout>
-			30
-		</session-timeout>
+		<session-timeout>30</session-timeout>
 	</session-config>
 
 	<listener>
 		<listener-class>com.powertac.tourney.listeners.Initializer</listener-class>
 	</listener>
-	
-	
 
+	
 
 	<servlet>
 		<servlet-name>Faces Servlet</servlet-name>

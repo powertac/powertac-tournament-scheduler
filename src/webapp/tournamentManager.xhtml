@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:corejsf="http://corejsf.com/upload">
+
+
+<h:body>
+	<ui:composition template="template.xhtml">
+
+
+		<ui:define name="content">
+			<h:form rendered="#{user.permissions le 0}">
+				<h2>Tournament Manager</h2>
+				<br />
+				<h4>Create Tournament</h4>
+				<h:panelGrid columns="2">
+
+					<h:outputText value="Tournament Name" />
+					<h:panelGroup>
+						<h:inputText value="" />
+					</h:panelGroup>
+
+					<h:outputText value="Tournament Type:" />
+					<h:panelGroup>
+						<h:selectOneMenu>
+							<f:selectItem itemValue="1"
+								itemLabel="PowerTac Multi-game Tournament" />
+							<f:selectItem itemValue="2"
+								itemLabel="Single-game Tournament (For Testing)" />
+						</h:selectOneMenu>
+					</h:panelGroup>
+
+
+					<h:outputText value="Starting Time:" />
+					<h:panelGroup>
+					</h:panelGroup>
+
+					<h:outputText value="Maximum Number of Brokers to Participate" />
+					<h:panelGroup>
+						<h:selectOneMenu>
+							<f:selectItem itemValue="1" itemLabel="1 Broker(s)" />
+							<f:selectItem itemValue="2" itemLabel="2 Broker(s)" />
+							<f:selectItem itemValue="3" itemLabel="3 Broker(s)" />
+							<f:selectItem itemValue="4" itemLabel="4 Broker(s)" />
+							<f:selectItem itemValue="5" itemLabel="5 Broker(s)" />
+							<f:selectItem itemValue="6" itemLabel="6 Broker(s)" />
+							<f:selectItem itemValue="7" itemLabel="7 Broker(s)" />
+							<f:selectItem itemValue="8" itemLabel="8 Broker(s)" />
+							<f:selectItem itemValue="-1" itemLabel="More Brokers" />
+						</h:selectOneMenu>
+					</h:panelGroup>
+
+					<h:outputText value="Select Machine(s) to use in Tournament:" />
+					<h:panelGroup>
+						<h:selectManyCheckbox>
+							<f:selectItem itemValue="tac10" itemLabel="tac10" />
+							<f:selectItem itemValue="tac11" itemLabel="tac11" />
+							<f:selectItem itemValue="tac12" itemLabel="tac12" />
+							<f:selectItem itemValue="tac13" itemLabel="tac13" />
+						</h:selectManyCheckbox>
+					</h:panelGroup>
+
+
+					<h:outputText value="Upload Bootstrap File:" />
+					<h:panelGroup>
+						 <corejsf:upload target="upload/1_stuff.jpg"/>
+					</h:panelGroup>
+
+					<h:outputText value="Upload Pom" />
+					<h:panelGroup>
+						<h:inputText value="" />
+					</h:panelGroup>
+
+
+					<h:outputText value="Submit Tournament (opens for registration):" />
+					<h:panelGroup>
+						<h:commandButton value="Submit" />
+					</h:panelGroup>
+				</h:panelGrid>
+
+
+			</h:form>
+			<h:form rendered="#{user.permissions gt 0}">
+				<h2>Insufficient Permissions</h2>
+			</h:form>
+		</ui:define>
+
+	</ui:composition>
+</h:body>
+</html>
