@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
-	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-	id="WebApp_ID" version="2.5">
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	id="YourProjectName" version="3.0">
 	<display-name>TournamentScheduler</display-name>
 
 
-
-	<context-param>
-		<param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
-		<param-value>resources.application</param-value>
-	</context-param>
 	<context-param>
 		<description>
 			State saving method: 'client' or 'server' (=default). See
@@ -19,7 +12,7 @@
 			Specification 2.5.2
 		</description>
 		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-		<param-value>client</param-value>
+		<param-value>server</param-value>
 	</context-param>
 
 	<context-param>
@@ -47,10 +40,12 @@
 	<context-param>
 		<description>
 			The default suffix for extension-mapped resources that contain JSF components.
-			Default is '.jsp'.</description>
+			Default is '.xhtml'.</description>
 		<param-name>javax.faces.DEFAULT_SUFFIX</param-name>
-		<param-value>.jsp</param-value>
+		<param-value>.xhtml</param-value>
 	</context-param>
+	
+	
 	<context-param>
 		<description>
 
@@ -99,6 +94,34 @@
 	</listener>
 
 	
+
+	<filter>
+		<filter-name>ExtensionsFilter</filter-name>
+		<filter-class>org.apache.myfaces.webapp.filter.ExtensionsFilter</filter-class>
+		<init-param>
+        <description>
+            Set the size limit for uploaded files.
+                Format: 10  - 10 bytes
+                        10k - 10 KB
+                        10m - 10 MB
+                        1g  - 1 GB
+        </description>
+        <param-name>uploadMaxFileSize</param-name>
+        <param-value>100k</param-value>
+    </init-param>
+    
+    <init-param>
+        <description>
+            Set the path where the intermediary files will be stored.
+        </description>
+        <param-name>uploadRepositoryPath</param-name>
+        <param-value>/temp</param-value>
+    </init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>ExtensionsFilter</filter-name>
+		<servlet-name>Faces Servlet</servlet-name>
+	</filter-mapping>
 
 	<servlet>
 		<servlet-name>Faces Servlet</servlet-name>

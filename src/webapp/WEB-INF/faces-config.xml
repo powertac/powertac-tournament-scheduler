@@ -2,98 +2,108 @@
 <faces-config
     xmlns="http://java.sun.com/xml/ns/javaee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_1_1.xsd"
-    version="1.1"
->
-<!-- Listeners -->
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
+    version="2.0">
+
+
+
+	<!-- Listeners -->
 	<lifecycle>
 		<phase-listener>
 			com.powertac.tourney.listeners.RestoreViewPhaseListener
 		</phase-listener>
-		
+
 	</lifecycle>
-	
-
-<!-- Objects -->
-<managed-bean>
-	<managed-bean-name>user</managed-bean-name>
-	<managed-bean-class>com.powertac.tourney.beans.User</managed-bean-class>
-	<managed-bean-scope>session</managed-bean-scope>
-</managed-bean>
-<managed-bean>
-	<managed-bean-name>games</managed-bean-name>
-	<managed-bean-class>com.powertac.tourney.beans.Games</managed-bean-class>
-	<managed-bean-scope>session</managed-bean-scope>
-</managed-bean>
-<managed-bean>
-	<managed-bean-name>game</managed-bean-name>
-	<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
-	<managed-bean-scope>session</managed-bean-scope>
-</managed-bean>
-
-<!-- Actions -->
-<managed-bean>
-	<managed-bean-name>actionLogin</managed-bean-name>
-	<managed-bean-class>com.powertac.tourney.actions.ActionLogin</managed-bean-class>
-	<managed-bean-scope>request</managed-bean-scope>
-</managed-bean>
-
-<managed-bean>
-	<managed-bean-name>actionPrivileges</managed-bean-name>
-	<managed-bean-class>com.powertac.tourney.actions.ActionPrivileges</managed-bean-class>
-	<managed-bean-scope>request</managed-bean-scope>
-</managed-bean>
 
 
+	<!-- Objects -->
+	<managed-bean>
+		<managed-bean-name>user</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.beans.User</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+	<managed-bean>
+		<managed-bean-name>games</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.beans.Games</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+	<managed-bean>
+		<managed-bean-name>game</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
 
-<!-- Services -->
-<managed-bean>
-	<managed-bean-name>rest</managed-bean-name>
-	<managed-bean-class>com.powertac.tourney.services.Rest</managed-bean-class>
-	<managed-bean-scope>request</managed-bean-scope>
-</managed-bean>
-<managed-bean>
-	<managed-bean-name>jenkins</managed-bean-name>
-	<managed-bean-class>com.powertac.tourney.services.Jenkins</managed-bean-class>
-	<managed-bean-scope>request</managed-bean-scope>
-</managed-bean>
+	<!-- Actions -->
+	<managed-bean>
+		<managed-bean-name>actionLogin</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.actions.ActionLogin</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+
+	<managed-bean>
+		<managed-bean-name>actionPrivileges</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.actions.ActionPrivileges</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+	<managed-bean>
+		<managed-bean-name>actionTournament</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.actions.ActionTournament</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
 
 
+	<!-- Services -->
+	<managed-bean>
+		<managed-bean-name>rest</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.services.Rest</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+	<managed-bean>
+		<managed-bean-name>jenkins</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.services.Jenkins</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+	<managed-bean>
+		<managed-bean-name>upload</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.services.Upload</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
 
-<!-- Navigation rules -->
-<navigation-rule>
-	<!-- Nav Bar Navigation Only!!! -->
-	<from-view-id>/*</from-view-id>
-	<navigation-case>
-		<from-outcome>Register</from-outcome>
-		<to-view-id>/register.xhtml</to-view-id>
-	</navigation-case>
-	<navigation-case>
-		<from-outcome>Account</from-outcome>
-		<to-view-id>/account.xhtml</to-view-id>
-	</navigation-case>
-	<navigation-case>
-		<from-outcome>Login</from-outcome>
-		<to-view-id>/login.xhtml</to-view-id>
-	</navigation-case>
-	<navigation-case>
-		<from-outcome>Home</from-outcome>
-		<to-view-id>/index.xhtml</to-view-id>
-	</navigation-case>
-	<navigation-case>
-		<from-outcome>About</from-outcome>
-		<to-view-id>/about.xhtml</to-view-id>
-	</navigation-case>
-	
-	<navigation-case>
-		<from-outcome>Tournament</from-outcome>
-		<to-view-id>/tournamentManager.xhtml</to-view-id>
-	</navigation-case>
-	
-	<!-- Specific Navigation rules -->
-	
-	
-</navigation-rule>
+
+	<!-- Navigation rules -->
+	<navigation-rule>
+		<!-- Nav Bar Navigation Only!!! -->
+		<from-view-id>/*</from-view-id>
+		<navigation-case>
+			<from-outcome>Register</from-outcome>
+			<to-view-id>/register.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>Account</from-outcome>
+			<to-view-id>/account.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>Login</from-outcome>
+			<to-view-id>/login.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>Home</from-outcome>
+			<to-view-id>/index.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>About</from-outcome>
+			<to-view-id>/about.xhtml</to-view-id>
+		</navigation-case>
+
+		<navigation-case>
+			<from-outcome>Tournament</from-outcome>
+			<to-view-id>/tournamentManager.xhtml</to-view-id>
+		</navigation-case>
+
+		<!-- Specific Navigation rules -->
+
+
+	</navigation-rule>
 
 
 </faces-config>
