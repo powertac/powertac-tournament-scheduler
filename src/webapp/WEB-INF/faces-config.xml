@@ -32,6 +32,21 @@
 		<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 	</managed-bean>
+	
+	<!-- Application Scoped Objects -->
+	
+	<managed-bean>
+		<managed-bean-name>Machines</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
+	
+	<managed-bean>
+		<managed-bean-name>Tournaments</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
+	
 
 	<!-- Actions -->
 	<managed-bean>
