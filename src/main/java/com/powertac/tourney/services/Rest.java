@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Games;
+import com.powertac.tourney.beans.Scheduler;
 import com.powertac.tourney.constants.*;
 
 public class Rest{
@@ -27,71 +29,49 @@ public class Rest{
 		String brokerAuthToken = ((String[]) params.get(Constants.REQ_PARAM_AUTH_TOKEN))[0];
 		String competitionName = ((String []) params.get(Constants.REQ_PARAM_JOIN))[0];
 		
-		String retryResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><retry>%d</retry></message>";
-		String loginResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><login><jmsUrl>%s</jmsUrl><gameToken>%s</gameToken></login></message>";
-		String doneResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><done></done></message>";
-		if(competitionName != null){
-			
-			// Anyone can log into the test competition
-			if(competitionName.equalsIgnoreCase("test")){
-				//List<String> brokers = new ArrayList<String>();
-
-				
-				// TODO: Lookup broker name from brokerAuthToken in DB
-				
-				if(Jenkins.startTestGame(0)){
-					Games allGames = (Games) FacesContext.getCurrentInstance()
-							.getExternalContext().getApplicationMap().get(Games.getKey());
-					Game game = allGames.getGames().get(0);
-					
-					//MessageDigest md5 = null;
-					//try {
-					//	md5 = MessageDigest.getInstance("MD5");
-					//} catch (NoSuchAlgorithmException e) {
-					//	// TODO Auto-generated catch block
-					//	e.printStackTrace();
-					//}
-					//byte[] hash = md5.digest();
-					//String gameToken = hash.toString();
-					
-					//game.getBrokersToLogin().put("Sample-broker", gameToken);
-					
-					return String.format(loginResponse, game.getJmsUrl(),"1234");
-				}else{
-					return String.format(retryResponse,5);
-				}	
-			}else{
-				// Normal Competition
-				
-			}
-			
-		}
+		String retryResponse;
+		String loginResponse;
+		String doneResponse;
 		
-		/*
-		// Check if a response type was specified, default is xml
-		if(responseType != null){
-			if(responseType.equalsIgnoreCase("xml")){
-				
-				
-				response = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><retry>5</retry></message>";
-			}else if(responseType.equalsIgnoreCase("json")){
-				
-				
-				response = "{\n \"retry\":5\n}";				
-			}else{
-				response = "Error making rest call, please check your parameters:"+responseType;
-			}
-			
-			
-		// Default xml
+		if(responseType.equalsIgnoreCase("xml")){
+			retryResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><retry>%d</retry></message>";
+			loginResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><login><jmsUrl>%s</jmsUrl><gameToken>%s</gameToken></login></message>";
+			doneResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><done></done></message>";			
 		}else{
-			responseType = "xml";
-			
-			
-		}*/
-		
-		
-		return response;
+			retryResponse = "{\n \"retry\":%d\n}";
+			loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"gameToken\":%s\n}";
+			doneResponse = "{\n \"done\":\"true\"\n}";
+		}
+		if(competitionName != null){
+			for (Game g : Games.getAllGames().getGameList()){
+				// Only consider games that have started and are ready for brokers to join
+				if(g.getStartTime().before(new Date()) && g.getStatus().equalsIgnoreCase("ready")){
+					//Anyone can start and join a test competition
+					if(competitionName.equalsIgnoreCase("test")){
+						// Spawn a new test competition and rerun
+						Game game = new Game();
+						game.setBootstrapUrl("http://www.cselabs.umn.edu/~onarh001/bootstraprun.xml");
+						game.setCompetitionName("test");
+						game.setMaxBrokers(1);
+						game.setStartTime(new Date());
+						game.setPomUrl("");
+						game.setServerConfigUrl("");
+						game.addBrokerLogin("anybroker", brokerAuthToken);
+						Scheduler.getScheduler().schedule(new StartServer(game), new Date());						
+						return String.format(retryResponse,5);
+					}else if(competitionName.equalsIgnoreCase(g.getCompetitionName()) && g.isBrokerRegistered(brokerAuthToken)){
+						// If a broker is registered and knows the competition name, give them an the jmsUrl and gameToken to login
+						return String.format(loginResponse, g.getJmsUrl(),"1234");
+					}
+				}
+				// If the game has yet to start and broker is registered send retry message
+				if(g.isBrokerRegistered(brokerAuthToken)){
+					return String.format(retryResponse, g.getStartTime().getTime()-(new Date()).getTime());
+				}
+				
+			}
+		}
+		return "Error making rest request, check the specification and try again";
 	}
 	
 	public static String parseServerInterface(Map params){
@@ -129,37 +109,11 @@ public class Rest{
 				return "Game doesn't exist!";
 			}
 			
-			
-			
-			
-			
 		}
 		
 		return "Not yet implemented";		
 	}
 	
-	public void respond() {
-
-		String queryString = ((HttpServletRequest) FacesContext
-				.getCurrentInstance().getExternalContext().getRequest())
-				.getQueryString();
-
-		queryString = "stuff";
-		if (queryString != null) {
-			FacesContext context = FacesContext.getCurrentInstance();
-			ExternalContext ext = context.getExternalContext();
-			HttpServletResponse response = (HttpServletResponse) ext
-					.getResponse();
-			response.setContentType("text/plain; charset=UTF-8");
-			try {
-				PrintWriter pw = response.getWriter();
-				pw.print(queryString);
-			} catch (IOException ex) {
-				throw new FacesException(ex);
-			}
-			context.responseComplete();
-		}
-
-	}
+	
 
 }

@@ -20,6 +20,7 @@ public class Game {
 	private String pomUrl = "";
 	
 	private HashMap<String, String> brokersToLogin = null;
+	
 	private String[] brokersLoggedIn = null;
 	private int maxBrokers = 1;
 
@@ -110,6 +111,23 @@ public class Game {
 
 	public void setGameId(int gameId) {
 		this.gameId = gameId;
+	}
+	
+	public void addBrokerLogin(String brokerName, String authToken){
+		brokersToLogin.put(authToken, brokerName);
+	}
+	
+	public void addGameLogin(String gameToken){
+		
+	}
+	
+	public boolean isGameTokenValid(String gameToken){
+		return true;
+	}
+	
+	
+	public boolean isBrokerRegistered(String authToken){
+		return brokersToLogin.containsKey(authToken);
 	}
 	
 	

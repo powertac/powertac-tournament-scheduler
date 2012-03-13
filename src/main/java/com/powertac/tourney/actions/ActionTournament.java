@@ -8,8 +8,10 @@ import javax.faces.model.SelectItem;
 
 import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Games;
+import com.powertac.tourney.beans.Scheduler;
 import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.beans.Tournaments;
+import com.powertac.tourney.services.StartServer;
 
 public class ActionTournament {
 
@@ -93,6 +95,9 @@ public class ActionTournament {
 			// Add game to all games and to Tournament
 			allGames.addGame(newGame);
 			newTourney.addGame(newGame);
+			
+			// Start a single game and send jenkins request to kick the server at the appropriate time
+			Scheduler.getScheduler().schedule(new StartServer(newGame), newGame.getStartTime());
 			
 		}else if(type == TourneyType.MULTI_GAME){
 			

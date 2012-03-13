@@ -46,16 +46,16 @@ public class StartServer extends TimerTask {
 				URLConnection conn = url.openConnection();
 				// Get the response
 				InputStream input = conn.getInputStream();
+				System.out.println("Jenkins request sent for : " + logSuffix);
 
 			} catch (Exception e) {
 				e.printStackTrace();
+				System.out.println("Jenkins failure");
 			}
 		} else {
 
 			// No machines free for this game try again in a minute
-			Calendar tryAgain = Calendar.getInstance();
-			tryAgain.set(Calendar.MINUTE, tryAgain.get(Calendar.MINUTE) + 1);
-			//Scheduler.getScheduler().addTask(tryAgain, this);
+			Scheduler.getScheduler().schedule(this, 60000);
 
 		}
 
