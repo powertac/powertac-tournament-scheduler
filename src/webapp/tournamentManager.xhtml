@@ -59,10 +59,7 @@
 						<h:outputText value="Select Machine(s) to use in Tournament:" />
 						<h:panelGroup>
 							<h:selectManyCheckbox>
-								<f:selectItem itemValue="tac10" itemLabel="tac10" />
-								<f:selectItem itemValue="tac11" itemLabel="tac11" />
-								<f:selectItem itemValue="tac12" itemLabel="tac12" />
-								<f:selectItem itemValue="tac13" itemLabel="tac13" />
+								<f:selectItems value="#{machines.machineList}" var="m" itemValue="#{m.url}" itemLabel="#{m.name}" />
 							</h:selectManyCheckbox>
 						</h:panelGroup>
 

@@ -5,6 +5,7 @@ public class Machine {
 	private String url;
 	private boolean inProgress;
 	private int gameId;
+	
 	public String getName() {
 		return name;
 	}

@@ -29,7 +29,7 @@ public class Rest{
 		
 		String retryResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><retry>%d</retry></message>";
 		String loginResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><login><jmsUrl>%s</jmsUrl><gameToken>%s</gameToken></login></message>";
-		
+		String doneResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><done></done></message>";
 		if(competitionName != null){
 			
 			// Anyone can log into the test competition

@@ -1,7 +1,6 @@
 package com.powertac.tourney.actions;
 
 import com.powertac.tourney.beans.User;
-import java.util.Map;
 import javax.faces.context.FacesContext;
 
 public class ActionLogin {

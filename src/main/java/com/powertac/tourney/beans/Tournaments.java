@@ -2,6 +2,8 @@ package com.powertac.tourney.beans;
 
 import java.util.Vector;
 
+import javax.faces.context.FacesContext;
+
 public class Tournaments {
 	private static final String key = "tournaments";
 	
@@ -13,6 +15,10 @@ public class Tournaments {
 
 	public static String getKey() {
 		return key;
+	}
+	public static Tournaments getAllTournaments(){
+		return (Tournaments) FacesContext.getCurrentInstance()
+		.getExternalContext().getApplicationMap().get(Tournaments.getKey());
 	}
 	
 	public void addTournament(Tournament t){

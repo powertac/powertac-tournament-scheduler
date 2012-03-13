@@ -11,7 +11,14 @@ public class Game {
 	private int gameId = 0;
 	private static int maxGameId = 0;
 	private String status = "pending";
+	private Machine runningMachine = null; // This is set when the game is actually running on a machine
+	
 	private String jmsUrl = "";
+	private String serverConfigUrl = "";
+	private String tournamentSchedulerUrl = "";
+	private String bootstrapUrl = "";
+	private String pomUrl = "";
+	
 	private HashMap<String, String> brokersToLogin = null;
 	private String[] brokersLoggedIn = null;
 	private int maxBrokers = 1;
@@ -27,8 +34,8 @@ public class Game {
 	}
 
 	public Game(){
-		System.out.println("Created Tournament Bean: " + competitionId);
-		competitionId = maxGameId;
+		System.out.println("Created Game Bean: " + gameId);
+		gameId = maxGameId;
 		maxGameId++;
 		
 	}
@@ -47,6 +54,14 @@ public class Game {
 
 	public String getCompetitionName() {
 		return competitionName;
+	}
+
+	public String getPomUrl() {
+		return pomUrl;
+	}
+
+	public void setPomUrl(String pomUrl) {
+		this.pomUrl = pomUrl;
 	}
 
 	public void setCompetitionName(String competitionName) {
@@ -121,6 +136,30 @@ public class Game {
 			return false;
 		}
 
+	}
+
+	public String getTournamentSchedulerUrl() {
+		return tournamentSchedulerUrl;
+	}
+
+	public void setTournamentSchedulerUrl(String tournamentSchedulerUrl) {
+		this.tournamentSchedulerUrl = tournamentSchedulerUrl;
+	}
+
+	public String getServerConfigUrl() {
+		return serverConfigUrl;
+	}
+
+	public void setServerConfigUrl(String serverConfigUrl) {
+		this.serverConfigUrl = serverConfigUrl;
+	}
+
+	public String getBootstrapUrl() {
+		return bootstrapUrl;
+	}
+
+	public void setBootstrapUrl(String bootstrapUrl) {
+		this.bootstrapUrl = bootstrapUrl;
 	}
 
 }

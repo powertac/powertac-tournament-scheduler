@@ -52,6 +52,11 @@
 		<managed-bean-scope>application</managed-bean-scope>
 	</managed-bean>
 
+	<managed-bean>
+		<managed-bean-name>Scheduler</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.beans.Scheduler</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
 
 	<!-- Actions -->
 	<managed-bean>

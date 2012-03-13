@@ -2,6 +2,8 @@ package com.powertac.tourney.beans;
 
 import java.util.HashMap;
 
+import javax.faces.context.FacesContext;
+
 public class Games {
 	HashMap<Integer,Game> games = null;
 	
@@ -15,6 +17,10 @@ public class Games {
 	
 	public static String getKey(){
 		return key;
+	}
+	public static Games getAllGames(){
+		return (Games) FacesContext.getCurrentInstance()
+				.getExternalContext().getApplicationMap().get(Games.getKey());
 	}
 	
 	public HashMap<Integer,Game> getGames(){

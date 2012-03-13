@@ -1,6 +1,8 @@
 package com.powertac.tourney.constants;
 
 public class Constants {
+	
+	
 	// Possible Rest Parameters for Broker Login
 	public static final String REQ_PARAM_AUTH_TOKEN = "authToken";
 	public static final String REQ_PARAM_JOIN = "requestJoin";

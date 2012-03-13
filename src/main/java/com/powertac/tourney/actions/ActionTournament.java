@@ -94,6 +94,8 @@ public class ActionTournament {
 			allGames.addGame(newGame);
 			newTourney.addGame(newGame);
 			
+		}else if(type == TourneyType.MULTI_GAME){
+			
 		}else{
 			
 		}

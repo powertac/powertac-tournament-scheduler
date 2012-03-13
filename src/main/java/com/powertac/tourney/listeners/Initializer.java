@@ -5,12 +5,16 @@ import javax.servlet.ServletContextListener;
 
 import com.powertac.tourney.beans.Games;
 import com.powertac.tourney.beans.Machines;
+import com.powertac.tourney.beans.Scheduler;
 import com.powertac.tourney.beans.Tournaments;
 
 public class Initializer implements ServletContextListener {
 
-	public void contextDestroyed(ServletContextEvent arg0) {
-		// TODO Auto-generated method stub
+	public void contextDestroyed(ServletContextEvent e) {
+
+		//e.getServletContext().getAttribute(Games.getKey());
+		//e.getServletContext().getAttribute(Tournaments.getKey());
+		//e.getServletContext().getAttribute(Machines.getKey());
 
 	}
 
@@ -20,6 +24,7 @@ public class Initializer implements ServletContextListener {
 		e.getServletContext().setAttribute(Games.getKey(), new Games());
 		e.getServletContext().setAttribute(Tournaments.getKey(), new Tournaments());
 		e.getServletContext().setAttribute(Machines.getKey(), new Machines());
+		e.getServletContext().setAttribute(Scheduler.getKey(), new Scheduler());
 	}
 
 }
