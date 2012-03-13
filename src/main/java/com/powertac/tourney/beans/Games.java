@@ -25,6 +25,25 @@ public class Games {
 		return gameId++;
 	}
 	
+	public void addGame(Game game){
+		games.put(game.getGameId(), game);
+	}
+	
+	public Game[] getGameList(){
+		if(games.size() == 0){
+			return null;
+		}else{
+			Game[] newGame = new Game[games.size()];
+			int i = 0;
+			for(Game t : games.values()){
+				newGame[i] = t;
+				i++;
+			}
+			
+			return newGame;
+		}
+	}
+	
 	
 
 }

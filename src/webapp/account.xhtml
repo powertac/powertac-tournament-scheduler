@@ -8,13 +8,19 @@
 	<ui:composition template="template.xhtml">
 
 		<ui:define name="content">
-			<h:form>
+			<h:form id="account" rendered="#{user.permissions le 1}">
+				
+			
 
 				<h:outputText value="List of Brokers:" />
 				<h:panelGrid columns="1">
-					<h:selectOneListbox value="Your Brokers" size="15">
-						<f:selectItem itemValue="No Brokers"
-							itemLabel="No Brokers Available" />
+					<h:selectOneListbox id="listbox" style="width:200px" value="Your Brokers"
+						size="5" onchange="var index = this.selectedIndex;
+						document.getElementById('account:selectedBroker').textContent = this[index].textContent;
+						return true;
+						">
+						<f:selectItems value="#{user.brokers}" var="b"
+							itemValues="#{b.brokerId}" itemLabel="#{b.brokerName}" />
 					</h:selectOneListbox>
 					<h:panelGroup>
 						<h:commandButton value="Add Broker" action="Broker" />
@@ -22,19 +28,53 @@
 					</h:panelGroup>
 				</h:panelGrid>
 				<br />
-				<h:outputText value="Brokers Registered for Tournaments" />
-				<table border="1">
-					<tr>
-						<td><b>Broker</b></td>
-						<td><b>Tournament</b></td>
-					</tr>
 
-					<tr>
-						<td>None</td>
-						<td>None</td>
-					</tr>
-				</table>
-				<h:commandButton value="Register Broker..." />
+				<h:outputText value="Open Tournaments Available for Selected Broker: " />
+				<h:outputText id= "selectedBroker" value="None Selected" />
+				<h:dataTable border="1"
+					style="border:1px solid black;border-collapse:collapse;text-align:center"
+					value="#{tournaments.tournamentList}" var="t">
+
+
+					<h:column>
+						<f:facet name="header">Tournament Name</f:facet>
+    						#{t.tournamentName}
+    				</h:column>
+
+
+					<h:column>
+						<f:facet name="header">Start Time</f:facet>
+    						#{t.startTime}
+    				</h:column>
+
+					<h:column>
+						<!-- column header -->
+						<f:facet name="header">Competition Type</f:facet>
+						<!-- row record -->
+    						Single-game
+    				</h:column>
+
+					<h:column>
+						<f:facet name="header">Max Brokers</f:facet>
+    						#{t.maxBrokers}
+    				</h:column>
+	
+					<h:column>
+						<f:facet name="header">Registered Brokers</f:facet>
+    						#{t.numberRegistered}
+    				</h:column>
+
+					<h:column>
+						<f:facet name="header">Register Broker</f:facet>
+						<h:commandButton value="Register"
+							rendered="#{(t.maxBrokers != t.numberRegistered) and !t.isRegistered(document.getElementById('account:selectedBroker').textContent)}"
+							action="#{t.register(Name,Value)}" />
+					</h:column>
+
+				</h:dataTable>
+			</h:form>
+			<h:form rendered="#{user.permissions gt 1}">
+				<h2>Insufficient Permissions</h2>
 			</h:form>
 		</ui:define>
 	</ui:composition>

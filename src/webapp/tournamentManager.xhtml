@@ -24,16 +24,14 @@
 
 						<h:outputText value="Tournament Name" />
 						<h:panelGroup>
-							<h:inputText value="" />
+							<h:inputText value="#{actionTournament.tournamentName}" />
 						</h:panelGroup>
 
 						<h:outputText value="Tournament Type:" />
 						<h:panelGroup>
-							<h:selectOneMenu>
-								<f:selectItem itemValue="1"
-									itemLabel="PowerTac Multi-game Tournament" />
-								<f:selectItem itemValue="2"
-									itemLabel="Single-game Tournament (For Testing)" />
+							<h:selectOneMenu value = "#{actionTournament.type}">
+								<f:selectItems value="#{actionTournament.types}" var="t"
+									itemValues="#{t.ordinal}" itemLabel="#{t.label}" />
 							</h:selectOneMenu>
 						</h:panelGroup>
 
@@ -45,7 +43,7 @@
 
 						<h:outputText value="Maximum Number of Brokers to Participate" />
 						<h:panelGroup>
-							<h:selectOneMenu>
+							<h:selectOneMenu value="#{actionTournament.maxBrokers}">
 								<f:selectItem itemValue="1" itemLabel="1 Broker(s)" />
 								<f:selectItem itemValue="2" itemLabel="2 Broker(s)" />
 								<f:selectItem itemValue="3" itemLabel="3 Broker(s)" />
@@ -72,16 +70,23 @@
 						<h:outputLabel value="Upload Bootstrap File:" />
 						<h:panelGroup>
 							<h:form>
-								<t:inputFileUpload value="#{upload.uploadedFile}"
+								<t:inputFileUpload disabled="true" value="#{upload.uploadedFile}"
 									accept="mime-type" storage="file" required="true" />
-								<h:commandButton value="Submit" action="#{upload.submit}" />
+							</h:form>
+						</h:panelGroup>
+						
+						<h:outputLabel value="Upload Pom File:" />
+						<h:panelGroup>
+							<h:form>
+								<t:inputFileUpload disabled="true" value="#{upload.uploadedFile}"
+									accept="mime-type" storage="file" required="true" />
 							</h:form>
 						</h:panelGroup>
 
 
 						<h:outputText value="Submit Tournament (opens for registration):" />
 						<h:panelGroup>
-							<h:commandButton value="Submit" action="Login" />
+							<h:commandButton value="Submit" action="#{actionTournament.createTournament}" />
 						</h:panelGroup>
 					</h:panelGrid>
 

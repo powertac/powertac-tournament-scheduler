@@ -1,5 +1,7 @@
 package com.powertac.tourney.beans;
 
+import java.util.Vector;
+
 public class User {
 
 	/*
@@ -13,12 +15,21 @@ public class User {
 	private String password;
 	private int permissions;
 	private boolean loggedIn;
+	
+	// Brokers
+	private Vector<Broker> brokers;
 
 	public User() {
+		this.brokers = new Vector<Broker>();
 		this.username = "Guest";
 		this.password = "";
 		this.permissions = Permission.GUEST;
 		this.loggedIn = false;
+		
+		Broker test = new Broker();
+		test.setBrokerId("12345");
+		test.setBrokerName("TestBroker");
+		this.brokers.add(test);
 	}
 
 	public static String getKey() {
@@ -69,6 +80,16 @@ public class User {
 
 	public boolean getLoggedIn() {
 		return this.loggedIn;
+	}
+	
+	public Broker[] getBrokers(){
+		Broker[] newBroker = new Broker[brokers.size()];
+		int i = 0;
+		for(Broker b : brokers){
+			newBroker[i] = brokers.get(i);
+			i++;
+		}
+		return newBroker;
 	}
 
 }

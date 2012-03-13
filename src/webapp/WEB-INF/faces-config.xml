@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<faces-config
-    xmlns="http://java.sun.com/xml/ns/javaee"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
-    version="2.0">
+<faces-config xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
+	version="2.0">
 
 
 
 	<!-- Listeners -->
 	<lifecycle>
 		<phase-listener>
-			com.powertac.tourney.listeners.RestoreViewPhaseListener
-		</phase-listener>
+			com.powertac.tourney.listeners.RestoreViewPhaseListener</phase-listener>
 
 	</lifecycle>
 
@@ -32,21 +30,28 @@
 		<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 	</managed-bean>
-	
+
+
+	<managed-bean>
+		<managed-bean-name>tournament</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.beans.Tournament</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+
 	<!-- Application Scoped Objects -->
-	
+
 	<managed-bean>
 		<managed-bean-name>Machines</managed-bean-name>
 		<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
 		<managed-bean-scope>application</managed-bean-scope>
 	</managed-bean>
-	
+
 	<managed-bean>
 		<managed-bean-name>Tournaments</managed-bean-name>
 		<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
 		<managed-bean-scope>application</managed-bean-scope>
 	</managed-bean>
-	
+
 
 	<!-- Actions -->
 	<managed-bean>
@@ -115,10 +120,46 @@
 			<to-view-id>/tournamentManager.xhtml</to-view-id>
 		</navigation-case>
 
+		<navigation-case>
+			<from-outcome>Admin</from-outcome>
+			<to-view-id>/admin.xhtml</to-view-id>
+		</navigation-case>
+
 		<!-- Specific Navigation rules -->
 
 
 	</navigation-rule>
-
+	<navigation-rule>
+		<from-view-id>/tournamentManager.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>Success</from-outcome>
+			<to-view-id>/index.xhtml</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+	
+	<navigation-rule>
+		<from-view-id>/account.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>Success</from-outcome>
+			<to-view-id>/account.xhtml</to-view-id>
+		</navigation-case>
+		
+		<navigation-case>
+			<from-outcome>Failure</from-outcome>
+			<to-view-id>Cannot Register Error</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+	
+	<navigation-rule>
+		<from-view-id>/registerBroker.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>Success</from-outcome>
+			<to-view-id>/account.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>Failure</from-outcome>
+			<to-view-id>Cannot Register Error</to-view-id>
+		</navigation-case>
+	</navigation-rule>
 
 </faces-config>

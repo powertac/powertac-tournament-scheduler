@@ -1,12 +1,15 @@
 package com.powertac.tourney.beans;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 public class Game {
 	private String competitionName = "";
+	private Date startTime;
 	private int competitionId = -1;
-	private int gameId = -1;
+	private int gameId = 0;
+	private static int maxGameId = 0;
 	private String status = "pending";
 	private String jmsUrl = "";
 	private HashMap<String, String> brokersToLogin = null;
@@ -14,6 +17,21 @@ public class Game {
 	private int maxBrokers = 1;
 
 	public static final String key = "game";
+	
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Game(){
+		System.out.println("Created Tournament Bean: " + competitionId);
+		competitionId = maxGameId;
+		maxGameId++;
+		
+	}
 	
 	public HashMap<String, String> getBrokersToLogin() {
 		return brokersToLogin;

@@ -27,8 +27,8 @@ public class RestoreViewPhaseListener implements PhaseListener {
 				.getExternalContext().getRequest();
 		if (r.getParameterMap().size() != 0) {
 			String url = r.getRequestURL().toString();
-			if (url.indexOf("index.jsp") > 0) {
-				System.out.println("index.jsp");
+			if (url.indexOf("index.xhtml") > 0) {
+				System.out.println("index.xhtml");
 				return;
 				// Parse incoming rest calls from brokers
 			} else if (url.indexOf("brokerLogin.jsp") > 0) {
