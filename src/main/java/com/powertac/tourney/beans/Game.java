@@ -2,7 +2,6 @@ package com.powertac.tourney.beans;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 public class Game {
 	private String competitionName = "";

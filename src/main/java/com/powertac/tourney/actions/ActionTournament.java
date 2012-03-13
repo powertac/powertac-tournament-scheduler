@@ -1,8 +1,6 @@
 package com.powertac.tourney.actions;
 
 import java.util.Date;
-import java.util.Vector;
-
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
@@ -97,7 +95,7 @@ public class ActionTournament {
 			newTourney.addGame(newGame);
 			
 			// Start a single game and send jenkins request to kick the server at the appropriate time
-			Scheduler.getScheduler().schedule(new StartServer(newGame), newGame.getStartTime());
+			Scheduler.getScheduler().schedule(new StartServer(newGame,FacesContext.getCurrentInstance()), newGame.getStartTime());
 			
 		}else if(type == TourneyType.MULTI_GAME){
 			

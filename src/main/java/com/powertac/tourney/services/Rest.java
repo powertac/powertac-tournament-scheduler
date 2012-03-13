@@ -1,30 +1,16 @@
 package com.powertac.tourney.services;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
-import javax.faces.FacesException;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-
 import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Games;
 import com.powertac.tourney.beans.Scheduler;
 import com.powertac.tourney.constants.*;
 
 public class Rest{
-	public static String parseBrokerLogin(Map params){
-		String response = "";
+	public static String parseBrokerLogin(Map<?, ?> params){
 		String responseType = ((String[]) params.get(Constants.REQ_PARAM_TYPE))[0];
 		String brokerAuthToken = ((String[]) params.get(Constants.REQ_PARAM_AUTH_TOKEN))[0];
 		String competitionName = ((String []) params.get(Constants.REQ_PARAM_JOIN))[0];
@@ -57,7 +43,7 @@ public class Rest{
 						game.setPomUrl("");
 						game.setServerConfigUrl("");
 						game.addBrokerLogin("anybroker", brokerAuthToken);
-						Scheduler.getScheduler().schedule(new StartServer(game), new Date());						
+						Scheduler.getScheduler().schedule(new StartServer(game,FacesContext.getCurrentInstance()), new Date());						
 						return String.format(retryResponse,5);
 					}else if(competitionName.equalsIgnoreCase(g.getCompetitionName()) && g.isBrokerRegistered(brokerAuthToken)){
 						// If a broker is registered and knows the competition name, give them an the jmsUrl and gameToken to login
@@ -71,10 +57,10 @@ public class Rest{
 				
 			}
 		}
-		return "Error making rest request, check the specification and try again";
+		return doneResponse;
 	}
 	
-	public static String parseServerInterface(Map params){
+	public static String parseServerInterface(Map<?, ?> params){
 		if(params!=null){
 			String actionString = ((String[]) params.get(Constants.REQ_PARAM_ACTION))[0];			
 			String gameIdString = ((String[]) params.get(Constants.REQ_PARAM_GAME_ID))[0];

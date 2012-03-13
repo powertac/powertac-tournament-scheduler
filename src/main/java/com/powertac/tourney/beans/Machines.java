@@ -10,11 +10,7 @@ public class Machines {
 	public static String getKey() {
 		return key;
 	}
-	
-	public static Machines getAllMachines(){
-		return (Machines) FacesContext.getCurrentInstance()
-		.getExternalContext().getApplicationMap().get(Machines.getKey());
-	}
+
 	
 	public Vector<Machine> getFreeMachines(){
 		Vector<Machine> newMachine = new Vector<Machine>();
@@ -40,7 +36,6 @@ public class Machines {
 	
 	public Machines(){
 		machines = new Vector<Machine>();
-		//TODO: Probably read from config file somewhere
 		
 		Machine tac10 = new Machine();
 		Machine tac11 = new Machine();
@@ -67,7 +62,6 @@ public class Machines {
 		machines.add(tac12);
 		machines.add(tac13);
 
-		
 	}
 
 }

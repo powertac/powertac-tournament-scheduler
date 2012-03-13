@@ -41,19 +41,19 @@
 	<!-- Application Scoped Objects -->
 
 	<managed-bean>
-		<managed-bean-name>Machines</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
+		<managed-bean-name>machines</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.beans.Machines</managed-bean-class>
 		<managed-bean-scope>application</managed-bean-scope>
 	</managed-bean>
 
 	<managed-bean>
-		<managed-bean-name>Tournaments</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
+		<managed-bean-name>tournaments</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.beans.Tournaments</managed-bean-class>
 		<managed-bean-scope>application</managed-bean-scope>
 	</managed-bean>
 
 	<managed-bean>
-		<managed-bean-name>Scheduler</managed-bean-name>
+		<managed-bean-name>scheduler</managed-bean-name>
 		<managed-bean-class>com.powertac.tourney.beans.Scheduler</managed-bean-class>
 		<managed-bean-scope>application</managed-bean-scope>
 	</managed-bean>
@@ -93,6 +93,12 @@
 		<managed-bean-class>com.powertac.tourney.services.Upload</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
 	</managed-bean>
+	<managed-bean>
+		<managed-bean-name>startServer</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.services.StartServer</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+
 
 
 	<!-- Navigation rules -->

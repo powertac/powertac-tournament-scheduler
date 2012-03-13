@@ -21,7 +21,6 @@ public class Scheduler extends Timer {
 	
 	public Scheduler(){
 		super(false);
-		this.purge();
 		tasks = new Vector<TimerTask>();
 		System.out.println("Checking tasks at: " + new Date());
 		//this.checkTask();
