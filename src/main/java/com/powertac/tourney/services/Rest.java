@@ -67,11 +67,13 @@ public class Rest{
 			String statusString = ((String[]) params.get(Constants.REQ_PARAM_STATUS))[0];
 			
 			if(actionString != null){
-				if(actionString.compareToIgnoreCase("pom")==0){
+				if(actionString.equalsIgnoreCase("pom")){
 					
-				}else if (actionString.compareToIgnoreCase("config")==0){
+				}else if (actionString.equalsIgnoreCase("config")){
 					
-				}else if (actionString.compareToIgnoreCase("bootstrap")==0){
+				}else if (actionString.equalsIgnoreCase("bootstrap")){
+					
+				}else if (actionString.equalsIgnoreCase("status")){
 					
 				}else{
 					return "Invalid action parameter";

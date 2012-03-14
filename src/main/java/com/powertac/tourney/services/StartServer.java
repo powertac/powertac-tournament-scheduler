@@ -34,12 +34,13 @@ public class StartServer extends TimerTask {
 
 			// Issue rest call to jenkins, wait for server ready response in
 			// serverInterface.jsp
-			String logSuffix = "game-" + game.getGameId() + "tourney-"
+			String logSuffix = "game-" + game.getGameId() + "-tourney-"
 					+ game.getCompetitionName();
 			String tourneyUrl = game.getTournamentSchedulerUrl();
 			String serverConfig = game.getServerConfigUrl();
 			String bootstrapUrl = game.getBootstrapUrl();
 			String pomUrl = game.getPomUrl();
+			String gameId = String.valueOf(game.getGameId());
 
 			String machineName = allMachines.getFreeMachines()
 					.firstElement().getName();
@@ -49,7 +50,8 @@ public class StartServer extends TimerTask {
 					+ "token=start-instance&tourneyUrl=" + tourneyUrl
 					+ "&suffix=" + logSuffix + "&serverConfig=" + serverConfig
 					+ "&pomUrl=" + pomUrl + "&bootstrapUrl=" + bootstrapUrl
-					+ "&machine=" + machineName;
+					+ "&machine=" + machineName
+					+ "&gameId=" + gameId;
 
 			try {
 				URL url = new URL(finalUrl);
