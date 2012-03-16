@@ -16,7 +16,6 @@ public class ActionAccount {
 	private String newBrokerName;
 	private int selectedBrokerId;
 	private String selectedBrokerName;
-	private Broker selectedBroker;
 	private String selectedBrokerAuth;
 
 	public ActionAccount() {
@@ -91,20 +90,6 @@ public class ActionAccount {
 		}
 	}
 
-	public Broker getSelectedBroker() {
-		return selectedBroker;
-	}
-
-	public void setSelectedBroker(Broker selectedBroker) {
-		if (selectedBroker != null) {
-			System.out.println("Selected Broker: "
-					+ selectedBroker.getBrokerName());
-		} else {
-			System.out.println("Selected Broker: is null!");
-		}
-
-		this.selectedBroker = selectedBroker;
-	}
 
 	public List<Tournament> getAvailableTournaments() {
 		if (selectedBrokerName == null) {
@@ -128,7 +113,9 @@ public class ActionAccount {
 		for (Tournament t : allTournaments.getLists()) {
 			if (!t.isRegistered(selectedBrokerName)
 					&& t.getTournamentName().equalsIgnoreCase(tournamentName)) {
+				
 				t.register(selectedBrokerName, selectedBrokerId);
+				
 			}
 		}
 

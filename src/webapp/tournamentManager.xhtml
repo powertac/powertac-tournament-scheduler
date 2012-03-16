@@ -78,6 +78,14 @@
 								accept="mime-type" storage="file" required="true" />
 						</h:form>
 					</h:panelGroup>
+					
+					<h:outputLabel value="Upload Properties File:" />
+					<h:panelGroup>
+						<h:form>
+							<t:inputFileUpload disabled="true" value="#{upload.uploadedFile}"
+								accept="mime-type" storage="file" required="true" />
+						</h:form>
+					</h:panelGroup>
 
 
 					<h:outputText value="Submit Tournament (opens for registration):" />

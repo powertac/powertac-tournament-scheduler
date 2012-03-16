@@ -90,10 +90,18 @@ public class Tournament {
 	}
 	
 	public String register(String name, int id){
+		//TODO: Fix this so that brokers are added to games according to the csp spec
+		
 		System.out.println("Registering broker: " + name);
 		// Only open registration
 		if(registeredBrokers.size() < maxBrokers && maxBrokers != -1){
 			registeredBrokers.put(id, name);
+			for(Game g : allGames.values()){
+				if (g.getCompetitionId() == this.getCompetitionId()){
+					g.addBrokerLogin(name, "");					
+				}
+			}
+			
 			return "Success";
 		}else{
 			return "Failure";

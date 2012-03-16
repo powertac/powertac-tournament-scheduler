@@ -38,6 +38,8 @@ public class Game {
 		gameId = maxGameId;
 		maxGameId++;
 		
+		brokersToLogin = new HashMap<String,String>();
+		
 	}
 	
 	public HashMap<String, String> getBrokersToLogin() {

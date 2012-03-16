@@ -49,6 +49,16 @@ public class Tournaments {
 	public List<Tournament> getLists(){
 		return (List<Tournament>) tournaments;
 	}
+	
+	public Tournament getTournamentById(int id){
+		for (Tournament t : tournaments){
+			if(t.getCompetitionId() == id){
+				return t;
+			}
+		}
+		return null;
+	}
+	
 
 	public String getSortColumn() {
 		return sortColumn;

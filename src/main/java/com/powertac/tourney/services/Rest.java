@@ -6,7 +6,9 @@ import java.util.Map;
 import javax.faces.context.FacesContext;
 import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Games;
+import com.powertac.tourney.beans.Machines;
 import com.powertac.tourney.beans.Scheduler;
+import com.powertac.tourney.beans.Tournaments;
 import com.powertac.tourney.constants.*;
 
 public class Rest{
@@ -43,7 +45,7 @@ public class Rest{
 						game.setPomUrl("");
 						game.setServerConfigUrl("");
 						game.addBrokerLogin("anybroker", brokerAuthToken);
-						Scheduler.getScheduler().schedule(new StartServer(game,FacesContext.getCurrentInstance()), new Date());						
+						Scheduler.getScheduler().schedule(new StartServer(game,Machines.getAllMachines(),Tournaments.getAllTournaments()), new Date());						
 						return String.format(retryResponse,5);
 					}else if(competitionName.equalsIgnoreCase(g.getCompetitionName()) && g.isBrokerRegistered(brokerAuthToken)){
 						// If a broker is registered and knows the competition name, give them an the jmsUrl and gameToken to login

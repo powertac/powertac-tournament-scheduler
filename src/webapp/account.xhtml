@@ -76,6 +76,7 @@
 						<h:commandButton value="Register"
 							rendered="#{(t.maxBrokers != t.numberRegistered)}"
 							action="#{actionAccount.register(t.tournamentName)}" />
+						<h:outputText value="Full" rendered="#{t.maxBrokers == t.numberRegistered}" />
 					</h:column>
 
 				</h:dataTable>

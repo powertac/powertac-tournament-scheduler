@@ -11,26 +11,28 @@ import javax.faces.context.FacesContext;
 import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Machines;
 import com.powertac.tourney.beans.Scheduler;
+import com.powertac.tourney.beans.Tournaments;
 
 public class StartServer extends TimerTask {
 	private Game game;
-	private FacesContext fc;
+	private Machines allMachines;
+	private Tournaments allTournaments;
 
-	public StartServer(Game game, FacesContext fc) {
+	public StartServer(Game game, Machines allMachines, Tournaments allTournaments) {
 		this.game = game;
-		this.fc = fc;
+		this.allMachines = allMachines;
+		this.allTournaments = allTournaments;
 	}
 
 	public void run() {
+
 		
-		fc.getExternalContext();
-		
-		Machines allMachines = (Machines) fc
-		.getExternalContext().getApplicationMap().get(Machines.getKey());
-		
-		
+
+		int numRegistered = allTournaments.getTournamentById(game.getCompetitionId()).getNumberRegistered();
+
 		// Check if a machine is free to start on
-		if (allMachines.getFreeMachines().firstElement() != null) {
+		if (allMachines.getFreeMachines().firstElement() != null
+				&& numRegistered > 0) {
 
 			// Issue rest call to jenkins, wait for server ready response in
 			// serverInterface.jsp
@@ -41,17 +43,21 @@ public class StartServer extends TimerTask {
 			String bootstrapUrl = game.getBootstrapUrl();
 			String pomUrl = game.getPomUrl();
 			String gameId = String.valueOf(game.getGameId());
+			String brokers = "";
+			for (String s : game.getBrokersToLogin().values()){
+				brokers = brokers + s + " ";
+			}
 
-			String machineName = allMachines.getFreeMachines()
-					.firstElement().getName();
+			String machineName = allMachines.getFreeMachines().firstElement()
+					.getName();
 
 			String finalUrl = "http://tac04.cs.umn.edu:8080/job/"
 					+ "start-server-instance/buildWithParameters?"
 					+ "token=start-instance&tourneyUrl=" + tourneyUrl
 					+ "&suffix=" + logSuffix + "&serverConfig=" + serverConfig
 					+ "&pomUrl=" + pomUrl + "&bootstrapUrl=" + bootstrapUrl
-					+ "&machine=" + machineName
-					+ "&gameId=" + gameId;
+					+ "&machine=" + machineName + "&gameId=" + gameId
+					+ "&brokers=" + brokers;
 
 			try {
 				URL url = new URL(finalUrl);
@@ -67,7 +73,17 @@ public class StartServer extends TimerTask {
 		} else {
 
 			// No machines free for this game try again in a minute
-			Scheduler.getScheduler().schedule(this, 60000);
+			System.out.println("Either not machines free, or no brokers registered");
+			System.out.println("Number registered: " + numRegistered);
+			
+			try {
+				Thread.sleep(60000);
+				this.run();
+				
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		}
 

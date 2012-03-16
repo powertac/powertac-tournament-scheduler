@@ -10,6 +10,11 @@ public class Machines {
 	public static String getKey() {
 		return key;
 	}
+	
+	public static Machines getAllMachines(){
+		return (Machines) FacesContext.getCurrentInstance()
+				.getExternalContext().getApplicationMap().get(Machines.getKey());
+	}
 
 	
 	public Vector<Machine> getFreeMachines(){

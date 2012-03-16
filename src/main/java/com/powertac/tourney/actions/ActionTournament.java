@@ -6,6 +6,7 @@ import javax.faces.model.SelectItem;
 
 import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Games;
+import com.powertac.tourney.beans.Machines;
 import com.powertac.tourney.beans.Scheduler;
 import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.beans.Tournaments;
@@ -94,8 +95,10 @@ public class ActionTournament {
 			allGames.addGame(newGame);
 			newTourney.addGame(newGame);
 			
+			Tournaments.getAllTournaments().addTournament(newTourney);
+			
 			// Start a single game and send jenkins request to kick the server at the appropriate time
-			//Scheduler.getScheduler().schedule(new StartServer(newGame,FacesContext.getCurrentInstance()), newGame.getStartTime());
+			Scheduler.getScheduler().schedule(new StartServer(newGame, Machines.getAllMachines(), Tournaments.getAllTournaments()), newGame.getStartTime());
 			
 		}else if(type == TourneyType.MULTI_GAME){
 			
@@ -105,10 +108,10 @@ public class ActionTournament {
 		
 		
 		
-		Tournaments allTournaments = (Tournaments) FacesContext.getCurrentInstance()
-				.getExternalContext().getApplicationMap().get(Tournaments.getKey());
+		//Tournaments allTournaments = (Tournaments) FacesContext.getCurrentInstance()
+		//		.getExternalContext().getApplicationMap().get(Tournaments.getKey());
 		
-		allTournaments.addTournament(newTourney);
+		//allTournaments.addTournament(newTourney);
 		
 		return "Success";
 		
