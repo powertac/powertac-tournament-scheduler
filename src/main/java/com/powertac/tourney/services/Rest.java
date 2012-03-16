@@ -30,7 +30,7 @@ public class Rest{
 			loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"gameToken\":%s\n}";
 			doneResponse = "{\n \"done\":\"true\"\n}";
 		}
-		if(competitionName != null){
+		if(competitionName != null && Games.getAllGames().getGameList() != null){
 			for (Game g : Games.getAllGames().getGameList()){
 				// Only consider games that have started and are ready for brokers to join
 				if(g.getStartTime().before(new Date()) && g.getStatus().equalsIgnoreCase("ready")){
@@ -54,8 +54,12 @@ public class Rest{
 				}
 				// If the game has yet to start and broker is registered send retry message
 				if(g.isBrokerRegistered(brokerAuthToken)){
-					return String.format(retryResponse, g.getStartTime().getTime()-(new Date()).getTime());
+					System.out.println("Broker: " + brokerAuthToken + " attempted to log in, game has not started-sending retry");
+					long retry = g.getStartTime().getTime()-(new Date()).getTime();
+					
+					return String.format(retryResponse, retry > 0 ? retry : 20);
 				}
+				
 				
 			}
 		}
@@ -76,6 +80,7 @@ public class Rest{
 				}else if (actionString.equalsIgnoreCase("bootstrap")){
 					
 				}else if (actionString.equalsIgnoreCase("status")){
+					System.out.printf("Parsing server interface:\nReceived status msg: %s\ngameid=%s\nstatus=%s", actionString, gameIdString, statusString);
 					
 				}else{
 					return "Invalid action parameter";

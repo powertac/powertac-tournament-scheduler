@@ -2,6 +2,11 @@ package com.powertac.tourney.beans;
 
 import java.util.Vector;
 
+import javax.faces.context.FacesContext;
+
+import com.powertac.tourney.actions.ActionAccount;
+import com.powertac.tourney.actions.ActionBrokerDetail;
+
 public class User {
 
 	/*
@@ -15,7 +20,7 @@ public class User {
 	private String password;
 	private int permissions;
 	private boolean loggedIn;
-	
+
 	// Brokers
 	private Vector<Broker> brokers;
 
@@ -25,34 +30,33 @@ public class User {
 		this.password = "";
 		this.permissions = Permission.GUEST;
 		this.loggedIn = false;
-		
-		
+
 	}
-	
-	public Broker addBroker(String brokerName){
+
+	public Broker addBroker(String brokerName) {
 		Broker b = new Broker(brokerName);
 		brokers.add(b);
-		
+
 		return b;
-		
+
 	}
-	
-	public void deleteBroker(int brokerId){
-		for (Broker b : brokers){
-			if(b.getBrokerId() == brokerId){
+
+	public void deleteBroker(int brokerId) {
+		for (Broker b : brokers) {
+			if (b.getBrokerId() == brokerId) {
 				brokers.remove(b);
 				break;
 			}
 		}
 	}
-	
-	public Broker getBroker(int brokerId){
-		for (Broker b : brokers){
-			if(b.getBrokerId() == brokerId){
+
+	public Broker getBroker(int brokerId) {
+		for (Broker b : brokers) {
+			if (b.getBrokerId() == brokerId) {
 				return b;
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -92,11 +96,17 @@ public class User {
 	}
 
 	public boolean logout() {
-		//There is probably a better way to do this
+		// There is probably a better way to do this
 		this.username = "Guest";
 		this.password = "";
 		this.permissions = Permission.GUEST;
 		this.loggedIn = false;
+		this.brokers = null;
+
+		// TODO: Manually destroy session variables
+		ActionBrokerDetail abd = (ActionBrokerDetail) FacesContext
+				.getCurrentInstance().getExternalContext().getSessionMap()
+				.remove(ActionBrokerDetail.getKey());
 
 		return false;
 
@@ -105,11 +115,11 @@ public class User {
 	public boolean getLoggedIn() {
 		return this.loggedIn;
 	}
-	
-	public Broker[] getBrokers(){
+
+	public Broker[] getBrokers() {
 		Broker[] newBroker = new Broker[brokers.size()];
 		int i = 0;
-		for(Broker b : brokers){
+		for (Broker b : brokers) {
 			newBroker[i] = brokers.get(i);
 			i++;
 		}

@@ -15,18 +15,26 @@
 						<h:selectOneListbox id="listbox" style="width:400px"
 							value="#{actionAccount.selectedBrokerId}"
 							valueChangeListener="#{actionAccount.listChanged}" size="5"
-							onchange="submit()">
+							onclick="submit()">
 							<f:selectItems value="#{user.brokers}" var="b"
 								itemValue="#{b.brokerId}"
 								itemLabel="#{b.brokerName} : #{b.brokerAuthToken}" />
 						</h:selectOneListbox>
 					</h:panelGroup>
 
-					<h:commandButton value="Add Broker"
+					<h:commandButton value="Add Broker Name"
 						action="#{actionAccount.addBroker}" />
 					<h:panelGroup>
 						<h:inputText value="#{actionAccount.newBrokerName}" />
 					</h:panelGroup>
+					
+					<h:commandButton value="Broker Details"
+						action="#{actionBrokerDetail.startDetail(actionAccount.selectedBrokerId)}" disabled="#{actionAccount.selectedBrokerName == null}"/>
+					<h:panelGroup>
+						<h:outputText value="#{actionAccount.selectedBrokerName}" />
+					</h:panelGroup>
+					
+					
 
 					<h:commandButton value="Delete Broker"
 						action="#{actionAccount.deleteSelectedBroker}" />

@@ -89,7 +89,7 @@ public class Tournament {
 		this.allGames.put(game.getGameId(), game);		
 	}
 	
-	public String register(String name, int id){
+	public String register(String name,int id, String authToken){
 		//TODO: Fix this so that brokers are added to games according to the csp spec
 		
 		System.out.println("Registering broker: " + name);
@@ -98,7 +98,8 @@ public class Tournament {
 			registeredBrokers.put(id, name);
 			for(Game g : allGames.values()){
 				if (g.getCompetitionId() == this.getCompetitionId()){
-					g.addBrokerLogin(name, "");					
+					g.addBrokerLogin(name, authToken);	
+					System.out.println("Broker: " + name + ":" + authToken + " is registered for Competition:" + g.getCompetitionName());
 				}
 			}
 			
@@ -108,8 +109,8 @@ public class Tournament {
 		}
 	}
 	
-	public boolean isRegistered(String name){
-		return registeredBrokers.containsValue(name);
+	public boolean isRegistered(String authToken){
+		return registeredBrokers.containsValue(authToken);
 	}
 	
 	public int getNumberRegistered(){

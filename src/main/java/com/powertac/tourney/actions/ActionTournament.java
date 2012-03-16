@@ -1,5 +1,6 @@
 package com.powertac.tourney.actions;
 
+import java.net.URL;
 import java.util.Date;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -99,6 +100,17 @@ public class ActionTournament {
 			
 			// Start a single game and send jenkins request to kick the server at the appropriate time
 			Scheduler.getScheduler().schedule(new StartServer(newGame, Machines.getAllMachines(), Tournaments.getAllTournaments()), newGame.getStartTime());
+			try {
+				// TODO:REMOVE this is only to simulate the message from the server
+				//Thread.sleep(6000);
+				//URL test = new URL("http://localhost:8080/TournamentScheduler/faces/serverInterface.jsp?action=status&status=ready&gameId="+newGame.getGameId());
+				//test.openConnection().getInputStream();
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			
 		}else if(type == TourneyType.MULTI_GAME){
 			

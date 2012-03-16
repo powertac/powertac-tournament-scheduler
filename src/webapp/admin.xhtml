@@ -77,9 +77,14 @@
 				<t:dataTable 
 					id="datagames"
 					border="1"
+					sortable="true"
+					sortColumn="#{games.sortColumn}"
+					sortAscending="#{games.sortAscending}" preserveSort="true"
+					rowCount="#{games.rowCount}"
+					
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{games.gameList}" var="g">
-					<t:column>
+					<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">
 							<h:outputText value="Game ID"/>

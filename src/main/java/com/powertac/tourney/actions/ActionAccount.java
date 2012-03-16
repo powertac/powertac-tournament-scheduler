@@ -12,6 +12,8 @@ import com.powertac.tourney.beans.Tournaments;
 import com.powertac.tourney.beans.User;
 
 public class ActionAccount {
+	
+	private static final String key = "account";
 
 	private String newBrokerName;
 	private int selectedBrokerId;
@@ -20,6 +22,10 @@ public class ActionAccount {
 
 	public ActionAccount() {
 
+	}
+	
+	public static String getKey(){
+		return key;
 	}
 
 	public String getNewBrokerName() {
@@ -75,13 +81,13 @@ public class ActionAccount {
 		
 		
 		if (ve.getNewValue() != null) {
-			System.out.println("listChanged: " + ve.getNewValue().toString());
+			//System.out.println("listChanged: " + ve.getNewValue().toString());
 			setSelectedBrokerId(Integer.parseInt(ve.getNewValue().toString()));
 			setSelectedBrokerName(user.getBroker(selectedBrokerId).getBrokerName());
 			setSelectedBrokerAuth(user.getBroker(selectedBrokerId).getBrokerAuthToken());
 			
 		} else {
-			System.out.println("listChanged: " + ve.getOldValue().toString());
+			//System.out.println("listChanged: " + ve.getOldValue().toString());
 			setSelectedBrokerId(Integer.parseInt(ve.getOldValue().toString()));
 			if(user.getBroker(selectedBrokerId)!= null){
 				setSelectedBrokerName(user.getBroker(selectedBrokerId).getBrokerName());
@@ -114,7 +120,10 @@ public class ActionAccount {
 			if (!t.isRegistered(selectedBrokerName)
 					&& t.getTournamentName().equalsIgnoreCase(tournamentName)) {
 				
-				t.register(selectedBrokerName, selectedBrokerId);
+				User user = (User) FacesContext.getCurrentInstance()
+						.getExternalContext().getSessionMap().get(User.getKey());
+				
+				t.register(selectedBrokerName, selectedBrokerId, user.getBroker(selectedBrokerId).getBrokerAuthToken() );
 				
 			}
 		}

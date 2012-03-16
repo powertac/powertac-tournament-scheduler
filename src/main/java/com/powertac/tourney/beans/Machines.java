@@ -42,26 +42,31 @@ public class Machines {
 	public Machines(){
 		machines = new Vector<Machine>();
 		
+		Machine tac04 = new Machine();
 		Machine tac10 = new Machine();
 		Machine tac11 = new Machine();
 		Machine tac12 = new Machine();
 		Machine tac13 = new Machine();
 		
+		tac04.setInProgress(false);
 		tac10.setInProgress(false);
 		tac11.setInProgress(false);
 		tac12.setInProgress(false);
 		tac13.setInProgress(false);
 		
+		tac04.setName("tac04");
 		tac10.setName("tac10");
 		tac11.setName("tac11");
 		tac12.setName("tac12");
 		tac13.setName("tac13");
 		
+		tac04.setUrl("tac04.cs.umn.edu");
 		tac10.setUrl("tac10.cs.umn.edu");
 		tac11.setUrl("tac11.cs.umn.edu");
 		tac12.setUrl("tac12.cs.umn.edu");
 		tac13.setUrl("tac13.cs.umn.edu");
 		
+		machines.add(tac04);
 		machines.add(tac10);
 		machines.add(tac11);
 		machines.add(tac12);

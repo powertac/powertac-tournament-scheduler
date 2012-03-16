@@ -31,7 +31,7 @@ public class RestoreViewPhaseListener implements PhaseListener {
 				System.out.println("index.xhtml");
 				return;
 				// Parse incoming rest calls from brokers
-			} else if (url.indexOf("brokerLogin.jsp") > 0) {
+			} else if (url.indexOf("brokerLogin") > 0) {
 				System.out.println("brokerLogin.jsp");
 				HttpServletResponse response = (HttpServletResponse) pe
 						.getFacesContext().getExternalContext().getResponse();
@@ -47,7 +47,7 @@ public class RestoreViewPhaseListener implements PhaseListener {
 
 				// Parse incoming rest calls from severs, such as
 				// checkBroker(name,token), request config, request pom...
-			} else if (url.indexOf("serverInterface.jsp") > 0) {
+			} else if (url.indexOf("serverInterface") > 0) {
 				System.out.println("serverInterface.jsp");
 				HttpServletResponse response = (HttpServletResponse) pe
 						.getFacesContext().getExternalContext().getResponse();

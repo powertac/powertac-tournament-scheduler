@@ -34,6 +34,9 @@ public class StartServer extends TimerTask {
 		if (allMachines.getFreeMachines().firstElement() != null
 				&& numRegistered > 0) {
 
+			//Set the jmsUrl
+			game.setJmsUrl("tcp://"+ allMachines.getFreeMachines().firstElement().getUrl()+":61616");
+			
 			// Issue rest call to jenkins, wait for server ready response in
 			// serverInterface.jsp
 			String logSuffix = "game-" + game.getGameId() + "-tourney-"
@@ -47,6 +50,8 @@ public class StartServer extends TimerTask {
 			for (String s : game.getBrokersToLogin().values()){
 				brokers = brokers + s + " ";
 			}
+			
+			
 
 			String machineName = allMachines.getFreeMachines().firstElement()
 					.getName();
@@ -65,6 +70,7 @@ public class StartServer extends TimerTask {
 				// Get the response
 				InputStream input = conn.getInputStream();
 				System.out.println("Jenkins request sent for : " + logSuffix);
+				//game.setStatus("started");
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -73,7 +79,7 @@ public class StartServer extends TimerTask {
 		} else {
 
 			// No machines free for this game try again in a minute
-			System.out.println("Either not machines free, or no brokers registered");
+			System.out.println("Retry server start for game: " + game.getCompetitionName() + ":" + game.getGameId());
 			System.out.println("Number registered: " + numRegistered);
 			
 			try {

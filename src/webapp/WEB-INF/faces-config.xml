@@ -30,8 +30,6 @@
 		<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 	</managed-bean>
-
-
 	<managed-bean>
 		<managed-bean-name>tournament</managed-bean-name>
 		<managed-bean-class>com.powertac.tourney.beans.Tournament</managed-bean-class>
@@ -67,6 +65,13 @@
 	<managed-bean>
 		<managed-bean-name>actionAccount</managed-bean-name>
 		<managed-bean-class>com.powertac.tourney.actions.ActionAccount</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+	
+	
+	<managed-bean>
+		<managed-bean-name>actionBrokerDetail</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.actions.ActionBrokerDetail</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 	</managed-bean>
 
@@ -158,6 +163,11 @@
 		<navigation-case>
 			<from-outcome>Success</from-outcome>
 			<to-view-id>/account.xhtml</to-view-id>
+		</navigation-case>
+		
+		<navigation-case>
+			<from-outcome>Detail</from-outcome>
+			<to-view-id>/brokerDetail.xhtml</to-view-id>
 		</navigation-case>
 		
 		<navigation-case>

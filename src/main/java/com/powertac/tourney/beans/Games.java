@@ -11,6 +11,11 @@ public class Games {
 	
 	private static int gameId = 0;
 	
+	private String sortColumn = null;
+	private boolean sortAscending = true;
+	private int rowCount = 5;
+	
+	
 	public Games(){
 		this.games = new HashMap<Integer,Game>();
 	}
@@ -48,6 +53,30 @@ public class Games {
 			
 			return newGame;
 		}
+	}
+
+	public String getSortColumn() {
+		return sortColumn;
+	}
+
+	public void setSortColumn(String sortColumn) {
+		this.sortColumn = sortColumn;
+	}
+
+	public boolean isSortAscending() {
+		return sortAscending;
+	}
+
+	public void setSortAscending(boolean sortAscending) {
+		this.sortAscending = sortAscending;
+	}
+
+	public int getRowCount() {
+		return rowCount;
+	}
+
+	public void setRowCount(int rowCount) {
+		this.rowCount = rowCount;
 	}
 	
 	
