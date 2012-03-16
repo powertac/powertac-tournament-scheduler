@@ -9,31 +9,38 @@
 
 		<ui:define name="content">
 			<h:form id="account" rendered="#{user.permissions le 1}">
-				
-			
-
-				<h:outputText value="List of Brokers:" />
-				<h:panelGrid columns="1">
-					<h:selectOneListbox id="listbox" style="width:200px" value="Your Brokers"
-						size="5" onchange="var index = this.selectedIndex;
-						document.getElementById('account:selectedBroker').textContent = this[index].textContent;
-						return true;
-						">
-						<f:selectItems value="#{user.brokers}" var="b"
-							itemValues="#{b.brokerId}" itemLabel="#{b.brokerName}" />
-					</h:selectOneListbox>
+				<h:panelGrid columns="2">
+					<h:outputText value="List of Brokers:" />
 					<h:panelGroup>
-						<h:commandButton value="Add Broker" action="Broker" />
-						<h:commandButton value="Delete Broker" action="DeleteBroker" />
+						<h:selectOneListbox id="listbox" style="width:400px"
+							value="#{actionAccount.selectedBrokerId}"
+							valueChangeListener="#{actionAccount.listChanged}" size="5"
+							onchange="submit()">
+							<f:selectItems value="#{user.brokers}" var="b"
+								itemValue="#{b.brokerId}"
+								itemLabel="#{b.brokerName} : #{b.brokerAuthToken}" />
+						</h:selectOneListbox>
+					</h:panelGroup>
+
+					<h:commandButton value="Add Broker"
+						action="#{actionAccount.addBroker}" />
+					<h:panelGroup>
+						<h:inputText value="#{actionAccount.newBrokerName}" />
+					</h:panelGroup>
+
+					<h:commandButton value="Delete Broker"
+						action="#{actionAccount.deleteSelectedBroker}" />
+					<h:panelGroup>
 					</h:panelGroup>
 				</h:panelGrid>
 				<br />
 
-				<h:outputText value="Open Tournaments Available for Selected Broker: " />
-				<h:outputText id= "selectedBroker" value="None Selected" />
+				Selected Broker: <h:outputText id="selectedBroker" value="#{actionAccount.selectedBrokerName}" /><br/>
+				Broker Auth Token: <h:outputText value="#{actionAccount.selectedBrokerAuth}" />
+				
 				<h:dataTable border="1"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{tournaments.tournamentList}" var="t">
+					value="#{actionAccount.availableTournaments}" var="t">
 
 
 					<h:column>
@@ -58,7 +65,7 @@
 						<f:facet name="header">Max Brokers</f:facet>
     						#{t.maxBrokers}
     				</h:column>
-	
+
 					<h:column>
 						<f:facet name="header">Registered Brokers</f:facet>
     						#{t.numberRegistered}
@@ -67,8 +74,8 @@
 					<h:column>
 						<f:facet name="header">Register Broker</f:facet>
 						<h:commandButton value="Register"
-							rendered="#{(t.maxBrokers != t.numberRegistered) and !t.isRegistered(document.getElementById('account:selectedBroker').textContent)}"
-							action="#{t.register(Name,Value)}" />
+							rendered="#{(t.maxBrokers != t.numberRegistered)}"
+							action="#{actionAccount.register(t.tournamentName)}" />
 					</h:column>
 
 				</h:dataTable>

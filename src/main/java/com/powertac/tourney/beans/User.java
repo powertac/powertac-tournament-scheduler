@@ -26,10 +26,34 @@ public class User {
 		this.permissions = Permission.GUEST;
 		this.loggedIn = false;
 		
-		Broker test = new Broker();
-		test.setBrokerId("12345");
-		test.setBrokerName("TestBroker");
-		this.brokers.add(test);
+		
+	}
+	
+	public Broker addBroker(String brokerName){
+		Broker b = new Broker(brokerName);
+		brokers.add(b);
+		
+		return b;
+		
+	}
+	
+	public void deleteBroker(int brokerId){
+		for (Broker b : brokers){
+			if(b.getBrokerId() == brokerId){
+				brokers.remove(b);
+				break;
+			}
+		}
+	}
+	
+	public Broker getBroker(int brokerId){
+		for (Broker b : brokers){
+			if(b.getBrokerId() == brokerId){
+				return b;
+			}
+		}
+		
+		return null;
 	}
 
 	public static String getKey() {

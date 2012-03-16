@@ -19,7 +19,7 @@ public class Tournament {
 	
 	
 	// Probably Should check name against auth token
-	private HashMap<String,String> registeredBrokers;
+	private HashMap<Integer,String> registeredBrokers;
 	
 	
 	private String bootstrapUrl;
@@ -33,7 +33,7 @@ public class Tournament {
 		maxCompetitionId++;
 		
 		allGames = new HashMap<Integer,Game>();
-		registeredBrokers = new HashMap<String,String>();
+		registeredBrokers = new HashMap<Integer,String>();
 	}
 
 	public int getCompetitionId() {
@@ -89,11 +89,11 @@ public class Tournament {
 		this.allGames.put(game.getGameId(), game);		
 	}
 	
-	public String register(String name){
+	public String register(String name, int id){
 		System.out.println("Registering broker: " + name);
 		// Only open registration
 		if(registeredBrokers.size() < maxBrokers && maxBrokers != -1){
-			registeredBrokers.put("123456", name);
+			registeredBrokers.put(id, name);
 			return "Success";
 		}else{
 			return "Failure";

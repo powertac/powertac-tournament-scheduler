@@ -64,6 +64,11 @@
 		<managed-bean-class>com.powertac.tourney.actions.ActionLogin</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
 	</managed-bean>
+	<managed-bean>
+		<managed-bean-name>actionAccount</managed-bean-name>
+		<managed-bean-class>com.powertac.tourney.actions.ActionAccount</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
 
 	<managed-bean>
 		<managed-bean-name>actionPrivileges</managed-bean-name>
