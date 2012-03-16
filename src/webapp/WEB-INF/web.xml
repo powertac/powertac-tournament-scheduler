@@ -16,6 +16,16 @@
 	</context-param>
 
 	<context-param>
+		<param-name>facelets.BUILD_BEFORE_RESTORE</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>org.apache.myfaces.USE_ENCRYPTION</param-name>
+		<param-value>false</param-value>
+	</context-param>
+
+	<context-param>
 		<description>
 
 			This parameter tells MyFaces if javascript code should be
@@ -44,8 +54,8 @@
 		<param-name>javax.faces.DEFAULT_SUFFIX</param-name>
 		<param-value>.xhtml</param-value>
 	</context-param>
-	
-	
+
+
 	<context-param>
 		<description>
 
@@ -93,30 +103,30 @@
 		<listener-class>com.powertac.tourney.listeners.Initializer</listener-class>
 	</listener>
 
-	
+
 
 	<filter>
 		<filter-name>ExtensionsFilter</filter-name>
 		<filter-class>org.apache.myfaces.webapp.filter.ExtensionsFilter</filter-class>
 		<init-param>
-        <description>
+			<description>
             Set the size limit for uploaded files.
                 Format: 10  - 10 bytes
                         10k - 10 KB
                         10m - 10 MB
                         1g  - 1 GB
         </description>
-        <param-name>uploadMaxFileSize</param-name>
-        <param-value>100k</param-value>
-    </init-param>
-    
-    <init-param>
-        <description>
+			<param-name>uploadMaxFileSize</param-name>
+			<param-value>100k</param-value>
+		</init-param>
+
+		<init-param>
+			<description>
             Set the path where the intermediary files will be stored.
         </description>
-        <param-name>uploadRepositoryPath</param-name>
-        <param-value>/temp</param-value>
-    </init-param>
+			<param-name>uploadRepositoryPath</param-name>
+			<param-value>/temp</param-value>
+		</init-param>
 	</filter>
 	<filter-mapping>
 		<filter-name>ExtensionsFilter</filter-name>

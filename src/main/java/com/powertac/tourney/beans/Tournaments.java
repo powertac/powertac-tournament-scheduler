@@ -1,5 +1,6 @@
 package com.powertac.tourney.beans;
 
+import java.util.List;
 import java.util.Vector;
 
 import javax.faces.context.FacesContext;
@@ -8,6 +9,11 @@ public class Tournaments {
 	private static final String key = "tournaments";
 	
 	private Vector<Tournament> tournaments;
+	
+	private String sortColumn = null;
+	private boolean sortAscending = true;
+	private int rowCount = 5;
+	
 	
 	public Tournaments(){
 		tournaments = new Vector<Tournament>();
@@ -38,5 +44,33 @@ public class Tournaments {
 			
 			return newTourney;
 		}
+	}
+	
+	public List<Tournament> getLists(){
+		return (List<Tournament>) tournaments;
+	}
+
+	public String getSortColumn() {
+		return sortColumn;
+	}
+
+	public void setSortColumn(String sortColumn) {
+		this.sortColumn = sortColumn;
+	}
+
+	public boolean isSortAscending() {
+		return sortAscending;
+	}
+
+	public void setSortAscending(boolean sortAscending) {
+		this.sortAscending = sortAscending;
+	}
+
+	public int getRowCount() {
+		return rowCount;
+	}
+
+	public void setRowCount(int rowCount) {
+		this.rowCount = rowCount;
 	}
 }

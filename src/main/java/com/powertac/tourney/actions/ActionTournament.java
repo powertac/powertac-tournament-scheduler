@@ -95,7 +95,7 @@ public class ActionTournament {
 			newTourney.addGame(newGame);
 			
 			// Start a single game and send jenkins request to kick the server at the appropriate time
-			Scheduler.getScheduler().schedule(new StartServer(newGame,FacesContext.getCurrentInstance()), newGame.getStartTime());
+			//Scheduler.getScheduler().schedule(new StartServer(newGame,FacesContext.getCurrentInstance()), newGame.getStartTime());
 			
 		}else if(type == TourneyType.MULTI_GAME){
 			

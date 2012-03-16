@@ -4,105 +4,133 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:f="http://java.sun.com/jsf/core">
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:t="http://myfaces.apache.org/tomahawk">
 
 
 <h:body>
 	<ui:composition template="template.xhtml">
 
 		<ui:define name="content">
-			<f:view>
-				<h2>Admin</h2>
-				<h:form enctype="multipart/form-data"
-					rendered="#{user.permissions le 0}">
-					<h:outputText value="Pending/Running Tournaments" />
-					<h:dataTable border="1"
-						style="border:1px solid black;border-collapse:collapse;text-align:center"
-						value="#{tournaments.tournamentList}" var="t">
-						<h:column>
-							<!-- column header -->
-							<f:facet name="header">Competition ID</f:facet>
-							<!-- row record -->
-    						#{t.competitionId}
-    					</h:column>
+			<h2>Admin</h2>
+			<h:form rendered="#{user.permissions le 0}">
 
-						<h:column>
-							<!-- column header -->
-							<f:facet name="header">Competition Type</f:facet>
-							<!-- row record -->
-    						Single-game
-    					</h:column>
+				<h:outputText value="Pending/Running Tournaments" />
+				<t:dataTable
+					id="datatourneys" 
+					border="1" sortable="true"
+					sortColumn="#{tournaments.sortColumn}"
+					sortAscending="#{tournaments.sortAscending}" preserveSort="true"
+					rowCount="#{tournaments.rowCount}"
+					style="border:1px solid black;border-collapse:collapse;text-align:center"
+					value="#{tournaments.tournamentList}" var="t">
 
-						<h:column>
-							<f:facet name="header">Tournament Name</f:facet>
-    						#{t.tournamentName}
-    					</h:column>
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Competition ID" />
+						</f:facet>
+						<!-- row record -->
+						<h:outputText value="#{t.competitionId}" />
+					</t:column>
 
-						<h:column>
-							<f:facet name="header">Start Time</f:facet>
-    						#{t.startTime}
-    					</h:column>
+					<t:column>
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Competition Type" />
+						</f:facet>
+						<!-- row record -->
+						<h:outputText value="Single-game" />
+					</t:column>
 
-						<h:column>
-							<f:facet name="header">Max Brokers</f:facet>
-    						#{t.maxBrokers}
-    					</h:column>
-						<h:column>
-							<f:facet name="header">Registered Brokers</f:facet>
-    						#{t.numberRegistered}
-    					</h:column>
-					</h:dataTable>
+					<t:column>
+						<f:facet name="header">
+							<h:outputText value="Tournament Name" />
+						</f:facet>
+						<h:outputText value="#{t.tournamentName}" />
+					</t:column>
 
-					<h:outputText value="Pending/Running Games" />
-					<h:dataTable border="1"
-						style="border:1px solid black;border-collapse:collapse;text-align:center"
-						value="#{games.gameList}" var="g">
-						<h:column>
-							<!-- column header -->
-							<f:facet name="header">Game ID</f:facet>
-							<!-- row record -->
+					<t:column>
+						<f:facet name="header">
+							<h:outputText value="Start Time" />
+						</f:facet>
+						#{t.startTime}
+					</t:column>
+
+					<t:column>
+						<f:facet name="header">
+							<h:outputText value="Max Brokers" />
+						</f:facet>
+						<h:outputText value="#{t.maxBrokers}" />
+					</t:column>
+					<t:column>
+						<f:facet name="header">
+							<h:outputText value="Registered Brokers" />
+						</f:facet>
+						<h:outputText value="#{t.numberRegistered}" />
+					</t:column>
+				</t:dataTable>
+			</h:form>
+
+			<h:form rendered="#{user.permissions le 0}">
+				<h:outputText value="Pending/Running Games" />
+				<t:dataTable 
+					id="datagames"
+					border="1"
+					style="border:1px solid black;border-collapse:collapse;text-align:center"
+					value="#{games.gameList}" var="g">
+					<t:column>
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Game ID"/>
+						</f:facet>
+						<!-- row record -->
     						#{g.gameId}
-    					</h:column>
+    				</t:column>
 
-						<h:column>
-							<!-- column header -->
-							<f:facet name="header">Status</f:facet>
-							<!-- row record -->
+					<t:column>
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Status" />
+						</f:facet>
+						<!-- row record -->
     						#{g.status}    		
-    					</h:column>
-    					
-    					<h:column>
-							<!-- column header -->
-							<f:facet name="header">Start Time</f:facet>
-							<!-- row record -->
+    				</t:column>
+
+					<t:column>
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Start Time"/>
+						</f:facet>
+						<!-- row record -->
     						#{g.startTime}    		
-    					</h:column>
-    					
-    					<h:column>
-							<!-- column header -->
-							<f:facet name="header">Competition Name</f:facet>
-							<!-- row record -->
+    				</t:column>
+
+					<t:column>
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Competition Name"/>
+						</f:facet>
+						<!-- row record -->
     						#{g.competitionName}    		
-    					</h:column>
-    					
-    					<h:column>
-							<!-- column header -->
-							<f:facet name="header">Max Brokers</f:facet>
-							<!-- row record -->
+    				</t:column>
+
+					<t:column>
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Max Brokers"/>
+						</f:facet>
+						<!-- row record -->
     						#{g.maxBrokers}
-    					</h:column>
-					</h:dataTable>
+    				</t:column>
+				</t:dataTable>
+
+			</h:form>
 
 
-				</h:form>
-				<h:form rendered="#{user.permissions gt 0}">
-					<h2>Insufficient Permissions</h2>
-				</h:form>
-
-			</f:view>
-
-
-
+			<h:form rendered="#{user.permissions gt 0}">
+				<h2>Insufficient Permissions</h2>
+			</h:form>
 		</ui:define>
 	</ui:composition>
 </h:body>
