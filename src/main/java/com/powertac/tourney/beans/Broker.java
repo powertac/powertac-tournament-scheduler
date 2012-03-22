@@ -2,8 +2,12 @@ package com.powertac.tourney.beans;
 
 import java.util.Date;
 
+import javax.faces.bean.ManagedBean;
+
 import org.apache.commons.codec.digest.DigestUtils;
 
+
+@ManagedBean
 public class Broker {
 	private static final String key = "broker";
 	private static int maxBrokerId = 0;

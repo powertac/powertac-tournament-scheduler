@@ -1,10 +1,14 @@
 package com.powertac.tourney.actions;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
 import com.powertac.tourney.beans.Broker;
 import com.powertac.tourney.beans.User;
 
+@SessionScoped
+@ManagedBean
 public class ActionBrokerDetail {
 	private static final String key = "abd";
 	

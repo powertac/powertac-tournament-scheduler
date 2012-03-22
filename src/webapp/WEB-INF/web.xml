@@ -4,7 +4,10 @@
 	id="YourProjectName" version="3.0">
 	<display-name>TournamentScheduler</display-name>
 
-
+	<!-- Spring Stuff -->
+	
+	
+	<!-- End Spring -->
 	<context-param>
 		<description>
 			State saving method: 'client' or 'server' (=default). See

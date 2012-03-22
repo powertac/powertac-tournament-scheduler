@@ -2,11 +2,15 @@ package com.powertac.tourney.beans;
 
 import java.util.Vector;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
 import com.powertac.tourney.actions.ActionAccount;
 import com.powertac.tourney.actions.ActionBrokerDetail;
 
+@SessionScoped
+@ManagedBean
 public class User {
 
 	/*

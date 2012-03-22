@@ -3,6 +3,9 @@ package com.powertac.tourney.beans;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.faces.bean.ManagedBean;
+
+@ManagedBean
 public class Game {
 	private String competitionName = "";
 	private Date startTime;

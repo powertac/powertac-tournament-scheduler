@@ -4,6 +4,9 @@ import java.util.Date;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
+
+import org.springframework.stereotype.Service;
+
 import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Games;
 import com.powertac.tourney.beans.Machines;
@@ -11,6 +14,7 @@ import com.powertac.tourney.beans.Scheduler;
 import com.powertac.tourney.beans.Tournaments;
 import com.powertac.tourney.constants.*;
 
+@Service
 public class Rest{
 	public static String parseBrokerLogin(Map<?, ?> params){
 		String responseType = ((String[]) params.get(Constants.REQ_PARAM_TYPE))[0];

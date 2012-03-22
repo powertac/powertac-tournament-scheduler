@@ -2,8 +2,12 @@ package com.powertac.tourney.beans;
 
 import java.util.Vector;
 
+import javax.faces.bean.ApplicationScoped;
+import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 
+@ApplicationScoped
+@ManagedBean
 public class Machines {
 	private static final String key = "machines";
 	private Vector<Machine> machines;

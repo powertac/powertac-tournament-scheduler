@@ -2,8 +2,12 @@ package com.powertac.tourney.beans;
 
 import java.util.HashMap;
 
+import javax.faces.bean.ApplicationScoped;
+import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 
+@ApplicationScoped
+@ManagedBean
 public class Games {
 	HashMap<Integer,Game> games = null;
 	

@@ -1,5 +1,9 @@
 package com.powertac.tourney.beans;
 
+import javax.faces.bean.ManagedBean;
+
+
+@ManagedBean
 public class Machine {
 	private String name;
 	private String url;

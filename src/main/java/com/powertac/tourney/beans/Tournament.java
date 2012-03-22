@@ -4,9 +4,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Vector;
 
+import javax.faces.bean.ManagedBean;
+
 // Technically not a managed bean, this is an internal Class to the 
 // Tournaments bean which is an application scoped bean that acts as 
 // a collection for all the active tournaments
+@ManagedBean
 public class Tournament {
 	public enum TourneyType {
 		SINGLE_GAME, MULTI_GAME;

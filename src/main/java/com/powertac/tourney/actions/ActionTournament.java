@@ -2,6 +2,9 @@ package com.powertac.tourney.actions;
 
 import java.net.URL;
 import java.util.Date;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
@@ -13,6 +16,8 @@ import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.beans.Tournaments;
 import com.powertac.tourney.services.StartServer;
 
+@RequestScoped
+@ManagedBean
 public class ActionTournament {
 
 	public enum TourneyType {

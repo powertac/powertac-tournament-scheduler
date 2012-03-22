@@ -3,8 +3,12 @@ package com.powertac.tourney.beans;
 import java.util.List;
 import java.util.Vector;
 
+import javax.faces.bean.ApplicationScoped;
+import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 
+@ApplicationScoped
+@ManagedBean
 public class Tournaments {
 	private static final String key = "tournaments";
 	

@@ -11,8 +11,9 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
+import org.springframework.stereotype.Service;
 
-
+@Service
 public class Upload {
 
     // Init ---------------------------------------------------------------------------------------

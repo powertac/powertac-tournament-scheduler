@@ -8,6 +8,9 @@ import java.util.Vector;
 
 import javax.faces.context.FacesContext;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class Scheduler extends Timer {
 	
 	private Vector<TimerTask> tasks;

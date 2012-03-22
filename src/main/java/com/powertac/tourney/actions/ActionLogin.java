@@ -1,8 +1,13 @@
 package com.powertac.tourney.actions;
 
 import com.powertac.tourney.beans.User;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
+@SessionScoped
+@ManagedBean
 public class ActionLogin {
 
 	private String username;
