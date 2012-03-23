@@ -20,6 +20,10 @@ public class Tournament {
 	private String tournamentName;
 	private int maxBrokers; // -1 means inf, otherwise integer specific
 	
+	private String pomName;
+	private String bootName;
+	private String propertiesName;
+	
 	
 	// Probably Should check name against auth token
 	private HashMap<Integer,String> registeredBrokers;
@@ -118,6 +122,48 @@ public class Tournament {
 	
 	public int getNumberRegistered(){
 		return registeredBrokers.size();
+	}
+
+	/**
+	 * @return the pomName
+	 */
+	public String getPomName() {
+		return pomName;
+	}
+
+	/**
+	 * @param pomName the pomName to set
+	 */
+	public void setPomName(String pomName) {
+		this.pomName = pomName;
+	}
+
+	/**
+	 * @return the bootName
+	 */
+	public String getBootName() {
+		return bootName;
+	}
+
+	/**
+	 * @param bootName the bootName to set
+	 */
+	public void setBootName(String bootName) {
+		this.bootName = bootName;
+	}
+
+	/**
+	 * @return the propertiesName
+	 */
+	public String getPropertiesName() {
+		return propertiesName;
+	}
+
+	/**
+	 * @param propertiesName the propertiesName to set
+	 */
+	public void setPropertiesName(String propertiesName) {
+		this.propertiesName = propertiesName;
 	}
 
 }

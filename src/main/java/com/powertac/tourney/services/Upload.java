@@ -13,7 +13,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("upload")
 public class Upload {
 
     // Init ---------------------------------------------------------------------------------------
@@ -22,16 +22,19 @@ public class Upload {
     private String fileName;
 
     // Actions ------------------------------------------------------------------------------------
-
-    public void submit() {
+    public Upload(){
+    	System.out.println("Instantiated Upload Service");
+    }
+    
+    public void submit(String name) {
 
         // Just to demonstrate what information you can get from the uploaded file.
         System.out.println("File type: " + uploadedFile.getContentType());
-        System.out.println("File name: " + uploadedFile.getName());
+        System.out.println("File name: " + name);
         System.out.println("File size: " + uploadedFile.getSize() + " bytes");
 
         // Prepare filename prefix and suffix for an unique filename in upload folder.
-        String prefix = FilenameUtils.getBaseName(uploadedFile.getName());
+        String prefix = name;
         String suffix = FilenameUtils.getExtension(uploadedFile.getName());
         
         // Prepare file and outputstream.

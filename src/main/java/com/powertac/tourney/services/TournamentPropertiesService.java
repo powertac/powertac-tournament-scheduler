@@ -55,6 +55,7 @@ package com.powertac.tourney.services;
 	  public TournamentPropertiesService ()
 	  {
 	    super();
+	    System.out.println("Instantiated TournamentProperties Service");
 	    
 	    recycle();
 	  }

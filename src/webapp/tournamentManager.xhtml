@@ -56,7 +56,7 @@
 
 					<h:outputText value="Select Machine(s) to use in Tournament:" />
 					<h:panelGroup>
-						<h:selectManyCheckbox>
+						<h:selectManyCheckbox value="#{actionTournament.machines}">
 							<f:selectItems value="#{machines.machineList}" var="m"
 								itemValue="#{m.url}" itemLabel="#{m.name}" />
 						</h:selectManyCheckbox>
@@ -66,7 +66,7 @@
 					<h:outputLabel value="Upload Bootstrap File:" />
 					<h:panelGroup>
 						<h:form>
-							<t:inputFileUpload disabled="true" value="#{upload.uploadedFile}"
+							<t:inputFileUpload disabled="false" value="#{actionTournament.boot}"
 								accept="mime-type" storage="file" required="true" />
 						</h:form>
 					</h:panelGroup>
@@ -74,7 +74,7 @@
 					<h:outputLabel value="Upload Pom File:" />
 					<h:panelGroup>
 						<h:form>
-							<t:inputFileUpload disabled="true" value="#{upload.uploadedFile}"
+							<t:inputFileUpload disabled="false" value="#{actionTournament.pom}"
 								accept="mime-type" storage="file" required="true" />
 						</h:form>
 					</h:panelGroup>
@@ -82,7 +82,7 @@
 					<h:outputLabel value="Upload Properties File:" />
 					<h:panelGroup>
 						<h:form>
-							<t:inputFileUpload disabled="true" value="#{upload.uploadedFile}"
+							<t:inputFileUpload disabled="false" value="#{actionTournament.properties}"
 								accept="mime-type" storage="file" required="true" />
 						</h:form>
 					</h:panelGroup>

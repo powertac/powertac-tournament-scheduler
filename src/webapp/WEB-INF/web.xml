@@ -5,6 +5,10 @@
 	<display-name>TournamentScheduler</display-name>
 
 	<!-- Spring Stuff -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/applicationContext.xml</param-value>
+	</context-param>
 
 	<!-- Add Support for Spring -->
 	<listener>
@@ -13,6 +17,7 @@
 	<listener>
 		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
 	</listener>
+
 
 
 

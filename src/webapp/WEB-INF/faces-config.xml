@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<faces-config xmlns="http://java.sun.com/xml/ns/javaee"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
-	version="2.0">
+<faces-config
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+    http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
+    version="2.0">
 
 	<application>
 		<el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver</el-resolver>
@@ -14,104 +16,21 @@
 		<phase-listener>
 			com.powertac.tourney.listeners.RestoreViewPhaseListener
 		</phase-listener>
-
 	</lifecycle>
 
 
 	<!-- Objects -->
-	<managed-bean>
-		<managed-bean-name>user</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.beans.User</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-	</managed-bean>
-	<managed-bean>
-		<managed-bean-name>games</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.beans.Games</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-	</managed-bean>
-	<managed-bean>
-		<managed-bean-name>game</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.beans.Game</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-	</managed-bean>
-	<managed-bean>
-		<managed-bean-name>tournament</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.beans.Tournament</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-	</managed-bean>
+	
 
 	<!-- Application Scoped Objects -->
 
-	<managed-bean>
-		<managed-bean-name>machines</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.beans.Machines</managed-bean-class>
-		<managed-bean-scope>application</managed-bean-scope>
-	</managed-bean>
-
-	<managed-bean>
-		<managed-bean-name>tournaments</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.beans.Tournaments</managed-bean-class>
-		<managed-bean-scope>application</managed-bean-scope>
-	</managed-bean>
-
-	<managed-bean>
-		<managed-bean-name>scheduler</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.beans.Scheduler</managed-bean-class>
-		<managed-bean-scope>application</managed-bean-scope>
-	</managed-bean>
 
 	<!-- Actions -->
-	<managed-bean>
-		<managed-bean-name>actionLogin</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.actions.ActionLogin</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
-	<managed-bean>
-		<managed-bean-name>actionAccount</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.actions.ActionAccount</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-	</managed-bean>
-
-
-	<managed-bean>
-		<managed-bean-name>actionBrokerDetail</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.actions.ActionBrokerDetail</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-	</managed-bean>
-
-	<managed-bean>
-		<managed-bean-name>actionPrivileges</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.actions.ActionPrivileges</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
-	<managed-bean>
-		<managed-bean-name>actionTournament</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.actions.ActionTournament</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
+	
 
 
 	<!-- Services -->
-	<managed-bean>
-		<managed-bean-name>rest</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.services.Rest</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
-	<managed-bean>
-		<managed-bean-name>jenkins</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.services.Jenkins</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
-	<managed-bean>
-		<managed-bean-name>upload</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.services.Upload</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
-	<managed-bean>
-		<managed-bean-name>startServer</managed-bean-name>
-		<managed-bean-class>com.powertac.tourney.services.StartServer</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
+	
 
 
 
