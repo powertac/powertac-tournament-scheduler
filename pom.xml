@@ -85,35 +85,18 @@
 		</dependency>
 
 		<!-- Spring Dependencies -->
+		<!-- Spring framework --> 
+		<!-- Spring framework --> 
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>${spring.version}</version>
+			<artifactId>spring</artifactId>
+			<version>2.5.6</version>
 		</dependency>
+	 
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-aop</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.webflow</groupId>
-			<artifactId>spring-faces</artifactId>
-			<version>${springwebflow-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xbean</groupId>
-			<artifactId>xbean-spring</artifactId>
-			<version>3.6</version>
+			<artifactId>spring-web</artifactId>
+			<version>2.5.6</version>
 		</dependency>
 
 		<!-- PoweTac Dependencies -->

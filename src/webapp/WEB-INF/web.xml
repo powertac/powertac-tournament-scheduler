@@ -5,8 +5,17 @@
 	<display-name>TournamentScheduler</display-name>
 
 	<!-- Spring Stuff -->
-	
-	
+
+	<!-- Add Support for Spring -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<listener>
+		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+	</listener>
+
+
+
 	<!-- End Spring -->
 	<context-param>
 		<description>
@@ -16,6 +25,12 @@
 		</description>
 		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
 		<param-value>server</param-value>
+	</context-param>
+
+	<!-- Change to "Production" when you are ready to deploy -->
+	<context-param>
+		<param-name>javax.faces.PROJECT_STAGE</param-name>
+		<param-value>Development</param-value>
 	</context-param>
 
 	<context-param>
