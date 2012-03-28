@@ -206,19 +206,23 @@ public class ActionTournament {
 			// Creates hashed names for each name
 			this.setBootName(boot.getName());
 			newTourney.setBootName(this.getBootName());
-			//newTourney.setPomName(pom.getName());
-			//newTourney.setPropertiesName(properties.getName());
+			
+			this.setPomName(pom.getName());
+			newTourney.setPomName(pom.getName());
+			
+			this.setPropertiesName(properties.getName());
+			newTourney.setPropertiesName(properties.getName());
 			
 			
 			// Use upload service to upload files with hashed links
 			upload.setUploadedFile(getBoot());
 			upload.submit(getBootName());
 			
-			//upload.setUploadedFile(getPom());
-			//upload.submit(getPomName());
+			upload.setUploadedFile(getPom());
+			upload.submit(getPomName());
 			
-			//upload.setUploadedFile(getProperties());
-			//upload.submit(getPropertiesName());
+			upload.setUploadedFile(getProperties());
+			upload.submit(getPropertiesName());
 			
 			
 			newTourney.setBootstrapUrl("http://www-users.cselabs.umn.edu/~onarh001/bootstraprun.xml");
