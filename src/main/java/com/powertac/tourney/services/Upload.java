@@ -43,14 +43,14 @@ public class Upload {
         
         try {
             // Create file with unique name in upload folder and write to it.
-            file = File.createTempFile(prefix + "_", "." + suffix, new File("."));
+            file = File.createTempFile(prefix, "." + suffix, new File("."));
             output = new FileOutputStream(file);
             IOUtils.copy(uploadedFile.getInputStream(), output);
             fileName = file.getName();
 
             // Show succes message.
             FacesContext.getCurrentInstance().addMessage("uploadForm", new FacesMessage(
-                FacesMessage.SEVERITY_INFO, "File upload succeed!", null));
+                FacesMessage.SEVERITY_INFO, "File upload succeed!" + prefix+"."+suffix, null));
         } catch (IOException e) {
             // Cleanup.
             if (file != null) file.delete();
