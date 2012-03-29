@@ -24,20 +24,24 @@
 				<h:commandButton value="Home" action="Home"
 					rendered="#{user.permissions le 4}" />
 				<h:commandButton value="Login" action="Login"
-					rendered="#{user.permissions le 4 }" />
-				<h:commandButton value="Register" 
-					action="Register" rendered="#{user.permissions eq 4}" />
+					rendered="#{user.permissions == 4 }" />
+				
+				<h:commandButton value="Register" action="Register"
+					rendered="#{user.permissions eq 4}" />
 				<h:commandButton value="About" action="About"
 					rendered="#{user.permissions le 4}" />
-					
+
 				<!-- Normal User permission buttons -->
 				<h:commandButton value="Account" action="Account"
-					rendered="#{user.permissions le 1}" />	
+					rendered="#{user.permissions le 1}" />
+					
+				<h:commandButton value="Logout" action="#{actionLogin.logout}"
+					rendered="#{user.permissions le 3}" />
 
 				<!-- Admin Level permission buttons -->
 				<h:commandButton value="Tournament Manager" action="Tournament"
 					rendered="#{user.permissions le 0}" />
-					
+
 				<h:commandButton value="Admin" action="Admin"
 					rendered="#{user.permissions le 0}" />
 

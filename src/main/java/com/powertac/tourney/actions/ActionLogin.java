@@ -3,10 +3,11 @@ package com.powertac.tourney.actions;
 import com.powertac.tourney.beans.User;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
-@SessionScoped
+@RequestScoped
 @ManagedBean
 public class ActionLogin {
 
@@ -52,7 +53,7 @@ public class ActionLogin {
 		test.logout();
 		
 		
-		return "Success";
+		return "Login";
 	}
 
 }

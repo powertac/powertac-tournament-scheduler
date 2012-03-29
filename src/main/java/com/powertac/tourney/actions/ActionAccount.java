@@ -19,20 +19,18 @@ import com.powertac.tourney.beans.User;
 @RequestScoped
 public class ActionAccount {
 	
-	private static final String key = "account";
 
 	private String newBrokerName;
+	private String newBrokerShortDescription;
 	private int selectedBrokerId;
 	private String selectedBrokerName;
 	private String selectedBrokerAuth;
-
+	
 	public ActionAccount() {
 
 	}
 	
-	public static String getKey(){
-		return key;
-	}
+	
 
 	public String getNewBrokerName() {
 		return newBrokerName;
@@ -46,80 +44,55 @@ public class ActionAccount {
 		User user = (User) FacesContext.getCurrentInstance()
 				.getExternalContext().getSessionMap().get(User.getKey());
 
-		Broker b = user.addBroker(newBrokerName);
-
-		if (user.getBrokers().length == 0) {
-			this.selectedBrokerName = newBrokerName;
-			this.selectedBrokerId = b.getBrokerId();
-			this.selectedBrokerAuth = b.getBrokerAuthToken();
-		}
+		Broker b = user.addBroker(getNewBrokerName(), getNewBrokerShortDescription());
+		
 
 		return "Account";
 	}
 	
-	public Broker[] getBrokers(){
+	public Vector<Broker> getBrokers(){
 		User user = (User) FacesContext.getCurrentInstance()
 				.getExternalContext().getSessionMap().get(User.getKey());
 		return user.getBrokers();
 	}
 	
+	public void deleteBroker(Broker b){
+		User user = (User) FacesContext.getCurrentInstance()
+				.getExternalContext().getSessionMap().get(User.getKey());
+		user.getBrokers().remove(b);
+		
+	}
+	
+	public void editBroker(Broker b){
+		b.setEdit(true);
+		b.setNewAuth(b.getBrokerAuthToken());
+		b.setNewName(b.getBrokerName());
+		b.setNewShort(b.getShortDescription());
+	}
+	
+	public void saveBroker(Broker b){
+		b.setEdit(false);
+		b.setBrokerName(b.getNewName());
+		b.setShortDescription(b.getNewShort());
+		b.setBrokerAuthToken(b.getNewAuth());
+		
+	}
+	
+	public void cancelBroker(Broker b){
+		b.setEdit(false);
+	}
 	
 
-	public String getSelectedBrokerName() {
-		return selectedBrokerName;
-	}
 
-	public void setSelectedBrokerName(String selectedBrokerName) {
-		this.selectedBrokerName = selectedBrokerName;
-	}
-
-	public int getSelectedBrokerId() {
-		return selectedBrokerId;
-	}
-
-	public void setSelectedBrokerId(int selectedBrokerId) {
-		this.selectedBrokerId = selectedBrokerId;
-	}
-
-	public String deleteSelectedBroker() {
-		User user = (User) FacesContext.getCurrentInstance()
-				.getExternalContext().getSessionMap().get(User.getKey());
-		user.deleteBroker(selectedBrokerId);
-
-		return null;
-	}
-
-	public void listChanged(ValueChangeEvent ve) {
-		User user = (User) FacesContext.getCurrentInstance()
-				.getExternalContext().getSessionMap().get(User.getKey());
-		
-		
-		if (ve.getNewValue() != null) {
-			//System.out.println("listChanged: " + ve.getNewValue().toString());
-			setSelectedBrokerId(Integer.parseInt(ve.getNewValue().toString()));
-			setSelectedBrokerName(user.getBroker(selectedBrokerId).getBrokerName());
-			setSelectedBrokerAuth(user.getBroker(selectedBrokerId).getBrokerAuthToken());
-			
-		} else {
-			//System.out.println("listChanged: " + ve.getOldValue().toString());
-			setSelectedBrokerId(Integer.parseInt(ve.getOldValue().toString()));
-			if(user.getBroker(selectedBrokerId)!= null){
-				setSelectedBrokerName(user.getBroker(selectedBrokerId).getBrokerName());
-				setSelectedBrokerAuth(user.getBroker(selectedBrokerId).getBrokerAuthToken());
-			}
-		}
-	}
-
-
-	public List<Tournament> getAvailableTournaments() {
-		if (selectedBrokerName == null) {
+	public List<Tournament> getAvailableTournaments(Broker b) {
+		if (b == null) {
 			return null;
 		}
 
 		Tournaments allTournaments = Tournaments.getAllTournaments();
 		Vector<Tournament> availableTourneys = new Vector<Tournament>();
 		for (Tournament t : allTournaments.getLists()) {
-			if (!t.isRegistered(selectedBrokerName)) {
+			if (!t.isRegistered(b.getBrokerName())) {
 				availableTourneys.add(t);
 			}
 		}
@@ -129,6 +102,10 @@ public class ActionAccount {
 	}
 
 	public String register(String tournamentName) {
+		if(tournamentName==null || tournamentName==""){
+			return null;
+		}
+		
 		Tournaments allTournaments = Tournaments.getAllTournaments();
 		for (Tournament t : allTournaments.getLists()) {
 			if (!t.isRegistered(selectedBrokerName)
@@ -145,12 +122,18 @@ public class ActionAccount {
 		return null;
 	}
 
-	public String getSelectedBrokerAuth() {
-		return selectedBrokerAuth;
+
+
+	public String getNewBrokerShortDescription() {
+		return newBrokerShortDescription;
 	}
 
-	public void setSelectedBrokerAuth(String selectedBrokerAuth) {
-		this.selectedBrokerAuth = selectedBrokerAuth;
+
+
+	public void setNewBrokerShortDescription(String newBrokerShortDescription) {
+		this.newBrokerShortDescription = newBrokerShortDescription;
 	}
+
+
 
 }

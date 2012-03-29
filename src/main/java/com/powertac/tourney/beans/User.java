@@ -37,8 +37,8 @@ public class User {
 
 	}
 
-	public Broker addBroker(String brokerName) {
-		Broker b = new Broker(brokerName);
+	public Broker addBroker(String brokerName, String shortDescription) {
+		Broker b = new Broker(brokerName, shortDescription);
 		brokers.add(b);
 
 		return b;
@@ -120,14 +120,14 @@ public class User {
 		return this.loggedIn;
 	}
 
-	public Broker[] getBrokers() {
-		Broker[] newBroker = new Broker[brokers.size()];
+	public Vector<Broker> getBrokers() {
+		/*Broker[] newBroker = new Broker[brokers.size()];
 		int i = 0;
 		for (Broker b : brokers) {
 			newBroker[i] = brokers.get(i);
 			i++;
-		}
-		return newBroker;
+		}*/
+		return brokers;
 	}
 
 }
