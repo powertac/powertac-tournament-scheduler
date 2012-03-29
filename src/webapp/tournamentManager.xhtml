@@ -36,7 +36,7 @@
 					<h:outputText value="Starting Date/Time (dd/month/yyyy/hh/mm):" />
 					<h:panelGroup>
 						<t:inputDate value="#{actionTournament.startTime}" type="both"
-							ampm="false"/>
+							ampm="false" renderAsPopup="true" forceId="true"/>
 					</h:panelGroup>
 
 					<h:outputText value="Maximum Number of Brokers to Participate" />
@@ -62,24 +62,30 @@
 						</h:selectManyCheckbox>
 					</h:panelGroup>
 
-
-					<h:outputLabel value="Upload Bootstrap File:" />
-					<h:panelGroup>
-							<t:inputFileUpload disabled="false" value="#{actionTournament.boot}"
-								accept="mime-type" storage="file" required="true" />
-					</h:panelGroup>
-
 					<h:outputLabel value="Upload Pom File:" />
 					<h:panelGroup>
 							<t:inputFileUpload disabled="false" value="#{actionTournament.pom}"
 								accept="mime-type" storage="file" required="true" />
 					</h:panelGroup>
 					
-					<h:outputLabel value="Upload Properties File:" />
+					<h:outputLabel value="Date Range (Random selection from interval): "/>
 					<h:panelGroup>
-							<t:inputFileUpload disabled="false" value="#{actionTournament.properties}"
-								accept="mime-type" storage="file" required="true" />
+						<h:outputLabel value="From: " />
+						<t:inputDate value="#{actionTournament.fromTime}" type="both"
+							ampm="false" renderAsPopup="true" forceId="true"/>
+						<h:outputLabel value="To: " />
+						<t:inputDate value="#{actionTournament.toTime}" type="both"
+							ampm="false" renderAsPopup="true" forceId="true"/>						
 					</h:panelGroup>
+					
+					<h:outputLabel value="Locations: "/>
+					<h:panelGroup>
+						<h:selectManyCheckbox value="#{actionTournament.locations}">
+							<f:selectItems value="#{locations.locationList}" var="L"
+								itemValue="#{L.name}" itemLabel="#{L.name}" />
+						</h:selectManyCheckbox>
+					</h:panelGroup>
+					
 
 
 					<h:outputText value="Submit Tournament (opens for registration):" />

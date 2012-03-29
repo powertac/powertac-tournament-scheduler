@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
@@ -13,8 +14,9 @@ import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.beans.Tournaments;
 import com.powertac.tourney.beans.User;
 
-@SessionScoped
+
 @ManagedBean
+@RequestScoped
 public class ActionAccount {
 	
 	private static final String key = "account";
@@ -54,6 +56,14 @@ public class ActionAccount {
 
 		return "Account";
 	}
+	
+	public Broker[] getBrokers(){
+		User user = (User) FacesContext.getCurrentInstance()
+				.getExternalContext().getSessionMap().get(User.getKey());
+		return user.getBrokers();
+	}
+	
+	
 
 	public String getSelectedBrokerName() {
 		return selectedBrokerName;

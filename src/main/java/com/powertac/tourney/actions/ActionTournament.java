@@ -39,9 +39,13 @@ public class ActionTournament {
 	}
 
 	private Date startTime = new Date(); // Default to current date/time
+	private Date fromTime = new Date();
+	private Date toTime = new Date();
+	
 	private String tournamentName;
 	private int maxBrokers; // -1 means inf, otherwise integer specific
 	private List<String> machines;
+	private List<String> locations;
 	private String pomName;
 	private String bootName;
 	private String propertiesName;
@@ -282,6 +286,30 @@ public class ActionTournament {
 
 		return "Success";
 
+	}
+
+	public Date getFromTime() {
+		return fromTime;
+	}
+
+	public void setFromTime(Date fromTime) {
+		this.fromTime = fromTime;
+	}
+
+	public Date getToTime() {
+		return toTime;
+	}
+
+	public void setToTime(Date toTime) {
+		this.toTime = toTime;
+	}
+
+	public List<String> getLocations() {
+		return locations;
+	}
+
+	public void setLocations(List<String> locations) {
+		this.locations = locations;
 	}
 
 }
