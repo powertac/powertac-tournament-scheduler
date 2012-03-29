@@ -8,83 +8,39 @@
 	<ui:composition template="template.xhtml">
 
 		<ui:define name="content">
-			<h:form id="account" rendered="#{user.permissions le 1}">
-				<h:panelGrid columns="2">
-					<h:outputText value="List of Brokers:" />
-					<h:panelGroup>
-						<h:selectOneListbox id="listbox" style="width:400px"
-							value="#{actionAccount.selectedBrokerId}"
-							valueChangeListener="#{actionAccount.listChanged}" size="5"
-							onclick="submit()">
-							<f:selectItems value="#{user.brokers}" var="b"
-								itemValue="#{b.brokerId}"
-								itemLabel="#{b.brokerName} : #{b.brokerAuthToken}" />
-						</h:selectOneListbox>
-					</h:panelGroup>
-
-					<h:commandButton value="Add Broker Name"
-						action="#{actionAccount.addBroker}" />
-					<h:panelGroup>
-						<h:inputText value="#{actionAccount.newBrokerName}" />
-					</h:panelGroup>
-					
-					<h:commandButton value="Broker Details"
-						action="#{actionBrokerDetail.startDetail(actionAccount.selectedBrokerId)}" disabled="#{actionAccount.selectedBrokerName == null}"/>
-					<h:panelGroup>
-						<h:outputText value="#{actionAccount.selectedBrokerName}" />
-					</h:panelGroup>
-					
-					
-
-					<h:commandButton value="Delete Broker"
-						action="#{actionAccount.deleteSelectedBroker}" />
-					<h:panelGroup>
-					</h:panelGroup>
-				</h:panelGrid>
-				<br />
-
-				Selected Broker: <h:outputText id="selectedBroker" value="#{actionAccount.selectedBrokerName}" /><br/>
-				Broker Auth Token: <h:outputText value="#{actionAccount.selectedBrokerAuth}" />
-				
+			<h:form id="account" rendered="#{user.permissions le 1}">				
 				<h:dataTable border="1"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{actionAccount.availableTournaments}" var="t">
+					value="#{actionAccount.brokers}" var="b">
 
 
 					<h:column>
-						<f:facet name="header">Tournament Name</f:facet>
-    						#{t.tournamentName}
+						<f:facet name="header">Broker Name</f:facet>
+    						#{b.brokerName}
     				</h:column>
 
 
 					<h:column>
-						<f:facet name="header">Start Time</f:facet>
-    						#{t.startTime}
+						<f:facet name="header">Broker Id</f:facet>
+    						#{b.brokerId}
     				</h:column>
-
+				
 					<h:column>
 						<!-- column header -->
-						<f:facet name="header">Competition Type</f:facet>
+						<f:facet name="header">Broker Auth Token</f:facet>
 						<!-- row record -->
-    						Single-game
+    						#{b.brokerAuthToken}
     				</h:column>
-
+					
 					<h:column>
-						<f:facet name="header">Max Brokers</f:facet>
-    						#{t.maxBrokers}
-    				</h:column>
-
+						<f:facet name="header">Short Description</f:facet>
+							#{b.shortDescript}						
+					</h:column>
+					
 					<h:column>
-						<f:facet name="header">Registered Brokers</f:facet>
-    						#{t.numberRegistered}
-    				</h:column>
-
-					<h:column>
-						<f:facet name="header">Register Broker</f:facet>
-						<h:commandButton value="Register"
-							rendered="#{(t.maxBrokers != t.numberRegistered)}"
-							action="#{actionAccount.register(t.tournamentName)}" />
-						<h:outputText value="Full" rendered="#{t.maxBrokers == t.numberRegistered}" />
+						<f:facet name="header">Action</f:facet>
+						<h:commandButton value="edit"/>
+						<h:commandButton value="delete"/>
 					</h:column>
 
 				</h:dataTable>
