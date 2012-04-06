@@ -1,8 +1,10 @@
 package com.powertac.tourney.services;
 
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.TimerTask;
 
@@ -55,8 +57,17 @@ public class StartServer extends TimerTask {
 
 			String machineName = allMachines.getFreeMachines().firstElement()
 					.getName();
+			
+			InetAddress thisIp = null;
+			try {
+				thisIp = InetAddress.getLocalHost();
+				System.out.println("IP:"+thisIp.getHostAddress());
+			} catch (UnknownHostException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
-			String finalUrl = "http://tac04.cs.umn.edu:8080/job/"
+			String finalUrl = "http://" + thisIp.getHostAddress() + ":8080/jenkins/job/" 
 					+ "start-server-instance/buildWithParameters?"
 					+ "token=start-instance&tourneyUrl=" + tourneyUrl
 					+ "&suffix=" + logSuffix + "&serverConfig=" + serverConfig

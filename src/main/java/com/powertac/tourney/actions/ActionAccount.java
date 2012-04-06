@@ -101,20 +101,20 @@ public class ActionAccount {
 
 	}
 
-	public String register(String tournamentName) {
+	public String register(Broker b) {
+		String tournamentName = b.getSelectedTourney();
 		if(tournamentName==null || tournamentName==""){
 			return null;
 		}
 		
 		Tournaments allTournaments = Tournaments.getAllTournaments();
 		for (Tournament t : allTournaments.getLists()) {
-			if (!t.isRegistered(selectedBrokerName)
+			if (!t.isRegistered(b.getBrokerAuthToken())
 					&& t.getTournamentName().equalsIgnoreCase(tournamentName)) {
 				
-				User user = (User) FacesContext.getCurrentInstance()
-						.getExternalContext().getSessionMap().get(User.getKey());
 				
-				t.register(selectedBrokerName, selectedBrokerId, user.getBroker(selectedBrokerId).getBrokerAuthToken() );
+				
+				t.register(b.getBrokerName(), b.getBrokerId(), b.getBrokerAuthToken());
 				
 			}
 		}

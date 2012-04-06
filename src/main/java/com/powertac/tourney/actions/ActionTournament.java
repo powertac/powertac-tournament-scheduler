@@ -1,6 +1,8 @@
 package com.powertac.tourney.actions;
 
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
 
@@ -222,9 +224,18 @@ public class ActionTournament {
 			//upload.setUploadedFile(getProperties());
 			//upload.submit(this.getPropertiesName());
 			
+			InetAddress thisIp = null;
+			try {
+				thisIp = InetAddress.getLocalHost();
+				System.out.println("IP:"+thisIp.getHostAddress());
+			} catch (UnknownHostException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
 			
 			newTourney.setBootstrapUrl("http://www-users.cselabs.umn.edu/~onarh001/bootstraprun.xml");
-			newTourney.setPomUrl("default");
+			newTourney.setPomUrl(thisIp.getHostAddress()+":8080/TournamentScheduler/"+newTourney.getPomName());
 			newTourney.setMaxBrokers(getMaxBrokers());
 			newTourney.setStartTime(getStartTime());
 			newTourney.setTournamentName(getTournamentName());

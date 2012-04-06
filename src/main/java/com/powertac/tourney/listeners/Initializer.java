@@ -1,5 +1,7 @@
 package com.powertac.tourney.listeners;
 
+import java.util.Timer;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -15,6 +17,7 @@ public class Initializer implements ServletContextListener {
 		//e.getServletContext().getAttribute(Games.getKey());
 		//e.getServletContext().getAttribute(Tournaments.getKey());
 		//e.getServletContext().getAttribute(Machines.getKey());
+		((Timer) e.getServletContext().getAttribute(Scheduler.getKey())).cancel();
 
 	}
 

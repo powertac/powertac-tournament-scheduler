@@ -30,7 +30,7 @@ public class Database {
 	Properties prop = new Properties();
 
 	public Database() {
-
+		/*
 		try {
 			prop.load(Database.class.getClassLoader().getResourceAsStream(
 					"/weatherserver.properties"));
@@ -51,7 +51,7 @@ public class Database {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	}
 
 	private void checkDb() {

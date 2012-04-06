@@ -46,7 +46,7 @@
 						<f:facet name="header">Available Tournaments</f:facet>
 						<h:selectOneMenu value="#{b.selectedTourney}">
 							<f:selectItems value="#{actionAccount.getAvailableTournaments(b)}" var="t"
-								itemValues="#{t.tournamentName}" itemLabel="#{t.tournamentName}" rendered="{(t.maxBrokers != t.numberRegistered)}"/>
+								itemValue="#{t.tournamentName}" itemLabel="#{t.tournamentName}" rendered="{(t.maxBrokers != t.numberRegistered)}"/>
 						</h:selectOneMenu>
 					</h:column>
 
@@ -58,7 +58,7 @@
 						<h:commandButton value="delete"
 							action="#{actionAccount.deleteBroker(b)}" rendered="#{!b.edit}" />
 							
-						<h:commandButton value="register" action="#{actionAccount.register(b.selectedTourney)}" rendered="#{!b.edit}"/>
+						<h:commandButton value="register" action="#{actionAccount.register(b)}" rendered="#{!b.edit}"/>
 
 						<!-- Edit mode buttons -->
 						<h:commandButton value="save"
@@ -77,7 +77,6 @@
 					<h:commandButton value="Add Broker"
 						action="#{actionAccount.addBroker}" />
 				</h:panelGrid>
-
 
 			</h:form>
 			<h:form rendered="#{user.permissions gt 1}">
