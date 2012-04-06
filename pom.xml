@@ -85,14 +85,14 @@
 		</dependency>
 
 		<!-- Spring Dependencies -->
-		<!-- Spring framework --> 
-		<!-- Spring framework --> 
+		<!-- Spring framework -->
+		<!-- Spring framework -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
 			<version>2.5.6</version>
 		</dependency>
-	 
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
@@ -111,6 +111,26 @@
 	<build>
 		<finalName>TournamentScheduler</finalName>
 		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<executable>deploy.sh</executable>
+					<arguments>
+						<argument>localhost:8080</argument>
+						<argument>admin</argument>
+						<argument>admin</argument>
+					</arguments>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>tomcat-maven-plugin</artifactId>
