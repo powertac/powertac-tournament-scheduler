@@ -212,18 +212,12 @@ public class ActionTournament {
 			//newTourney.setBootName(this.getBootName());
 			
 			this.setPomName(pom.getName());
-			newTourney.setPomName(this.getPomName());
-			
-			//this.setPropertiesName(properties.getName());
-			//newTourney.setPropertiesName(this.getPropertiesName());
-			
-			
-			// Use upload service to upload files with hashed links
-			//upload.setUploadedFile(getBoot());
-			//upload.submit(this.getBootName());
 			
 			upload.setUploadedFile(getPom());
-			upload.submit(this.getPomName());
+			String finalFile = upload.submit(this.getPomName());
+			newTourney.setPomName(finalFile);
+			
+			//InetAddress thisIp =InetAddress.getLocalHost();
 			
 			//upload.setUploadedFile(getProperties());
 			//upload.submit(this.getPropertiesName());

@@ -26,7 +26,7 @@ public class Upload {
     	System.out.println("Instantiated Upload Service");
     }
     
-    public void submit(String name) {
+    public String submit(String name) {
 
         // Just to demonstrate what information you can get from the uploaded file.
         System.out.println("File type: " + uploadedFile.getContentType());
@@ -43,7 +43,7 @@ public class Upload {
         
         try {
             // Create file with unique name in upload folder and write to it.
-            file = File.createTempFile(prefix, "." + suffix, new File("."));
+            file = File.createTempFile(prefix, "." + suffix, new File("../webapps/TournamentScheduler/"));
             output = new FileOutputStream(file);
             IOUtils.copy(uploadedFile.getInputStream(), output);
             fileName = file.getName();
@@ -51,6 +51,8 @@ public class Upload {
             // Show succes message.
             FacesContext.getCurrentInstance().addMessage("uploadForm", new FacesMessage(
                 FacesMessage.SEVERITY_INFO, "File upload succeed!" + prefix+"."+suffix, null));
+
+            return fileName;
         } catch (IOException e) {
             // Cleanup.
             if (file != null) file.delete();
@@ -64,6 +66,7 @@ public class Upload {
         } finally {
             IOUtils.closeQuietly(output);
         }
+		return null;
     }
 
     // Getters ------------------------------------------------------------------------------------

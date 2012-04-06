@@ -74,7 +74,7 @@
 						<f:facet name="header">
 							<h:outputText value="Pom Link" />
 						</f:facet>
-						<h:outputText value="#{t.pomName}" />
+						<a href="/TournamentScheduler/#{t.pomName}">Pom</a>
 					</t:column>
 					
 				</t:dataTable>
@@ -136,6 +136,19 @@
 						<!-- row record -->
     						#{g.maxBrokers}
     				</t:column>
+    				<t:column>
+    					<f:facet name="header">
+    						<h:outputText value="Properties Link"/>
+    					</f:facet>
+    					<a href="/TournamentScheduler/">Properties</a>
+    				</t:column>
+    				<t:column>
+    					<f:facet name="header">
+    						<h:outputText value="Bootstrap Link"/>
+    					</f:facet>
+    					<a href="/TournamentScheduler/">Bootstrap</a>
+    				</t:column>
+    				
 				</t:dataTable>
 
 			</h:form>
