@@ -1,13 +1,16 @@
 
+DROP DATABASE IF EXISTS `tourney`;
+CREATE DATABASE `tourney`;
+
 /* Create user table*/
 DROP TABLE IF EXISTS `tourney`.`users`;
 CREATE TABLE `tourney`.`users` (
 	`userId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`userName` VARCHAR(45) UNIQUE NOT NULL,
-	`password` VARCHAR(45) NOT NULL, /* This will be a salted md5 hash*/
+	`password` VARCHAR(45) NOT NULL, 
 	`permissionId` BIGINT(20) UNSIGNED NOT NULL,
 	PRIMARY KEY (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT;
+) ENGINE=InnoDB;
 
 /* Create broker table with key constraint on userId */
 DROP TABLE IF EXISTS `tourney`.`brokers`;
@@ -19,8 +22,8 @@ CREATE TABLE `tourney`.`brokers` (
 	`brokerShort` VARCHAR(200) NOT NULL,
 	`numberInGame` INT NOT NULL,
 	PRIMARY KEY (`brokerId`),
-	CONSTRAINT userId_refs FOREIGN KEY (`userId`) REFERENCES `tourney`.`users` ( `userId` )
-) ENGINE=InnoDB AUTO_INCREMENT;
+	CONSTRAINT userId_refs FOREIGN KEY (`userId`) REFERENCES `tourney`.`users` (`userId`)
+) ENGINE=InnoDB;
 
 
 /* Create top level tournament list */
@@ -33,37 +36,23 @@ CREATE TABLE `tourney`.`tournaments` (
 	`pomUrl` VARCHAR(256) NOT NULL, /* This will be the url to the pom file */
 	`locations` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
 	PRIMARY KEY (`tourneyId`)
-) ENGINE=InnoDB AUTO_INCREMENT;
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `tourney`.`registration`;
 CREATE TABLE `tourney`.`registration` (
 	`tourneyId` BIGINT(20) UNSIGNED NOT NULL,
 	`brokerId` BIGINT(20) UNSIGNED NOT NULL,
-	CONSTRAINT userId_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` )
-	CONSTRAINT userId_refs FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` ( `brokerId` )
-) ENGINE=InnoDB AUTO_INCREMENT;
-
-
-
-/* Create top level tournament list */
-DROP TABLE IF EXISTS `tourney`.`games`;
-CREATE TABLE `tourney`.`games` (
-	`gameId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`gameName` VARCHAR(256) NOT NULL,
-	`tourneyId` BIGINT(20) UNSIGNED NOT NULL,
-	`machineId` BIGINT(20) UNSIGNED NOT NULL,
-	`logId` BIGINT(2) UNSIGNED NOT NULL,
-	`status` VARCHAR(20) NOT NULL,
-	`startTime` DATETIME NOT NULL,
-	`visualizerUrl` VARCHAR(256) NOT NULL,
-	`propertiesUrl` VARCHAR(256) NOT NULL, /* This will be the url to the properties file */
-	`bootstrapUrl` VARCHAR(256) NOT NULL, /* This will be the url to the bootstrap file*/
-	`location` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
-	PRIMARY KEY (`gameId`),	
 	CONSTRAINT tourneyId_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),
-	CONSTRAINT machineId_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` ),
-	CONSTRAINT logId_refs FOREIGN KEY (`logId`) REFERENCES `tourney`.`logs` ( `logId` )
-) ENGINE=InnoDB AUTO_INCREMENT;
+	CONSTRAINT brokerId_refs FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` ( `brokerId` )
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `tourney`.`permission`;
+CREATE TABLE `tourney`.`logs` (
+	`logId` integer UNSIGNED NOT NULL AUTO_INCREMENT,
+	`status` VARCHAR(20) NOT NULL,
+	`logUrl` VARCHAR(256) NOT NULL, /* when status is packaged, this points to the permanent url of logs */
+	PRIMARY KEY (`logId`)
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `tourney`.`machines`;
 CREATE TABLE `tourney`.`machines` (
@@ -72,21 +61,37 @@ CREATE TABLE `tourney`.`machines` (
 	`machineUrl` VARCHAR(256) NOT NULL, /* Url to the machine */
 	`status` VARCHAR(20) NOT NULL, /* Indicates wether a game is running on this machine or not */
 	PRIMARY KEY (`machineId`)
-) ENGINE=InnoDB AUTO_INCREMENT;
+) ENGINE=InnoDB;
+
+/* Create top level tournament list */
+DROP TABLE IF EXISTS `tourney`.`games`;
+CREATE TABLE `tourney`.`games` (
+	`gameId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`gameName` VARCHAR(256) NOT NULL,
+	`tourneyId` BIGINT(20) UNSIGNED NOT NULL,
+	`machineId` BIGINT(20) UNSIGNED NOT NULL,
+	`logId` integer UNSIGNED NOT NULL,
+	`status` VARCHAR(20) NOT NULL,
+	`startTime` DATETIME NOT NULL,
+	`visualizerUrl` VARCHAR(256) NOT NULL,
+	`propertiesUrl` VARCHAR(256) NOT NULL, /* This will be the url to the properties file */
+	`bootstrapUrl` VARCHAR(256) NOT NULL, /* This will be the url to the bootstrap file*/
+	`location` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
+	PRIMARY KEY (`gameId`),	
+	CONSTRAINT tourneyId2_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),
+	CONSTRAINT machineId_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` ),
+	CONSTRAINT logId_refs FOREIGN KEY (`logId`) REFERENCES `tourney`.`logs` ( `logId` )
+) ENGINE=InnoDB;
+
+
 
 DROP TABLE IF EXISTS `tourney`.`permissions`;
 CREATE TABLE `tourney`.`permissions` (
 	`permissionId` integer UNSIGNED NOT NULL AUTO_INCREMENT,
 	`permissionName` VARCHAR(20) NOT NULL,
 	PRIMARY KEY (`permissionId`)
-) ENGINE=InnoDB AUTO_INCREMENT;
+) ENGINE=InnoDB;
 
-DROP TABLE IF EXISTS `tourney`.`permission`;
-CREATE TABLE `tourney`.`logs` (
-	`logId` integer UNSIGNED NOT NULL AUTO_INCREMENT,
-	`status` VARCHAR(20) NOT NULL,
-	`logUrl` VARCHAR(256) NOT NULL, /* when status is packaged, this points to the permanent url of logs */
-	PRIMARY KEY (`logId`)
-) ENGINE=InnoDB AUTO_INCREMENT;
+
 
 
