@@ -38,7 +38,6 @@
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.2</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -57,9 +56,20 @@
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>1.1.1</version>
-			<scope>compile</scope>
+			<version>1.1</version>
 		</dependency>
+		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+			<version>1.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>1.0</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.apache.myfaces.core</groupId>
 			<artifactId>myfaces-api</artifactId>
@@ -97,6 +107,12 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 			<version>2.5.6</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>3.0.5.RELEASE</version>
 		</dependency>
 
 		<!-- PoweTac Dependencies -->
@@ -145,8 +161,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
-					<webXml>src/webapp/WEB-INF/web.xml</webXml>
-					<warSourceDirectory>src/webapp/</warSourceDirectory>
+					<webXml>src/main/webapp/WEB-INF/web.xml</webXml>
+					<warSourceDirectory>src/main/webapp/</warSourceDirectory>
 				</configuration>
 			</plugin>
 			<plugin>
