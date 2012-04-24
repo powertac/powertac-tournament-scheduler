@@ -92,7 +92,7 @@ public class User {
 		this.permissions = permissions;
 	}
 
-	public boolean login(String username, String password) {
+	public boolean login() {
 		// Set loggedIn value
 		this.loggedIn = true;
 

@@ -26,7 +26,7 @@ public class Constants {
 	 * @param password : salted md5 hash of entered password
 	 */
 	public static final String LOGIN_USER = "SELECT * FROM users WHERE userName=? AND password=? LIMIT 1;";
-	
+	public static final String LOGIN_SALT = "SELECT password, salt, permissionId FROM users WHERE userName=?;";
 	/***
 	 * @param userName : User name to update account info   
 	 */

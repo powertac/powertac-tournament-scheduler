@@ -1,15 +1,29 @@
 package com.powertac.tourney.actions;
 
-import com.powertac.tourney.beans.User;
+import java.sql.SQLException;
 
+import com.powertac.tourney.beans.User;
+import com.powertac.tourney.services.Database;
+import com.powertac.tourney.services.Upload;
+
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
-@RequestScoped
-@ManagedBean
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+@Component("actionLogin")
+@Scope("request")
 public class ActionLogin {
+	
+	// Database should not be as service, sharing information causes issues
+	// @Autowired
+	// private Database database;
+
 
 	private String username;
 	private String password;
@@ -30,18 +44,28 @@ public class ActionLogin {
 		this.password = password;
 	}
 
-	public String login() {
-		// If groovy make bean
-		// ive authenticated
-		// Sql adapter Ibatis
-		
-		
+	public String login() {		
+		Database database = new Database();
+		try {
+			int perm = -1;
+			if((perm = database.loginUser(getUsername(), getPassword()))>=0){
+				User test = (User) FacesContext.getCurrentInstance().getExternalContext()
+						.getSessionMap().get(User.getKey());
+				test.setUsername(getUsername());
+				test.setPermissions(perm);
+				test.login();
+			}else{
+				FacesContext.getCurrentInstance().addMessage("loginForm", new FacesMessage(
+		                FacesMessage.SEVERITY_INFO, "Login Failure", null));
+			}
+		} catch (SQLException e) {
+			FacesContext.getCurrentInstance().addMessage("loginForm", new FacesMessage(
+	                FacesMessage.SEVERITY_INFO, "Login Exception Failure", null));
 
-		User test = (User) FacesContext.getCurrentInstance().getExternalContext()
-				.getSessionMap().get(User.getKey());
-		test.setUsername(this.username);
-		test.setPermissions(0);
-		test.login("", "");
+			return "Failure";
+			
+		}
+		
 		return "Success";
 	}
 	

@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS `tourney`.`users`;
 CREATE TABLE `tourney`.`users` (
 	`userId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`userName` VARCHAR(45) UNIQUE NOT NULL,
+	`salt` VARCHAR(45) NOT NULL,
 	`password` VARCHAR(45) NOT NULL, 
 	`permissionId` BIGINT(20) UNSIGNED NOT NULL,
 	PRIMARY KEY (`userId`)
