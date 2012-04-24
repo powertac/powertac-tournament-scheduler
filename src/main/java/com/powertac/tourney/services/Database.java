@@ -38,10 +38,10 @@ public class Database {
 	Properties prop = new Properties();
 
 	public Database() {
-		/*
+		
 		try {
 			prop.load(Database.class.getClassLoader().getResourceAsStream(
-					"/weatherserver.properties"));
+					"/tournament.properties"));
 			System.out.println(prop);
 			// Database Connection related properties
 			this.setDatabase(prop.getProperty("db.database"));
@@ -59,7 +59,7 @@ public class Database {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 	}
 
 	private void checkDb() {
@@ -80,6 +80,8 @@ public class Database {
 						System.out.println("Connection Error");
 						e.printStackTrace();
 					}
+				}else{
+					System.out.println("DBMS: " + this.dbms + " is not supported");
 				}
 			}else{
 				System.out.println("Connection is good");
@@ -88,6 +90,7 @@ public class Database {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("Connection established correctly");
 	}
 	
 	public int loginUser(String username, String password) throws SQLException{
@@ -95,7 +98,8 @@ public class Database {
 		
 		boolean userExist = false;
 		if (saltStatement == null || saltStatement.isClosed()){
-			saltStatement = conn.prepareStatement(String.format(Constants.LOGIN_SALT,username));
+			saltStatement = conn.prepareStatement(Constants.LOGIN_SALT);
+			saltStatement.setString(1, username);
 		}
 		
 		ResultSet rsSalt = saltStatement.executeQuery();
@@ -119,7 +123,7 @@ public class Database {
 		
 		
 		conn.close();
-		
+		// TODO: make sure things are inserted correctly in the database;
 		if (DigestUtils.md5Hex(password+salt).equalsIgnoreCase(digest) && userExist){
 			return permission;
 		}else{

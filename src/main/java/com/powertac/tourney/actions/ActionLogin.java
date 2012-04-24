@@ -56,11 +56,13 @@ public class ActionLogin {
 				test.login();
 			}else{
 				FacesContext.getCurrentInstance().addMessage("loginForm", new FacesMessage(
-		                FacesMessage.SEVERITY_INFO, "Login Failure", null));
+		                FacesMessage.SEVERITY_INFO, "Login Failure: " + perm, null));
+				return "Failure";
 			}
 		} catch (SQLException e) {
 			FacesContext.getCurrentInstance().addMessage("loginForm", new FacesMessage(
 	                FacesMessage.SEVERITY_INFO, "Login Exception Failure", null));
+			e.printStackTrace();
 
 			return "Failure";
 			

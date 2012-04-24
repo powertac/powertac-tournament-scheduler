@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 
-@Component("actionLogin")
+@Component("actionRegister")
 @Scope("request")
 public class ActionRegister {
 	public String register() {
