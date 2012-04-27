@@ -37,8 +37,13 @@ public class Constants {
 	 * @param password : The salted md5 hash of the password
 	 * @param permissionId : The desired permission level 0=Admin 4=Guest (Recommend Guest)
 	 */
-	public static final String ADD_USER = "INSERT INTO tourney.users (userName, password, permissionId) VALUES (?,?,?); ";
+	public static final String ADD_USER = "INSERT INTO tourney.users (userName, salt, password, permissionId) VALUES (?,?,?,?); ";
 	
+	
+	/***
+	 * Select all users
+	 */
+	public static final String SELECT_USERS = "SELECT * FROM tourney.users;";
 	
 	/***
 	 * @param brokerName : The name of the Broker to use for logins
@@ -46,6 +51,8 @@ public class Constants {
 	 * @param brokerShort : The short description about the broker
 	 */
 	public static final String ADD_BROKER = "INSERT INTO tourney.brokers (brokerName,brokerAuth,brokerShort) VALUES (?,?,?);";
+	
+	
 	
 	/***
 	 * Returns a list of brokers for a userId

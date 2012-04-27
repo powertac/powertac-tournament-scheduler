@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import com.powertac.tourney.constants.Constants;
@@ -18,9 +19,59 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+
+
+
 @Component("database")
 @Scope("request")
 public class Database {
+	// Database User container
+	public class User{
+		private String username;
+		private String password;
+		private int permission;
+		private String salt;
+		private String id;
+		private String info;
+		
+		public String getUsername() {
+			return username;
+		}
+		public void setUsername(String username) {
+			this.username = username;
+		}
+		public String getPassword() {
+			return password;
+		}
+		public void setPassword(String password) {
+			this.password = password;
+		}
+		public String getSalt() {
+			return salt;
+		}
+		public void setSalt(String salt) {
+			this.salt = salt;
+		}
+		public String getId() {
+			return id;
+		}
+		public void setId(String id) {
+			this.id = id;
+		}
+		public String getInfo() {
+			return info;
+		}
+		public void setInfo(String info) {
+			this.info = info;
+		}
+		public int getPermission() {
+			return permission;
+		}
+		public void setPermission(int permission) {
+			this.permission = permission;
+		}
+	}
+	
 	// Connection Related
 	private String dbUrl = "";
 	private String database = "";
@@ -34,6 +85,7 @@ public class Database {
 	private PreparedStatement loginStatement = null;
 	private PreparedStatement saltStatement = null;
 	private PreparedStatement addUserStatement = null;
+	private PreparedStatement selectUsersStatement = null;
 	Properties connectionProps = new Properties();
 	Properties prop = new Properties();
 
@@ -91,6 +143,53 @@ public class Database {
 			e.printStackTrace();
 		}
 		System.out.println("Connection established correctly");
+	}
+	
+	public List<User> getAllUsers() throws SQLException{
+		checkDb();
+		List<User> users = new ArrayList<User>();
+		
+		if(selectUsersStatement == null || selectUsersStatement.isClosed()){
+			selectUsersStatement = conn.prepareStatement(Constants.SELECT_USERS);
+		}
+		
+		ResultSet rsUsers = selectUsersStatement.executeQuery();
+		while(rsUsers.next()){
+			User tmp = new User();
+			tmp.setUsername(rsUsers.getString("userName"));
+			tmp.setPassword(rsUsers.getString("password"));
+			tmp.setId(rsUsers.getString("userId"));
+			tmp.setPermission(rsUsers.getInt("permissionId"));
+			users.add(tmp);
+			
+		}
+		
+		
+		
+		return users;
+	}
+	
+	public int updateUser(String username, String key, String value){
+		return 0;
+		
+	}
+	
+	public int addUser(String username, String password) throws SQLException{
+		checkDb();
+		
+		if(addUserStatement == null || addUserStatement.isClosed()){
+			addUserStatement = conn.prepareStatement(Constants.ADD_USER);
+			// Use a pool of entropy to secure salts
+			String genSalt = DigestUtils.md5Hex(Math.random() + (new Date()).toString());
+			addUserStatement.setString(1,username);
+			addUserStatement.setString(2,genSalt);
+			addUserStatement.setString(3,DigestUtils.md5Hex(password+genSalt)); // Store hashed and salted passwords
+			addUserStatement.setInt(4,3); //Lowest permission level for logged in user is 3
+			
+		}
+		
+		
+		return addUserStatement.executeUpdate();
 	}
 	
 	public int loginUser(String username, String password) throws SQLException{

@@ -13,6 +13,9 @@ CREATE TABLE `tourney`.`users` (
 	PRIMARY KEY (`userId`)
 ) ENGINE=InnoDB;
 
+/* Admin Erik user insert for testing should be removed in prod*/
+INSERT INTO `tourney`.`users` (userName, salt, password, permissionId) VALUES ('erik', '1234567testsalt', md5('test1234567testsalt'), 0);
+
 /* Create broker table with key constraint on userId */
 DROP TABLE IF EXISTS `tourney`.`brokers`;
 CREATE TABLE `tourney`.`brokers` (

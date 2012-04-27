@@ -14,6 +14,56 @@
 		<ui:define name="content">
 			<h2>Admin</h2>
 			<h:form rendered="#{user.permissions le 0}">
+				<h:outputText value="User Details" />
+				<t:dataTable
+					id="datausers"
+					border="1" sortable="true"
+					sortColumn="#{users.sortColumn}"
+					sortAscending="#{users.sortAscending}"
+					preserveSort="true"
+					rowCount="#{users.rowCount}"
+					style="border:1px solid black;border-collapse:collapse;text-align:center"
+					value="#{users.userList}" var="u">
+					
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="User ID" />
+						</f:facet>
+						<!-- row record -->
+						<h:outputText value="#{u.id}" />
+					</t:column>
+					
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Username" />
+						</f:facet>
+						<!-- row record -->
+						<h:outputText value="#{u.username}" />
+					</t:column>
+					
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Change Password" />
+						</f:facet>
+						<!-- row record -->
+						<h:outputText value="#{u.password}" />
+					</t:column>
+					
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Permission" />
+						</f:facet>
+						<!-- row record -->
+						<h:outputText value="#{u.permission}" />
+					</t:column>
+					
+					
+					
+				</t:dataTable>
 
 				<h:outputText value="Pending/Running Tournaments" />
 				<t:dataTable

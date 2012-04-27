@@ -33,7 +33,7 @@
 
 				<!-- Normal User permission buttons -->
 				<h:commandButton value="Account" action="Account"
-					rendered="#{user.permissions le 1}" />
+					rendered="#{user.permissions le 3}" />
 					
 				<h:commandButton value="Logout" action="#{actionLogin.logout}"
 					rendered="#{user.permissions le 3}" />

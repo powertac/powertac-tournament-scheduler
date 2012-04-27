@@ -112,6 +112,20 @@
 		
 		
 	</navigation-rule>
+	
+	<navigation-rule>
+		<from-view-id>/register.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>Success</from-outcome>
+			<to-view-id>/login.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>Failure</from-outcome>
+			<to-view-id>/register.xhtml</to-view-id>
+		</navigation-case>
+		
+		
+	</navigation-rule>
 
 
 	<navigation-rule>
