@@ -114,6 +114,7 @@ public class Database {
 		}
 	}
 
+	// TODO: Strategy Object find the correct dbms by reflection and call its connection method
 	private void checkDb() {
 		try {
 			if (conn == null || conn.isClosed()) {

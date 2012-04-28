@@ -43,7 +43,7 @@ public class ActionAccount {
 	public String addBroker() {
 		User user = (User) FacesContext.getCurrentInstance()
 				.getExternalContext().getSessionMap().get(User.getKey());
-
+		// Check if user is null?
 		Broker b = user.addBroker(getNewBrokerName(), getNewBrokerShortDescription());
 		
 

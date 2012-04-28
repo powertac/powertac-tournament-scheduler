@@ -26,7 +26,7 @@ public class User {
 	private boolean loggedIn;
 
 	// Brokers
-	private Vector<Broker> brokers;
+	private Vector<Broker> brokers = new Vector<Broker>();
 
 	public User() {
 		this.brokers = new Vector<Broker>();
@@ -34,7 +34,6 @@ public class User {
 		this.password = "";
 		this.permissions = Permission.GUEST;
 		this.loggedIn = false;
-
 	}
 
 	public Broker addBroker(String brokerName, String shortDescription) {
@@ -105,7 +104,7 @@ public class User {
 		this.password = "";
 		this.permissions = Permission.GUEST;
 		this.loggedIn = false;
-		this.brokers = null;
+		this.brokers = new Vector<Broker>();
 
 		// TODO: Manually destroy session variables
 		ActionBrokerDetail abd = (ActionBrokerDetail) FacesContext
