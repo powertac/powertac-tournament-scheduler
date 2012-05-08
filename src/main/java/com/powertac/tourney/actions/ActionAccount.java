@@ -1,5 +1,6 @@
 package com.powertac.tourney.actions;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
 
@@ -13,6 +14,7 @@ import com.powertac.tourney.beans.Broker;
 import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.beans.Tournaments;
 import com.powertac.tourney.beans.User;
+import com.powertac.tourney.services.Database;
 
 
 @ManagedBean
@@ -44,13 +46,14 @@ public class ActionAccount {
 		User user = (User) FacesContext.getCurrentInstance()
 				.getExternalContext().getSessionMap().get(User.getKey());
 		// Check if user is null?
-		Broker b = user.addBroker(getNewBrokerName(), getNewBrokerShortDescription());
+		user.addBroker(getNewBrokerName(), getNewBrokerShortDescription());
 		
+				
 
 		return "Account";
 	}
 	
-	public Vector<Broker> getBrokers(){
+	public List<Broker> getBrokers(){
 		User user = (User) FacesContext.getCurrentInstance()
 				.getExternalContext().getSessionMap().get(User.getKey());
 		return user.getBrokers();
@@ -59,11 +62,14 @@ public class ActionAccount {
 	public void deleteBroker(Broker b){
 		User user = (User) FacesContext.getCurrentInstance()
 				.getExternalContext().getSessionMap().get(User.getKey());
-		user.getBrokers().remove(b);
+		user.deleteBroker(b.getBrokerId());
 		
 	}
 	
 	public void editBroker(Broker b){
+		User user = (User) FacesContext.getCurrentInstance()
+				.getExternalContext().getSessionMap().get(User.getKey());
+		user.setEdit(true);
 		b.setEdit(true);
 		b.setNewAuth(b.getBrokerAuthToken());
 		b.setNewName(b.getBrokerName());
@@ -71,14 +77,29 @@ public class ActionAccount {
 	}
 	
 	public void saveBroker(Broker b){
+		User user = (User) FacesContext.getCurrentInstance()
+				.getExternalContext().getSessionMap().get(User.getKey());
+		user.setEdit(false);
 		b.setEdit(false);
 		b.setBrokerName(b.getNewName());
 		b.setShortDescription(b.getNewShort());
 		b.setBrokerAuthToken(b.getNewAuth());
 		
+
+		Database db = new Database();
+		try {
+			db.updateBrokerByBrokerId(b.getBrokerId(),b.getBrokerName(), b.getBrokerAuthToken(), b.getShortDescription());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 	public void cancelBroker(Broker b){
+		User user = (User) FacesContext.getCurrentInstance()
+				.getExternalContext().getSessionMap().get(User.getKey());
+		user.setEdit(false);
 		b.setEdit(false);
 	}
 	

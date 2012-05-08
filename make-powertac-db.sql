@@ -36,6 +36,7 @@ CREATE TABLE `tourney`.`tournaments` (
 	`tourneyId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`tourneyName` VARCHAR(256) NOT NULL,	
 	`startTime` DATETIME NOT NULL,
+	`status` VARCHAR(32) NOT NULL,
 	`type` VARCHAR(32) NOT NULL, /* Type is either multi-game or single game */
 	`pomUrl` VARCHAR(256) NOT NULL, /* This will be the url to the pom file */
 	`locations` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */

@@ -12,6 +12,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import javax.faces.context.FacesContext;
+
+import com.powertac.tourney.beans.Broker;
 import com.powertac.tourney.constants.Constants;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -72,6 +75,8 @@ public class Database {
 		}
 	}
 	
+	
+	
 	// Connection Related
 	private String dbUrl = "";
 	private String database = "";
@@ -86,6 +91,11 @@ public class Database {
 	private PreparedStatement saltStatement = null;
 	private PreparedStatement addUserStatement = null;
 	private PreparedStatement selectUsersStatement = null;
+	private PreparedStatement addBrokerStatement = null;
+	private PreparedStatement selectBrokersByUserId = null;
+	private PreparedStatement selectBrokerByBrokerId = null;
+	private PreparedStatement updateBrokerById = null;
+	private PreparedStatement deleteBrokerById = null;
 	Properties connectionProps = new Properties();
 	Properties prop = new Properties();
 
@@ -175,6 +185,8 @@ public class Database {
 		
 	}
 	
+	
+	
 	public int addUser(String username, String password) throws SQLException{
 		checkDb();
 		
@@ -193,7 +205,7 @@ public class Database {
 		return addUserStatement.executeUpdate();
 	}
 	
-	public int loginUser(String username, String password) throws SQLException{
+	public int[] loginUser(String username, String password) throws SQLException{
 		checkDb();
 		
 		boolean userExist = false;
@@ -206,12 +218,14 @@ public class Database {
 		// salt and hash password
 		String salt = "";
 		String digest = "";
+		int userId = -1;
 		int permission = 99; // Lowest permission level
 		String hashedPass = "";// DigestUtils.md5Hex(password	+ salt);
 		if(rsSalt.next()){
 			digest = rsSalt.getString("password");
             salt = rsSalt.getString("salt");
             permission = rsSalt.getInt("permissionId");
+            userId = rsSalt.getInt("userId");
             userExist = true;
 		}else{ // Time resistant attack we need to hash something
 			digest = "000000000000000000000000000=";
@@ -225,11 +239,107 @@ public class Database {
 		conn.close();
 		// TODO: make sure things are inserted correctly in the database;
 		if (DigestUtils.md5Hex(password+salt).equalsIgnoreCase(digest) && userExist){
-			return permission;
+			int[] result = new int[2];
+			result[0] = permission;
+			result[1] = userId;
+			return result;
 		}else{
-			return -1;
+			int[] result = new int[2];
+			result[0] = -1;
+			result[1] = -1;
+			return result;
 		}
 	}
+	
+	public int addBroker(int userId, String brokerName, String shortDescription) throws SQLException{
+		checkDb();
+		com.powertac.tourney.beans.Broker b = new com.powertac.tourney.beans.Broker(brokerName, shortDescription);
+		
+		if(addBrokerStatement == null || addBrokerStatement.isClosed()){
+			addBrokerStatement = conn.prepareStatement(Constants.ADD_BROKER);	
+		}
+		
+		addBrokerStatement.setString(1, brokerName);
+		addBrokerStatement.setString(2, b.getBrokerAuthToken());
+		addBrokerStatement.setString(3, shortDescription);
+		addBrokerStatement.setInt(4, userId);
+		
+		
+		return addBrokerStatement.executeUpdate();
+		
+	}
+	
+	public List<Broker> getBrokersByUserId(int userId) throws SQLException{
+		checkDb();
+		List<Broker> brokers = new ArrayList<Broker>();
+		
+		if(selectBrokersByUserId == null || selectBrokersByUserId.isClosed()){
+			selectBrokersByUserId = conn.prepareStatement(Constants.SELECT_BROKERS_BY_USERID);
+		}
+		selectBrokersByUserId.setInt(1, userId);
+		ResultSet rsBrokers = selectBrokersByUserId.executeQuery();
+		while(rsBrokers.next()){
+			Broker tmp = new Broker("new");
+			tmp.setBrokerAuthToken(rsBrokers.getString("brokerAuth"));
+			tmp.setBrokerId(rsBrokers.getInt("brokerId"));
+			tmp.setBrokerName(rsBrokers.getString("brokerName"));
+			tmp.setShortDescription(rsBrokers.getString("brokerShort"));
+			tmp.setNumberInGame(rsBrokers.getInt("numberInGame"));
+			
+			
+			brokers.add(tmp);
+			
+		}
+		
+		return brokers;
+			
+	}
+	
+	public int deleteBrokerByBrokerId(int brokerId) throws SQLException{
+		checkDb();
+		
+		if(deleteBrokerById == null || deleteBrokerById.isClosed()){
+			deleteBrokerById = conn.prepareStatement(Constants.DELETE_BROKER_BY_BROKERID);
+		}
+		deleteBrokerById.setInt(1, brokerId);
+		
+		return deleteBrokerById.executeUpdate();		
+	}
+	
+	public int updateBrokerByBrokerId(int brokerId, String brokerName, String brokerAuth, String brokerShort) throws SQLException{
+		checkDb();
+		
+		
+		if(updateBrokerById == null || updateBrokerById.isClosed()){
+			updateBrokerById = conn.prepareStatement(Constants.UPDATE_BROKER_BY_BROKERID);
+		}
+		updateBrokerById.setString(1, brokerName);
+		updateBrokerById.setString(2, brokerAuth);
+		updateBrokerById.setString(3, brokerShort);
+		updateBrokerById.setInt(4, brokerId);
+		
+		return updateBrokerById.executeUpdate();
+	}
+	
+	public Broker getBroker(int brokerId) throws SQLException{
+		checkDb();
+		Broker broker = new Broker("new");
+		if(selectBrokerByBrokerId == null || selectBrokerByBrokerId.isClosed()){
+			selectBrokerByBrokerId = conn.prepareStatement(Constants.SELECT_BROKER_BY_BROKERID);
+		}
+		
+		ResultSet rsBrokers = selectBrokersByUserId.executeQuery();
+		if(rsBrokers.next()){
+			broker.setBrokerAuthToken(rsBrokers.getString("brokerAuth"));
+			broker.setBrokerId(rsBrokers.getInt("brokerId"));
+			broker.setBrokerName(rsBrokers.getString("brokerName"));
+			broker.setShortDescription(rsBrokers.getString("brokerShort"));
+			broker.setNumberInGame(rsBrokers.getInt("numberInGame"));
+		}
+		
+		return broker;
+	}
+	
 
 	public String getDbUrl() {
 		return dbUrl;

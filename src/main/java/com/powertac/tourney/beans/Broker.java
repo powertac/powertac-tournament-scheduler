@@ -25,6 +25,7 @@ public class Broker {
 	private int brokerId = 0;
 	private String brokerAuthToken;
 	private String shortDescription;
+	private int numberInGame = 0;
 
 	public Broker(String brokerName) {
 		this.brokerName = brokerName;
@@ -128,6 +129,14 @@ public class Broker {
 
 	public void setSelectedTourney(String selectedTourney) {
 		this.selectedTourney = selectedTourney;
+	}
+
+	public int getNumberInGame() {
+		return numberInGame;
+	}
+
+	public void setNumberInGame(int numberInGame) {
+		this.numberInGame = numberInGame;
 	}
 
 }

@@ -1,5 +1,8 @@
 package com.powertac.tourney.beans;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.faces.bean.ManagedBean;
@@ -7,7 +10,7 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
 import com.powertac.tourney.actions.ActionAccount;
-import com.powertac.tourney.actions.ActionBrokerDetail;
+import com.powertac.tourney.services.Database;
 
 @SessionScoped
 @ManagedBean
@@ -24,43 +27,61 @@ public class User {
 	private String password;
 	private int permissions;
 	private boolean loggedIn;
+	private int userId;
+	private boolean isEditing;
+	private List<Broker> brokers;
 
 	// Brokers
-	private Vector<Broker> brokers = new Vector<Broker>();
 
 	public User() {
 		this.brokers = new Vector<Broker>();
+		this.userId = -1;
 		this.username = "Guest";
 		this.password = "";
 		this.permissions = Permission.GUEST;
 		this.loggedIn = false;
 	}
 
-	public Broker addBroker(String brokerName, String shortDescription) {
-		Broker b = new Broker(brokerName, shortDescription);
-		brokers.add(b);
+	public void addBroker(String brokerName, String shortDescription) {
+		//Broker b = new Broker(brokerName, shortDescription);
+		//brokers.add(b);
+		
+		if (userId != -1){
+			Database db = new Database();
+			try {
+				db.addBroker(getUserId(), brokerName, shortDescription);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
-		return b;
 
 	}
 
 	public void deleteBroker(int brokerId) {
-		for (Broker b : brokers) {
-			if (b.getBrokerId() == brokerId) {
-				brokers.remove(b);
-				break;
-			}
+		Database db = new Database();
+		
+		try {
+			db.deleteBrokerByBrokerId(brokerId);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
 	public Broker getBroker(int brokerId) {
-		for (Broker b : brokers) {
-			if (b.getBrokerId() == brokerId) {
-				return b;
-			}
+		Database db = new Database();
+		try {
+			Broker b = db.getBroker(brokerId);
+			return b;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
 		}
-
-		return null;
+		
+		
 	}
 
 	public static String getKey() {
@@ -100,16 +121,12 @@ public class User {
 
 	public boolean logout() {
 		// There is probably a better way to do this
+		this.brokers = null;
+		this.userId = -1;
 		this.username = "Guest";
 		this.password = "";
 		this.permissions = Permission.GUEST;
 		this.loggedIn = false;
-		this.brokers = new Vector<Broker>();
-
-		// TODO: Manually destroy session variables
-		ActionBrokerDetail abd = (ActionBrokerDetail) FacesContext
-				.getCurrentInstance().getExternalContext().getSessionMap()
-				.remove(ActionBrokerDetail.getKey());
 
 		return false;
 
@@ -119,14 +136,42 @@ public class User {
 		return this.loggedIn;
 	}
 
-	public Vector<Broker> getBrokers() {
+	public List<Broker> getBrokers() {
 		/*Broker[] newBroker = new Broker[brokers.size()];
 		int i = 0;
 		for (Broker b : brokers) {
 			newBroker[i] = brokers.get(i);
 			i++;
 		}*/
+		if (!isEditing && loggedIn){
+			Database db = new Database();
+			brokers = new ArrayList<Broker>();
+			try {
+				brokers = db.getBrokersByUserId(getUserId());
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
 		return brokers;
+	}
+
+	public int getUserId() {
+		return userId;
+	}
+
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
+
+	public boolean isEdit() {
+		return isEditing;
+	}
+
+	public void setEdit(boolean isEditing) {
+		this.isEditing = isEditing;
 	}
 
 }

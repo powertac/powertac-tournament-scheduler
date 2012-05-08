@@ -47,12 +47,13 @@ public class ActionLogin {
 	public String login() {		
 		Database database = new Database();
 		try {
-			int perm = -1;
-			if((perm = database.loginUser(getUsername(), getPassword()))>=0){
+			int[] perm;// = new int[2] -1;
+			if((perm = database.loginUser(getUsername(), getPassword()))[0]>=0){
 				User test = (User) FacesContext.getCurrentInstance().getExternalContext()
 						.getSessionMap().get(User.getKey());
 				test.setUsername(getUsername());
-				test.setPermissions(perm);
+				test.setUserId(perm[1]);
+				test.setPermissions(perm[0]);
 				test.login();
 			}else{
 				FacesContext.getCurrentInstance().addMessage("loginForm", new FacesMessage(
