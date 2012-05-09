@@ -112,5 +112,15 @@ CREATE TABLE `tourney`.`permissions` (
 ) ENGINE=InnoDB;
 
 
+DROP TABLE IF EXISTS `tourney`.`poms`;
+CREATE TABLE `tourney`.`poms` (
+	`pomId` integer UNSIGNED NOT NULL AUTO_INCREMENT,
+	`location` VARCHAR(256) NOT NULL,
+	`name` VARCHAR(45) NOT NULL,
+	`uploadingUser` VARCHAR(45) NOT NULL,
+	PRIMARY KEY (`pomId`)
+) ENGINE=InnoDB;
+
+
 
 

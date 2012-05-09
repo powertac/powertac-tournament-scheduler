@@ -14,6 +14,7 @@ import java.util.Properties;
 
 import javax.faces.context.FacesContext;
 
+import com.powertac.tourney.actions.ActionAdmin;
 import com.powertac.tourney.beans.Broker;
 import com.powertac.tourney.constants.Constants;
 
@@ -98,6 +99,9 @@ public class Database {
 	private PreparedStatement deleteBrokerById = null;
 	private PreparedStatement selectPropsById = null;
 	private PreparedStatement addPropsById = null;
+	private PreparedStatement addPom = null;
+	private PreparedStatement selectPoms = null;
+	
 	Properties connectionProps = new Properties();
 	Properties prop = new Properties();
 
@@ -374,6 +378,68 @@ public class Database {
 		addPropsById.setString(3, startTimeKV);
 		
 		return addPropsById.executeUpdate();
+	}
+	
+	public int addPom(String uploadingUser, String name, String location) throws SQLException{
+		checkDb();
+		if(addPom == null || addPom.isClosed()){
+			addPom = conn.prepareStatement(Constants.ADD_POM);
+		}
+		
+		addPom.setString(1, uploadingUser);
+		addPom.setString(2, name);
+		addPom.setString(3, location);
+		
+		return addPom.executeUpdate();
+	}
+	
+	public class Pom {
+		private String name;
+		private String location;
+		private String uploadingUser;
+		
+		
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
+		public String getLocation() {
+			return location;
+		}
+		public void setLocation(String location) {
+			this.location = location;
+		}
+		public String getUploadingUser() {
+			return uploadingUser;
+		}
+		public void setUploadingUser(String uploadingUser) {
+			this.uploadingUser = uploadingUser;
+		}
+		
+	}
+	
+	public List<Pom> getPoms() throws SQLException{
+		checkDb();
+		List<Pom> poms = new ArrayList<Pom>();
+		
+		if(selectPoms == null || selectPoms.isClosed()){
+			selectPoms = conn.prepareStatement(Constants.SELECT_POMS);
+		}
+		
+		ResultSet rsPoms = selectPoms.executeQuery();
+		while(rsPoms.next()){
+			Pom tmp = new Pom();
+			tmp.setLocation(rsPoms.getString("location"));
+			tmp.setName(rsPoms.getString("name"));
+			tmp.setUploadingUser(rsPoms.getString("uploadingUser"));
+			
+			poms.add(tmp);
+		}
+		
+		return poms;
+		
 	}
 	
 

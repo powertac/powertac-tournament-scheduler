@@ -32,6 +32,79 @@
 					</h:panelGroup>
 				</h:panelGrid>
 			</h:form>
+			
+			<h:form rendered="#{user.permissions le 0}" >
+				<h:outputText value="Available Poms: " />
+					<t:dataTable
+						id="datausers"
+						border="1" sortable="true"
+						sortColumn="#{actionAdmin.sortColumn}"
+						sortAscending="#{actionAdmin.sortAscending}"
+						preserveSort="true"
+						rowCount="#{actionAdmin.rowCount}"
+						style="border:1px solid black;border-collapse:collapse;text-align:center"
+						value="#{actionAdmin.pomList}" var="p">
+
+						<t:column defaultSorted="true">
+							<!-- column header -->
+							<f:facet name="header">
+								<h:outputText value="Pom Name" />
+							</f:facet>
+							<!-- row record -->
+							<h:outputText value="#{p.name}" />
+						</t:column>
+
+						<t:column defaultSorted="true">
+							<!-- column header -->
+							<f:facet name="header">
+								<h:outputText value="Location" />
+							</f:facet>
+							<!-- row record -->
+							<a href="#{p.location}">#{p.location}</a>
+						</t:column>
+
+						<t:column defaultSorted="true">
+							<!-- column header -->
+							<f:facet name="header">
+								<h:outputText value="Uploading User" />
+							</f:facet>
+							<!-- row record -->
+							<h:outputText value="#{p.uploadingUser}" />
+						</t:column>
+
+
+					</t:dataTable>
+			
+			</h:form>
+			
+			
+			<h:form rendered="#{user.permissions le 0}" enctype="multipart/form-data">
+				<h:panelGrid columns="2">
+					
+					
+					
+					<h:outputText value="Upload Pom " />
+					<h:panelGroup>
+					</h:panelGroup>
+
+
+					<h:outputText value="Pom Name (Release number X.X.X): " />
+					<h:panelGroup>
+						<h:inputText value="#{actionAdmin.pomName}" />
+					</h:panelGroup>
+					
+					<h:outputText value="Upload Pom File:" />
+					<h:panelGroup>
+							<t:inputFileUpload disabled="false" value="#{actionAdmin.pom}"
+								accept="mime-type" storage="file" required="true" />
+					</h:panelGroup>
+
+					<h:panelGroup>
+						<h:commandButton value="Submit Pom" action="#{actionAdmin.submitPom}" />
+					</h:panelGroup>
+				</h:panelGrid>
+			</h:form>
+			
 			<h:form rendered="#{user.permissions le 0}">
 				<h:outputText value="User Details" />
 				<t:dataTable

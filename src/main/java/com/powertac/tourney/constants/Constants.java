@@ -144,6 +144,19 @@ public class Constants {
 	 */
 	public static final String ADD_PROPERTIES = "INSERT INTO tourney.properties (location,startTime,gameId) VALUES (?,?,?);";
 	
+	/***
+	 * Add pom names and locations
+	 * @param uploadingUser
+	 * @param name
+	 * @param location
+	 */
+	public static final String ADD_POM = "INSERT INTO tourney.poms (uploadingUser, name, location) VALUES (?,?,?);";
+	
+	/***
+	 * Select all poms
+	 */
+	public static final String SELECT_POMS = "SELECT * FROM tourney.poms";
+	
 	
 
 }

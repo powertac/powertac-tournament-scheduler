@@ -10,17 +10,17 @@
         <hudson.model.StringParameterDefinition>
           <name>tourneyUrl</name>
           <description></description>
-          <defaultValue></defaultValue>
+          <defaultValue>http://127.0.0.1:8080/TournamentScheduler</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>serverConfig</name>
+          <name>propUrl</name>
           <description></description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>suffix</name>
           <description></description>
-          <defaultValue></defaultValue>
+          <defaultValue>bootstrap</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>machine</name>
@@ -42,6 +42,11 @@
           <description></description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>bootUrl</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -50,7 +55,6 @@
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <authToken>start-instance</authToken>
   <triggers class="vector"/>
   <concurrentBuild>true</concurrentBuild>
   <builders>
@@ -61,34 +65,22 @@ echo Tournament Scheduler URL: $tourneyUrl
 echo Server Config URL: $serverConfig
 echo Log File Suffix: $suffix
 
-echo $pomUrl
-wget https://github.com/downloads/powertac/powertac-server/powertac-server-0.2.0.tgz
-tar -xvzf powertac-server-0.2.0.tgz
-cd server-distribution/
-wget http://www-users.cselabs.umn.edu/~onarh001/bootstraprun.xml
+wget $pomUrl
 
+if [ &quot;$bootUrl&quot; != &quot;&quot; ] ; then
+    echo &quot;Running in bootstrap mode!&quot;
+    wget $tourneyUrl/faces/serverInterface.jsp?
+    mvn exec:exec -Dexec.args=&quot;-boot boot.xml --config $propUrl --log-suffix $suffix
+    echo &quot;Bootstrap complete!&quot;
+    echo &quot;Posting bootstrap&quot;
+    exit 1
+else
+    echo &quot;Configuration Success!&quot; $status
+fi
 
-mvn exec:exec -Dexec.args=&quot;-sim --boot-data http://www.cselabs.umn.edu/~onarh001/bootstraprun.xml --brokers $brokers&quot;</command>
+#mvn exec:exec -Dexec.args=&quot;-sim --boot-data http://www.cselabs.umn.edu/~onarh001/bootstraprun.xml --brokers $brokers&quot;</command>
     </hudson.tasks.Shell>
   </builders>
-  <publishers>
-    <hudson.plugins.ws__cleanup.WsCleanup>
-      <patterns>
-        <hudson.plugins.ws__cleanup.Pattern>
-          <pattern>*.tgz</pattern>
-          <type>INCLUDE</type>
-        </hudson.plugins.ws__cleanup.Pattern>
-        <hudson.plugins.ws__cleanup.Pattern>
-          <pattern>*.xml</pattern>
-          <type>INCLUDE</type>
-        </hudson.plugins.ws__cleanup.Pattern>
-        <hudson.plugins.ws__cleanup.Pattern>
-          <pattern>./server-distribution/</pattern>
-          <type>INCLUDE</type>
-        </hudson.plugins.ws__cleanup.Pattern>
-      </patterns>
-      <deleteDirs>false</deleteDirs>
-    </hudson.plugins.ws__cleanup.WsCleanup>
-  </publishers>
+  <publishers/>
   <buildWrappers/>
 </project>
