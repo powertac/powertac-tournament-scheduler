@@ -112,12 +112,11 @@ public class ActionTournament {
 	 * @param propertiesName
 	 *            the propertiesName to set
 	 */
-	@SuppressWarnings("static-access")
+	
 	public void setPropertiesName(String propertiesName) {
 
 		// Generate MD5 hash
-		DigestUtils dg = new DigestUtils();
-		this.propertiesName = dg.md5Hex(propertiesName
+		this.propertiesName = DigestUtils.md5Hex(propertiesName
 				+ (new Date()).toString() + Math.random());
 	}
 
@@ -132,11 +131,10 @@ public class ActionTournament {
 	 * @param bootName
 	 *            the bootName to set
 	 */
-	@SuppressWarnings("static-access")
 	public void setBootName(String bootName) {
 		// Generate MD5 hash
-		DigestUtils dg = new DigestUtils();
-		this.bootName = dg.md5Hex(bootName + (new Date()).toString()
+		
+		this.bootName = DigestUtils.md5Hex(bootName + (new Date()).toString()
 				+ Math.random());
 		
 	}
@@ -145,11 +143,10 @@ public class ActionTournament {
 		return pomName;
 	}
 
-	@SuppressWarnings("static-access")
+	
 	public void setPomName(String pomName) {
 		// Generate MD5 hash
-		DigestUtils dg = new DigestUtils();
-		this.pomName = dg.md5Hex(pomName
+		this.pomName = DigestUtils.md5Hex(pomName
 				+ (new Date()).toString() + Math.random());
 	}
 
@@ -207,22 +204,13 @@ public class ActionTournament {
 		// Create a tournament and insert it into the application context
 		Tournament newTourney = new Tournament();
 		if (type == TourneyType.SINGLE_GAME) {
-			// TODO: Change this to the correct hosted files
-			
-			// Creates hashed names for each name
-			//this.setBootName(boot.getName());
-			//newTourney.setBootName(this.getBootName());
-			
+		
+		
 			this.setPomName(pom.getName());
-			
 			upload.setUploadedFile(getPom());
 			String finalFile = upload.submit(this.getPomName());
 			newTourney.setPomName(finalFile);
 			
-			//InetAddress thisIp =InetAddress.getLocalHost();
-			
-			//upload.setUploadedFile(getProperties());
-			//upload.submit(this.getPropertiesName());
 			
 			InetAddress thisIp = null;
 			try {
@@ -234,7 +222,7 @@ public class ActionTournament {
 			}
 			
 			
-			newTourney.setBootstrapUrl("http://www-users.cselabs.umn.edu/~onarh001/bootstraprun.xml");
+			
 			newTourney.setPomUrl(thisIp.getHostAddress()+":8080/TournamentScheduler/"+newTourney.getPomName());
 			newTourney.setMaxBrokers(getMaxBrokers());
 			newTourney.setStartTime(getStartTime());

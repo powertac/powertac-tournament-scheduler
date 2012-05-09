@@ -19,6 +19,9 @@ public class Constants {
 	public static final String REQ_PARAM_ACTION = "action";
 	
 	
+	// Possible Rest Parameters for properties service
+	public static final String REQ_PARAM_PROP_ID = "propId";
+	
 	
 	// Prepared Statements for Database access
 	/***
@@ -84,24 +87,62 @@ public class Constants {
 	
 	
 	
-	
-	/***
-	 * Returns a list of brokers for a userId
-	 * @param userId : The userId of the user you want to query for
-	 */
-	public static final String SELECT_BROKER = "SELECT * FROM tourney.brokers WHERE brokerId=?;";
-	public static final String UPDATE_BROKER = "";
 		
 	/***
 	 * Returns the list of all tournaments in the database of a particular status (pending, in-progress, complete) possible
 	 * @param status : either "pending", "in-progress", or "complete" 
 	 */
-	public static final String SELECT_TOURNAMENTS = "SELECT * FROM tourney.tournaments WHERE status=?";
+	public static final String SELECT_TOURNAMENTS = "SELECT * FROM tourney.tournaments WHERE status=?;";
+	
+	/***
+	 * Selects a tournament from the database by tournamentId
+	 * @param tournamentId : Specify the unique field to select a particular tournamnet by Id.
+	 * 
+	 */
 	public static final String SELECT_TOURNAMENT_BYID = "SELECT * FROM tourney.tournaments WHERE tournamentId=?;";
-	public static final String UPDATE_TOURNAMENT_BYID = "";
+	
+	/***
+	 * Adds a tournament to the database with pending status by default
+	 * @param tourneyName : The name of the tournament
+	 * @param startTime : The timestamp when the tournament scheduler will issue a request to start the powertac simulation server
+	 * @param type : This is either "MULTI_GAME" or "SINGLE_GAME"
+	 * @param pomUrl : This is the url where the pom.xml file can be located for this tournament 
+	 * @param locations : This is a comma delimited list of the possible locations available in the tournament (Used for weather models)
+	 */
+	
+	public static final String ADD_TOURNAMENT = "INSERT INTO tourney.tournaments (tourneyName, startTime, type, pomUrl, locations, status) VALUES (?,?,?,?,?,'pending');";
+	
+	/***
+	 * Updates a particular tournament given the id
+	 * @param status : The new status of the server either "pending", "in-progress", or "complete"
+	 * @param tournamentId : The id of the tournament you wish to change
+	 */
+	public static final String UPDATE_TOURNAMENT_STATUS_BYID = "UPDATE tourney.tournaments SET status = ? WHERE tournamentId=?";
+	
+	/***
+	 * Delete a particular tournament permanently, works only if all the games associated with it have been deleted
+	 * @param tournamentId : The id of the tournament you wish to delete
+	 */
+	public static final String DELETE_TOURNAMENT_BYID = "DELETE FROM tourney.tournaments WHERE tournamentId=?;";
+	
 	
 	public static final String SELECT_GAME = "";
 	public static final String UPDATE_GAME = "";
+	
+	/***
+	 * Select the properties given a certain property id
+	 * @param propId : The id of the properties you wish to query
+	 */
+	public static final String SELECT_PROPERTIES_BY_ID = "SELECT * FROM tourney.properties WHERE gameId=?;";
+	
+	/***
+	 * Add properties to the database
+	 * @param location : The location key value pair for the properties file as a string in the database
+	 * @param startTime : The startTime key value pair for the properties file as a string in the database
+	 * @param gameId : The gameId that this property file belongs to
+	 * @param tourneyId : The tournament the game belongs to (THis is denormalization to spead up queries)
+	 */
+	public static final String ADD_PROPERTIES = "INSERT INTO tourney.properties (location,startTime,gameId) VALUES (?,?,?);";
 	
 	
 

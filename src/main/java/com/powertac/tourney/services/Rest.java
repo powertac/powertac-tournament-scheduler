@@ -1,6 +1,9 @@
 package com.powertac.tourney.services;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
@@ -112,6 +115,41 @@ public class Rest{
 		
 		return "Not yet implemented";		
 	}
+	
+	/***
+	 * Returns a properties file string
+	 * @param params
+	 * @return String representing a properties file
+	 */
+	public static String parseProperties(Map<?, ?> params){
+		String propId = "0";
+		if(params!=null){
+			propId = ((String[]) params.get(Constants.REQ_PARAM_PROP_ID))[0];
+		}
+		
+		Database db = new Database();
+		List<String> props = new ArrayList<String>();
+		
+		try {
+			props = db.getProperties(Integer.parseInt(propId));
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String result = "";
+		
+		for (String s : props){
+			result += s + "\n";
+		}
+		
+		
+		return result;
+	}
+	
 	
 	
 

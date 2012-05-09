@@ -96,6 +96,8 @@ public class Database {
 	private PreparedStatement selectBrokerByBrokerId = null;
 	private PreparedStatement updateBrokerById = null;
 	private PreparedStatement deleteBrokerById = null;
+	private PreparedStatement selectPropsById = null;
+	private PreparedStatement addPropsById = null;
 	Properties connectionProps = new Properties();
 	Properties prop = new Properties();
 
@@ -113,7 +115,7 @@ public class Database {
 			this.setUsername(prop.getProperty("db.username"));
 			this.setPassword(prop.getProperty("db.password"));
 
-			System.out.println("Successfully instantiated Database bean!");
+			//System.out.println("Successfully instantiated Database bean!");
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -338,6 +340,40 @@ public class Database {
 		}
 		
 		return broker;
+	}
+	
+	public List<String> getProperties(int gameId) throws SQLException {
+		checkDb();
+		List<String> props = new ArrayList<String>();
+		
+		
+		if(selectPropsById == null || selectPropsById.isClosed()){
+			selectPropsById = conn.prepareStatement(Constants.SELECT_PROPERTIES_BY_ID);
+		}
+		
+		selectPropsById.setInt(1, gameId);
+		
+		ResultSet rsProps = selectPropsById.executeQuery();
+		if(rsProps.next()){
+			props.add(rsProps.getString("location"));
+			props.add(rsProps.getString("startTime"));
+		}
+		
+		return props;
+		
+	}
+	
+	public int addProperties(int gameId, String locationKV, String startTimeKV) throws SQLException{
+		checkDb();
+		if(addPropsById == null || addPropsById.isClosed()){
+			addPropsById = conn.prepareStatement(Constants.ADD_PROPERTIES);
+		}
+		
+		addPropsById.setInt(1, gameId);
+		addPropsById.setString(2, locationKV);
+		addPropsById.setString(3, startTimeKV);
+		
+		return addPropsById.executeUpdate();
 	}
 	
 

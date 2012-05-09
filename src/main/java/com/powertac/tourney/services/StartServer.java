@@ -19,8 +19,10 @@ public class StartServer extends TimerTask {
 	private Game game;
 	private Machines allMachines;
 	private Tournaments allTournaments;
+	private int numAttempts;
 
 	public StartServer(Game game, Machines allMachines, Tournaments allTournaments) {
+		this.numAttempts = 0;
 		this.game = game;
 		this.allMachines = allMachines;
 		this.allTournaments = allTournaments;
@@ -28,7 +30,9 @@ public class StartServer extends TimerTask {
 
 	public void run() {
 
-		
+		if(this.numAttempts > 9){
+			return;
+		}
 
 		int numRegistered = allTournaments.getTournamentById(game.getCompetitionId()).getNumberRegistered();
 

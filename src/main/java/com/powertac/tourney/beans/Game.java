@@ -14,6 +14,7 @@ public class Game {
 	private static int maxGameId = 0;
 	private String status = "pending";
 	private Machine runningMachine = null; // This is set when the game is actually running on a machine
+	private boolean hasBootstrap = false;
 	
 	private String jmsUrl = "";
 	private String serverConfigUrl = "";
@@ -182,6 +183,14 @@ public class Game {
 
 	public void setBootstrapUrl(String bootstrapUrl) {
 		this.bootstrapUrl = bootstrapUrl;
+	}
+
+	public boolean isHasBootstrp() {
+		return hasBootstrap;
+	}
+
+	public void setHasBootstrap(boolean hasBootstrap) {
+		this.hasBootstrap = hasBootstrap;
 	}
 
 }

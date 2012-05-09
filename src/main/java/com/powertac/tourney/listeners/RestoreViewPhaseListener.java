@@ -61,7 +61,22 @@ public class RestoreViewPhaseListener implements PhaseListener {
 				}
 				pe.getFacesContext().responseComplete();
 
+			} else if (url.indexOf("properties") > 0) {
+				System.out.println("properties.jsp");
+				HttpServletResponse response = (HttpServletResponse) pe
+						.getFacesContext().getExternalContext().getResponse();
+
+				response.setContentType("text/plain; charset=UTF-8");
+				try {
+					PrintWriter pw = response.getWriter();
+					pw.print(Rest.parseProperties(r.getParameterMap()));
+				} catch (IOException ex) {
+					throw new FacesException(ex);
+				}
+				pe.getFacesContext().responseComplete();
+				
 			} else {
+			
 				return;
 			}
 		}

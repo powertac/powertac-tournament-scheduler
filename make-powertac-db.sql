@@ -68,6 +68,17 @@ CREATE TABLE `tourney`.`machines` (
 	PRIMARY KEY (`machineId`)
 ) ENGINE=InnoDB;
 
+/* Create properties list*/
+DROP TABLE IF EXISTS `tourney`.`properties`;
+CREATE TABLE `tourney`.`properties` (
+	`propId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`gameId` BIGINT(20) UNSIGNED NOT NULL, /* Not a foreign key to prevent cycles*/
+	`tourneyId` BIGINT(20) UNSIGNED NOT NULL, /* Not a foreign key to prevent cycles*/
+	`location` VARCHAR(256) NOT NULL,
+	`startTime` VARCHAR(256) NOT NULL,
+	PRIMARY KEY (`propId`)
+) ENGINE=InnoDB;
+
 /* Create top level tournament list */
 DROP TABLE IF EXISTS `tourney`.`games`;
 CREATE TABLE `tourney`.`games` (
@@ -75,14 +86,17 @@ CREATE TABLE `tourney`.`games` (
 	`gameName` VARCHAR(256) NOT NULL,
 	`tourneyId` BIGINT(20) UNSIGNED NOT NULL,
 	`machineId` BIGINT(20) UNSIGNED NOT NULL,
+	`propId` BIGINT(20) UNSIGNED NOT NULL,
 	`logId` integer UNSIGNED NOT NULL,
 	`status` VARCHAR(20) NOT NULL,
+	`hasBootstrap` BOOLEAN NOT NULL,
 	`startTime` DATETIME NOT NULL,
 	`visualizerUrl` VARCHAR(256) NOT NULL,
 	`propertiesUrl` VARCHAR(256) NOT NULL, /* This will be the url to the properties file */
 	`bootstrapUrl` VARCHAR(256) NOT NULL, /* This will be the url to the bootstrap file*/
 	`location` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
 	PRIMARY KEY (`gameId`),	
+	CONSTRAINT prop_game_refs FOREIGN KEY (`propId`) REFERENCES `tourney`.`properties` (`propId`),
 	CONSTRAINT tourneyId2_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),
 	CONSTRAINT machineId_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` ),
 	CONSTRAINT logId_refs FOREIGN KEY (`logId`) REFERENCES `tourney`.`logs` ( `logId` )

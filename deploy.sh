@@ -7,7 +7,7 @@ echo "Installing Jenkins..."
 curl --upload-file ./jenkins.war "http://"$2":"$3"@"$1"/manager/text/deploy?path=/jenkins&update=true"
 rm jenkins.war
 echo "Configuring Jenkins..."
-sleep 20
+sleep 30
 status=`curl -o /dev/null --write-out %{http_code} --upload-file ./config.xml -H Content-Type:text/xml http://$1/jenkins/createItem?name=start-server-instance&mode=create`
 
 if [ "$status" != "200" ] ; then
@@ -19,5 +19,6 @@ fi
 
 echo "done."
 echo "Installing TS..."
-curl --upload-file ./target/TournamentScheduler.war "http://"$2":"$3"@"$1"/manager/text/deploy?path=/TS&update=true"
+mvn tomcat:redeploy
+#curl --upload-file ./target/TournamentScheduler.war "http://"$2":"$3"@"$1"/manager/text/deploy?path=/TS&update=true"
 echo "done."

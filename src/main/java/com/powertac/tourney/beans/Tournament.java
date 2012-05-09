@@ -21,8 +21,6 @@ public class Tournament {
 	private int maxBrokers; // -1 means inf, otherwise integer specific
 	
 	private String pomName;
-	private String bootName;
-	private String propertiesName;
 	
 	
 	// Probably Should check name against auth token
@@ -138,32 +136,6 @@ public class Tournament {
 		this.pomName = pomName;
 	}
 
-	/**
-	 * @return the bootName
-	 */
-	public String getBootName() {
-		return bootName;
-	}
 
-	/**
-	 * @param bootName the bootName to set
-	 */
-	public void setBootName(String bootName) {
-		this.bootName = bootName;
-	}
-
-	/**
-	 * @return the propertiesName
-	 */
-	public String getPropertiesName() {
-		return propertiesName;
-	}
-
-	/**
-	 * @param propertiesName the propertiesName to set
-	 */
-	public void setPropertiesName(String propertiesName) {
-		this.propertiesName = propertiesName;
-	}
 
 }

@@ -18,6 +18,12 @@
 	<listener>
 		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
 	</listener>
+	
+	<!-- Error Page -->
+	<error-page>
+    	<exception-type>javax.faces.application.ViewExpiredException</exception-type>
+    	<location>/login.xhtml</location>
+	</error-page>
 
 
 

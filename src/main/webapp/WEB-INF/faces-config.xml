@@ -18,6 +18,12 @@
 		</phase-listener>
 	</lifecycle>
 
+	<!-- Error Code 
+	<error-page>
+    	<exception-type>javax.faces.application.ViewExpiredException</exception-type>
+    	<location>/sessionExpired.jsf</location>
+	</error-page>-->
+
 
 	<!-- Objects -->
 	
