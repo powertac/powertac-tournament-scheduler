@@ -56,7 +56,7 @@ public class Tournaments {
 	
 	public Tournament getTournamentById(int id){
 		for (Tournament t : tournaments){
-			if(t.getCompetitionId() == id){
+			if(t.getTournamentId() == id){
 				return t;
 			}
 		}

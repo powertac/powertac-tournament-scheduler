@@ -14,8 +14,8 @@ public class Tournament {
 	public enum TourneyType {
 		SINGLE_GAME, MULTI_GAME;
 	}
-	private static int maxCompetitionId = 0;
-	private int competitionId = 0;
+	private static int maxTournamentId = 0;
+	private int tournyId = 0;
 	private Date startTime;
 	private String tournamentName;
 	private int maxBrokers; // -1 means inf, otherwise integer specific
@@ -25,28 +25,26 @@ public class Tournament {
 	
 	// Probably Should check name against auth token
 	private HashMap<Integer,String> registeredBrokers;
-	
-	
-	private String bootstrapUrl;
+
 	private String pomUrl;
 
 	private HashMap<Integer,Game> allGames;
 	
 	public Tournament(){
-		System.out.println("Created Tournament Bean: " + competitionId);
-		competitionId = maxCompetitionId;
-		maxCompetitionId++;
+		System.out.println("Created Tournament Bean: " + tournyId);
+		tournyId = maxTournamentId;
+		maxTournamentId++;
 		
 		allGames = new HashMap<Integer,Game>();
 		registeredBrokers = new HashMap<Integer,String>();
 	}
 
-	public int getCompetitionId() {
-		return competitionId;
+	public int getTournamentId() {
+		return tournyId;
 	}
 
-	public void setCompetitionId(int competitionId) {
-		this.competitionId = competitionId;
+	public void setTournamentId(int competitionId) {
+		this.tournyId = competitionId;
 	}
 
 	public Date getStartTime() {
@@ -73,13 +71,6 @@ public class Tournament {
 		this.maxBrokers = maxBrokers;
 	}
 
-	public String getBootstrapUrl() {
-		return bootstrapUrl;
-	}
-
-	public void setBootstrapUrl(String bootstrapUrl) {
-		this.bootstrapUrl = bootstrapUrl;
-	}
 
 	public String getPomUrl() {
 		return pomUrl;
@@ -102,7 +93,7 @@ public class Tournament {
 		if(registeredBrokers.size() < maxBrokers && maxBrokers != -1){
 			registeredBrokers.put(id, name);
 			for(Game g : allGames.values()){
-				if (g.getCompetitionId() == this.getCompetitionId()){
+				if (g.getCompetitionId() == this.getTournamentId()){
 					g.addBrokerLogin(name, authToken);	
 					System.out.println("Broker: " + name + ":" + authToken + " is registered for Competition:" + g.getCompetitionName());
 				}

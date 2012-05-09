@@ -12,9 +12,75 @@
 <h:body>
 	<ui:composition template="template.xhtml">
 		<ui:define name="content">
+			<h:form rendered="#{user.permissions le 0}">
+				<h2>Tournament Manager</h2>
+			
+				<h4>Pending/Running Tournaments</h4>
+				<t:dataTable id="datatourneys" border="1" sortable="true"
+					sortColumn="#{tournaments.sortColumn}"
+					sortAscending="#{tournaments.sortAscending}" preserveSort="true"
+					rowCount="#{tournaments.rowCount}"
+					style="border:1px solid black;border-collapse:collapse;text-align:center"
+					value="#{tournaments.tournamentList}" var="t">
+
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Competition ID" />
+						</f:facet>
+						<!-- row record -->
+						<h:outputText value="#{t.competitionId}" />
+					</t:column>
+
+					<t:column>
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Competition Type" />
+						</f:facet>
+						<!-- row record -->
+						<h:outputText value="Single-game" />
+					</t:column>
+
+					<t:column>
+						<f:facet name="header">
+							<h:outputText value="Tournament Name" />
+						</f:facet>
+						<h:outputText value="#{t.tournamentName}" />
+					</t:column>
+
+					<t:column>
+						<f:facet name="header">
+							<h:outputText value="Start Time" />
+						</f:facet>
+						#{t.startTime}
+					</t:column>
+
+					<t:column>
+						<f:facet name="header">
+							<h:outputText value="Max Brokers" />
+						</f:facet>
+						<h:outputText value="#{t.maxBrokers}" />
+					</t:column>
+					<t:column>
+						<f:facet name="header">
+							<h:outputText value="Registered Brokers" />
+						</f:facet>
+						<h:outputText value="#{t.numberRegistered}" />
+					</t:column>
+
+					<t:column>
+						<f:facet name="header">
+							<h:outputText value="Pom Link" />
+						</f:facet>
+						<a href="/TournamentScheduler/#{t.pomName}">Pom</a>
+					</t:column>
+
+				</t:dataTable>
+			</h:form>
+		
 			<h:form enctype="multipart/form-data"
 				rendered="#{user.permissions le 0}">
-				<h2>Tournament Manager</h2>
+				
 				<br />
 				<h4>Create Tournament</h4>
 				<h:panelGrid columns="2">

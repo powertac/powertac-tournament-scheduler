@@ -131,6 +131,7 @@ public class Rest{
 		List<String> props = new ArrayList<String>();
 		
 		try {
+			//TODO: Actually propId is gameId
 			props = db.getProperties(Integer.parseInt(propId));
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block

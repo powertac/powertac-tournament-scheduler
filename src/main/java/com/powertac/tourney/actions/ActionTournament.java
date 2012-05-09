@@ -231,7 +231,7 @@ public class ActionTournament {
 			// Add one game to the global context and to the tournament
 			Game newGame = new Game();
 			newGame.setMaxBrokers(getMaxBrokers());
-			newGame.setCompetitionId(newTourney.getCompetitionId());
+			newGame.setCompetitionId(newTourney.getTournamentId());
 			newGame.setCompetitionName(getTournamentName());
 			newGame.setStatus("pending");
 			newGame.setStartTime(getStartTime());

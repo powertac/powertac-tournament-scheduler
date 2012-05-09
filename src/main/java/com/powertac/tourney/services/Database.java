@@ -16,6 +16,7 @@ import javax.faces.context.FacesContext;
 
 import com.powertac.tourney.actions.ActionAdmin;
 import com.powertac.tourney.beans.Broker;
+import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.constants.Constants;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -439,6 +440,28 @@ public class Database {
 		}
 		
 		return poms;
+		
+	}
+	
+	public List<Tournament> getTournaments() throws SQLException{
+		checkDb();
+		List<Tournament> ts = new ArrayList<Tournament>();
+		PreparedStatement selectAllTournaments = conn.prepareStatement(Constants.SELECT_TOURNAMENTS);
+		
+		ResultSet rsTs = selectAllTournaments.executeQuery();
+		
+		while(rsTs.next()){
+			Tournament tmp = new Tournament();
+			tmp.setPomUrl(rsTs.getString("pomUrl"));
+			tmp.setMaxBrokers(rsTs.getInt("maxBrokers"));
+			tmp.setStartTime(rsTs.getDate("startTime"));
+			tmp.setTournamentName(rsTs.getString("tourneyName"));
+			ts.add(tmp);
+		}
+		
+		
+		return ts;
+		
 		
 	}
 	

@@ -155,8 +155,41 @@ public class Constants {
 	/***
 	 * Select all poms
 	 */
-	public static final String SELECT_POMS = "SELECT * FROM tourney.poms";
+	public static final String SELECT_POMS = "SELECT * FROM tourney.poms;";
 	
+	
+	/***
+	 * Select all machines 
+	 */
+	public static final String SELECT_MACHINES = "SELECT * FROM tourney.machines;";
+	
+	/***
+	 * Change a machine's status based on id
+	 * @param status : The new status to change to either "running" or "idle"
+	 * @param machineId : The id of the machine to change
+	 */
+	public static final String UPDATE_MACHINE_STATUS_BY_ID = "UPDATE tourney.machines SET status=? WHERE machineId=?;";
+	
+	/***
+	 * Change a machine's status based on name
+	 * @param status : The new status to change to either "running" or "idle"
+	 * @param machineName : The name of the machine to change
+	 * 
+	 */
+	public static final String UPDATE_MACHINE_STATUS_BY_NAME = "UPDATE tourney.machines SET status=? WHERE machineName=?;";
+	
+	/***
+	 * Add a machine into the database, default status is "idle"
+	 * @param machineName : The shorthand name of the machine to be displayed to the users like "tac04"
+	 * @param machineUrl : The fully qualified name of the machine like "tac04.cs.umn.edu"
+	 */
+	public static final String ADD_MACHINE = "INSERT INTO tourney.machines (machineName, machineUrl, status) VALUES (?,?,'idle');";
+	
+	/***
+	 * Remove a machine from the database by id
+	 * @param machineId : THe id of the machine you wish to remove
+	 */
+	public static final String REMOVE_MACHINE = "DELETE FROM tourney.machines WHERE machineId=?;";
 	
 
 }

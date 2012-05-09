@@ -36,6 +36,7 @@ CREATE TABLE `tourney`.`tournaments` (
 	`tourneyId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`tourneyName` VARCHAR(256) NOT NULL,	
 	`startTime` DATETIME NOT NULL,
+	`maxBrokers` integer UNSIGNED NOT NULL,
 	`status` VARCHAR(32) NOT NULL,
 	`type` VARCHAR(32) NOT NULL, /* Type is either multi-game or single game */
 	`pomUrl` VARCHAR(256) NOT NULL, /* This will be the url to the pom file */
@@ -64,9 +65,19 @@ CREATE TABLE `tourney`.`machines` (
 	`machineId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`machineName` VARCHAR(30) NOT NULL,
 	`machineUrl` VARCHAR(256) NOT NULL, /* Url to the machine */
-	`status` VARCHAR(20) NOT NULL, /* Indicates wether a game is running on this machine or not */
+	`status` VARCHAR(20) NOT NULL, /* Indicates wether a game is running on this machine or not, either "running" or "idle" */
 	PRIMARY KEY (`machineId`)
 ) ENGINE=InnoDB;
+
+/* Local machines for testing purposes should be removed in prod*/
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, status) VALUES ('tac04', 'tac04.cs.umn.edu', 'idle');
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, status) VALUES ('tac10', 'tac10.cs.umn.edu', 'idle');
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, status) VALUES ('tac11', 'tac11.cs.umn.edu', 'idle');
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, status) VALUES ('tac12', 'tac12.cs.umn.edu', 'idle');
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, status) VALUES ('tac13', 'tac13.cs.umn.edu', 'idle');
+
+
+
 
 /* Create properties list*/
 DROP TABLE IF EXISTS `tourney`.`properties`;

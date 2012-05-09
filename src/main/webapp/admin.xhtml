@@ -16,7 +16,7 @@
 			<h:form rendered="#{user.permissions le 0}">
 				<h:panelGrid columns="2">
 
-					<h:outputText value="Weather Server Status: " />
+					<h4>Weather Server Status:</h4>
 					<h:panelGroup>
 						<h:outputText value="#{checkWeatherServer.status}"/>
 					</h:panelGroup>
@@ -34,7 +34,7 @@
 			</h:form>
 			
 			<h:form rendered="#{user.permissions le 0}" >
-				<h:outputText value="Available Poms: " />
+				<h4>Available Poms</h4>
 					<t:dataTable
 						id="datausers"
 						border="1" sortable="true"
@@ -83,7 +83,7 @@
 					
 					
 					
-					<h:outputText value="Upload Pom " />
+					<h4>Upload Pom</h4>
 					<h:panelGroup>
 					</h:panelGroup>
 
@@ -106,7 +106,7 @@
 			</h:form>
 			
 			<h:form rendered="#{user.permissions le 0}">
-				<h:outputText value="User Details" />
+				<h4>User Details</h4>
 				<t:dataTable
 					id="datausers"
 					border="1" sortable="true"
@@ -157,7 +157,7 @@
 					
 				</t:dataTable>
 
-				<h:outputText value="Pending/Running Tournaments" />
+				<h4>Pending/Running Tournaments</h4>
 				<t:dataTable
 					id="datatourneys" 
 					border="1" sortable="true"
@@ -223,7 +223,7 @@
 			</h:form>
 
 			<h:form rendered="#{user.permissions le 0}">
-				<h:outputText value="Pending/Running Games" />
+				<h4>Pending/Running Games</h4>
 				<t:dataTable 
 					id="datagames"
 					border="1"
