@@ -3,6 +3,7 @@ package com.powertac.tourney.actions;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -252,6 +253,23 @@ public class ActionTournament {
 
 			// Start a single game and send jenkins request to kick the server
 			// at the appropriate time
+			String allLocations = "";
+			for (String s : locations){
+				allLocations += s + ",";
+			}
+			
+			int tourneyId = 0;
+			
+			try {
+				db.addTournament(newTourney.getTournamentName(), new java.sql.Date(newTourney.getStartTime().getTime()), "SINGLE_GAME", newTourney.getPomUrl(), allLocations);
+				tourneyId = db.getMaxTourneyId();
+				//db.addGame("SingleGame", tourneyId, 0, properitesUrl)
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			
 			//Scheduler.getScheduler().schedule(new RunBootstrap(gameId, finalFile, finalFile, finalFile), new Date());
 			
 			//Scheduler.getScheduler().schedule(

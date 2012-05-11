@@ -444,7 +444,18 @@ public class Database {
 		
 	}
 	
-	
+	public int addTournament(String tourneyName, java.sql.Date startTime, String type, String pomUrl, String locations) throws SQLException{
+		checkDb();
+		PreparedStatement addTournament = conn.prepareStatement(Constants.ADD_TOURNAMENT);
+		addTournament.setString(1, tourneyName);
+		addTournament.setDate(2, startTime);
+		addTournament.setString(3, pomUrl);
+		addTournament.setString(4, locations);
+		
+		return addTournament.executeUpdate();
+		
+		
+	}
 	
 	public List<Tournament> getTournaments() throws SQLException{
 		checkDb();
