@@ -97,9 +97,8 @@ CREATE TABLE `tourney`.`games` (
 	`gameName` VARCHAR(256) NOT NULL,
 	`tourneyId` BIGINT(20) UNSIGNED NOT NULL,
 	`machineId` BIGINT(20) UNSIGNED NOT NULL,
-	`propId` BIGINT(20) UNSIGNED NOT NULL,
-	`logId` integer UNSIGNED NOT NULL,
 	`status` VARCHAR(20) NOT NULL,
+	`maxBrokers` integer NOT NULL,
 	`hasBootstrap` BOOLEAN NOT NULL,
 	`startTime` DATETIME NOT NULL,
 	`visualizerUrl` VARCHAR(256) NOT NULL,
@@ -109,8 +108,7 @@ CREATE TABLE `tourney`.`games` (
 	PRIMARY KEY (`gameId`),	
 	CONSTRAINT prop_game_refs FOREIGN KEY (`propId`) REFERENCES `tourney`.`properties` (`propId`),
 	CONSTRAINT tourneyId2_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),
-	CONSTRAINT machineId_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` ),
-	CONSTRAINT logId_refs FOREIGN KEY (`logId`) REFERENCES `tourney`.`logs` ( `logId` )
+	CONSTRAINT machineId_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` )
 ) ENGINE=InnoDB;
 
 

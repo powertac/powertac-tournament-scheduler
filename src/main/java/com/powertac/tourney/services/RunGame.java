@@ -23,7 +23,7 @@ public class RunGame extends TimerTask {
 	}
 
 	public void run() {
-
+		/*
 		// Stop the timer after some attempts to prevent memory leaks
 		if (this.numAttempts > 15) {
 			this.cancel();
@@ -45,6 +45,7 @@ public class RunGame extends TimerTask {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			*/
 
 			/*
 			 * String finalUrl = "http://" + thisIp.getHostAddress() +
@@ -55,7 +56,7 @@ public class RunGame extends TimerTask {
 			 * + "&bootstrapUrl=" + bootstrapUrl + "&machine=" + machineName +
 			 * "&gameId=" + gameId + "&brokers=" + brokers;
 			 */
-
+/*
 			try {
 				URL url = new URL(finalUrl);
 				URLConnection conn = url.openConnection();
@@ -80,7 +81,7 @@ public class RunGame extends TimerTask {
 			}
 
 		}
-
+		
 	}
-
-}
+*/
+}}

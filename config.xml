@@ -69,11 +69,13 @@ wget $pomUrl
 
 if [ &quot;$bootUrl&quot; != &quot;&quot; ] ; then
     echo &quot;Running in bootstrap mode!&quot;
-    wget $tourneyUrl/faces/serverInterface.jsp?
+    wget $tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-running
 
     mvn exec:exec -Dexec.args=&quot;-boot boot.xml --config $propUrl --log-suffix $suffix
     echo &quot;Bootstrap complete!&quot;
     echo &quot;Posting bootstrap&quot;
+    wget $tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-done
+    #curl --upload-file boot.xml &quot;http://localhost:8080/TournamentScheduler/faces/serverInterface.jsp&quot;
     exit 1
 else
     echo &quot;Running in sim mode!&quot;

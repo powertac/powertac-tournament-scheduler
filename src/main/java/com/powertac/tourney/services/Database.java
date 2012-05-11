@@ -16,6 +16,7 @@ import javax.faces.context.FacesContext;
 
 import com.powertac.tourney.actions.ActionAdmin;
 import com.powertac.tourney.beans.Broker;
+import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.constants.Constants;
 
@@ -443,6 +444,8 @@ public class Database {
 		
 	}
 	
+	
+	
 	public List<Tournament> getTournaments() throws SQLException{
 		checkDb();
 		List<Tournament> ts = new ArrayList<Tournament>();
@@ -461,8 +464,112 @@ public class Database {
 		
 		
 		return ts;
+	}
+	
+	public Tournament getTournamentById(int tourneyId) throws SQLException{
+		checkDb();
+		Tournament ts = new Tournament();
+		PreparedStatement selectTournament = conn.prepareStatement(Constants.SELECT_TOURNAMENT_BYID);
+		
+		selectTournament.setInt(1, tourneyId);
+		
+		ResultSet rsTs = selectTournament.executeQuery();
+		
+		if(rsTs.next()){
+			Tournament tmp = new Tournament();
+			tmp.setPomUrl(rsTs.getString("pomUrl"));
+			tmp.setMaxBrokers(rsTs.getInt("maxBrokers"));
+			tmp.setStartTime(rsTs.getDate("startTime"));
+			tmp.setTournamentName(rsTs.getString("tourneyName"));
+			ts = tmp;
+		}
 		
 		
+		return ts;
+	}
+	
+	public int getMaxGameId() throws SQLException{
+		checkDb();
+		int id = 0;
+		PreparedStatement selectMaxId = conn.prepareStatement(Constants.SELECT_MAX_GAMEID);
+		
+		ResultSet rsId = selectMaxId.executeQuery();
+		if(rsId.next()){
+			id = rsId.getInt("maxId");
+		}
+		
+		return id;
+		
+	}
+	
+	public int getMaxTourneyId() throws SQLException{
+		checkDb();
+		int id = 0;
+		PreparedStatement selectMaxId = conn.prepareStatement(Constants.SELECT_MAX_TOURNAMENTID);
+		
+		ResultSet rsId = selectMaxId.executeQuery();
+		if(rsId.next()){
+			id = rsId.getInt("maxId");
+		}
+		
+		return id;
+	}
+	
+	public List<Game> getGames() throws SQLException{
+		checkDb();
+		List<Game> gs = new ArrayList<Game>();
+		PreparedStatement selectAllGames = conn.prepareStatement(Constants.SELECT_GAME);
+		
+		ResultSet rsGs = selectAllGames.executeQuery();
+		
+		while(rsGs.next()){
+			Game tmp = new Game();
+			tmp.setStatus(rsGs.getString("status"));
+			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
+			tmp.setStartTime(rsGs.getDate("startTime"));
+			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
+			tmp.setGameName(rsGs.getString("gameName"));
+			tmp.setGameId(rsGs.getInt("gameId"));
+			tmp.setVisualizerUrl(rsGs.getString("visualizerUrl"));
+			tmp.setBootstrapUrl(rsGs.getString("bootstrapUrl"));
+			tmp.setPropertiesUrl(rsGs.getString("propertiesUrl"));
+			tmp.setLocation(rsGs.getString("location"));
+			
+			gs.add(tmp);
+		}
+		return gs;
+	}
+	
+	public int addGame(String gameName, int tourneyId, int machineId, String properitesUrl) throws SQLException{
+		checkDb();
+		PreparedStatement insertGame = conn.prepareStatement(Constants.ADD_GAME);
+		
+		insertGame.setString(1, gameName);
+		insertGame.setInt(2, tourneyId);
+		insertGame.setInt(3, machineId);
+		insertGame.setString(4, properitesUrl);
+		
+		return insertGame.executeUpdate();
+	}
+	
+	public int updateGameStatusById(int gameId, String status) throws SQLException{
+		checkDb();
+		PreparedStatement updateGame = conn.prepareStatement(Constants.UPDATE_GAME);
+		
+		updateGame.setInt(2, gameId);
+		updateGame.setString(1, status);
+		
+		return updateGame.executeUpdate();
+	}
+	
+	public int updateGameBootstrapById(int gameId, String bootstrapUrl) throws SQLException{
+		checkDb();
+		PreparedStatement updateBoot = conn.prepareStatement(Constants.UPDATE_GAME_BOOTSTRAP);
+		
+		updateBoot.setInt(2, gameId);
+		updateBoot.setString(1, bootstrapUrl);
+		
+		return updateBoot.executeUpdate();
 	}
 	
 

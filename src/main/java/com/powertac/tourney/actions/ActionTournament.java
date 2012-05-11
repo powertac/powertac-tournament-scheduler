@@ -26,6 +26,8 @@ import com.powertac.tourney.beans.Machines;
 import com.powertac.tourney.beans.Scheduler;
 import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.beans.Tournaments;
+import com.powertac.tourney.services.Database;
+import com.powertac.tourney.services.RunBootstrap;
 import com.powertac.tourney.services.StartServer;
 import com.powertac.tourney.services.Upload;
 
@@ -222,6 +224,10 @@ public class ActionTournament {
 			}
 			
 			
+			Database db = new Database();
+			
+			
+			
 			
 			newTourney.setPomUrl(thisIp.getHostAddress()+":8080/TournamentScheduler/"+newTourney.getPomName());
 			newTourney.setMaxBrokers(getMaxBrokers());
@@ -236,22 +242,22 @@ public class ActionTournament {
 			newGame.setStatus("pending");
 			newGame.setStartTime(getStartTime());
 
-			Games allGames = (Games) FacesContext.getCurrentInstance()
-					.getExternalContext().getApplicationMap()
-					.get(Games.getKey());
+			
 
 			// Add game to all games and to Tournament
-			allGames.addGame(newGame);
-			newTourney.addGame(newGame);
+			//allGames.addGame(newGame);
+			//newTourney.addGame(newGame);
 
-			Tournaments.getAllTournaments().addTournament(newTourney);
+			//Tournaments.getAllTournaments().addTournament(newTourney);
 
 			// Start a single game and send jenkins request to kick the server
 			// at the appropriate time
-			Scheduler.getScheduler().schedule(
-					new StartServer(newGame, Machines.getAllMachines(),
-							Tournaments.getAllTournaments()),
-					newGame.getStartTime());
+			//Scheduler.getScheduler().schedule(new RunBootstrap(gameId, finalFile, finalFile, finalFile), new Date());
+			
+			//Scheduler.getScheduler().schedule(
+				//	new StartServer(newGame, Machines.getAllMachines(),
+					//		Tournaments.getAllTournaments()),
+					//newGame.getStartTime());
 			try {
 				// TODO:REMOVE this is only to simulate the message from the
 				// server

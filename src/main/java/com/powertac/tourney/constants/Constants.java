@@ -125,9 +125,45 @@ public class Constants {
 	 */
 	public static final String DELETE_TOURNAMENT_BYID = "DELETE FROM tourney.tournaments WHERE tournamentId=?;";
 	
+	/**
+	 * Select the max tournament id from all the tournaments
+	 */
+	public static final String SELECT_MAX_TOURNAMENTID = "SELECT MAX(tournamentId) as maxId FROM tourney.tournaments;";
 	
-	public static final String SELECT_GAME = "";
-	public static final String UPDATE_GAME = "";
+	
+	/***
+	 * Insert a new game into the database to be run (only ever insert games without bootstraps
+	 * @param gameName : The name of the running game
+	 * @param tourneyId : The id of the tournament the game is running under
+	 * @param machineId : The id of the machine the game is running on
+	 * @param propertiesUrl : The url where the properties file can be accessed
+	 */
+	public static final String ADD_GAME = "INSERT INTO tourney.games (gameName, tourneyId, machineId, propertiesUrl, status, bootstrapUrl,hasBootstrap) VALUES (?,?,?,?,'pending','',false);";
+	
+	/***
+	 * Update bootstrap information in database, this is done directly before starting a game
+	 * @param bootstrapUrl : The url where the bootstrap file can be accessed
+	 * @param gameId : The id of the game you wish to update
+	 */
+	public static final String UPDATE_GAME_BOOTSTRAP = "UPDATE tourney.games SET status='pending', bootstrapUrl=?, hasBootstrap=true WHERE gameId=?;";
+	
+	/***
+	 * Select all running and pending games
+	 * 
+	 */
+	public static final String SELECT_GAME = "SELECT * FROM tourney.games WHERE status='pending' OR status='in-progress';";
+	
+	/***
+	 * Update Game status by gameId
+	 * @param status : The new status of the game either "pending", "in-progress", or "complete"
+	 * @param gameId : The id of the game you wish to change
+	 */
+	public static final String UPDATE_GAME = "UPDATE tourney.games SET status = ? WHERE gameId = ?";
+	
+	/***
+	 * Get max gameid of all games
+	 */
+	public static final String SELECT_MAX_GAMEID = "SELECT MAX(gameId) as maxId FROM tourney.games;";
 	
 	/***
 	 * Select the properties given a certain property id

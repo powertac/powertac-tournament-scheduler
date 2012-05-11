@@ -75,45 +75,46 @@ public class Rest{
 	
 	public static String parseServerInterface(Map<?, ?> params){
 		if(params!=null){
-			String actionString = ((String[]) params.get(Constants.REQ_PARAM_ACTION))[0];			
-			String gameIdString = ((String[]) params.get(Constants.REQ_PARAM_GAME_ID))[0];
-			String statusString = ((String[]) params.get(Constants.REQ_PARAM_STATUS))[0];
+			String actionString = ((String[]) params.get(Constants.REQ_PARAM_ACTION))[0];
 			
-			if(actionString != null){
-				if(actionString.equalsIgnoreCase("pom")){
+			if(actionString.equalsIgnoreCase("status")){
+				String statusString = ((String[]) params.get(Constants.REQ_PARAM_STATUS))[0];
+				String gameIdString = ((String[]) params.get(Constants.REQ_PARAM_GAME_ID))[0];
+				int gameId = Integer.parseInt(gameIdString);
+				
+				if(statusString.equalsIgnoreCase("bootstrap-running")){
+					System.out.println("Recieved bootstrap running message from game: "+ gameId);
+					Database db = new Database();
+					try {
+						db.updateGameStatusById(gameId, "in-progress");
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					
-				}else if (actionString.equalsIgnoreCase("config")){
+				}else if(statusString.equalsIgnoreCase("bootstrap-done")){
+					System.out.println("Recieved bootstrap done message from game: " + gameId);
+					//Database db = new Database();
 					
-				}else if (actionString.equalsIgnoreCase("bootstrap")){
 					
-				}else if (actionString.equalsIgnoreCase("status")){
-					System.out.printf("Parsing server interface:\nReceived status msg: %s\ngameid=%s\nstatus=%s", actionString, gameIdString, statusString);
+					
+					//db.updateGameBootstrapById(gameId, bootstrapUrl);
+					
+					
+				}else if(statusString.equalsIgnoreCase("game-ready")){
+					
+				}else if(statusString.equalsIgnoreCase("game-running")){
+										
+				}else if(statusString.equalsIgnoreCase("game-done")){
 					
 				}else{
-					return "Invalid action parameter";
+					return "ERROR";
 				}
-							
-			}
 			
-			
-			Integer gameId = Integer.parseInt(gameIdString);
-			
-			
-			Games allGames = (Games) FacesContext.getCurrentInstance()
-					.getExternalContext().getApplicationMap().get(Games.getKey());
-			Game game = allGames.getGames().get(gameId);
-			
-			if(game!=null){
-				game.setStatus(statusString);
-				return String.format("Game ID: %d, Reports: %s", gameId, statusString);
-				
-			}else{
-				return "Game doesn't exist!";
-			}
-			
-		}
 		
-		return "Not yet implemented";		
+			}
+		}
+		return "Not Yet Implementented";	
 	}
 	
 	/***
@@ -122,29 +123,30 @@ public class Rest{
 	 * @return String representing a properties file
 	 */
 	public static String parseProperties(Map<?, ?> params){
-		String propId = "0";
+		String gameId = "0";
 		if(params!=null){
-			propId = ((String[]) params.get(Constants.REQ_PARAM_PROP_ID))[0];
+			try{
+				gameId = ((String[]) params.get(Constants.REQ_PARAM_GAME_ID))[0];
+			}catch(Exception e){
+				
+			}
 		}
 		
 		Database db = new Database();
 		List<String> props = new ArrayList<String>();
 		
-		try {
-			//TODO: Actually propId is gameId
-			props = db.getProperties(Integer.parseInt(propId));
-		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		props = CreateProperties.getPropertiesForGameId(Integer.parseInt(gameId));
 		
 		String result = "";
 		
-		for (String s : props){
-			result += s + "\n";
+		//Location of weather data
+		String weatherLocation = "server.weatherService.weatherLocation = ";
+		// Simulation base time
+		String startTime = "common.competition.simulationBaseTime = ";
+		
+		if(props.size()==2){
+			result += weatherLocation + props.get(0) +"\n"; 
+			result += startTime + props.get(1);
 		}
 		
 		

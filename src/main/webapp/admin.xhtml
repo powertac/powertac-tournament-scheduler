@@ -24,7 +24,9 @@
 
 					<h:outputText value="Weather Server Location: " />
 					<h:panelGroup>
-						<h:outputText value="#{checkWeatherServer.weatherServerLocation}" />
+						<h:outputText value="#{checkWeatherServer.weatherServerLocation}" rendered="#{checkWeatherServer.weatherServerLocation == 'Server Alive and Well'}" />
+						<h:outputText value="#{checkWeatherServer.weatherServerLocation}" rendered="#{checkWeatherServer.weatherServerLocation == 'Server is Down'}"/>
+						<h:outputText value="#{checkWeatherServer.weatherServerLocation}" rendered="#{checkWeatherServer.weatherServerLocation == 'Server Timeout or Network Error'}"/>
 					</h:panelGroup>
 
 					<h:panelGroup>

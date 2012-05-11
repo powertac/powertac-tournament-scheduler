@@ -16,10 +16,15 @@ public class Game {
 	private Machine runningMachine = null; // This is set when the game is actually running on a machine
 	private boolean hasBootstrap = false;
 	
+	
+	private String gameName = "";
+	private String location = "";
 	private String jmsUrl = "";
 	private String serverConfigUrl = "";
 	private String tournamentSchedulerUrl = "";
 	private String bootstrapUrl = "";
+	private String propertiesUrl = "";
+	private String visualizerUrl = "";
 	private String pomUrl = "";
 	
 	private HashMap<String, String> brokersToLogin = null;
@@ -191,6 +196,38 @@ public class Game {
 
 	public void setHasBootstrap(boolean hasBootstrap) {
 		this.hasBootstrap = hasBootstrap;
+	}
+
+	public String getGameName() {
+		return gameName;
+	}
+
+	public void setGameName(String gameName) {
+		this.gameName = gameName;
+	}
+
+	public String getPropertiesUrl() {
+		return propertiesUrl;
+	}
+
+	public void setPropertiesUrl(String propertiesUrl) {
+		this.propertiesUrl = propertiesUrl;
+	}
+
+	public String getVisualizerUrl() {
+		return visualizerUrl;
+	}
+
+	public void setVisualizerUrl(String visualizerUrl) {
+		this.visualizerUrl = visualizerUrl;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 }

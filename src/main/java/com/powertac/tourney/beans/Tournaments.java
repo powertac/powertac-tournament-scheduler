@@ -1,11 +1,15 @@
 package com.powertac.tourney.beans;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
 import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
+
+import com.powertac.tourney.services.Database;
 
 @ApplicationScoped
 @ManagedBean
@@ -27,6 +31,9 @@ public class Tournaments {
 		return key;
 	}
 	public static Tournaments getAllTournaments(){
+	
+		
+		
 		return (Tournaments) FacesContext.getCurrentInstance()
 		.getExternalContext().getApplicationMap().get(Tournaments.getKey());
 	}
@@ -35,32 +42,39 @@ public class Tournaments {
 		this.tournaments.add(t);
 	}
 	
-	public Tournament[] getTournamentList(){
-		if(tournaments.size() == 0){
-			return null;
-		}else{
-			Tournament[] newTourney = new Tournament[tournaments.size()];
-			int i = 0;
-			for(Tournament t : tournaments){
-				newTourney[i] = t;
-				i++;
-			}
-			
-			return newTourney;
+	public List<Tournament> getTournamentList(){
+		Database db = new Database();
+		
+		List<Tournament> ts = new ArrayList<Tournament>();
+		
+		try {
+			ts = db.getTournaments();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
+		return ts;
 	}
 	
 	public List<Tournament> getLists(){
-		return (List<Tournament>) tournaments;
+		return getTournamentList();
+		
+		//return (List<Tournament>) tournaments;
 	}
 	
 	public Tournament getTournamentById(int id){
-		for (Tournament t : tournaments){
-			if(t.getTournamentId() == id){
-				return t;
-			}
+		Database db = new Database();
+		Tournament t = new Tournament();
+		try {
+			t = db.getTournamentById(id);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return null;
+		
+		
+		return t;
 	}
 	
 
