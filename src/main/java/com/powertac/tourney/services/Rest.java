@@ -80,7 +80,7 @@ public class Rest{
 	}
 	
 	public static String parseServerInterface(Map<?, ?> params){
-		System.out.println("Parsing Rest call...");
+		/*System.out.println("Parsing Rest call...");
 		
 		for(Object s : params.keySet()){
 			System.out.println("Key: " + s.toString());
@@ -89,9 +89,18 @@ public class Rest{
 		for(Object s : params.values()){
 			System.out.println("Value: " + s.toString());
 			
-		}
+		}*/
 		
 		if(params!=null){
+			Properties props = new Properties();
+			try {
+				props.load(Database.class.getClassLoader().getResourceAsStream(
+						"/tournament.properties"));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			String actionString = ((String[]) params.get(Constants.REQ_PARAM_ACTION))[0];
 			
 			if(actionString.equalsIgnoreCase("status")){
@@ -103,7 +112,7 @@ public class Rest{
 					System.out.println("Recieved bootstrap running message from game: "+ gameId);
 					Database db = new Database();
 					try {
-						db.updateGameStatusById(gameId, "boot-in-progress");
+						db.updateGameStatusById(gameId, "in-progress");
 						return "Success";
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
@@ -112,9 +121,14 @@ public class Rest{
 					
 				}else if(statusString.equalsIgnoreCase("bootstrap-done")){
 					System.out.println("Recieved bootstrap done message from game: " + gameId);
-					//Database db = new Database();
+					Database db = new Database();
 					
-					//db.updateGameBootstrapById(gameId, bootstrapUrl);
+					try {
+						db.updateGameBootstrapById(gameId, props.getProperty("fileUploadLocation")+gameId+"-boot.xml");
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					return "Success";
 					
 					

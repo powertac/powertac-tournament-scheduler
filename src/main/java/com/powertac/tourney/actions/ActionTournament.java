@@ -1,5 +1,6 @@
 package com.powertac.tourney.actions;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -7,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -296,9 +298,17 @@ public class ActionTournament {
 				System.out.println("Committing transaction");
 				db.commitTrans();
 				
-				
+				Properties props = new Properties();
+				try {
+					props.load(Database.class.getClassLoader().getResourceAsStream(
+							"/tournament.properties"));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
 				// Only schedule the bootstrap and sim if db was updated successfully
-				Scheduler.getScheduler().schedule(new RunBootstrap(gameId, "http://localhost:8080/TournamentScheduler/", newTourney.getPomUrl(), "tac04.cs.umn.edu"), new Date());
+				Scheduler.getScheduler().schedule(new RunBootstrap(gameId, "http://localhost:8080/TournamentScheduler/", newTourney.getPomUrl(), "tac04.cs.umn.edu", props.getProperty("destination")), new Date());
 				
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block

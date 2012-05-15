@@ -252,5 +252,30 @@ public class Constants {
 	 */
 	public static final String REMOVE_MACHINE = "DELETE FROM tourney.machines WHERE machineId=?;";
 	
+	/***
+	 * Select all available locations in the database
+	 * 
+	 */
+	public static final String SELECT_LOCATIONS = "SELECT * FROM tourney.locations";
+	
+	/***
+	 * Adds a location to the database
+	 * @param location : The name of the location
+	 * @param fromDate : The start date of the weather data
+	 * @param toDate : The end date of the weather data
+	 */
+	public static final String ADD_LOCATION = "INSERT INTO tourney.locations (location, fromDate, toDate) VALUES (?,?,?);";
+	
+	/***
+	 * Delete a location by id
+	 * @param locationId : The id of the location you wish to remove
+	 */
+	public static final String DELETE_LOCATION = "DELETE FROM tourney.locations WHERE locationId=?;";
+	
+	/***
+	 * Select the minimum date available for a location
+	 * @param location : The location you wish to query
+	 */
+	public static final String SELECT_MIN_DATE = "";
 
 }

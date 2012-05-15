@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -17,6 +18,7 @@ import javax.faces.context.FacesContext;
 import com.powertac.tourney.actions.ActionAdmin;
 import com.powertac.tourney.beans.Broker;
 import com.powertac.tourney.beans.Game;
+import com.powertac.tourney.beans.Location;
 import com.powertac.tourney.beans.Machine;
 import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.constants.Constants;
@@ -619,6 +621,59 @@ public class Database {
 		
 		
 		return machines;
+	}
+	
+	public List<Location> getLocations() throws SQLException{
+		checkDb();
+		List<Location> locations = new ArrayList<Location>();
+		PreparedStatement selectLocations = conn.prepareStatement(Constants.SELECT_LOCATIONS);
+		
+		ResultSet rsLocations = selectLocations.executeQuery();
+		
+		while(rsLocations.next()){
+			Location tmp = new Location();
+			tmp.setLocationId(rsLocations.getInt("locationId"));
+			tmp.setName(rsLocations.getString("location"));
+			Calendar fromDate = Calendar.getInstance();
+			fromDate.setTimeInMillis(rsLocations.getDate("fromDate").getTime());
+			tmp.setFromDate(fromDate.getTime());
+			Calendar toDate = Calendar.getInstance();
+			toDate.setTimeInMillis(rsLocations.getDate("toDate").getTime());
+			tmp.setToDate(toDate.getTime());
+			
+			locations.add(tmp);
+			
+		}
+		
+		
+		
+		return locations;
+		
+	}
+	
+	public int deleteLocation(int locationId) throws SQLException{
+		checkDb();
+		PreparedStatement deleteLocation = conn.prepareStatement(Constants.DELETE_LOCATION);
+		
+		deleteLocation.setInt(1, locationId);
+		
+		return deleteLocation.executeUpdate();
+	}
+	
+	public int addLocation(String location, Date newLocationStartTime, Date newLocationEndTime) throws SQLException{
+		checkDb();
+		PreparedStatement addLocation = conn.prepareStatement(Constants.ADD_LOCATION);
+		addLocation.setString(1, location);
+		addLocation.setDate(2, new java.sql.Date(newLocationStartTime.getTime()));
+		addLocation.setDate(3, new java.sql.Date(newLocationEndTime.getTime()));
+		
+		return addLocation.executeUpdate();
+	}
+	
+	public Date selectMinDate(List<Location> locations) throws SQLException{
+		checkDb();
+		PreparedStatement minDate = conn.prepareStatement(Constants.SELECT_MIN_DATE);
+		return null;
 	}
 	
 	

@@ -1,14 +1,16 @@
 package com.powertac.tourney.beans;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.faces.bean.ManagedBean;
 
 @ManagedBean
 public class Location{
 	private String name;
-	private Calendar fromDate;
-	private Calendar toDate;
+	private Date fromDate;
+	private Date toDate;
+	private int locationId;
 	
 	public String getName() {
 		return name;
@@ -16,16 +18,22 @@ public class Location{
 	public void setName(String name) {
 		this.name = name;
 	}
-	public Calendar getFromDate() {
+	public Date getFromDate() {
 		return fromDate;
 	}
-	public void setFromDate(Calendar fromDate) {
+	public void setFromDate(Date fromDate) {
 		this.fromDate = fromDate;
 	}
-	public Calendar getToDate() {
+	public Date getToDate() {
 		return toDate;
 	}
-	public void setToDate(Calendar toDate) {
+	public void setToDate(Date toDate) {
 		this.toDate = toDate;
+	}
+	public int getLocationId() {
+		return locationId;
+	}
+	public void setLocationId(int locationId) {
+		this.locationId = locationId;
 	}
 }

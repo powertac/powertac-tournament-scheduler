@@ -130,7 +130,7 @@ CREATE TABLE `tourney`.`poms` (
 
 
 DROP TABLE IF EXISTS `tourney`.`locations`;
-CREATE TABLE `tourney`.`locations (
+CREATE TABLE `tourney`.`locations` (
 	`locationId` integer UNSIGNED NOT NULL AUTO_INCREMENT,
 	`location` VARCHAR(256) NOT NULL,
 	`fromDate` DATETIME NOT NULL,

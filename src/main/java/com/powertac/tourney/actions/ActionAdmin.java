@@ -2,8 +2,11 @@ package com.powertac.tourney.actions;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
+import com.powertac.tourney.beans.Location;
 import com.powertac.tourney.beans.User;
 import com.powertac.tourney.services.Database;
 import com.powertac.tourney.services.Upload;
@@ -29,6 +32,11 @@ public class ActionAdmin {
 	private String sortColumn = null;
 	private boolean sortAscending = true;
 	private int rowCount = 5;
+	
+	
+	private String newLocationName = "";
+	private Date newLocationStartTime;
+	private Date newLocationEndTime;
 	
 	
 	private UploadedFile pom;
@@ -82,6 +90,46 @@ public class ActionAdmin {
 		return poms;
 		
 	}
+	
+	public List<Location> getLocationList(){
+		List<Location> locations = new ArrayList<Location>();
+		Database db = new Database();
+		
+		try {
+			locations = db.getLocations();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return locations;
+		
+	}
+	
+	public void deleteLocation(Location l){
+		Database db = new Database();
+		try {
+			db.deleteLocation(l.getLocationId());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void addLocation(){
+		Database db = new Database();
+		try {
+			db.addLocation(newLocationName, newLocationStartTime, newLocationEndTime);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	
 	public int getRowCount() {
 		return rowCount;
 	}
@@ -99,6 +147,24 @@ public class ActionAdmin {
 	}
 	public void setSortColumn(String sortColumn) {
 		this.sortColumn = sortColumn;
+	}
+	public String getNewLocationName() {
+		return newLocationName;
+	}
+	public void setNewLocationName(String newLocationName) {
+		this.newLocationName = newLocationName;
+	}
+	public Date getNewLocationStartTime() {
+		return newLocationStartTime;
+	}
+	public void setNewLocationStartTime(Date newLocationStartTime) {
+		this.newLocationStartTime = newLocationStartTime;
+	}
+	public Date getNewLocationEndTime() {
+		return newLocationEndTime;
+	}
+	public void setNewLocationEndTime(Date newLocationEndTime) {
+		this.newLocationEndTime = newLocationEndTime;
 	}
 	
 	

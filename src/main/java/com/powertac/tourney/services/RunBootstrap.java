@@ -17,12 +17,14 @@ public class RunBootstrap extends TimerTask{
 	String gameId = "";//String.valueOf(game.getGameId());
 	String brokers = "";
 	String machineName = "";
+	String destination = "";
 	
 	
-	public RunBootstrap(int gameId, String tourneyUrl, String pomUrl, String machineName){
+	public RunBootstrap(int gameId, String tourneyUrl, String pomUrl, String machineName, String destination){
 		this.gameId = String.valueOf(gameId);
 		this.tourneyUrl = tourneyUrl;
 		this.pomUrl = pomUrl;
+		this.destination = destination;
 		
 		//Assumes Jenkins and TS live in the same location as per the install
 		this.serverConfig = "http://localhost:8080/TournamentScheduler/faces/properties.jsp?gameId="+this.gameId;
@@ -40,7 +42,8 @@ public class RunBootstrap extends TimerTask{
 				+ "&pomUrl=" + pomUrl 
 				+ "&bootstrapUrl=" + bootstrapUrl
 				+ "&machine=" + machineName 
-				+ "&gameId=" + gameId;
+				+ "&gameId=" + gameId
+				+ "&destination=" + destination;
 		
 		
 		try {

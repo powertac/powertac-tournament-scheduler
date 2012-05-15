@@ -1,5 +1,6 @@
 package com.powertac.tourney.beans;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -8,6 +9,8 @@ import java.util.Vector;
 
 import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
+
+import com.powertac.tourney.services.Database;
 
 
 @ManagedBean(eager=true)
@@ -19,7 +22,7 @@ public class Locations {
 		setLocations(new Vector<Location>());
 		
 		//TODO: Load from properties file
-		Location tl = new Location();
+		/**Location tl = new Location();
 		tl.setName("minneapolis");
 		tl.setFromDate(Calendar.getInstance());
 		tl.setToDate(Calendar.getInstance());
@@ -28,7 +31,7 @@ public class Locations {
 		tl.getToDate().set(Calendar.YEAR, 2012);
 		
 		locations.add(tl);
-		
+		*/
 		
 	}
 	
@@ -41,15 +44,26 @@ public class Locations {
 		this.locations = locations;
 	}
 	
-	public Location[] getLocationList(){
+	public List<Location> getLocationList(){
 		
+		Database db = new Database();
+		List<Location> result = new ArrayList<Location>();
+		try {
+			result = db.getLocations();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
+		/*
 		Location[] tmp = new Location[locations.size()];
 		int i = 0;
 		for(Location l : locations){
 			tmp[i++] = l;			
 		}
 		
-		return tmp;
+		return tmp;*/
 	}
 
 	

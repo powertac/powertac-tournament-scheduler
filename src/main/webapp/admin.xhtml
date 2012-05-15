@@ -18,11 +18,14 @@
 
 					<h4>Weather Server Status:</h4>
 					<h:panelGroup>
-						<h:outputText value="#{checkWeatherServer.status}" style="color:green;"
+						<h:outputText value="#{checkWeatherServer.status}"
+							style="color:green;"
 							rendered="#{checkWeatherServer.status == 'Server Alive and Well'}" />
-						<h:outputText value="#{checkWeatherServer.status}" style="color:red;"
+						<h:outputText value="#{checkWeatherServer.status}"
+							style="color:red;"
 							rendered="#{checkWeatherServer.status == 'Server is Down'}" />
-						<h:outputText value="#{checkWeatherServer.status}" style="color:orange;"
+						<h:outputText value="#{checkWeatherServer.status}"
+							style="color:orange;"
 							rendered="#{checkWeatherServer.status == 'Server Timeout or Network Error'}" />
 					</h:panelGroup>
 
@@ -36,6 +39,64 @@
 						<h:commandButton value="Ping Server"
 							action="#{checkWeatherServer.ping}" />
 					</h:panelGroup>
+				</h:panelGrid>
+			</h:form>
+
+			<h:form rendered="#{user.permissions le 0}">
+				<h:panelGrid columns="2">
+
+					<h4>Weather Server Locations and Dates:</h4>
+					<h:panelGroup>
+					</h:panelGroup>
+					<h:dataTable border="1"
+						style="border:1px solid black;border-collapse:collapse;text-align:center"
+						value="#{actionAdmin.locationList}" var="l">
+
+
+						<h:column>
+							<f:facet name="header">Location Name</f:facet>
+							<h:outputText value="#{l.name}"/>
+						</h:column>
+
+						<h:column>
+							<!-- column header -->
+							<f:facet name="header">Start Date for Data</f:facet>
+							<!-- row record -->
+							<h:outputText value="#{l.fromDate}" />
+						</h:column>
+
+						<h:column>
+							<f:facet name="header">End Date for Data</f:facet>
+							<h:outputText value="#{l.toDate}" />
+						</h:column>
+						
+						<h:column>
+							<f:facet name="header">Action</f:facet>
+							<!-- Non Edit mode buttons -->
+							<h:commandButton value="delete"
+								action="#{actionAdmin.deleteLocation(l)}"/>
+						</h:column>
+
+					</h:dataTable>
+					<h:panelGroup>
+					</h:panelGroup>
+					<h4>New Location</h4>
+					<h:panelGroup>
+					</h:panelGroup>
+					<h:outputText value="Name:" />
+					<h:panelGroup>
+						<h:inputText value="#{actionAdmin.newLocationName}"/>
+					</h:panelGroup>
+					<h:outputText value="Start Date:" />
+					<h:panelGroup>
+						<t:inputDate value="#{actionAdmin.newLocationStartTime}"/>
+					</h:panelGroup>
+					<h:outputText value="End Date:" />
+					<h:panelGroup>
+						<t:inputDate value="#{actionAdmin.newLocationEndTime}"/>
+					</h:panelGroup>
+					<h:commandButton value="add location" action="#{actionAdmin.addLocation}" />
+					
 				</h:panelGrid>
 			</h:form>
 
@@ -63,7 +124,8 @@
 							<h:outputText value="Location" />
 						</f:facet>
 						<!-- row record -->
-						<a href="http://localhost:8080/TournamentScheduler/faces/pom.jsp?location=#{p.location}">#{p.location}</a>
+						<a
+							href="http://localhost:8080/TournamentScheduler/faces/pom.jsp?location=#{p.location}">#{p.location}</a>
 					</t:column>
 
 					<t:column defaultSorted="true">
@@ -248,7 +310,7 @@
     						#{g.status}    		
     				</t:column>
 
-					
+
 					<t:column>
 						<!-- column header -->
 						<f:facet name="header">
