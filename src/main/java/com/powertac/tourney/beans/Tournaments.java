@@ -48,7 +48,8 @@ public class Tournaments {
 		List<Tournament> ts = new ArrayList<Tournament>();
 		
 		try {
-			ts = db.getTournaments();
+			ts = db.getTournaments("pending");
+			ts.addAll(db.getTournaments("in-progress"));
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

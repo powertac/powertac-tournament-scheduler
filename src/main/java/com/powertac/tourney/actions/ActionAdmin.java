@@ -57,7 +57,7 @@ public class ActionAdmin {
 			
 			Database db = new Database();
 			try {
-				db.addPom(currentUser.getUsername(), this.getPomName(), "/TournamentScheduler/"+finalName);
+				db.addPom(currentUser.getUsername(), this.getPomName(), upload.getUploadLocation()+finalName);
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

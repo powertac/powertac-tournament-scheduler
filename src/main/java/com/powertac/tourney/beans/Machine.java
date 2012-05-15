@@ -8,6 +8,8 @@ public class Machine {
 	private String name;
 	private String url;
 	private boolean inProgress;
+	private String status;
+	private int machineId;
 	private int gameId;
 	
 	public String getName() {
@@ -33,5 +35,17 @@ public class Machine {
 	}
 	public void setGameId(int gameId) {
 		this.gameId = gameId;
+	}
+	public int getMachineId() {
+		return machineId;
+	}
+	public void setMachineId(int machineId) {
+		this.machineId = machineId;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 }

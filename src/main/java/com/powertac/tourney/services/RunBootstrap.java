@@ -36,7 +36,7 @@ public class RunBootstrap extends TimerTask{
 				+ "token=start-instance"
 				+ "&tourneyUrl=" + tourneyUrl
 				+ "&suffix=" + logSuffix 
-				+ "&serverConfig=" + serverConfig
+				+ "&propUrl=" + serverConfig
 				+ "&pomUrl=" + pomUrl 
 				+ "&bootstrapUrl=" + bootstrapUrl
 				+ "&machine=" + machineName 

@@ -22,8 +22,23 @@ public class Constants {
 	// Possible Rest Parameters for properties service
 	public static final String REQ_PARAM_PROP_ID = "propId";
 	
+	// Possible Rest Parameters for pom service
+	public static final String REQ_PARAM_POM = "location";
+	
 	
 	// Prepared Statements for Database access
+	
+	/***
+	 * Start db transaction
+	 */
+	public static final String START_TRANS = "START TRANSACTION;";
+	
+	/***
+	 * Commit db transaction
+	 */
+	public static final String COMMIT_TRANS = "COMMIT;";
+	
+	
 	/***
 	 * @param userName : User name attempting to login
 	 * @param password : salted md5 hash of entered password
@@ -99,7 +114,7 @@ public class Constants {
 	 * @param tournamentId : Specify the unique field to select a particular tournamnet by Id.
 	 * 
 	 */
-	public static final String SELECT_TOURNAMENT_BYID = "SELECT * FROM tourney.tournaments WHERE tournamentId=?;";
+	public static final String SELECT_TOURNAMENT_BYID = "SELECT * FROM tourney.tournaments WHERE tourneyId=?;";
 	
 	/***
 	 * Adds a tournament to the database with pending status by default
@@ -108,27 +123,28 @@ public class Constants {
 	 * @param type : This is either "MULTI_GAME" or "SINGLE_GAME"
 	 * @param pomUrl : This is the url where the pom.xml file can be located for this tournament 
 	 * @param locations : This is a comma delimited list of the possible locations available in the tournament (Used for weather models)
+	 * @param maxBrokers : Maximum brokers allowed in this tournament round
 	 */
 	
-	public static final String ADD_TOURNAMENT = "INSERT INTO tourney.tournaments (tourneyName, startTime, type, pomUrl, locations, status) VALUES (?,?,?,?,?,'pending');";
+	public static final String ADD_TOURNAMENT = "INSERT INTO tourney.tournaments (tourneyName, startTime, type, pomUrl, locations, maxBrokers, status) VALUES (?,?,?,?,?,?,'pending');";
 	
 	/***
 	 * Updates a particular tournament given the id
 	 * @param status : The new status of the server either "pending", "in-progress", or "complete"
 	 * @param tournamentId : The id of the tournament you wish to change
 	 */
-	public static final String UPDATE_TOURNAMENT_STATUS_BYID = "UPDATE tourney.tournaments SET status = ? WHERE tournamentId=?";
+	public static final String UPDATE_TOURNAMENT_STATUS_BYID = "UPDATE tourney.tournaments SET status = ? WHERE tourneyId=?";
 	
 	/***
 	 * Delete a particular tournament permanently, works only if all the games associated with it have been deleted
 	 * @param tournamentId : The id of the tournament you wish to delete
 	 */
-	public static final String DELETE_TOURNAMENT_BYID = "DELETE FROM tourney.tournaments WHERE tournamentId=?;";
+	public static final String DELETE_TOURNAMENT_BYID = "DELETE FROM tourney.tournaments WHERE tourneyId=?;";
 	
 	/**
 	 * Select the max tournament id from all the tournaments
 	 */
-	public static final String SELECT_MAX_TOURNAMENTID = "SELECT MAX(tournamentId) as maxId FROM tourney.tournaments;";
+	public static final String SELECT_MAX_TOURNAMENTID = "SELECT MAX(tourneyId) as maxId FROM tourney.tournaments;";
 	
 	
 	/***
@@ -136,9 +152,10 @@ public class Constants {
 	 * @param gameName : The name of the running game
 	 * @param tourneyId : The id of the tournament the game is running under
 	 * @param machineId : The id of the machine the game is running on
-	 * @param propertiesUrl : The url where the properties file can be accessed
+	 * @param maxBrokers : The maximum number of brokers allowed in this game
+	 * @param startTime : The scheduled start time of the sim
 	 */
-	public static final String ADD_GAME = "INSERT INTO tourney.games (gameName, tourneyId, machineId, propertiesUrl, status, bootstrapUrl,hasBootstrap) VALUES (?,?,?,?,'pending','',false);";
+	public static final String ADD_GAME = "INSERT INTO tourney.games (gameName, tourneyId, machineId, maxBrokers,startTime, status, bootstrapUrl, visualizerUrl, propertiesUrl, location, hasBootstrap) VALUES (?,?,?,?,?,'pending','','','','',false);";
 	
 	/***
 	 * Update bootstrap information in database, this is done directly before starting a game
@@ -146,6 +163,14 @@ public class Constants {
 	 * @param gameId : The id of the game you wish to update
 	 */
 	public static final String UPDATE_GAME_BOOTSTRAP = "UPDATE tourney.games SET status='pending', bootstrapUrl=?, hasBootstrap=true WHERE gameId=?;";
+	
+	
+	/***
+	 * Update properties information in the database
+	 * @param propertiesUrl : The url where the properties file can be accessed
+	 * @param gameId : The id of the game you wish to update
+	 */
+	public static final String UPDATE_GAME_PROPERTIES = "UPDATE tourney.games SET propertiesUrl=? WHERE gameId=?;";
 	
 	/***
 	 * Select all running and pending games

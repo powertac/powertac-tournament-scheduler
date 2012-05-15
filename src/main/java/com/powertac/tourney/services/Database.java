@@ -17,6 +17,7 @@ import javax.faces.context.FacesContext;
 import com.powertac.tourney.actions.ActionAdmin;
 import com.powertac.tourney.beans.Broker;
 import com.powertac.tourney.beans.Game;
+import com.powertac.tourney.beans.Machine;
 import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.constants.Constants;
 
@@ -375,9 +376,9 @@ public class Database {
 			addPropsById = conn.prepareStatement(Constants.ADD_PROPERTIES);
 		}
 		
-		addPropsById.setInt(1, gameId);
-		addPropsById.setString(2, locationKV);
-		addPropsById.setString(3, startTimeKV);
+		addPropsById.setInt(3, gameId);
+		addPropsById.setString(1, locationKV);
+		addPropsById.setString(2, startTimeKV);
 		
 		return addPropsById.executeUpdate();
 	}
@@ -444,23 +445,27 @@ public class Database {
 		
 	}
 	
-	public int addTournament(String tourneyName, java.sql.Date startTime, String type, String pomUrl, String locations) throws SQLException{
+	public int addTournament(String tourneyName, java.sql.Date startTime, String type, String pomUrl, String locations, int maxBrokers) throws SQLException{
 		checkDb();
 		PreparedStatement addTournament = conn.prepareStatement(Constants.ADD_TOURNAMENT);
 		addTournament.setString(1, tourneyName);
 		addTournament.setDate(2, startTime);
-		addTournament.setString(3, pomUrl);
-		addTournament.setString(4, locations);
+		addTournament.setString(3, type);
+		addTournament.setString(4, pomUrl);
+		addTournament.setString(5, locations);
+		addTournament.setInt(6, maxBrokers);
 		
 		return addTournament.executeUpdate();
 		
 		
 	}
 	
-	public List<Tournament> getTournaments() throws SQLException{
+	public List<Tournament> getTournaments(String status) throws SQLException{
 		checkDb();
 		List<Tournament> ts = new ArrayList<Tournament>();
 		PreparedStatement selectAllTournaments = conn.prepareStatement(Constants.SELECT_TOURNAMENTS);
+		
+		selectAllTournaments.setString(1, status);
 		
 		ResultSet rsTs = selectAllTournaments.executeQuery();
 		
@@ -551,14 +556,16 @@ public class Database {
 		return gs;
 	}
 	
-	public int addGame(String gameName, int tourneyId, int machineId, String properitesUrl) throws SQLException{
+	public int addGame(String gameName, int tourneyId, int machineId, int maxBrokers, java.sql.Date startTime) throws SQLException{
 		checkDb();
 		PreparedStatement insertGame = conn.prepareStatement(Constants.ADD_GAME);
 		
 		insertGame.setString(1, gameName);
 		insertGame.setInt(2, tourneyId);
 		insertGame.setInt(3, machineId);
-		insertGame.setString(4, properitesUrl);
+		insertGame.setInt(4, maxBrokers);
+		insertGame.setDate(5, startTime);
+		//insertGame.setString(4, properitesUrl);
 		
 		return insertGame.executeUpdate();
 	}
@@ -582,6 +589,58 @@ public class Database {
 		
 		return updateBoot.executeUpdate();
 	}
+	
+	public int updateGamePropertiesById(int gameId) throws SQLException{
+		checkDb();
+		PreparedStatement updateProps = conn.prepareStatement(Constants.UPDATE_GAME_PROPERTIES);
+		
+		updateProps.setString(1, "http://localhost:8080/TournamentScheduler/faces/properties.jsp?gameId="+String.valueOf(gameId));
+		updateProps.setInt(2, gameId);
+		
+		return updateProps.executeUpdate();
+	}
+	
+	public List<Machine> getMachines() throws SQLException{
+		checkDb();
+		List<Machine> machines = new ArrayList<Machine>();
+		
+		PreparedStatement selectMachines = conn.prepareStatement(Constants.SELECT_MACHINES);
+		
+		ResultSet rsMachines = selectMachines.executeQuery();
+		
+		while(rsMachines.next()){
+			Machine tmp = new Machine();
+			tmp.setMachineId(rsMachines.getInt("machineId"));
+			tmp.setStatus(rsMachines.getString("status"));
+			tmp.setUrl(rsMachines.getString("machineUrl"));
+			tmp.setName(rsMachines.getString("machineName"));
+			machines.add(tmp);			
+		}
+		
+		
+		return machines;
+	}
+	
+	
+	public int startTrans() throws SQLException{
+		checkDb();
+		
+		PreparedStatement trans = conn.prepareStatement(Constants.START_TRANS);
+		trans.execute();
+		
+		return 0;
+	}
+	
+	public int commitTrans() throws SQLException{
+		checkDb();
+		PreparedStatement trans = conn.prepareCall(Constants.COMMIT_TRANS);
+		trans.execute();
+		return 0;
+		
+	}
+	
+	
+	
 	
 
 	public String getDbUrl() {

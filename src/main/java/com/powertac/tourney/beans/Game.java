@@ -44,8 +44,8 @@ public class Game {
 
 	public Game(){
 		System.out.println("Created Game Bean: " + gameId);
-		gameId = maxGameId;
-		maxGameId++;
+		//gameId = maxGameId;
+		//maxGameId++;
 		
 		brokersToLogin = new HashMap<String,String>();
 		

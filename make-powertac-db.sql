@@ -84,7 +84,6 @@ DROP TABLE IF EXISTS `tourney`.`properties`;
 CREATE TABLE `tourney`.`properties` (
 	`propId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`gameId` BIGINT(20) UNSIGNED NOT NULL, /* Not a foreign key to prevent cycles*/
-	`tourneyId` BIGINT(20) UNSIGNED NOT NULL, /* Not a foreign key to prevent cycles*/
 	`location` VARCHAR(256) NOT NULL,
 	`startTime` VARCHAR(256) NOT NULL,
 	PRIMARY KEY (`propId`)
@@ -106,7 +105,6 @@ CREATE TABLE `tourney`.`games` (
 	`bootstrapUrl` VARCHAR(256) NOT NULL, /* This will be the url to the bootstrap file*/
 	`location` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
 	PRIMARY KEY (`gameId`),	
-	CONSTRAINT prop_game_refs FOREIGN KEY (`propId`) REFERENCES `tourney`.`properties` (`propId`),
 	CONSTRAINT tourneyId2_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),
 	CONSTRAINT machineId_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` )
 ) ENGINE=InnoDB;
@@ -130,6 +128,15 @@ CREATE TABLE `tourney`.`poms` (
 	PRIMARY KEY (`pomId`)
 ) ENGINE=InnoDB;
 
+
+DROP TABLE IF EXISTS `tourney`.`locations`;
+CREATE TABLE `tourney`.`locations (
+	`locationId` integer UNSIGNED NOT NULL AUTO_INCREMENT,
+	`location` VARCHAR(256) NOT NULL,
+	`fromDate` DATETIME NOT NULL,
+	`toDate` DATETIME NOT NULL,
+	PRIMARY KEY (`locationId`)
+) ENGINE=InnoDB;
 
 
 

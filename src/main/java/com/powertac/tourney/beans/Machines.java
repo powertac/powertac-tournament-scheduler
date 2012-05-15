@@ -1,10 +1,15 @@
 package com.powertac.tourney.beans;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
+
+import com.powertac.tourney.services.Database;
 
 @ApplicationScoped
 @ManagedBean
@@ -32,14 +37,23 @@ public class Machines {
 		
 	}
 	
-	public Machine[] getMachineList(){
-		Machine[] newMachine = new Machine[machines.size()];
+	public List<Machine> getMachineList(){
+		Database db = new Database();
+		try {
+			return db.getMachines();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return new ArrayList<Machine>();
+		}
+		
+		/*Machine[] newMachine = new Machine[machines.size()];
 		int i = 0;
 		for(Machine m : machines){
 			newMachine[i] = m;
 			i++;
 		}
-		return newMachine;
+		return newMachine;*/
 	}
 	
 	

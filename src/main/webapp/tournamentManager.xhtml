@@ -14,7 +14,7 @@
 		<ui:define name="content">
 			<h:form rendered="#{user.permissions le 0}">
 				<h2>Tournament Manager</h2>
-			
+
 				<h4>Pending/Running Tournaments</h4>
 				<t:dataTable id="datatourneys" border="1" sortable="true"
 					sortColumn="#{tournaments.sortColumn}"
@@ -26,10 +26,10 @@
 					<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">
-							<h:outputText value="Competition ID" />
+							<h:outputText value="Tournament ID" />
 						</f:facet>
 						<!-- row record -->
-						<h:outputText value="#{t.competitionId}" />
+						<h:outputText value="#{t.tournamentId}" />
 					</t:column>
 
 					<t:column>
@@ -77,10 +77,10 @@
 
 				</t:dataTable>
 			</h:form>
-		
+
 			<h:form enctype="multipart/form-data"
 				rendered="#{user.permissions le 0}">
-				
+
 				<br />
 				<h4>Create Tournament</h4>
 				<h:panelGrid columns="2">
@@ -102,7 +102,7 @@
 					<h:outputText value="Starting Date/Time (dd/month/yyyy/hh/mm):" />
 					<h:panelGroup>
 						<t:inputDate value="#{actionTournament.startTime}" type="both"
-							ampm="false" renderAsPopup="true" forceId="true"/>
+							ampm="false" renderAsPopup="true" forceId="true" />
 					</h:panelGroup>
 
 					<h:outputText value="Maximum Number of Brokers to Participate" />
@@ -124,34 +124,39 @@
 					<h:panelGroup>
 						<h:selectManyCheckbox value="#{actionTournament.machines}">
 							<f:selectItems value="#{machines.machineList}" var="m"
-								itemValue="#{m.url}" itemLabel="#{m.name}" />
+								itemValue="#{m.machineId}" itemLabel="#{m.name}" />
 						</h:selectManyCheckbox>
 					</h:panelGroup>
 
-					<h:outputLabel value="Upload Pom File:" />
+
+
+					<h:outputLabel value="Select Pom File:" />
 					<h:panelGroup>
-							<t:inputFileUpload disabled="false" value="#{actionTournament.pom}"
-								accept="mime-type" storage="file" required="true" />
+						<h:selectOneMenu value="#{actionTournament.selectedPom}">
+							<f:selectItems value="#{actionTournament.pomList}" var="p"
+								itemValue="#{p.location}" itemLabel="#{p.name}" />
+						</h:selectOneMenu>
 					</h:panelGroup>
-					
-					<h:outputLabel value="Date Range (Random selection from interval): "/>
+
+					<h:outputLabel
+						value="Date Range (Random selection from interval): " />
 					<h:panelGroup>
 						<h:outputLabel value="From: " />
 						<t:inputDate value="#{actionTournament.fromTime}" type="both"
-							ampm="false" renderAsPopup="true" forceId="true"/>
+							ampm="false" renderAsPopup="true" forceId="true" /><br/>
 						<h:outputLabel value="To: " />
 						<t:inputDate value="#{actionTournament.toTime}" type="both"
-							ampm="false" renderAsPopup="true" forceId="true"/>						
+							ampm="false" renderAsPopup="true" forceId="true" />
 					</h:panelGroup>
-					
-					<h:outputLabel value="Locations: "/>
+
+					<h:outputLabel value="Locations: " />
 					<h:panelGroup>
 						<h:selectManyCheckbox value="#{actionTournament.locations}">
 							<f:selectItems value="#{locations.locationList}" var="L"
 								itemValue="#{L.name}" itemLabel="#{L.name}" />
 						</h:selectManyCheckbox>
 					</h:panelGroup>
-					
+
 
 
 					<h:outputText value="Submit Tournament (opens for registration):" />

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Properties;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -20,10 +21,22 @@ public class Upload {
 
     private UploadedFile uploadedFile;
     private String fileName;
-
+    private Properties prop = new Properties();
+    private String uploadLocation = "/export/scratch/";
+    
     // Actions ------------------------------------------------------------------------------------
     public Upload(){
     	System.out.println("Instantiated Upload Service");
+    	try {
+			prop.load(Database.class.getClassLoader().getResourceAsStream(
+					"/tournament.properties"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//System.out.println(prop);
+		// Database Connection related properties
+		this.setUploadLocation(prop.getProperty("fileUploadLocation"));
     }
     
     public String submit(String name) {
@@ -43,7 +56,7 @@ public class Upload {
         
         try {
             // Create file with unique name in upload folder and write to it.
-            file = File.createTempFile(prefix, "." + suffix, new File("../webapps/TournamentScheduler/"));
+            file = File.createTempFile(prefix, "." + suffix, new File(getUploadLocation()));
             output = new FileOutputStream(file);
             IOUtils.copy(uploadedFile.getInputStream(), output);
             fileName = file.getName();
@@ -84,5 +97,13 @@ public class Upload {
     public void setUploadedFile(UploadedFile uploadedFile) {
         this.uploadedFile = uploadedFile;
     }
+
+	public String getUploadLocation() {
+		return uploadLocation;
+	}
+
+	public void setUploadLocation(String uploadLocation) {
+		this.uploadLocation = uploadLocation;
+	}
 
 }

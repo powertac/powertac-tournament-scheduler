@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import com.powertac.tourney.beans.Machines;
 import com.powertac.tourney.beans.Scheduler;
 import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.beans.Tournaments;
+import com.powertac.tourney.services.CreateProperties;
 import com.powertac.tourney.services.Database;
 import com.powertac.tourney.services.RunBootstrap;
 import com.powertac.tourney.services.StartServer;
@@ -42,6 +44,8 @@ public class ActionTournament {
 	public enum TourneyType {
 		SINGLE_GAME, MULTI_GAME;
 	}
+	
+	private String selectedPom;
 
 	private Date startTime = new Date(); // Default to current date/time
 	private Date fromTime = new Date();
@@ -49,7 +53,7 @@ public class ActionTournament {
 	
 	private String tournamentName;
 	private int maxBrokers; // -1 means inf, otherwise integer specific
-	private List<String> machines;
+	private List<Integer> machines;
 	private List<String> locations;
 	private String pomName;
 	private String bootName;
@@ -153,11 +157,11 @@ public class ActionTournament {
 				+ (new Date()).toString() + Math.random());
 	}
 
-	public List<String> getMachines() {
+	public List<Integer> getMachines() {
 		return machines;
 	}
 
-	public void setMachines(List<String> machines) {
+	public void setMachines(List<Integer> machines) {
 		this.machines = machines;
 	}
 
@@ -209,10 +213,10 @@ public class ActionTournament {
 		if (type == TourneyType.SINGLE_GAME) {
 		
 		
-			this.setPomName(pom.getName());
+			/*this.setPomName(pom.getName());
 			upload.setUploadedFile(getPom());
-			String finalFile = upload.submit(this.getPomName());
-			newTourney.setPomName(finalFile);
+			String finalFile = upload.submit(this.getPomName());*/
+			newTourney.setPomName(selectedPom);
 			
 			
 			InetAddress thisIp = null;
@@ -230,7 +234,7 @@ public class ActionTournament {
 			
 			
 			
-			newTourney.setPomUrl(thisIp.getHostAddress()+":8080/TournamentScheduler/"+newTourney.getPomName());
+			newTourney.setPomUrl(thisIp.getHostAddress()+":8080/TournamentScheduler/faces/pom.jsp?location="+newTourney.getPomName());
 			newTourney.setMaxBrokers(getMaxBrokers());
 			newTourney.setStartTime(getStartTime());
 			newTourney.setTournamentName(getTournamentName());
@@ -259,18 +263,50 @@ public class ActionTournament {
 			}
 			
 			int tourneyId = 0;
+			int gameId = 0;
 			
 			try {
-				db.addTournament(newTourney.getTournamentName(), new java.sql.Date(newTourney.getStartTime().getTime()), "SINGLE_GAME", newTourney.getPomUrl(), allLocations);
+				//Starts new transaction to prevent race conditions
+				System.out.println("Starting transaction");
+				db.startTrans();
+				//Adds new tournament to the database
+				System.out.println("Adding tourney");
+				db.addTournament(newTourney.getTournamentName(), new java.sql.Date(newTourney.getStartTime().getTime()), "SINGLE_GAME", newTourney.getPomUrl(), allLocations, maxBrokers);
+				//Grabs the tourney Id
+				
+				System.out.println("Getting tourneyId");
 				tourneyId = db.getMaxTourneyId();
-				//db.addGame("SingleGame", tourneyId, 0, properitesUrl)
+				// Adds a new game to the database
+				
+				System.out.println("Adding game");
+				System.out.println("Machine Id: " + machines.get(0));
+				db.addGame("SingleGame", tourneyId, machines.get(0), maxBrokers, new java.sql.Date(startTime.getTime()));
+				// Grabs the game id
+				System.out.println("Getting gameId");
+				gameId = db.getMaxGameId();
+				
+				System.out.println("Creating game properties");
+				CreateProperties.genProperties(gameId, locations, fromTime, toTime);
+				
+				// Sets the url for the properties file based on the game id.
+				// Properties are created at random withing specified parameters
+				System.out.println("Updating properties");
+				db.updateGamePropertiesById(gameId);
+				
+				System.out.println("Committing transaction");
+				db.commitTrans();
+				
+				
+				// Only schedule the bootstrap and sim if db was updated successfully
+				Scheduler.getScheduler().schedule(new RunBootstrap(gameId, "http://localhost:8080/TournamentScheduler/", newTourney.getPomUrl(), "tac04.cs.umn.edu"), new Date());
+				
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			
 			
-			//Scheduler.getScheduler().schedule(new RunBootstrap(gameId, finalFile, finalFile, finalFile), new Date());
+			
 			
 			//Scheduler.getScheduler().schedule(
 				//	new StartServer(newGame, Machines.getAllMachines(),
@@ -304,6 +340,21 @@ public class ActionTournament {
 		return "Success";
 
 	}
+	
+	public List<Database.Pom> getPomList(){
+		List<Database.Pom> poms = new ArrayList<Database.Pom>();
+		
+		Database db = new Database();
+		
+		try {
+			poms = db.getPoms();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return poms;
+		
+	}
 
 	public Date getFromTime() {
 		return fromTime;
@@ -327,6 +378,15 @@ public class ActionTournament {
 
 	public void setLocations(List<String> locations) {
 		this.locations = locations;
+	}
+
+
+	public String getSelectedPom() {
+		return selectedPom;
+	}
+
+	public void setSelectedPom(String selectedPom) {
+		this.selectedPom = selectedPom;
 	}
 
 }

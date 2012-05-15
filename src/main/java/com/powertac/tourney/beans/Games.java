@@ -1,10 +1,15 @@
 package com.powertac.tourney.beans;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
+
+import com.powertac.tourney.services.Database;
 
 @ApplicationScoped
 @ManagedBean
@@ -44,7 +49,21 @@ public class Games {
 		games.put(game.getGameId(), game);
 	}
 	
-	public Game[] getGameList(){
+	public List<Game> getGameList(){
+		Database db = new Database();
+		
+		List<Game> result = new ArrayList<Game>();
+		
+		try {
+			result = db.getGames();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
+		
+		/*
 		if(games.size() == 0){
 			return null;
 		}else{
@@ -56,7 +75,7 @@ public class Games {
 			}
 			
 			return newGame;
-		}
+		}*/
 	}
 
 	public String getSortColumn() {

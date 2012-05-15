@@ -67,25 +67,27 @@ echo Log File Suffix: $suffix
 
 wget $pomUrl
 
-if [ &quot;$bootUrl&quot; != &quot;&quot; ] ; then
-    echo &quot;Running in bootstrap mode!&quot;
-    wget $tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-running
+wget -O pom.xml $pomUrl
 
-    mvn exec:exec -Dexec.args=&quot;-boot boot.xml --config $propUrl --log-suffix $suffix
+#if [ &quot;$bootUrl&quot; != &quot;&quot; ] ; then
+    echo &quot;Running in bootstrap mode!&quot;
+    wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-running&quot;
+
+    mvn -Pcli -Dexec.args=&quot;-boot boot.xml --config $propUrl --log-suffix $suffix&quot;
     echo &quot;Bootstrap complete!&quot;
     echo &quot;Posting bootstrap&quot;
-    wget $tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-done
+    wget&quot; $tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-done&quot;
     #curl --upload-file boot.xml &quot;http://localhost:8080/TournamentScheduler/faces/serverInterface.jsp&quot;
     exit 1
-else
-    echo &quot;Running in sim mode!&quot;
+#else
+#    echo &quot;Running in sim mode!&quot;
     #Notify the TM in 30 seconds that the server is ready for games in a subshell
-    (sleep 30; wget $tourneyUrl/faces/serverInterface.jsp?)&amp;
-    mvn exec:exec -Dexec.args=&quot;-sim --boot-data=$bootUrl --config $propUrl --log-suffix $suffix
+#    (sleep 30; wget $tourneyUrl/faces/serverInterface.jsp?)&amp;
+#    mvn -Pcli -Dexec.args=&quot;-sim --boot-data=$bootUrl --config $propUrl --log-suffix $suffix&quot;
 
 
 
-fi
+#fi
 
 #mvn exec:exec -Dexec.args=&quot;-sim --boot-data http://www.cselabs.umn.edu/~onarh001/bootstraprun.xml --brokers $brokers&quot;</command>
     </hudson.tasks.Shell>

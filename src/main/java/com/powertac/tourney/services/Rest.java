@@ -1,10 +1,16 @@
 package com.powertac.tourney.services;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.faces.context.FacesContext;
 
@@ -74,6 +80,17 @@ public class Rest{
 	}
 	
 	public static String parseServerInterface(Map<?, ?> params){
+		System.out.println("Parsing Rest call...");
+		
+		for(Object s : params.keySet()){
+			System.out.println("Key: " + s.toString());
+		}
+		
+		for(Object s : params.values()){
+			System.out.println("Value: " + s.toString());
+			
+		}
+		
 		if(params!=null){
 			String actionString = ((String[]) params.get(Constants.REQ_PARAM_ACTION))[0];
 			
@@ -86,7 +103,8 @@ public class Rest{
 					System.out.println("Recieved bootstrap running message from game: "+ gameId);
 					Database db = new Database();
 					try {
-						db.updateGameStatusById(gameId, "in-progress");
+						db.updateGameStatusById(gameId, "boot-in-progress");
+						return "Success";
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -96,9 +114,8 @@ public class Rest{
 					System.out.println("Recieved bootstrap done message from game: " + gameId);
 					//Database db = new Database();
 					
-					
-					
 					//db.updateGameBootstrapById(gameId, bootstrapUrl);
+					return "Success";
 					
 					
 				}else if(statusString.equalsIgnoreCase("game-ready")){
@@ -147,6 +164,65 @@ public class Rest{
 		if(props.size()==2){
 			result += weatherLocation + props.get(0) +"\n"; 
 			result += startTime + props.get(1);
+		}
+		
+		
+		return result;
+	}
+	
+
+	/***
+	 * Returns a pom file string
+	 * @param params
+	 * @return String representing a pom file
+	 */
+	public static String parsePom(Map<?, ?> params){
+		String location = "";
+		if(params!=null){
+			try{
+				location = ((String[]) params.get(Constants.REQ_PARAM_POM))[0];
+			}catch(Exception e){
+				
+			}
+		}
+				
+		
+		String result = "";
+		
+		try{
+			// Open the file that is the first
+			// command line parameter
+			List<String> path = new ArrayList<String>();
+			String[] pathArray  = (location.split("/"));
+			for(String s : pathArray){
+				path.add(s.replace("..", ""));
+			}
+			Properties props = new Properties();
+			try {
+				props.load(Database.class.getClassLoader().getResourceAsStream(
+						"/tournament.properties"));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			
+			FileInputStream fstream = new FileInputStream(props.getProperty("fileUploadLocation","/export/scratch")+path.get(path.size()-1));
+			// Get the object of DataInputStream
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String strLine;
+			// Read File Line By Line
+			while ((strLine = br.readLine()) != null) {
+				// Print the content on the console
+				// System.out.println (strLine);
+				result += strLine + "\n";
+			}
+			// Close the input stream
+			in.close();
+		} catch (Exception e) {// Catch exception if any
+			System.err.println("Error: " + e.getMessage());
 		}
 		
 		

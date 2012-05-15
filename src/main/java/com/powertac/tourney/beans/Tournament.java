@@ -32,8 +32,8 @@ public class Tournament {
 	
 	public Tournament(){
 		System.out.println("Created Tournament Bean: " + tournyId);
-		tournyId = maxTournamentId;
-		maxTournamentId++;
+		//tournyId = maxTournamentId;
+		//maxTournamentId++;
 		
 		allGames = new HashMap<Integer,Game>();
 		registeredBrokers = new HashMap<Integer,String>();

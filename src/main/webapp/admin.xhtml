@@ -18,73 +18,75 @@
 
 					<h4>Weather Server Status:</h4>
 					<h:panelGroup>
-						<h:outputText value="#{checkWeatherServer.status}"/>
+						<h:outputText value="#{checkWeatherServer.status}" style="color:green;"
+							rendered="#{checkWeatherServer.status == 'Server Alive and Well'}" />
+						<h:outputText value="#{checkWeatherServer.status}" style="color:red;"
+							rendered="#{checkWeatherServer.status == 'Server is Down'}" />
+						<h:outputText value="#{checkWeatherServer.status}" style="color:orange;"
+							rendered="#{checkWeatherServer.status == 'Server Timeout or Network Error'}" />
 					</h:panelGroup>
 
 
 					<h:outputText value="Weather Server Location: " />
 					<h:panelGroup>
-						<h:outputText value="#{checkWeatherServer.weatherServerLocation}" rendered="#{checkWeatherServer.weatherServerLocation == 'Server Alive and Well'}" />
-						<h:outputText value="#{checkWeatherServer.weatherServerLocation}" rendered="#{checkWeatherServer.weatherServerLocation == 'Server is Down'}"/>
-						<h:outputText value="#{checkWeatherServer.weatherServerLocation}" rendered="#{checkWeatherServer.weatherServerLocation == 'Server Timeout or Network Error'}"/>
+						<h:outputText value="#{checkWeatherServer.weatherServerLocation}" />
 					</h:panelGroup>
 
 					<h:panelGroup>
-						<h:commandButton value="Ping Server" action="#{checkWeatherServer.ping}" />
+						<h:commandButton value="Ping Server"
+							action="#{checkWeatherServer.ping}" />
 					</h:panelGroup>
 				</h:panelGrid>
 			</h:form>
-			
-			<h:form rendered="#{user.permissions le 0}" >
+
+			<h:form rendered="#{user.permissions le 0}">
 				<h4>Available Poms</h4>
-					<t:dataTable
-						id="datausers"
-						border="1" sortable="true"
-						sortColumn="#{actionAdmin.sortColumn}"
-						sortAscending="#{actionAdmin.sortAscending}"
-						preserveSort="true"
-						rowCount="#{actionAdmin.rowCount}"
-						style="border:1px solid black;border-collapse:collapse;text-align:center"
-						value="#{actionAdmin.pomList}" var="p">
+				<t:dataTable id="datausers" border="1" sortable="true"
+					sortColumn="#{actionAdmin.sortColumn}"
+					sortAscending="#{actionAdmin.sortAscending}" preserveSort="true"
+					rowCount="#{actionAdmin.rowCount}"
+					style="border:1px solid black;border-collapse:collapse;text-align:center"
+					value="#{actionAdmin.pomList}" var="p">
 
-						<t:column defaultSorted="true">
-							<!-- column header -->
-							<f:facet name="header">
-								<h:outputText value="Pom Name" />
-							</f:facet>
-							<!-- row record -->
-							<h:outputText value="#{p.name}" />
-						</t:column>
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Pom Name" />
+						</f:facet>
+						<!-- row record -->
+						<h:outputText value="#{p.name}" />
+					</t:column>
 
-						<t:column defaultSorted="true">
-							<!-- column header -->
-							<f:facet name="header">
-								<h:outputText value="Location" />
-							</f:facet>
-							<!-- row record -->
-							<a href="#{p.location}">#{p.location}</a>
-						</t:column>
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Location" />
+						</f:facet>
+						<!-- row record -->
+						<a href="http://localhost:8080/TournamentScheduler/faces/pom.jsp?location=#{p.location}">#{p.location}</a>
+					</t:column>
 
-						<t:column defaultSorted="true">
-							<!-- column header -->
-							<f:facet name="header">
-								<h:outputText value="Uploading User" />
-							</f:facet>
-							<!-- row record -->
-							<h:outputText value="#{p.uploadingUser}" />
-						</t:column>
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Uploading User" />
+						</f:facet>
+						<!-- row record -->
+						<h:outputText value="#{p.uploadingUser}" />
+					</t:column>
 
 
-					</t:dataTable>
-			
+				</t:dataTable>
+
 			</h:form>
-			
-			
-			<h:form rendered="#{user.permissions le 0}" enctype="multipart/form-data">
+
+
+			<h:form rendered="#{user.permissions le 0}"
+				enctype="multipart/form-data">
 				<h:panelGrid columns="2">
-					
-					
-					
+
+
+
 					<h4>Upload Pom</h4>
 					<h:panelGroup>
 					</h:panelGroup>
@@ -94,31 +96,29 @@
 					<h:panelGroup>
 						<h:inputText value="#{actionAdmin.pomName}" />
 					</h:panelGroup>
-					
+
 					<h:outputText value="Upload Pom File:" />
 					<h:panelGroup>
-							<t:inputFileUpload disabled="false" value="#{actionAdmin.pom}"
-								accept="mime-type" storage="file" required="true" />
+						<t:inputFileUpload disabled="false" value="#{actionAdmin.pom}"
+							accept="mime-type" storage="file" required="true" />
 					</h:panelGroup>
 
 					<h:panelGroup>
-						<h:commandButton value="Submit Pom" action="#{actionAdmin.submitPom}" />
+						<h:commandButton value="Submit Pom"
+							action="#{actionAdmin.submitPom}" />
 					</h:panelGroup>
 				</h:panelGrid>
 			</h:form>
-			
+
 			<h:form rendered="#{user.permissions le 0}">
 				<h4>User Details</h4>
-				<t:dataTable
-					id="datausers"
-					border="1" sortable="true"
+				<t:dataTable id="datausers" border="1" sortable="true"
 					sortColumn="#{users.sortColumn}"
-					sortAscending="#{users.sortAscending}"
-					preserveSort="true"
+					sortAscending="#{users.sortAscending}" preserveSort="true"
 					rowCount="#{users.rowCount}"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{users.userList}" var="u">
-					
+
 					<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">
@@ -127,7 +127,7 @@
 						<!-- row record -->
 						<h:outputText value="#{u.id}" />
 					</t:column>
-					
+
 					<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">
@@ -136,7 +136,7 @@
 						<!-- row record -->
 						<h:outputText value="#{u.username}" />
 					</t:column>
-					
+
 					<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">
@@ -145,7 +145,7 @@
 						<!-- row record -->
 						<h:outputText value="#{u.password}" />
 					</t:column>
-					
+
 					<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">
@@ -154,15 +154,13 @@
 						<!-- row record -->
 						<h:outputText value="#{u.permission}" />
 					</t:column>
-					
-					
-					
+
+
+
 				</t:dataTable>
 
 				<h4>Pending/Running Tournaments</h4>
-				<t:dataTable
-					id="datatourneys" 
-					border="1" sortable="true"
+				<t:dataTable id="datatourneys" border="1" sortable="true"
 					sortColumn="#{tournaments.sortColumn}"
 					sortAscending="#{tournaments.sortAscending}" preserveSort="true"
 					rowCount="#{tournaments.rowCount}"
@@ -172,10 +170,10 @@
 					<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">
-							<h:outputText value="Competition ID" />
+							<h:outputText value="Tournament ID" />
 						</f:facet>
 						<!-- row record -->
-						<h:outputText value="#{t.competitionId}" />
+						<h:outputText value="#{t.tournamentId}" />
 					</t:column>
 
 					<t:column>
@@ -213,33 +211,29 @@
 						</f:facet>
 						<h:outputText value="#{t.numberRegistered}" />
 					</t:column>
-					
+
 					<t:column>
 						<f:facet name="header">
 							<h:outputText value="Pom Link" />
 						</f:facet>
-						<a href="/TournamentScheduler/#{t.pomName}">Pom</a>
+						<a href="#{t.pomUrl}">Pom</a>
 					</t:column>
-					
+
 				</t:dataTable>
 			</h:form>
 
 			<h:form rendered="#{user.permissions le 0}">
 				<h4>Pending/Running Games</h4>
-				<t:dataTable 
-					id="datagames"
-					border="1"
-					sortable="true"
+				<t:dataTable id="datagames" border="1" sortable="true"
 					sortColumn="#{games.sortColumn}"
 					sortAscending="#{games.sortAscending}" preserveSort="true"
 					rowCount="#{games.rowCount}"
-					
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{games.gameList}" var="g">
 					<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">
-							<h:outputText value="Game ID"/>
+							<h:outputText value="Game ID" />
 						</f:facet>
 						<!-- row record -->
     						#{g.gameId}
@@ -254,45 +248,45 @@
     						#{g.status}    		
     				</t:column>
 
+					
 					<t:column>
 						<!-- column header -->
 						<f:facet name="header">
-							<h:outputText value="Start Time"/>
+							<h:outputText value="Start Time" />
 						</f:facet>
 						<!-- row record -->
     						#{g.startTime}    		
     				</t:column>
 
-					<t:column>
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Competition Name"/>
-						</f:facet>
-						<!-- row record -->
-    						#{g.competitionName}    		
-    				</t:column>
 
 					<t:column>
 						<!-- column header -->
 						<f:facet name="header">
-							<h:outputText value="Max Brokers"/>
+							<h:outputText value="Max Brokers" />
 						</f:facet>
 						<!-- row record -->
     						#{g.maxBrokers}
     				</t:column>
-    				<t:column>
-    					<f:facet name="header">
-    						<h:outputText value="Properties Link"/>
-    					</f:facet>
-    					<a href="/TournamentScheduler/">Properties</a>
-    				</t:column>
-    				<t:column>
-    					<f:facet name="header">
-    						<h:outputText value="Bootstrap Link"/>
-    					</f:facet>
-    					<a href="/TournamentScheduler/">Bootstrap</a>
-    				</t:column>
-    				
+					<t:column>
+						<f:facet name="header">
+							<h:outputText value="Properties Link" />
+						</f:facet>
+						<a href="#{g.propertiesUrl}">Properties</a>
+					</t:column>
+					<t:column>
+						<f:facet name="header">
+							<h:outputText value="Bootstrap Link" />
+						</f:facet>
+						<a href="#{g.bootstrapUrl}">Bootstrap</a>
+					</t:column>
+
+					<t:column>
+						<f:facet name="header">
+							<h:outputText value="Visualizer Link" />
+						</f:facet>
+						<a href="#{g.visualizerUrl}">Visualizer</a>
+					</t:column>
+
 				</t:dataTable>
 
 			</h:form>

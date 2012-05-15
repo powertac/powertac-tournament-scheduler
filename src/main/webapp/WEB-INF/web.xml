@@ -22,7 +22,7 @@
 	<!-- Error Page -->
 	<error-page>
     	<exception-type>javax.faces.application.ViewExpiredException</exception-type>
-    	<location>/login.xhtml</location>
+    	<location>/SessionExpired.jsp</location>
 	</error-page>
 
 
