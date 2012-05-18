@@ -276,6 +276,12 @@ public class Constants {
 	 * Select the minimum date available for a location
 	 * @param location : The location you wish to query
 	 */
-	public static final String SELECT_MIN_DATE = "";
-
+	public static final String SELECT_MIN_DATE = "SELECT MIN(fromDate) as minDate WHERE location=?;";
+	
+	/***
+	 * Select the maximum date available for a location
+	 * @param location : The location you wish to query
+	 */
+	public static final String SELECT_MAX_DATE = "SELECT MAX(toDate) as maxDate WHERE location=?;";
+	
 }

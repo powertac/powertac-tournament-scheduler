@@ -673,8 +673,43 @@ public class Database {
 	public Date selectMinDate(List<Location> locations) throws SQLException{
 		checkDb();
 		PreparedStatement minDate = conn.prepareStatement(Constants.SELECT_MIN_DATE);
-		return null;
+		Date min = new Date();
+		
+		for(Location l : locations){
+			minDate.setString(1, l.getName());
+			ResultSet rs = minDate.executeQuery();
+			if(rs.next()){
+				if(rs.getDate("minDate").before(min)){
+					min = rs.getDate("minDate");
+				}
+			}
+		}
+		
+		
+		
+		return min;
 	}
+	
+	public Date selectMaxDate(List<Location> locations) throws SQLException{
+		checkDb();
+		PreparedStatement minDate = conn.prepareStatement(Constants.SELECT_MAX_DATE);
+		Date max = new Date();
+		
+		for(Location l : locations){
+			minDate.setString(1, l.getName());
+			ResultSet rs = minDate.executeQuery();
+			if(rs.next()){
+				if(rs.getDate("maxDate").after(max)){
+					max = rs.getDate("maxDate");
+				}
+			}
+		}
+		
+		
+		
+		return max;
+	}
+	
 	
 	
 	public int startTrans() throws SQLException{

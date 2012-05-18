@@ -47,6 +47,11 @@
           <description></description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>destination</name>
+          <description>Jenkins needs to be running under the tacrun account and have ssh keys set-up for this to work</description>
+          <defaultValue>tacrun@tac01.cs.umn.edu:/project/msse01/game-logs/</defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -73,10 +78,17 @@ wget -O pom.xml $pomUrl
     echo &quot;Running in bootstrap mode!&quot;
     wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-running&quot;
 
-    mvn -Pcli -Dexec.args=&quot;-boot boot.xml --config $propUrl --log-suffix $suffix&quot;
+    mvn -Pcli -Dexec.args=&quot;-boot $gameId-boot.xml --config $propUrl --log-suffix $suffix&quot;
     echo &quot;Bootstrap complete!&quot;
     echo &quot;Posting bootstrap&quot;
-    wget&quot; $tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-done&quot;
+    tar -cvzf game-$gameId-boot-logs log
+
+    #need ssh keys setup to do this part without a password
+    scp game-$gameId-boot-logs $destination
+    scp $gameId-boot.xml $destination
+    wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-done&quot;
+    
+
     #curl --upload-file boot.xml &quot;http://localhost:8080/TournamentScheduler/faces/serverInterface.jsp&quot;
     exit 1
 #else
