@@ -146,6 +146,18 @@ public class Constants {
 	 */
 	public static final String SELECT_MAX_TOURNAMENTID = "SELECT MAX(tourneyId) as maxId FROM tourney.tournaments;";
 	
+	/***
+	 * Get the number of brokers registered for a tournament
+	 * @param tourneyId : The id of the tournament you wish to query
+	 */
+	public static final String GET_NUMBER_REGISTERED_BYTOURNAMENTID = "SELECT COUNT(brokerId) as numRegistered FROM registration JOIN games ON registration.tourneyId = games.tourneyId WHERE games.touneyId=?;";
+	
+	
+	/***
+	 * Get a list of registered brokers for a tournament
+	 * @param tourneyId : The id of the tournament you wish to query
+	 */
+	public static final String GET_BROKERS_BYTOURNAMENTID = "SELECT * FROM brokers JOIN registration ON registration.brokerId = brokers.brokerId WHERE registration.tourneyId=?;";
 	
 	/***
 	 * Insert a new game into the database to be run (only ever insert games without bootstraps
@@ -189,6 +201,12 @@ public class Constants {
 	 * Get max gameid of all games
 	 */
 	public static final String SELECT_MAX_GAMEID = "SELECT MAX(gameId) as maxId FROM tourney.games;";
+	
+	/***
+	 * Check to see if a gameid has a bootstrap
+	 * @param gameId : The id of the game to check
+	 */
+	public static final String GAME_READY = "SELECT hasBootstrap as ready FROM tourneny.games WHERE gameId=?;";
 	
 	/***
 	 * Select the properties given a certain property id

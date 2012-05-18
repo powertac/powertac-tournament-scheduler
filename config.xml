@@ -64,44 +64,51 @@
   <concurrentBuild>true</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>echo Job Name: $JOB_NAME
+      <command>#!/bin/sh
+echo Job Name: $JOB_NAME
 echo Node Name: $NODE_NAME
 echo Tournament Scheduler URL: $tourneyUrl
-echo Server Config URL: $serverConfig
+echo Server Config URL: $propUrl
 echo Log File Suffix: $suffix
+echo Build running under account...
+whoami
 
 wget $pomUrl
 
 wget -O pom.xml $pomUrl
 
-#if [ &quot;$bootUrl&quot; != &quot;&quot; ] ; then
+if [ &quot;$bootUrl&quot; = &quot;&quot; ] ; then
     echo &quot;Running in bootstrap mode!&quot;
     wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-running&quot;
 
     mvn -Pcli -Dexec.args=&quot;-boot $gameId-boot.xml --config $propUrl --log-suffix $suffix&quot;
     echo &quot;Bootstrap complete!&quot;
     echo &quot;Posting bootstrap&quot;
-    tar -cvzf game-$gameId-boot-logs log
+    tar -cvzf game-$gameId-boot-logs.tar.gz log
 
     #need ssh keys setup to do this part without a password
-    scp game-$gameId-boot-logs $destination
-    scp $gameId-boot.xml $destination
+    #scp game-$gameId-boot-logs $destination
+    #scp $gameId-boot.xml $destination
+    cp game-$gameId-boot-logs $destination
+    cp $gameId-boot.xml $destination
     wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-done&quot;
     
 
     #curl --upload-file boot.xml &quot;http://localhost:8080/TournamentScheduler/faces/serverInterface.jsp&quot;
     exit 1
-#else
-#    echo &quot;Running in sim mode!&quot;
+else
+    echo &quot;Running in sim mode!&quot;
     #Notify the TM in 30 seconds that the server is ready for games in a subshell
-#    (sleep 30; wget $tourneyUrl/faces/serverInterface.jsp?)&amp;
-#    mvn -Pcli -Dexec.args=&quot;-sim --boot-data=$bootUrl --config $propUrl --log-suffix $suffix&quot;
+   (sleep 30; wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=game-ready&quot;)&amp;
+    mvn -Pcli -Dexec.args=&quot;-sim --boot-data=$bootUrl --config $propUrl --log-suffix $suffix --brokers $brokers&quot;
+
+    tar -cvzf game-$gameId-sim-logs.tar.gz log
+    cp game-$gameId-sim-logs.tar.gz $destination
+
+    wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=game-done&quot;
 
 
-
-#fi
-
-#mvn exec:exec -Dexec.args=&quot;-sim --boot-data http://www.cselabs.umn.edu/~onarh001/bootstraprun.xml --brokers $brokers&quot;</command>
+fi</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

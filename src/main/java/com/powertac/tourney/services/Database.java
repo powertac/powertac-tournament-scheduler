@@ -533,6 +533,29 @@ public class Database {
 		return id;
 	}
 	
+	public List<Broker> getBrokersRegistered(int tourneyId) throws SQLException{
+		checkDb();
+		List<Broker> result = new ArrayList<Broker>();
+		
+		PreparedStatement selectBrokers = conn.prepareStatement(Constants.GET_BROKERS_BYTOURNAMENTID);
+		
+		ResultSet rsB = selectBrokers.executeQuery();
+		
+		while(rsB.next()){
+			Broker tmp = new Broker("new");
+			tmp.setBrokerAuthToken(rsB.getString("brokerAuth"));
+			tmp.setBrokerId(rsB.getInt("brokerId"));
+			tmp.setBrokerName(rsB.getString("brokerName"));
+			tmp.setShortDescription(rsB.getString("brokerShort"));
+			tmp.setNumberInGame(rsB.getInt("numberInGame"));
+			
+			
+			result.add(tmp);
+		}
+		
+		return result;
+	}
+	
 	public List<Game> getGames() throws SQLException{
 		checkDb();
 		List<Game> gs = new ArrayList<Game>();
@@ -570,6 +593,24 @@ public class Database {
 		//insertGame.setString(4, properitesUrl);
 		
 		return insertGame.executeUpdate();
+	}
+	
+	public boolean isGameReady(int gameId) throws SQLException{
+		checkDb();
+		
+		PreparedStatement hasBootstrap = conn.prepareStatement(Constants.GAME_READY);
+		
+		hasBootstrap.setInt(1, gameId);
+		
+		ResultSet rs = hasBootstrap.executeQuery();
+		
+		
+		boolean result = false; // fail on 
+		if(rs.next()){
+			result = rs.getBoolean("hasBootstrap");
+		}
+		
+		return result;
 	}
 	
 	public int updateGameStatusById(int gameId, String status) throws SQLException{
