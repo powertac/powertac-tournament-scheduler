@@ -505,6 +505,63 @@ public class Database {
 		
 		return ts;
 	}
+	public List<Game> getGamesInTourney(int tourneyId) throws SQLException{
+		checkDb();
+		List<Game> gs = new ArrayList<Game>();
+		PreparedStatement selectAllGames = conn.prepareStatement(Constants.SELECT_GAMES_IN_TOURNEY);
+		selectAllGames.setInt(1, tourneyId);
+		
+		ResultSet rsGs = selectAllGames.executeQuery();
+		
+		while(rsGs.next()){
+			Game tmp = new Game();
+			tmp.setStatus(rsGs.getString("status"));
+			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
+			tmp.setStartTime(rsGs.getDate("startTime"));
+			tmp.setGameId(rsGs.getInt("tourneyId"));
+			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
+			tmp.setGameName(rsGs.getString("gameName"));
+			tmp.setGameId(rsGs.getInt("gameId"));
+			tmp.setVisualizerUrl(rsGs.getString("visualizerUrl"));
+			tmp.setBootstrapUrl(rsGs.getString("bootstrapUrl"));
+			tmp.setPropertiesUrl(rsGs.getString("propertiesUrl"));
+			tmp.setLocation(rsGs.getString("location"));
+			
+			gs.add(tmp);
+		}
+		return gs;
+	}
+	
+	
+	public int registerBroker(int tourneyId, int brokerId) throws SQLException{
+		checkDb();
+		PreparedStatement register = conn.prepareStatement(Constants.REGISTER_BROKER);
+		register.setInt(1, tourneyId);
+		register.setInt(2, brokerId);
+		return register.executeUpdate();	
+	}
+	
+	public int unregisterBroker(int tourneyId, int brokerId) throws SQLException{
+		checkDb();
+		PreparedStatement register = conn.prepareStatement(Constants.UNREGISTER_BROKER);
+		register.setInt(1, tourneyId);
+		register.setInt(2, brokerId);
+		return register.executeUpdate();
+	}
+	
+	public boolean isRegistered(int tourneyId, int brokerId) throws SQLException{
+		checkDb();
+		PreparedStatement register = conn.prepareStatement(Constants.REGISTERED);
+		register.setInt(1, tourneyId);
+		register.setInt(2, brokerId);
+		ResultSet rs = register.executeQuery();
+		boolean result = false;
+		if(rs.next()){
+			result = rs.getBoolean("registered");
+		}
+		return result;
+	}
+	
 	
 	public int getMaxGameId() throws SQLException{
 		checkDb();
@@ -556,6 +613,21 @@ public class Database {
 		return result;
 	}
 	
+	public int getNumberBrokersRegistered(int tourneyId) throws SQLException{
+		checkDb();
+		int result = 0;
+		
+		PreparedStatement selectBrokers = conn.prepareStatement(Constants.GET_NUMBER_REGISTERED_BYTOURNAMENTID);
+		
+		ResultSet rsB = selectBrokers.executeQuery();
+		
+		if(rsB.next()){
+			result = rsB.getInt("numRegistered");
+		}
+		return result;
+		
+	}
+	
 	public List<Game> getGames() throws SQLException{
 		checkDb();
 		List<Game> gs = new ArrayList<Game>();
@@ -568,9 +640,11 @@ public class Database {
 			tmp.setStatus(rsGs.getString("status"));
 			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
 			tmp.setStartTime(rsGs.getDate("startTime"));
+			tmp.setGameId(rsGs.getInt("tourneyId"));
 			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
 			tmp.setGameName(rsGs.getString("gameName"));
 			tmp.setGameId(rsGs.getInt("gameId"));
+			tmp.setJmsUrl(rsGs.getString("jmsUrl"));
 			tmp.setVisualizerUrl(rsGs.getString("visualizerUrl"));
 			tmp.setBootstrapUrl(rsGs.getString("bootstrapUrl"));
 			tmp.setPropertiesUrl(rsGs.getString("propertiesUrl"));
@@ -593,6 +667,33 @@ public class Database {
 		//insertGame.setString(4, properitesUrl);
 		
 		return insertGame.executeUpdate();
+	}
+	
+	public Game getGame(int gameId) throws SQLException{
+		checkDb();
+		PreparedStatement selectAllGames = conn.prepareStatement(Constants.SELECT_GAMEBYID);
+		selectAllGames.setInt(1, gameId);
+		
+		ResultSet rsGs = selectAllGames.executeQuery();
+		
+		Game tmp = new Game();
+		if(rsGs.next()){
+			
+			tmp.setStatus(rsGs.getString("status"));
+			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
+			tmp.setStartTime(rsGs.getDate("startTime"));
+			tmp.setGameId(rsGs.getInt("tourneyId"));
+			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
+			tmp.setGameName(rsGs.getString("gameName"));
+			tmp.setGameId(rsGs.getInt("gameId"));
+			tmp.setJmsUrl(rsGs.getString("jmsUrl"));
+			tmp.setVisualizerUrl(rsGs.getString("visualizerUrl"));
+			tmp.setBootstrapUrl(rsGs.getString("bootstrapUrl"));
+			tmp.setPropertiesUrl(rsGs.getString("propertiesUrl"));
+			tmp.setLocation(rsGs.getString("location"));
+			
+		}
+		return tmp;
 	}
 	
 	public boolean isGameReady(int gameId) throws SQLException{
@@ -619,6 +720,16 @@ public class Database {
 		
 		updateGame.setInt(2, gameId);
 		updateGame.setString(1, status);
+		
+		return updateGame.executeUpdate();
+	}
+	
+	public int updateGameJmsUrlById(int gameId, String jmsUrl) throws SQLException{
+		checkDb();
+		PreparedStatement updateGame = conn.prepareStatement(Constants.UPDATE_GAME_JMSURL);
+		
+		updateGame.setInt(2, gameId);
+		updateGame.setString(1, jmsUrl);
 		
 		return updateGame.executeUpdate();
 	}

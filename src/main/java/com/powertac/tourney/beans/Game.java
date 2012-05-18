@@ -1,20 +1,28 @@
 package com.powertac.tourney.beans;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 
 import javax.faces.bean.ManagedBean;
+
+import com.powertac.tourney.services.Database;
 
 @ManagedBean
 public class Game {
 	private String competitionName = "";
 	private Date startTime;
 	private int competitionId = -1;
+	private int tourneyId = 0;
 	private int gameId = 0;
 	private static int maxGameId = 0;
 	private String status = "pending";
 	private Machine runningMachine = null; // This is set when the game is actually running on a machine
 	private boolean hasBootstrap = false;
+	private String brokers = "";
+	private HashMap<String, String> brokerAuth = new HashMap<String,String>();
+	
+	
 	
 	
 	private String gameName = "";
@@ -50,6 +58,21 @@ public class Game {
 		brokersToLogin = new HashMap<String,String>();
 		
 	}
+	
+	public void addBroker(int brokerId){
+		Database db = new Database();
+		Broker b = new Broker("new");
+		try {
+			b = db.getBroker(brokerId);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		brokers += b.getBrokerName() + ", ";
+		this.brokerAuth.put(b.getBrokerAuthToken(), b.getBrokerName());
+	}
+	
 	
 	public HashMap<String, String> getBrokersToLogin() {
 		return brokersToLogin;
@@ -123,9 +146,9 @@ public class Game {
 		this.gameId = gameId;
 	}
 	
-	public void addBrokerLogin(String brokerName, String authToken){
-		brokersToLogin.put(authToken, brokerName);
-	}
+	//public void addBrokerLogin(String brokerName, String authToken){
+	//	brokersToLogin.put(authToken, brokerName);
+	//}
 	
 	public void addGameLogin(String gameToken){
 		
@@ -137,7 +160,7 @@ public class Game {
 	
 	
 	public boolean isBrokerRegistered(String authToken){
-		return brokersToLogin.containsKey(authToken);
+		return brokerAuth.containsKey(authToken);
 	}
 	
 	
@@ -228,6 +251,22 @@ public class Game {
 
 	public void setLocation(String location) {
 		this.location = location;
+	}
+
+	public int getTourneyId() {
+		return tourneyId;
+	}
+
+	public void setTourneyId(int tourneyId) {
+		this.tourneyId = tourneyId;
+	}
+
+	public String getBrokers() {
+		return brokers;
+	}
+
+	public void setBrokers(String brokers) {
+		this.brokers = brokers;
 	}
 
 }

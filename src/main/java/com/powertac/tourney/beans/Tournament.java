@@ -1,10 +1,15 @@
 package com.powertac.tourney.beans;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 
 import javax.faces.bean.ManagedBean;
+
+import com.powertac.tourney.services.Database;
 
 // Technically not a managed bean, this is an internal Class to the 
 // Tournaments bean which is an application scoped bean that acts as 
@@ -15,7 +20,7 @@ public class Tournament {
 		SINGLE_GAME, MULTI_GAME;
 	}
 	private static int maxTournamentId = 0;
-	private int tournyId = 0;
+	private int tourneyId = 0;
 	private Date startTime;
 	private String tournamentName;
 	private int maxBrokers; // -1 means inf, otherwise integer specific
@@ -31,7 +36,7 @@ public class Tournament {
 	private HashMap<Integer,Game> allGames;
 	
 	public Tournament(){
-		System.out.println("Created Tournament Bean: " + tournyId);
+		System.out.println("Created Tournament Bean: " + tourneyId);
 		//tournyId = maxTournamentId;
 		//maxTournamentId++;
 		
@@ -40,11 +45,11 @@ public class Tournament {
 	}
 
 	public int getTournamentId() {
-		return tournyId;
+		return tourneyId;
 	}
 
 	public void setTournamentId(int competitionId) {
-		this.tournyId = competitionId;
+		this.tourneyId = competitionId;
 	}
 
 	public Date getStartTime() {
@@ -85,6 +90,18 @@ public class Tournament {
 		this.allGames.put(game.getGameId(), game);		
 	}
 	
+	public List<Game> getGames(){
+		List<Game> result = new ArrayList<Game>();
+		Database db = new Database();
+		try {
+			result = db.getGamesInTourney(this.tourneyId);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
+	/*
 	public String register(String name,int id, String authToken){
 		//TODO: Fix this so that brokers are added to games according to the csp spec
 		
@@ -103,7 +120,7 @@ public class Tournament {
 		}else{
 			return "Failure";
 		}
-	}
+	}*/
 	
 	public boolean isRegistered(String authToken){
 		return registeredBrokers.containsValue(authToken);

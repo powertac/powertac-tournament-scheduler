@@ -17,8 +17,8 @@ import com.powertac.tourney.beans.Scheduler;
 import com.powertac.tourney.beans.Tournaments;
 
 public class RunGame extends TimerTask {
-	private int numAttempts;
 
+	private int registerRetry = 8;
 	
 
 	String logSuffix = "sim-";//boot-game-" + game.getGameId() + "-tourney-"+ game.getCompetitionName();
@@ -35,7 +35,13 @@ public class RunGame extends TimerTask {
 		this.gameId = String.valueOf(gameId);
 		this.tourneyUrl = tourneyUrl;
 		this.pomUrl = pomUrl;
-		
+		Database db = new Database();
+		try {
+			db.updateGameJmsUrlById(gameId,"tcp://"+ machineName +":61616");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 				
 		//Assumes Jenkins and TS live in the same location as per the install
 		this.serverConfig = "http://localhost:8080/TournamentScheduler/faces/properties.jsp?gameId="+this.gameId;
@@ -73,6 +79,46 @@ public class RunGame extends TimerTask {
 	 */
 	private void checkBrokers(){
 		Database db = new Database();
+		
+		int gId = Integer.parseInt(gameId);
+		
+		try {
+			
+			Game g = db.getGame(gId);
+			int numRegistered = 0;
+			if((numRegistered = db.getNumberBrokersRegistered(g.getTourneyId()))<1){
+				System.out.println("No brokers registered for tournament waiting 2 minutes... retries left: " + registerRetry);
+				if(registerRetry>0){
+					Thread.sleep(120000);
+					this.run();
+				}else{
+					// Exceed maximum retries kill scheduled task
+					// TODO: Clean up database after this
+					this.cancel();
+					System.exit(0);
+				}
+			}else{
+				System.out.println("There are " + numRegistered + " brokers registered for tournament... starting sim");
+				this.brokers = g.getBrokers();
+				
+				if(this.brokers.length()<2){
+					System.out.println("Error no brokers listed in database for gameId: " + gameId);
+					this.cancel();
+					System.exit(0);
+				}
+				
+			}
+			
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 		
 		

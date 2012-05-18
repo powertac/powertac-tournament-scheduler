@@ -99,7 +99,9 @@ CREATE TABLE `tourney`.`games` (
 	`status` VARCHAR(20) NOT NULL,
 	`maxBrokers` integer NOT NULL,
 	`hasBootstrap` BOOLEAN NOT NULL,
+	`brokers` BOOLEAN NOT NULL,
 	`startTime` DATETIME NOT NULL,
+	`jmsUrl` VARCHAR(256) NOT NULL,
 	`visualizerUrl` VARCHAR(256) NOT NULL,
 	`propertiesUrl` VARCHAR(256) NOT NULL, /* This will be the url to the properties file */
 	`bootstrapUrl` VARCHAR(256) NOT NULL, /* This will be the url to the bootstrap file*/

@@ -309,11 +309,11 @@ public class ActionTournament {
 				}
 
 				// Only schedule the bootstrap and sim if db was updated successfully
-				Scheduler.getScheduler().schedule(new RunBootstrap(gameId, "http://localhost:8080/TournamentScheduler/", newTourney.getPomUrl(), "tac04.cs.umn.edu", props.getProperty("destination")), new Date());
+				Scheduler.getScheduler().schedule(new RunBootstrap(gameId, "http://localhost:8080/TournamentScheduler/", newTourney.getPomUrl(), "127.0.0.1", props.getProperty("destination")), new Date());
 				
 		
 				// A sim will only run if the bootstrap exists
-				Scheduler.getScheduler().schedule(new RunGame(gameId, "http://localhost:8080/TournamentScheduler/", newTourney.getPomUrl(),  "tac04.cs.umn.edu", props.getProperty("destination")), startTime);
+				Scheduler.getScheduler().schedule(new RunGame(gameId, "http://localhost:8080/TournamentScheduler/", newTourney.getPomUrl(),  "127.0.0.1", props.getProperty("destination")), startTime);
 				
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block

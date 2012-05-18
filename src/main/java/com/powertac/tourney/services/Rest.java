@@ -48,7 +48,7 @@ public class Rest{
 				// Only consider games that have started and are ready for brokers to join
 				if(g.getStartTime().before(new Date()) && g.getStatus().equalsIgnoreCase("ready")){
 					//Anyone can start and join a test competition
-					if(competitionName.equalsIgnoreCase("test")){
+					/*if(competitionName.equalsIgnoreCase("test")){
 						// Spawn a new test competition and rerun
 						Game game = new Game();
 						game.setBootstrapUrl("http://www.cselabs.umn.edu/~onarh001/bootstraprun.xml");
@@ -57,10 +57,10 @@ public class Rest{
 						game.setStartTime(new Date());
 						game.setPomUrl("");
 						game.setServerConfigUrl("");
-						game.addBrokerLogin("anybroker", brokerAuthToken);
+						game.addBroker("anybroker", brokerAuthToken);
 						Scheduler.getScheduler().schedule(new StartServer(game,Machines.getAllMachines(),Tournaments.getAllTournaments()), new Date());						
 						return String.format(retryResponse,5);
-					}else if(competitionName.equalsIgnoreCase(g.getCompetitionName()) && g.isBrokerRegistered(brokerAuthToken)){
+					}else*/ if(competitionName.equalsIgnoreCase(g.getCompetitionName()) && g.isBrokerRegistered(brokerAuthToken)){
 						// If a broker is registered and knows the competition name, give them an the jmsUrl and gameToken to login
 						return String.format(loginResponse, g.getJmsUrl(),"1234");
 					}

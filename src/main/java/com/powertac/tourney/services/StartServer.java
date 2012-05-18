@@ -41,7 +41,7 @@ public class StartServer extends TimerTask {
 				&& numRegistered > 0) {
 
 			//Set the jmsUrl
-			game.setJmsUrl("tcp://"+ allMachines.getFreeMachines().firstElement().getUrl()+":61616");
+			//game.setJmsUrl("tcp://"+ allMachines.getFreeMachines().firstElement().getUrl()+":61616");
 			
 			// Issue rest call to jenkins, wait for server ready response in
 			// serverInterface.jsp

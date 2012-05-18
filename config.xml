@@ -95,7 +95,7 @@ if [ &quot;$bootUrl&quot; = &quot;&quot; ] ; then
     
 
     #curl --upload-file boot.xml &quot;http://localhost:8080/TournamentScheduler/faces/serverInterface.jsp&quot;
-    exit 1
+    exit 0
 else
     echo &quot;Running in sim mode!&quot;
     #Notify the TM in 30 seconds that the server is ready for games in a subshell
@@ -107,7 +107,7 @@ else
 
     wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=game-done&quot;
 
-
+    exit 0
 fi</command>
     </hudson.tasks.Shell>
   </builders>

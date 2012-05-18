@@ -160,6 +160,27 @@ public class Constants {
 	public static final String GET_BROKERS_BYTOURNAMENTID = "SELECT * FROM brokers JOIN registration ON registration.brokerId = brokers.brokerId WHERE registration.tourneyId=?;";
 	
 	/***
+	 * Register for a tournament by tourneyId and brokerId
+	 * @param tourneyId : The id of the tournament you wish to register for
+	 * @param brokerId : The id of the broker you wish to register
+	 */
+	public static final String REGISTER_BROKER = "INSERT INTO tourney.registration (tourneyId,brokerId) VALUES (?,?);";	
+	
+	/***
+	 * Unregister for a tournament (admin functionality)
+	 * @param tourneyId : The id of the tournament
+	 * @param brokerId : The id of the broker
+	 */
+	public static final String UNREGISTER_BROKER = "DELETE FROM tourney.registration WHERE tourneyId=? AND brokerId=?;";
+	
+	/***
+	 * Check if a broker is registered for a tournament
+	 * @param tourneyId : The id of the tournamnet
+	 * @param brokerId : The id of the broker
+	 */
+	public static final String REGISTERED = "SELECT COUNT(*)=1 as registered FROM tourney.registration WHERE tourneyId=? AND brokerId=?;";
+	
+	/***
 	 * Insert a new game into the database to be run (only ever insert games without bootstraps
 	 * @param gameName : The name of the running game
 	 * @param tourneyId : The id of the tournament the game is running under
@@ -167,7 +188,13 @@ public class Constants {
 	 * @param maxBrokers : The maximum number of brokers allowed in this game
 	 * @param startTime : The scheduled start time of the sim
 	 */
-	public static final String ADD_GAME = "INSERT INTO tourney.games (gameName, tourneyId, machineId, maxBrokers,startTime, status, bootstrapUrl, visualizerUrl, propertiesUrl, location, hasBootstrap) VALUES (?,?,?,?,?,'pending','','','','',false);";
+	public static final String ADD_GAME = "INSERT INTO tourney.games (gameName, tourneyId, machineId, maxBrokers,startTime, status,jmsUrl, bootstrapUrl, visualizerUrl, propertiesUrl, location, hasBootstrap, brokers) VALUES (?,?,?,?,?,'pending','','','','','',false,'');";
+	
+	/***
+	 * Select game by id
+	 * @param gameId : The id of the game you wish to retrieve from the db
+	 */
+	public static final String SELECT_GAMEBYID = "SELECT * FROM tourney.games WHERE gameId=?;";
 	
 	/***
 	 * Update bootstrap information in database, this is done directly before starting a game
@@ -176,6 +203,12 @@ public class Constants {
 	 */
 	public static final String UPDATE_GAME_BOOTSTRAP = "UPDATE tourney.games SET status='pending', bootstrapUrl=?, hasBootstrap=true WHERE gameId=?;";
 	
+	/***
+	 * Update jmsUrl
+	 * @param jmsUrl
+	 * @param gameId
+	 */
+	public static final String UPDATE_GAME_JMSURL = "UPDATE tourney.games SET jmsUrl=? WHERE gameId=?;";
 	
 	/***
 	 * Update properties information in the database
@@ -189,6 +222,12 @@ public class Constants {
 	 * 
 	 */
 	public static final String SELECT_GAME = "SELECT * FROM tourney.games WHERE status='pending' OR status='in-progress';";
+	
+	/*** 
+	 * Select all games belonging to a tournament
+	 * @param tourneyId : 
+	 */
+	public static final String SELECT_GAMES_IN_TOURNEY = "SELECT * FROM tourney.games WHERE tourneyId=?;";
 	
 	/***
 	 * Update Game status by gameId
