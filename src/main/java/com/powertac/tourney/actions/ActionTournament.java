@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -50,6 +51,9 @@ public class ActionTournament {
 	
 	private String selectedPom;
 
+	private Calendar initTime = Calendar.getInstance();
+	
+	
 	private Date startTime = new Date(); // Default to current date/time
 	private Date fromTime = new Date();
 	private Date toTime = new Date();
@@ -65,6 +69,14 @@ public class ActionTournament {
 	private UploadedFile boot;
 	private UploadedFile properties;
 	private TourneyType type = TourneyType.SINGLE_GAME;
+	
+	public ActionTournament(){
+		initTime.set(2009, 2, 3);
+		fromTime.setTime(initTime.getTimeInMillis());
+		initTime.set(2011, 2, 3);
+		toTime.setTime(initTime.getTimeInMillis());
+		
+	}
 
 	/**
 	 * @return the properties

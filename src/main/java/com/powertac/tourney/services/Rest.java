@@ -124,7 +124,7 @@ public class Rest{
 					Database db = new Database();
 					
 					try {
-						db.updateGameBootstrapById(gameId, props.getProperty("fileUploadLocation")+gameId+"-boot.xml");
+						db.updateGameBootstrapById(gameId, "http://localhost:8080/TournamentScheduler/faces/poms.jsp?location="+props.getProperty("fileUploadLocation")+gameId+"-boot.xml");
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

@@ -99,7 +99,7 @@ CREATE TABLE `tourney`.`games` (
 	`status` VARCHAR(20) NOT NULL,
 	`maxBrokers` integer NOT NULL,
 	`hasBootstrap` BOOLEAN NOT NULL,
-	`brokers` BOOLEAN NOT NULL,
+	`brokers` VARCHAR(256) NOT NULL,
 	`startTime` DATETIME NOT NULL,
 	`jmsUrl` VARCHAR(256) NOT NULL,
 	`visualizerUrl` VARCHAR(256) NOT NULL,

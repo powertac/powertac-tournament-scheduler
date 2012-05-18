@@ -19,6 +19,7 @@ import com.powertac.tourney.beans.Tournaments;
 public class RunGame extends TimerTask {
 
 	private int registerRetry = 8;
+	private int bootstrapRetry = 100;
 	
 
 	String logSuffix = "sim-";//boot-game-" + game.getGameId() + "-tourney-"+ game.getCompetitionName();
@@ -57,14 +58,24 @@ public class RunGame extends TimerTask {
 			if(db.isGameReady(Integer.parseInt(gameId))){
 				this.bootstrapUrl = "http://localhost:8080/TournamentScheduler/faces/pom.jsp?location="+gameId+"-boot.xml";
 			}else{
-				System.out.println("Game: " + gameId + " reports that bootstrap is not ready! retring in 15 seconds...");
-				Thread.sleep(15000);
-				this.run();
+				System.out.println("Game: " + gameId + " reports that bootstrap is not ready! retring in 15 seconds... retries left: " + bootstrapRetry);
+							
+				if(bootstrapRetry-->0){
+					Thread.sleep(15000);
+					this.run();
+				}else{
+					// Exceed maximum retries kill scheduled task
+					// TODO: Clean up database after this
+					this.cancel();
+					System.exit(0);
+				}
 			}
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SQLException e) {
+			System.out.println("Bootstrap Database error while scheduling sim!!");
+			System.exit(0);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -88,7 +99,7 @@ public class RunGame extends TimerTask {
 			int numRegistered = 0;
 			if((numRegistered = db.getNumberBrokersRegistered(g.getTourneyId()))<1){
 				System.out.println("No brokers registered for tournament waiting 2 minutes... retries left: " + registerRetry);
-				if(registerRetry>0){
+				if(registerRetry-->0){
 					Thread.sleep(120000);
 					this.run();
 				}else{
@@ -112,6 +123,8 @@ public class RunGame extends TimerTask {
 			
 			
 		} catch (SQLException e) {
+			System.out.println("Broker Database error while scheduling sim!!");
+			System.exit(0);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e) {

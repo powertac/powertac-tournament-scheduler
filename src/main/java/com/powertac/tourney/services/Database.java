@@ -115,7 +115,7 @@ public class Database {
 		try {
 			prop.load(Database.class.getClassLoader().getResourceAsStream(
 					"/tournament.properties"));
-			System.out.println(prop);
+			//System.out.println(prop);
 			// Database Connection related properties
 			this.setDatabase(prop.getProperty("db.database"));
 			this.setDbms(prop.getProperty("db.dbms"));
@@ -139,9 +139,9 @@ public class Database {
 	private void checkDb() {
 		try {
 			if (conn == null || conn.isClosed()) {
-				System.out.println("Connection is null");
+				//System.out.println("Connection is null");
 				if (this.dbms.equalsIgnoreCase("mysql")) {
-					System.out.println("Using mysql as dbms ...");
+					//System.out.println("Using mysql as dbms ...");
 					try {
 						connectionProps.setProperty("user", this.username);
 						connectionProps.setProperty("password", this.password);
@@ -149,7 +149,7 @@ public class Database {
 						conn = DriverManager.getConnection("jdbc:" + this.dbms
 								+ "://" + this.dbUrl +  "/" + this.database,
 								connectionProps);
-						System.out.println("Connected Successfully");
+						//System.out.println("Connected Successfully");
 					} catch (Exception e) {
 						System.out.println("Connection Error");
 						e.printStackTrace();
@@ -158,13 +158,13 @@ public class Database {
 					System.out.println("DBMS: " + this.dbms + " is not supported");
 				}
 			}else{
-				System.out.println("Connection is good");
+				//System.out.println("Connection is good");
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Connection established correctly");
+		//System.out.println("Connection established correctly");
 	}
 	
 	public List<User> getAllUsers() throws SQLException{
@@ -595,6 +595,7 @@ public class Database {
 		List<Broker> result = new ArrayList<Broker>();
 		
 		PreparedStatement selectBrokers = conn.prepareStatement(Constants.GET_BROKERS_BYTOURNAMENTID);
+		selectBrokers.setInt(1,tourneyId);
 		
 		ResultSet rsB = selectBrokers.executeQuery();
 		
@@ -618,6 +619,7 @@ public class Database {
 		int result = 0;
 		
 		PreparedStatement selectBrokers = conn.prepareStatement(Constants.GET_NUMBER_REGISTERED_BYTOURNAMENTID);
+		selectBrokers.setInt(1,tourneyId);
 		
 		ResultSet rsB = selectBrokers.executeQuery();
 		
@@ -708,7 +710,7 @@ public class Database {
 		
 		boolean result = false; // fail on 
 		if(rs.next()){
-			result = rs.getBoolean("hasBootstrap");
+			result = rs.getBoolean("ready");
 		}
 		
 		return result;

@@ -163,20 +163,8 @@ public class Game {
 		return brokerAuth.containsKey(authToken);
 	}
 	
-	
 
-	public boolean setupGame() {
-		// Read database for this game id and populate brokersToLogin with
-		// name->gameToken pairs
-		//if(competitionName.compareToIgnoreCase("test")){
-			
-		//}
-		
-		return false;
-
-	}
-
-	public boolean authorizeBroker(String brokerName, String gameToken) {
+	/*public boolean authorizeBroker(String brokerName, String gameToken) {
 		if (getBrokersToLogin() != null
 				&& getBrokersToLogin().get(brokerName) == gameToken) {
 
@@ -187,7 +175,7 @@ public class Game {
 			return false;
 		}
 
-	}
+	}*/
 
 	public String getTournamentSchedulerUrl() {
 		return tournamentSchedulerUrl;

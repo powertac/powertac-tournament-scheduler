@@ -150,7 +150,7 @@ public class Constants {
 	 * Get the number of brokers registered for a tournament
 	 * @param tourneyId : The id of the tournament you wish to query
 	 */
-	public static final String GET_NUMBER_REGISTERED_BYTOURNAMENTID = "SELECT COUNT(brokerId) as numRegistered FROM registration JOIN games ON registration.tourneyId = games.tourneyId WHERE games.touneyId=?;";
+	public static final String GET_NUMBER_REGISTERED_BYTOURNAMENTID = "SELECT COUNT(brokerId) as numRegistered FROM registration JOIN games ON registration.tourneyId = games.tourneyId WHERE games.tourneyId=?;";
 	
 	
 	/***
@@ -245,7 +245,7 @@ public class Constants {
 	 * Check to see if a gameid has a bootstrap
 	 * @param gameId : The id of the game to check
 	 */
-	public static final String GAME_READY = "SELECT hasBootstrap as ready FROM tourneny.games WHERE gameId=?;";
+	public static final String GAME_READY = "SELECT hasBootstrap as ready FROM tourney.games WHERE gameId=?;";
 	
 	/***
 	 * Select the properties given a certain property id
