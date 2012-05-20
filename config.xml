@@ -94,9 +94,9 @@ if [ &quot;$bootUrl&quot; = &quot;&quot; ] ; then
     tar -cvzf game-$gameId-boot-logs.tar.gz log
 
     #need ssh keys setup to do this part without a password
-    #scp game-$gameId-boot-logs $destination
+    #scp game-$gameId-boot-logs.tar.gz $destination
     #scp $gameId-boot.xml $destination
-    cp game-$gameId-boot-logs $destination
+    cp game-$gameId-boot-logs.tar.gz $destination
     cp $gameId-boot.xml $destination
     wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-done&quot;
     
