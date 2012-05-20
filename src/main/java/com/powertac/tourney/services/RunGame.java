@@ -149,7 +149,7 @@ public class RunGame extends TimerTask {
 			List<Machine> machines = db.getMachines();
 			List<Machine> available = new ArrayList<Machine>();
 			for (Machine m : machines){
-				if(m.getStatus().equalsIgnoreCase("idle")){
+				if(m.getStatus().equalsIgnoreCase("idle") && m.isAvailable()){
 					available.add(m);
 				}
 			}

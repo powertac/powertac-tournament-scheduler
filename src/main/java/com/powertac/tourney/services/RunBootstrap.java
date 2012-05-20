@@ -43,7 +43,7 @@ public class RunBootstrap extends TimerTask{
 			List<Machine> machines = db.getMachines();
 			List<Machine> available = new ArrayList<Machine>();
 			for (Machine m : machines){
-				if(m.getStatus().equalsIgnoreCase("idle")){
+				if(m.getStatus().equalsIgnoreCase("idle") && m.isAvailable()){
 					available.add(m);
 				}
 			}
@@ -53,6 +53,7 @@ public class RunBootstrap extends TimerTask{
 				db.updateGameMachine(Integer.parseInt(gameId), available.get(0).getMachineId());
 				db.setMachineStatus(available.get(0).getMachineId(), "running");
 				this.machineName = available.get(0).getName();
+				System.out.println("Running boot " + gameId + " on machine " + this.machineName);
 				db.commitTrans();
 			} else{
 				db.abortTrans();
