@@ -60,6 +60,8 @@ public class ActionLogin {
 		                FacesMessage.SEVERITY_INFO, "Login Failure: " + perm, null));
 				return "Failure";
 			}
+			database.closeConnection();
+			
 		} catch (SQLException e) {
 			FacesContext.getCurrentInstance().addMessage("loginForm", new FacesMessage(
 	                FacesMessage.SEVERITY_INFO, "Login Exception Failure", null));

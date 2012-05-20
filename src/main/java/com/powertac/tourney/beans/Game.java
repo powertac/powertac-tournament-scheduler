@@ -64,6 +64,7 @@ public class Game {
 		Broker b = new Broker("new");
 		try {
 			b = db.getBroker(brokerId);
+			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

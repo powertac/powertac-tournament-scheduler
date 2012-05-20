@@ -78,6 +78,8 @@ public class ActionAdmin {
 			try {
 				db.addPom(currentUser.getUsername(), this.getPomName(),
 						upload.getUploadLocation() + finalName);
+				
+				db.closeConnection();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -94,6 +96,7 @@ public class ActionAdmin {
 
 		try {
 			poms = db.getPoms();
+			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -108,6 +111,7 @@ public class ActionAdmin {
 
 		try {
 			locations = db.getLocations();
+			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -123,6 +127,7 @@ public class ActionAdmin {
 
 		try {
 			machines = db.getMachines();
+			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -137,8 +142,10 @@ public class ActionAdmin {
 		try {
 			if (m.isAvailable()) {
 				db.setMachineAvailable(m.getMachineId(), false);
+				db.closeConnection();
 			} else {
 				db.setMachineAvailable(m.getMachineId(), true);
+				db.closeConnection();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -150,6 +157,7 @@ public class ActionAdmin {
 		Database db = new Database();
 		try {
 			db.deleteMachine(m.getMachineId());
+			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -160,6 +168,7 @@ public class ActionAdmin {
 		Database db = new Database();
 		try {
 			db.addMachine(newName, newUrl);
+			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -179,6 +188,7 @@ public class ActionAdmin {
 		Database db = new Database();
 		try {
 			db.deleteLocation(l.getLocationId());
+			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -191,6 +201,7 @@ public class ActionAdmin {
 		try {
 			db.addLocation(newLocationName, newLocationStartTime,
 					newLocationEndTime);
+			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

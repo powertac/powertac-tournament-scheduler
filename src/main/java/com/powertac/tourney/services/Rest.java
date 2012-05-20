@@ -133,6 +133,7 @@ public class Rest {
 					Database db = new Database();
 					try {
 						db.updateGameStatusById(gameId, "boot-in-progress");
+						db.closeConnection();
 						return "Success";
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
@@ -154,6 +155,7 @@ public class Rest {
 										+ gameId + "-boot.xml");
 						db.updateGameStatusById(gameId, "boot-complete");
 						db.commitTrans();
+						db.closeConnection();
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -170,6 +172,7 @@ public class Rest {
 						db.startTrans();
 						db.updateGameStatusById(gameId, "game-in-progress");
 						db.commitTrans();
+						db.closeConnection();
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
@@ -186,6 +189,7 @@ public class Rest {
 						db.startTrans();
 						db.updateGameStatusById(gameId, "game-complete");
 						db.commitTrans();
+						db.closeConnection();
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -198,6 +202,7 @@ public class Rest {
 						db.startTrans();
 						db.updateGameStatusById(gameId, "game-failed");
 						db.commitTrans();
+						db.closeConnection();
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
@@ -209,6 +214,7 @@ public class Rest {
 						db.startTrans();
 						db.updateGameStatusById(gameId, "boot-failed");
 						db.commitTrans();
+						db.closeConnection();
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
@@ -238,7 +244,7 @@ public class Rest {
 			}
 		}
 
-		Database db = new Database();
+	
 		List<String> props = new ArrayList<String>();
 
 		props = CreateProperties.getPropertiesForGameId(Integer
@@ -255,7 +261,7 @@ public class Rest {
 			result += weatherLocation + props.get(0) + "\n";
 			result += startTime + props.get(1);
 		}
-
+		
 		return result;
 	}
 

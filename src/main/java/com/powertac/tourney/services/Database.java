@@ -2,6 +2,8 @@ package com.powertac.tourney.services;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -760,7 +762,17 @@ public class Database {
 		checkDb();
 		PreparedStatement updateProps = conn.prepareStatement(Constants.UPDATE_GAME_PROPERTIES);
 		
-		updateProps.setString(1, "http://localhost:8080/TournamentScheduler/faces/properties.jsp?gameId="+String.valueOf(gameId));
+		String hostip = "http://";
+		
+		try {
+			InetAddress thisIp =InetAddress.getLocalHost();
+			hostip += thisIp.getHostAddress() + ":8080";
+		} catch (UnknownHostException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		updateProps.setString(1, hostip+"/TournamentScheduler/faces/properties.jsp?gameId="+String.valueOf(gameId));
 		updateProps.setInt(2, gameId);
 		
 		return updateProps.executeUpdate();
@@ -943,6 +955,10 @@ public class Database {
 		trans.execute();
 		return 0;
 		
+	}
+	
+	public void closeConnection() throws SQLException {
+		conn.close();
 	}
 	
 	

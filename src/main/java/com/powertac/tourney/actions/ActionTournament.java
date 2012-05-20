@@ -228,10 +228,20 @@ public class ActionTournament {
 			String finalFile = upload.submit(this.getPomName());*/
 			newTourney.setPomName(selectedPom);
 			
+			String hostip = "http://";
+			
+			try {
+				InetAddress thisIp =InetAddress.getLocalHost();
+				hostip += thisIp.getHostAddress() + ":8080";
+			} catch (UnknownHostException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
 		
 			Database db = new Database();
 			
-			newTourney.setPomUrl("http://localhost:8080/TournamentScheduler/faces/pom.jsp?location="+newTourney.getPomName());
+			newTourney.setPomUrl(hostip+"/TournamentScheduler/faces/pom.jsp?location="+newTourney.getPomName());
 			newTourney.setMaxBrokers(getMaxBrokers());
 			newTourney.setStartTime(getStartTime());
 			newTourney.setTournamentName(getTournamentName());
@@ -300,13 +310,13 @@ public class ActionTournament {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
+				db.closeConnection();
 				// Only schedule the bootstrap and sim if db was updated successfully
-				Scheduler.getScheduler().schedule(new RunBootstrap(gameId, "http://localhost:8080/TournamentScheduler/", newTourney.getPomUrl(), "127.0.0.1", props.getProperty("destination")), new Date());
+				Scheduler.getScheduler().schedule(new RunBootstrap(gameId, hostip+"/TournamentScheduler/", newTourney.getPomUrl(), "127.0.0.1", props.getProperty("destination")), new Date());
 				
 		
 				// A sim will only run if the bootstrap exists
-				Scheduler.getScheduler().schedule(new RunGame(gameId, "http://localhost:8080/TournamentScheduler/", newTourney.getPomUrl(), props.getProperty("destination")), startTime);
+				Scheduler.getScheduler().schedule(new RunGame(gameId, hostip+"/TournamentScheduler/", newTourney.getPomUrl(), props.getProperty("destination")), startTime);
 				
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
@@ -362,6 +372,7 @@ public class ActionTournament {
 		
 		try {
 			poms = db.getPoms();
+			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -381,6 +392,7 @@ public class ActionTournament {
 					machines.add(m);
 				}
 			}
+			db.closeConnection();
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

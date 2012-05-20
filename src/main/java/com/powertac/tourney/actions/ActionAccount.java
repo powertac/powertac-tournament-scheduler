@@ -111,6 +111,7 @@ public class ActionAccount {
 				if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())) {
 					availableTourneys.add(t);
 				}
+				db.closeConnection();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -141,6 +142,7 @@ public class ActionAccount {
 						g.addBroker(b.getBrokerId());
 					}
 					db.commitTrans();
+					db.closeConnection();
 
 				}
 			}

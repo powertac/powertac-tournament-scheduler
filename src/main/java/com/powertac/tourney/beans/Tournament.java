@@ -95,6 +95,7 @@ public class Tournament {
 		Database db = new Database();
 		try {
 			result = db.getGamesInTourney(this.tourneyId);
+			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

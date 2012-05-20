@@ -50,6 +50,7 @@ public class User {
 			Database db = new Database();
 			try {
 				db.addBroker(getUserId(), brokerName, shortDescription);
+				db.closeConnection();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -64,6 +65,7 @@ public class User {
 		
 		try {
 			db.deleteBrokerByBrokerId(brokerId);
+			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -74,6 +76,7 @@ public class User {
 		Database db = new Database();
 		try {
 			Broker b = db.getBroker(brokerId);
+			db.closeConnection();
 			return b;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -148,6 +151,7 @@ public class User {
 			brokers = new ArrayList<Broker>();
 			try {
 				brokers = db.getBrokersByUserId(getUserId());
+				db.closeConnection();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

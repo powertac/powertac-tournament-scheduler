@@ -50,7 +50,7 @@ public class RunGame extends TimerTask {
 		}
 				
 		//Assumes Jenkins and TS live in the same location as per the install
-		this.serverConfig = "http://localhost:8080/TournamentScheduler/faces/properties.jsp?gameId="+this.gameId;
+		this.serverConfig = tourneyUrl+"faces/properties.jsp?gameId="+this.gameId;
 	}
 	
 	/***
@@ -61,7 +61,7 @@ public class RunGame extends TimerTask {
 		
 		try {
 			if(db.isGameReady(Integer.parseInt(gameId))){
-				this.bootstrapUrl = "http://localhost:8080/TournamentScheduler/faces/pom.jsp?location="+gameId+"-boot.xml";
+				this.bootstrapUrl = tourneyUrl+"/faces/pom.jsp?location="+gameId+"-boot.xml";
 			}else{
 				System.out.println("Game: " + gameId + " reports that bootstrap is not ready! retring in 15 seconds... retries left: " + bootstrapRetry);
 							

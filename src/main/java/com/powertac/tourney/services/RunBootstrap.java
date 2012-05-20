@@ -32,7 +32,7 @@ public class RunBootstrap extends TimerTask{
 		this.destination = destination;
 		
 		//Assumes Jenkins and TS live in the same location as per the install
-		this.serverConfig = "http://localhost:8080/TournamentScheduler/faces/properties.jsp?gameId="+this.gameId;
+		this.serverConfig = tourneyUrl+"/faces/properties.jsp?gameId="+this.gameId;
 	}
 	
 
