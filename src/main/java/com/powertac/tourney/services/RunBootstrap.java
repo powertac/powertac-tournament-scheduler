@@ -3,9 +3,14 @@ package com.powertac.tourney.services;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimerTask;
 
 import org.springframework.stereotype.Service;
+
+import com.powertac.tourney.beans.Machine;
 
 public class RunBootstrap extends TimerTask{
 	
@@ -31,8 +36,46 @@ public class RunBootstrap extends TimerTask{
 	}
 	
 
+	private void checkMachineAvailable(){
+		Database db = new Database();
+		try {
+			db.startTrans();
+			List<Machine> machines = db.getMachines();
+			List<Machine> available = new ArrayList<Machine>();
+			for (Machine m : machines){
+				if(m.getStatus().equalsIgnoreCase("idle")){
+					available.add(m);
+				}
+			}
+			if (available.size()>0){
+				
+				db.updateGameJmsUrlById(Integer.parseInt(gameId),"tcp://"+ available.get(0).getName() +":61616");
+				db.updateGameMachine(Integer.parseInt(gameId), available.get(0).getMachineId());
+				db.setMachineStatus(available.get(0).getMachineId(), "running");
+				this.machineName = available.get(0).getName();
+				db.commitTrans();
+			} else{
+				db.abortTrans();
+				System.out.println("No machines available to run scheduled boot: " + gameId + " ... will retry in 5 minutes");
+				Thread.sleep(300000);
+				this.run();
+			}
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	public void run() {
+		checkMachineAvailable();
+		
+		
 		String finalUrl = "http://localhost:8080/jenkins/job/" 
 				+ "start-server-instance/buildWithParameters?"
 				+ "token=start-instance"
@@ -56,6 +99,18 @@ public class RunBootstrap extends TimerTask{
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Jenkins failure to bootstrap game: "+this.gameId);
+			Database db = new Database();
+			try {
+				db.updateGameStatusById(Integer.parseInt(gameId), "boot-failed");
+			} catch (NumberFormatException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			
 		}
 		
 	}

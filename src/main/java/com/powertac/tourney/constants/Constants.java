@@ -38,6 +38,11 @@ public class Constants {
 	 */
 	public static final String COMMIT_TRANS = "COMMIT;";
 	
+	/***
+	 * Abort db transaction
+	 */
+	public static final String ABORT_TRANS = "ROLLBACK;";
+	
 	
 	/***
 	 * @param userName : User name attempting to login
@@ -188,7 +193,7 @@ public class Constants {
 	 * @param maxBrokers : The maximum number of brokers allowed in this game
 	 * @param startTime : The scheduled start time of the sim
 	 */
-	public static final String ADD_GAME = "INSERT INTO tourney.games (gameName, tourneyId, machineId, maxBrokers,startTime, status,jmsUrl, bootstrapUrl, visualizerUrl, propertiesUrl, location, hasBootstrap, brokers) VALUES (?,?,?,?,?,'pending','','','','','',false,'');";
+	public static final String ADD_GAME = "INSERT INTO tourney.games (gameName, tourneyId, maxBrokers,startTime, status,jmsUrl, bootstrapUrl, visualizerUrl, propertiesUrl, location, hasBootstrap, brokers) VALUES (?,?,?,?,'boot-pending','','','','','',false,'');";
 	
 	/***
 	 * Select game by id
@@ -218,10 +223,18 @@ public class Constants {
 	public static final String UPDATE_GAME_PROPERTIES = "UPDATE tourney.games SET propertiesUrl=? WHERE gameId=?;";
 	
 	/***
+	 * Update the machine a game is running on
+	 * @param machineId : The id of the machine the game is running on
+	 * @param gameId : The id of the game
+	 * 
+	 */
+	public static final String UPDATE_GAME_MACHINE = "UPDATE tourney.games SET machineId=? WHERE gameId=?;";
+	
+	/***
 	 * Select all running and pending games
 	 * 
 	 */
-	public static final String SELECT_GAME = "SELECT * FROM tourney.games WHERE status='pending' OR status='in-progress';";
+	public static final String SELECT_GAME = "SELECT * FROM tourney.games WHERE status LIKE 'boot%' OR '%pending' OR '%progress';";
 	
 	/*** 
 	 * Select all games belonging to a tournament
@@ -231,7 +244,7 @@ public class Constants {
 	
 	/***
 	 * Update Game status by gameId
-	 * @param status : The new status of the game either "pending", "in-progress", or "complete"
+	 * @param status : The new status of the game either "pending", "boot-in-progress", "boot-complete", "game-pending", "game-in-progress", "game-complete", "boot-failed", or "game-failed"
 	 * @param gameId : The id of the game you wish to change
 	 */
 	public static final String UPDATE_GAME = "UPDATE tourney.games SET status = ? WHERE gameId = ?";
@@ -301,13 +314,20 @@ public class Constants {
 	 * @param machineName : The shorthand name of the machine to be displayed to the users like "tac04"
 	 * @param machineUrl : The fully qualified name of the machine like "tac04.cs.umn.edu"
 	 */
-	public static final String ADD_MACHINE = "INSERT INTO tourney.machines (machineName, machineUrl, status) VALUES (?,?,'idle');";
+	public static final String ADD_MACHINE = "INSERT INTO tourney.machines (machineName, machineUrl, status, available) VALUES (?,?,'idle',false);";
 	
 	/***
 	 * Remove a machine from the database by id
 	 * @param machineId : THe id of the machine you wish to remove
 	 */
 	public static final String REMOVE_MACHINE = "DELETE FROM tourney.machines WHERE machineId=?;";
+	
+	/***
+	 * Change a machines availabilty based on name
+	 * @param available : true or false (if true this machine can run sims
+	 * @param machineId : the name of the machine
+	 */
+	public static final String  UPDATE_MACHINE_AVAILABILITY = "UPDATE tourney.machines SET available=? WHERE machineId=?;";
 	
 	/***
 	 * Select all available locations in the database

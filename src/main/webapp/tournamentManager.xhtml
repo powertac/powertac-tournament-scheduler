@@ -119,20 +119,11 @@
 							<f:selectItem itemValue="-1" itemLabel="More Brokers" />
 						</h:selectOneMenu>
 					</h:panelGroup>
-
-					<h:outputText value="Select Machine(s) to use in Tournament:" />
-					<h:panelGroup>
-						<h:selectManyCheckbox value="#{actionTournament.machines}">
-							<f:selectItems value="#{machines.machineList}" var="m"
-								itemValue="#{m.machineId}" itemLabel="#{m.name}" />
-						</h:selectManyCheckbox>
-					</h:panelGroup>
-
-
+										
 
 					<h:outputLabel value="Select Pom File:" />
 					<h:panelGroup>
-						<h:selectOneMenu value="#{actionTournament.selectedPom}">
+						<h:selectOneMenu id="poms" value="#{actionTournament.selectedPom}" required="true">
 							<f:selectItems value="#{actionTournament.pomList}" var="p"
 								itemValue="#{p.location}" itemLabel="#{p.name}" />
 						</h:selectOneMenu>
@@ -151,7 +142,7 @@
 
 					<h:outputLabel value="Locations: " />
 					<h:panelGroup>
-						<h:selectManyCheckbox value="#{actionTournament.locations}">
+						<h:selectManyCheckbox id="locations" value="#{actionTournament.locations}" required="true">
 							<f:selectItems value="#{locations.locationList}" var="L"
 								itemValue="#{L.name}" itemLabel="#{L.name}" />
 						</h:selectManyCheckbox>

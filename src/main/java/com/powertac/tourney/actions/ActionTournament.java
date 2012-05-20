@@ -27,6 +27,7 @@ import org.springframework.stereotype.Controller;
 
 import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Games;
+import com.powertac.tourney.beans.Machine;
 import com.powertac.tourney.beans.Machines;
 import com.powertac.tourney.beans.Scheduler;
 import com.powertac.tourney.beans.Tournament;
@@ -60,7 +61,7 @@ public class ActionTournament {
 	
 	private String tournamentName;
 	private int maxBrokers; // -1 means inf, otherwise integer specific
-	private List<Integer> machines;
+	//private List<Integer> machines;
 	private List<String> locations;
 	private String pomName;
 	private String bootName;
@@ -172,13 +173,7 @@ public class ActionTournament {
 				+ (new Date()).toString() + Math.random());
 	}
 
-	public List<Integer> getMachines() {
-		return machines;
-	}
-
-	public void setMachines(List<Integer> machines) {
-		this.machines = machines;
-	}
+	
 
 	// Method to list the type enumeration in the jsf select Item component
 	public SelectItem[] getTypes() {
@@ -233,23 +228,10 @@ public class ActionTournament {
 			String finalFile = upload.submit(this.getPomName());*/
 			newTourney.setPomName(selectedPom);
 			
-			
-			InetAddress thisIp = null;
-			try {
-				thisIp = InetAddress.getLocalHost();
-				System.out.println("IP:"+thisIp.getHostAddress());
-			} catch (UnknownHostException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-			
+		
 			Database db = new Database();
 			
-			
-			
-			
-			newTourney.setPomUrl(thisIp.getHostAddress()+":8080/TournamentScheduler/faces/pom.jsp?location="+newTourney.getPomName());
+			newTourney.setPomUrl("http://localhost:8080/TournamentScheduler/faces/pom.jsp?location="+newTourney.getPomName());
 			newTourney.setMaxBrokers(getMaxBrokers());
 			newTourney.setStartTime(getStartTime());
 			newTourney.setTournamentName(getTournamentName());
@@ -294,8 +276,7 @@ public class ActionTournament {
 				// Adds a new game to the database
 				
 				System.out.println("Adding game");
-				System.out.println("Machine Id: " + machines.get(0));
-				db.addGame("SingleGame", tourneyId, machines.get(0), maxBrokers, new java.sql.Date(startTime.getTime()));
+				db.addGame("SingleGame", tourneyId, maxBrokers, new java.sql.Date(startTime.getTime()));
 				// Grabs the game id
 				System.out.println("Getting gameId");
 				gameId = db.getMaxGameId();
@@ -325,7 +306,7 @@ public class ActionTournament {
 				
 		
 				// A sim will only run if the bootstrap exists
-				Scheduler.getScheduler().schedule(new RunGame(gameId, "http://localhost:8080/TournamentScheduler/", newTourney.getPomUrl(),  "127.0.0.1", props.getProperty("destination")), startTime);
+				Scheduler.getScheduler().schedule(new RunGame(gameId, "http://localhost:8080/TournamentScheduler/", newTourney.getPomUrl(), props.getProperty("destination")), startTime);
 				
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
@@ -353,6 +334,12 @@ public class ActionTournament {
 			}
 
 		} else if (type == TourneyType.MULTI_GAME) {
+			// First create the tournament
+			
+			// Use schedule code to create the set of games and place them in the database as placeholders
+			
+			// Create a timer to check for idle machines and schedule games
+			
 
 		} else {
 
@@ -381,6 +368,27 @@ public class ActionTournament {
 		}
 		return poms;
 		
+	}
+	
+	public List<Machine> getAvailableMachineList(){
+		List<Machine> machines = new ArrayList<Machine>();
+		
+		Database db = new Database();
+		try {
+			List<Machine> all = db.getMachines();
+			for(Machine m : all){
+				if(m.isAvailable()){
+					machines.add(m);
+				}
+			}
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		return machines;
 	}
 
 	public Date getFromTime() {

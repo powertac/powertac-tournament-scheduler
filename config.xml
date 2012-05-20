@@ -3,6 +3,12 @@
   <actions/>
   <description>The purpose of this job is to start a stand alone server instance on a particular machine. This job is meant to be started via a rest call with certain commandline arguments&#xd;
 </description>
+  <logRotator>
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>1</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>

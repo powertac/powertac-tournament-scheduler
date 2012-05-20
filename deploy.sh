@@ -7,7 +7,7 @@ echo "Installing Jenkins..."
 curl --upload-file ./jenkins.war "http://"$2":"$3"@"$1"/manager/text/deploy?path=/jenkins&update=true"
 rm jenkins.war
 echo "Configuring Jenkins..."
-sleep 30
+sleep 50
 status=`curl -o /dev/null --write-out %{http_code} --upload-file ./config.xml -H Content-Type:text/xml http://$1/jenkins/createItem?name=start-server-instance&mode=create`
 
 if [ "$status" != "200" ] ; then

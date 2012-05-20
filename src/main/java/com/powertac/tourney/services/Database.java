@@ -657,15 +657,15 @@ public class Database {
 		return gs;
 	}
 	
-	public int addGame(String gameName, int tourneyId, int machineId, int maxBrokers, java.sql.Date startTime) throws SQLException{
+	public int addGame(String gameName, int tourneyId, int maxBrokers, java.sql.Date startTime) throws SQLException{
 		checkDb();
 		PreparedStatement insertGame = conn.prepareStatement(Constants.ADD_GAME);
 		
 		insertGame.setString(1, gameName);
 		insertGame.setInt(2, tourneyId);
-		insertGame.setInt(3, machineId);
-		insertGame.setInt(4, maxBrokers);
-		insertGame.setDate(5, startTime);
+		//insertGame.setInt(3, machineId);
+		insertGame.setInt(3, maxBrokers);
+		insertGame.setDate(4, startTime);
 		//insertGame.setString(4, properitesUrl);
 		
 		return insertGame.executeUpdate();
@@ -726,6 +726,16 @@ public class Database {
 		return updateGame.executeUpdate();
 	}
 	
+	public int updateGameMachine(int gameId, int machineId) throws SQLException{
+		checkDb();
+		PreparedStatement updateGame = conn.prepareStatement(Constants.UPDATE_GAME_MACHINE);
+		
+		updateGame.setInt(2, gameId);
+		updateGame.setInt(1, machineId);
+		
+		return updateGame.executeUpdate();
+	}
+	
 	public int updateGameJmsUrlById(int gameId, String jmsUrl) throws SQLException{
 		checkDb();
 		PreparedStatement updateGame = conn.prepareStatement(Constants.UPDATE_GAME_JMSURL);
@@ -770,11 +780,55 @@ public class Database {
 			tmp.setStatus(rsMachines.getString("status"));
 			tmp.setUrl(rsMachines.getString("machineUrl"));
 			tmp.setName(rsMachines.getString("machineName"));
+			tmp.setAvailable(rsMachines.getBoolean("available"));
 			machines.add(tmp);			
 		}
 		
 		
 		return machines;
+	}
+	
+	public int setMachineAvailable(int machineId, boolean isAvailable) throws SQLException{
+		checkDb();
+		
+		PreparedStatement updateMachine = conn.prepareStatement(Constants.UPDATE_MACHINE_AVAILABILITY);
+		
+		updateMachine.setBoolean(1, isAvailable);
+		updateMachine.setInt(2, machineId);
+		
+		return updateMachine.executeUpdate();
+		
+	}
+	
+	public int setMachineStatus(int machineId, String status) throws SQLException{
+		checkDb();
+		
+		PreparedStatement updateMachine = conn.prepareStatement(Constants.UPDATE_MACHINE_STATUS_BY_ID);
+		
+		updateMachine.setString(1, status);
+		updateMachine.setInt(2, machineId);
+		
+		return updateMachine.executeUpdate();
+		
+	}
+	
+	public int addMachine(String machineName, String machineUrl) throws SQLException{
+		checkDb();
+		
+		PreparedStatement addMachine = conn.prepareStatement(Constants.ADD_MACHINE);
+		addMachine.setString(1, machineName);
+		addMachine.setString(2, machineUrl);
+		
+		return addMachine.executeUpdate();
+	}
+	
+	public int deleteMachine(int machineId) throws SQLException{
+		checkDb();
+		
+		PreparedStatement deleteMachine = conn.prepareStatement(Constants.REMOVE_MACHINE);
+		deleteMachine.setInt(1, machineId);
+		
+		return deleteMachine.executeUpdate();
 	}
 	
 	public List<Location> getLocations() throws SQLException{
@@ -878,6 +932,14 @@ public class Database {
 	public int commitTrans() throws SQLException{
 		checkDb();
 		PreparedStatement trans = conn.prepareCall(Constants.COMMIT_TRANS);
+		trans.execute();
+		return 0;
+		
+	}
+	
+	public int abortTrans() throws SQLException{
+		checkDb();
+		PreparedStatement trans = conn.prepareCall(Constants.ABORT_TRANS);
 		trans.execute();
 		return 0;
 		

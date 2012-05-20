@@ -66,15 +66,16 @@ CREATE TABLE `tourney`.`machines` (
 	`machineName` VARCHAR(30) NOT NULL,
 	`machineUrl` VARCHAR(256) NOT NULL, /* Url to the machine */
 	`status` VARCHAR(20) NOT NULL, /* Indicates wether a game is running on this machine or not, either "running" or "idle" */
+	`available` BOOLEAN NOT NULL,
 	PRIMARY KEY (`machineId`)
 ) ENGINE=InnoDB;
 
 /* Local machines for testing purposes should be removed in prod*/
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, status) VALUES ('tac04', 'tac04.cs.umn.edu', 'idle');
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, status) VALUES ('tac10', 'tac10.cs.umn.edu', 'idle');
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, status) VALUES ('tac11', 'tac11.cs.umn.edu', 'idle');
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, status) VALUES ('tac12', 'tac12.cs.umn.edu', 'idle');
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, status) VALUES ('tac13', 'tac13.cs.umn.edu', 'idle');
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, status, available) VALUES ('localhost', '127.0.0.1', 'idle', true);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, status, available) VALUES ('tac10', 'tac10.cs.umn.edu', 'idle', false);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, status, available) VALUES ('tac11', 'tac11.cs.umn.edu', 'idle', false);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, status, available) VALUES ('tac12', 'tac12.cs.umn.edu', 'idle', false);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, status, available) VALUES ('tac13', 'tac13.cs.umn.edu', 'idle', false);
 
 
 
@@ -95,7 +96,7 @@ CREATE TABLE `tourney`.`games` (
 	`gameId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`gameName` VARCHAR(256) NOT NULL,
 	`tourneyId` BIGINT(20) UNSIGNED NOT NULL,
-	`machineId` BIGINT(20) UNSIGNED NOT NULL,
+	`machineId` BIGINT(20) UNSIGNED,
 	`status` VARCHAR(20) NOT NULL,
 	`maxBrokers` integer NOT NULL,
 	`hasBootstrap` BOOLEAN NOT NULL,

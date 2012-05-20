@@ -7,6 +7,7 @@ import javax.faces.bean.ManagedBean;
 public class Machine {
 	private String name;
 	private String url;
+	private boolean available;
 	private boolean inProgress;
 	private String status;
 	private int machineId;
@@ -47,5 +48,16 @@ public class Machine {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+		if(status.equalsIgnoreCase("idle")){
+			this.inProgress = false;
+		}else if(status.equalsIgnoreCase("running")){
+			this.inProgress = true;
+		}
+	}
+	public boolean isAvailable() {
+		return available;
+	}
+	public void setAvailable(boolean available) {
+		this.available = available;
 	}
 }

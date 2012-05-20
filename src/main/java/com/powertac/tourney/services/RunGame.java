@@ -6,12 +6,15 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimerTask;
 
 import javax.faces.context.FacesContext;
 
 import com.powertac.tourney.beans.Game;
+import com.powertac.tourney.beans.Machine;
 import com.powertac.tourney.beans.Machines;
 import com.powertac.tourney.beans.Scheduler;
 import com.powertac.tourney.beans.Tournaments;
@@ -32,13 +35,15 @@ public class RunGame extends TimerTask {
 	String machineName = "";
 	
 	
-	public RunGame(int gameId, String tourneyUrl, String pomUrl, String machineName, String destination){
+	public RunGame(int gameId, String tourneyUrl, String pomUrl,  String destination){
 		this.gameId = String.valueOf(gameId);
 		this.tourneyUrl = tourneyUrl;
 		this.pomUrl = pomUrl;
 		Database db = new Database();
 		try {
-			db.updateGameJmsUrlById(gameId,"tcp://"+ machineName +":61616");
+			db.startTrans();
+			db.updateGameStatusById(gameId, "game-pending");
+			db.commitTrans();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -137,11 +142,50 @@ public class RunGame extends TimerTask {
 		
 	}
 	
-
+	private void checkMachineAvailable(){
+		Database db = new Database();
+		try {
+			db.startTrans();
+			List<Machine> machines = db.getMachines();
+			List<Machine> available = new ArrayList<Machine>();
+			for (Machine m : machines){
+				if(m.getStatus().equalsIgnoreCase("idle")){
+					available.add(m);
+				}
+			}
+			if (available.size()>0){
+				
+				db.updateGameJmsUrlById(Integer.parseInt(gameId),"tcp://"+ available.get(0).getName() +":61616");
+				db.updateGameMachine(Integer.parseInt(gameId), available.get(0).getMachineId());
+				db.setMachineStatus(available.get(0).getMachineId(), "running");
+				this.machineName = available.get(0).getName();
+				db.commitTrans();
+			} else{
+				db.abortTrans();
+				System.out.println("No machines available to run scheduled game: " + gameId + " ... will retry in 5 minutes");
+				Thread.sleep(300000);
+				this.run();
+			}
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	public void run() {
+		// Check if a boot exists
 		checkBootstrap();
+		// Check if brokers are registered
 		checkBrokers();
+		// Check if there is a machine available to run the sim and set it
+		checkMachineAvailable();
+		
 		String finalUrl = "http://localhost:8080/jenkins/job/" 
 				+ "start-server-instance/buildWithParameters?"
 				+ "token=start-instance"
