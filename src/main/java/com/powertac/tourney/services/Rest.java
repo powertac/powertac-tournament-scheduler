@@ -58,6 +58,7 @@ public class Rest {
 					// brokers to join
 					if (g.getStartTime().before(new Date())
 							&& g.getStatus().equalsIgnoreCase("ready")) {
+						
 						// Anyone can start and join a test competition
 						/*
 						 * if(competitionName.equalsIgnoreCase("test")){ //
@@ -103,6 +104,12 @@ public class Rest {
 			}
 
 		} catch (Exception e) {
+			try {
+				db.closeConnection();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			e.printStackTrace();
 		}
 		

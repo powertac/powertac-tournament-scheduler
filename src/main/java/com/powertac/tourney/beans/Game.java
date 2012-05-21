@@ -3,6 +3,7 @@ package com.powertac.tourney.beans;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 
@@ -65,6 +66,7 @@ public class Game {
 		Broker b = new Broker("new");
 		try {
 			b = db.getBroker(brokerId);
+			db.addBrokerToGame(gameId,b);
 			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -162,7 +164,27 @@ public class Game {
 	
 	
 	public boolean isBrokerRegistered(String authToken){
-		return brokerAuth.containsKey(authToken);
+		System.out.println("Broker token: " + authToken);
+		Database db = new Database();
+		boolean ingame = false;
+		try {
+			
+			List<Broker> allBrokers = db.getBrokersInGame(gameId);
+			for (Broker b : allBrokers){
+				if(b.getBrokerAuthToken().equalsIgnoreCase(authToken)){
+					ingame = true;
+					break;
+				}
+			}
+			db.closeConnection();
+			
+		} catch (SQLException e) {
+			
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return ingame;
 	}
 	
 

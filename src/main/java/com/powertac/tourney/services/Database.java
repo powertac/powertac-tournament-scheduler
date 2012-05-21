@@ -669,6 +669,7 @@ public class Database {
 			tmp.setStatus(rsGs.getString("status"));
 			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
 			tmp.setStartTime(rsGs.getDate("startTime"));
+			tmp.setBrokers(rsGs.getString("brokers"));
 			tmp.setGameId(rsGs.getInt("tourneyId"));
 			tmp.setMachineId(rsGs.getInt("machineId"));
 			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
@@ -712,6 +713,7 @@ public class Database {
 			tmp.setStatus(rsGs.getString("status"));
 			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
 			tmp.setStartTime(rsGs.getDate("startTime"));
+			tmp.setBrokers(rsGs.getString("brokers"));
 			tmp.setGameId(rsGs.getInt("tourneyId"));
 			tmp.setMachineId(rsGs.getInt("machineId"));
 			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
@@ -725,6 +727,41 @@ public class Database {
 			
 		}
 		return tmp;
+	}
+	
+	public int addBrokerToGame(int gameId, Broker b) throws SQLException{
+		checkDb();
+		PreparedStatement addBrokerToGame = conn.prepareStatement(Constants.ADD_BROKER_TO_GAME);
+		
+		addBrokerToGame.setInt(1, gameId);
+		addBrokerToGame.setInt(2, b.getBrokerId());
+		addBrokerToGame.setString(3, b.getBrokerAuthToken());
+		addBrokerToGame.setString(4, b.getBrokerName());
+		
+		
+		return addBrokerToGame.executeUpdate();
+	}
+	
+	public List<Broker> getBrokersInGame(int gameId) throws SQLException{
+		checkDb();
+		List<Broker> brokers = new ArrayList<Broker>();
+		PreparedStatement getBrokers = conn.prepareStatement(Constants.GET_BROKERS_INGAME);
+		
+		getBrokers.setInt(1, gameId);
+		
+		ResultSet rs = getBrokers.executeQuery();
+		while(rs.next()){
+			Broker tmp = new Broker("new");
+			tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
+			tmp.setBrokerId(rs.getInt("brokerId"));
+			tmp.setBrokerName(rs.getString("brokerName"));
+			tmp.setShortDescription(rs.getString("brokerShort"));
+			tmp.setNumberInGame(rs.getInt("numberInGame"));
+			
+			brokers.add(tmp);
+		}
+		
+		return brokers;
 	}
 	
 	public boolean isGameReady(int gameId) throws SQLException{

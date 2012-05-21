@@ -52,6 +52,16 @@ CREATE TABLE `tourney`.`registration` (
 	CONSTRAINT brokerId_refs FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` ( `brokerId` )
 ) ENGINE=InnoDB;
 
+DROP TABLE IF EXISTS `tourney`.`ingame`;
+CREATE TABLE `tourney`.`registration` (
+	`gameId` BIGINT(20) UNSIGNED NOT NULL,
+	`brokerId` BIGINT(20) UNSIGNED NOT NULL,
+	`brokerAuth` VARCHAR(256) NOT NULL,
+	`brokerName` VARCHAR(256) NOT NULL,
+	CONSTRAINT brokerId_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`),
+	CONSTRAINT gameId_refs FOREIGN KEY (`gameId`) REFERENCES `tourney`.`games` ( `gameId` )
+) ENGINE=InnoDB;
+
 DROP TABLE IF EXISTS `tourney`.`permission`;
 CREATE TABLE `tourney`.`logs` (
 	`logId` integer UNSIGNED NOT NULL AUTO_INCREMENT,

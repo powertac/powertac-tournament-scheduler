@@ -203,6 +203,22 @@ public class Constants {
 	public static final String ADD_GAME = "INSERT INTO tourney.games (gameName, tourneyId, maxBrokers,startTime, status,jmsUrl, bootstrapUrl, visualizerUrl, propertiesUrl, location, hasBootstrap, brokers) VALUES (?,?,?,?,'boot-pending','','','','','',false,'');";
 	
 	/***
+	 * Add broker to game in database
+	 * @param gameId : The id of the game you wish to add the broker to
+	 * @param brokerId : The id of the broker
+	 * @param brokerAuth : The authToke of the broker
+	 * @param brokerName : The name of the broker
+	 */
+	public static final String ADD_BROKER_TO_GAME = "INSERT INTO tourney.ingame (gameId,brokerId,brokerAuth,brokerName) VALUES (?,?,?,?)";
+	
+	/***
+	 * Get brokers in a game by gameid
+	 * @param gameId
+	 */
+	public static final String GET_BROKERS_INGAME = "SELECT * FROM brokers JOIN ingame ON brokers.brokerId = ingame.brokerId WHERE gameId=?";
+	
+	
+	/***
 	 * Select game by id
 	 * @param gameId : The id of the game you wish to retrieve from the db
 	 */
