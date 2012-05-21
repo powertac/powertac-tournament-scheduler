@@ -73,7 +73,7 @@ public class RunGame extends TimerTask {
 					// Exceed maximum retries kill scheduled task
 					// TODO: Clean up database after this
 					this.cancel();
-					System.exit(0);
+					//System.exit(0);
 				}
 			}
 		} catch (NumberFormatException e) {
@@ -81,7 +81,7 @@ public class RunGame extends TimerTask {
 			e.printStackTrace();
 		} catch (SQLException e) {
 			System.out.println("Bootstrap Database error while scheduling sim!!");
-			System.exit(0);
+			this.cancel();
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -113,8 +113,9 @@ public class RunGame extends TimerTask {
 				}else{
 					// Exceed maximum retries kill scheduled task
 					// TODO: Clean up database after this
+					
 					this.cancel();
-					System.exit(0);
+					//System.exit(0);
 				}
 			}else{
 				System.out.println("There are " + numRegistered + " brokers registered for tournament... starting sim");
@@ -123,7 +124,7 @@ public class RunGame extends TimerTask {
 				if(this.brokers.length()<2){
 					System.out.println("Error no brokers listed in database for gameId: " + gameId);
 					this.cancel();
-					System.exit(0);
+					//System.exit(0);
 				}
 				
 			}
@@ -132,7 +133,7 @@ public class RunGame extends TimerTask {
 			
 		} catch (SQLException e) {
 			System.out.println("Broker Database error while scheduling sim!!");
-			System.exit(0);
+			//System.exit(0);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e) {
