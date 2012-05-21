@@ -544,7 +544,7 @@ public class Database {
 			tmp.setStatus(rsGs.getString("status"));
 			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
 			tmp.setStartTime(rsGs.getDate("startTime"));
-			tmp.setGameId(rsGs.getInt("tourneyId"));
+			tmp.setTourneyId(rsGs.getInt("tourneyId"));
 			tmp.setMachineId(rsGs.getInt("machineId"));
 			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
 			tmp.setGameName(rsGs.getString("gameName"));
@@ -670,7 +670,7 @@ public class Database {
 			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
 			tmp.setStartTime(rsGs.getDate("startTime"));
 			tmp.setBrokers(rsGs.getString("brokers"));
-			tmp.setGameId(rsGs.getInt("tourneyId"));
+			tmp.setTourneyId(rsGs.getInt("tourneyId"));
 			tmp.setMachineId(rsGs.getInt("machineId"));
 			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
 			tmp.setGameName(rsGs.getString("gameName"));
@@ -714,7 +714,7 @@ public class Database {
 			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
 			tmp.setStartTime(rsGs.getDate("startTime"));
 			tmp.setBrokers(rsGs.getString("brokers"));
-			tmp.setGameId(rsGs.getInt("tourneyId"));
+			tmp.setTourneyId(rsGs.getInt("tourneyId"));
 			tmp.setMachineId(rsGs.getInt("machineId"));
 			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
 			tmp.setGameName(rsGs.getString("gameName"));
