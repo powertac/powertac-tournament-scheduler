@@ -39,15 +39,7 @@ public class RunGame extends TimerTask {
 		this.gameId = String.valueOf(gameId);
 		this.tourneyUrl = tourneyUrl;
 		this.pomUrl = pomUrl;
-		Database db = new Database();
-		try {
-			db.startTrans();
-			db.updateGameStatusById(gameId, "game-pending");
-			db.commitTrans();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 				
 		//Assumes Jenkins and TS live in the same location as per the install
 		this.serverConfig = tourneyUrl+"faces/properties.jsp?gameId="+this.gameId;
@@ -62,6 +54,15 @@ public class RunGame extends TimerTask {
 		try {
 			if(db.isGameReady(Integer.parseInt(gameId))){
 				this.bootstrapUrl = tourneyUrl+"/faces/pom.jsp?location="+gameId+"-boot.xml";
+				try {
+					db.startTrans();
+					db.updateGameStatusById(Integer.parseInt(gameId), "game-pending");
+					db.commitTrans();
+					db.closeConnection();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}else{
 				System.out.println("Game: " + gameId + " reports that bootstrap is not ready! retring in 15 seconds... retries left: " + bootstrapRetry);
 							

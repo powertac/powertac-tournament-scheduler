@@ -49,7 +49,7 @@ public class RunBootstrap extends TimerTask{
 			}
 			if (available.size()>0){
 				
-				db.updateGameJmsUrlById(Integer.parseInt(gameId),"tcp://"+ available.get(0).getName() +":61616");
+				//db.updateGameJmsUrlById(Integer.parseInt(gameId),"tcp://"+ available.get(0).getName() +":61616");
 				db.updateGameMachine(Integer.parseInt(gameId), available.get(0).getMachineId());
 				db.setMachineStatus(available.get(0).getMachineId(), "running");
 				this.machineName = available.get(0).getName();
