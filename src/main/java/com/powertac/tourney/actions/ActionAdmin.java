@@ -38,6 +38,9 @@ public class ActionAdmin {
 
 	@Autowired
 	private Upload upload;
+	
+	@Autowired
+	private Scheduler scheduler;
 
 	private String sortColumn = null;
 	private boolean sortAscending = true;
@@ -57,7 +60,6 @@ public class ActionAdmin {
 	private UploadedFile pom;
 	private String pomName;
 	private Properties props = new Properties();
-	private Scheduler s = new Scheduler();
 	
 	public ActionAdmin(){
 		
@@ -228,23 +230,28 @@ public class ActionAdmin {
 		
 		if(g.getStatus().equalsIgnoreCase("boot-failed")){
 			System.out.println("Attempting to restart bootstrap " + gameId);
-			s.schedule(new RunBootstrap(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
+			scheduler.deleteBootTimer(gameId);
+			scheduler.runBootTimer(gameId,new RunBootstrap(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
 			
 		}else if(g.getStatus().equalsIgnoreCase("game-failed")){
 			// If restarting a failed game schedule it for immediate running
 			System.out.println("Attempting to restart sim " + gameId);
-			s.schedule(new RunGame(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
+			scheduler.deleteSimTimer(gameId);
+			scheduler.runSimTimer(gameId,new RunGame(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
 			
 		}else if(g.getStatus().equalsIgnoreCase("boot-pending")){
 			System.out.println("Attempting to restart bootstrap " + gameId);
-			s.schedule(new RunBootstrap(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
+			scheduler.deleteBootTimer(gameId);
+			scheduler.runBootTimer(gameId,new RunBootstrap(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
 			
 		}else if(g.getStatus().equalsIgnoreCase("game-pending")){
 			System.out.println("Attempting to restart sim " + gameId);
-			s.schedule(new RunGame(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
+			scheduler.deleteSimTimer(gameId);
+			scheduler.runSimTimer(gameId,new RunGame(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
 		}else if(g.getStatus().equalsIgnoreCase("boot-complete")){
 			System.out.println("Attempting to restart sim " + gameId);
-			s.schedule(new RunGame(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
+			scheduler.deleteSimTimer(gameId);
+			scheduler.runSimTimer(gameId,new RunGame(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
 		}else{
 			// Nothing
 		}
@@ -253,6 +260,7 @@ public class ActionAdmin {
 	
 	public void deleteGame(Game g){
 		// TODO: ARE YOU SURE?
+		
 		
 	}
 

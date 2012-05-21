@@ -228,7 +228,7 @@ public class Rest {
 				} else if (statusString.equalsIgnoreCase("game-failed")) {
 					System.out.println("GAME " + gameId + " FAILED!");
 					Database db = new Database();
-
+					
 					try {
 						db.startTrans();
 						db.updateGameStatusById(gameId, "game-failed");

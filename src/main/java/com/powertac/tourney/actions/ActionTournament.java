@@ -46,6 +46,9 @@ public class ActionTournament {
 
 	@Autowired
 	private Upload upload;
+	
+	@Autowired
+	private Scheduler scheduler;
 
 	public enum TourneyType {
 		SINGLE_GAME, MULTI_GAME;
