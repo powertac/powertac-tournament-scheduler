@@ -321,7 +321,7 @@ public class Constants {
 	 * @param machineName : The shorthand name of the machine to be displayed to the users like "tac04"
 	 * @param machineUrl : The fully qualified name of the machine like "tac04.cs.umn.edu"
 	 */
-	public static final String ADD_MACHINE = "INSERT INTO tourney.machines (machineName, machineUrl, status, available) VALUES (?,?,'idle',false);";
+	public static final String ADD_MACHINE = "INSERT INTO tourney.machines (machineName, machineUrl, visualizerUrl, status, available) VALUES (?,?,'','idle',false);";
 	
 	/***
 	 * Remove a machine from the database by id
