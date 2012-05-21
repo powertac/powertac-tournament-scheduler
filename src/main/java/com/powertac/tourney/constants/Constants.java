@@ -126,7 +126,7 @@ public class Constants {
 	 * @param gameId : Specify the unique field to select a particular tournament by gameId.
 	 * 
 	 */
-	public static final String SELECT_TOURNAMENT_BYGAMEID = "SELECT * FROM tourney.tournaments WHERE gameId=?;";
+	public static final String SELECT_TOURNAMENT_BYGAMEID = "SELECT * FROM tournaments JOIN games ON tournaments.tourneyId = games.tourneyId WHERE gameId=?;";
 	
 	/***
 	 * Adds a tournament to the database with pending status by default
@@ -241,7 +241,7 @@ public class Constants {
 	 * Select all running and pending games
 	 * 
 	 */
-	public static final String SELECT_GAME = "SELECT * FROM tourney.games WHERE status LIKE 'boot%' OR '%pending' OR '%progress';";
+	public static final String SELECT_GAME = "SELECT * FROM tourney.games WHERE (status LIKE 'boot%') OR (status LIKE '%pending') OR (status LIKE '%progress');";
 	
 	/*** 
 	 * Select all games belonging to a tournament

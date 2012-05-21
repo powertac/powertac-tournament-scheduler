@@ -92,11 +92,13 @@
 
 					<h:outputText value="Tournament Type:" />
 					<h:panelGroup>
-						<h:selectOneMenu value="#{actionTournament.type}">
+						<h:selectOneMenu value="#{actionTournament.type}" actionListener="#{actionTournament.formType}" >
 							<f:selectItems value="#{actionTournament.types}" var="t"
 								itemValues="#{t.ordinal}" itemLabel="#{t.label}" />
 						</h:selectOneMenu>
 					</h:panelGroup>
+					
+				
 
 
 					<h:outputText value="Starting Date/Time (dd/month/yyyy/hh/mm):" />

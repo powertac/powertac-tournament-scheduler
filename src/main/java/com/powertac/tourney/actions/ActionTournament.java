@@ -1,5 +1,6 @@
 package com.powertac.tourney.actions;
 
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
@@ -40,7 +41,7 @@ import com.powertac.tourney.services.StartServer;
 import com.powertac.tourney.services.Upload;
 
 @Component("actionTournament")
-@Scope("request")
+@Scope("session")
 public class ActionTournament {
 
 	@Autowired
@@ -72,11 +73,28 @@ public class ActionTournament {
 	private TourneyType type = TourneyType.SINGLE_GAME;
 	
 	public ActionTournament(){
+		
 		initTime.set(2009, 2, 3);
 		fromTime.setTime(initTime.getTimeInMillis());
 		initTime.set(2011, 2, 3);
 		toTime.setTime(initTime.getTimeInMillis());
 		
+	}
+	
+	public void formType(ActionEvent event){
+		 
+		//Get submit button id
+		SelectItem ls = (SelectItem) event.getSource();
+		ls.getValue();
+		
+	}
+	
+	public TourneyType getMulti(){
+		return TourneyType.MULTI_GAME;
+	}
+	
+	public TourneyType getSingle(){
+		return TourneyType.SINGLE_GAME;
 	}
 
 	/**
