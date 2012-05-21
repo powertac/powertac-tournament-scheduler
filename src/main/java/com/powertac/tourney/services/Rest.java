@@ -5,6 +5,8 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -145,12 +147,22 @@ public class Rest {
 							.println("Recieved bootstrap done message from game: "
 									+ gameId);
 					Database db = new Database();
+					
+					String hostip = "http://";
+					
+					try {
+						InetAddress thisIp =InetAddress.getLocalHost();
+						hostip += thisIp.getHostAddress() + ":8080";
+					} catch (UnknownHostException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
 
 					try {
 						db.startTrans();
 						db.updateGameBootstrapById(
 								gameId,
-								"http://localhost:8080/TournamentScheduler/faces/poms.jsp?location="
+								hostip+"/TournamentScheduler/faces/poms.jsp?location="
 										+ props.getProperty("fileUploadLocation")
 										+ gameId + "-boot.xml");
 						db.updateGameStatusById(gameId, "boot-complete");
