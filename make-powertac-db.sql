@@ -146,7 +146,7 @@ CREATE TABLE `tourney`.`locations` (
 
 DROP TABLE IF EXISTS `tourney`.`ingame`;
 CREATE TABLE `tourney`.`ingame` (
-	`ingameId` BIGINT(20) UNSIGNED NOT NULL,
+	`ingameId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`gameId` BIGINT(20) UNSIGNED NOT NULL,
 	`brokerId` BIGINT(20) UNSIGNED NOT NULL,
 	`brokerAuth` VARCHAR(256) NOT NULL,

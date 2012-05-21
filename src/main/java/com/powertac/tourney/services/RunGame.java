@@ -102,9 +102,11 @@ public class RunGame extends TimerTask {
 		try {
 			
 			Game g = db.getGame(gId);
+			
 			int numRegistered = 0;
 			if((numRegistered = db.getNumberBrokersRegistered(g.getTourneyId()))<1){
-				System.out.println("No brokers registered for tournament waiting 2 minutes... retries left: " + registerRetry);
+				System.out.println("TourneyId: " + g.getTourneyId());
+				System.out.println("No brokers registered for tournament waiting to start game " + g.getGameId() +" 2 minutes... retries left: " + registerRetry);
 				if(registerRetry-->0){
 					Thread.sleep(120000);
 					this.run();
