@@ -334,11 +334,12 @@ public class Database {
 	public Broker getBroker(int brokerId) throws SQLException{
 		checkDb();
 		Broker broker = new Broker("new");
-		if(selectBrokerByBrokerId == null || selectBrokerByBrokerId.isClosed()){
-			selectBrokerByBrokerId = conn.prepareStatement(Constants.SELECT_BROKER_BY_BROKERID);
-		}
 		
-		ResultSet rsBrokers = selectBrokersByUserId.executeQuery();
+		PreparedStatement selectBrokerByBrokerId = conn.prepareStatement(Constants.SELECT_BROKER_BY_BROKERID);
+		
+		selectBrokerByBrokerId.setInt(1, brokerId);
+		
+		ResultSet rsBrokers = selectBrokerByBrokerId.executeQuery();
 		if(rsBrokers.next()){
 			broker.setBrokerAuthToken(rsBrokers.getString("brokerAuth"));
 			broker.setBrokerId(rsBrokers.getInt("brokerId"));
