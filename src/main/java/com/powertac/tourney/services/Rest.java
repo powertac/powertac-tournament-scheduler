@@ -47,51 +47,65 @@ public class Rest {
 			loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"gameToken\":%s\n}";
 			doneResponse = "{\n \"done\":\"true\"\n}";
 		}
-		if (competitionName != null
-				&& Games.getAllGames().getGameList() != null) {
-			for (Game g : Games.getAllGames().getGameList()) {
-				// Only consider games that have started and are ready for
-				// brokers to join
-				if (g.getStartTime().before(new Date())
-						&& g.getStatus().equalsIgnoreCase("ready")) {
-					// Anyone can start and join a test competition
-					/*
-					 * if(competitionName.equalsIgnoreCase("test")){ // Spawn a
-					 * new test competition and rerun Game game = new Game();
-					 * game.setBootstrapUrl(
-					 * "http://www.cselabs.umn.edu/~onarh001/bootstraprun.xml");
-					 * game.setCompetitionName("test"); game.setMaxBrokers(1);
-					 * game.setStartTime(new Date()); game.setPomUrl("");
-					 * game.setServerConfigUrl(""); game.addBroker("anybroker",
-					 * brokerAuthToken); Scheduler.getScheduler().schedule(new
-					 * StartServer
-					 * (game,Machines.getAllMachines(),Tournaments.getAllTournaments
-					 * ()), new Date()); return String.format(retryResponse,5);
-					 * }else
-					 */if (competitionName.equalsIgnoreCase(g
-							.getCompetitionName())
-							&& g.isBrokerRegistered(brokerAuthToken)) {
-						// If a broker is registered and knows the competition
-						// name, give them an the jmsUrl and gameToken to login
-						return String.format(loginResponse, g.getJmsUrl(),
-								"1234");
+		Database db = new Database();
+
+		try {
+			if (competitionName != null && db.getGames() != null) {
+				List<Game> allGames = db.getGames();
+				db.closeConnection();
+				for (Game g : allGames) {
+					// Only consider games that have started and are ready for
+					// brokers to join
+					if (g.getStartTime().before(new Date())
+							&& g.getStatus().equalsIgnoreCase("ready")) {
+						// Anyone can start and join a test competition
+						/*
+						 * if(competitionName.equalsIgnoreCase("test")){ //
+						 * Spawn a new test competition and rerun Game game =
+						 * new Game(); game.setBootstrapUrl(
+						 * "http://www.cselabs.umn.edu/~onarh001/bootstraprun.xml"
+						 * ); game.setCompetitionName("test");
+						 * game.setMaxBrokers(1); game.setStartTime(new Date());
+						 * game.setPomUrl(""); game.setServerConfigUrl("");
+						 * game.addBroker("anybroker", brokerAuthToken);
+						 * Scheduler.getScheduler().schedule(new StartServer
+						 * (game
+						 * ,Machines.getAllMachines(),Tournaments.getAllTournaments
+						 * ()), new Date()); return
+						 * String.format(retryResponse,5); }else
+						 */if (competitionName.equalsIgnoreCase(g
+								.getCompetitionName())
+								&& g.isBrokerRegistered(brokerAuthToken)) {
+							// If a broker is registered and knows the
+							// competition
+							// name, give them an the jmsUrl and gameToken to
+							// login
+							return String.format(loginResponse, g.getJmsUrl(),
+									"1234");
+						}
 					}
-				}
-				// If the game has yet to start and broker is registered send
-				// retry message
-				if (g.isBrokerRegistered(brokerAuthToken)) {
-					System.out
-							.println("Broker: "
-									+ brokerAuthToken
-									+ " attempted to log in, game has not started-sending retry");
-					long retry = g.getStartTime().getTime()
-							- (new Date()).getTime();
+					// If the game has yet to start and broker is registered
+					// send
+					// retry message
+					if (g.isBrokerRegistered(brokerAuthToken)) {
+						System.out
+								.println("Broker: "
+										+ brokerAuthToken
+										+ " attempted to log in, game has not started-sending retry");
+						long retry = g.getStartTime().getTime()
+								- (new Date()).getTime();
 
-					return String.format(retryResponse, retry > 0 ? retry : 20);
-				}
+						return String.format(retryResponse, retry > 0 ? retry
+								: 20);
+					}
 
+				}
 			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		
 		return doneResponse;
 	}
 
@@ -147,11 +161,11 @@ public class Rest {
 							.println("Recieved bootstrap done message from game: "
 									+ gameId);
 					Database db = new Database();
-					
+
 					String hostip = "http://";
-					
+
 					try {
-						InetAddress thisIp =InetAddress.getLocalHost();
+						InetAddress thisIp = InetAddress.getLocalHost();
 						hostip += thisIp.getHostAddress() + ":8080";
 					} catch (UnknownHostException e2) {
 						// TODO Auto-generated catch block
@@ -162,7 +176,8 @@ public class Rest {
 						db.startTrans();
 						db.updateGameBootstrapById(
 								gameId,
-								hostip+"/TournamentScheduler/faces/poms.jsp?location="
+								hostip
+										+ "/TournamentScheduler/faces/poms.jsp?location="
 										+ props.getProperty("fileUploadLocation")
 										+ gameId + "-boot.xml");
 						db.updateGameStatusById(gameId, "boot-complete");
@@ -219,7 +234,7 @@ public class Rest {
 						db.updateGameStatusById(gameId, "game-failed");
 						Game g = db.getGame(gameId);
 						db.setMachineStatus(g.getMachineId(), "idle");
-						
+
 						db.commitTrans();
 						db.closeConnection();
 					} catch (SQLException e) {
@@ -265,7 +280,6 @@ public class Rest {
 			}
 		}
 
-	
 		List<String> props = new ArrayList<String>();
 
 		props = CreateProperties.getPropertiesForGameId(Integer
@@ -282,7 +296,7 @@ public class Rest {
 			result += weatherLocation + props.get(0) + "\n";
 			result += startTime + props.get(1);
 		}
-		
+
 		return result;
 	}
 
