@@ -312,7 +312,7 @@ public class ActionTournament {
 				}
 				db.closeConnection();
 				// Only schedule the bootstrap and sim if db was updated successfully
-				Scheduler.getScheduler().schedule(new RunBootstrap(gameId, hostip+"/TournamentScheduler/", newTourney.getPomUrl(), "127.0.0.1", props.getProperty("destination")), new Date());
+				Scheduler.getScheduler().schedule(new RunBootstrap(gameId, hostip+"/TournamentScheduler/", newTourney.getPomUrl(), props.getProperty("destination")), new Date());
 				
 		
 				// A sim will only run if the bootstrap exists

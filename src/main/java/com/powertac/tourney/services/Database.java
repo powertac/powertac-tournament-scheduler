@@ -15,9 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import javax.faces.context.FacesContext;
-
-import com.powertac.tourney.actions.ActionAdmin;
 import com.powertac.tourney.beans.Broker;
 import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Location;
@@ -507,6 +504,29 @@ public class Database {
 		
 		return ts;
 	}
+	
+	public Tournament getTournamentByGameId(int gameId) throws SQLException{
+		checkDb();
+		Tournament ts = new Tournament();
+		PreparedStatement selectTournament = conn.prepareStatement(Constants.SELECT_TOURNAMENT_BYGAMEID);
+		
+		selectTournament.setInt(1, gameId);
+		
+		ResultSet rsTs = selectTournament.executeQuery();
+		
+		if(rsTs.next()){
+			Tournament tmp = new Tournament();
+			tmp.setPomUrl(rsTs.getString("pomUrl"));
+			tmp.setMaxBrokers(rsTs.getInt("maxBrokers"));
+			tmp.setStartTime(rsTs.getDate("startTime"));
+			tmp.setTournamentName(rsTs.getString("tourneyName"));
+			ts = tmp;
+		}
+		
+		
+		return ts;
+	}
+	
 	public List<Game> getGamesInTourney(int tourneyId) throws SQLException{
 		checkDb();
 		List<Game> gs = new ArrayList<Game>();
@@ -521,6 +541,7 @@ public class Database {
 			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
 			tmp.setStartTime(rsGs.getDate("startTime"));
 			tmp.setGameId(rsGs.getInt("tourneyId"));
+			tmp.setMachineId(rsGs.getInt("machineId"));
 			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
 			tmp.setGameName(rsGs.getString("gameName"));
 			tmp.setGameId(rsGs.getInt("gameId"));
@@ -645,6 +666,7 @@ public class Database {
 			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
 			tmp.setStartTime(rsGs.getDate("startTime"));
 			tmp.setGameId(rsGs.getInt("tourneyId"));
+			tmp.setMachineId(rsGs.getInt("machineId"));
 			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
 			tmp.setGameName(rsGs.getString("gameName"));
 			tmp.setGameId(rsGs.getInt("gameId"));
@@ -687,6 +709,7 @@ public class Database {
 			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
 			tmp.setStartTime(rsGs.getDate("startTime"));
 			tmp.setGameId(rsGs.getInt("tourneyId"));
+			tmp.setMachineId(rsGs.getInt("machineId"));
 			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
 			tmp.setGameName(rsGs.getString("gameName"));
 			tmp.setGameId(rsGs.getInt("gameId"));

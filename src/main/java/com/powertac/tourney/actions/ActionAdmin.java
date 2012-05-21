@@ -1,16 +1,24 @@
 package com.powertac.tourney.actions;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Location;
 import com.powertac.tourney.beans.Machine;
+import com.powertac.tourney.beans.Scheduler;
+import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.beans.User;
 import com.powertac.tourney.services.Database;
+import com.powertac.tourney.services.RunBootstrap;
+import com.powertac.tourney.services.RunGame;
 import com.powertac.tourney.services.Upload;
 
 import javax.faces.application.FacesMessage;
@@ -48,6 +56,18 @@ public class ActionAdmin {
 
 	private UploadedFile pom;
 	private String pomName;
+	private Properties props = new Properties();
+	
+	public ActionAdmin(){
+		
+		try {
+			props.load(Database.class.getClassLoader().getResourceAsStream(
+					"/tournament.properties"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public String getPomName() {
 		return pomName;
@@ -177,10 +197,44 @@ public class ActionAdmin {
 	}
 	
 	public void restartGame(Game g){
+		Database db = new Database();
+		int gameId = g.getGameId();
+		Tournament t = new Tournament();
+		try {
+			t = db.getTournamentByGameId(gameId);
+			db.closeConnection();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String hostip = "http://";
+		
+		try {
+			InetAddress thisIp =InetAddress.getLocalHost();
+			hostip += thisIp.getHostAddress() + ":8080";
+		} catch (UnknownHostException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		if(g.getStatus()=="boot-failed"){
+			
+			Scheduler.getScheduler().schedule(new RunBootstrap(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
+			
+		}else if(g.getStatus()=="game-failed"){
+			// If restarting a failed game schedule it for immediate running
+			Scheduler.getScheduler().schedule(new RunGame(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
+			
+		}else{
+			// TODO: ARE YOU SURE?
+		}
 		
 	}
 	
 	public void deleteGame(Game g){
+		// TODO: ARE YOU SURE?
 		
 	}
 

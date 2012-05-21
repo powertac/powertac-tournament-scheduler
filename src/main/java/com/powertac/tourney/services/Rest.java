@@ -154,6 +154,8 @@ public class Rest {
 										+ props.getProperty("fileUploadLocation")
 										+ gameId + "-boot.xml");
 						db.updateGameStatusById(gameId, "boot-complete");
+						Game g = db.getGame(gameId);
+						db.setMachineStatus(g.getMachineId(), "idle");
 						db.commitTrans();
 						db.closeConnection();
 					} catch (SQLException e) {
@@ -188,6 +190,8 @@ public class Rest {
 					try {
 						db.startTrans();
 						db.updateGameStatusById(gameId, "game-complete");
+						Game g = db.getGame(gameId);
+						db.setMachineStatus(g.getMachineId(), "idle");
 						db.commitTrans();
 						db.closeConnection();
 					} catch (SQLException e) {
@@ -201,6 +205,9 @@ public class Rest {
 					try {
 						db.startTrans();
 						db.updateGameStatusById(gameId, "game-failed");
+						Game g = db.getGame(gameId);
+						db.setMachineStatus(g.getMachineId(), "idle");
+						
 						db.commitTrans();
 						db.closeConnection();
 					} catch (SQLException e) {
@@ -213,6 +220,8 @@ public class Rest {
 					try {
 						db.startTrans();
 						db.updateGameStatusById(gameId, "boot-failed");
+						Game g = db.getGame(gameId);
+						db.setMachineStatus(g.getMachineId(), "idle");
 						db.commitTrans();
 						db.closeConnection();
 					} catch (SQLException e) {

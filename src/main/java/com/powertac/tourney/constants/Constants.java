@@ -122,6 +122,13 @@ public class Constants {
 	public static final String SELECT_TOURNAMENT_BYID = "SELECT * FROM tourney.tournaments WHERE tourneyId=?;";
 	
 	/***
+	 * Selects a tournament from the database by gameId
+	 * @param gameId : Specify the unique field to select a particular tournament by gameId.
+	 * 
+	 */
+	public static final String SELECT_TOURNAMENT_BYGAMEID = "SELECT * FROM tourney.tournaments WHERE gameId=?;";
+	
+	/***
 	 * Adds a tournament to the database with pending status by default
 	 * @param tourneyName : The name of the tournament
 	 * @param startTime : The timestamp when the tournament scheduler will issue a request to start the powertac simulation server

@@ -15,6 +15,7 @@ public class Game {
 	private int competitionId = -1;
 	private int tourneyId = 0;
 	private int gameId = 0;
+	private int machineId;
 	private static int maxGameId = 0;
 	private String status = "pending";
 	private Machine runningMachine = null; // This is set when the game is actually running on a machine
@@ -256,6 +257,14 @@ public class Game {
 
 	public void setBrokers(String brokers) {
 		this.brokers = brokers;
+	}
+
+	public int getMachineId() {
+		return machineId;
+	}
+
+	public void setMachineId(int machineId) {
+		this.machineId = machineId;
 	}
 
 }

@@ -65,6 +65,7 @@ CREATE TABLE `tourney`.`machines` (
 	`machineId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`machineName` VARCHAR(30) NOT NULL,
 	`machineUrl` VARCHAR(256) NOT NULL, /* Url to the machine */
+	`visualizerUrl` VARCHAR(256) NOT NULL,
 	`status` VARCHAR(20) NOT NULL, /* Indicates wether a game is running on this machine or not, either "running" or "idle" */
 	`available` BOOLEAN NOT NULL,
 	PRIMARY KEY (`machineId`)

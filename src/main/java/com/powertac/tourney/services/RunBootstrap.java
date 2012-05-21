@@ -25,7 +25,7 @@ public class RunBootstrap extends TimerTask{
 	String destination = "";
 	
 	
-	public RunBootstrap(int gameId, String tourneyUrl, String pomUrl, String machineName, String destination){
+	public RunBootstrap(int gameId, String tourneyUrl, String pomUrl, String destination){
 		this.gameId = String.valueOf(gameId);
 		this.tourneyUrl = tourneyUrl;
 		this.pomUrl = pomUrl;
