@@ -472,6 +472,7 @@ public class Database {
 		
 		while(rsTs.next()){
 			Tournament tmp = new Tournament();
+			tmp.setTournamentId(rsTs.getInt("tourneyId"));
 			tmp.setPomUrl(rsTs.getString("pomUrl"));
 			tmp.setMaxBrokers(rsTs.getInt("maxBrokers"));
 			tmp.setStartTime(rsTs.getDate("startTime"));
@@ -494,6 +495,7 @@ public class Database {
 		
 		if(rsTs.next()){
 			Tournament tmp = new Tournament();
+			tmp.setTournamentId(rsTs.getInt("tourneyId"));
 			tmp.setPomUrl(rsTs.getString("pomUrl"));
 			tmp.setMaxBrokers(rsTs.getInt("maxBrokers"));
 			tmp.setStartTime(rsTs.getDate("startTime"));
@@ -516,6 +518,7 @@ public class Database {
 		
 		if(rsTs.next()){
 			Tournament tmp = new Tournament();
+			tmp.setTournamentId(rsTs.getInt("tourneyId"));
 			tmp.setPomUrl(rsTs.getString("pomUrl"));
 			tmp.setMaxBrokers(rsTs.getInt("maxBrokers"));
 			tmp.setStartTime(rsTs.getDate("startTime"));
