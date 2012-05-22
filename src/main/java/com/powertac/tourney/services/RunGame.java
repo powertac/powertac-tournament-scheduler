@@ -190,7 +190,7 @@ public class RunGame extends TimerTask {
 				if (available.size() > 0) {
 
 					db.updateGameJmsUrlById(Integer.parseInt(gameId), "tcp://"
-							+ available.get(0).getName() + ":61616");
+							+ available.get(0).getUrl() + ":61616");
 					db.updateGameMachine(Integer.parseInt(gameId), available
 							.get(0).getMachineId());
 					db.updateGameViz(Integer.parseInt(gameId), available.get(0).getVizUrl());
