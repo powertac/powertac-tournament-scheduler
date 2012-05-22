@@ -57,7 +57,7 @@ public class Rest {
 					// Only consider games that have started and are ready for
 					// brokers to join
 					if (g.getStartTime().before(new Date())
-							&& g.getStatus().equalsIgnoreCase("ready")) {
+							&& g.getStatus().equalsIgnoreCase("game-in-progress")) {
 						
 						// Anyone can start and join a test competition
 						/*

@@ -155,7 +155,7 @@
 			</h:form>
 
 			<h:form rendered="#{user.permissions le 0}">
-				<h4>Available Machines</h4>
+				<h4>Available Machines <h:commandButton value="refresh" action="#{actionAdmin.refresh}"/></h4>
 				<t:dataTable id="machines" border="1" sortable="true"
 					sortColumn="#{actionAdmin.sortColumnMachine}"
 					sortAscending="#{actionAdmin.sortAscendingMachine}"
@@ -380,7 +380,7 @@
 			</h:form>
 
 			<h:form rendered="#{user.permissions le 0}">
-				<h4>Pending/Running Games</h4>
+				<h4>Pending/Running Games <h:commandButton value="refresh" action="#{actionAdmin.refresh}"/></h4>
 				<t:dataTable id="datagames" border="1" sortable="true"
 					sortColumn="#{games.sortColumn}"
 					sortAscending="#{games.sortAscending}" preserveSort="true"

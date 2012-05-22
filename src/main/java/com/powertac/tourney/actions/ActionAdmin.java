@@ -264,9 +264,9 @@ public class ActionAdmin {
 		scheduler.deleteBootTimer(g.getGameId());
 		scheduler.deleteSimTimer(g.getGameId());
 		Database db = new Database();
-		
-		
-		
+	}
+	
+	public void refresh(){
 		
 	}
 
