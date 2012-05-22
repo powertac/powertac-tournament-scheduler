@@ -367,6 +367,7 @@ public class Database {
 			props.add(rsProps.getString("location"));
 			props.add(rsProps.getString("startTime"));
 			props.add(rsProps.getString("jmsUrl"));
+			props.add(rsProps.getString("vizQueue"));
 		}
 		
 		return props;
@@ -386,12 +387,13 @@ public class Database {
 		return addPropsById.executeUpdate();
 	}
 	
-	public int updateProperties(int gameId, String jmsUrl) throws SQLException{
+	public int updateProperties(int gameId, String jmsUrl, String vizQueue) throws SQLException{
 		checkDb();
 		PreparedStatement addPropsById = conn.prepareStatement(Constants.UPDATE_PROPETIES);
 		
 		
-		addPropsById.setInt(2, gameId);
+		addPropsById.setInt(3, gameId);
+		addPropsById.setString(2, vizQueue);
 		addPropsById.setString(1, jmsUrl);
 		
 		return addPropsById.executeUpdate();
@@ -878,6 +880,7 @@ public class Database {
 			tmp.setStatus(rsMachines.getString("status"));
 			tmp.setUrl(rsMachines.getString("machineUrl"));
 			tmp.setVizUrl(rsMachines.getString("visualizerUrl"));
+			tmp.setVizQueue(rsMachines.getString("visualizerQueue"));
 			tmp.setName(rsMachines.getString("machineName"));
 			tmp.setAvailable(rsMachines.getBoolean("available"));
 			machines.add(tmp);			
@@ -911,13 +914,14 @@ public class Database {
 		
 	}
 	
-	public int addMachine(String machineName, String machineUrl, String visualizerUrl) throws SQLException{
+	public int addMachine(String machineName, String machineUrl, String visualizerUrl, String visualizerQueue) throws SQLException{
 		checkDb();
 		
 		PreparedStatement addMachine = conn.prepareStatement(Constants.ADD_MACHINE);
 		addMachine.setString(1, machineName);
 		addMachine.setString(2, machineUrl);
 		addMachine.setString(3, visualizerUrl);
+		addMachine.setString(4, visualizerQueue);
 		
 		return addMachine.executeUpdate();
 	}

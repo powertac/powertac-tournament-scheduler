@@ -13,6 +13,7 @@ public class Machine {
 	private int machineId;
 	private int gameId;
 	private String vizUrl;
+	private String vizQueue;
 	
 	public String getName() {
 		return name;
@@ -66,5 +67,11 @@ public class Machine {
 	}
 	public void setVizUrl(String vizUrl) {
 		this.vizUrl = vizUrl;
+	}
+	public String getVizQueue() {
+		return vizQueue;
+	}
+	public void setVizQueue(String vizQueue) {
+		this.vizQueue = vizQueue;
 	}
 }

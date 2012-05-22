@@ -57,6 +57,7 @@ public class ActionAdmin {
 	private String newName = "";
 	private String newUrl = "";
 	private String newViz = "";
+	private String newQueue = "";
 
 	private UploadedFile pom;
 	private String pomName;
@@ -191,7 +192,7 @@ public class ActionAdmin {
 	public void addMachine(){
 		Database db = new Database();
 		try {
-			db.addMachine(newName, newUrl, newViz);
+			db.addMachine(newName, newUrl, newViz, getNewQueue());
 			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -389,6 +390,14 @@ public class ActionAdmin {
 
 	public void setNewViz(String newViz) {
 		this.newViz = newViz;
+	}
+
+	public String getNewQueue() {
+		return newQueue;
+	}
+
+	public void setNewQueue(String newQueue) {
+		this.newQueue = newQueue;
 	}
 
 }

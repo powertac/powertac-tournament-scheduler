@@ -287,11 +287,18 @@ public class Rest {
 		String startTime = "common.competition.simulationBaseTime = ";
 		// Simulation jmsUrl
 		String jms = "server.jmsManagementService.jmsBrokerUrl = ";
+		
+		// Visualizer Settings
+		String remote = "server.visualizerProxyService.remoteVisualizer = true";
+	    String queueName = "server.visualizerProxyService.visualizerQueueName = ";
 
-		if (props.size() == 3) {
+		if (props.size() == 4) {
 			result += weatherLocation + props.get(0) + "\n";
 			result += startTime + props.get(1) + "\n";
-			result += jms + props.get(2);
+			result += jms + props.get(2) + "\n";
+			result += remote + "\n";
+			result += queueName + props.get(4);
+					 
 		}
 
 		return result;
