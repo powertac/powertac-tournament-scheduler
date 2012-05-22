@@ -13,6 +13,7 @@ import java.util.TimerTask;
 
 import javax.faces.context.FacesContext;
 
+import com.powertac.tourney.beans.Broker;
 import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Machine;
 import com.powertac.tourney.beans.Machines;
@@ -119,9 +120,16 @@ public class RunGame extends TimerTask {
 				}
 			}else{
 				System.out.println("There are " + numRegistered + " brokers registered for tournament... starting sim");
-				this.brokers = g.getBrokers();
+				this.brokers = "";
 				
-				if(this.brokers.length()<2){
+				List<Broker> brokerList = db.getBrokersInGame(Integer.parseInt(gameId));
+				for (Broker b : brokerList){
+					this.brokers += b.getBrokerName() + ",";
+				}
+				int lastIndex = this.brokers.length();
+				this.brokers = this.brokers.substring(0, lastIndex-1);
+				
+				if(brokerList.size()<1){
 					System.out.println("Error no brokers listed in database for gameId: " + gameId);
 					this.cancel();
 					//System.exit(0);
@@ -163,6 +171,7 @@ public class RunGame extends TimerTask {
 				db.updateGameMachine(Integer.parseInt(gameId), available.get(0).getMachineId());
 				db.setMachineStatus(available.get(0).getMachineId(), "running");
 				this.machineName = available.get(0).getName();
+				System.out.println("Game: " + gameId + " running on machine: " + this.machineName);
 				db.commitTrans();
 			} else{
 				db.abortTrans();
@@ -209,6 +218,7 @@ public class RunGame extends TimerTask {
 			// Get the response
 			InputStream input = conn.getInputStream();
 			System.out.println("Jenkins request to start simulation game: "+this.gameId);
+			System.out.println("Bootstrap url: "+ bootstrapUrl);
 
 		} catch (Exception e) {
 			e.printStackTrace();
