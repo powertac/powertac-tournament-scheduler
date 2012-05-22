@@ -294,7 +294,8 @@ public class Rest {
 		String jms = "server.jmsManagementService.jmsBrokerUrl = ";
 		
 		// Visualizer Settings
-		String remote = "server.visualizerProxyService.remoteVisualizer = true";
+		String remote = "server.visualizerProxyService.remoteVisualizer = ";//true";
+		
 	    String queueName = "server.visualizerProxyService.visualizerQueueName = ";
 	    
 	    // Test Settings
@@ -305,7 +306,12 @@ public class Rest {
 			result += weatherLocation + props.get(0) + "\n";
 			result += startTime + props.get(1) + "\n";
 			result += jms + props.get(2) + "\n";
-			result += remote + "\n";
+			if (props.get(2).length() > 2){
+				result += remote + "true\n"; 
+			}else{
+				result += remote + "\n";
+			}
+			
 			result += queueName + props.get(3) + "\n";
 					 
 		}
