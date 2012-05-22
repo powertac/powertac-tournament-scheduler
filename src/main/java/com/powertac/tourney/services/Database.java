@@ -366,6 +366,7 @@ public class Database {
 		if(rsProps.next()){
 			props.add(rsProps.getString("location"));
 			props.add(rsProps.getString("startTime"));
+			props.add(rsProps.getString("jmsUrl"));
 		}
 		
 		return props;
@@ -381,6 +382,17 @@ public class Database {
 		addPropsById.setInt(3, gameId);
 		addPropsById.setString(1, locationKV);
 		addPropsById.setString(2, startTimeKV);
+		
+		return addPropsById.executeUpdate();
+	}
+	
+	public int updateProperties(int gameId, String jmsUrl) throws SQLException{
+		checkDb();
+		PreparedStatement addPropsById = conn.prepareStatement(Constants.UPDATE_PROPETIES);
+		
+		
+		addPropsById.setInt(2, gameId);
+		addPropsById.setString(1, jmsUrl);
 		
 		return addPropsById.executeUpdate();
 	}

@@ -90,6 +90,7 @@ CREATE TABLE `tourney`.`properties` (
 	`gameId` BIGINT(20) UNSIGNED NOT NULL, /* Not a foreign key to prevent cycles*/
 	`location` VARCHAR(256) NOT NULL,
 	`startTime` VARCHAR(256) NOT NULL,
+	`jmsUrl` VARCHAR(256) NOT NULL,
 	PRIMARY KEY (`propId`)
 ) ENGINE=InnoDB;
 

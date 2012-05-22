@@ -285,10 +285,13 @@ public class Rest {
 		String weatherLocation = "server.weatherService.weatherLocation = ";
 		// Simulation base time
 		String startTime = "common.competition.simulationBaseTime = ";
+		// Simulation jmsUrl
+		String jms = "server.jmsManagementService.jmsBrokerUrl = ";
 
 		if (props.size() == 2) {
 			result += weatherLocation + props.get(0) + "\n";
-			result += startTime + props.get(1);
+			result += startTime + props.get(1) + "\n";
+			result += jms + props.get(2);
 		}
 
 		return result;

@@ -309,7 +309,14 @@ public class Constants {
 	 * @param gameId : The gameId that this property file belongs to
 	 * @param tourneyId : The tournament the game belongs to (THis is denormalization to spead up queries)
 	 */
-	public static final String ADD_PROPERTIES = "INSERT INTO tourney.properties (location,startTime,gameId) VALUES (?,?,?);";
+	public static final String ADD_PROPERTIES = "INSERT INTO tourney.properties (jmsUrl,location,startTime,gameId) VALUES ('',?,?,?);";
+	
+	/***
+	 * Update the properties with jmsUrl for sims, this is done as soon as you know the machine you're scheduling on
+	 * @param jmsUrl : The url of the jms connection
+	 * @param gameId : The game id of the game you wish to change
+	 */
+	public static final String UPDATE_PROPETIES = "UPDATE tourney.properties SET jmsUrl=? WHERE gameId=?;";
 	
 	/***
 	 * Add pom names and locations
