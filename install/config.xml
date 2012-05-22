@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>The purpose of this job is to start a stand alone server instance on a particular machine. This job is meant to be started via a rest call with certain commandline arguments&#xd;
+</description>
+  <logRotator>
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>1</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>tourneyUrl</name>
+          <description></description>
+          <defaultValue>http://127.0.0.1:8080/TournamentScheduler</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>propUrl</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>suffix</name>
+          <description></description>
+          <defaultValue>bootstrap</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>pomUrl</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>brokers</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>gameId</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>bootUrl</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>destination</name>
+          <description>Jenkins needs to be running under the tacrun account and have ssh keys set-up for this to work</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition>
+          <name>machine</name>
+          <description></description>
+          <defaultValue>master</defaultValue>
+        </org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>machine</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/sh
+echo Job Name: $JOB_NAME
+echo Node Name: $NODE_NAME
+echo Tournament Scheduler URL: $tourneyUrl
+echo Server Config URL: $propUrl
+echo Log File Suffix: $suffix
+echo Build running under account...
+whoami
+echo Running on machine $machine
+
+wget $pomUrl
+
+wget -O pom.xml $pomUrl
+
+if [ &quot;$bootUrl&quot; = &quot;&quot; ] ; then
+    echo &quot;Running in bootstrap mode!&quot;
+    wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-running&quot;
+
+    mvn -Pcli -Dexec.args=&quot;-boot $gameId-boot.xml --config $propUrl --log-suffix $suffix&quot;
+    echo &quot;Bootstrap complete!&quot;
+    echo &quot;Posting bootstrap&quot;
+    tar -cvzf game-$gameId-boot-logs.tar.gz log
+
+    #need ssh keys setup to do this part without a password
+    #scp game-$gameId-boot-logs.tar.gz $destination
+    #scp $gameId-boot.xml $destination
+    cp game-$gameId-boot-logs.tar.gz $destination
+    cp $gameId-boot.xml $destination
+    wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-done&quot;
+    
+
+    #curl --upload-file boot.xml &quot;http://localhost:8080/TournamentScheduler/faces/serverInterface.jsp&quot;
+    exit 0
+else
+    echo &quot;Running in sim mode!&quot;
+    echo Brokers: $brokers
+    #Notify the TM in 30 seconds that the server is ready for games in a subshell
+   (sleep 30; wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=game-ready&quot;)&amp;
+    mvn -Pcli -Dexec.args=&quot;-sim --boot-data=$bootUrl --config $propUrl --log-suffix $suffix --brokers $brokers&quot;
+
+    tar -cvzf game-$gameId-sim-logs.tar.gz log
+    cp game-$gameId-sim-logs.tar.gz $destination
+
+    wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=game-done&quot;
+
+    exit 0
+fi</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
