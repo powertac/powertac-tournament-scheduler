@@ -12,6 +12,7 @@ public class Machine {
 	private String status;
 	private int machineId;
 	private int gameId;
+	private String vizUrl;
 	
 	public String getName() {
 		return name;
@@ -59,5 +60,11 @@ public class Machine {
 	}
 	public void setAvailable(boolean available) {
 		this.available = available;
+	}
+	public String getVizUrl() {
+		return vizUrl;
+	}
+	public void setVizUrl(String vizUrl) {
+		this.vizUrl = vizUrl;
 	}
 }

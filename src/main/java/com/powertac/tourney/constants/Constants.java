@@ -254,6 +254,19 @@ public class Constants {
 	public static final String UPDATE_GAME_MACHINE = "UPDATE tourney.games SET machineId=? WHERE gameId=?;";
 	
 	/***
+	 * Update the visualizerUrl for a game that is running
+	 * @param visualizerUrl : The url of the visualizer
+	 * @param gameId : The id of the game
+	 */
+	public static final String UPDATE_GAME_VIZ = "UPDATE tourney.games SET visualizerUrl=? WHERE gameId=?;";
+	
+	/***
+	 * Delete a game from the database (may need to do a cascading delete)
+	 * @param gameId : The id of the game to delete
+	 */
+	public static final String DELETE_GAME = "DELETE FROM tourney.games WHERE gameId=?;";
+	
+	/***
 	 * Select all running and pending games
 	 * 
 	 */
@@ -337,7 +350,7 @@ public class Constants {
 	 * @param machineName : The shorthand name of the machine to be displayed to the users like "tac04"
 	 * @param machineUrl : The fully qualified name of the machine like "tac04.cs.umn.edu"
 	 */
-	public static final String ADD_MACHINE = "INSERT INTO tourney.machines (machineName, machineUrl, visualizerUrl, status, available) VALUES (?,?,'','idle',false);";
+	public static final String ADD_MACHINE = "INSERT INTO tourney.machines (machineName, machineUrl, visualizerUrl, status, available) VALUES (?,?,?,'idle',false);";
 	
 	/***
 	 * Remove a machine from the database by id

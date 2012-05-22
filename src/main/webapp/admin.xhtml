@@ -180,6 +180,15 @@
 						<!-- row record -->
 						<h:outputText value="#{m.url}" />
 					</t:column>
+					
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Vizualizer URL" />
+						</f:facet>
+						<!-- row record -->
+						<h:outputText value="#{m.vizUrl}" />
+					</t:column>
 
 					<t:column defaultSorted="true">
 						<!-- column header -->
@@ -234,10 +243,12 @@
 
 
 				<h:outputText value="Machine Name:" />
-				<h:inputText value="#{actionAdmin.newName}" />
+				<h:inputText value="#{actionAdmin.newName}" /><br/>
 
 				<h:outputText value="Machine Url:" />
-				<h:inputText value="#{actionAdmin.newUrl}" />
+				<h:inputText value="#{actionAdmin.newUrl}" /><br/>
+				<h:outputText value="Visualizer Url:" />
+				<h:inputText value="#{actionAdmin.newViz}" /><br/>
 
 				<h:commandButton value="Add" action="#{actionAdmin.addMachine}" />
 

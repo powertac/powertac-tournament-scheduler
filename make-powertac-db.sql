@@ -74,11 +74,11 @@ CREATE TABLE `tourney`.`machines` (
 ) ENGINE=InnoDB;
 
 /* Local machines for testing purposes should be removed in prod*/
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, status, available) VALUES ('localhost', '127.0.0.1', 'idle', true);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, status, available) VALUES ('tac10', 'tac10.cs.umn.edu', 'idle', false);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, status, available) VALUES ('tac11', 'tac11.cs.umn.edu', 'idle', false);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, status, available) VALUES ('tac12', 'tac12.cs.umn.edu', 'idle', false);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, status, available) VALUES ('tac13', 'tac13.cs.umn.edu', 'idle', false);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, status, available) VALUES ('localhost', '127.0.0.1','', 'idle', true);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, status, available) VALUES ('tac10', 'tac10.cs.umn.edu','', 'idle', false);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, status, available) VALUES ('tac11', 'tac11.cs.umn.edu','', 'idle', false);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, status, available) VALUES ('tac12', 'tac12.cs.umn.edu','','idle', false);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, status, available) VALUES ('tac13', 'tac13.cs.umn.edu','', 'idle', false);
 
 
 

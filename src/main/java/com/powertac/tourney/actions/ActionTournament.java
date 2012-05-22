@@ -37,7 +37,6 @@ import com.powertac.tourney.services.CreateProperties;
 import com.powertac.tourney.services.Database;
 import com.powertac.tourney.services.RunBootstrap;
 import com.powertac.tourney.services.RunGame;
-import com.powertac.tourney.services.StartServer;
 import com.powertac.tourney.services.Upload;
 
 @Component("actionTournament")

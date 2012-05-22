@@ -56,6 +56,7 @@ public class ActionAdmin {
 	
 	private String newName = "";
 	private String newUrl = "";
+	private String newViz = "";
 
 	private UploadedFile pom;
 	private String pomName;
@@ -190,7 +191,7 @@ public class ActionAdmin {
 	public void addMachine(){
 		Database db = new Database();
 		try {
-			db.addMachine(newName, newUrl);
+			db.addMachine(newName, newUrl, newViz);
 			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -260,6 +261,11 @@ public class ActionAdmin {
 	
 	public void deleteGame(Game g){
 		// TODO: ARE YOU SURE?
+		scheduler.deleteBootTimer(g.getGameId());
+		scheduler.deleteSimTimer(g.getGameId());
+		Database db = new Database();
+		
+		
 		
 		
 	}
@@ -375,6 +381,14 @@ public class ActionAdmin {
 
 	public void setNewUrl(String newUrl) {
 		this.newUrl = newUrl;
+	}
+
+	public String getNewViz() {
+		return newViz;
+	}
+
+	public void setNewViz(String newViz) {
+		this.newViz = newViz;
 	}
 
 }

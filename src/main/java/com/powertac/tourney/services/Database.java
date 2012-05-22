@@ -842,6 +842,16 @@ public class Database {
 		return updateProps.executeUpdate();
 	}
 	
+	public int updateGameViz(int gameId, String vizUrl) throws SQLException{
+		checkDb();
+		PreparedStatement updateViz = conn.prepareStatement(Constants.UPDATE_GAME_VIZ);
+		
+		updateViz.setString(1,vizUrl);
+		updateViz.setInt(2, gameId);
+		
+		return updateViz.executeUpdate();
+	}
+	
 	public List<Machine> getMachines() throws SQLException{
 		checkDb();
 		List<Machine> machines = new ArrayList<Machine>();
@@ -855,6 +865,7 @@ public class Database {
 			tmp.setMachineId(rsMachines.getInt("machineId"));
 			tmp.setStatus(rsMachines.getString("status"));
 			tmp.setUrl(rsMachines.getString("machineUrl"));
+			tmp.setVizUrl(rsMachines.getString("visualizerUrl"));
 			tmp.setName(rsMachines.getString("machineName"));
 			tmp.setAvailable(rsMachines.getBoolean("available"));
 			machines.add(tmp);			
@@ -888,12 +899,13 @@ public class Database {
 		
 	}
 	
-	public int addMachine(String machineName, String machineUrl) throws SQLException{
+	public int addMachine(String machineName, String machineUrl, String visualizerUrl) throws SQLException{
 		checkDb();
 		
 		PreparedStatement addMachine = conn.prepareStatement(Constants.ADD_MACHINE);
 		addMachine.setString(1, machineName);
 		addMachine.setString(2, machineUrl);
+		addMachine.setString(3, visualizerUrl);
 		
 		return addMachine.executeUpdate();
 	}

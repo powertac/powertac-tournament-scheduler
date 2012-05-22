@@ -193,6 +193,7 @@ public class RunGame extends TimerTask {
 							+ available.get(0).getName() + ":61616");
 					db.updateGameMachine(Integer.parseInt(gameId), available
 							.get(0).getMachineId());
+					db.updateGameViz(Integer.parseInt(gameId), available.get(0).getVizUrl());
 					db.setMachineStatus(available.get(0).getMachineId(),
 							"running");
 					this.machineName = available.get(0).getName();
