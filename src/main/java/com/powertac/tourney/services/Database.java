@@ -376,13 +376,13 @@ public class Database {
 	
 	public int addProperties(int gameId, String locationKV, String startTimeKV) throws SQLException{
 		checkDb();
-		if(addPropsById == null || addPropsById.isClosed()){
-			addPropsById = conn.prepareStatement(Constants.ADD_PROPERTIES);
-		}
 		
-		addPropsById.setInt(3, gameId);
+		PreparedStatement addPropsById = conn.prepareStatement(Constants.ADD_PROPERTIES);
+		
+		
 		addPropsById.setString(1, locationKV);
 		addPropsById.setString(2, startTimeKV);
+		addPropsById.setInt(3, gameId);
 		
 		return addPropsById.executeUpdate();
 	}

@@ -320,7 +320,6 @@ public class Constants {
 	 * @param location : The location key value pair for the properties file as a string in the database
 	 * @param startTime : The startTime key value pair for the properties file as a string in the database
 	 * @param gameId : The gameId that this property file belongs to
-	 * @param tourneyId : The tournament the game belongs to (THis is denormalization to spead up queries)
 	 */
 	public static final String ADD_PROPERTIES = "INSERT INTO tourney.properties (jmsUrl,vizQueue,location,startTime,gameId) VALUES ('','',?,?,?);";
 	
