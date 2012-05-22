@@ -314,9 +314,10 @@ public class Constants {
 	/***
 	 * Update the properties with jmsUrl for sims, this is done as soon as you know the machine you're scheduling on
 	 * @param jmsUrl : The url of the jms connection
+	 * @param vizQueue : The name of the visualizer queue
 	 * @param gameId : The game id of the game you wish to change
 	 */
-	public static final String UPDATE_PROPETIES = "UPDATE tourney.properties SET jmsUrl=? WHERE gameId=?;";
+	public static final String UPDATE_PROPETIES = "UPDATE tourney.properties SET jmsUrl=?, vizQueue=? WHERE gameId=?;";
 	
 	/***
 	 * Add pom names and locations
@@ -357,7 +358,7 @@ public class Constants {
 	 * @param machineName : The shorthand name of the machine to be displayed to the users like "tac04"
 	 * @param machineUrl : The fully qualified name of the machine like "tac04.cs.umn.edu"
 	 */
-	public static final String ADD_MACHINE = "INSERT INTO tourney.machines (machineName, machineUrl, visualizerUrl, status, available) VALUES (?,?,?,'idle',false);";
+	public static final String ADD_MACHINE = "INSERT INTO tourney.machines (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES (?,?,?,?,'idle',false);";
 	
 	/***
 	 * Remove a machine from the database by id

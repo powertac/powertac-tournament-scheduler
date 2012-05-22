@@ -189,6 +189,15 @@
 						<!-- row record -->
 						<h:outputText value="#{m.vizUrl}" />
 					</t:column>
+					
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Vizualizer Queue" />
+						</f:facet>
+						<!-- row record -->
+						<h:outputText value="#{m.vizQueue}" />
+					</t:column>
 
 					<t:column defaultSorted="true">
 						<!-- column header -->
@@ -249,6 +258,8 @@
 				<h:inputText value="#{actionAdmin.newUrl}" /><br/>
 				<h:outputText value="Visualizer Url:" />
 				<h:inputText value="#{actionAdmin.newViz}" /><br/>
+				<h:outputText value="Visualizer Queue:" />
+				<h:inputText value="#{actionAdmin.newQueue}" /><br/>
 
 				<h:commandButton value="Add" action="#{actionAdmin.addMachine}" />
 

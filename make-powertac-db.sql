@@ -68,17 +68,18 @@ CREATE TABLE `tourney`.`machines` (
 	`machineName` VARCHAR(30) NOT NULL,
 	`machineUrl` VARCHAR(256) NOT NULL, /* Url to the machine */
 	`visualizerUrl` VARCHAR(256) NOT NULL,
+	`visualizerQueue` VARCHAR(256) NOT NULL,
 	`status` VARCHAR(20) NOT NULL, /* Indicates wether a game is running on this machine or not, either "running" or "idle" */
 	`available` BOOLEAN NOT NULL,
 	PRIMARY KEY (`machineId`)
 ) ENGINE=InnoDB;
 
 /* Local machines for testing purposes should be removed in prod*/
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, status, available) VALUES ('localhost', '127.0.0.1','', 'idle', true);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, status, available) VALUES ('tac10', 'tac10.cs.umn.edu','', 'idle', false);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, status, available) VALUES ('tac11', 'tac11.cs.umn.edu','', 'idle', false);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, status, available) VALUES ('tac12', 'tac12.cs.umn.edu','','idle', false);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, status, available) VALUES ('tac13', 'tac13.cs.umn.edu','', 'idle', false);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('localhost', '127.0.0.1','','', 'idle', true);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac10', 'tac10.cs.umn.edu','','', 'idle', false);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac11', 'tac11.cs.umn.edu','','', 'idle', false);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac12', 'tac12.cs.umn.edu','','', 'idle', false);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac13', 'tac13.cs.umn.edu','','', 'idle', false);
 
 
 
@@ -91,6 +92,7 @@ CREATE TABLE `tourney`.`properties` (
 	`location` VARCHAR(256) NOT NULL,
 	`startTime` VARCHAR(256) NOT NULL,
 	`jmsUrl` VARCHAR(256) NOT NULL,
+	`vizQueue` VARCHAR(256) NOT NULL,
 	PRIMARY KEY (`propId`)
 ) ENGINE=InnoDB;
 
