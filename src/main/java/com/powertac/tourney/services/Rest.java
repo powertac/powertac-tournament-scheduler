@@ -22,6 +22,7 @@ import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Games;
 import com.powertac.tourney.beans.Machines;
 import com.powertac.tourney.beans.Scheduler;
+import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.beans.Tournaments;
 import com.powertac.tourney.constants.*;
 
@@ -52,38 +53,23 @@ public class Rest {
 		try {
 			if (competitionName != null && db.getGames() != null) {
 				List<Game> allGames = db.getGames();
-				db.closeConnection();
 				for (Game g : allGames) {
 					// Only consider games that have started and are ready for
 					// brokers to join
+					Tournament t = db.getTournamentByGameId(g.getGameId());
+					System.out.println("Game: " + g.getGameId() + " Status: " + g.getStatus());
 					if (g.getStartTime().before(new Date())
 							&& g.getStatus().equalsIgnoreCase("game-in-progress")) {
 						
-						// Anyone can start and join a test competition
-						/*
-						 * if(competitionName.equalsIgnoreCase("test")){ //
-						 * Spawn a new test competition and rerun Game game =
-						 * new Game(); game.setBootstrapUrl(
-						 * "http://www.cselabs.umn.edu/~onarh001/bootstraprun.xml"
-						 * ); game.setCompetitionName("test");
-						 * game.setMaxBrokers(1); game.setStartTime(new Date());
-						 * game.setPomUrl(""); game.setServerConfigUrl("");
-						 * game.addBroker("anybroker", brokerAuthToken);
-						 * Scheduler.getScheduler().schedule(new StartServer
-						 * (game
-						 * ,Machines.getAllMachines(),Tournaments.getAllTournaments
-						 * ()), new Date()); return
-						 * String.format(retryResponse,5); }else
-						 */if (competitionName.equalsIgnoreCase(g
-								.getCompetitionName())
+						if (competitionName.equalsIgnoreCase(t.getTournamentName())
 								&& g.isBrokerRegistered(brokerAuthToken)) {
-							// If a broker is registered and knows the
-							// competition
-							// name, give them an the jmsUrl and gameToken to
-							// login
+
+							db.closeConnection();
 							return String.format(loginResponse, g.getJmsUrl(),
 									"1234");
-						}
+						 }else{
+							 
+						 }
 					}
 					// If the game has yet to start and broker is registered
 					// send
@@ -96,6 +82,7 @@ public class Rest {
 						long retry = g.getStartTime().getTime()
 								- (new Date()).getTime();
 
+						db.closeConnection();
 						return String.format(retryResponse, retry > 0 ? retry
 								: 20);
 					}
