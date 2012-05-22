@@ -573,6 +573,12 @@ public class Database {
 		return gs;
 	}
 	
+	public int updateTournamentStatus(int tourneyId) throws SQLException{
+		checkDb();
+		
+		return 0;
+	}
+	
 	
 	public int registerBroker(int tourneyId, int brokerId) throws SQLException{
 		checkDb();
@@ -812,6 +818,24 @@ public class Database {
 		
 		updateGame.setInt(2, gameId);
 		updateGame.setInt(1, machineId);
+		
+		return updateGame.executeUpdate();
+	}
+	
+	public int updateGameFreeMachine(int gameId) throws SQLException{
+		checkDb();
+		PreparedStatement updateGame = conn.prepareStatement(Constants.UPDATE_GAME_FREE_MACHINE);
+		
+		updateGame.setInt(1, gameId);
+		
+		return updateGame.executeUpdate();
+	}
+	
+	public int updateGameFreeBrokers(int gameId) throws SQLException{
+		checkDb();
+		PreparedStatement updateGame = conn.prepareStatement(Constants.UPDATE_GAME_FREE_BROKERS);
+		
+		updateGame.setInt(1, gameId);
 		
 		return updateGame.executeUpdate();
 	}

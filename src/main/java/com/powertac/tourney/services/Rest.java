@@ -194,6 +194,8 @@ public class Rest {
 					try {
 						db.startTrans();
 						db.updateGameStatusById(gameId, "game-in-progress");
+						Tournament t = db.getTournamentByGameId(gameId);
+						db.updateTournamentStatus(t.getTournamentId());
 						db.commitTrans();
 						db.closeConnection();
 					} catch (SQLException e) {
@@ -212,6 +214,9 @@ public class Rest {
 						db.startTrans();
 						db.updateGameStatusById(gameId, "game-complete");
 						Game g = db.getGame(gameId);
+						// Do some cleanup
+						db.updateGameFreeBrokers(gameId);
+						db.updateGameFreeMachine(gameId);
 						db.setMachineStatus(g.getMachineId(), "idle");
 						db.commitTrans();
 						db.closeConnection();
@@ -297,7 +302,7 @@ public class Rest {
 			result += startTime + props.get(1) + "\n";
 			result += jms + props.get(2) + "\n";
 			result += remote + "\n";
-			result += queueName + props.get(4);
+			result += queueName + props.get(3);
 					 
 		}
 

@@ -254,6 +254,19 @@ public class Constants {
 	public static final String UPDATE_GAME_MACHINE = "UPDATE tourney.games SET machineId=? WHERE gameId=?;";
 	
 	/***
+	 * Update the game to free the machine
+	 * @param gameId : the id of the game
+	 */
+	public static final String UPDATE_GAME_FREE_MACHINE = "UPDATE tourney.games SET machineId=NULL WHERE gameId=?;";
+	
+	/***
+	 * Update the game to free the brokers
+	 * @param gameId : the id of the game
+	 */
+	public static final String UPDATE_GAME_FREE_BROKERS = "DELETE FROM tourney.ingame WHERE gameId=?;";
+	
+	
+	/***
 	 * Update the visualizerUrl for a game that is running
 	 * @param visualizerUrl : The url of the visualizer
 	 * @param gameId : The id of the game
