@@ -296,13 +296,17 @@ public class Rest {
 		// Visualizer Settings
 		String remote = "server.visualizerProxyService.remoteVisualizer = true";
 	    String queueName = "server.visualizerProxyService.visualizerQueueName = ";
+	    
+	    // Test Settings
+	    String minTimeslot = "common.competition.minimumTimeslotCount = 1400";
+	    String expectedTimeslot = "common.competition.expectedTimeslotCount = 1440";
 
 		if (props.size() == 4) {
 			result += weatherLocation + props.get(0) + "\n";
 			result += startTime + props.get(1) + "\n";
 			result += jms + props.get(2) + "\n";
 			result += remote + "\n";
-			result += queueName + props.get(3);
+			result += queueName + props.get(3) + "\n";
 					 
 		}
 
