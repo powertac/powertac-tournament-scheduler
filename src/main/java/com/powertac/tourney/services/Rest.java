@@ -288,7 +288,7 @@ public class Rest {
 		// Simulation jmsUrl
 		String jms = "server.jmsManagementService.jmsBrokerUrl = ";
 
-		if (props.size() == 2) {
+		if (props.size() == 3) {
 			result += weatherLocation + props.get(0) + "\n";
 			result += startTime + props.get(1) + "\n";
 			result += jms + props.get(2);
