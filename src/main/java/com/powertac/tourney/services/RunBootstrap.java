@@ -37,7 +37,15 @@ public class RunBootstrap extends TimerTask{
 	
 
 	private void checkMachineAvailable(){
-		if(Database.locked == false){
+		while(Database.locked){
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 			Database.locked = true;
 			Database db = new Database();
 			try {
@@ -77,16 +85,7 @@ public class RunBootstrap extends TimerTask{
 				e.printStackTrace();
 			}
 			Database.locked = false;
-		}else{
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			this.checkMachineAvailable();
-			
-		}
+		
 	}
 	
 	public void run() {
