@@ -299,8 +299,8 @@ public class Rest {
 	    String queueName = "server.visualizerProxyService.visualizerQueueName = ";
 	    
 	    // Test Settings
-	    String minTimeslot = "common.competition.minimumTimeslotCount = 1400";
-	    String expectedTimeslot = "common.competition.expectedTimeslotCount = 1440";
+	    String minTimeslot = "common.competition.minimumTimeslotCount = 220";
+	    String expectedTimeslot = "common.competition.expectedTimeslotCount = 240";
 
 		if (props.size() == 4) {
 			result += weatherLocation + props.get(0) + "\n";
@@ -311,7 +311,8 @@ public class Rest {
 			}else{
 				result += remote + "\n";
 			}
-			
+			result += minTimeslot + "\n";
+			result += expectedTimeslot + "\n";
 			result += queueName + props.get(3) + "\n";
 					 
 		}

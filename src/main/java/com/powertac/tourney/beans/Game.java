@@ -61,6 +61,20 @@ public class Game {
 		
 	}
 	
+	public int getNumBrokersRegistered(){
+		Database db = new Database();
+		int result = 0;
+		
+		try {
+			result = db.getBrokersInGame(gameId).size();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+		
+	}
+	
 	public void addBroker(int brokerId){
 		Database db = new Database();
 		Broker b = new Broker("new");

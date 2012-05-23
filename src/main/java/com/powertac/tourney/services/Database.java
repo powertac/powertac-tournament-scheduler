@@ -461,15 +461,17 @@ public class Database {
 		
 	}
 	
-	public int addTournament(String tourneyName, java.sql.Date startTime, String type, String pomUrl, String locations, int maxBrokers) throws SQLException{
+	public int addTournament(String tourneyName, boolean openRegistration,int maxGames, java.sql.Date startTime, String type, String pomUrl, String locations, int maxBrokers) throws SQLException{
 		checkDb();
 		PreparedStatement addTournament = conn.prepareStatement(Constants.ADD_TOURNAMENT);
 		addTournament.setString(1, tourneyName);
 		addTournament.setDate(2, startTime);
-		addTournament.setString(3, type);
-		addTournament.setString(4, pomUrl);
-		addTournament.setString(5, locations);
-		addTournament.setInt(6, maxBrokers);
+		addTournament.setBoolean(3, openRegistration);
+		addTournament.setInt(4, maxGames);
+		addTournament.setString(5, type);
+		addTournament.setString(6, pomUrl);
+		addTournament.setString(7, locations);
+		addTournament.setInt(8, maxBrokers);
 		
 		return addTournament.executeUpdate();
 		
@@ -488,6 +490,8 @@ public class Database {
 		while(rsTs.next()){
 			Tournament tmp = new Tournament();
 			tmp.setTournamentId(rsTs.getInt("tourneyId"));
+			tmp.setOpenRegistration(rsTs.getBoolean("openRegistration"));
+			tmp.setMaxGames(rsTs.getInt("maxGames"));
 			tmp.setPomUrl(rsTs.getString("pomUrl"));
 			tmp.setMaxBrokers(rsTs.getInt("maxBrokers"));
 			tmp.setStartTime(rsTs.getDate("startTime"));
@@ -511,6 +515,8 @@ public class Database {
 		if(rsTs.next()){
 			Tournament tmp = new Tournament();
 			tmp.setTournamentId(rsTs.getInt("tourneyId"));
+			tmp.setOpenRegistration(rsTs.getBoolean("openRegistration"));
+			tmp.setMaxGames(rsTs.getInt("maxGames"));
 			tmp.setPomUrl(rsTs.getString("pomUrl"));
 			tmp.setMaxBrokers(rsTs.getInt("maxBrokers"));
 			tmp.setStartTime(rsTs.getDate("startTime"));
@@ -534,6 +540,8 @@ public class Database {
 		if(rsTs.next()){
 			Tournament tmp = new Tournament();
 			tmp.setTournamentId(rsTs.getInt("tourneyId"));
+			tmp.setOpenRegistration(rsTs.getBoolean("openRegistration"));
+			tmp.setMaxGames(rsTs.getInt("maxGames"));
 			tmp.setPomUrl(rsTs.getString("pomUrl"));
 			tmp.setMaxBrokers(rsTs.getInt("maxBrokers"));
 			tmp.setStartTime(rsTs.getDate("startTime"));
@@ -575,8 +583,11 @@ public class Database {
 	
 	public int updateTournamentStatus(int tourneyId) throws SQLException{
 		checkDb();
+		PreparedStatement updateStatus = conn.prepareStatement(Constants.UPDATE_TOURNAMENT_STATUS_BYID);
+		updateStatus.setString(1, "in-progress");
+		updateStatus.setInt(2,tourneyId);
 		
-		return 0;
+		return updateStatus.executeUpdate();
 	}
 	
 	
@@ -660,6 +671,8 @@ public class Database {
 		
 		return result;
 	}
+	
+	
 	
 	public int getNumberBrokersRegistered(int tourneyId) throws SQLException{
 		checkDb();
@@ -768,6 +781,28 @@ public class Database {
 		PreparedStatement getBrokers = conn.prepareStatement(Constants.GET_BROKERS_INGAME);
 		
 		getBrokers.setInt(1, gameId);
+		
+		ResultSet rs = getBrokers.executeQuery();
+		while(rs.next()){
+			Broker tmp = new Broker("new");
+			tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
+			tmp.setBrokerId(rs.getInt("brokerId"));
+			tmp.setBrokerName(rs.getString("brokerName"));
+			tmp.setShortDescription(rs.getString("brokerShort"));
+			tmp.setNumberInGame(rs.getInt("numberInGame"));
+			
+			brokers.add(tmp);
+		}
+		
+		return brokers;
+	}
+	
+	public List<Broker> getBrokersInTournament(int tourneyId) throws SQLException{
+		checkDb();
+		List<Broker> brokers = new ArrayList<Broker>();
+		PreparedStatement getBrokers = conn.prepareStatement(Constants.GET_BROKERS_INTOURNAMENT);
+		
+		getBrokers.setInt(1, tourneyId);
 		
 		ResultSet rs = getBrokers.executeQuery();
 		while(rs.next()){

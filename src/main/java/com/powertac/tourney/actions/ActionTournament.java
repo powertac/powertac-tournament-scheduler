@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
+import com.powertac.tourney.beans.Competition;
 import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Games;
 import com.powertac.tourney.beans.Machine;
@@ -73,6 +74,14 @@ public class ActionTournament {
 	private UploadedFile boot;
 	private UploadedFile properties;
 	private TourneyType type = TourneyType.SINGLE_GAME;
+	
+	
+	private int size1 = 2;
+	private int numberSize1;
+	private int size2 = 4;
+	private int numberSize2;
+	private int size3 = 8;
+	private int numberSize3;
 	
 	public ActionTournament(){
 		
@@ -261,18 +270,18 @@ public class ActionTournament {
 		
 			Database db = new Database();
 			
+			
+			
+			
 			newTourney.setPomUrl(hostip+"/TournamentScheduler/faces/pom.jsp?location="+newTourney.getPomName());
 			newTourney.setMaxBrokers(getMaxBrokers());
 			newTourney.setStartTime(getStartTime());
 			newTourney.setTournamentName(getTournamentName());
 
 			// Add one game to the global context and to the tournament
-			Game newGame = new Game();
-			newGame.setMaxBrokers(getMaxBrokers());
-			newGame.setCompetitionId(newTourney.getTournamentId());
-			newGame.setCompetitionName(getTournamentName());
-			newGame.setStatus("pending");
-			newGame.setStartTime(getStartTime());
+			
+			
+			
 
 			
 
@@ -298,26 +307,29 @@ public class ActionTournament {
 				db.startTrans();
 				//Adds new tournament to the database
 				System.out.println("Adding tourney");
-				db.addTournament(newTourney.getTournamentName(), new java.sql.Date(newTourney.getStartTime().getTime()), "SINGLE_GAME", newTourney.getPomUrl(), allLocations, maxBrokers);
+				db.addTournament(newTourney.getTournamentName(), true, 1, new java.sql.Date(newTourney.getStartTime().getTime()), "SINGLE_GAME", newTourney.getPomUrl(), allLocations, maxBrokers);
 				//Grabs the tourney Id
 				
 				System.out.println("Getting tourneyId");
 				tourneyId = db.getMaxTourneyId();
 				// Adds a new game to the database
 				
+				
+				
 				System.out.println("Adding game");
-				db.addGame("SingleGame", tourneyId, maxBrokers, new java.sql.Date(startTime.getTime()));
+					
+				db.addGame(tourneyId+":"+newTourney.getTournamentName(), tourneyId, size1, new java.sql.Date(startTime.getTime()));
 				// Grabs the game id
 				System.out.println("Getting gameId");
 				gameId = db.getMaxGameId();
-				
-				System.out.println("Creating game properties");
+				System.out.println("Creating game: "+ gameId +" properties");
 				CreateProperties.genProperties(gameId, locations, fromTime, toTime);
 				
 				// Sets the url for the properties file based on the game id.
 				// Properties are created at random withing specified parameters
-				System.out.println("Updating properties");
+				System.out.println("Updating properties game: " + gameId);
 				db.updateGamePropertiesById(gameId);
+				
 				
 				System.out.println("Committing transaction");
 				db.commitTrans();
@@ -332,6 +344,7 @@ public class ActionTournament {
 				}
 				db.closeConnection();
 				// Only schedule the bootstrap and sim if db was updated successfully
+				
 				Scheduler.getScheduler().schedule(new RunBootstrap(gameId, hostip+"/TournamentScheduler/", newTourney.getPomUrl(), props.getProperty("destination")), new Date());
 				
 		
@@ -454,6 +467,54 @@ public class ActionTournament {
 
 	public void setSelectedPom(String selectedPom) {
 		this.selectedPom = selectedPom;
+	}
+
+	public int getSize1() {
+		return size1;
+	}
+
+	public void setSize1(int size1) {
+		this.size1 = size1;
+	}
+
+	public int getNumberSize1() {
+		return numberSize1;
+	}
+
+	public void setNumberSize1(int numberSize1) {
+		this.numberSize1 = numberSize1;
+	}
+
+	public int getSize2() {
+		return size2;
+	}
+
+	public void setSize2(int size2) {
+		this.size2 = size2;
+	}
+
+	public int getNumberSize2() {
+		return numberSize2;
+	}
+
+	public void setNumberSize2(int numberSize2) {
+		this.numberSize2 = numberSize2;
+	}
+
+	public int getSize3() {
+		return size3;
+	}
+
+	public void setSize3(int size3) {
+		this.size3 = size3;
+	}
+
+	public int getNumberSize3() {
+		return numberSize3;
+	}
+
+	public void setNumberSize3(int numberSize3) {
+		this.numberSize3 = numberSize3;
 	}
 
 }

@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import com.powertac.tourney.beans.Broker;
 import com.powertac.tourney.beans.Game;
 import com.powertac.tourney.beans.Location;
 import com.powertac.tourney.beans.Machine;
@@ -144,6 +145,20 @@ public class ActionAdmin {
 
 		return locations;
 
+	}
+	
+	public List<Broker> getRegistered(int tourneyId){
+		List<Broker> registered = new ArrayList<Broker>();
+		Database db = new Database();
+		
+		try {
+			registered = db.getBrokersInTournament(tourneyId);
+			db.closeConnection();
+		} catch (SQLException e){
+			e.printStackTrace();
+		}
+		
+		return registered;
 	}
 
 	public List<Machine> getMachineList() {

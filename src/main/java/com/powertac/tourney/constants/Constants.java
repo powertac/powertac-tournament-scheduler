@@ -132,13 +132,14 @@ public class Constants {
 	 * Adds a tournament to the database with pending status by default
 	 * @param tourneyName : The name of the tournament
 	 * @param startTime : The timestamp when the tournament scheduler will issue a request to start the powertac simulation server
+	 * @param openRegistration : Whether or not brokers may register for this tournament
 	 * @param type : This is either "MULTI_GAME" or "SINGLE_GAME"
 	 * @param pomUrl : This is the url where the pom.xml file can be located for this tournament 
 	 * @param locations : This is a comma delimited list of the possible locations available in the tournament (Used for weather models)
 	 * @param maxBrokers : Maximum brokers allowed in this tournament round
 	 */
 	
-	public static final String ADD_TOURNAMENT = "INSERT INTO tourney.tournaments (tourneyName, startTime, type, pomUrl, locations, maxBrokers, status) VALUES (?,?,?,?,?,?,'pending');";
+	public static final String ADD_TOURNAMENT = "INSERT INTO tourney.tournaments (tourneyName, startTime, openRegistration,maxGames, type, pomUrl, locations, maxBrokers, status) VALUES (?,?,?,?,?,?,?,?,'pending');";
 	
 	/***
 	 * Updates a particular tournament given the id
@@ -216,6 +217,13 @@ public class Constants {
 	 * @param gameId
 	 */
 	public static final String GET_BROKERS_INGAME = "SELECT * FROM brokers JOIN ingame ON brokers.brokerId = ingame.brokerId WHERE gameId=?";
+	
+	/***
+	 * Get brokers in a tournament 
+	 * @param tourneyId
+	 */
+	public static final String GET_BROKERS_INTOURNAMENT = "SELECT * FROM brokers JOIN registration ON registration.brokerId = brokers.brokerId WHERE tourneyId=?";
+	
 	
 	
 	/***

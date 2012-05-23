@@ -24,6 +24,8 @@ public class Tournament {
 	private Date startTime;
 	private String tournamentName;
 	private int maxBrokers; // -1 means inf, otherwise integer specific
+	private boolean openRegistration = false;
+	private int maxGames;
 	
 	private String pomName;
 	
@@ -143,6 +145,22 @@ public class Tournament {
 	 */
 	public void setPomName(String pomName) {
 		this.pomName = pomName;
+	}
+
+	public boolean isOpenRegistration() {
+		return openRegistration;
+	}
+
+	public void setOpenRegistration(boolean openRegistration) {
+		this.openRegistration = openRegistration;
+	}
+
+	public int getMaxGames() {
+		return maxGames;
+	}
+
+	public void setMaxGames(int maxGames) {
+		this.maxGames = maxGames;
 	}
 
 

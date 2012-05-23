@@ -195,7 +195,7 @@ public class RunGame extends TimerTask {
 							+ available.get(0).getUrl() + ":61616", available.get(0).getVizQueue());
 					db.updateGameMachine(Integer.parseInt(gameId), available
 							.get(0).getMachineId());
-					db.updateGameViz(Integer.parseInt(gameId), available.get(0).getVizUrl());
+					db.updateGameViz(Integer.parseInt(gameId), "http://"+available.get(0).getVizUrl());
 					
 					db.setMachineStatus(available.get(0).getMachineId(),
 							"running");

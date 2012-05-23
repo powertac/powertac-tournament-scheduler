@@ -35,6 +35,8 @@ DROP TABLE IF EXISTS `tourney`.`tournaments`;
 CREATE TABLE `tourney`.`tournaments` (
 	`tourneyId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`tourneyName` VARCHAR(256) NOT NULL,	
+	`openRegistration` BOOLEAN NOT NULL,
+	`maxGames` int NOT NULL,
 	`startTime` DATETIME NOT NULL,
 	`maxBrokers` integer UNSIGNED NOT NULL,
 	`status` VARCHAR(32) NOT NULL,
@@ -158,4 +160,16 @@ CREATE TABLE `tourney`.`ingame` (
 	CONSTRAINT gameId_refs2 FOREIGN KEY (`gameId`) REFERENCES `tourney`.`games` ( `gameId` ),
 	PRIMARY KEY (`ingameId`)
 ) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `tourney`.`competitions`;
+CREATE TABLE `tourney`.`competitions` (
+	`competitionId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`qualifierRoundId` BIGINT(20) UNSIGNED NOT NULL,
+	`finalRoundId` BIGINT(20) UNSIGNED NOT NULL,
+	`status` VARCHAR(256) NOT NULL,
+	CONSTRAINT qualifier_refs FOREIGN KEY (`qualifierRoundId`) REFERENCES `tourney`.`tournaments`(`tourneyId`),
+	CONSTRAINT final_refs FOREIGN KEY (`finalRoundId`) REFERENCES `tourney`.`tournaments`(`tourneyId`),
+	PRIMARY KEY (`competitionId`)
+) ENGINE=InnoDB;
+
 
