@@ -28,11 +28,11 @@ public class RestoreViewPhaseListener implements PhaseListener {
 		if (r.getParameterMap().size() != 0) {
 			String url = r.getRequestURL().toString();
 			if (url.indexOf("index.xhtml") > 0) {
-				System.out.println("index.xhtml");
+				//System.out.println("index.xhtml");
 				return;
 				// Parse incoming rest calls from brokers
 			} else if (url.indexOf("brokerLogin") > 0) {
-				System.out.println("brokerLogin.jsp");
+				//System.out.println("brokerLogin.jsp");
 				HttpServletResponse response = (HttpServletResponse) pe
 						.getFacesContext().getExternalContext().getResponse();
 
@@ -48,7 +48,7 @@ public class RestoreViewPhaseListener implements PhaseListener {
 				// Parse incoming rest calls from severs, such as
 				// checkBroker(name,token), request config, request pom...
 			} else if (url.indexOf("serverInterface") > 0) {
-				System.out.println("serverInterface.jsp");
+				//System.out.println("serverInterface.jsp");
 				HttpServletResponse response = (HttpServletResponse) pe
 						.getFacesContext().getExternalContext().getResponse();
 
@@ -77,7 +77,7 @@ public class RestoreViewPhaseListener implements PhaseListener {
 				
 				
 			} else if (url.indexOf("pom") > 0) {
-				System.out.println("pom.jsp");
+				//System.out.println("pom.jsp");
 				HttpServletResponse response = (HttpServletResponse) pe
 						.getFacesContext().getExternalContext().getResponse();
 

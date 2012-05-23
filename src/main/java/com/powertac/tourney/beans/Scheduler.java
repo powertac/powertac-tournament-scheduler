@@ -63,6 +63,8 @@ public class Scheduler {
 	}
 	
 	public Scheduler(){
+		
+		
 		try {
 			props.load(Database.class.getClassLoader().getResourceAsStream(
 					"/tournament.properties"));

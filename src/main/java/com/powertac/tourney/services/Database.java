@@ -110,7 +110,7 @@ public class Database {
 	private PreparedStatement addPom = null;
 	private PreparedStatement selectPoms = null;
 	
-	SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+	SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	Properties connectionProps = new Properties();
 	Properties prop = new Properties();
@@ -143,6 +143,7 @@ public class Database {
 	// TODO: Strategy Object find the correct dbms by reflection and call its connection method
 	private void checkDb() {
 		try {
+			
 			if (conn == null || conn.isClosed()) {
 				//System.out.println("Connection is null");
 				if (this.dbms.equalsIgnoreCase("mysql")) {
@@ -803,6 +804,8 @@ public class Database {
 	public int addGame(String gameName, int tourneyId, int maxBrokers, Date startTime) throws SQLException{
 		checkDb();
 		dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+		java.text.SimpleDateFormat sdf = 
+			     new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		
 		PreparedStatement insertGame = conn.prepareStatement(Constants.ADD_GAME);
 		
@@ -810,7 +813,7 @@ public class Database {
 		insertGame.setInt(2, tourneyId);
 		//insertGame.setInt(3, machineId);
 		insertGame.setInt(3, maxBrokers);
-		insertGame.setString(4, dateFormatUTC.format(startTime));
+		insertGame.setString(4,  dateFormatUTC.format(startTime));
 		//insertGame.setString(4, properitesUrl);
 		
 		return insertGame.executeUpdate();
