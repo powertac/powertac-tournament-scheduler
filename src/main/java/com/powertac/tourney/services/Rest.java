@@ -217,6 +217,7 @@ public class Rest {
 						// Do some cleanup
 						db.updateGameFreeBrokers(gameId);
 						db.updateGameFreeMachine(gameId);
+						
 						db.setMachineStatus(g.getMachineId(), "idle");
 						db.commitTrans();
 						db.closeConnection();
@@ -232,6 +233,9 @@ public class Rest {
 						db.startTrans();
 						db.updateGameStatusById(gameId, "game-failed");
 						Game g = db.getGame(gameId);
+						
+						db.updateGameFreeBrokers(gameId);
+						db.updateGameFreeMachine(gameId);
 						db.setMachineStatus(g.getMachineId(), "idle");
 
 						db.commitTrans();
