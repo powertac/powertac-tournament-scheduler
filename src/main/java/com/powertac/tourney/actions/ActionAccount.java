@@ -1,6 +1,7 @@
 package com.powertac.tourney.actions;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
@@ -108,7 +109,7 @@ public class ActionAccount {
 		Database db = new Database();
 		for (Tournament t : allTournaments.getLists()) {
 			try {
-				if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())) {
+				if (!db.isRegistered(t.getTournamentId(), b.getBrokerId()) && t.getStartTime().before(new Date())) {
 					availableTourneys.add(t);
 				}
 				db.closeConnection();
