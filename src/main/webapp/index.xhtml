@@ -4,7 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:f="http://java.sun.com/jsf/core">
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:t="http://myfaces.apache.org/tomahawk">
 
 
 <h:body>
@@ -22,7 +23,68 @@
 			
 			<h4> Running Games and their Visualizers</h4>
 			<h:form>
-			
+				
+				<t:dataTable id="datagames" border="1" sortable="true"
+					sortColumn="#{games.sortColumn}"
+					sortAscending="#{games.sortAscending}" preserveSort="true"
+					rowCount="#{games.rowCount}"
+					style="border:1px solid black;border-collapse:collapse;text-align:center"
+					value="#{games.gameList}" var="g">
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Game ID" />
+						</f:facet>
+						<!-- row record -->
+    						#{g.gameId}
+    				</t:column>
+    				
+    				<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Game ID" />
+						</f:facet>
+						<!-- row record -->
+    						#{g.gameId}
+    				</t:column>
+
+					<t:column>
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Status" />
+						</f:facet>
+						<!-- row record -->
+    						#{g.status}    		
+    				</t:column>
+
+
+					<t:column>
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Start Time" />
+						</f:facet>
+						<!-- row record -->
+    						#{g.startTime}    		
+    				</t:column>
+
+
+					<t:column>
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Max Brokers" />
+						</f:facet>
+						<!-- row record -->
+    						#{g.maxBrokers}
+    				</t:column>
+
+					<t:column>
+						<f:facet name="header">
+							<h:outputText value="Visualizer Link" />
+						</f:facet>
+						<a href="#{g.visualizerUrl}">Visualizer</a>
+					</t:column>
+
+				</t:dataTable>
 			</h:form>
 
 
