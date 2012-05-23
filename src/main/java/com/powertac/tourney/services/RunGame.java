@@ -36,12 +36,14 @@ public class RunGame extends TimerTask {
 	String gameId = "";// String.valueOf(game.getGameId());
 	String brokers = "";
 	String machineName = "";
+	String destination = "";
 
 	public RunGame(int gameId, String tourneyUrl, String pomUrl,
 			String destination) {
 		this.gameId = String.valueOf(gameId);
 		this.tourneyUrl = tourneyUrl;
 		this.pomUrl = pomUrl;
+		this.destination = destination;
 
 		// Assumes Jenkins and TS live in the same location as per the install
 		this.serverConfig = tourneyUrl + "faces/properties.jsp?gameId="
@@ -238,7 +240,7 @@ public class RunGame extends TimerTask {
 				+ "&suffix=" + logSuffix + "&propUrl=" + serverConfig
 				+ "&pomUrl=" + pomUrl + "&bootUrl=" + bootstrapUrl
 				+ "&brokers=" + brokers + "&machine=" + machineName
-				+ "&gameId=" + gameId;
+				+ "&gameId=" + gameId + "&destination=" + destination;
 
 		try {
 			if (!running) {
