@@ -130,7 +130,16 @@ public class Tournament {
 	}
 	
 	public int getNumberRegistered(){
-		return registeredBrokers.size();
+		Database db = new Database();
+		int result = 0;
+		try {
+			result = db.getBrokersInTournament(tourneyId).size();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 
 	/**

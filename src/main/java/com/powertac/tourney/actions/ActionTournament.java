@@ -307,7 +307,7 @@ public class ActionTournament {
 				db.startTrans();
 				//Adds new tournament to the database
 				System.out.println("Adding tourney");
-				db.addTournament(newTourney.getTournamentName(), true, 1, new java.sql.Date(newTourney.getStartTime().getTime()), "SINGLE_GAME", newTourney.getPomUrl(), allLocations, maxBrokers);
+				db.addTournament(newTourney.getTournamentName(), true, size1, new java.sql.Date(newTourney.getStartTime().getTime()), "SINGLE_GAME", newTourney.getPomUrl(), allLocations, maxBrokers);
 				//Grabs the tourney Id
 				
 				System.out.println("Getting tourneyId");

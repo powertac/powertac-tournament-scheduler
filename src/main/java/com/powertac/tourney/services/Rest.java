@@ -49,10 +49,10 @@ public class Rest {
 			doneResponse = "{\n \"done\":\"true\"\n}";
 		}
 		Database db = new Database();
-
+		
 		try {
-			if (competitionName != null && db.getGames() != null) {
-				List<Game> allGames = db.getGames();
+			List<Game> allGames = db.getGames();
+			if (competitionName != null && allGames != null) {
 				for (Game g : allGames) {
 					// Only consider games that have started and are ready for
 					// brokers to join

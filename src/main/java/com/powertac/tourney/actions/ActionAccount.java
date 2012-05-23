@@ -109,7 +109,9 @@ public class ActionAccount {
 		Database db = new Database();
 		for (Tournament t : allTournaments.getLists()) {
 			try {
-				if (!db.isRegistered(t.getTournamentId(), b.getBrokerId()) && t.getStartTime().before(new Date())) {
+				if (!db.isRegistered(t.getTournamentId(), b.getBrokerId()) && 
+						t.getNumberRegistered() < t.getMaxBrokers() && 
+						t.getStartTime().before(new Date())) {
 					availableTourneys.add(t);
 				}
 				db.closeConnection();
@@ -137,17 +139,21 @@ public class ActionAccount {
 						&& t.getTournamentName().equalsIgnoreCase(
 								tournamentName)) {
 					db.startTrans();
-					System.out.println("Registering broker: " + b.getBrokerId() + " with tournament: " + t.getTournamentId());
-					
-					db.registerBroker(t.getTournamentId(), b.getBrokerId());
 					
 					
-					// TODO: When kailash has his tourney code up we need to place brokers in a particular slot
-					for(Game g : t.getGames()){
-						System.out.println("Number registered: " + g.getNumBrokersRegistered());
-					
-						g.addBroker(b.getBrokerId());
+					if(t.getNumberRegistered() < t.getMaxBrokers()){
+						System.out.println("Registering broker: " + b.getBrokerId() + " with tournament: " + t.getTournamentId());
+						db.registerBroker(t.getTournamentId(), b.getBrokerId());
 						
+						
+						// TODO: When kailash has his tourney code up we need to place brokers in a particular slot
+						for(Game g : t.getGames()){
+							if (g.getNumBrokersRegistered() < g.getMaxBrokers()){
+								System.out.println("Number registered: " + g.getNumBrokersRegistered());
+						
+								g.addBroker(b.getBrokerId());
+							}
+						}
 					}
 					db.commitTrans();
 					db.closeConnection();

@@ -185,7 +185,7 @@ public class Database {
 			
 		}
 		
-		
+		conn.close();
 		
 		return users;
 	}
@@ -300,6 +300,7 @@ public class Database {
 			brokers.add(tmp);
 			
 		}
+		conn.close();
 		
 		return brokers;
 			
@@ -369,6 +370,7 @@ public class Database {
 			props.add(rsProps.getString("jmsUrl"));
 			props.add(rsProps.getString("vizQueue"));
 		}
+		conn.close();
 		
 		return props;
 		
@@ -457,6 +459,8 @@ public class Database {
 			poms.add(tmp);
 		}
 		
+		conn.close();
+		
 		return poms;
 		
 	}
@@ -498,6 +502,7 @@ public class Database {
 			tmp.setTournamentName(rsTs.getString("tourneyName"));
 			ts.add(tmp);
 		}
+		conn.close();
 		
 		
 		return ts;
@@ -578,6 +583,7 @@ public class Database {
 			
 			gs.add(tmp);
 		}
+		conn.close();
 		return gs;
 	}
 	
@@ -668,7 +674,7 @@ public class Database {
 			
 			result.add(tmp);
 		}
-		
+		conn.close();
 		return result;
 	}
 	
@@ -686,6 +692,8 @@ public class Database {
 		if(rsB.next()){
 			result = rsB.getInt("numRegistered");
 		}
+		conn.close();
+		
 		return result;
 		
 	}
@@ -716,6 +724,8 @@ public class Database {
 			
 			gs.add(tmp);
 		}
+		conn.close();
+		
 		return gs;
 	}
 	
@@ -793,6 +803,7 @@ public class Database {
 			
 			brokers.add(tmp);
 		}
+		conn.close();
 		
 		return brokers;
 	}
@@ -815,6 +826,7 @@ public class Database {
 			
 			brokers.add(tmp);
 		}
+		conn.close();
 		
 		return brokers;
 	}
@@ -944,6 +956,7 @@ public class Database {
 			tmp.setAvailable(rsMachines.getBoolean("available"));
 			machines.add(tmp);			
 		}
+		conn.close();
 		
 		
 		return machines;
@@ -1015,6 +1028,7 @@ public class Database {
 			locations.add(tmp);
 			
 		}
+		conn.close();
 		
 		
 		
@@ -1027,6 +1041,8 @@ public class Database {
 		PreparedStatement deleteLocation = conn.prepareStatement(Constants.DELETE_LOCATION);
 		
 		deleteLocation.setInt(1, locationId);
+		
+		conn.close();
 		
 		return deleteLocation.executeUpdate();
 	}
@@ -1096,6 +1112,7 @@ public class Database {
 		checkDb();
 		PreparedStatement trans = conn.prepareCall(Constants.COMMIT_TRANS);
 		trans.execute();
+		
 		return 0;
 		
 	}
@@ -1104,6 +1121,7 @@ public class Database {
 		checkDb();
 		PreparedStatement trans = conn.prepareCall(Constants.ABORT_TRANS);
 		trans.execute();
+		
 		return 0;
 		
 	}
