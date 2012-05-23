@@ -101,6 +101,7 @@ public class Scheduler {
 					
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
+					this.cancel();
 					e.printStackTrace();
 				}
 				

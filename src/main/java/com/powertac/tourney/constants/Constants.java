@@ -207,7 +207,7 @@ public class Constants {
 	 * Returns a list of the runnable games as of now.
 	 */
 	
-	public static final String GET_RUNNABLE_GAMES = "SELECT * FROM games WHERE startTime<=NOW() AND status=='boot-complete';";
+	public static final String GET_RUNNABLE_GAMES = "SELECT * FROM games WHERE startTime<=NOW() AND status='boot-complete';";
 	
 	/***
 	 * Returns a list of the waiting games as of now
