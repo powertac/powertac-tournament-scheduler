@@ -178,52 +178,68 @@ public class RunGame extends TimerTask {
 	}
 
 	private void checkMachineAvailable() {
-		Database db = new Database();
-		if (!running) {
-			try {
-				db.startTrans();
-				List<Machine> machines = db.getMachines();
-				List<Machine> available = new ArrayList<Machine>();
-				for (Machine m : machines) {
-					if (m.getStatus().equalsIgnoreCase("idle")
-							&& m.isAvailable()) {
-						available.add(m);
+		if(Database.locked == false){
+			Database.locked = true;
+			Database db = new Database();
+			if (!running) {
+				try {
+					db.startTrans();
+					List<Machine> machines = db.getMachines();
+					List<Machine> available = new ArrayList<Machine>();
+					for (Machine m : machines) {
+						if (m.getStatus().equalsIgnoreCase("idle")
+								&& m.isAvailable()) {
+							available.add(m);
+						}
 					}
+					if (available.size() > 0) {
+	
+						db.updateGameJmsUrlById(Integer.parseInt(gameId), "tcp://"
+								+ available.get(0).getUrl() + ":61616");
+						db.updateProperties(Integer.parseInt(gameId), "tcp://" 
+								+ available.get(0).getUrl() + ":61616", available.get(0).getVizQueue());
+						db.updateGameMachine(Integer.parseInt(gameId), available
+								.get(0).getMachineId());
+						db.updateGameViz(Integer.parseInt(gameId), "http://"+available.get(0).getVizUrl());
+						
+						db.setMachineStatus(available.get(0).getMachineId(),
+								"running");
+						this.machineName = available.get(0).getName();
+						System.out.println("Game: " + gameId
+								+ " running on machine: " + this.machineName);
+						db.commitTrans();
+					} else {
+						db.abortTrans();
+						System.out
+								.println("No machines available to run scheduled game: "
+										+ gameId + " ... will retry in 5 minutes");
+						Thread.sleep(300000);
+						this.run();
+					}
+				} catch (NumberFormatException e) {
+					Database.locked = false;
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SQLException e) {
+					Database.locked = false;
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					Database.locked = false;
+					e.printStackTrace();
 				}
-				if (available.size() > 0) {
+			}
+			Database.locked = false;
+		}else{
 
-					db.updateGameJmsUrlById(Integer.parseInt(gameId), "tcp://"
-							+ available.get(0).getUrl() + ":61616");
-					db.updateProperties(Integer.parseInt(gameId), "tcp://" 
-							+ available.get(0).getUrl() + ":61616", available.get(0).getVizQueue());
-					db.updateGameMachine(Integer.parseInt(gameId), available
-							.get(0).getMachineId());
-					db.updateGameViz(Integer.parseInt(gameId), "http://"+available.get(0).getVizUrl());
-					
-					db.setMachineStatus(available.get(0).getMachineId(),
-							"running");
-					this.machineName = available.get(0).getName();
-					System.out.println("Game: " + gameId
-							+ " running on machine: " + this.machineName);
-					db.commitTrans();
-				} else {
-					db.abortTrans();
-					System.out
-							.println("No machines available to run scheduled game: "
-									+ gameId + " ... will retry in 5 minutes");
-					Thread.sleep(300000);
-					this.run();
-				}
-			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			try {
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			this.checkMachineAvailable();
 		}
 	}
 

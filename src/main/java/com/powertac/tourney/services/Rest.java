@@ -78,7 +78,7 @@ public class Rest {
 						System.out
 								.println("Broker: "
 										+ brokerAuthToken
-										+ " attempted to log in, game has not started-sending retry");
+										+ " attempted to log in, game: "+ g.getGameId() +" has not started-sending retry");
 						long retry = g.getStartTime().getTime()
 								- (new Date()).getTime();
 

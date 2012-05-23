@@ -34,6 +34,8 @@ import org.springframework.stereotype.Service;
 @Scope("request")
 public class Database {
 	// Database User container
+	
+	public static boolean locked = false;
 	public class User{
 		private String username;
 		private String password;

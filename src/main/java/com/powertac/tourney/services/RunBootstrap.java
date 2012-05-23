@@ -37,39 +37,55 @@ public class RunBootstrap extends TimerTask{
 	
 
 	private void checkMachineAvailable(){
-		Database db = new Database();
-		try {
-			db.startTrans();
-			List<Machine> machines = db.getMachines();
-			List<Machine> available = new ArrayList<Machine>();
-			for (Machine m : machines){
-				if(m.getStatus().equalsIgnoreCase("idle") && m.isAvailable()){
-					available.add(m);
+		if(Database.locked == false){
+			Database.locked = true;
+			Database db = new Database();
+			try {
+				db.startTrans();
+				List<Machine> machines = db.getMachines();
+				List<Machine> available = new ArrayList<Machine>();
+				for (Machine m : machines){
+					if(m.getStatus().equalsIgnoreCase("idle") && m.isAvailable()){
+						available.add(m);
+					}
 				}
+				if (available.size()>0){
+					
+					//db.updateGameJmsUrlById(Integer.parseInt(gameId),"tcp://"+ available.get(0).getName() +":61616");
+					db.updateGameMachine(Integer.parseInt(gameId), available.get(0).getMachineId());
+					db.setMachineStatus(available.get(0).getMachineId(), "running");
+					this.machineName = available.get(0).getName();
+					System.out.println("Running boot " + gameId + " on machine " + this.machineName);
+					db.commitTrans();
+				} else{
+					db.abortTrans();
+					System.out.println("No machines available to run scheduled boot: " + gameId + " ... will retry in 5 minutes");
+					Thread.sleep(300000);
+					this.run();
+				}
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				Database.locked = false;
+				e.printStackTrace();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				Database.locked = false;
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				Database.locked = false;
+				e.printStackTrace();
 			}
-			if (available.size()>0){
-				
-				//db.updateGameJmsUrlById(Integer.parseInt(gameId),"tcp://"+ available.get(0).getName() +":61616");
-				db.updateGameMachine(Integer.parseInt(gameId), available.get(0).getMachineId());
-				db.setMachineStatus(available.get(0).getMachineId(), "running");
-				this.machineName = available.get(0).getName();
-				System.out.println("Running boot " + gameId + " on machine " + this.machineName);
-				db.commitTrans();
-			} else{
-				db.abortTrans();
-				System.out.println("No machines available to run scheduled boot: " + gameId + " ... will retry in 5 minutes");
-				Thread.sleep(300000);
-				this.run();
+			Database.locked = false;
+		}else{
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			this.checkMachineAvailable();
+			
 		}
 	}
 	
