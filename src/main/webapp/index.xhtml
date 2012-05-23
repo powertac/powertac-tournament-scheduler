@@ -42,10 +42,10 @@
     				<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">
-							<h:outputText value="Game ID" />
+							<h:outputText value="Game Name" />
 						</f:facet>
 						<!-- row record -->
-    						#{g.gameId}
+    						#{g.gameName}
     				</t:column>
 
 					<t:column>
@@ -64,7 +64,7 @@
 							<h:outputText value="Start Time" />
 						</f:facet>
 						<!-- row record -->
-    						#{g.startTime}    		
+    						#{g.startTime.toLocaleString()}    		
     				</t:column>
 
 

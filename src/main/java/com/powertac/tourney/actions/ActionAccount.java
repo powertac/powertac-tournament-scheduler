@@ -136,14 +136,17 @@ public class ActionAccount {
 						&& t.getTournamentName().equalsIgnoreCase(
 								tournamentName)) {
 					db.startTrans();
+					System.out.println("Registering broker: " + b.getBrokerId() + " with tournament: " + t.getTournamentId());
+					
+					db.registerBroker(t.getTournamentId(), b.getBrokerId());
+					
 					
 					// TODO: When kailash has his tourney code up we need to place brokers in a particular slot
 					for(Game g : t.getGames()){
-						if(g.getMaxBrokers()< g.getNumBrokersRegistered()){
-							System.out.println("Registering broker: " + b.getBrokerId() + " with tournament: " + t.getTournamentId());
-							db.registerBroker(t.getTournamentId(), b.getBrokerId());
-							g.addBroker(b.getBrokerId());
-						}
+						System.out.println("Number registered: " + g.getNumBrokersRegistered());
+					
+						g.addBroker(b.getBrokerId());
+						
 					}
 					db.commitTrans();
 					db.closeConnection();
