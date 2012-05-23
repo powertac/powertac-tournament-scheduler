@@ -28,6 +28,7 @@ public class Scheduler {
 	
 	
 	public static final String key = "scheduler";
+	public static boolean running = false;
 	private Timer watchDogTimer = null;
 	SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 	
@@ -72,47 +73,53 @@ public class Scheduler {
 	}
 	
 	public void startWatchDog(){
-		Timer t = new Timer();
-		TimerTask watchDog = new TimerTask(){
-
-			@Override
-			public void run() {
-				System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : WatchDogTimer Looking for Games To Start..");
-				Database db = new Database();
-				try {
-					List<Game> games = db.getStartableGames();
-					
-					String hostip = "http://";
-					
+		if(!running){
+			Timer t = new Timer();
+			TimerTask watchDog = new TimerTask(){
+	
+				@Override
+				public void run() {
+					System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : WatchDogTimer Looking for Games To Start..");
+					Database db = new Database();
 					try {
-						InetAddress thisIp =InetAddress.getLocalHost();
-						hostip += thisIp.getHostAddress() + ":8080";
-					} catch (UnknownHostException e2) {
+						List<Game> games = db.getStartableGames();
+						
+						String hostip = "http://";
+						
+						try {
+							InetAddress thisIp =InetAddress.getLocalHost();
+							hostip += thisIp.getHostAddress() + ":8080";
+						} catch (UnknownHostException e2) {
+							// TODO Auto-generated catch block
+							e2.printStackTrace();
+						}
+						
+						for(Game g : games){
+							Tournament t = db.getTournamentByGameId(g.getGameId());
+							System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : Game: " + g.getGameId() + " will be started...");
+							Scheduler.this.runSimTimer(g.getGameId(),new RunBootstrap(g.getGameId(), hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
+						}
+						
+						
+					} catch (SQLException e) {
 						// TODO Auto-generated catch block
-						e2.printStackTrace();
+						this.cancel();
+						e.printStackTrace();
 					}
 					
-					for(Game g : games){
-						Tournament t = db.getTournamentByGameId(g.getGameId());
-						System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : Game: " + g.getGameId() + " will be started...");
-						Scheduler.this.runSimTimer(g.getGameId(),new RunBootstrap(g.getGameId(), hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
-					}
-					
-					
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					this.cancel();
-					e.printStackTrace();
 				}
 				
-			}
+			};
 			
-		};
-		
-		System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : Starting WatchDog...");
-		t.schedule(watchDog, new Date(), 120000);
-		
-		this.watchDogTimer = t;
+			System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : Starting WatchDog...");
+			running=true;
+			t.schedule(watchDog, new Date(), 120000);
+			
+			this.watchDogTimer = t;
+			
+		}else{
+			System.out.println("[WARN] Watchdog already running");
+		}
 	}
 	
 	public void restartWatchDog(){
@@ -124,6 +131,7 @@ public class Scheduler {
 	public void stopWatchDog(){
 		if(watchDogTimer!=null){
 			watchDogTimer.cancel();
+			running=false;
 			System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : Stopping WatchDog...");
 		}else{
 			System.out.println("[WARN] " + dateFormatUTC.format(new Date()) + " : WatchDogTimer Already Stopped");
