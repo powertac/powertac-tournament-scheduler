@@ -1,9 +1,11 @@
 package com.powertac.tourney.beans;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.faces.bean.ManagedBean;
 
@@ -46,6 +48,16 @@ public class Game {
 	
 	public Date getStartTime() {
 		return startTime;
+	}
+	public String toUTCStartTime(){
+		SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+		dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		//Local time zone   
+		SimpleDateFormat dateFormatLocal = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+
+		//Time in GMT
+		return dateFormatUTC.format(startTime) ;
 	}
 
 	public void setStartTime(Date startTime) {
