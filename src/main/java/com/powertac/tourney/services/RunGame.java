@@ -44,6 +44,7 @@ public class RunGame extends TimerTask {
 		this.tourneyUrl = tourneyUrl;
 		this.pomUrl = pomUrl;
 		this.destination = destination;
+		this.running = false;
 
 		// Assumes Jenkins and TS live in the same location as per the install
 		this.serverConfig = tourneyUrl + "faces/properties.jsp?gameId="
