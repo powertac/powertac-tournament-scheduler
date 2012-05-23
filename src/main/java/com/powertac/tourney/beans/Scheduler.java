@@ -18,8 +18,8 @@ public class Scheduler extends Timer {
 	
 	public static final String key = "scheduler";
 	
-	private HashMap<Integer,TimerTask> bootToBeRun = new HashMap<Integer,TimerTask>();
-	private HashMap<Integer,TimerTask> simToBeRun = new HashMap<Integer,TimerTask>();
+	private HashMap<Integer,Timer> bootToBeRun = new HashMap<Integer,Timer>();
+	private HashMap<Integer,Timer> simToBeRun = new HashMap<Integer,Timer>();
 	
 	public static String getKey(){
 		return key;
@@ -33,17 +33,19 @@ public class Scheduler extends Timer {
 	}
 	
 	public void runBootTimer(int gameId, TimerTask t, Date time){
-		bootToBeRun.put(gameId, t);
-		this.schedule(t, time);
+		Timer timer = new Timer();
+		timer.schedule(t, time);
+		bootToBeRun.put(gameId, timer);
 	}
 	
 	public void runSimTimer(int gameId, TimerTask t, Date time){
-		simToBeRun.put(gameId, t);
-		this.schedule(t, time);
+		Timer timer = new Timer();
+		timer.schedule(t, time);
+		simToBeRun.put(gameId, timer);
 	}
 	
 	public void deleteSimTimer(int gameId){
-		TimerTask t = simToBeRun.get(gameId);
+		Timer t = simToBeRun.get(gameId);
 		if (t!=null){
 			t.cancel();
 			simToBeRun.remove(gameId);
@@ -53,7 +55,7 @@ public class Scheduler extends Timer {
 	}
 	
 	public void deleteBootTimer(int gameId){
-		TimerTask t = bootToBeRun.get(gameId);
+		Timer t = bootToBeRun.get(gameId);
 		if (t!=null){
 			t.cancel();
 			bootToBeRun.remove(gameId);
