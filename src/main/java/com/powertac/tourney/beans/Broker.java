@@ -29,7 +29,7 @@ public class Broker {
 
 	public Broker(String brokerName) {
 		this.brokerName = brokerName;
-		System.out.println("Created Broker Bean: " + brokerId);
+		//System.out.println("Created Broker Bean: " + brokerId);
 		brokerId = maxBrokerId;
 		maxBrokerId++;
 

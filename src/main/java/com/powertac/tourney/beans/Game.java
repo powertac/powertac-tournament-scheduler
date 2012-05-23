@@ -65,7 +65,7 @@ public class Game {
 	}
 
 	public Game(){
-		System.out.println("Created Game Bean: " + gameId);
+		//System.out.println("Created Game Bean: " + gameId);
 		//gameId = maxGameId;
 		//maxGameId++;
 		

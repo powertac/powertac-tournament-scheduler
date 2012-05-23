@@ -38,7 +38,7 @@ public class Tournament {
 	private HashMap<Integer,Game> allGames;
 	
 	public Tournament(){
-		System.out.println("Created Tournament Bean: " + tourneyId);
+		//System.out.println("Created Tournament Bean: " + tourneyId);
 		//tournyId = maxTournamentId;
 		//maxTournamentId++;
 		
