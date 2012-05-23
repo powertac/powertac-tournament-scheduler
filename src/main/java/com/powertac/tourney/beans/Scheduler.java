@@ -15,6 +15,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import javax.annotation.PreDestroy;
 import javax.faces.context.FacesContext;
 
 import org.springframework.stereotype.Service;
@@ -40,8 +41,10 @@ public class Scheduler {
 	public static String getKey(){
 		return key;
 	}
+	
+	@PreDestroy
 	public void cleanUp() throws Exception {
-		  System.out.println("[INFO] Spring Container is destroy! Scheduler clean up");
+		  System.out.println("[INFO] Spring Container is destroyed! Scheduler clean up");
 		  if(watchDogTimer!=null){
 			  watchDogTimer.cancel();
 		  }
