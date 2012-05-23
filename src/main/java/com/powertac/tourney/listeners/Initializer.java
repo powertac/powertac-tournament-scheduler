@@ -12,6 +12,8 @@ import com.powertac.tourney.beans.Tournaments;
 import com.powertac.tourney.beans.Users;
 
 public class Initializer implements ServletContextListener {
+	
+	
 
 	public void contextDestroyed(ServletContextEvent e) {
 
@@ -19,6 +21,8 @@ public class Initializer implements ServletContextListener {
 		//e.getServletContext().getAttribute(Tournaments.getKey());
 		//e.getServletContext().getAttribute(Machines.getKey());
 		((Timer) e.getServletContext().getAttribute(Scheduler.getKey())).cancel();
+		
+		
 
 	}
 

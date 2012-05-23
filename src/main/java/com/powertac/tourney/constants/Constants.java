@@ -204,6 +204,18 @@ public class Constants {
 	public static final String ADD_GAME = "INSERT INTO tourney.games (gameName, tourneyId, maxBrokers,startTime, status,jmsUrl, bootstrapUrl, visualizerUrl, propertiesUrl, location, hasBootstrap, brokers) VALUES (?,?,?,?,'boot-pending','','','','','',false,'');";
 	
 	/***
+	 * Returns a list of the runnable games as of now.
+	 */
+	
+	public static final String GET_RUNNABLE_GAMES = "SELECT * FROM games WHERE startTime<=NOW() AND status=='boot-complete';";
+	
+	/***
+	 * Returns a list of the waiting games as of now
+	 */
+	
+	public static final String GET_PENDING_GAMES = "SELECT * FROM games WHERE startTime>NOW() AND status!='game-in-progres' OR status!='game-compele';";
+	
+	/***
 	 * Add broker to game in database
 	 * @param gameId : The id of the game you wish to add the broker to
 	 * @param brokerId : The id of the broker

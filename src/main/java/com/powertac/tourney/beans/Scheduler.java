@@ -1,8 +1,16 @@
 package com.powertac.tourney.beans;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -11,12 +19,19 @@ import javax.faces.context.FacesContext;
 
 import org.springframework.stereotype.Service;
 
+import com.powertac.tourney.services.Database;
+import com.powertac.tourney.services.RunBootstrap;
+
 @Service("scheduler")
-public class Scheduler extends Timer {
+public class Scheduler {
 	
-	private Vector<TimerTask> tasks;
+	
 	
 	public static final String key = "scheduler";
+	private Timer watchDogTimer = null;
+	SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+	
+	Properties props = new Properties();
 	
 	private HashMap<Integer,Timer> bootToBeRun = new HashMap<Integer,Timer>();
 	private HashMap<Integer,Timer> simToBeRun = new HashMap<Integer,Timer>();
@@ -24,13 +39,96 @@ public class Scheduler extends Timer {
 	public static String getKey(){
 		return key;
 	}
+	public void cleanUp() throws Exception {
+		  System.out.println("[INFO] Spring Container is destroy! Scheduler clean up");
+		  if(watchDogTimer!=null){
+			  watchDogTimer.cancel();
+		  }
+		  for(Timer t: bootToBeRun.values()){
+			  if(t!=null){
+				  t.cancel();
+			  }
+		  }
+		  for(Timer t: simToBeRun.values()){
+			  if(t!=null){
+				  t.cancel();
+			  }
+		  }
+		  
+		  
+	}
 	
 	public Scheduler(){
-		super(false);
-		tasks = new Vector<TimerTask>();
-		System.out.println("Checking tasks at: " + new Date());
-		//this.checkTask();
+		try {
+			props.load(Database.class.getClassLoader().getResourceAsStream(
+					"/tournament.properties"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+		this.startWatchDog();
 	}
+	
+	public void startWatchDog(){
+		Timer t = new Timer();
+		TimerTask watchDog = new TimerTask(){
+
+			@Override
+			public void run() {
+				System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : WatchDogTimer Looking for Games To Start..");
+				Database db = new Database();
+				try {
+					List<Game> games = db.getStartableGames();
+					
+					String hostip = "http://";
+					
+					try {
+						InetAddress thisIp =InetAddress.getLocalHost();
+						hostip += thisIp.getHostAddress() + ":8080";
+					} catch (UnknownHostException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+					
+					for(Game g : games){
+						Tournament t = db.getTournamentByGameId(g.getGameId());
+						System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : Game: " + g.getGameId() + " will be started...");
+						Scheduler.this.runSimTimer(g.getGameId(),new RunBootstrap(g.getGameId(), hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
+					}
+					
+					
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+			
+		};
+		
+		System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : Starting WatchDog...");
+		t.schedule(watchDog, new Date(), 120000);
+		
+		this.watchDogTimer = t;
+	}
+	
+	public void restartWatchDog(){
+		this.stopWatchDog();
+		this.startWatchDog();
+		
+	}
+	
+	public void stopWatchDog(){
+		if(watchDogTimer!=null){
+			watchDogTimer.cancel();
+			System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : Stopping WatchDog...");
+		}else{
+			System.out.println("[WARN] " + dateFormatUTC.format(new Date()) + " : WatchDogTimer Already Stopped");
+		}
+	}
+	
 	
 	public void runBootTimer(int gameId, TimerTask t, Date time){
 		Timer timer = new Timer();
@@ -64,36 +162,5 @@ public class Scheduler extends Timer {
 		}
 	}
 	
-	public static Scheduler getScheduler(){
-		return (Scheduler) FacesContext.getCurrentInstance()
-				.getExternalContext().getApplicationMap().get(Scheduler.getKey());
-	}
-	
-	public void addTask(long delay, TimerTask tt){
-		this.schedule(tt, delay);
-	}
-	
-	public void addPermanentTask(TimerTask tt){
-		tasks.add(tt);
-	}
-	
-	public void checkTask(){
-		Calendar newTime = Calendar.getInstance();
-		newTime.set(Calendar.MINUTE, newTime.get(Calendar.MINUTE) + 1);
-		
-		TimerTask tmp = new TimerTask() {
-			public void run() {
-				System.out.println("Checking tasks at: " + new Date());
-				//for(TimerTask tt : tasks){
-				//	addTask(newTime, tt);
-				//	tasks.remove(tt);					
-				//}
-				
-				checkTask();
-			}
-		};
-		this.addTask(60000, tmp);
-		
-	}
 
 }

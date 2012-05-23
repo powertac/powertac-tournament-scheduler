@@ -9,11 +9,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import com.powertac.tourney.beans.Broker;
 import com.powertac.tourney.beans.Game;
@@ -107,6 +109,8 @@ public class Database {
 	private PreparedStatement addPropsById = null;
 	private PreparedStatement addPom = null;
 	private PreparedStatement selectPoms = null;
+	
+	SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 	
 	Properties connectionProps = new Properties();
 	Properties prop = new Properties();
@@ -467,11 +471,12 @@ public class Database {
 		
 	}
 	
-	public int addTournament(String tourneyName, boolean openRegistration,int maxGames, java.sql.Date startTime, String type, String pomUrl, String locations, int maxBrokers) throws SQLException{
+	public int addTournament(String tourneyName, boolean openRegistration,int maxGames, Date startTime, String type, String pomUrl, String locations, int maxBrokers) throws SQLException{
 		checkDb();
+		dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
 		PreparedStatement addTournament = conn.prepareStatement(Constants.ADD_TOURNAMENT);
 		addTournament.setString(1, tourneyName);
-		addTournament.setDate(2, startTime);
+		addTournament.setString(2, dateFormatUTC.format(startTime));
 		addTournament.setBoolean(3, openRegistration);
 		addTournament.setInt(4, maxGames);
 		addTournament.setString(5, type);
@@ -556,7 +561,7 @@ public class Database {
 			ts = tmp;
 		}
 		
-		
+		conn.close();
 		return ts;
 	}
 	
@@ -731,15 +736,81 @@ public class Database {
 		return gs;
 	}
 	
-	public int addGame(String gameName, int tourneyId, int maxBrokers, java.sql.Date startTime) throws SQLException{
+	public List<Game> getStartableGames() throws SQLException{
 		checkDb();
+		List<Game> games = new ArrayList<Game>();
+		
+		PreparedStatement getGames = conn.prepareStatement(Constants.GET_RUNNABLE_GAMES);
+		
+		ResultSet rsGs = getGames.executeQuery();
+		
+		while(rsGs.next()){
+			Game tmp = new Game();
+			tmp.setStatus(rsGs.getString("status"));
+			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
+			tmp.setStartTime(rsGs.getDate("startTime"));
+			tmp.setBrokers(rsGs.getString("brokers"));
+			tmp.setTourneyId(rsGs.getInt("tourneyId"));
+			tmp.setMachineId(rsGs.getInt("machineId"));
+			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
+			tmp.setGameName(rsGs.getString("gameName"));
+			tmp.setGameId(rsGs.getInt("gameId"));
+			tmp.setJmsUrl(rsGs.getString("jmsUrl"));
+			tmp.setVisualizerUrl(rsGs.getString("visualizerUrl"));
+			tmp.setBootstrapUrl(rsGs.getString("bootstrapUrl"));
+			tmp.setPropertiesUrl(rsGs.getString("propertiesUrl"));
+			tmp.setLocation(rsGs.getString("location"));
+			
+			games.add(tmp);
+		}
+		
+		conn.close();
+		return games;
+		
+	}
+	
+	public List<Game> getWaitingGames() throws SQLException{
+	List<Game> games = new ArrayList<Game>();
+		
+		PreparedStatement getGames = conn.prepareStatement(Constants.GET_PENDING_GAMES);
+		
+		ResultSet rsGs = getGames.executeQuery();
+		
+		while(rsGs.next()){
+			Game tmp = new Game();
+			tmp.setStatus(rsGs.getString("status"));
+			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
+			tmp.setStartTime(rsGs.getDate("startTime"));
+			tmp.setBrokers(rsGs.getString("brokers"));
+			tmp.setTourneyId(rsGs.getInt("tourneyId"));
+			tmp.setMachineId(rsGs.getInt("machineId"));
+			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
+			tmp.setGameName(rsGs.getString("gameName"));
+			tmp.setGameId(rsGs.getInt("gameId"));
+			tmp.setJmsUrl(rsGs.getString("jmsUrl"));
+			tmp.setVisualizerUrl(rsGs.getString("visualizerUrl"));
+			tmp.setBootstrapUrl(rsGs.getString("bootstrapUrl"));
+			tmp.setPropertiesUrl(rsGs.getString("propertiesUrl"));
+			tmp.setLocation(rsGs.getString("location"));
+			
+			games.add(tmp);
+		}
+		
+		conn.close();
+		return games;
+	}
+	
+	public int addGame(String gameName, int tourneyId, int maxBrokers, Date startTime) throws SQLException{
+		checkDb();
+		dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+		
 		PreparedStatement insertGame = conn.prepareStatement(Constants.ADD_GAME);
 		
 		insertGame.setString(1, gameName);
 		insertGame.setInt(2, tourneyId);
 		//insertGame.setInt(3, machineId);
 		insertGame.setInt(3, maxBrokers);
-		insertGame.setDate(4, startTime);
+		insertGame.setString(4, dateFormatUTC.format(startTime));
 		//insertGame.setString(4, properitesUrl);
 		
 		return insertGame.executeUpdate();
@@ -1056,6 +1127,8 @@ public class Database {
 		addLocation.setDate(2, new java.sql.Date(newLocationStartTime.getTime()));
 		addLocation.setDate(3, new java.sql.Date(newLocationEndTime.getTime()));
 		
+		conn.close();
+		
 		return addLocation.executeUpdate();
 	}
 	
@@ -1114,7 +1187,6 @@ public class Database {
 		checkDb();
 		PreparedStatement trans = conn.prepareCall(Constants.COMMIT_TRANS);
 		trans.execute();
-		
 		return 0;
 		
 	}

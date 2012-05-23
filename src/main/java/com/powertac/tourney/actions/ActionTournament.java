@@ -307,7 +307,7 @@ public class ActionTournament {
 				db.startTrans();
 				//Adds new tournament to the database
 				System.out.println("Adding tourney");
-				db.addTournament(newTourney.getTournamentName(), true, size1, new java.sql.Date(newTourney.getStartTime().getTime()), "SINGLE_GAME", newTourney.getPomUrl(), allLocations, maxBrokers);
+				db.addTournament(newTourney.getTournamentName(), true, size1, newTourney.getStartTime(), "SINGLE_GAME", newTourney.getPomUrl(), allLocations, maxBrokers);
 				//Grabs the tourney Id
 				
 				System.out.println("Getting tourneyId");
@@ -318,7 +318,7 @@ public class ActionTournament {
 				
 				System.out.println("Adding game");
 					
-				db.addGame(newTourney.getTournamentName(), tourneyId, size1, new java.sql.Date(startTime.getTime()));
+				db.addGame(newTourney.getTournamentName(), tourneyId, size1, startTime);
 				// Grabs the game id
 				System.out.println("Getting gameId");
 				gameId = db.getMaxGameId();
@@ -349,7 +349,7 @@ public class ActionTournament {
 				
 		
 				// A sim will only run if the bootstrap exists
-				scheduler.runBootTimer(gameId,new RunGame(gameId, hostip+"/TournamentScheduler/", newTourney.getPomUrl(), props.getProperty("destination")), startTime);
+				//scheduler.runSimTimer(gameId,new RunGame(gameId, hostip+"/TournamentScheduler/", newTourney.getPomUrl(), props.getProperty("destination")), startTime);
 				
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
