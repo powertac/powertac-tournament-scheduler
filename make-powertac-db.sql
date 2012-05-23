@@ -77,11 +77,14 @@ CREATE TABLE `tourney`.`machines` (
 ) ENGINE=InnoDB;
 
 /* Local machines for testing purposes should be removed in prod*/
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('localhost', '127.0.0.1','','', 'idle', true);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac10', 'tac10.cs.umn.edu','','', 'idle', false);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac11', 'tac11.cs.umn.edu','','', 'idle', false);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac12', 'tac12.cs.umn.edu','','', 'idle', false);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac13', 'tac13.cs.umn.edu','','', 'idle', false);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac09', 'tac09.cs.umn.edu','tac02.cs.umn.edu:8080/viz1','vizQueue1', 'idle', true);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac10', 'tac10.cs.umn.edu','tac02.cs.umn.edu:8080/viz2','vizQueue2', 'idle', true);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac11', 'tac11.cs.umn.edu','tac02.cs.umn.edu:8080/viz3','vizQueue3', 'idle', true);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac12', 'tac12.cs.umn.edu','tac02.cs.umn.edu:8080/viz4','vizQueue4', 'idle', true);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac13', 'tac13.cs.umn.edu','tac02.cs.umn.edu:8080/viz5','vizQueue5', 'idle', true);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac14', 'tac14.cs.umn.edu','tac02.cs.umn.edu:8080/viz6','vizQueue6', 'idle', true);
+INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac15', 'tac15.cs.umn.edu','tac02.cs.umn.edu:8080/viz7','vizQueue7', 'idle', true);
+
 
 
 
