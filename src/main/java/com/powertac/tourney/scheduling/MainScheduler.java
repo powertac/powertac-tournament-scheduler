@@ -9,9 +9,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import org.springframework.stereotype.Service;
+
 
 //import java.util.UUID;
 
+@Service("gamescheduler")
 public class MainScheduler {
 	
 	private int noofagents; 
@@ -34,7 +37,12 @@ public class MainScheduler {
 	
 	private GameCube scheduleMatrix;
 	
-	MainScheduler(int agents, int ncopies, int nservers, int[] gtypes, int[] mxgames) throws Exception {
+	public MainScheduler(){
+		
+	}
+	
+	
+	public void init(int agents, int ncopies, int nservers, int[] gtypes, int[] mxgames) throws Exception {
 		
 		noofagents = agents;
 		noofservers = nservers;		

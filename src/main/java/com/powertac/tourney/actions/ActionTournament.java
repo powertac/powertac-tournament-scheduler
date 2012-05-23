@@ -34,6 +34,7 @@ import com.powertac.tourney.beans.Machines;
 import com.powertac.tourney.beans.Scheduler;
 import com.powertac.tourney.beans.Tournament;
 import com.powertac.tourney.beans.Tournaments;
+import com.powertac.tourney.scheduling.MainScheduler;
 import com.powertac.tourney.services.CreateProperties;
 import com.powertac.tourney.services.Database;
 import com.powertac.tourney.services.RunBootstrap;
@@ -49,6 +50,9 @@ public class ActionTournament {
 	
 	@Autowired
 	private Scheduler scheduler;
+	
+	@Autowired
+	private MainScheduler gamescheduler;
 
 	public enum TourneyType {
 		SINGLE_GAME, MULTI_GAME;
@@ -64,7 +68,9 @@ public class ActionTournament {
 	private Date toTime = new Date();
 	
 	private String tournamentName;
-	private int maxBrokers; // -1 means inf, otherwise integer specific
+	private int maxBrokers; 
+	private int maxBrokerInstances = 2;
+	
 	//private List<Integer> machines;
 	private List<String> locations;
 	private String pomName;
@@ -77,11 +83,11 @@ public class ActionTournament {
 	
 	
 	private int size1 = 2;
-	private int numberSize1;
+	private int numberSize1 = 2;
 	private int size2 = 4;
-	private int numberSize2;
+	private int numberSize2 = 4;
 	private int size3 = 8;
-	private int numberSize3;
+	private int numberSize3 = 4;
 	
 	public ActionTournament(){
 		
@@ -347,7 +353,7 @@ public class ActionTournament {
 				
 				scheduler.runBootTimer(gameId,new RunBootstrap(gameId, hostip+"/TournamentScheduler/", newTourney.getPomUrl(), props.getProperty("destination")), new Date());
 				
-		
+				
 				// A sim will only run if the bootstrap exists
 				//scheduler.runSimTimer(gameId,new RunGame(gameId, hostip+"/TournamentScheduler/", newTourney.getPomUrl(), props.getProperty("destination")), startTime);
 				
@@ -380,6 +386,26 @@ public class ActionTournament {
 			// First create the tournament
 			
 			// Use schedule code to create the set of games and place them in the database as placeholders
+			int noofagents = maxBrokers;
+			int noofcopies = maxBrokerInstances; 
+			int noofservers = 7;
+			int iteration = 1,num;
+			int[] gtypes = {size1,size2,size3};
+			int[] mxs = {numberSize1,numberSize1,numberSize1};
+			
+			try {
+				gamescheduler.init(noofagents, noofcopies, noofservers, gtypes, mxs);
+				gamescheduler.initializeAgentsDB(noofagents,noofcopies);
+				gamescheduler.initGameCube(gtypes,mxs);
+				
+				int gamesScheduled = gamescheduler.Schedule();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				System.out.println("[ERROR] Scheduling exception!");
+				e.printStackTrace();
+			}
+			
+			
 			
 			// Create a timer to check for idle machines and schedule games
 			
@@ -515,6 +541,14 @@ public class ActionTournament {
 
 	public void setNumberSize3(int numberSize3) {
 		this.numberSize3 = numberSize3;
+	}
+
+	public int getMaxBrokerInstances() {
+		return maxBrokerInstances;
+	}
+
+	public void setMaxBrokerInstances(int maxBrokerInstances) {
+		this.maxBrokerInstances = maxBrokerInstances;
 	}
 
 }

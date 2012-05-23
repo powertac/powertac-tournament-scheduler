@@ -1,5 +1,7 @@
 package com.powertac.tourney.scheduling;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -7,6 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
+import java.util.Properties;
+
+import com.powertac.tourney.services.Database;
 
 public class DbConnection {
 	/* configuration parameters
@@ -17,11 +22,41 @@ public class DbConnection {
 	private String database = "PowerTAC";
 	private String username = "root";
 	private String passwd = "H8G01Kae";
+	private String dbms = "mysql";
+	private String port = "";
 	private Connection myconnection = null;
 	private Statement statement = null;
 	
-	DbConnection(String ip) {
+	private Properties prop = new Properties();
+	
+	
+	public DbConnection(String ip) {
+		try {
+			prop.load(Database.class.getClassLoader().getResourceAsStream(
+					"/tournament.properties"));
+			//System.out.println(prop);
+			// Database Connection related properties
+			this.database = (prop.getProperty("db.database"));
+			this.dbms = (prop.getProperty("db.dbms"));
+			this.port = (prop.getProperty("db.port"));
+			this.serverip = (prop.getProperty("db.dbUrl"));
+			this.username = (prop.getProperty("db.username"));
+			this.passwd = (prop.getProperty("db.password"));
+
+			//System.out.println("Successfully instantiated Database bean!");
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		serverip = ip;
+		
+		
+		
 	}
 	
 	public void startTransaction() throws SQLException {		

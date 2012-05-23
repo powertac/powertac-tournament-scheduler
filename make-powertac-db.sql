@@ -197,7 +197,7 @@ CREATE TABLE `tourney`.`AgentQueue` (
   PRIMARY KEY (`InternalAgentID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-REATE TABLE `tourney`.`GameArchive` (
+CREATE TABLE `tourney`.`GameArchive` (
   `InternalGameID` int(18) unsigned NOT NULL AUTO_INCREMENT,
   `GameType` int(5) unsigned NOT NULL,
   `TimePlayed` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

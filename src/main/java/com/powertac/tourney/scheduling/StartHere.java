@@ -20,7 +20,8 @@ class StartHere {
 		
 		System.out.println("The number of Agents/n(duplicates)/Servers: "+noofagents+"/"+noofcopies+"/"+noofservers);
 		
-		mainsch = new MainScheduler(noofagents,noofcopies,noofservers, gtypes, mxs);
+		mainsch = new MainScheduler();
+		mainsch.init(noofagents,noofcopies,noofservers, gtypes, mxs);
 		// mainsch.initScoreBoard(gtypes,mxs);
 		
 		mainsch.initServerPanel(noofservers);		
