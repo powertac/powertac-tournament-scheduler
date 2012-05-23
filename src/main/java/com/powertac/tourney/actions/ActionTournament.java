@@ -318,7 +318,7 @@ public class ActionTournament {
 				
 				System.out.println("Adding game");
 					
-				db.addGame(tourneyId+":"+newTourney.getTournamentName(), tourneyId, size1, new java.sql.Date(startTime.getTime()));
+				db.addGame(newTourney.getTournamentName(), tourneyId, size1, new java.sql.Date(startTime.getTime()));
 				// Grabs the game id
 				System.out.println("Getting gameId");
 				gameId = db.getMaxGameId();
