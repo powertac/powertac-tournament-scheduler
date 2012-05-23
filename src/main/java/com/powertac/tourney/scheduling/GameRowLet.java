@@ -1,4 +1,4 @@
-package tournamentscheduler;
+package com.powertac.tourney.scheduling;
 
 public class GameRowLet {
 

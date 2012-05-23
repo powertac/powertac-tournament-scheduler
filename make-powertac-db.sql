@@ -176,3 +176,50 @@ CREATE TABLE `tourney`.`competitions` (
 ) ENGINE=InnoDB;
 
 
+/*** SCHEDULING TABLES ****/
+
+                                             
+CREATE TABLE `tourney`.`AgentAdmin` (
+  `InternalAgentID` int(18) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Internal Game ID',
+  `AgentType` int(18) unsigned NOT NULL,
+  `AgentCopy` int(5) unsigned NOT NULL,
+  `AgentName` varchar(250) DEFAULT NULL,
+  `AgentDescription` text,
+  PRIMARY KEY (`InternalAgentID`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `tourney`.`AgentQueue` (
+  `InternalAgentID` int(18) unsigned NOT NULL,
+  `AgentType` int(10) DEFAULT NULL,
+  `Prev_Age` int(18) unsigned NOT NULL,
+  `Age` int(18) unsigned NOT NULL DEFAULT '0',
+  `IsPlaying` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`InternalAgentID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+REATE TABLE `tourney`.`GameArchive` (
+  `InternalGameID` int(18) unsigned NOT NULL AUTO_INCREMENT,
+  `GameType` int(5) unsigned NOT NULL,
+  `TimePlayed` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `TimeCompleted` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `ServerNumber` int(11) unsigned NOT NULL,
+  `IsPlaying` tinyint(1) unsigned NOT NULL,
+  PRIMARY KEY (`InternalGameID`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `tourney`.`GameLog` (
+  `InternalAgentID` int(18) unsigned NOT NULL,
+  `InternalGameID` int(18) unsigned NOT NULL,
+  PRIMARY KEY (`InternalAgentID`,`InternalGameID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+CREATE TABLE `tourney`.`GameServers` (
+  `ServerID` int(11) NOT NULL,
+  `ServerName` varchar(175) NOT NULL,
+  `ServerNumber` int(18) unsigned NOT NULL AUTO_INCREMENT,
+  `IsPlaying` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ServerNumber`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+

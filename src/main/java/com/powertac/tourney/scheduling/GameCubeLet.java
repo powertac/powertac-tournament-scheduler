@@ -1,4 +1,4 @@
-package tournamentscheduler;
+package com.powertac.tourney.scheduling;
 /*5/21 This new class the scoreboard function and extends it */
 public class GameCubeLet {
 	private int reqMax; /* stop configuration for a game */

@@ -1,4 +1,4 @@
-package tournamentscheduler;
+package com.powertac.tourney.scheduling;
 
 
 import java.sql.Connection;
@@ -305,7 +305,7 @@ public class MainScheduler {
 		return false;
 	}
 	*/
-	public void resetServers() throws Exception {
+	public void resetServers(int machineId) throws Exception {
 		int i =0,len,num,randnum;
 		Server[] servernumbers;
 		ResultSet rs;
