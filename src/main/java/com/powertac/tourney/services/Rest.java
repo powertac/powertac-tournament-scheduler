@@ -315,7 +315,7 @@ public class Rest {
 	    String expectedTimeslot = "common.competition.expectedTimeslotCount = 240";
 	    
 	    // Timeout Settings
-	    String serverTimeout = "server.competitionControlService.loginTimeout = 0";
+	    String serverTimeout = "server.competitionControlService.loginTimeout = 120000";
 
 		if (props.size() == 4) {
 			result += weatherLocation + props.get(0) + "\n";
