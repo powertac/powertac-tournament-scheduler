@@ -87,7 +87,7 @@ public class Rest {
 								.println("[INFO] Broker: "
 										+ brokerAuthToken
 										+ " attempted to log in, game: "+ g.getGameId() +" with status: " + g.getStatus() + " --sending retry");
-						long retry = (g.getStartTime().getTime()- (new Date()).getTime())/1000;
+						long retry = (g.getStartTime().getTime()- (dateFormatUTC.parse(dateFormatUTC.format(new Date()))).getTime())/1000;
 						System.out.println("[INFO] Game starts for Broker: " +brokerAuthToken + " at " + g.toUTCStartTime() + " current time: " + dateFormatUTC.format(new Date()));
 						
 
