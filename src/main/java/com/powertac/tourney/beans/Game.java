@@ -77,10 +77,12 @@ public class Game
 
   public Game (ResultSet rs)
   {
+    SimpleDateFormat dateFormatUTC =
+            new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
     try {
       this.setStatus(rs.getString("status"));
       this.setMaxBrokers(rs.getInt("maxBrokers"));
-      this.setStartTime(new Date(rs.getTimestamp("startTime").getTime()));
+      this.setStartTime(dateFormatUTC.parse((rs.getString("startTime"))));
       this.setBrokers(rs.getString("brokers"));
       this.setTourneyId(rs.getInt("tourneyId"));
       this.setMachineId(rs.getInt("machineId"));
