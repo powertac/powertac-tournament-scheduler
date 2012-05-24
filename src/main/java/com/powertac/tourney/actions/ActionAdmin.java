@@ -260,11 +260,18 @@ public class ActionAdmin {
 			System.out.println("Attempting to restart bootstrap " + gameId);
 			scheduler.deleteBootTimer(gameId);
 			scheduler.runBootTimer(gameId,new RunBootstrap(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
+		
+		}else if(g.getStatus().equalsIgnoreCase("boot-in-progress")){
+			System.out.println("Attempting to restart bootstrap " + gameId);
+			scheduler.deleteBootTimer(gameId);
+			scheduler.runBootTimer(gameId,new RunBootstrap(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
+		
 			
 		}else if(g.getStatus().equalsIgnoreCase("game-pending")){
 			System.out.println("Attempting to restart sim " + gameId);
 			scheduler.deleteSimTimer(gameId);
 			scheduler.runSimTimer(gameId,new RunGame(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
+			
 		}else if(g.getStatus().equalsIgnoreCase("boot-complete")){
 			System.out.println("Attempting to restart sim " + gameId);
 			scheduler.deleteSimTimer(gameId);

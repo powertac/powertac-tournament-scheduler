@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import com.powertac.tourney.scheduling.MainScheduler;
 import com.powertac.tourney.services.Database;
 import com.powertac.tourney.services.RunBootstrap;
+import com.powertac.tourney.services.RunGame;
 
 @Service("scheduler")
 public class Scheduler {
@@ -110,7 +111,7 @@ public class Scheduler {
 						for(Game g : games){
 							Tournament t = db.getTournamentByGameId(g.getGameId());
 							System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : Game: " + g.getGameId() + " will be started...");
-							Scheduler.this.runSimTimer(g.getGameId(),new RunBootstrap(g.getGameId(), hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
+							Scheduler.this.runSimTimer(g.getGameId(),new RunGame(g.getGameId(), hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
 						}
 						
 						db.closeConnection();
