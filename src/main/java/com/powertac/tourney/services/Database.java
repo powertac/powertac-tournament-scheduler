@@ -522,7 +522,7 @@ public class Database {
 			Tournament tmp = new Tournament(rsTs);
 			ts = tmp;
 		}
-		
+		conn.close();
 		
 		return ts;
 	}
@@ -540,7 +540,7 @@ public class Database {
 			Tournament tmp = new Tournament(rsTs);
 			ts = tmp;
 		}
-		
+		conn.close();
 		
 		return ts;
 	}
@@ -1126,9 +1126,6 @@ public class Database {
 	public void closeConnection() throws SQLException {
 		conn.close();
 	}
-	
-	
-	
 	
 
 	public String getDbUrl() {
