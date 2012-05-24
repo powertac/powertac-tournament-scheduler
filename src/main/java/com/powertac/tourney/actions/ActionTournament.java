@@ -386,6 +386,8 @@ public class ActionTournament {
 			// First create the tournament
 			
 			// Use schedule code to create the set of games and place them in the database as placeholders
+			
+			/*
 			int noofagents = maxBrokers;
 			int noofcopies = maxBrokerInstances; 
 			int noofservers = 7;
@@ -399,11 +401,13 @@ public class ActionTournament {
 				gamescheduler.initGameCube(gtypes,mxs);
 				
 				int gamesScheduled = gamescheduler.Schedule();
+				
+				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				System.out.println("[ERROR] Scheduling exception!");
 				e.printStackTrace();
-			}
+			}*/
 			
 			
 			

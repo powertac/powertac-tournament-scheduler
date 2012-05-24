@@ -1,5 +1,7 @@
 package com.powertac.tourney.beans;
 
+import java.sql.ResultSet;
+
 import javax.faces.bean.ManagedBean;
 
 
@@ -14,6 +16,23 @@ public class Machine {
 	private int gameId;
 	private String vizUrl;
 	private String vizQueue;
+	
+	public Machine(){
+		
+	}
+	public Machine(ResultSet rsMachines){
+		try{
+			this.setMachineId(rsMachines.getInt("machineId"));
+			this.setStatus(rsMachines.getString("status"));
+			this.setUrl(rsMachines.getString("machineUrl"));
+			this.setVizUrl(rsMachines.getString("visualizerUrl"));
+			this.setVizQueue(rsMachines.getString("visualizerQueue"));
+			this.setName(rsMachines.getString("machineName"));
+			this.setAvailable(rsMachines.getBoolean("available"));
+		}catch(Exception e){
+			System.out.println("[ERROR] Error creating tournament from result set");
+		}
+	}
 	
 	public String getName() {
 		return name;

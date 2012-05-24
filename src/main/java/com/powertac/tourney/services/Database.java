@@ -500,14 +500,7 @@ public class Database {
 		ResultSet rsTs = selectAllTournaments.executeQuery();
 		
 		while(rsTs.next()){
-			Tournament tmp = new Tournament();
-			tmp.setTournamentId(rsTs.getInt("tourneyId"));
-			tmp.setOpenRegistration(rsTs.getBoolean("openRegistration"));
-			tmp.setMaxGames(rsTs.getInt("maxGames"));
-			tmp.setPomUrl(rsTs.getString("pomUrl"));
-			tmp.setMaxBrokers(rsTs.getInt("maxBrokers"));
-			tmp.setStartTime(rsTs.getDate("startTime"));
-			tmp.setTournamentName(rsTs.getString("tourneyName"));
+			Tournament tmp = new Tournament(rsTs);
 			ts.add(tmp);
 		}
 		conn.close();
@@ -526,14 +519,25 @@ public class Database {
 		ResultSet rsTs = selectTournament.executeQuery();
 		
 		if(rsTs.next()){
-			Tournament tmp = new Tournament();
-			tmp.setTournamentId(rsTs.getInt("tourneyId"));
-			tmp.setOpenRegistration(rsTs.getBoolean("openRegistration"));
-			tmp.setMaxGames(rsTs.getInt("maxGames"));
-			tmp.setPomUrl(rsTs.getString("pomUrl"));
-			tmp.setMaxBrokers(rsTs.getInt("maxBrokers"));
-			tmp.setStartTime(rsTs.getDate("startTime"));
-			tmp.setTournamentName(rsTs.getString("tourneyName"));
+			Tournament tmp = new Tournament(rsTs);
+			ts = tmp;
+		}
+		
+		
+		return ts;
+	}
+	
+	public Tournament getTournamentByType(String type) throws SQLException{
+		checkDb();
+		Tournament ts = new Tournament();
+		PreparedStatement selectTournament = conn.prepareStatement(Constants.SELECT_TOURNAMENT_BYTYPE);
+		
+		selectTournament.setString(1, type);
+		
+		ResultSet rsTs = selectTournament.executeQuery();
+		
+		if(rsTs.next()){
+			Tournament tmp = new Tournament(rsTs);
 			ts = tmp;
 		}
 		
@@ -551,14 +555,7 @@ public class Database {
 		ResultSet rsTs = selectTournament.executeQuery();
 		
 		if(rsTs.next()){
-			Tournament tmp = new Tournament();
-			tmp.setTournamentId(rsTs.getInt("tourneyId"));
-			tmp.setOpenRegistration(rsTs.getBoolean("openRegistration"));
-			tmp.setMaxGames(rsTs.getInt("maxGames"));
-			tmp.setPomUrl(rsTs.getString("pomUrl"));
-			tmp.setMaxBrokers(rsTs.getInt("maxBrokers"));
-			tmp.setStartTime(rsTs.getDate("startTime"));
-			tmp.setTournamentName(rsTs.getString("tourneyName"));
+			Tournament tmp = new Tournament(rsTs);
 			ts = tmp;
 		}
 		
@@ -575,20 +572,7 @@ public class Database {
 		ResultSet rsGs = selectAllGames.executeQuery();
 		
 		while(rsGs.next()){
-			Game tmp = new Game();
-			tmp.setStatus(rsGs.getString("status"));
-			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
-			tmp.setStartTime(rsGs.getDate("startTime"));
-			tmp.setTourneyId(rsGs.getInt("tourneyId"));
-			tmp.setMachineId(rsGs.getInt("machineId"));
-			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
-			tmp.setGameName(rsGs.getString("gameName"));
-			tmp.setGameId(rsGs.getInt("gameId"));
-			tmp.setVisualizerUrl(rsGs.getString("visualizerUrl"));
-			tmp.setBootstrapUrl(rsGs.getString("bootstrapUrl"));
-			tmp.setPropertiesUrl(rsGs.getString("propertiesUrl"));
-			tmp.setLocation(rsGs.getString("location"));
-			
+			Game tmp = new Game(rsGs);			
 			gs.add(tmp);
 		}
 		conn.close();
@@ -714,22 +698,7 @@ public class Database {
 		ResultSet rsGs = selectAllGames.executeQuery();
 		
 		while(rsGs.next()){
-			Game tmp = new Game();
-			tmp.setStatus(rsGs.getString("status"));
-			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
-			tmp.setStartTime(rsGs.getDate("startTime"));
-			tmp.setBrokers(rsGs.getString("brokers"));
-			tmp.setTourneyId(rsGs.getInt("tourneyId"));
-			tmp.setMachineId(rsGs.getInt("machineId"));
-			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
-			tmp.setGameName(rsGs.getString("gameName"));
-			tmp.setGameId(rsGs.getInt("gameId"));
-			tmp.setJmsUrl(rsGs.getString("jmsUrl"));
-			tmp.setVisualizerUrl(rsGs.getString("visualizerUrl"));
-			tmp.setBootstrapUrl(rsGs.getString("bootstrapUrl"));
-			tmp.setPropertiesUrl(rsGs.getString("propertiesUrl"));
-			tmp.setLocation(rsGs.getString("location"));
-			
+			Game tmp = new Game(rsGs);			
 			gs.add(tmp);
 		}
 		conn.close();
@@ -746,22 +715,7 @@ public class Database {
 		ResultSet rsGs = getGames.executeQuery();
 		
 		while(rsGs.next()){
-			Game tmp = new Game();
-			tmp.setStatus(rsGs.getString("status"));
-			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
-			tmp.setStartTime(rsGs.getDate("startTime"));
-			tmp.setBrokers(rsGs.getString("brokers"));
-			tmp.setTourneyId(rsGs.getInt("tourneyId"));
-			tmp.setMachineId(rsGs.getInt("machineId"));
-			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
-			tmp.setGameName(rsGs.getString("gameName"));
-			tmp.setGameId(rsGs.getInt("gameId"));
-			tmp.setJmsUrl(rsGs.getString("jmsUrl"));
-			tmp.setVisualizerUrl(rsGs.getString("visualizerUrl"));
-			tmp.setBootstrapUrl(rsGs.getString("bootstrapUrl"));
-			tmp.setPropertiesUrl(rsGs.getString("propertiesUrl"));
-			tmp.setLocation(rsGs.getString("location"));
-			
+			Game tmp = new Game(rsGs);
 			games.add(tmp);
 		}
 		
@@ -778,28 +732,15 @@ public class Database {
 		ResultSet rsGs = getGames.executeQuery();
 		
 		while(rsGs.next()){
-			Game tmp = new Game();
-			tmp.setStatus(rsGs.getString("status"));
-			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
-			tmp.setStartTime(rsGs.getDate("startTime"));
-			tmp.setBrokers(rsGs.getString("brokers"));
-			tmp.setTourneyId(rsGs.getInt("tourneyId"));
-			tmp.setMachineId(rsGs.getInt("machineId"));
-			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
-			tmp.setGameName(rsGs.getString("gameName"));
-			tmp.setGameId(rsGs.getInt("gameId"));
-			tmp.setJmsUrl(rsGs.getString("jmsUrl"));
-			tmp.setVisualizerUrl(rsGs.getString("visualizerUrl"));
-			tmp.setBootstrapUrl(rsGs.getString("bootstrapUrl"));
-			tmp.setPropertiesUrl(rsGs.getString("propertiesUrl"));
-			tmp.setLocation(rsGs.getString("location"));
-			
+			Game tmp = new Game(rsGs);			
 			games.add(tmp);
 		}
 		
 		conn.close();
 		return games;
 	}
+	
+	
 	
 	public int addGame(String gameName, int tourneyId, int maxBrokers, Date startTime) throws SQLException{
 		checkDb();
@@ -828,21 +769,7 @@ public class Database {
 		
 		Game tmp = new Game();
 		if(rsGs.next()){
-			
-			tmp.setStatus(rsGs.getString("status"));
-			tmp.setMaxBrokers(rsGs.getInt("maxBrokers"));
-			tmp.setStartTime(rsGs.getDate("startTime"));
-			tmp.setBrokers(rsGs.getString("brokers"));
-			tmp.setTourneyId(rsGs.getInt("tourneyId"));
-			tmp.setMachineId(rsGs.getInt("machineId"));
-			tmp.setHasBootstrap(rsGs.getBoolean("hasBootstrap"));
-			tmp.setGameName(rsGs.getString("gameName"));
-			tmp.setGameId(rsGs.getInt("gameId"));
-			tmp.setJmsUrl(rsGs.getString("jmsUrl"));
-			tmp.setVisualizerUrl(rsGs.getString("visualizerUrl"));
-			tmp.setBootstrapUrl(rsGs.getString("bootstrapUrl"));
-			tmp.setPropertiesUrl(rsGs.getString("propertiesUrl"));
-			tmp.setLocation(rsGs.getString("location"));
+			tmp = new Game(rsGs);
 			
 		}
 		return tmp;
@@ -1022,14 +949,7 @@ public class Database {
 		ResultSet rsMachines = selectMachines.executeQuery();
 		
 		while(rsMachines.next()){
-			Machine tmp = new Machine();
-			tmp.setMachineId(rsMachines.getInt("machineId"));
-			tmp.setStatus(rsMachines.getString("status"));
-			tmp.setUrl(rsMachines.getString("machineUrl"));
-			tmp.setVizUrl(rsMachines.getString("visualizerUrl"));
-			tmp.setVizQueue(rsMachines.getString("visualizerQueue"));
-			tmp.setName(rsMachines.getString("machineName"));
-			tmp.setAvailable(rsMachines.getBoolean("available"));
+			Machine tmp = new Machine(rsMachines);
 			machines.add(tmp);			
 		}
 		conn.close();

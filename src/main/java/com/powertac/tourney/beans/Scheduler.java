@@ -18,20 +18,27 @@ import java.util.Vector;
 import javax.annotation.PreDestroy;
 import javax.faces.context.FacesContext;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.powertac.tourney.scheduling.MainScheduler;
 import com.powertac.tourney.services.Database;
 import com.powertac.tourney.services.RunBootstrap;
 
 @Service("scheduler")
 public class Scheduler {
 	
-	
+	@Autowired
+	MainScheduler gamescheduler;
 	
 	public static final String key = "scheduler";
 	public static boolean running = false;
+	public static boolean multigame = false;
 	private Timer watchDogTimer = null;
 	SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+	
+	private HashMap<Integer,Integer> AgentIdToBrokerId = new HashMap<Integer,Integer>();
+	private HashMap<Integer,Integer> ServerIdToMachineId = new HashMap<Integer,Integer>();
 	
 	Properties props = new Properties();
 	
@@ -86,6 +93,7 @@ public class Scheduler {
 				public void run() {
 					System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : WatchDogTimer Looking for Games To Start..");
 					Database db = new Database();
+					// Check Database for startable games
 					try {
 						List<Game> games = db.getStartableGames();
 						
@@ -105,10 +113,59 @@ public class Scheduler {
 							Scheduler.this.runSimTimer(g.getGameId(),new RunBootstrap(g.getGameId(), hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
 						}
 						
-						
+						db.closeConnection();
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						this.cancel();
+						e.printStackTrace();
+					}
+					
+					// Use scheduler to schedule boostraps on multi-game tournaments
+					
+					db = new Database();
+					
+					
+					
+					try {
+						if(multigame==false){
+							multigame=true;
+							Tournament t = db.getTournamentByType("MULTI_GAME");
+							int noofagents = t.getMaxBrokers();
+							int noofcopies = t.getMaxBrokerInstances(); 
+							int noofservers = db.getMachines().size();
+							int iteration = 1,num;
+							int[] gtypes = {t.getSize1(),t.getSize2(),t.getSize3()};
+							int[] mxs = {t.getNumberSize1(),t.getNumberSize2(),t.getNumberSize3()};
+							
+							gamescheduler.init(noofagents, noofcopies, noofservers, gtypes, mxs);
+							gamescheduler.initializeAgentsDB(noofagents,noofcopies);
+							gamescheduler.initGameCube(gtypes,mxs);
+							
+							List<Broker> brokers = db.getBrokersRegistered(t.getTournamentId());
+							List<Machine> machines = db.getMachines();
+							db.closeConnection();
+							for(int i=0; i<brokers.size() ; i++){
+								AgentIdToBrokerId.put(i, brokers.get(i).getBrokerId());
+							}
+							
+							for(int i=0; i<machines.size();i++){
+								ServerIdToMachineId.put(i, machines.get(i).getMachineId());
+							}
+						}	
+							
+						int gamesScheduled = gamescheduler.Schedule();
+						
+						if (gamesScheduled==0){
+							System.out.println("[INFO] WatchDog reports no games to schedule this tick");
+						}else{
+							System.out.println("[INFO] WatchDog found games to schedule");
+							
+						}
+						
+						
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						System.out.println("[ERROR] Scheduling exception!");
 						e.printStackTrace();
 					}
 					

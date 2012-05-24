@@ -34,13 +34,20 @@ CREATE TABLE `tourney`.`brokers` (
 DROP TABLE IF EXISTS `tourney`.`tournaments`;
 CREATE TABLE `tourney`.`tournaments` (
 	`tourneyId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`tourneyName` VARCHAR(256) NOT NULL,	
+	`tourneyName` VARCHAR(256) UNIQUE NOT NULL,	
 	`openRegistration` BOOLEAN NOT NULL,
 	`maxGames` int NOT NULL,
 	`startTime` DATETIME NOT NULL,
 	`maxBrokers` integer UNSIGNED NOT NULL,
 	`status` VARCHAR(32) NOT NULL,
-	`type` VARCHAR(32) NOT NULL, /* Type is either multi-game or single game */
+	`gameSize1` integer NOT NULL DEFAULT 2,
+	`numberGameSize1` integer NOT NULL DEFAULT 2,
+	`gameSize2` integer NOT NULL DEFAULT 4,
+	`numberGameSize2` integer NOT NULL DEFAULT 4,
+	`gameSize3` integer NOT NULL DEFAULT 8,
+	`nubmerGameSize3` integer NOT NULL DEFAULT 4,
+	`maxBrokerInstances` integer NOT NULL DEFAULT 2,
+	`type` VARCHAR(32) NOT NULL, /* Type is either multi-game or single game if single game ignore the gameSize params */
 	`pomUrl` VARCHAR(256) NOT NULL, /* This will be the url to the pom file */
 	`locations` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
 	PRIMARY KEY (`tourneyId`)

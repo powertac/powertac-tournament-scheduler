@@ -1,5 +1,6 @@
 package com.powertac.tourney.beans;
 
+import java.sql.ResultSet;
 import java.util.Date;
 
 import javax.faces.bean.ManagedBean;
@@ -39,6 +40,11 @@ public class Broker {
 				+ (new Date()).toString() + Math.random());
 
 	}
+	
+	public Broker(ResultSet rs){
+		
+	}
+	
 
 	public Broker(String brokerName, String shortDescription) {
 		this.brokerName = brokerName;

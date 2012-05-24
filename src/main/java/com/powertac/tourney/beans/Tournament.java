@@ -1,5 +1,6 @@
 package com.powertac.tourney.beans;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,6 +28,15 @@ public class Tournament {
 	private boolean openRegistration = false;
 	private int maxGames;
 	
+	private int size1 = 2;
+	private int numberSize1 = 2;
+	private int size2 = 4;
+	private int numberSize2 = 4;
+	private int size3 = 8;
+	private int numberSize3 = 4;
+	
+	private int maxBrokerInstances = 2;
+	
 	private String pomName;
 	
 	
@@ -44,6 +54,27 @@ public class Tournament {
 		
 		allGames = new HashMap<Integer,Game>();
 		registeredBrokers = new HashMap<Integer,String>();
+	}
+	
+	public Tournament(ResultSet rsTs){
+		try{
+			this.setTournamentId(rsTs.getInt("tourneyId"));
+			this.setOpenRegistration(rsTs.getBoolean("openRegistration"));
+			this.setMaxGames(rsTs.getInt("maxGames"));
+			this.setPomUrl(rsTs.getString("pomUrl"));
+			this.setMaxBrokers(rsTs.getInt("maxBrokers"));
+			this.setStartTime(rsTs.getDate("startTime"));
+			this.setSize1(rsTs.getInt("size1"));
+			this.setSize2(rsTs.getInt("size2"));
+			this.setSize3(rsTs.getInt("size3"));
+			this.setNumberSize1(rsTs.getInt("numberSize1"));
+			this.setNumberSize2(rsTs.getInt("numberSize2"));
+			this.setNumberSize3(rsTs.getInt("numberSize3"));
+			this.setMaxBrokerInstances(rsTs.getInt("maxBrokerInstances"));
+			this.setTournamentName(rsTs.getString("tourneyName"));
+		}catch(Exception e){
+			System.out.println("[ERROR] Error creating tournament from result set");
+		}
 	}
 
 	public int getTournamentId() {
@@ -170,6 +201,62 @@ public class Tournament {
 
 	public void setMaxGames(int maxGames) {
 		this.maxGames = maxGames;
+	}
+
+	public int getSize1() {
+		return size1;
+	}
+
+	public void setSize1(int size1) {
+		this.size1 = size1;
+	}
+
+	public int getNumberSize1() {
+		return numberSize1;
+	}
+
+	public void setNumberSize1(int numberSize1) {
+		this.numberSize1 = numberSize1;
+	}
+
+	public int getSize2() {
+		return size2;
+	}
+
+	public void setSize2(int size2) {
+		this.size2 = size2;
+	}
+
+	public int getNumberSize2() {
+		return numberSize2;
+	}
+
+	public void setNumberSize2(int numberSize2) {
+		this.numberSize2 = numberSize2;
+	}
+
+	public int getSize3() {
+		return size3;
+	}
+
+	public void setSize3(int size3) {
+		this.size3 = size3;
+	}
+
+	public int getNumberSize3() {
+		return numberSize3;
+	}
+
+	public void setNumberSize3(int numberSize3) {
+		this.numberSize3 = numberSize3;
+	}
+
+	public int getMaxBrokerInstances() {
+		return maxBrokerInstances;
+	}
+
+	public void setMaxBrokerInstances(int maxBrokerInstances) {
+		this.maxBrokerInstances = maxBrokerInstances;
 	}
 
 

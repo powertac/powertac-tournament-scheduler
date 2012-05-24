@@ -30,10 +30,10 @@ class StartHere {
 		num = noofservers;
 		while(!mainsch.equilibrium()) {
 			nservers = mainsch.Schedule();
-			mainsch.resetServers();
+		//	mainsch.resetServers();
 			iteration++;
 		}	
-		mainsch.resetServers();
+		//mainsch.resetServers();
 		System.out.println("Final !!");
 		
 	}

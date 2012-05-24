@@ -1,5 +1,6 @@
 package com.powertac.tourney.beans;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,14 +22,12 @@ public class Game {
 	private int machineId;
 	private static int maxGameId = 0;
 	private String status = "pending";
-	private Machine runningMachine = null; // This is set when the game is actually running on a machine
+	private Machine runningMachine = null; // This is set when the game is
+											// actually running on a machine
 	private boolean hasBootstrap = false;
 	private String brokers = "";
-	private HashMap<String, String> brokerAuth = new HashMap<String,String>();
-	
-	
-	
-	
+	private HashMap<String, String> brokerAuth = new HashMap<String, String>();
+
 	private String gameName = "";
 	private String location = "";
 	private String jmsUrl = "";
@@ -38,45 +37,69 @@ public class Game {
 	private String propertiesUrl = "";
 	private String visualizerUrl = "";
 	private String pomUrl = "";
-	
+
 	private HashMap<String, String> brokersToLogin = null;
-	
+
 	private String[] brokersLoggedIn = null;
 	private int maxBrokers = 1;
 
 	public static final String key = "game";
-	
+
 	public Date getStartTime() {
 		return startTime;
 	}
-	public String toUTCStartTime(){
-		SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+
+	public String toUTCStartTime() {
+		SimpleDateFormat dateFormatUTC = new SimpleDateFormat(
+				"yyyy-MMM-dd HH:mm:ss");
 		dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-		//Local time zone   
-		SimpleDateFormat dateFormatLocal = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+		// Local time zone
+		SimpleDateFormat dateFormatLocal = new SimpleDateFormat(
+				"yyyy-MMM-dd HH:mm:ss");
 
-		//Time in GMT
-		return dateFormatUTC.format(startTime) ;
+		// Time in GMT
+		return dateFormatUTC.format(startTime);
 	}
 
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
 
-	public Game(){
-		//System.out.println("Created Game Bean: " + gameId);
-		//gameId = maxGameId;
-		//maxGameId++;
-		
-		brokersToLogin = new HashMap<String,String>();
-		
+	public Game() {
+		// System.out.println("Created Game Bean: " + gameId);
+		// gameId = maxGameId;
+		// maxGameId++;
+
+		brokersToLogin = new HashMap<String, String>();
+
 	}
-	
-	public int getNumBrokersRegistered(){
+
+	public Game(ResultSet rs) {
+		try{
+			this.setStatus(rs.getString("status"));
+			this.setMaxBrokers(rs.getInt("maxBrokers"));
+			this.setStartTime(rs.getDate("startTime"));
+			this.setBrokers(rs.getString("brokers"));
+			this.setTourneyId(rs.getInt("tourneyId"));
+			this.setMachineId(rs.getInt("machineId"));
+			this.setHasBootstrap(rs.getBoolean("hasBootstrap"));
+			this.setGameName(rs.getString("gameName"));
+			this.setGameId(rs.getInt("gameId"));
+			this.setJmsUrl(rs.getString("jmsUrl"));
+			this.setVisualizerUrl(rs.getString("visualizerUrl"));
+			this.setBootstrapUrl(rs.getString("bootstrapUrl"));
+			this.setPropertiesUrl(rs.getString("propertiesUrl"));
+			this.setLocation(rs.getString("location"));
+		}catch(Exception e){
+			System.out.println("[ERROR] Error creating game from result set");
+		}
+	}
+
+	public int getNumBrokersRegistered() {
 		Database db = new Database();
 		int result = 0;
-		
+
 		try {
 			result = db.getBrokersInGame(gameId).size();
 		} catch (SQLException e) {
@@ -84,26 +107,25 @@ public class Game {
 			e.printStackTrace();
 		}
 		return result;
-		
+
 	}
-	
-	public void addBroker(int brokerId){
+
+	public void addBroker(int brokerId) {
 		Database db = new Database();
 		Broker b = new Broker("new");
 		try {
 			b = db.getBroker(brokerId);
-			db.addBrokerToGame(gameId,b);
+			db.addBrokerToGame(gameId, b);
 			db.closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		brokers += b.getBrokerName() + ", ";
 		this.brokerAuth.put(b.getBrokerAuthToken(), b.getBrokerName());
 	}
-	
-	
+
 	public HashMap<String, String> getBrokersToLogin() {
 		return brokersToLogin;
 	}
@@ -175,57 +197,53 @@ public class Game {
 	public void setGameId(int gameId) {
 		this.gameId = gameId;
 	}
-	
-	//public void addBrokerLogin(String brokerName, String authToken){
-	//	brokersToLogin.put(authToken, brokerName);
-	//}
-	
-	public void addGameLogin(String gameToken){
-		
+
+	// public void addBrokerLogin(String brokerName, String authToken){
+	// brokersToLogin.put(authToken, brokerName);
+	// }
+
+	public void addGameLogin(String gameToken) {
+
 	}
-	
-	public boolean isGameTokenValid(String gameToken){
+
+	public boolean isGameTokenValid(String gameToken) {
 		return true;
 	}
-	
-	
-	public boolean isBrokerRegistered(String authToken){
+
+	public boolean isBrokerRegistered(String authToken) {
 		System.out.println("Broker token: " + authToken);
 		Database db = new Database();
 		boolean ingame = false;
 		try {
-			
+
 			List<Broker> allBrokers = db.getBrokersInGame(gameId);
-			for (Broker b : allBrokers){
-				if(b.getBrokerAuthToken().equalsIgnoreCase(authToken)){
+			for (Broker b : allBrokers) {
+				if (b.getBrokerAuthToken().equalsIgnoreCase(authToken)) {
 					ingame = true;
 					break;
 				}
 			}
 			db.closeConnection();
-			
+
 		} catch (SQLException e) {
-			
+
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return ingame;
 	}
-	
 
-	/*public boolean authorizeBroker(String brokerName, String gameToken) {
-		if (getBrokersToLogin() != null
-				&& getBrokersToLogin().get(brokerName) == gameToken) {
-
-			// Send http response indicating success
-			return true;
-		} else {
-			// Send http response back that authorization has failed
-			return false;
-		}
-
-	}*/
+	/*
+	 * public boolean authorizeBroker(String brokerName, String gameToken) { if
+	 * (getBrokersToLogin() != null && getBrokersToLogin().get(brokerName) ==
+	 * gameToken) {
+	 * 
+	 * // Send http response indicating success return true; } else { // Send
+	 * http response back that authorization has failed return false; }
+	 * 
+	 * }
+	 */
 
 	public String getTournamentSchedulerUrl() {
 		return tournamentSchedulerUrl;

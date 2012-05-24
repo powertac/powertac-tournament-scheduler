@@ -129,6 +129,12 @@ public class Constants {
 	public static final String SELECT_TOURNAMENT_BYGAMEID = "SELECT * FROM tournaments JOIN games ON tournaments.tourneyId = games.tourneyId WHERE gameId=?;";
 	
 	/***
+	 * Select a tournament by type
+	 * @param type 
+	 */
+	public static final String SELECT_TOURNAMENT_BYTYPE = "SELECT * FROM tournaments WHERE type=?";
+	
+	/***
 	 * Adds a tournament to the database with pending status by default
 	 * @param tourneyName : The name of the tournament
 	 * @param startTime : The timestamp when the tournament scheduler will issue a request to start the powertac simulation server
@@ -404,6 +410,21 @@ public class Constants {
 	 * @param machineId : the name of the machine
 	 */
 	public static final String  UPDATE_MACHINE_AVAILABILITY = "UPDATE tourney.machines SET available=? WHERE machineId=?;";
+	
+	/***
+	 * Get the games scheduled for a particular agentType
+	 * @param AgentType : 
+	 */
+	public static final String GET_GAMES_FOR_AGENT = "SELECT AgentName, AgentType, a.InternalAgentID,b.InternalGameID, GameType, ServerNumber"+
+													"FROM AgentAdmin a " + 
+													"JOIN GameLog b ON a.InternalAgentID = b.InternalAgentID" +
+													"JOIN GameArchive c ON b.InternalGameID= c.InternalGameID" +
+													"WHERE AgentType = ?";
+	/***
+	 * Clear scheduling database to schedule something else
+	 */
+	public static final String CLEAR_SCHEDULE = "truncate AgentAdmin;truncate AgentQueue;truncate GameArchive;truncate GameLog;truncate GameServers;";
+	
 	
 	/***
 	 * Select all available locations in the database
