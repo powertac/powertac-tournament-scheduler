@@ -11,50 +11,60 @@ import com.powertac.tourney.services.Database;
 
 @ApplicationScoped
 @ManagedBean
-public class Users {
-	private String sortColumn = null;
-	private boolean sortAscending = true;
-	private int rowCount = 5;
-	
-	private static final String key = "users";
-	
-	public List<Database.User> getUserList(){
-		Database db = new Database();
-		
-		try {
-			return db.getAllUsers();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return new ArrayList<Database.User>();
-	}
+public class Users
+{
+  private String sortColumn = null;
+  private boolean sortAscending = true;
+  private int rowCount = 5;
 
-	public static String getKey() {
-		return key;
-	}
+  private static final String key = "users";
 
-	public String getSortColumn() {
-		return sortColumn;
-	}
+  public List<Database.User> getUserList ()
+  {
+    Database db = new Database();
 
-	public void setSortColumn(String sortColumn) {
-		this.sortColumn = sortColumn;
-	}
+    try {
+      return db.getAllUsers();
+    }
+    catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return new ArrayList<Database.User>();
+  }
 
-	public boolean isSortAscending() {
-		return sortAscending;
-	}
+  public static String getKey ()
+  {
+    return key;
+  }
 
-	public void setSortAscending(boolean sortAscending) {
-		this.sortAscending = sortAscending;
-	}
+  public String getSortColumn ()
+  {
+    return sortColumn;
+  }
 
-	public int getRowCount() {
-		return rowCount;
-	}
+  public void setSortColumn (String sortColumn)
+  {
+    this.sortColumn = sortColumn;
+  }
 
-	public void setRowCount(int rowCount) {
-		this.rowCount = rowCount;
-	}
+  public boolean isSortAscending ()
+  {
+    return sortAscending;
+  }
+
+  public void setSortAscending (boolean sortAscending)
+  {
+    this.sortAscending = sortAscending;
+  }
+
+  public int getRowCount ()
+  {
+    return rowCount;
+  }
+
+  public void setRowCount (int rowCount)
+  {
+    this.rowCount = rowCount;
+  }
 }

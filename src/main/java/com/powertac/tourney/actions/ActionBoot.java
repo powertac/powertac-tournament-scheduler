@@ -7,30 +7,31 @@ import org.springframework.stereotype.Component;
 
 import com.powertac.tourney.services.Upload;
 
-
 @Component("actionBoot")
 @Scope("request")
-public class ActionBoot {
-	
-	@Autowired
-	Upload upload;
-	
-	private UploadedFile boot;
+public class ActionBoot
+{
 
-	public UploadedFile getBoot() {
-		return boot;
-	}
+  @Autowired
+  Upload upload;
 
-	public void setBoot(UploadedFile boot) {
-		this.boot = boot;
-	}
-	
-	public void submit(){
-		upload.setUploadedFile(boot);
-		upload.submit(boot.getName());
-		
-	}
-	
-	
+  private UploadedFile boot;
+
+  public UploadedFile getBoot ()
+  {
+    return boot;
+  }
+
+  public void setBoot (UploadedFile boot)
+  {
+    this.boot = boot;
+  }
+
+  public void submit ()
+  {
+    upload.setUploadedFile(boot);
+    upload.submit(boot.getName());
+
+  }
 
 }

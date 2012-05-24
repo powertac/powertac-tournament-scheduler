@@ -13,93 +13,105 @@ import com.powertac.tourney.services.Database;
 
 @ApplicationScoped
 @ManagedBean
-public class Tournaments {
-	private static final String key = "tournaments";
-	
-	private Vector<Tournament> tournaments;
-	
-	private String sortColumn = null;
-	private boolean sortAscending = true;
-	private int rowCount = 5;
-	
-	
-	public Tournaments(){
-		tournaments = new Vector<Tournament>();
-	}
+public class Tournaments
+{
+  private static final String key = "tournaments";
 
-	public static String getKey() {
-		return key;
-	}
-	public static Tournaments getAllTournaments(){
-	
-		
-		
-		return (Tournaments) FacesContext.getCurrentInstance()
-		.getExternalContext().getApplicationMap().get(Tournaments.getKey());
-	}
-	
-	public void addTournament(Tournament t){
-		this.tournaments.add(t);
-	}
-	
-	public List<Tournament> getTournamentList(){
-		Database db = new Database();
-		
-		List<Tournament> ts = new ArrayList<Tournament>();
-		
-		try {
-			ts = db.getTournaments("pending");
-			ts.addAll(db.getTournaments("in-progress"));
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return ts;
-	}
-	
-	public List<Tournament> getLists(){
-		return getTournamentList();
-		
-		//return (List<Tournament>) tournaments;
-	}
-	
-	public Tournament getTournamentById(int id){
-		Database db = new Database();
-		Tournament t = new Tournament();
-		try {
-			t = db.getTournamentById(id);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		return t;
-	}
-	
+  private Vector<Tournament> tournaments;
 
-	public String getSortColumn() {
-		return sortColumn;
-	}
+  private String sortColumn = null;
+  private boolean sortAscending = true;
+  private int rowCount = 5;
 
-	public void setSortColumn(String sortColumn) {
-		this.sortColumn = sortColumn;
-	}
+  public Tournaments ()
+  {
+    tournaments = new Vector<Tournament>();
+  }
 
-	public boolean isSortAscending() {
-		return sortAscending;
-	}
+  public static String getKey ()
+  {
+    return key;
+  }
 
-	public void setSortAscending(boolean sortAscending) {
-		this.sortAscending = sortAscending;
-	}
+  public static Tournaments getAllTournaments ()
+  {
 
-	public int getRowCount() {
-		return rowCount;
-	}
+    return (Tournaments) FacesContext.getCurrentInstance().getExternalContext()
+            .getApplicationMap().get(Tournaments.getKey());
+  }
 
-	public void setRowCount(int rowCount) {
-		this.rowCount = rowCount;
-	}
+  public void addTournament (Tournament t)
+  {
+    this.tournaments.add(t);
+  }
+
+  public List<Tournament> getTournamentList ()
+  {
+    Database db = new Database();
+
+    List<Tournament> ts = new ArrayList<Tournament>();
+
+    try {
+      ts = db.getTournaments("pending");
+      ts.addAll(db.getTournaments("in-progress"));
+    }
+    catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    return ts;
+  }
+
+  public List<Tournament> getLists ()
+  {
+    return getTournamentList();
+
+    // return (List<Tournament>) tournaments;
+  }
+
+  public Tournament getTournamentById (int id)
+  {
+    Database db = new Database();
+    Tournament t = new Tournament();
+    try {
+      t = db.getTournamentById(id);
+    }
+    catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    return t;
+  }
+
+  public String getSortColumn ()
+  {
+    return sortColumn;
+  }
+
+  public void setSortColumn (String sortColumn)
+  {
+    this.sortColumn = sortColumn;
+  }
+
+  public boolean isSortAscending ()
+  {
+    return sortAscending;
+  }
+
+  public void setSortAscending (boolean sortAscending)
+  {
+    this.sortAscending = sortAscending;
+  }
+
+  public int getRowCount ()
+  {
+    return rowCount;
+  }
+
+  public void setRowCount (int rowCount)
+  {
+    this.rowCount = rowCount;
+  }
 }

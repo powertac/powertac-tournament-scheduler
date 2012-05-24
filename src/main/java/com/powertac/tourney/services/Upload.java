@@ -15,95 +15,121 @@ import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.springframework.stereotype.Service;
 
 @Service("upload")
-public class Upload {
+public class Upload
+{
 
-    // Init ---------------------------------------------------------------------------------------
+  // Init
+  // ---------------------------------------------------------------------------------------
 
-    private UploadedFile uploadedFile;
-    private String fileName;
-    private Properties prop = new Properties();
-    private String uploadLocation = "/export/scratch/";
-    
-    // Actions ------------------------------------------------------------------------------------
-    public Upload(){
-    	System.out.println("Instantiated Upload Service");
-    	try {
-			prop.load(Database.class.getClassLoader().getResourceAsStream(
-					"/tournament.properties"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//System.out.println(prop);
-		// Database Connection related properties
-		this.setUploadLocation(prop.getProperty("fileUploadLocation"));
+  private UploadedFile uploadedFile;
+  private String fileName;
+  private Properties prop = new Properties();
+  private String uploadLocation = "/export/scratch/";
+
+  // Actions
+  // ------------------------------------------------------------------------------------
+  public Upload ()
+  {
+    System.out.println("Instantiated Upload Service");
+    try {
+      prop.load(Database.class.getClassLoader()
+              .getResourceAsStream("/tournament.properties"));
     }
-    
-    public String submit(String name) {
-
-        // Just to demonstrate what information you can get from the uploaded file.
-        System.out.println("File type: " + uploadedFile.getContentType());
-        System.out.println("File name: " + name);
-        System.out.println("File size: " + uploadedFile.getSize() + " bytes");
-
-        // Prepare filename prefix and suffix for an unique filename in upload folder.
-        String prefix = name;
-        String suffix = FilenameUtils.getExtension(uploadedFile.getName());
-        
-        // Prepare file and outputstream.
-        File file = null;
-        OutputStream output = null;
-        
-        try {
-            // Create file with unique name in upload folder and write to it.
-            file = File.createTempFile(prefix, "." + suffix, new File(getUploadLocation()));
-            output = new FileOutputStream(file);
-            IOUtils.copy(uploadedFile.getInputStream(), output);
-            fileName = file.getName();
-
-            // Show succes message.
-            FacesContext.getCurrentInstance().addMessage("uploadForm", new FacesMessage(
-                FacesMessage.SEVERITY_INFO, "File upload succeed!" + prefix+"."+suffix, null));
-
-            return fileName;
-        } catch (IOException e) {
-            // Cleanup.
-            if (file != null) file.delete();
-
-            // Show error message.
-            FacesContext.getCurrentInstance().addMessage("uploadForm", new FacesMessage(
-                FacesMessage.SEVERITY_ERROR, "File upload failed with I/O error.", null));
-
-            // Always log stacktraces (with a real logger).
-            e.printStackTrace();
-        } finally {
-            IOUtils.closeQuietly(output);
-        }
-		return null;
+    catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
+    // System.out.println(prop);
+    // Database Connection related properties
+    this.setUploadLocation(prop.getProperty("fileUploadLocation"));
+  }
 
-    // Getters ------------------------------------------------------------------------------------
+  public String submit (String name)
+  {
 
-    public UploadedFile getUploadedFile() {
-        return uploadedFile;
+    // Just to demonstrate what information you can get from the uploaded file.
+    System.out.println("File type: " + uploadedFile.getContentType());
+    System.out.println("File name: " + name);
+    System.out.println("File size: " + uploadedFile.getSize() + " bytes");
+
+    // Prepare filename prefix and suffix for an unique filename in upload
+    // folder.
+    String prefix = name;
+    String suffix = FilenameUtils.getExtension(uploadedFile.getName());
+
+    // Prepare file and outputstream.
+    File file = null;
+    OutputStream output = null;
+
+    try {
+      // Create file with unique name in upload folder and write to it.
+      file =
+        File.createTempFile(prefix, "." + suffix, new File(getUploadLocation()));
+      output = new FileOutputStream(file);
+      IOUtils.copy(uploadedFile.getInputStream(), output);
+      fileName = file.getName();
+
+      // Show succes message.
+      FacesContext.getCurrentInstance()
+              .addMessage("uploadForm",
+                          new FacesMessage(FacesMessage.SEVERITY_INFO,
+                                           "File upload succeed!" + prefix
+                                                   + "." + suffix, null));
+
+      return fileName;
     }
+    catch (IOException e) {
+      // Cleanup.
+      if (file != null)
+        file.delete();
 
-    public String getFileName() {
-        return fileName;
+      // Show error message.
+      FacesContext
+              .getCurrentInstance()
+              .addMessage("uploadForm",
+                          new FacesMessage(
+                                           FacesMessage.SEVERITY_ERROR,
+                                           "File upload failed with I/O error.",
+                                           null));
+
+      // Always log stacktraces (with a real logger).
+      e.printStackTrace();
     }
-
-    // Setters ------------------------------------------------------------------------------------
-
-    public void setUploadedFile(UploadedFile uploadedFile) {
-        this.uploadedFile = uploadedFile;
+    finally {
+      IOUtils.closeQuietly(output);
     }
+    return null;
+  }
 
-	public String getUploadLocation() {
-		return uploadLocation;
-	}
+  // Getters
+  // ------------------------------------------------------------------------------------
 
-	public void setUploadLocation(String uploadLocation) {
-		this.uploadLocation = uploadLocation;
-	}
+  public UploadedFile getUploadedFile ()
+  {
+    return uploadedFile;
+  }
+
+  public String getFileName ()
+  {
+    return fileName;
+  }
+
+  // Setters
+  // ------------------------------------------------------------------------------------
+
+  public void setUploadedFile (UploadedFile uploadedFile)
+  {
+    this.uploadedFile = uploadedFile;
+  }
+
+  public String getUploadLocation ()
+  {
+    return uploadLocation;
+  }
+
+  public void setUploadLocation (String uploadLocation)
+  {
+    this.uploadLocation = uploadLocation;
+  }
 
 }

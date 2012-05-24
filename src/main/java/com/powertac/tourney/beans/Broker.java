@@ -8,141 +8,164 @@ import javax.faces.bean.ManagedBean;
 import org.apache.commons.codec.digest.DigestUtils;
 
 @ManagedBean
-public class Broker {
-	private static final String key = "broker";
-	private static int maxBrokerId = 0;
+public class Broker
+{
+  private static final String key = "broker";
+  private static int maxBrokerId = 0;
 
-	// For edit mode
-	private boolean edit = false;
-	private String newName;
-	private String newAuth;
-	private String newShort;
-	
-	// For registration
-	private String selectedTourney;
-	
+  // For edit mode
+  private boolean edit = false;
+  private String newName;
+  private String newAuth;
+  private String newShort;
 
-	private String brokerName;
-	private int brokerId = 0;
-	private String brokerAuthToken;
-	private String shortDescription;
-	private int numberInGame = 0;
+  // For registration
+  private String selectedTourney;
 
-	public Broker(String brokerName) {
-		this.brokerName = brokerName;
-		//System.out.println("Created Broker Bean: " + brokerId);
-		brokerId = maxBrokerId;
-		maxBrokerId++;
+  private String brokerName;
+  private int brokerId = 0;
+  private String brokerAuthToken;
+  private String shortDescription;
+  private int numberInGame = 0;
 
-		// Generate MD5 hash
-		DigestUtils dg = new DigestUtils();
-		brokerAuthToken = dg.md5Hex(brokerName + brokerId
-				+ (new Date()).toString() + Math.random());
+  public Broker (String brokerName)
+  {
+    this.brokerName = brokerName;
+    // System.out.println("Created Broker Bean: " + brokerId);
+    brokerId = maxBrokerId;
+    maxBrokerId++;
 
-	}
-	
-	public Broker(ResultSet rs){
-		
-	}
-	
+    // Generate MD5 hash
+    DigestUtils dg = new DigestUtils();
+    brokerAuthToken =
+      dg.md5Hex(brokerName + brokerId + (new Date()).toString() + Math.random());
 
-	public Broker(String brokerName, String shortDescription) {
-		this.brokerName = brokerName;
-		this.shortDescription = shortDescription;
-		System.out.println("Created Broker Bean: " + brokerId);
-		brokerId = maxBrokerId;
-		maxBrokerId++;
+  }
 
-		// Generate MD5 hash
-		DigestUtils dg = new DigestUtils();
-		brokerAuthToken = dg.md5Hex(brokerName + brokerId
-				+ (new Date()).toString() + Math.random());
+  public Broker (ResultSet rs)
+  {
 
-	}
+  }
 
-	public String getBrokerName() {
-		return brokerName;
-	}
+  public Broker (String brokerName, String shortDescription)
+  {
+    this.brokerName = brokerName;
+    this.shortDescription = shortDescription;
+    System.out.println("Created Broker Bean: " + brokerId);
+    brokerId = maxBrokerId;
+    maxBrokerId++;
 
-	public void setBrokerName(String brokerName) {
-		this.brokerName = brokerName;
-	}
+    // Generate MD5 hash
+    DigestUtils dg = new DigestUtils();
+    brokerAuthToken =
+      dg.md5Hex(brokerName + brokerId + (new Date()).toString() + Math.random());
 
-	public int getBrokerId() {
-		return brokerId;
-	}
+  }
 
-	public void setBrokerId(int brokerId) {
-		this.brokerId = brokerId;
-	}
+  public String getBrokerName ()
+  {
+    return brokerName;
+  }
 
-	public String getBrokerAuthToken() {
-		return brokerAuthToken;
-	}
+  public void setBrokerName (String brokerName)
+  {
+    this.brokerName = brokerName;
+  }
 
-	public void setBrokerAuthToken(String brokerAuthToken) {
-		this.brokerAuthToken = brokerAuthToken;
-	}
+  public int getBrokerId ()
+  {
+    return brokerId;
+  }
 
-	public String getShortDescription() {
-		return shortDescription;
-	}
+  public void setBrokerId (int brokerId)
+  {
+    this.brokerId = brokerId;
+  }
 
-	public void setShortDescription(String shortDescription) {
-		if (shortDescription != null && shortDescription.length() >= 200) {
-			this.shortDescription = shortDescription.substring(0, 199);
-		} else {
+  public String getBrokerAuthToken ()
+  {
+    return brokerAuthToken;
+  }
 
-			this.shortDescription = shortDescription;
-		}
-	}
+  public void setBrokerAuthToken (String brokerAuthToken)
+  {
+    this.brokerAuthToken = brokerAuthToken;
+  }
 
-	public boolean isEdit() {
-		return edit;
-	}
+  public String getShortDescription ()
+  {
+    return shortDescription;
+  }
 
-	public void setEdit(boolean edit) {
-		this.edit = edit;
-	}
+  public void setShortDescription (String shortDescription)
+  {
+    if (shortDescription != null && shortDescription.length() >= 200) {
+      this.shortDescription = shortDescription.substring(0, 199);
+    }
+    else {
 
-	public String getNewName() {
-		return newName;
-	}
+      this.shortDescription = shortDescription;
+    }
+  }
 
-	public void setNewName(String newName) {
-		this.newName = newName;
-	}
+  public boolean isEdit ()
+  {
+    return edit;
+  }
 
-	public String getNewAuth() {
-		return newAuth;
-	}
+  public void setEdit (boolean edit)
+  {
+    this.edit = edit;
+  }
 
-	public void setNewAuth(String newAuth) {
-		this.newAuth = newAuth;
-	}
+  public String getNewName ()
+  {
+    return newName;
+  }
 
-	public String getNewShort() {
-		return newShort;
-	}
+  public void setNewName (String newName)
+  {
+    this.newName = newName;
+  }
 
-	public void setNewShort(String newShort) {
-		this.newShort = newShort;
-	}
+  public String getNewAuth ()
+  {
+    return newAuth;
+  }
 
-	public String getSelectedTourney() {
-		return selectedTourney;
-	}
+  public void setNewAuth (String newAuth)
+  {
+    this.newAuth = newAuth;
+  }
 
-	public void setSelectedTourney(String selectedTourney) {
-		this.selectedTourney = selectedTourney;
-	}
+  public String getNewShort ()
+  {
+    return newShort;
+  }
 
-	public int getNumberInGame() {
-		return numberInGame;
-	}
+  public void setNewShort (String newShort)
+  {
+    this.newShort = newShort;
+  }
 
-	public void setNumberInGame(int numberInGame) {
-		this.numberInGame = numberInGame;
-	}
+  public String getSelectedTourney ()
+  {
+    return selectedTourney;
+  }
+
+  public void setSelectedTourney (String selectedTourney)
+  {
+    this.selectedTourney = selectedTourney;
+  }
+
+  public int getNumberInGame ()
+  {
+    return numberInGame;
+  }
+
+  public void setNumberInGame (int numberInGame)
+  {
+    this.numberInGame = numberInGame;
+  }
 
 }
