@@ -219,13 +219,14 @@ public class ActionAdmin {
 	public void restartGame(Game g){
 		Database db = new Database();
 		int gameId = g.getGameId();
-		System.out.println("Game " + gameId + " has status: " + g.getStatus());
+		System.out.println("[INFO] Restarting Game " + gameId + " has status: " + g.getStatus());
 		Tournament t = new Tournament();
 		try {
 			db.startTrans();
 			t = db.getTournamentByGameId(gameId);
 			
 			db.setMachineStatus(g.getMachineId(), "idle");
+			System.out.println("[INFO] Setting machine: " + g.getMachineId() + " to idle");
 			db.commitTrans();
 			
 			
@@ -246,34 +247,34 @@ public class ActionAdmin {
 		
 		
 		if(g.getStatus().equalsIgnoreCase("boot-failed")){
-			System.out.println("Attempting to restart bootstrap " + gameId);
+			System.out.println("[INFO] Attempting to restart bootstrap " + gameId);
 			scheduler.deleteBootTimer(gameId);
 			scheduler.runBootTimer(gameId,new RunBootstrap(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
 			
 		}else if(g.getStatus().equalsIgnoreCase("game-failed")){
 			// If restarting a failed game schedule it for immediate running
-			System.out.println("Attempting to restart sim " + gameId);
+			System.out.println("[INFO] Attempting to restart sim " + gameId);
 			scheduler.deleteSimTimer(gameId);
 			scheduler.runSimTimer(gameId,new RunGame(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
 			
 		}else if(g.getStatus().equalsIgnoreCase("boot-pending")){
-			System.out.println("Attempting to restart bootstrap " + gameId);
+			System.out.println("[INFO] Attempting to restart bootstrap " + gameId);
 			scheduler.deleteBootTimer(gameId);
 			scheduler.runBootTimer(gameId,new RunBootstrap(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
 		
 		}else if(g.getStatus().equalsIgnoreCase("boot-in-progress")){
-			System.out.println("Attempting to restart bootstrap " + gameId);
+			System.out.println("[INFO] Attempting to restart bootstrap " + gameId);
 			scheduler.deleteBootTimer(gameId);
 			scheduler.runBootTimer(gameId,new RunBootstrap(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
 		
 			
 		}else if(g.getStatus().equalsIgnoreCase("game-pending")){
-			System.out.println("Attempting to restart sim " + gameId);
+			System.out.println("[INFO] Attempting to restart sim " + gameId);
 			scheduler.deleteSimTimer(gameId);
 			scheduler.runSimTimer(gameId,new RunGame(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
 			
 		}else if(g.getStatus().equalsIgnoreCase("boot-complete")){
-			System.out.println("Attempting to restart sim " + gameId);
+			System.out.println("[INFO] Attempting to restart sim " + gameId);
 			scheduler.deleteSimTimer(gameId);
 			scheduler.runSimTimer(gameId,new RunGame(gameId, hostip+"/TournamentScheduler/", t.getPomUrl(), props.getProperty("destination")), new Date());
 		}else{
