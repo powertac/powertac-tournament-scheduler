@@ -14,7 +14,7 @@
 	<!-- Listeners -->
 	<lifecycle>
 		<phase-listener>
-			com.powertac.tourney.listeners.RestoreViewPhaseListener
+			org.powertac.tourney.listeners.RestoreViewPhaseListener
 		</phase-listener>
 	</lifecycle>
 

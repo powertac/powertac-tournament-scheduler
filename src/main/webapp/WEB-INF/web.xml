@@ -130,7 +130,7 @@
 	</session-config>
 
 	<listener>
-		<listener-class>com.powertac.tourney.listeners.Initializer</listener-class>
+		<listener-class>org.powertac.tourney.listeners.Initializer</listener-class>
 	</listener>
 
 
