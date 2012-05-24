@@ -155,6 +155,7 @@ public class Database {
 						conn = DriverManager.getConnection("jdbc:" + this.dbms
 								+ "://" + this.dbUrl +  "/" + this.database,
 								connectionProps);
+						
 						//System.out.println("Connected Successfully");
 					} catch (Exception e) {
 						System.out.println("Connection Error");
@@ -193,6 +194,8 @@ public class Database {
 		}
 		
 		conn.close();
+		rsUsers.close();
+		selectUsersStatement.close();
 		
 		return users;
 	}
@@ -308,6 +311,8 @@ public class Database {
 			
 		}
 		conn.close();
+		rsBrokers.close();
+		selectBrokersByUserId.close();
 		
 		return brokers;
 			
@@ -355,6 +360,9 @@ public class Database {
 			broker.setShortDescription(rsBrokers.getString("brokerShort"));
 			broker.setNumberInGame(rsBrokers.getInt("numberInGame"));
 		}
+		conn.close();
+		rsBrokers.close();
+		selectBrokerByBrokerId.close();
 		
 		return broker;
 	}
@@ -378,6 +386,8 @@ public class Database {
 			props.add(rsProps.getString("vizQueue"));
 		}
 		conn.close();
+		rsProps.close();
+		selectPropsById.close();
 		
 		return props;
 		
@@ -467,6 +477,8 @@ public class Database {
 		}
 		
 		conn.close();
+		rsPoms.close();
+		selectPoms.close();
 		
 		return poms;
 		
@@ -504,6 +516,8 @@ public class Database {
 			ts.add(tmp);
 		}
 		conn.close();
+		rsTs.close();
+		selectAllTournaments.close();
 		
 		
 		return ts;
@@ -523,6 +537,8 @@ public class Database {
 			ts = tmp;
 		}
 		conn.close();
+		rsTs.close();
+		selectTournament.close();
 		
 		return ts;
 	}
@@ -540,7 +556,10 @@ public class Database {
 			Tournament tmp = new Tournament(rsTs);
 			ts = tmp;
 		}
+		
 		conn.close();
+		rsTs.close();
+		selectTournament.close();
 		
 		return ts;
 	}
@@ -560,6 +579,9 @@ public class Database {
 		}
 		
 		conn.close();
+		rsTs.close();
+		selectTournament.close();
+		
 		return ts;
 	}
 	
@@ -576,6 +598,9 @@ public class Database {
 			gs.add(tmp);
 		}
 		conn.close();
+		rsGs.close();
+		selectAllGames.close();
+		
 		return gs;
 	}
 	
@@ -615,6 +640,10 @@ public class Database {
 		if(rs.next()){
 			result = rs.getBoolean("registered");
 		}
+		
+		rs.close();
+		register.close();
+		
 		return result;
 	}
 	
@@ -629,6 +658,9 @@ public class Database {
 			id = rsId.getInt("maxId");
 		}
 		
+		selectMaxId.close();
+		rsId.close();
+		
 		return id;
 		
 	}
@@ -642,6 +674,9 @@ public class Database {
 		if(rsId.next()){
 			id = rsId.getInt("maxId");
 		}
+		
+		selectMaxId.close();
+		rsId.close();
 		
 		return id;
 	}
@@ -667,6 +702,8 @@ public class Database {
 			result.add(tmp);
 		}
 		conn.close();
+		rsB.close();
+		selectBrokers.close();
 		return result;
 	}
 	
@@ -685,6 +722,8 @@ public class Database {
 			result = rsB.getInt("numRegistered");
 		}
 		conn.close();
+		rsB.close();
+		selectBrokers.close();
 		
 		return result;
 		
@@ -702,6 +741,9 @@ public class Database {
 			gs.add(tmp);
 		}
 		conn.close();
+		rsGs.close();
+		selectAllGames.close();
+		
 		
 		return gs;
 	}
@@ -720,6 +762,9 @@ public class Database {
 		}
 		
 		conn.close();
+		rsGs.close();
+		getGames.close();
+		
 		return games;
 		
 	}
@@ -737,6 +782,9 @@ public class Database {
 		}
 		
 		conn.close();
+		rsGs.close();
+		getGames.close();
+		
 		return games;
 	}
 	
@@ -772,6 +820,9 @@ public class Database {
 			tmp = new Game(rsGs);
 			
 		}
+		rsGs.close();
+		selectAllGames.close();
+		
 		return tmp;
 	}
 	
@@ -807,6 +858,8 @@ public class Database {
 			brokers.add(tmp);
 		}
 		conn.close();
+		rs.close();
+		getBrokers.close();
 		
 		return brokers;
 	}
@@ -830,6 +883,8 @@ public class Database {
 			brokers.add(tmp);
 		}
 		conn.close();
+		getBrokers.close();
+		rs.close();
 		
 		return brokers;
 	}
@@ -848,6 +903,9 @@ public class Database {
 		if(rs.next()){
 			result = rs.getBoolean("ready");
 		}
+		
+		rs.close();
+		hasBootstrap.close();
 		
 		return result;
 	}
@@ -953,6 +1011,8 @@ public class Database {
 			machines.add(tmp);			
 		}
 		conn.close();
+		rsMachines.close();
+		selectMachines.close();
 		
 		
 		return machines;
@@ -1025,6 +1085,8 @@ public class Database {
 			
 		}
 		conn.close();
+		rsLocations.close();
+		selectLocations.close();
 		
 		
 		
@@ -1070,7 +1132,7 @@ public class Database {
 			}
 		}
 		
-		
+		minDate.close();
 		
 		return min;
 	}
@@ -1089,7 +1151,7 @@ public class Database {
 				}
 			}
 		}
-		
+		minDate.close();		
 		
 		
 		return max;
