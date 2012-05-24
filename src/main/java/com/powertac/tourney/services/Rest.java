@@ -95,8 +95,7 @@ public class Rest
                                + " with status: " + g.getStatus()
                                + " --sending retry");
             long retry =
-              (g.getStartTime().getTime() - (dateFormatUTC.parse(dateFormatUTC
-                      .format(new Date()))).getTime()) / 1000;
+              (g.getStartTime().getTime() - (new Date()).getTime()) / 1000;
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
             System.out.println("[INFO] Game starts for Broker: "
                                + brokerAuthToken + " at "

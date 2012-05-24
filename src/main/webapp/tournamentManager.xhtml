@@ -132,9 +132,9 @@
 				
 
 
-					<h:outputText value="Starting Date/Time (dd/month/yyyy/hh/mm):" />
+					<h:outputText value="Starting Date/Time in UTC(dd/month/yyyy/hh/mm):" />
 					<h:panelGroup>
-						<t:inputDate value="#{actionTournament.startTime}" type="both"
+						<t:inputDate value="#{actionTournament.startTime}" timeZone="UTC" type="both"
 							ampm="false" renderAsPopup="true" forceId="true" />
 					</h:panelGroup>
 

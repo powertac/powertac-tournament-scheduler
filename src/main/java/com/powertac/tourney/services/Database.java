@@ -850,11 +850,12 @@ public class Database
 
     ResultSet rsGs = getGames.executeQuery();
 
-    System.out.println("Parsing games");
+    System.out.println("[INFO] Parsing games " +rsGs.getFetchSize());
     while (rsGs.next()) {
       Game tmp = new Game(rsGs);
       games.add(tmp);
     }
+    
 
     conn.close();
     rsGs.close();
