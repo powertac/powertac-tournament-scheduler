@@ -57,7 +57,7 @@ public class Rest {
 					// Only consider games that have started and are ready for
 					// brokers to join
 					Tournament t = db.getTournamentByGameId(g.getGameId());
-					System.out.println("Game: " + g.getGameId() + " Status: " + g.getStatus());
+					//System.out.println("Game: " + g.getGameId() + " Status: " + g.getStatus());
 					if (g.getStartTime().before(new Date())
 							&& g.getStatus().equalsIgnoreCase("game-in-progress")) {
 						
@@ -76,9 +76,9 @@ public class Rest {
 					// retry message
 					if (g.isBrokerRegistered(brokerAuthToken)) {
 						System.out
-								.println("Broker: "
+								.println("[INFO] Broker: "
 										+ brokerAuthToken
-										+ " attempted to log in, game: "+ g.getGameId() +" has not started-sending retry");
+										+ " attempted to log in, game: "+ g.getGameId() +" with status: " + g.getStatus() + " --sending retry");
 						long retry = g.getStartTime().getTime()
 								- (new Date()).getTime();
 
@@ -138,11 +138,12 @@ public class Rest {
 
 				if (statusString.equalsIgnoreCase("bootstrap-running")) {
 					System.out
-							.println("Recieved bootstrap running message from game: "
+							.println("[INFO] Recieved bootstrap running message from game: "
 									+ gameId);
 					Database db = new Database();
 					try {
 						db.updateGameStatusById(gameId, "boot-in-progress");
+						System.out.println("[INFO] Setting game: " + gameId + " to boot-in-progress");
 						db.closeConnection();
 						return "Success";
 					} catch (SQLException e) {
@@ -152,7 +153,7 @@ public class Rest {
 
 				} else if (statusString.equalsIgnoreCase("bootstrap-done")) {
 					System.out
-							.println("Recieved bootstrap done message from game: "
+							.println("[INFO] Recieved bootstrap done message from game: "
 									+ gameId);
 					Database db = new Database();
 
@@ -175,6 +176,7 @@ public class Rest {
 										+ props.getProperty("fileUploadLocation")
 										+ gameId + "-boot.xml");
 						db.updateGameStatusById(gameId, "boot-complete");
+						System.out.println("[INFO] Setting game: " + gameId + " to boot-complete");
 						Game g = db.getGame(gameId);
 						db.setMachineStatus(g.getMachineId(), "idle");
 						db.commitTrans();
@@ -187,36 +189,40 @@ public class Rest {
 
 				} else if (statusString.equalsIgnoreCase("game-ready")) {
 					System.out
-							.println("Recieved game ready message from game: "
+							.println("[INFO] Recieved game ready message from game: "
 									+ gameId);
 					Database db = new Database();
 
 					try {
 						db.startTrans();
 						db.updateGameStatusById(gameId, "game-in-progress");
-						Tournament t = db.getTournamentByGameId(gameId);
-						db.updateTournamentStatus(t.getTournamentId());
+						System.out.println("[INFO] Setting game: " + gameId + " to game-in-progress");
+						//Tournament t = db.getTournamentByGameId(gameId);
+						//db.updateTournamentStatus(t.getTournamentId());
 						db.commitTrans();
 						db.closeConnection();
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
-
+					return "success";
 				} else if (statusString.equalsIgnoreCase("game-running")) {
 					// TODO Implement a message from the server to the ts
 
 				} else if (statusString.equalsIgnoreCase("game-done")) {
-					System.out.println("Recieved game done message from game: "
+					System.out.println("[INFO] Recieved game done message from game: "
 							+ gameId);
 					Database db = new Database();
 
 					try {
 						db.startTrans();
 						db.updateGameStatusById(gameId, "game-complete");
+						System.out.println("[INFO] Setting game: " + gameId + " to game-complete");
 						Game g = db.getGame(gameId);
 						// Do some cleanup
 						db.updateGameFreeBrokers(gameId);
+						System.out.println("[INFO] Freeing Brokers for game: " + gameId);
 						db.updateGameFreeMachine(gameId);
+						System.out.println("[INFO] Freeing Machines for game: " + gameId);
 						
 						db.setMachineStatus(g.getMachineId(), "idle");
 						db.commitTrans();
@@ -225,8 +231,9 @@ public class Rest {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					return "success";
 				} else if (statusString.equalsIgnoreCase("game-failed")) {
-					System.out.println("GAME " + gameId + " FAILED!");
+					System.out.println("[WARN] GAME " + gameId + " FAILED!");
 					Database db = new Database();
 					
 					try {
@@ -243,8 +250,9 @@ public class Rest {
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
+					return "success";
 				} else if (statusString.equalsIgnoreCase("boot-failed")) {
-					System.out.println("GAME " + gameId + " FAILED!");
+					System.out.println("[WARN] GAME " + gameId + " FAILED!");
 					Database db = new Database();
 
 					try {
@@ -257,7 +265,7 @@ public class Rest {
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
-
+					return "success";
 				} else {
 					return "ERROR";
 				}
