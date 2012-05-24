@@ -64,8 +64,7 @@ public class Rest {
 					// brokers to join
 					Tournament t = db.getTournamentByGameId(g.getGameId());
 					//System.out.println("Game: " + g.getGameId() + " Status: " + g.getStatus());
-					if (g.getStartTime().before(new Date())
-							&& g.getStatus().equalsIgnoreCase("game-in-progress")) {
+					if (g.getStatus().equalsIgnoreCase("game-in-progress")) {
 						
 						if (competitionName.equalsIgnoreCase(t.getTournamentName())
 								&& g.isBrokerRegistered(brokerAuthToken)) {
