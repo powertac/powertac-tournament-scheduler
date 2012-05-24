@@ -792,7 +792,6 @@ public class Database {
 	
 	public int addGame(String gameName, int tourneyId, int maxBrokers, Date startTime) throws SQLException{
 		checkDb();
-		dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
 		java.text.SimpleDateFormat sdf = 
 			     new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		
