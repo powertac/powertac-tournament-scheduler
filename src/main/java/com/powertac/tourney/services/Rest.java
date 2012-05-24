@@ -8,11 +8,13 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import javax.faces.context.FacesContext;
 
@@ -34,6 +36,10 @@ public class Rest {
 				.get(Constants.REQ_PARAM_AUTH_TOKEN))[0];
 		String competitionName = ((String[]) params
 				.get(Constants.REQ_PARAM_JOIN))[0];
+		
+		SimpleDateFormat dateFormatUTC = new SimpleDateFormat(
+				"yyyy-MMM-dd HH:mm:ss");
+		dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 		String retryResponse;
 		String loginResponse;
@@ -63,6 +69,8 @@ public class Rest {
 						
 						if (competitionName.equalsIgnoreCase(t.getTournamentName())
 								&& g.isBrokerRegistered(brokerAuthToken)) {
+							
+							System.out.println("[INFO] Sending login to : " + brokerAuthToken + " jmsUrl : " + g.getJmsUrl());
 
 							db.closeConnection();
 							return String.format(loginResponse, g.getJmsUrl(),
@@ -80,7 +88,8 @@ public class Rest {
 										+ brokerAuthToken
 										+ " attempted to log in, game: "+ g.getGameId() +" with status: " + g.getStatus() + " --sending retry");
 						long retry = (g.getStartTime().getTime()- (new Date()).getTime())/1000;
-						System.out.println("[INFO] Game starts for Broker: " +brokerAuthToken + " in " + retry + " seconds");
+						System.out.println("[INFO] Game starts for Broker: " +brokerAuthToken + " at " + g.toUTCStartTime() + " current time: " + dateFormatUTC.format(new Date()));
+						
 
 						db.closeConnection();
 						return String.format(retryResponse, retry > 0 ? retry
