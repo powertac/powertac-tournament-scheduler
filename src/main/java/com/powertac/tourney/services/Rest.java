@@ -79,8 +79,8 @@ public class Rest {
 								.println("[INFO] Broker: "
 										+ brokerAuthToken
 										+ " attempted to log in, game: "+ g.getGameId() +" with status: " + g.getStatus() + " --sending retry");
-						long retry = g.getStartTime().getTime()
-								- (new Date()).getTime();
+						long retry = (g.getStartTime().getTime()- (new Date()).getTime())/1000;
+						System.out.println("[INFO] Game starts for Broker: " +brokerAuthToken + " in " + retry + " seconds");
 
 						db.closeConnection();
 						return String.format(retryResponse, retry > 0 ? retry
