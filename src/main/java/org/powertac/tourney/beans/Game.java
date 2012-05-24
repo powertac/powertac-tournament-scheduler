@@ -78,6 +78,7 @@ public class Game
 
   public Game (ResultSet rs)
   {
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     SimpleDateFormat dateFormatUTC =
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
     try {
