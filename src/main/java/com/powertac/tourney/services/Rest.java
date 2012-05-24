@@ -393,7 +393,9 @@ public class Rest {
 				result += strLine + "\n";
 			}
 			// Close the input stream
+			fstream.close();
 			in.close();
+			br.close();
 		} catch (Exception e) {// Catch exception if any
 			System.err.println("Error: " + e.getMessage());
 		}
