@@ -89,6 +89,7 @@ public class Game {
 			this.setLocation(rs.getString("location"));
 		}catch(Exception e){
 			System.out.println("[ERROR] Error creating game from result set");
+			e.printStackTrace();
 		}
 	}
 

@@ -97,6 +97,7 @@ public class Scheduler {
 					// Check Database for startable games
 					try {
 						List<Game> games = db.getStartableGames();
+						System.out.println("[INFO] WatchDogTimer reports " + games.size() + " are ready to start");
 						
 						String hostip = "http://";
 						
