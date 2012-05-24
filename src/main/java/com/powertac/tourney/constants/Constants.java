@@ -213,13 +213,13 @@ public class Constants {
 	 * Returns a list of the runnable games as of now.
 	 */
 	
-	public static final String GET_RUNNABLE_GAMES = "SELECT * FROM games WHERE startTime<=NOW() AND status='boot-complete';";
+	public static final String GET_RUNNABLE_GAMES = "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() AND status='boot-complete';";
 	
 	/***
 	 * Returns a list of the waiting games as of now
 	 */
 	
-	public static final String GET_PENDING_GAMES = "SELECT * FROM games WHERE startTime>NOW() AND status!='game-in-progres' OR status!='game-compele';";
+	public static final String GET_PENDING_GAMES = "SELECT * FROM games WHERE startTime>UTC_TIMESTAMP() AND status!='game-in-progres' OR status!='game-compele';";
 	
 	/***
 	 * Add broker to game in database
