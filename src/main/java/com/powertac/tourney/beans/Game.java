@@ -52,11 +52,7 @@ public class Game {
 	public String toUTCStartTime() {
 		SimpleDateFormat dateFormatUTC = new SimpleDateFormat(
 				"yyyy-MMM-dd HH:mm:ss");
-		dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-		// Local time zone
-		SimpleDateFormat dateFormatLocal = new SimpleDateFormat(
-				"yyyy-MMM-dd HH:mm:ss");
 
 		// Time in GMT
 		return dateFormatUTC.format(startTime);
