@@ -79,7 +79,7 @@ public class Game
   public Game (ResultSet rs)
   {
     SimpleDateFormat dateFormatUTC =
-            new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss.S");
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
     try {
       this.setStatus(rs.getString("status"));
       this.setMaxBrokers(rs.getInt("maxBrokers"));
