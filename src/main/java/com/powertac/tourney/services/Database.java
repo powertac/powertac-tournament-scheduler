@@ -1038,21 +1038,21 @@ public class Database {
 		
 		deleteLocation.setInt(1, locationId);
 		
-		conn.close();
+		
 		
 		return deleteLocation.executeUpdate();
 	}
 	
 	public int addLocation(String location, Date newLocationStartTime, Date newLocationEndTime) throws SQLException{
 		checkDb();
-		PreparedStatement addLocation = conn.prepareStatement(Constants.ADD_LOCATION);
-		addLocation.setString(1, location);
-		addLocation.setDate(2, new java.sql.Date(newLocationStartTime.getTime()));
-		addLocation.setDate(3, new java.sql.Date(newLocationEndTime.getTime()));
+		PreparedStatement addLocations = conn.prepareStatement(Constants.ADD_LOCATION);
+		addLocations.setString(1, location);
+		addLocations.setDate(2, new java.sql.Date(newLocationStartTime.getTime()));
+		addLocations.setDate(3, new java.sql.Date(newLocationEndTime.getTime()));
 		
-		conn.close();
 		
-		return addLocation.executeUpdate();
+		
+		return addLocations.executeUpdate();
 	}
 	
 	public Date selectMinDate(List<Location> locations) throws SQLException{

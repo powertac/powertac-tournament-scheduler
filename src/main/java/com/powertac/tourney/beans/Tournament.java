@@ -64,16 +64,17 @@ public class Tournament {
 			this.setPomUrl(rsTs.getString("pomUrl"));
 			this.setMaxBrokers(rsTs.getInt("maxBrokers"));
 			this.setStartTime(rsTs.getDate("startTime"));
-			this.setSize1(rsTs.getInt("size1"));
-			this.setSize2(rsTs.getInt("size2"));
-			this.setSize3(rsTs.getInt("size3"));
-			this.setNumberSize1(rsTs.getInt("numberSize1"));
-			this.setNumberSize2(rsTs.getInt("numberSize2"));
-			this.setNumberSize3(rsTs.getInt("numberSize3"));
+			this.setSize1(rsTs.getInt("gameSize1"));
+			this.setSize2(rsTs.getInt("gameSize2"));
+			this.setSize3(rsTs.getInt("gameSize3"));
+			this.setNumberSize1(rsTs.getInt("numberGameSize1"));
+			this.setNumberSize2(rsTs.getInt("numberGameSize2"));
+			this.setNumberSize3(rsTs.getInt("numberGameSize3"));
 			this.setMaxBrokerInstances(rsTs.getInt("maxBrokerInstances"));
 			this.setTournamentName(rsTs.getString("tourneyName"));
 		}catch(Exception e){
 			System.out.println("[ERROR] Error creating tournament from result set");
+			e.printStackTrace();
 		}
 	}
 

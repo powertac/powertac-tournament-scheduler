@@ -45,7 +45,7 @@ CREATE TABLE `tourney`.`tournaments` (
 	`gameSize2` integer NOT NULL DEFAULT 4,
 	`numberGameSize2` integer NOT NULL DEFAULT 4,
 	`gameSize3` integer NOT NULL DEFAULT 8,
-	`nubmerGameSize3` integer NOT NULL DEFAULT 4,
+	`numberGameSize3` integer NOT NULL DEFAULT 4,
 	`maxBrokerInstances` integer NOT NULL DEFAULT 2,
 	`type` VARCHAR(32) NOT NULL, /* Type is either multi-game or single game if single game ignore the gameSize params */
 	`pomUrl` VARCHAR(256) NOT NULL, /* This will be the url to the pom file */

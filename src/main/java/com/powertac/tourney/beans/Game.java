@@ -79,7 +79,7 @@ public class Game {
 		try{
 			this.setStatus(rs.getString("status"));
 			this.setMaxBrokers(rs.getInt("maxBrokers"));
-			this.setStartTime(rs.getDate("startTime"));
+			this.setStartTime(new Date(rs.getTimestamp("startTime").getTime()));
 			this.setBrokers(rs.getString("brokers"));
 			this.setTourneyId(rs.getInt("tourneyId"));
 			this.setMachineId(rs.getInt("machineId"));

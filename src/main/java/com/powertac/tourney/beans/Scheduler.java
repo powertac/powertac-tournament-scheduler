@@ -121,7 +121,7 @@ public class Scheduler {
 					}
 					
 					// Use scheduler to schedule boostraps on multi-game tournaments
-					
+					/*
 					db = new Database();
 					
 					
@@ -162,16 +162,16 @@ public class Scheduler {
 							
 						}
 						
-						
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						System.out.println("[ERROR] Scheduling exception!");
 						e.printStackTrace();
 					}
-					
+				*/	
 				}
 				
 			};
+						
 			
 			System.out.println("[INFO] " + dateFormatUTC.format(new Date()) + " : Starting WatchDog...");
 			running=true;
