@@ -59,6 +59,7 @@ public class Tournament {
 	public Tournament(ResultSet rsTs){
 		try{
 			this.setTournamentId(rsTs.getInt("tourneyId"));
+			this.setTournamentName(rsTs.getString("tourneyName"));
 			this.setOpenRegistration(rsTs.getBoolean("openRegistration"));
 			this.setMaxGames(rsTs.getInt("maxGames"));
 			this.setPomUrl(rsTs.getString("pomUrl"));
