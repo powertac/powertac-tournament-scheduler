@@ -40,7 +40,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
-
 @Component("actionTournament")
 @Scope("session")
 public class ActionTournament
@@ -52,8 +51,8 @@ public class ActionTournament
   @Autowired
   private Scheduler scheduler;
 
-  @Autowired
-  private MainScheduler gamescheduler;
+
+ 
 
   public enum TourneyType {
     SINGLE_GAME, MULTI_GAME;
@@ -367,22 +366,7 @@ public class ActionTournament
           e.printStackTrace();
         }
         db.closeConnection();
-        // Only schedule the bootstrap and sim if db was updated successfully
-
-        scheduler
-                .runBootTimer(gameId,
-                              new RunBootstrap(
-                                               gameId,
-                                               hostip + "/TournamentScheduler/",
-                                               newTourney.getPomUrl(),
-                                               props.getProperty("destination")),
-                              new Date());
-
-        // A sim will only run if the bootstrap exists
-        // scheduler.runSimTimer(gameId,new RunGame(gameId,
-        // hostip+"/TournamentScheduler/", newTourney.getPomUrl(),
-        // props.getProperty("destination")), startTime);
-
+        
       }
       catch (SQLException e1) {
         // TODO Auto-generated catch block
@@ -414,28 +398,30 @@ public class ActionTournament
       // Use schedule code to create the set of games and place them in the
       // database as placeholders
 
-      /*
-       * int noofagents = maxBrokers;
-       * int noofcopies = maxBrokerInstances;
-       * int noofservers = 7;
-       * int iteration = 1,num;
-       * int[] gtypes = {size1,size2,size3};
-       * int[] mxs = {numberSize1,numberSize1,numberSize1};
-       * 
-       * try {
-       * gamescheduler.init(noofagents, noofcopies, noofservers, gtypes, mxs);
-       * gamescheduler.initializeAgentsDB(noofagents,noofcopies);
-       * gamescheduler.initGameCube(gtypes,mxs);
-       * 
-       * int gamesScheduled = gamescheduler.Schedule();
-       * 
-       * 
-       * } catch (Exception e) {
-       * // TODO Auto-generated catch block
-       * System.out.println("[ERROR] Scheduling exception!");
-       * e.printStackTrace();
-       * }
-       */
+      int noofagents = maxBrokers;
+      int noofcopies = maxBrokerInstances;
+      int noofservers = 7;
+      int iteration = 1, num;
+      int[] gtypes = { size1, size2, size3 };
+      int[] mxs = { numberSize1, numberSize1, numberSize1 };
+
+      try {
+        MainScheduler gamescheduler = new MainScheduler(noofagents,noofcopies,noofservers, gtypes, mxs);
+        gamescheduler.initializeAgentsDB(noofagents, noofcopies);
+        gamescheduler.initGameCube(gtypes, mxs);
+        int numberOfGames = gamescheduler.getGamesEstimate();
+       
+        System.out.println("No. of games: "+numberOfGames);
+        gamescheduler.resetCube();
+        
+
+
+      }
+      catch (Exception e) {
+        // TODO Auto-generated catch block
+        System.out.println("[ERROR] Scheduling exception!");
+        e.printStackTrace();
+      }
 
       // Create a timer to check for idle machines and schedule games
 

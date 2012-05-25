@@ -31,7 +31,7 @@ public class DbConnection
 
   private Properties prop = new Properties();
 
-  public DbConnection (String ip)
+  public DbConnection ()
   {
     try {
       prop.load(Database.class.getClassLoader()
@@ -57,7 +57,6 @@ public class DbConnection
       e.printStackTrace();
     }
 
-    serverip = ip;
 
   }
 

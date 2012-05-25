@@ -293,6 +293,13 @@ public class Constants
 
   public static final String GET_RUNNABLE_GAMES =
     "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() AND status='boot-complete';";
+  
+  /***
+   * Returns a list of the bootable games as of now
+   */
+  
+  public static final String GET_BOOTABLE_GAMES =
+          "SELECT * FROM games WHERE status='boot-pending';";
 
   /***
    * Returns a list of the waiting games as of now
