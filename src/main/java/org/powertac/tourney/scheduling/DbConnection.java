@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class DbConnection
 {
   @Autowired
-  private TournamentProperties props;
+  private TournamentProperties tournamentProperties;
   
   /*
    * configuration parameters
@@ -31,12 +31,12 @@ public class DbConnection
   public DbConnection ()
   {
     // Database Connection related properties
-    this.database = (props.getProperty("db.database"));
-    this.dbms = (props.getProperty("db.dbms"));
-    this.port = (props.getProperty("db.port"));
-    this.serverip = (props.getProperty("db.dbUrl"));
-    this.username = (props.getProperty("db.username"));
-    this.passwd = (props.getProperty("db.password"));
+    this.database = (tournamentProperties.getProperty("db.database"));
+    this.dbms = (tournamentProperties.getProperty("db.dbms"));
+    this.port = (tournamentProperties.getProperty("db.port"));
+    this.serverip = (tournamentProperties.getProperty("db.dbUrl"));
+    this.username = (tournamentProperties.getProperty("db.username"));
+    this.passwd = (tournamentProperties.getProperty("db.password"));
   }
 
   public void startTransaction () throws SQLException
