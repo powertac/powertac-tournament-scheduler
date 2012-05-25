@@ -33,7 +33,6 @@ public class Database
 {
   // Database User container
   
-  @Autowired
   private TournamentProperties tournamentProps;
 
   public static boolean locked = false;
@@ -140,6 +139,7 @@ public class Database
   public Database ()
   {
     // Database Connection related properties
+    tournamentProps = (TournamentProperties) SpringApplicationContext.getBean("tournamentProperties");
     this.setDatabase(tournamentProps.getProperty("db.database"));
     this.setDbms(tournamentProps.getProperty("db.dbms"));
     this.setPort(tournamentProps.getProperty("db.port"));
