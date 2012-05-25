@@ -1,7 +1,5 @@
 package org.powertac.tourney.services;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Connection;
@@ -25,15 +23,18 @@ import org.powertac.tourney.beans.Location;
 import org.powertac.tourney.beans.Machine;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.constants.Constants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @Component("database")
 @Scope("request")
 public class Database
 {
   // Database User container
+  
+  @Autowired
+  private TournamentProperties tournamentProps;
 
   public static boolean locked = false;
 
@@ -134,34 +135,19 @@ public class Database
   SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   Properties connectionProps = new Properties();
-  Properties prop = new Properties();
+  //Properties prop = new Properties();
 
   public Database ()
   {
+    // Database Connection related properties
+    this.setDatabase(tournamentProps.getProperty("db.database"));
+    this.setDbms(tournamentProps.getProperty("db.dbms"));
+    this.setPort(tournamentProps.getProperty("db.port"));
+    this.setDbUrl(tournamentProps.getProperty("db.dbUrl"));
+    this.setUsername(tournamentProps.getProperty("db.username"));
+    this.setPassword(tournamentProps.getProperty("db.password"));
 
-    try {
-      prop.load(Database.class.getClassLoader()
-              .getResourceAsStream("/tournament.properties"));
-      // System.out.println(prop);
-      // Database Connection related properties
-      this.setDatabase(prop.getProperty("db.database"));
-      this.setDbms(prop.getProperty("db.dbms"));
-      this.setPort(prop.getProperty("db.port"));
-      this.setDbUrl(prop.getProperty("db.dbUrl"));
-      this.setUsername(prop.getProperty("db.username"));
-      this.setPassword(prop.getProperty("db.password"));
-
-      // System.out.println("Successfully instantiated Database bean!");
-
-    }
-    catch (FileNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+    // System.out.println("Successfully instantiated Database bean!");
   }
 
   // TODO: Strategy Object find the correct dbms by reflection and call its
