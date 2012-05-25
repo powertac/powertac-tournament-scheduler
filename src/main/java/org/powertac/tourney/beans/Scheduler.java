@@ -23,6 +23,7 @@ import org.powertac.tourney.scheduling.MainScheduler;
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.RunBootstrap;
 import org.powertac.tourney.services.RunGame;
+import org.powertac.tourney.services.TournamentProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,11 +31,14 @@ import org.springframework.stereotype.Service;
 public class Scheduler
 {
 
+  @Autowired
+  private TournamentProperties tournamentProperties;
+  
   public static final String key = "scheduler";
-  public static boolean running = false;
-  public static boolean multigame = false;
+  public boolean running = false;
+  public boolean multigame = false;
 
-  public static boolean bootrunning = false;
+  public boolean bootrunning = false;
 
   private Timer watchDogTimer = null;
   SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
@@ -44,7 +48,6 @@ public class Scheduler
   private HashMap<Integer, Integer> ServerIdToMachineId =
     new HashMap<Integer, Integer>();
 
-  Properties props = new Properties();
 
   private HashMap<Integer, Timer> bootToBeRun = new HashMap<Integer, Timer>();
   private HashMap<Integer, Timer> simToBeRun = new HashMap<Integer, Timer>();
@@ -77,14 +80,6 @@ public class Scheduler
 
   public Scheduler ()
   {
-
-    try {
-      props.load(Database.class.getClassLoader()
-              .getResourceAsStream("/tournament.properties"));
-    }
-    catch (IOException e) {
-      e.printStackTrace();
-    }
 
     dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
     this.startWatchDog();
@@ -137,7 +132,7 @@ public class Scheduler
                                                g.getGameId(),
                                                hostip + "/TournamentScheduler/",
                                                t.getPomUrl(),
-                                               props.getProperty("destination")),
+                                               tournamentProperties.getProperty("destination")),
                                    new Date());
             }
 
@@ -153,6 +148,7 @@ public class Scheduler
         {
 
           if (!bootrunning) {
+            
             System.out
                     .println("[INFO] "
                              + dateFormatUTC.format(new Date())
@@ -173,26 +169,32 @@ public class Scheduler
               catch (UnknownHostException e2) {
                 e2.printStackTrace();
               }
-
-              Game g = games.get(0);
               
-              Tournament t = db.getTournamentByGameId(g.getGameId());
-
-              
-
-              System.out.println("[INFO] " + dateFormatUTC.format(new Date())
-                                 + " : Boot: " + g.getGameId()
-                                 + " will be started...");
-
-              Scheduler.this.runBootTimer(g.getGameId(),
-                            new RunBootstrap(
-                                             g.getGameId(),
-                                             hostip + "/TournamentScheduler/",
-                                             t.getPomUrl(),
-                                             props.getProperty("destination")),
-                            new Date());
-              
-              db.closeConnection();
+              if (games.size()>0){
+                bootrunning = true;
+                Game g = games.get(0);
+                
+                Tournament t = db.getTournamentByGameId(g.getGameId());
+                db.closeConnection();
+                
+  
+                System.out.println("[INFO] " + dateFormatUTC.format(new Date())
+                                   + " : Boot: " + g.getGameId()
+                                   + " will be started...");
+  
+                Scheduler.this.runBootTimer(g.getGameId(),
+                              new RunBootstrap(
+                                               g.getGameId(),
+                                               hostip + "/TournamentScheduler/",
+                                               t.getPomUrl(),
+                                               tournamentProperties.getProperty("destination"),
+                                               tournamentProperties.getProperty("bootserverName")),
+                              new Date());
+                
+                
+                
+                  
+              }
             }
             catch (SQLException e) {
               this.cancel();
@@ -216,8 +218,6 @@ public class Scheduler
             System.out.println("[INFO] WatchDogTimer reports " + games.size()
                                + " boots are ready to start");
 
-            
-
           }
         }
       };
@@ -225,8 +225,10 @@ public class Scheduler
       System.out.println("[INFO] " + dateFormatUTC.format(new Date())
                          + " : Starting WatchDog...");
       running = true;
-      // TODO Make watchDog timing configurable
-      t.schedule(watchDog, new Date(), 120000);
+     
+      long watchDogInt = Integer.parseInt(tournamentProperties.getProperty("scheduler.watchDogInterval", "120000"));
+      
+      t.schedule(watchDog, new Date(), watchDogInt);
 
       this.watchDogTimer = t;
 

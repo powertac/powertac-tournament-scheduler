@@ -39,6 +39,20 @@ public class RunBootstrap extends TimerTask
     this.serverConfig =
       tourneyUrl + "/faces/properties.jsp?gameId=" + this.gameId;
   }
+  
+  public RunBootstrap (int gameId, String tourneyUrl, String pomUrl,
+                       String destination, String machineName)
+  {
+    this.gameId = String.valueOf(gameId);
+    this.tourneyUrl = tourneyUrl;
+    this.pomUrl = pomUrl;
+    this.destination = destination;
+    this.machineName = machineName;
+
+    // Assumes Jenkins and TS live in the same location as per the install
+    this.serverConfig =
+      tourneyUrl + "/faces/properties.jsp?gameId=" + this.gameId;
+  }
 
   private void checkMachineAvailable ()
   {
@@ -104,7 +118,9 @@ public class RunBootstrap extends TimerTask
 
   public void run ()
   {
-    checkMachineAvailable();
+    if(machineName.isEmpty()){
+      checkMachineAvailable();
+    }
 
     String finalUrl =
       "http://localhost:8080/jenkins/job/"

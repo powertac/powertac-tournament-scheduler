@@ -25,13 +25,18 @@ import org.powertac.tourney.beans.Scheduler;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.beans.Tournaments;
 import org.powertac.tourney.constants.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-@Service
+@Service("rest")
 public class Rest
 {
-  public static String parseBrokerLogin (Map<?, ?> params)
+  
+  @Autowired
+  private Scheduler scheduler;
+  
+  public String parseBrokerLogin (Map<?, ?> params)
   {
     String responseType = ((String[]) params.get(Constants.REQ_PARAM_TYPE))[0];
     String brokerAuthToken =
@@ -125,19 +130,9 @@ public class Rest
     return doneResponse;
   }
 
-  public static String parseServerInterface (Map<?, ?> params)
+  public String parseServerInterface (Map<?, ?> params)
   {
-    /*
-     * System.out.println("Parsing Rest call...");
-     * 
-     * for(Object s : params.keySet()){ System.out.println("Key: " +
-     * s.toString()); }
-     * 
-     * for(Object s : params.values()){ System.out.println("Value: " +
-     * s.toString());
-     * 
-     * }
-     */
+    
 
     if (params != null) {
       Properties props = new Properties();
@@ -205,6 +200,8 @@ public class Rest
             db.updateGameStatusById(gameId, "boot-complete");
             System.out.println("[INFO] Setting game: " + gameId
                                + " to boot-complete");
+            
+            scheduler.bootrunning = false;
             Game g = db.getGame(gameId);
             db.setMachineStatus(g.getMachineId(), "idle");
             db.commitTrans();
@@ -321,7 +318,7 @@ public class Rest
    * @param params
    * @return String representing a properties file
    */
-  public static String parseProperties (Map<?, ?> params)
+  public  String parseProperties (Map<?, ?> params)
   {
     String gameId = "0";
     if (params != null) {
@@ -385,7 +382,7 @@ public class Rest
    * @param params
    * @return String representing a pom file
    */
-  public static String parsePom (Map<?, ?> params)
+  public String parsePom (Map<?, ?> params)
   {
     String location = "";
     if (params != null) {

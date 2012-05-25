@@ -277,6 +277,11 @@ public class ActionTournament
   {
     // Create a tournament and insert it into the application context
     Tournament newTourney = new Tournament();
+    String allLocations = "";
+    for (String s: locations) {
+      allLocations += s + ",";
+    }
+    
     if (type == TourneyType.SINGLE_GAME) {
 
       /*
@@ -305,26 +310,11 @@ public class ActionTournament
       newTourney.setMaxBrokers(getMaxBrokers());
       newTourney.setStartTime(getStartTime());
       newTourney.setTournamentName(getTournamentName());
-
-      // Add one game to the global context and to the tournament
-
-      // Add game to all games and to Tournament
-      // allGames.addGame(newGame);
-      // newTourney.addGame(newGame);
-
-      // Tournaments.getAllTournaments().addTournament(newTourney);
-
-      // Start a single game and send jenkins request to kick the server
-      // at the appropriate time
-      String allLocations = "";
-      for (String s: locations) {
-        allLocations += s + ",";
-      }
-
-      int tourneyId = 0;
-      int gameId = 0;
+     
 
       try {
+        int tourneyId = 0;
+        int gameId = 0;
         // Starts new transaction to prevent race conditions
         System.out.println("Starting transaction");
         db.startTrans();
@@ -355,16 +345,6 @@ public class ActionTournament
 
         System.out.println("Committing transaction");
         db.commitTrans();
-
-        Properties props = new Properties();
-        try {
-          props.load(Database.class.getClassLoader()
-                  .getResourceAsStream("/tournament.properties"));
-        }
-        catch (IOException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
         db.closeConnection();
         
       }
@@ -373,30 +353,15 @@ public class ActionTournament
         e1.printStackTrace();
       }
 
-      // Scheduler.getScheduler().schedule(
-      // new StartServer(newGame, Machines.getAllMachines(),
-      // Tournaments.getAllTournaments()),
-      // newGame.getStartTime());
-      try {
-        // TODO:REMOVE this is only to simulate the message from the
-        // server
-        // Thread.sleep(6000);
-        // URL test = new
-        // URL("http://localhost:8080/TournamentScheduler/faces/serverInterface.jsp?action=status&status=ready&gameId="+newGame.getGameId());
-        // test.openConnection().getInputStream();
-
-      }
-      catch (Exception e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+     
 
     }
     else if (type == TourneyType.MULTI_GAME) {
-      // First create the tournament
-
-      // Use schedule code to create the set of games and place them in the
-      // database as placeholders
+      
+      int tourneyId = 0;
+      int gameId = 0;
+      
+      
 
       int noofagents = maxBrokers;
       int noofcopies = maxBrokerInstances;
@@ -414,7 +379,47 @@ public class ActionTournament
         System.out.println("No. of games: "+numberOfGames);
         gamescheduler.resetCube();
         
+        Database db = new Database();
+        
+        // Add the number of games to a new tournament
+        // Starts new transaction to prevent race conditions
+        System.out.println("[INFO] Starting transaction");
+        db.startTrans();
+        // Adds new tournament to the database
+        System.out.println("[INFO] Creating New tourney");
+        db.addTournament(newTourney.getTournamentName(), true, size1,
+                         newTourney.getStartTime(), "SINGLE_GAME",
+                         newTourney.getPomUrl(), allLocations, maxBrokers);
+        // Grabs the tourney Id
 
+        System.out.println("[INFO] Getting tourneyId");
+        tourneyId = db.getMaxTourneyId();
+        
+        
+        // Adds a new game to the database
+        for(int i=0; i< numberOfGames;i++){
+          System.out.println("[INFO] Adding game");
+  
+          db.addGame(newTourney.getTournamentName(), tourneyId, size1, startTime);
+          
+          gameId = db.getMaxGameId();
+          System.out.println("[INFO] Creating game: " + gameId + " properties");
+          CreateProperties.genProperties(gameId, locations, fromTime, toTime);
+  
+          // Sets the url for the properties file based on the game id.
+          // Properties are created at random within specified parameters
+          System.out.println("[INFO] Updating properties game: " + gameId);
+          db.updateGamePropertiesById(gameId);
+        }
+        System.out.println("Committing transaction");
+        
+        db.commitTrans();
+        db.closeConnection();
+        
+        
+        
+        
+        
 
       }
       catch (Exception e) {
@@ -423,19 +428,15 @@ public class ActionTournament
         e.printStackTrace();
       }
 
-      // Create a timer to check for idle machines and schedule games
 
     }
     else {
+      
+      //WHat?
 
     }
 
-    // Tournaments allTournaments = (Tournaments)
-    // FacesContext.getCurrentInstance()
-    // .getExternalContext().getApplicationMap().get(Tournaments.getKey());
-
-    // allTournaments.addTournament(newTourney);
-
+   
     return "Success";
 
   }

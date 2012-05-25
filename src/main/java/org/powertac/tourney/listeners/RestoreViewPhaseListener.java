@@ -20,12 +20,13 @@ public class RestoreViewPhaseListener implements PhaseListener
   {
 
   }
-
+  
   // TODO: Make this cleaner, too messy
   // Intercepts REST calls (get requests) and passes them to the Rest service
   // for parsing and returns the proper response
   public void beforePhase (PhaseEvent pe)
   {
+    Rest rest = new Rest();
     // System.out.println(pe.getFacesContext().getViewRoot().getViewId());
     HttpServletRequest r =
       (HttpServletRequest) pe.getFacesContext().getExternalContext()
@@ -46,7 +47,7 @@ public class RestoreViewPhaseListener implements PhaseListener
         response.setContentType("text/plain; charset=UTF-8");
         try {
           PrintWriter pw = response.getWriter();
-          pw.print(Rest.parseBrokerLogin(r.getParameterMap()));
+          pw.print(rest.parseBrokerLogin(r.getParameterMap()));
         }
         catch (IOException ex) {
           throw new FacesException(ex);
@@ -65,7 +66,7 @@ public class RestoreViewPhaseListener implements PhaseListener
         response.setContentType("text/plain; charset=UTF-8");
         try {
           PrintWriter pw = response.getWriter();
-          pw.print(Rest.parseServerInterface(r.getParameterMap()));
+          pw.print(rest.parseServerInterface(r.getParameterMap()));
         }
         catch (IOException ex) {
           throw new FacesException(ex);
@@ -82,7 +83,7 @@ public class RestoreViewPhaseListener implements PhaseListener
         response.setContentType("text/plain; charset=UTF-8");
         try {
           PrintWriter pw = response.getWriter();
-          pw.print(Rest.parseProperties(r.getParameterMap()));
+          pw.print(rest.parseProperties(r.getParameterMap()));
         }
         catch (IOException ex) {
           throw new FacesException(ex);
@@ -99,7 +100,7 @@ public class RestoreViewPhaseListener implements PhaseListener
         response.setContentType("text/plain; charset=UTF-8");
         try {
           PrintWriter pw = response.getWriter();
-          pw.print(Rest.parsePom(r.getParameterMap()));
+          pw.print(rest.parsePom(r.getParameterMap()));
         }
         catch (IOException ex) {
           throw new FacesException(ex);
