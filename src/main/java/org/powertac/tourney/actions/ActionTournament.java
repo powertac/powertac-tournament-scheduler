@@ -411,7 +411,7 @@ public class ActionTournament
           System.out.println("[INFO] Updating properties game: " + gameId);
           db.updateGamePropertiesById(gameId);
         }
-        System.out.println("Committing transaction");
+        System.out.println("[INFO] Committing transaction");
         
         db.commitTrans();
         db.closeConnection();

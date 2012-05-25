@@ -17,6 +17,7 @@ import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.beans.Tournaments;
 import org.powertac.tourney.beans.User;
 import org.powertac.tourney.services.Database;
+import org.powertac.tourney.services.SpringApplicationContext;
 
 
 @ManagedBean
@@ -24,6 +25,7 @@ import org.powertac.tourney.services.Database;
 public class ActionAccount
 {
 
+  
   private String newBrokerName;
   private String newBrokerShortDescription;
   private int selectedBrokerId;
@@ -32,7 +34,7 @@ public class ActionAccount
 
   public ActionAccount ()
   {
-
+   
   }
 
   public String getNewBrokerName ()
