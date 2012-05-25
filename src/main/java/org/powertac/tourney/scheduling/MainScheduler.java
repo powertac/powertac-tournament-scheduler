@@ -1,13 +1,8 @@
 package org.powertac.tourney.scheduling;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 //import java.util.UUID;
@@ -18,6 +13,8 @@ public class MainScheduler
 
   private int noofagents;
   private int noofservers;
+  
+  @Autowired
   private DbConnection db;
   /*
    * tells us about the balance between games played and those to be played.
@@ -35,7 +32,7 @@ public class MainScheduler
 
   public MainScheduler ()
   {
-
+    super();
   }
 
   public void init (int agents, int ncopies, int nservers, int[] gtypes,
@@ -44,7 +41,7 @@ public class MainScheduler
 
     noofagents = agents;
     noofservers = nservers;
-    db = new DbConnection("127.0.0.1");
+    //db = new DbConnection("127.0.0.1");
     try {
       db.Setup();
     }
@@ -110,7 +107,7 @@ public class MainScheduler
     Server available_server;
     Server[] slist;
     AgentLet[] agents;
-    float repeatratio;
+    //float repeatratio;
     /*
      * scoreboard is initialized using configuration file.
      * 3/30 it is by variables set in the constructor
