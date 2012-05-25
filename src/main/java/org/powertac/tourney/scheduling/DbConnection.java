@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class DbConnection
 {
-  @Autowired
   private TournamentProperties tournamentProperties;
   
   /*
@@ -28,8 +27,11 @@ public class DbConnection
   private Connection myconnection = null;
   private Statement statement = null;
 
-  public DbConnection ()
+  @Autowired
+  public DbConnection (TournamentProperties props)
   {
+    tournamentProperties = props;
+    
     // Database Connection related properties
     this.database = (tournamentProperties.getProperty("db.database"));
     this.dbms = (tournamentProperties.getProperty("db.dbms"));
