@@ -34,7 +34,6 @@ public class Initializer implements ServletContextListener
     e.getServletContext().setAttribute(Games.getKey(), new Games());
     e.getServletContext().setAttribute(Tournaments.getKey(), new Tournaments());
     e.getServletContext().setAttribute(Machines.getKey(), new Machines());
-    e.getServletContext().setAttribute(Scheduler.getKey(), new Scheduler());
   }
 
 }

@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 @Service("tournamentProperties")
 public class TournamentProperties
 {
-  private Properties props;
+  private Properties props = new Properties();
   private boolean loaded = false;
   private String resourceName = "/tournament.properties";
   

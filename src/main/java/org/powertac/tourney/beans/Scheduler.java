@@ -23,6 +23,7 @@ import org.powertac.tourney.scheduling.MainScheduler;
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.RunBootstrap;
 import org.powertac.tourney.services.RunGame;
+import org.powertac.tourney.services.SpringApplicationContext;
 import org.powertac.tourney.services.TournamentProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,11 +32,11 @@ import org.springframework.stereotype.Service;
 public class Scheduler
 {
 
-  @Autowired
+  
   private TournamentProperties tournamentProperties;
   
   public static final String key = "scheduler";
-  public boolean running = false;
+  public static boolean running = false;
   public boolean multigame = false;
 
   public boolean bootrunning = false;
@@ -82,18 +83,38 @@ public class Scheduler
   {
 
     dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-    this.startWatchDog();
+    //this.startWatchDog();
+    lazyStart();
+  }
+  
+  public void lazyStart(){
+    Timer t = new Timer();
+    TimerTask tt = new TimerTask() {
+
+      @Override
+      public void run ()
+      {
+        Scheduler.this.tournamentProperties = (TournamentProperties) SpringApplicationContext.getBean("tournamentProperties");
+        Scheduler.this.startWatchDog();
+      
+      }
+      
+    };
+    t.schedule(tt, 3000); 
   }
 
-  public void startWatchDog ()
+  public synchronized void startWatchDog ()
   {
     if (!running) {
+      running = true;
+      
       Timer t = new Timer();
       TimerTask watchDog = new TimerTask() {
 
         @Override
         public void run ()
         {
+          
           // Run watchDog
           checkForSims();
           checkForBoots();
@@ -224,7 +245,7 @@ public class Scheduler
 
       System.out.println("[INFO] " + dateFormatUTC.format(new Date())
                          + " : Starting WatchDog...");
-      running = true;
+      
      
       long watchDogInt = Integer.parseInt(tournamentProperties.getProperty("scheduler.watchDogInterval", "120000"));
       

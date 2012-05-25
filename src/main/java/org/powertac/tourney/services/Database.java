@@ -836,7 +836,7 @@ public class Database
 
     ResultSet rsGs = getGames.executeQuery();
 
-    System.out.println("[INFO] Parsing games " +rsGs.getFetchSize());
+    //System.out.println("[INFO] Parsing games " +rsGs.getFetchSize());
     while (rsGs.next()) {
       Game tmp = new Game(rsGs);
       games.add(tmp);
@@ -861,7 +861,7 @@ public class Database
 
     ResultSet rsGs = getGames.executeQuery();
 
-    System.out.println("[INFO] Parsing games " +rsGs.getFetchSize());
+    //System.out.println("[INFO] Parsing games " +rsGs.getFetchSize());
     while (rsGs.next()) {
       Game tmp = new Game(rsGs);
       games.add(tmp);

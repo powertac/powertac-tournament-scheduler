@@ -28,14 +28,13 @@ import org.powertac.tourney.constants.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 @Service("rest")
 public class Rest
 {
-  
+
   @Autowired
   private Scheduler scheduler;
-  
+
   public String parseBrokerLogin (Map<?, ?> params)
   {
     String responseType = ((String[]) params.get(Constants.REQ_PARAM_TYPE))[0];
@@ -70,8 +69,9 @@ public class Rest
     try {
       List<Game> allGames = db.getGames();
       if (competitionName != null && allGames != null) {
-        
-        // First find all games that match the competition name and have brokers registered
+
+        // First find all games that match the competition name and have brokers
+        // registered
         List<Game> matches = new ArrayList<Game>();
         for (Game g: allGames) {
           // Only consider games that have started and are ready for
@@ -80,61 +80,59 @@ public class Rest
           // System.out.println("Game: " + g.getGameId() + " Status: " +
           // g.getStatus());
           if (g.getStatus().equalsIgnoreCase("game-in-progress")) {
-            
-            
+
             if (competitionName.equalsIgnoreCase(t.getTournamentName())
                 && g.isBrokerRegistered(brokerAuthToken)) {
-              
-              
-              
+
               System.out.println("[INFO] Sending login to : " + brokerAuthToken
                                  + " jmsUrl : " + g.getJmsUrl());
 
-              db.closeConnection();
+              
               return String.format(loginResponse, g.getJmsUrl(), "1234");
             }
-          }else{
-            db.closeConnection();
+            
+          }
+          else {
             System.out.println("[INFO] Broker: " + brokerAuthToken
                                + " attempted to log in, game: " + g.getGameId()
                                + " with status: " + g.getStatus()
                                + " --sending retry");
           }
-          
-          // Thow all the authorized games into matches 
-          if (g.isBrokerRegistered(brokerAuthToken)){
+
+          // Thow all the authorized games into matches
+          if (g.isBrokerRegistered(brokerAuthToken)) {
             matches.add(g);
           }
-          
+
         }
-        
+        db.closeConnection();
+
         Date minDate = new Date(Long.MAX_VALUE);
         Game match = null;
-        for(Game g : matches){
-          if(g.getStartTime().before(minDate)){
+        for (Game g: matches) {
+          if (g.getStartTime().before(minDate)) {
             minDate = g.getStartTime();
             match = g;
           }
-        
+
         }
-        
-        
-        // If we made it through all of the games without sending logins send retry for the soonest match
-        if(matches.size()>0){
-        
-            long retry = (match.getStartTime().getTime() - (new Date()).getTime()) / 1000;
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
-            System.out.println("[INFO] Game starts for Broker: "
-                               + brokerAuthToken + " at "
-                               + df.format(match.getStartTime())
-                               + " current time: "
-                               + dateFormatUTC.format(new Date()));
 
-            
-            return String.format(retryResponse, retry > 0? retry: 20);
-         }
+        // If we made it through all of the games without sending logins send
+        // retry for the soonest match
+        if (matches.size() > 0) {
 
-        
+          long retry =
+            (match.getStartTime().getTime() - (new Date()).getTime()) / 1000;
+          SimpleDateFormat df = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+          System.out.println("[INFO] Game starts for Broker: "
+                             + brokerAuthToken + " at "
+                             + df.format(match.getStartTime())
+                             + " current time: "
+                             + dateFormatUTC.format(new Date()));
+
+          return String.format(retryResponse, retry > 0? retry: 20);
+        }
+
       }
 
     }
@@ -153,7 +151,6 @@ public class Rest
 
   public String parseServerInterface (Map<?, ?> params)
   {
-    
 
     if (params != null) {
       Properties props = new Properties();
@@ -218,7 +215,7 @@ public class Rest
             db.updateGameStatusById(gameId, "boot-complete");
             System.out.println("[INFO] Setting game: " + gameId
                                + " to boot-complete");
-            
+
             scheduler.bootrunning = false;
             Game g = db.getGame(gameId);
             db.setMachineStatus(g.getMachineId(), "idle");
@@ -334,7 +331,7 @@ public class Rest
    * @param params
    * @return String representing a properties file
    */
-  public  String parseProperties (Map<?, ?> params)
+  public String parseProperties (Map<?, ?> params)
   {
     String gameId = "0";
     if (params != null) {
