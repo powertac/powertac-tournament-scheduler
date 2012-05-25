@@ -850,6 +850,31 @@ public class Database
     return games;
 
   }
+  
+  public List<Game> getBootableGames () throws SQLException
+  {
+    checkDb();
+    List<Game> games = new ArrayList<Game>();
+
+    PreparedStatement getGames =
+      conn.prepareStatement(Constants.GET_BOOTABLE_GAMES);
+
+    ResultSet rsGs = getGames.executeQuery();
+
+    System.out.println("[INFO] Parsing games " +rsGs.getFetchSize());
+    while (rsGs.next()) {
+      Game tmp = new Game(rsGs);
+      games.add(tmp);
+    }
+    
+
+    conn.close();
+    rsGs.close();
+    getGames.close();
+
+    return games;
+
+  }
 
   public List<Game> getWaitingGames () throws SQLException
   {

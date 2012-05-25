@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,17 +26,16 @@ import org.powertac.tourney.services.RunGame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 @Service("scheduler")
 public class Scheduler
 {
 
-  @Autowired
-  MainScheduler gamescheduler;
-
   public static final String key = "scheduler";
   public static boolean running = false;
   public static boolean multigame = false;
+
+  public static boolean bootrunning = false;
+
   private Timer watchDogTimer = null;
   SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 
@@ -83,7 +83,6 @@ public class Scheduler
               .getResourceAsStream("/tournament.properties"));
     }
     catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -99,6 +98,14 @@ public class Scheduler
 
         @Override
         public void run ()
+        {
+          // Run watchDog
+          checkForSims();
+          checkForBoots();
+         
+        }
+
+        public void checkForSims ()
         {
           System.out.println("[INFO] " + dateFormatUTC.format(new Date())
                              + " : WatchDogTimer Looking for Games To Start..");
@@ -116,7 +123,6 @@ public class Scheduler
               hostip += thisIp.getHostAddress() + ":8080";
             }
             catch (UnknownHostException e2) {
-              // TODO Auto-generated catch block
               e2.printStackTrace();
             }
 
@@ -138,70 +144,88 @@ public class Scheduler
             db.closeConnection();
           }
           catch (SQLException e) {
-            // TODO Auto-generated catch block
             this.cancel();
             e.printStackTrace();
           }
-
-          // Use scheduler to schedule boostraps on multi-game tournaments
-          /*
-           * db = new Database();
-           * 
-           * 
-           * 
-           * try {
-           * if(multigame==false){
-           * multigame=true;
-           * Tournament t = db.getTournamentByType("MULTI_GAME");
-           * int noofagents = t.getMaxBrokers();
-           * int noofcopies = t.getMaxBrokerInstances();
-           * int noofservers = db.getMachines().size();
-           * int iteration = 1,num;
-           * int[] gtypes = {t.getSize1(),t.getSize2(),t.getSize3()};
-           * int[] mxs =
-           * {t.getNumberSize1(),t.getNumberSize2(),t.getNumberSize3()};
-           * 
-           * gamescheduler.init(noofagents, noofcopies, noofservers, gtypes,
-           * mxs);
-           * gamescheduler.initializeAgentsDB(noofagents,noofcopies);
-           * gamescheduler.initGameCube(gtypes,mxs);
-           * 
-           * List<Broker> brokers =
-           * db.getBrokersRegistered(t.getTournamentId());
-           * List<Machine> machines = db.getMachines();
-           * db.closeConnection();
-           * for(int i=0; i<brokers.size() ; i++){
-           * AgentIdToBrokerId.put(i, brokers.get(i).getBrokerId());
-           * }
-           * 
-           * for(int i=0; i<machines.size();i++){
-           * ServerIdToMachineId.put(i, machines.get(i).getMachineId());
-           * }
-           * }
-           * 
-           * int gamesScheduled = gamescheduler.Schedule();
-           * 
-           * if (gamesScheduled==0){
-           * System.out.println(
-           * "[INFO] WatchDog reports no games to schedule this tick");
-           * }else{
-           * System.out.println("[INFO] WatchDog found games to schedule");
-           * 
-           * }
-           * 
-           * } catch (Exception e) {
-           * // TODO Auto-generated catch block
-           * System.out.println("[ERROR] Scheduling exception!");
-           * e.printStackTrace();
-           * }
-           */
         }
 
+        public void checkForBoots ()
+        {
+
+          if (!bootrunning) {
+            System.out
+                    .println("[INFO] "
+                             + dateFormatUTC.format(new Date())
+                             + " : WatchDogTimer Looking for Bootstraps To Start..");
+            Database db = new Database();
+            // Check Database for startable games
+            try {
+              List<Game> games = db.getBootableGames();
+              System.out.println("[INFO] WatchDogTimer reports " + games.size()
+                                 + " boots are ready to start");
+
+              String hostip = "http://";
+
+              try {
+                InetAddress thisIp = InetAddress.getLocalHost();
+                hostip += thisIp.getHostAddress() + ":8080";
+              }
+              catch (UnknownHostException e2) {
+                e2.printStackTrace();
+              }
+
+              Game g = games.get(0);
+              
+              Tournament t = db.getTournamentByGameId(g.getGameId());
+
+              
+
+              System.out.println("[INFO] " + dateFormatUTC.format(new Date())
+                                 + " : Boot: " + g.getGameId()
+                                 + " will be started...");
+
+              Scheduler.this.runBootTimer(g.getGameId(),
+                            new RunBootstrap(
+                                             g.getGameId(),
+                                             hostip + "/TournamentScheduler/",
+                                             t.getPomUrl(),
+                                             props.getProperty("destination")),
+                            new Date());
+              
+              db.closeConnection();
+            }
+            catch (SQLException e) {
+              this.cancel();
+              e.printStackTrace();
+            }
+
+          }
+          else {
+            System.out.println("[INFO] " + dateFormatUTC.format(new Date())
+                               + " : WatchDogTimer Reports a boot is running");
+
+            Database db = new Database();
+            List<Game> games = new ArrayList<Game>();
+            try {
+              games = db.getBootableGames();
+              db.closeConnection();
+            }
+            catch (SQLException e) {
+              e.printStackTrace();
+            }
+            System.out.println("[INFO] WatchDogTimer reports " + games.size()
+                               + " boots are ready to start");
+
+            
+
+          }
+        }
       };
 
       System.out.println("[INFO] " + dateFormatUTC.format(new Date())
                          + " : Starting WatchDog...");
       running = true;
+      // TODO Make watchDog timing configurable
       t.schedule(watchDog, new Date(), 120000);
 
       this.watchDogTimer = t;

@@ -1,21 +1,27 @@
 package org.powertac.tourney.scheduling;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
 
 //import java.util.UUID;
 
-@Service("gamescheduler")
 public class MainScheduler
 {
 
   private int noofagents;
   private int noofservers;
-  
+
   @Autowired
   private DbConnection db;
+  
   /*
    * tells us about the balance between games played and those to be played.
    */
@@ -30,18 +36,12 @@ public class MainScheduler
 
   private GameCube scheduleMatrix;
 
-  public MainScheduler ()
-  {
-    super();
-  }
-
-  public void init (int agents, int ncopies, int nservers, int[] gtypes,
-                    int[] mxgames) throws Exception
+  public MainScheduler (int agents, int ncopies, int nservers, int[] gtypes,
+                        int[] mxgames) throws Exception
   {
 
     noofagents = agents;
     noofservers = nservers;
-    //db = new DbConnection("127.0.0.1");
     try {
       db.Setup();
     }
@@ -85,6 +85,30 @@ public class MainScheduler
    * scoreboard = new ScoreBoard();
    * }
    */
+  public int getGamesEstimate () throws Exception
+  {
+    /*
+     * This is function is supposed will return the total number of games to be
+     * played.
+     * 1. initialize the panel
+     * 2. initialize the score board
+     * 3. orchestrate with the database.
+     * a. gets the number of agents and initializes the database. (AGENTS table)
+     * b. gets the game types and number of each game to be played.
+     * c. gets the number of servers available
+     */
+    int gametype, navail, nrepeats, gamenumber, games = 0, iteration = 0, nscheduleds =
+      0;
+    boolean available_server;
+    Server[] slist;
+    AgentLet[] agents;
+    float repeatratio;
+    while ((gametype = scheduleMatrix.getDisparity()) > 0) {
+      agents = scheduleMatrix.getAgentsForGamesEstimates(db, gametype);
+      games++;
+    }
+    return games;
+  }
 
   /*
    * public void initScoreBoard(int[] nplayers, int[] max) {
@@ -107,7 +131,7 @@ public class MainScheduler
     Server available_server;
     Server[] slist;
     AgentLet[] agents;
-    //float repeatratio;
+    float repeatratio;
     /*
      * scoreboard is initialized using configuration file.
      * 3/30 it is by variables set in the constructor
@@ -334,7 +358,7 @@ public class MainScheduler
    * return false;
    * }
    */
-  public void resetServers (int machineId) throws Exception
+  public void resetServers () throws Exception
   {
     int i = 0, len, num, randnum;
     Server[] servernumbers;
@@ -370,6 +394,12 @@ public class MainScheduler
       // System.out.println(sql_reset);
       db.SetQuery(sql_reset, "update");
     }
+  }
+
+  public void resetCube ()
+  {
+    scheduleMatrix.resetActualSumsAndProposedSums();
+
   }
 
   /*
@@ -473,3 +503,4 @@ public class MainScheduler
   }
 
 }
+
