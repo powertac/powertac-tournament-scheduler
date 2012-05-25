@@ -70,6 +70,9 @@ public class Rest
     try {
       List<Game> allGames = db.getGames();
       if (competitionName != null && allGames != null) {
+        
+        // First find all games that match the competition name and have brokers registered
+        List<Game> matches = new ArrayList<Game>();
         for (Game g: allGames) {
           // Only consider games that have started and are ready for
           // brokers to join
@@ -77,42 +80,61 @@ public class Rest
           // System.out.println("Game: " + g.getGameId() + " Status: " +
           // g.getStatus());
           if (g.getStatus().equalsIgnoreCase("game-in-progress")) {
-
+            
+            
             if (competitionName.equalsIgnoreCase(t.getTournamentName())
                 && g.isBrokerRegistered(brokerAuthToken)) {
-
+              
+              
+              
               System.out.println("[INFO] Sending login to : " + brokerAuthToken
                                  + " jmsUrl : " + g.getJmsUrl());
 
               db.closeConnection();
               return String.format(loginResponse, g.getJmsUrl(), "1234");
             }
-            else {
-
-            }
-          }
-          // If the game has yet to start and broker is registered
-          // send
-          // retry message
-          if (g.isBrokerRegistered(brokerAuthToken)) {
+          }else{
+            db.closeConnection();
             System.out.println("[INFO] Broker: " + brokerAuthToken
                                + " attempted to log in, game: " + g.getGameId()
                                + " with status: " + g.getStatus()
                                + " --sending retry");
-            long retry =
-              (g.getStartTime().getTime() - (new Date()).getTime()) / 1000;
+          }
+          
+          // Thow all the authorized games into matches 
+          if (g.isBrokerRegistered(brokerAuthToken)){
+            matches.add(g);
+          }
+          
+        }
+        
+        Date minDate = new Date(Long.MAX_VALUE);
+        Game match = null;
+        for(Game g : matches){
+          if(g.getStartTime().before(minDate)){
+            minDate = g.getStartTime();
+            match = g;
+          }
+        
+        }
+        
+        
+        // If we made it through all of the games without sending logins send retry for the soonest match
+        if(matches.size()>0){
+        
+            long retry = (match.getStartTime().getTime() - (new Date()).getTime()) / 1000;
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
             System.out.println("[INFO] Game starts for Broker: "
                                + brokerAuthToken + " at "
-                               + df.format(g.getStartTime())
+                               + df.format(match.getStartTime())
                                + " current time: "
                                + dateFormatUTC.format(new Date()));
 
-            db.closeConnection();
+            
             return String.format(retryResponse, retry > 0? retry: 20);
-          }
+         }
 
-        }
+        
       }
 
     }
@@ -121,7 +143,6 @@ public class Rest
         db.closeConnection();
       }
       catch (SQLException e1) {
-        // TODO Auto-generated catch block
         e1.printStackTrace();
       }
       e.printStackTrace();
@@ -141,7 +162,6 @@ public class Rest
                 .getResourceAsStream("/tournament.properties"));
       }
       catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
 
@@ -168,7 +188,6 @@ public class Rest
             return "Success";
           }
           catch (SQLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
           }
 
@@ -186,7 +205,6 @@ public class Rest
             hostip += thisIp.getHostAddress() + ":8080";
           }
           catch (UnknownHostException e2) {
-            // TODO Auto-generated catch block
             e2.printStackTrace();
           }
 
@@ -208,7 +226,6 @@ public class Rest
             db.closeConnection();
           }
           catch (SQLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
           }
           return "Success";
@@ -260,7 +277,6 @@ public class Rest
             db.closeConnection();
           }
           catch (SQLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
           }
           return "success";
@@ -410,7 +426,6 @@ public class Rest
                 .getResourceAsStream("/tournament.properties"));
       }
       catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
 
