@@ -5,11 +5,12 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import org.powertac.tourney.services.SpringApplicationContext;
 import org.powertac.tourney.services.TournamentProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
 public class DbConnection
 {
   private TournamentProperties tournamentProperties;
@@ -27,10 +28,9 @@ public class DbConnection
   private Connection myconnection = null;
   private Statement statement = null;
 
-  @Autowired
-  public DbConnection (TournamentProperties props)
+  public DbConnection ()
   {
-    tournamentProperties = props;
+    tournamentProperties = (TournamentProperties) SpringApplicationContext.getBean("tournamentProperties");
     
     // Database Connection related properties
     this.database = (tournamentProperties.getProperty("db.database"));

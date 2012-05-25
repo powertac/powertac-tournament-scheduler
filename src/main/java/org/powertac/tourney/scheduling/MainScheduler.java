@@ -13,7 +13,6 @@ public class MainScheduler
   private int noofagents;
   private int noofservers;
 
-  @Autowired
   private DbConnection db;
   
   /*
@@ -36,6 +35,7 @@ public class MainScheduler
 
     noofagents = agents;
     noofservers = nservers;
+    db = new DbConnection();
     try {
       db.Setup();
     }
