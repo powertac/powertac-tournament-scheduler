@@ -1,44 +1,27 @@
 package org.powertac.tourney.actions;
 
 import java.awt.event.ActionEvent;
-import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-import org.powertac.tourney.beans.Competition;
-import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Games;
 import org.powertac.tourney.beans.Machine;
-import org.powertac.tourney.beans.Machines;
 import org.powertac.tourney.beans.Scheduler;
 import org.powertac.tourney.beans.Tournament;
-import org.powertac.tourney.beans.Tournaments;
 import org.powertac.tourney.scheduling.MainScheduler;
 import org.powertac.tourney.services.CreateProperties;
 import org.powertac.tourney.services.Database;
-import org.powertac.tourney.services.RunBootstrap;
-import org.powertac.tourney.services.RunGame;
 import org.powertac.tourney.services.Upload;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 
 @Component("actionTournament")
 @Scope("session")
@@ -417,13 +400,9 @@ public class ActionTournament
         db.closeConnection();
         
         
-        
-        
-        
 
       }
       catch (Exception e) {
-        // TODO Auto-generated catch block
         System.out.println("[ERROR] Scheduling exception!");
         e.printStackTrace();
       }
@@ -452,7 +431,6 @@ public class ActionTournament
       db.closeConnection();
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     return poms;
@@ -475,7 +453,6 @@ public class ActionTournament
 
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 

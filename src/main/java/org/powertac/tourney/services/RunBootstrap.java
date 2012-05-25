@@ -91,6 +91,7 @@ public class RunBootstrap extends TimerTask
       }
       else {
         db.abortTrans();
+        Database.locked = false;
         System.out.println("No machines available to run scheduled boot: "
                            + gameId + " ... will retry in 5 minutes");
         Thread.sleep(300000);
