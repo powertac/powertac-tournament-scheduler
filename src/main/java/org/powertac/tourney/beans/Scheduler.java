@@ -1,31 +1,22 @@
 package org.powertac.tourney.beans;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
-
 import javax.annotation.PreDestroy;
-import javax.faces.context.FacesContext;
-
-import org.powertac.tourney.scheduling.MainScheduler;
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.RunBootstrap;
 import org.powertac.tourney.services.RunGame;
 import org.powertac.tourney.services.SpringApplicationContext;
 import org.powertac.tourney.services.TournamentProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("scheduler")

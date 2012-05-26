@@ -79,11 +79,9 @@ public class RunBootstrap extends TimerTask
         System.out.println("Running boot " + gameId + " on machine "
                            + this.machineName);
         db.commitTrans();
-        db.closeConnection();
       }
       else {
         db.abortTrans();
-        db.closeConnection();
         System.out.println("No machines available to run scheduled boot: "
                            + gameId + " ... will retry in 5 minutes");
         Thread.sleep(300000);
@@ -140,9 +138,6 @@ public class RunBootstrap extends TimerTask
         // TODO Auto-generated catch block
         e1.printStackTrace();
       }
-
     }
-
   }
-
 }

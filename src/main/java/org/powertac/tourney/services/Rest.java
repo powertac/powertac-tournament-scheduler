@@ -64,7 +64,7 @@ public class Rest
     Database db = new Database();
 
     try {
-      db.openConnection();
+      //db.openConnection();
       db.startTrans();
       List<Game> allGames = db.getGames();
       if (competitionName != null && allGames != null) {
@@ -105,7 +105,7 @@ public class Rest
 
         }
         db.commitTrans();
-        db.closeConnection();
+        //db.closeConnection();
 
         Date minDate = new Date(Long.MAX_VALUE);
         Game match = null;
@@ -138,7 +138,7 @@ public class Rest
     }
     catch (Exception e) {
       db.abortTrans();
-      db.closeConnection();
+      //db.closeConnection();
       e.printStackTrace();
     }
 
@@ -158,6 +158,8 @@ public class Rest
         e.printStackTrace();
       }
 
+      Database db = new Database();
+
       String actionString =
         ((String[]) params.get(Constants.REQ_PARAM_ACTION))[0];
 
@@ -172,16 +174,16 @@ public class Rest
           System.out
                   .println("[INFO] Recieved bootstrap running message from game: "
                            + gameId);
-          Database db = new Database();
           try {
-            db.openConnection();
+            db.startTrans();
             db.updateGameStatusById(gameId, "boot-in-progress");
             System.out.println("[INFO] Setting game: " + gameId
                                + " to boot-in-progress");
-            db.closeConnection();
+            db.commitTrans();
             return "Success";
           }
           catch (SQLException e) {
+            db.abortTrans();
             e.printStackTrace();
           }
 
@@ -190,7 +192,6 @@ public class Rest
           System.out
                   .println("[INFO] Recieved bootstrap done message from game: "
                            + gameId);
-          Database db = new Database();
 
           String hostip = "http://";
 
@@ -203,7 +204,6 @@ public class Rest
           }
 
           try {
-            db.openConnection();
             db.startTrans();
             db.updateGameBootstrapById(gameId,
                                        hostip
@@ -218,11 +218,9 @@ public class Rest
             Game g = db.getGame(gameId);
             db.setMachineStatus(g.getMachineId(), "idle");
             db.commitTrans();
-            db.closeConnection();
           }
           catch (SQLException e) {
             db.abortTrans();
-            db.closeConnection();
             e.printStackTrace();
           }
           return "Success";
@@ -231,7 +229,6 @@ public class Rest
         else if (statusString.equalsIgnoreCase("game-ready")) {
           System.out.println("[INFO] Recieved game ready message from game: "
                              + gameId);
-          Database db = new Database();
 
           try {
             db.startTrans();
@@ -241,11 +238,9 @@ public class Rest
             // Tournament t = db.getTournamentByGameId(gameId);
             // db.updateTournamentStatus(t.getTournamentId());
             db.commitTrans();
-            db.closeConnection();
           }
           catch (SQLException e) {
             db.abortTrans();
-            db.closeConnection();
             e.printStackTrace();
           }
           return "success";
@@ -257,7 +252,6 @@ public class Rest
         else if (statusString.equalsIgnoreCase("game-done")) {
           System.out.println("[INFO] Recieved game done message from game: "
                              + gameId);
-          Database db = new Database();
 
           try {
             db.startTrans();
@@ -273,7 +267,6 @@ public class Rest
 
             db.setMachineStatus(g.getMachineId(), "idle");
             db.commitTrans();
-            db.closeConnection();
           }
           catch (SQLException e) {
             db.abortTrans();
@@ -283,7 +276,6 @@ public class Rest
         }
         else if (statusString.equalsIgnoreCase("game-failed")) {
           System.out.println("[WARN] GAME " + gameId + " FAILED!");
-          Database db = new Database();
 
           try {
             db.startTrans();
@@ -295,18 +287,15 @@ public class Rest
             db.setMachineStatus(g.getMachineId(), "idle");
 
             db.commitTrans();
-            db.closeConnection();
           }
           catch (SQLException e) {
             db.abortTrans();
-            db.closeConnection();
             e.printStackTrace();
           }
           return "success";
         }
         else if (statusString.equalsIgnoreCase("boot-failed")) {
           System.out.println("[WARN] GAME " + gameId + " FAILED!");
-          Database db = new Database();
 
           try {
             db.startTrans();
@@ -314,9 +303,9 @@ public class Rest
             Game g = db.getGame(gameId);
             db.setMachineStatus(g.getMachineId(), "idle");
             db.commitTrans();
-            db.closeConnection();
           }
           catch (SQLException e) {
+            db.abortTrans();
             e.printStackTrace();
           }
           return "success";

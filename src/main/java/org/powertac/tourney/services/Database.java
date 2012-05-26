@@ -23,7 +23,6 @@ import org.powertac.tourney.beans.Location;
 import org.powertac.tourney.beans.Machine;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.constants.Constants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -173,7 +172,6 @@ public class Database
       }
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     // System.out.println("Connection established correctly");
@@ -1104,7 +1102,6 @@ public class Database
       hostip += thisIp.getHostAddress() + ":8080";
     }
     catch (UnknownHostException e2) {
-      // TODO Auto-generated catch block
       e2.printStackTrace();
     }
 
@@ -1357,7 +1354,6 @@ public class Database
       conn.close();
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
