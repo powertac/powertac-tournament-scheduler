@@ -101,13 +101,13 @@ public class ActionAccount
     Database db = new Database();
     
     try {
-      db.openConnection();
+      db.startTrans();
       db.updateBrokerByBrokerId(b.getBrokerId(), b.getBrokerName(),
                                 b.getBrokerAuthToken(), b.getShortDescription());
-      db.closeConnection();
+      db.commitTrans();
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
@@ -132,15 +132,12 @@ public class ActionAccount
     List<Tournament> allTournaments = new ArrayList<Tournament>();
     Vector<Tournament> availableTourneys = new Vector<Tournament>();
     Database db = new Database();   
-    
-    
     try {
-      db.openConnection();
+      db.startTrans();
       allTournaments = db.getTournaments("pending");
       allTournaments.addAll(db.getTournaments("in-progress"));
-      
     }catch(SQLException e){
-      db.closeConnection();
+      db.abortTrans();
       e.printStackTrace();
     }
     
@@ -154,12 +151,12 @@ public class ActionAccount
         
       }
       catch (SQLException e) {
-        db.closeConnection();
+        db.abortTrans();
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
-    db.closeConnection();
+    db.commitTrans();
 
     return (List<Tournament>) availableTourneys;
 
@@ -178,13 +175,12 @@ public class ActionAccount
     
     
     try {
-      db.openConnection();
+      db.startTrans();
       allTournaments = db.getTournaments("pending");
       allTournaments.addAll(db.getTournaments("in-progress"));
       for (Tournament t: allTournaments) {
         if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())
             && t.getTournamentName().equalsIgnoreCase(tournamentName)) {
-          db.startTrans();
 
           if (t.getNumberRegistered() < t.getMaxBrokers()) {
             System.out.println("Registering broker: " + b.getBrokerId()
@@ -201,15 +197,13 @@ public class ActionAccount
                 g.addBroker(b.getBrokerId());
               }
             }
-          }
-          db.commitTrans();
-         
+          }         
         }
       }
-      db.closeConnection();
+      db.commitTrans();
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       // TODO Auto-generated catch block
       e.printStackTrace();
     }

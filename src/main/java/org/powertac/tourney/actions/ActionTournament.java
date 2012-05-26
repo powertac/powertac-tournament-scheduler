@@ -300,7 +300,7 @@ public class ActionTournament
         int gameId = 0;
         // Starts new transaction to prevent race conditions
         System.out.println("Starting transaction");
-        db.openConnection();
+
         db.startTrans();
         // Adds new tournament to the database
         System.out.println("Adding tourney");
@@ -329,12 +329,11 @@ public class ActionTournament
 
         System.out.println("Committing transaction");
         db.commitTrans();
-        db.closeConnection();
         
       }
       catch (SQLException e1) {
         // TODO Auto-generated catch block
-        db.closeConnection();
+        db.abortTrans();
         e1.printStackTrace();
       }
 
@@ -355,6 +354,7 @@ public class ActionTournament
       int[] gtypes = { size1, size2, size3 };
       int[] mxs = { numberSize1, numberSize1, numberSize1 };
 
+      Database db = new Database();
       try {
         MainScheduler gamescheduler = new MainScheduler(noofagents,noofcopies,noofservers, gtypes, mxs);
         gamescheduler.initializeAgentsDB(noofagents, noofcopies);
@@ -364,8 +364,8 @@ public class ActionTournament
         System.out.println("No. of games: "+numberOfGames);
         gamescheduler.resetCube();
         
-        Database db = new Database();
-        db.openConnection();
+        
+        db.startTrans();
         // Add the number of games to a new tournament
         // Starts new transaction to prevent race conditions
         System.out.println("[INFO] Starting transaction");
@@ -399,12 +399,12 @@ public class ActionTournament
         System.out.println("[INFO] Committing transaction");
         
         db.commitTrans();
-        db.closeConnection();
         
         
 
       }
       catch (Exception e) {
+        db.abortTrans();
         System.out.println("[ERROR] Scheduling exception!");
         e.printStackTrace();
       }
@@ -429,11 +429,12 @@ public class ActionTournament
     Database db = new Database();
 
     try {
-      db.openConnection();
+      db.startTrans();
       poms = db.getPoms();
-      db.closeConnection();
+      db.commitTrans();
     }
     catch (SQLException e) {
+      db.abortTrans();
       e.printStackTrace();
     }
     return poms;
@@ -446,18 +447,18 @@ public class ActionTournament
 
     Database db = new Database();
     try {
-      db.openConnection();
+      db.startTrans();
       List<Machine> all = db.getMachines();
       for (Machine m: all) {
         if (m.isAvailable()) {
           machines.add(m);
         }
       }
-      db.closeConnection();
+      db.commitTrans();
 
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       e.printStackTrace();
     }
 

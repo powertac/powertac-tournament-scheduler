@@ -111,14 +111,14 @@ public class ActionAdmin
 
       Database db = new Database();
       try {
-        db.openConnection();
+        db.startTrans();
         db.addPom(currentUser.getUsername(), this.getPomName(),
                   upload.getUploadLocation() + finalName);
-        db.closeConnection();
+        db.commitTrans();
 
       }
       catch (SQLException e) {
-        db.closeConnection();
+        db.abortTrans();
         e.printStackTrace();
       }
     }
@@ -134,13 +134,13 @@ public class ActionAdmin
     Database db = new Database();
 
     try {
-      db.openConnection();
+      db.startTrans();
       poms = db.getPoms();
-      db.closeConnection();
+      db.commitTrans();
 
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       e.printStackTrace();
     }
     return poms;
@@ -153,13 +153,13 @@ public class ActionAdmin
     Database db = new Database();
 
     try {
-      db.openConnection();
+      db.startTrans();
       locations = db.getLocations();
-      db.closeConnection();
+      db.commitTrans();
 
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       e.printStackTrace();
     }
 
@@ -173,12 +173,12 @@ public class ActionAdmin
     Database db = new Database();
 
     try {
-      db.openConnection();
+      db.startTrans();
       registered = db.getBrokersInTournament(tourneyId);
-      db.closeConnection();
+      db.commitTrans();
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       e.printStackTrace();
     }
 
@@ -191,12 +191,12 @@ public class ActionAdmin
     Database db = new Database();
 
     try {
-      db.openConnection();
+      db.startTrans();
       machines = db.getMachines();
-      db.closeConnection();
+      db.commitTrans();
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       e.printStackTrace();
     }
 
@@ -208,17 +208,17 @@ public class ActionAdmin
     Database db = new Database();
 
     try {
-      db.openConnection();
+      db.startTrans();
       if (m.isAvailable()) {
         db.setMachineAvailable(m.getMachineId(), false);
       }
       else {
         db.setMachineAvailable(m.getMachineId(), true);
       }
-      db.closeConnection();
+      db.commitTrans();
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       e.printStackTrace();
     }
 
@@ -228,12 +228,12 @@ public class ActionAdmin
   {
     Database db = new Database();
     try {
-      db.openConnection();
+      db.startTrans();
       db.deleteMachine(m.getMachineId());
-      db.closeConnection();
+      db.commitTrans();
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       e.printStackTrace();
     }
   }
@@ -242,9 +242,9 @@ public class ActionAdmin
   {
     Database db = new Database();
     try {
-      db.openConnection();
+      db.startTrans();
       db.addMachine(newName, newUrl, newViz, getNewQueue());
-      db.closeConnection();
+      db.abortTrans();
     }
     catch (SQLException e) {
       // TODO Auto-generated catch block
@@ -261,7 +261,6 @@ public class ActionAdmin
                        + g.getStatus());
     Tournament t = new Tournament();
     try {
-      db.openConnection();
       db.startTrans();
       t = db.getTournamentByGameId(gameId);
 
@@ -269,11 +268,10 @@ public class ActionAdmin
       System.out.println("[INFO] Setting machine: " + g.getMachineId()
                          + " to idle");
       db.commitTrans();
-      db.closeConnection();
 
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
@@ -377,12 +375,12 @@ public class ActionAdmin
   {
     Database db = new Database();
     try {
-      db.openConnection();
+      db.startTrans();
       db.deleteLocation(l.getLocationId());
-      db.closeConnection();
+      db.commitTrans();
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       e.printStackTrace();
     }
 
@@ -392,12 +390,12 @@ public class ActionAdmin
   {
     Database db = new Database();
     try {
-      db.openConnection();
+      db.startTrans();
       db.addLocation(newLocationName, newLocationStartTime, newLocationEndTime);
-      db.closeConnection();
+      db.commitTrans();
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       e.printStackTrace();
     }
 
