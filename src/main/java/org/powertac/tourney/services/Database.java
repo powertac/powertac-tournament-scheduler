@@ -1315,29 +1315,37 @@ public class Database
 
   public int startTrans () throws SQLException
   {
-    checkDb();
-
+    openConnection();
     PreparedStatement trans = conn.prepareStatement(Constants.START_TRANS);
     trans.execute();
-
     return 0;
   }
 
-  public int commitTrans () throws SQLException
+  public int commitTrans () //throws SQLException
   {
-    checkDb();
-    PreparedStatement trans = conn.prepareCall(Constants.COMMIT_TRANS);
-    trans.execute();
+    //checkDb();
+    try {
+      PreparedStatement trans = conn.prepareCall(Constants.COMMIT_TRANS);
+      trans.execute();
+      closeConnection();
+    }
+    catch (SQLException se) {
+      se.printStackTrace();
+    }
     return 0;
-
   }
 
-  public int abortTrans () throws SQLException
+  public int abortTrans () //throws SQLException
   {
-    checkDb();
-    PreparedStatement trans = conn.prepareCall(Constants.ABORT_TRANS);
-    trans.execute();
-
+    //checkDb();
+    try {
+      PreparedStatement trans = conn.prepareCall(Constants.ABORT_TRANS);
+      trans.execute();
+      closeConnection();
+    }
+    catch (SQLException se) {
+      se.printStackTrace();
+    }
     return 0;
 
   }
@@ -1350,7 +1358,7 @@ public class Database
   }
   
 
-  public void closeConnection () throws SQLException
+  private void closeConnection () throws SQLException
   {
     conn.close();
   }

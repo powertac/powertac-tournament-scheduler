@@ -115,24 +115,25 @@ public class Scheduler
       
       Timer t = new Timer();
       TimerTask watchDog = new TimerTask() {
-
+        Database db;
+        
         @Override
         public void run ()
         {
-          
           // Run watchDog
+          db = new Database();
           checkForSims();
           checkForBoots();
-         
         }
 
         public void checkForSims ()
         {
           System.out.println("[INFO] " + dateFormatUTC.format(new Date())
                              + " : WatchDogTimer Looking for Games To Start..");
-          Database db = new Database();
           // Check Database for startable games
           try {
+            //db.openConnection();
+            db.startTrans();
             List<Game> games = db.getStartableGames();
             System.out.println("[INFO] WatchDogTimer reports " + games.size()
                                + " game(s) are ready to start");
@@ -162,12 +163,14 @@ public class Scheduler
                                    new Date());
             }
 
-            
+            db.commitTrans();
           }
           catch (SQLException e) {
+            db.abortTrans();
             this.cancel();
             e.printStackTrace();
           }
+          //db.closeConnection();
         }
 
         public void checkForBoots ()
@@ -179,7 +182,6 @@ public class Scheduler
                     .println("[INFO] "
                              + dateFormatUTC.format(new Date())
                              + " : WatchDogTimer Looking for Bootstraps To Start..");
-            Database db = new Database();
             // Check Database for startable games
             try {
               List<Game> games = db.getBootableGames();
@@ -201,7 +203,7 @@ public class Scheduler
                 Game g = games.get(0);
                 
                 Tournament t = db.getTournamentByGameId(g.getGameId());
-                db.closeConnection();
+                //db.closeConnection();
                 
   
                 System.out.println("[INFO] " + dateFormatUTC.format(new Date())
@@ -236,7 +238,7 @@ public class Scheduler
             List<Game> games = new ArrayList<Game>();
             try {
               games = db.getBootableGames();
-              db.closeConnection();
+              //db.closeConnection();
             }
             catch (SQLException e) {
               e.printStackTrace();
