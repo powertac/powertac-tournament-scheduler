@@ -56,17 +56,8 @@ public class RunBootstrap extends TimerTask
 
   private void checkMachineAvailable ()
   {
-    while (Database.locked) {
-      try {
-        Thread.sleep(100);
-      }
-      catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-    }
-
-    Database.locked = true;
+   
+   
     Database db = new Database();
     try {
       db.startTrans();
@@ -88,10 +79,11 @@ public class RunBootstrap extends TimerTask
         System.out.println("Running boot " + gameId + " on machine "
                            + this.machineName);
         db.commitTrans();
+        db.closeConnection();
       }
       else {
         db.abortTrans();
-        Database.locked = false;
+        db.closeConnection();
         System.out.println("No machines available to run scheduled boot: "
                            + gameId + " ... will retry in 5 minutes");
         Thread.sleep(300000);
@@ -99,21 +91,14 @@ public class RunBootstrap extends TimerTask
       }
     }
     catch (NumberFormatException e) {
-      // TODO Auto-generated catch block
-      Database.locked = false;
       e.printStackTrace();
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
-      Database.locked = false;
       e.printStackTrace();
     }
     catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      Database.locked = false;
       e.printStackTrace();
     }
-    Database.locked = false;
 
   }
 

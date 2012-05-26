@@ -16,6 +16,24 @@
 			<h:form rendered="#{user.permissions le 0}">
 				<h:panelGrid columns="2">
 
+					<h4>WatchDog Status:</h4>
+					<h:panelGroup>
+						<h:outputText value="WatchDog running"
+							style="color:green;"
+							rendered="#{scheduler.running}" />
+						<h:outputText value="WatchDog not running"
+							style="color:red;"
+							rendered="#{!scheduler.running}" />
+						<h:commandButton value="Restart WatchDog" action="#{scheduler.restartWatchDog}"/> 
+					</h:panelGroup>
+
+
+					
+				</h:panelGrid>
+			</h:form>
+			<h:form rendered="#{user.permissions le 0}">
+				<h:panelGrid columns="2">
+
 					<h4>Weather Server Status:</h4>
 					<h:panelGroup>
 						<h:outputText value="#{checkWeatherServer.status}"

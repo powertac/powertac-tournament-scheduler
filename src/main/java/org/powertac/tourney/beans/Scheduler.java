@@ -57,6 +57,11 @@ public class Scheduler
   {
     return key;
   }
+  
+  public boolean isRunning(){
+    return watchDogTimer != null;
+  }
+  
 
   @PreDestroy
   public void cleanUp () throws Exception
@@ -157,7 +162,7 @@ public class Scheduler
                                    new Date());
             }
 
-            db.closeConnection();
+            
           }
           catch (SQLException e) {
             this.cancel();

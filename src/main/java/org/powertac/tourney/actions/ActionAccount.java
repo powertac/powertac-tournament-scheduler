@@ -1,6 +1,7 @@
 package org.powertac.tourney.actions;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
@@ -14,7 +15,6 @@ import javax.faces.event.ValueChangeEvent;
 import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
-import org.powertac.tourney.beans.Tournaments;
 import org.powertac.tourney.beans.User;
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.SpringApplicationContext;
@@ -125,10 +125,19 @@ public class ActionAccount
       return null;
     }
 
-    Tournaments allTournaments = Tournaments.getAllTournaments();
+    List<Tournament> allTournaments = new ArrayList<Tournament>();
     Vector<Tournament> availableTourneys = new Vector<Tournament>();
-    Database db = new Database();
-    for (Tournament t: allTournaments.getLists()) {
+    Database db = new Database();   
+    
+    
+    try {
+      allTournaments = db.getTournaments("pending");
+      allTournaments.addAll(db.getTournaments("in-progress"));
+    }catch(SQLException e){
+      e.printStackTrace();
+    }
+    
+    for (Tournament t: allTournaments) {
       try {
         if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())
             && t.getNumberRegistered() < t.getMaxBrokers()
@@ -155,9 +164,14 @@ public class ActionAccount
       return null;
     }
     Database db = new Database();
-    Tournaments allTournaments = Tournaments.getAllTournaments();
+    List<Tournament> allTournaments = new ArrayList<Tournament>();
+    
+    
+    
     try {
-      for (Tournament t: allTournaments.getLists()) {
+      allTournaments = db.getTournaments("pending");
+      allTournaments.addAll(db.getTournaments("in-progress"));
+      for (Tournament t: allTournaments) {
         if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())
             && t.getTournamentName().equalsIgnoreCase(tournamentName)) {
           db.startTrans();

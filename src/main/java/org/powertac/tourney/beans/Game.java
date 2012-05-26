@@ -96,6 +96,7 @@ public class Game
       this.setBootstrapUrl(rs.getString("bootstrapUrl"));
       this.setPropertiesUrl(rs.getString("propertiesUrl"));
       this.setLocation(rs.getString("location"));
+      
     }
     catch (Exception e) {
       System.out.println("[ERROR] Error creating game from result set");

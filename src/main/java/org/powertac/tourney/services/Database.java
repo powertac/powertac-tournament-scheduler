@@ -35,7 +35,7 @@ public class Database
   
   private TournamentProperties tournamentProps;
 
-  public static boolean locked = false;
+
 
   public class User
   {
@@ -643,10 +643,10 @@ public class Database
       ts = tmp;
     }
 
-    conn.close();
     rsTs.close();
     selectTournament.close();
-
+    conn.close();
+    
     return ts;
   }
 
@@ -843,9 +843,9 @@ public class Database
     }
     
 
-    conn.close();
     rsGs.close();
     getGames.close();
+    conn.close();
 
     return games;
 
@@ -868,9 +868,9 @@ public class Database
     }
     
 
-    conn.close();
     rsGs.close();
     getGames.close();
+    conn.close();
 
     return games;
 
@@ -890,10 +890,10 @@ public class Database
       games.add(tmp);
     }
 
-    conn.close();
     rsGs.close();
     getGames.close();
-
+    conn.close();
+    
     return games;
   }
 
@@ -912,6 +912,7 @@ public class Database
     insertGame.setInt(3, maxBrokers);
     insertGame.setString(4, dateFormatUTC.format(startTime));
     // insertGame.setString(4, properitesUrl);
+    
 
     return insertGame.executeUpdate();
   }
@@ -930,9 +931,11 @@ public class Database
       tmp = new Game(rsGs);
 
     }
-    rsGs.close();
+    
+    
     selectAllGames.close();
-
+    rsGs.close();
+    
     return tmp;
   }
 
@@ -1151,9 +1154,7 @@ public class Database
       Machine tmp = new Machine(rsMachines);
       machines.add(tmp);
     }
-    conn.close();
     rsMachines.close();
-    selectMachines.close();
 
     return machines;
   }
@@ -1340,6 +1341,14 @@ public class Database
     return 0;
 
   }
+  public int truncateScheduler() throws SQLException
+  {
+    checkDb();
+    PreparedStatement trunc = conn.prepareCall(Constants.CLEAR_SCHEDULE);
+    trunc.execute();
+    return 0;
+  }
+  
 
   public void closeConnection () throws SQLException
   {

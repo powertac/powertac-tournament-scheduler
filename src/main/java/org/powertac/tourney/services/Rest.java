@@ -19,11 +19,8 @@ import java.util.TimeZone;
 import javax.faces.context.FacesContext;
 
 import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Games;
-import org.powertac.tourney.beans.Machines;
 import org.powertac.tourney.beans.Scheduler;
 import org.powertac.tourney.beans.Tournament;
-import org.powertac.tourney.beans.Tournaments;
 import org.powertac.tourney.constants.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
