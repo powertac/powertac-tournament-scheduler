@@ -111,12 +111,14 @@ public class ActionAdmin
 
       Database db = new Database();
       try {
+        db.openConnection();
         db.addPom(currentUser.getUsername(), this.getPomName(),
                   upload.getUploadLocation() + finalName);
+        db.closeConnection();
 
       }
       catch (SQLException e) {
-        // TODO Auto-generated catch block
+        db.closeConnection();
         e.printStackTrace();
       }
     }
@@ -132,11 +134,13 @@ public class ActionAdmin
     Database db = new Database();
 
     try {
+      db.openConnection();
       poms = db.getPoms();
+      db.closeConnection();
 
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
+      db.closeConnection();
       e.printStackTrace();
     }
     return poms;
@@ -149,11 +153,13 @@ public class ActionAdmin
     Database db = new Database();
 
     try {
+      db.openConnection();
       locations = db.getLocations();
+      db.closeConnection();
 
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
+      db.closeConnection();
       e.printStackTrace();
     }
 
@@ -167,10 +173,12 @@ public class ActionAdmin
     Database db = new Database();
 
     try {
+      db.openConnection();
       registered = db.getBrokersInTournament(tourneyId);
-
+      db.closeConnection();
     }
     catch (SQLException e) {
+      db.closeConnection();
       e.printStackTrace();
     }
 
@@ -183,11 +191,12 @@ public class ActionAdmin
     Database db = new Database();
 
     try {
+      db.openConnection();
       machines = db.getMachines();
-
+      db.closeConnection();
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
+      db.closeConnection();
       e.printStackTrace();
     }
 
@@ -199,16 +208,17 @@ public class ActionAdmin
     Database db = new Database();
 
     try {
+      db.openConnection();
       if (m.isAvailable()) {
         db.setMachineAvailable(m.getMachineId(), false);
-
       }
       else {
         db.setMachineAvailable(m.getMachineId(), true);
-
       }
+      db.closeConnection();
     }
     catch (SQLException e) {
+      db.closeConnection();
       e.printStackTrace();
     }
 
@@ -218,11 +228,12 @@ public class ActionAdmin
   {
     Database db = new Database();
     try {
+      db.openConnection();
       db.deleteMachine(m.getMachineId());
-
+      db.closeConnection();
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
+      db.closeConnection();
       e.printStackTrace();
     }
   }
@@ -231,8 +242,9 @@ public class ActionAdmin
   {
     Database db = new Database();
     try {
+      db.openConnection();
       db.addMachine(newName, newUrl, newViz, getNewQueue());
-
+      db.closeConnection();
     }
     catch (SQLException e) {
       // TODO Auto-generated catch block
@@ -249,6 +261,7 @@ public class ActionAdmin
                        + g.getStatus());
     Tournament t = new Tournament();
     try {
+      db.openConnection();
       db.startTrans();
       t = db.getTournamentByGameId(gameId);
 
@@ -256,9 +269,11 @@ public class ActionAdmin
       System.out.println("[INFO] Setting machine: " + g.getMachineId()
                          + " to idle");
       db.commitTrans();
+      db.closeConnection();
 
     }
     catch (SQLException e) {
+      db.closeConnection();
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
@@ -351,7 +366,6 @@ public class ActionAdmin
     // TODO: ARE YOU SURE?
     scheduler.deleteBootTimer(g.getGameId());
     scheduler.deleteSimTimer(g.getGameId());
-    Database db = new Database();
   }
 
   public void refresh ()
@@ -363,10 +377,12 @@ public class ActionAdmin
   {
     Database db = new Database();
     try {
+      db.openConnection();
       db.deleteLocation(l.getLocationId());
+      db.closeConnection();
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
+      db.closeConnection();
       e.printStackTrace();
     }
 
@@ -376,10 +392,12 @@ public class ActionAdmin
   {
     Database db = new Database();
     try {
+      db.openConnection();
       db.addLocation(newLocationName, newLocationStartTime, newLocationEndTime);
+      db.closeConnection();
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
+      db.closeConnection();
       e.printStackTrace();
     }
 

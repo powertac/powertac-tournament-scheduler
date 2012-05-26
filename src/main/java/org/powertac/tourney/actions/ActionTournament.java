@@ -300,6 +300,7 @@ public class ActionTournament
         int gameId = 0;
         // Starts new transaction to prevent race conditions
         System.out.println("Starting transaction");
+        db.openConnection();
         db.startTrans();
         // Adds new tournament to the database
         System.out.println("Adding tourney");
@@ -333,6 +334,7 @@ public class ActionTournament
       }
       catch (SQLException e1) {
         // TODO Auto-generated catch block
+        db.closeConnection();
         e1.printStackTrace();
       }
 
@@ -363,7 +365,7 @@ public class ActionTournament
         gamescheduler.resetCube();
         
         Database db = new Database();
-        
+        db.openConnection();
         // Add the number of games to a new tournament
         // Starts new transaction to prevent race conditions
         System.out.println("[INFO] Starting transaction");
@@ -427,6 +429,7 @@ public class ActionTournament
     Database db = new Database();
 
     try {
+      db.openConnection();
       poms = db.getPoms();
       db.closeConnection();
     }
@@ -443,6 +446,7 @@ public class ActionTournament
 
     Database db = new Database();
     try {
+      db.openConnection();
       List<Machine> all = db.getMachines();
       for (Machine m: all) {
         if (m.isAvailable()) {
@@ -453,6 +457,7 @@ public class ActionTournament
 
     }
     catch (SQLException e) {
+      db.closeConnection();
       e.printStackTrace();
     }
 

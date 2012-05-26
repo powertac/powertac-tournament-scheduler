@@ -133,6 +133,8 @@ public class Scheduler
           Database db = new Database();
           // Check Database for startable games
           try {
+            db.openConnection();
+            db.startTrans();
             List<Game> games = db.getStartableGames();
             System.out.println("[INFO] WatchDogTimer reports " + games.size()
                                + " game(s) are ready to start");
@@ -161,11 +163,13 @@ public class Scheduler
                                                tournamentProperties.getProperty("destination")),
                                    new Date());
             }
-
-            
+           db.commitTrans();
+           db.closeConnection(); 
           }
           catch (SQLException e) {
             this.cancel();
+            db.abortTrans();
+            db.closeConnection();
             e.printStackTrace();
           }
         }
@@ -182,6 +186,8 @@ public class Scheduler
             Database db = new Database();
             // Check Database for startable games
             try {
+              db.openConnection();
+              db.startTrans();
               List<Game> games = db.getBootableGames();
               System.out.println("[INFO] WatchDogTimer reports " + games.size()
                                  + " boots are ready to start");
@@ -221,9 +227,13 @@ public class Scheduler
                 
                   
               }
+              db.commitTrans();
+              db.closeConnection(); 
             }
             catch (SQLException e) {
               this.cancel();
+              db.abortTrans();
+              db.closeConnection();
               e.printStackTrace();
             }
 
@@ -235,10 +245,14 @@ public class Scheduler
             Database db = new Database();
             List<Game> games = new ArrayList<Game>();
             try {
+              db.openConnection();
+              db.startTrans();
               games = db.getBootableGames();
               db.closeConnection();
             }
             catch (SQLException e) {
+              db.abortTrans();
+              db.closeConnection();
               e.printStackTrace();
             }
             System.out.println("[INFO] WatchDogTimer reports " + games.size()

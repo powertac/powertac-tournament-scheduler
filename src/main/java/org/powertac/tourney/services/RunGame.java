@@ -123,7 +123,8 @@ public class RunGame extends TimerTask
       int gId = Integer.parseInt(gameId);
 
       try {
-
+        db.openConnection();
+        db.startTrans();
         Game g = db.getGame(gId);
 
         int numRegistered = 0;
@@ -145,6 +146,7 @@ public class RunGame extends TimerTask
             this.cancel();
             // System.exit(0);
           }
+          
         }
         else {
           System.out
@@ -170,9 +172,11 @@ public class RunGame extends TimerTask
           }
 
         }
+        db.commitTrans();
 
       }
       catch (SQLException e) {
+        db.abortTrans();
         System.out.println("Broker Database error while scheduling sim!!");
         // System.exit(0);
         // TODO Auto-generated catch block

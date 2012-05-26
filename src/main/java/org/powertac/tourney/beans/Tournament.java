@@ -144,39 +144,18 @@ public class Tournament
     List<Game> result = new ArrayList<Game>();
     Database db = new Database();
     try {
+      db.openConnection();
       result = db.getGamesInTourney(this.tourneyId);
       db.closeConnection();
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
+      db.closeConnection();
       e.printStackTrace();
     }
     return result;
   }
 
-  /*
-   * public String register(String name,int id, String authToken){
-   * //TODO: Fix this so that brokers are added to games according to the csp
-   * spec
-   * 
-   * System.out.println("Registering broker: " + name);
-   * // Only open registration
-   * if(registeredBrokers.size() < maxBrokers && maxBrokers != -1){
-   * registeredBrokers.put(id, name);
-   * for(Game g : allGames.values()){
-   * if (g.getCompetitionId() == this.getTournamentId()){
-   * g.addBrokerLogin(name, authToken);
-   * System.out.println("Broker: " + name + ":" + authToken +
-   * " is registered for Competition:" + g.getCompetitionName());
-   * }
-   * }
-   * 
-   * return "Success";
-   * }else{
-   * return "Failure";
-   * }
-   * }
-   */
+
 
   public boolean isRegistered (String authToken)
   {
@@ -188,7 +167,9 @@ public class Tournament
     Database db = new Database();
     int result = 0;
     try {
+      db.openConnection();
       result = db.getBrokersInTournament(tourneyId).size();
+      db.closeConnection();
     }
     catch (SQLException e) {
       // TODO Auto-generated catch block

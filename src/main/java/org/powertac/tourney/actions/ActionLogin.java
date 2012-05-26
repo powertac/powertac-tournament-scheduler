@@ -53,6 +53,7 @@ public class ActionLogin
     Database database = new Database();
     try {
       int[] perm;// = new int[2] -1;
+      database.openConnection();
       if ((perm = database.loginUser(getUsername(), getPassword()))[0] >= 0) {
         User test =
           (User) FacesContext.getCurrentInstance().getExternalContext()
@@ -73,6 +74,7 @@ public class ActionLogin
 
     }
     catch (SQLException e) {
+      database.closeConnection();
       FacesContext.getCurrentInstance()
               .addMessage("loginForm",
                           new FacesMessage(FacesMessage.SEVERITY_INFO,

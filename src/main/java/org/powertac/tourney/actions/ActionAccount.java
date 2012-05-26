@@ -99,11 +99,15 @@ public class ActionAccount
     b.setBrokerAuthToken(b.getNewAuth());
 
     Database db = new Database();
+    
     try {
+      db.openConnection();
       db.updateBrokerByBrokerId(b.getBrokerId(), b.getBrokerName(),
                                 b.getBrokerAuthToken(), b.getShortDescription());
+      db.closeConnection();
     }
     catch (SQLException e) {
+      db.closeConnection();
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
@@ -131,9 +135,12 @@ public class ActionAccount
     
     
     try {
+      db.openConnection();
       allTournaments = db.getTournaments("pending");
       allTournaments.addAll(db.getTournaments("in-progress"));
+      
     }catch(SQLException e){
+      db.closeConnection();
       e.printStackTrace();
     }
     
@@ -144,13 +151,15 @@ public class ActionAccount
             && t.getStartTime().before(new Date())) {
           availableTourneys.add(t);
         }
-        db.closeConnection();
+        
       }
       catch (SQLException e) {
+        db.closeConnection();
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
+    db.closeConnection();
 
     return (List<Tournament>) availableTourneys;
 
@@ -169,6 +178,7 @@ public class ActionAccount
     
     
     try {
+      db.openConnection();
       allTournaments = db.getTournaments("pending");
       allTournaments.addAll(db.getTournaments("in-progress"));
       for (Tournament t: allTournaments) {
@@ -193,12 +203,13 @@ public class ActionAccount
             }
           }
           db.commitTrans();
-          db.closeConnection();
-
+         
         }
       }
+      db.closeConnection();
     }
     catch (SQLException e) {
+      db.closeConnection();
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
