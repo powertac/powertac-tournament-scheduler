@@ -12,6 +12,7 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
+import org.powertac.tourney.beans.Location;
 import org.powertac.tourney.beans.Machine;
 import org.powertac.tourney.beans.Scheduler;
 import org.powertac.tourney.beans.Tournament;
@@ -342,7 +343,7 @@ public class ActionTournament
         System.out.println("Getting gameId");
         gameId = db.getMaxGameId();
         System.out.println("Creating game: " + gameId + " properties");
-        CreateProperties.genProperties(gameId, locations, fromTime, toTime);
+        CreateProperties.genProperties(gameId,db, locations, fromTime, toTime);
 
         // Sets the url for the properties file based on the game id.
         // Properties are created at random withing specified parameters
@@ -391,7 +392,6 @@ public class ActionTournament
         // Add the number of games to a new tournament
         // Starts new transaction to prevent race conditions
         System.out.println("[INFO] Starting transaction");
-        db.startTrans();
         // Adds new tournament to the database
         System.out.println("[INFO] Creating New tourney");
         db.addTournament(newTourney.getTournamentName(), true, size1,
@@ -411,7 +411,7 @@ public class ActionTournament
           
           gameId = db.getMaxGameId();
           System.out.println("[INFO] Creating game: " + gameId + " properties");
-          CreateProperties.genProperties(gameId, locations, fromTime, toTime);
+          CreateProperties.genProperties(gameId,db, locations, fromTime, toTime);
   
           // Sets the url for the properties file based on the game id.
           // Properties are created at random within specified parameters
@@ -507,6 +507,21 @@ public class ActionTournament
     this.toTime = toTime;
   }
 
+  public List<Location> getLocationList(){
+    List<Location> locations = new ArrayList<Location>();
+    
+    Database db = new Database();
+    
+    try{
+      db.startTrans();
+      locations = db.getLocations();
+      db.commitTrans();
+    }catch(Exception e){
+      e.printStackTrace();
+    }
+    return locations;
+  }
+  
   public List<String> getLocations ()
   {
     return locations;

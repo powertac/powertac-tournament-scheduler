@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class CreateProperties
 {
 
-  public static int genProperties (int gameId, List<String> locations,
+  public static int genProperties (int gameId, Database db, List<String> locations,
                                    Date fromTime, Date toTime)
   {
     Date starting = new Date();
@@ -38,10 +38,11 @@ public class CreateProperties
       starting.setTime(startTime);
     }
 
-    Database db = new Database();
+    
     java.sql.Date newDate = new java.sql.Date(starting.getTime());
 
     try {
+      
       db.addProperties(gameId, selectedLocation, newDate.toString());
     }
     catch (SQLException e) {
@@ -58,9 +59,12 @@ public class CreateProperties
     Database db = new Database();
 
     try {
+      db.startTrans();
       result = db.getProperties(gameId);
+      db.commitTrans();
     }
     catch (SQLException e) {
+      db.abortTrans();
       // TODO Auto-generated catch block
       e.printStackTrace();
     }

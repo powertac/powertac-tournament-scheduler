@@ -176,7 +176,7 @@
 					<h:outputLabel value="Locations: " />
 					<h:panelGroup>
 						<h:selectManyCheckbox id="locations" value="#{actionTournament.locations}" required="true">
-							<f:selectItems value="#{locations.locationList}" var="L"
+							<f:selectItems value="#{actionTournament.locationList}" var="L"
 								itemValue="#{L.name}" itemLabel="#{L.name}" />
 						</h:selectManyCheckbox>
 					</h:panelGroup>
