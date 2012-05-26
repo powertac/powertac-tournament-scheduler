@@ -110,10 +110,12 @@ public class Game
     int result = 0;
 
     try {
+      db.startTrans();
       result = db.getBrokersInGame(gameId).size();
+      db.commitTrans();
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
+      db.abortTrans();
       e.printStackTrace();
     }
     return result;
@@ -125,13 +127,13 @@ public class Game
     Database db = new Database();
     Broker b = new Broker("new");
     try {
-      db.openConnection();
+      db.startTrans();
       b = db.getBroker(brokerId);
       db.addBrokerToGame(gameId, b);
-      db.closeConnection();
+      db.commitTrans();
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       e.printStackTrace();
     }
 
@@ -249,7 +251,7 @@ public class Game
     Database db = new Database();
     boolean ingame = false;
     try {
-      db.openConnection();
+      db.startTrans();
       List<Broker> allBrokers = db.getBrokersInGame(gameId);
       for (Broker b: allBrokers) {
         if (b.getBrokerAuthToken().equalsIgnoreCase(authToken)) {
@@ -257,28 +259,18 @@ public class Game
           break;
         }
       }
-      db.closeConnection();
+      db.commitTrans();
 
     }
     catch (SQLException e) {
-
-      // TODO Auto-generated catch block
+      db.abortTrans();
       e.printStackTrace();
     }
 
     return ingame;
   }
 
-  /*
-   * public boolean authorizeBroker(String brokerName, String gameToken) { if
-   * (getBrokersToLogin() != null && getBrokersToLogin().get(brokerName) ==
-   * gameToken) {
-   * 
-   * // Send http response indicating success return true; } else { // Send
-   * http response back that authorization has failed return false; }
-   * 
-   * }
-   */
+
 
   public String getTournamentSchedulerUrl ()
   {

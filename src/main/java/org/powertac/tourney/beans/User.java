@@ -53,12 +53,12 @@ public class User
     if (userId != -1) {
       Database db = new Database();
       try {
-        db.openConnection();
+        db.startTrans();
         db.addBroker(getUserId(), brokerName, shortDescription);
-        db.closeConnection();
+        db.commitTrans();
       }
       catch (SQLException e) {
-        db.closeConnection();
+        db.abortTrans();
         e.printStackTrace();
       }
     }
@@ -70,12 +70,12 @@ public class User
     Database db = new Database();
 
     try {
-      db.openConnection();
+      db.startTrans();
       db.deleteBrokerByBrokerId(brokerId);
-      db.closeConnection();
+      db.commitTrans();
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       e.printStackTrace();
     }
   }
@@ -84,12 +84,13 @@ public class User
   {
     Database db = new Database();
     try {
+      db.startTrans();
       Broker b = db.getBroker(brokerId);
-      db.closeConnection();
+      db.commitTrans();
       return b;
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
+      db.abortTrans();
       e.printStackTrace();
       return null;
     }
@@ -172,11 +173,12 @@ public class User
       Database db = new Database();
       brokers = new ArrayList<Broker>();
       try {
-        db.openConnection();
+        db.startTrans();
         brokers = db.getBrokersByUserId(getUserId());
-        db.closeConnection();
+        db.commitTrans();
       }
       catch (SQLException e) {
+        db.abortTrans();
         // TODO Auto-generated catch block
         e.printStackTrace();
       }

@@ -144,12 +144,12 @@ public class Tournament
     List<Game> result = new ArrayList<Game>();
     Database db = new Database();
     try {
-      db.openConnection();
+      db.startTrans();
       result = db.getGamesInTourney(this.tourneyId);
-      db.closeConnection();
+      db.commitTrans();
     }
     catch (SQLException e) {
-      db.closeConnection();
+      db.abortTrans();
       e.printStackTrace();
     }
     return result;
@@ -167,11 +167,12 @@ public class Tournament
     Database db = new Database();
     int result = 0;
     try {
-      db.openConnection();
+      db.startTrans();
       result = db.getBrokersInTournament(tourneyId).size();
-      db.closeConnection();
+      db.commitTrans();
     }
     catch (SQLException e) {
+      db.abortTrans();
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
