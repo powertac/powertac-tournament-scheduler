@@ -107,7 +107,8 @@ public class RunGame extends TimerTask
           System.out
                   .println("No brokers registered for tournament waiting to start game "
                            + g.getGameId());
-          db.abortTrans();
+          db.updateGameStatusById(Integer.parseInt(gameId), "boot-complete");
+          db.commitTrans();
           this.cancel();
           return false;
 
