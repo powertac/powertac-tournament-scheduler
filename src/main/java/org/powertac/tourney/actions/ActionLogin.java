@@ -71,6 +71,7 @@ public class ActionLogin
         return "Failure";
       }
       database.commitTrans();
+      
 
     }
     catch (SQLException e) {

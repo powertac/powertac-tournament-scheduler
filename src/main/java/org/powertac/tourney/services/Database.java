@@ -264,7 +264,7 @@ public class Database
       userExist = false;
     }
 
-    conn.close();
+    
     // TODO: make sure things are inserted correctly in the database;
     if (DigestUtils.md5Hex(password + salt).equalsIgnoreCase(digest)
         && userExist) {

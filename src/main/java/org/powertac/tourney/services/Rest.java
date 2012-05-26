@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 public class Rest
 {
 
-  @Autowired
   private Scheduler scheduler;
 
   public String parseBrokerLogin (Map<?, ?> params)
@@ -64,9 +63,11 @@ public class Rest
     Database db = new Database();
 
     try {
-      //db.openConnection();
+      // db.openConnection();
       db.startTrans();
       List<Game> allGames = db.getGames();
+      List<Tournament> allTournaments = db.getTournaments("pending");
+      allTournaments.addAll(db.getTournaments("in-progress"));
       if (competitionName != null && allGames != null) {
 
         // First find all games that match the competition name and have brokers
@@ -86,51 +87,44 @@ public class Rest
               System.out.println("[INFO] Sending login to : " + brokerAuthToken
                                  + " jmsUrl : " + g.getJmsUrl());
 
-              
               return String.format(loginResponse, g.getJmsUrl(), "1234");
             }
-            
-          }
-          else {
-            System.out.println("[INFO] Broker: " + brokerAuthToken
-                               + " attempted to log in, game: " + g.getGameId()
-                               + " with status: " + g.getStatus()
-                               + " --sending retry");
+
           }
 
           // Thow all the authorized games into matches
-          if (g.isBrokerRegistered(brokerAuthToken)) {
-            matches.add(g);
-          }
+          /*
+           * if (g.isBrokerRegistered(brokerAuthToken)) {
+           * matches.add(g);
+           * }
+           */
 
         }
         db.commitTrans();
-        //db.closeConnection();
 
-        Date minDate = new Date(Long.MAX_VALUE);
-        Game match = null;
-        for (Game g: matches) {
-          if (g.getStartTime().before(minDate)) {
-            minDate = g.getStartTime();
-            match = g;
+        boolean competitionExists = false;
+
+        for (Tournament t: allTournaments) {
+          if (competitionName.equals(t.getTournamentName())) {
+            competitionExists = true;
+            break;
           }
-
         }
 
-        // If we made it through all of the games without sending logins send
-        // retry for the soonest match
-        if (matches.size() > 0) {
+        if (competitionExists) {
 
-          long retry =
-            (match.getStartTime().getTime() - (new Date()).getTime()) / 1000;
-          SimpleDateFormat df = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
-          System.out.println("[INFO] Game starts for Broker: "
-                             + brokerAuthToken + " at "
-                             + df.format(match.getStartTime())
-                             + " current time: "
-                             + dateFormatUTC.format(new Date()));
+          System.out.println("[INFO] Broker: " + brokerAuthToken
+                             + " attempted to log into existing tournament: "
+                             + competitionName + " --sending retry");
 
-          return String.format(retryResponse, retry > 0? retry: 20);
+          return String.format(retryResponse, 20);
+        }
+        else {
+          System.out
+                  .println("[INFO] Broker: " + brokerAuthToken
+                           + " attempted to log into non-existing tournament: "
+                           + competitionName + " --sending done");
+          return doneResponse;
         }
 
       }
@@ -138,7 +132,6 @@ public class Rest
     }
     catch (Exception e) {
       db.abortTrans();
-      //db.closeConnection();
       e.printStackTrace();
     }
 
@@ -147,6 +140,7 @@ public class Rest
 
   public String parseServerInterface (Map<?, ?> params)
   {
+    scheduler = (Scheduler) SpringApplicationContext.getBean("scheduler");
 
     if (params != null) {
       Properties props = new Properties();
@@ -157,8 +151,6 @@ public class Rest
       catch (IOException e) {
         e.printStackTrace();
       }
-
-      Database db = new Database();
 
       String actionString =
         ((String[]) params.get(Constants.REQ_PARAM_ACTION))[0];
@@ -174,7 +166,9 @@ public class Rest
           System.out
                   .println("[INFO] Recieved bootstrap running message from game: "
                            + gameId);
+          Database db = new Database();
           try {
+
             db.startTrans();
             db.updateGameStatusById(gameId, "boot-in-progress");
             System.out.println("[INFO] Setting game: " + gameId
@@ -202,7 +196,7 @@ public class Rest
           catch (UnknownHostException e2) {
             e2.printStackTrace();
           }
-
+          Database db = new Database();
           try {
             db.startTrans();
             db.updateGameBootstrapById(gameId,
@@ -219,7 +213,7 @@ public class Rest
             db.setMachineStatus(g.getMachineId(), "idle");
             db.commitTrans();
           }
-          catch (SQLException e) {
+          catch (Exception e) {
             db.abortTrans();
             e.printStackTrace();
           }
@@ -229,7 +223,7 @@ public class Rest
         else if (statusString.equalsIgnoreCase("game-ready")) {
           System.out.println("[INFO] Recieved game ready message from game: "
                              + gameId);
-
+          Database db = new Database();
           try {
             db.startTrans();
             db.updateGameStatusById(gameId, "game-in-progress");
@@ -252,7 +246,7 @@ public class Rest
         else if (statusString.equalsIgnoreCase("game-done")) {
           System.out.println("[INFO] Recieved game done message from game: "
                              + gameId);
-
+          Database db = new Database();
           try {
             db.startTrans();
             db.updateGameStatusById(gameId, "game-complete");
@@ -268,7 +262,7 @@ public class Rest
             db.setMachineStatus(g.getMachineId(), "idle");
             db.commitTrans();
           }
-          catch (SQLException e) {
+          catch (Exception e) {
             db.abortTrans();
             e.printStackTrace();
           }
@@ -276,7 +270,7 @@ public class Rest
         }
         else if (statusString.equalsIgnoreCase("game-failed")) {
           System.out.println("[WARN] GAME " + gameId + " FAILED!");
-
+          Database db = new Database();
           try {
             db.startTrans();
             db.updateGameStatusById(gameId, "game-failed");
@@ -296,7 +290,7 @@ public class Rest
         }
         else if (statusString.equalsIgnoreCase("boot-failed")) {
           System.out.println("[WARN] GAME " + gameId + " FAILED!");
-
+          Database db = new Database();
           try {
             db.startTrans();
             db.updateGameStatusById(gameId, "boot-failed");

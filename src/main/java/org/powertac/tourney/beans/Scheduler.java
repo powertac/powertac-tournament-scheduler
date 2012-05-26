@@ -238,7 +238,7 @@ public class Scheduler
               e.printStackTrace();
             }
             System.out.println("[INFO] WatchDogTimer reports " + games.size()
-                               + " boots are ready to start");
+                               + " boot(s) are ready to start");
 
           }
         }

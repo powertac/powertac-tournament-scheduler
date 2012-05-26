@@ -12,7 +12,6 @@ import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Machine;
 
-
 public class RunGame extends TimerTask
 {
 
@@ -53,38 +52,27 @@ public class RunGame extends TimerTask
   {
     if (!running) {
       Database db = new Database();
-
+     
       try {
+        db.startTrans();
         if (db.isGameReady(Integer.parseInt(gameId))) {
           this.bootstrapUrl =
             tourneyUrl + "/faces/pom.jsp?location=" + gameId + "-boot.xml";
           try {
-            db.startTrans();
+            
             db.updateGameStatusById(Integer.parseInt(gameId), "game-pending");
             db.commitTrans();
           }
           catch (SQLException e) {
+            db.abortTrans();
             // TODO Auto-generated catch block
             e.printStackTrace();
           }
         }
         else {
-          System.out
-                  .println("Game: "
-                           + gameId
-                           + " reports that bootstrap is not ready! retring in 15 seconds... retries left: "
-                           + bootstrapRetry);
+          System.out.println("Game: " + gameId
+                             + " reports that bootstrap is not ready!");
 
-          if (bootstrapRetry-- > 0) {
-            Thread.sleep(15000);
-            this.run();
-          }
-          else {
-            // Exceed maximum retries kill scheduled task
-            // TODO: Clean up database after this
-            this.cancel();
-            // System.exit(0);
-          }
         }
       }
       catch (NumberFormatException e) {
@@ -95,9 +83,6 @@ public class RunGame extends TimerTask
         this.cancel();
         e.printStackTrace();
       }
-      catch (InterruptedException e) {
-        e.printStackTrace();
-      }
     }
 
   }
@@ -105,7 +90,7 @@ public class RunGame extends TimerTask
   /***
    * Make sure brokers are registered for the tournament
    */
-  private void checkBrokers ()
+  private boolean checkBrokers ()
   {
     if (!running) {
       Database db = new Database();
@@ -121,21 +106,11 @@ public class RunGame extends TimerTask
           System.out.println("TourneyId: " + g.getTourneyId());
           System.out
                   .println("No brokers registered for tournament waiting to start game "
-                           + g.getGameId()
-                           + " 2 minutes... retries left: "
-                           + registerRetry);
-          if (registerRetry-- > 0) {
-            Thread.sleep(120000);
-            this.run();
-          }
-          else {
-            // Exceed maximum retries kill scheduled task
-            // TODO: Clean up database after this
+                           + g.getGameId());
+          db.abortTrans();
+          this.cancel();
+          return false;
 
-            this.cancel();
-            // System.exit(0);
-          }
-          
         }
         else {
           System.out
@@ -157,10 +132,13 @@ public class RunGame extends TimerTask
                     .println("Error no brokers listed in database for gameId: "
                              + gameId);
             this.cancel();
+            db.abortTrans();
+            return false;
             // System.exit(0);
           }
 
         }
+        
         db.commitTrans();
 
       }
@@ -170,15 +148,13 @@ public class RunGame extends TimerTask
         // System.exit(0);
         e.printStackTrace();
       }
-      catch (InterruptedException e) {
-        e.printStackTrace();
-      }
+      
     }
+     return true;
   }
 
   private void checkMachineAvailable ()
   {
-   
 
     Database db = new Database();
     if (!running) {
@@ -215,19 +191,17 @@ public class RunGame extends TimerTask
         }
         else {
           db.abortTrans();
+
           System.out.println("No machines available to run scheduled game: "
                              + gameId + " ... will retry in 5 minutes");
-          Thread.sleep(300000);
-          this.run();
+          // Thread.sleep(300000);
+          // this.run();
         }
       }
       catch (NumberFormatException e) {
         e.printStackTrace();
       }
       catch (SQLException e) {
-        e.printStackTrace();
-      }
-      catch (InterruptedException e) {
         e.printStackTrace();
       }
     }
@@ -240,7 +214,9 @@ public class RunGame extends TimerTask
     // Check if a boot exists
     checkBootstrap();
     // Check if brokers are registered
-    checkBrokers();
+    if(!checkBrokers()){
+      return;
+    }
     // Check if there is a machine available to run the sim and set it
     checkMachineAvailable();
 
