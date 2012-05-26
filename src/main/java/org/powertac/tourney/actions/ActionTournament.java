@@ -52,6 +52,10 @@ public class ActionTournament
   private String tournamentName;
   private int maxBrokers;
   private int maxBrokerInstances = 2;
+  
+  private String sortColumn = null;
+  private boolean sortAscending = true;
+  private int rowCount = 5;
 
   // private List<Integer> machines;
   private List<String> locations;
@@ -254,6 +258,24 @@ public class ActionTournament
   public void setTournamentName (String tournamentName)
   {
     this.tournamentName = tournamentName;
+  }
+  
+  public List<Tournament> getTournamentList(){
+    List<Tournament> ts = new ArrayList<Tournament>();
+    
+    Database db = new Database();
+    try{
+      db.startTrans();
+      ts = db.getTournaments("pending");
+      ts.addAll(db.getTournaments("in-progress"));
+      db.commitTrans();
+    
+    }catch(Exception e){
+      db.abortTrans();
+    }
+    
+    return ts;
+    
   }
 
   public String createTournament ()
@@ -573,6 +595,36 @@ public class ActionTournament
   public void setMaxBrokerInstances (int maxBrokerInstances)
   {
     this.maxBrokerInstances = maxBrokerInstances;
+  }
+
+  public String getSortColumn ()
+  {
+    return sortColumn;
+  }
+
+  public void setSortColumn (String sortColumn)
+  {
+    this.sortColumn = sortColumn;
+  }
+
+  public boolean isSortAscending ()
+  {
+    return sortAscending;
+  }
+
+  public void setSortAscending (boolean sortAscending)
+  {
+    this.sortAscending = sortAscending;
+  }
+
+  public int getRowCount ()
+  {
+    return rowCount;
+  }
+
+  public void setRowCount (int rowCount)
+  {
+    this.rowCount = rowCount;
   }
 
 }

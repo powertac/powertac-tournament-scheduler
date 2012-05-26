@@ -177,10 +177,10 @@ public class Database
     // System.out.println("Connection established correctly");
   }
 
-  public List<User> getAllUsers () throws SQLException
+  public List<org.powertac.tourney.beans.User> getAllUsers () throws SQLException
   {
     
-    List<User> users = new ArrayList<User>();
+    List<org.powertac.tourney.beans.User> users = new ArrayList<org.powertac.tourney.beans.User>();
 
    
     PreparedStatement selectUsersStatement = conn.prepareStatement(Constants.SELECT_USERS);
@@ -188,13 +188,12 @@ public class Database
 
     ResultSet rsUsers = selectUsersStatement.executeQuery();
     while (rsUsers.next()) {
-      User tmp = new User();
+      org.powertac.tourney.beans.User tmp = new org.powertac.tourney.beans.User();
       tmp.setUsername(rsUsers.getString("userName"));
       tmp.setPassword(rsUsers.getString("password"));
-      tmp.setId(rsUsers.getString("userId"));
-      tmp.setPermission(rsUsers.getInt("permissionId"));
+      tmp.setUserId(rsUsers.getInt("userId"));
+      tmp.setPermissions(rsUsers.getInt("permissionId"));
       users.add(tmp);
-
     }
 
     //conn.close();

@@ -289,11 +289,11 @@
 			<h:form rendered="#{user.permissions le 0}">
 				<h4>User Details</h4>
 				<t:dataTable id="datausers" border="1" sortable="true"
-					sortColumn="#{users.sortColumn}"
-					sortAscending="#{users.sortAscending}" preserveSort="true"
-					rowCount="#{users.rowCount}"
+					sortColumn="#{actionAdmin.sortColumnUsers}"
+					sortAscending="#{actionAdmin.sortAscendingUsers}" preserveSort="true"
+					rowCount="#{actionAdmin.rowCountUsers}"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{users.userList}" var="u">
+					value="#{actionAdmin.userList}" var="u">
 
 					<t:column defaultSorted="true">
 						<!-- column header -->
@@ -301,7 +301,7 @@
 							<h:outputText value="User ID" />
 						</f:facet>
 						<!-- row record -->
-						<h:outputText value="#{u.id}" />
+						<h:outputText value="#{u.userId}" />
 					</t:column>
 
 					<t:column defaultSorted="true">
@@ -328,7 +328,7 @@
 							<h:outputText value="Permission" />
 						</f:facet>
 						<!-- row record -->
-						<h:outputText value="#{u.permission}" />
+						<h:outputText value="#{u.permissions}" />
 					</t:column>
 
 
@@ -347,11 +347,11 @@
 
 				<h4>Pending/Running Tournaments</h4>
 				<t:dataTable id="datatourneys" border="1" sortable="true"
-					sortColumn="#{tournaments.sortColumn}"
-					sortAscending="#{tournaments.sortAscending}" preserveSort="true"
-					rowCount="#{tournaments.rowCount}"
+					sortColumn="#{actionAdmin.sortColumnTournaments}"
+					sortAscending="#{actionAdmin.sortAscendingTournaments}" preserveSort="true"
+					rowCount="#{actionAdmin.rowCountTournaments}"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{tournaments.tournamentList}" var="t">
+					value="#{actionAdmin.tournamentList}" var="t">
 
 					<t:column defaultSorted="true">
 						<!-- column header -->
@@ -411,11 +411,11 @@
 			<h:form rendered="#{user.permissions le 0}">
 				<h4>Pending/Running Games <h:commandButton value="refresh" action="#{actionAdmin.refresh}"/></h4>
 				<t:dataTable id="datagames" border="1" sortable="true"
-					sortColumn="#{games.sortColumn}"
-					sortAscending="#{games.sortAscending}" preserveSort="true"
-					rowCount="#{games.rowCount}"
+					sortColumn="#{actionAdmin.sortColumnGames}"
+					sortAscending="#{actionAdmin.sortAscendingGames}" preserveSort="true"
+					rowCount="#{actionAdmin.rowCountGames}"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{games.gameList}" var="g">
+					value="#{actionAdmin.gameList}" var="g">
 					<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">

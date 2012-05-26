@@ -17,11 +17,11 @@
 
 				<h4>Pending/Running Tournaments</h4>
 				<t:dataTable id="datatourneys" border="1" sortable="true"
-					sortColumn="#{tournaments.sortColumn}"
-					sortAscending="#{tournaments.sortAscending}" preserveSort="true"
-					rowCount="#{tournaments.rowCount}"
+					sortColumn="#{actionTournament.sortColumn}"
+					sortAscending="#{actionTournament.sortAscending}" preserveSort="true"
+					rowCount="#{actionTournament.rowCount}"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{tournaments.tournamentList}" var="t">
+					value="#{actionTournament.tournamentList}" var="t">
 
 					<t:column defaultSorted="true">
 						<!-- column header -->

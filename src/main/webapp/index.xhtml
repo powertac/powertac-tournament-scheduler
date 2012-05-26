@@ -25,11 +25,11 @@
 			<h:form>
 				
 				<t:dataTable id="datagames" border="1" sortable="true"
-					sortColumn="#{games.sortColumn}"
-					sortAscending="#{games.sortAscending}" preserveSort="true"
-					rowCount="#{games.rowCount}"
+					sortColumn="#{actionIndex.sortColumn}"
+					sortAscending="#{actionIndex.sortAscending}" preserveSort="true"
+					rowCount="#{actionIndex.rowCount}"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{games.gameList}" var="g">
+					value="#{actionIndex.gameList}" var="g">
 					<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">

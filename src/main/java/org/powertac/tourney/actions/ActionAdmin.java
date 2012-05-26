@@ -52,6 +52,19 @@ public class ActionAdmin
   private boolean sortAscendingMachine = true;
   private int rowCountMachine = 5;
 
+  private String sortColumnUsers = null;
+  private boolean sortAscendingUsers = true;
+  private int rowCountUsers = 5;
+  
+  private String sortColumnTournaments = null;
+  private boolean sortAscendingTournaments = true;
+  private int rowCountTournaments = 5;
+  
+
+  private String sortColumnGames = null;
+  private boolean sortAscendingGames = true;
+  private int rowCountGames = 5;
+  
   private String newLocationName = "";
   private Date newLocationStartTime;
   private Date newLocationEndTime;
@@ -76,6 +89,42 @@ public class ActionAdmin
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+  }
+  
+  public List<Game> getGameList()
+  {
+    List<Game> games = new ArrayList<Game>();
+    
+    Database db = new Database();
+    try{
+      db.startTrans();
+      games = db.getGames();
+      db.commitTrans();
+    }catch (SQLException e){
+      db.abortTrans();
+      e.printStackTrace();
+    }
+    
+    return games;
+
+  }
+  
+  public List<User> getUserList()
+  {
+    List<User> users = new ArrayList<User>();
+    
+    Database db = new Database();
+    try{
+      db.startTrans();
+      users = db.getAllUsers();
+      db.commitTrans();
+    }catch (SQLException e){
+      db.abortTrans();
+      e.printStackTrace();
+    }
+    
+    return users;
+
   }
 
   public String getPomName ()
@@ -147,6 +196,24 @@ public class ActionAdmin
 
   }
 
+  public List<Tournament> getTournamentList(){
+    List<Tournament> ts = new ArrayList<Tournament>();
+    
+    Database db = new Database();
+    try{
+      db.startTrans();
+      ts = db.getTournaments("pending");
+      ts.addAll(db.getTournaments("in-progress"));
+      db.commitTrans();
+    
+    }catch(Exception e){
+      db.abortTrans();
+    }
+    
+    return ts;
+    
+  }
+  
   public List<Location> getLocationList ()
   {
     List<Location> locations = new ArrayList<Location>();
@@ -244,9 +311,10 @@ public class ActionAdmin
     try {
       db.startTrans();
       db.addMachine(newName, newUrl, newViz, getNewQueue());
-      db.abortTrans();
+      db.commitTrans();
     }
     catch (SQLException e) {
+      db.abortTrans();
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
@@ -529,6 +597,96 @@ public class ActionAdmin
   public void setNewQueue (String newQueue)
   {
     this.newQueue = newQueue;
+  }
+
+  public String getSortColumnUsers ()
+  {
+    return sortColumnUsers;
+  }
+
+  public void setSortColumnUsers (String sortColumnUsers)
+  {
+    this.sortColumnUsers = sortColumnUsers;
+  }
+
+  public boolean isSortAscendingUsers ()
+  {
+    return sortAscendingUsers;
+  }
+
+  public void setSortAscendingUsers (boolean sortAscendingUsers)
+  {
+    this.sortAscendingUsers = sortAscendingUsers;
+  }
+
+  public int getRowCountUsers ()
+  {
+    return rowCountUsers;
+  }
+
+  public void setRowCountUsers (int rowCountUsers)
+  {
+    this.rowCountUsers = rowCountUsers;
+  }
+
+  public String getSortColumnTournaments ()
+  {
+    return sortColumnTournaments;
+  }
+
+  public void setSortColumnTournaments (String sortColumnTournaments)
+  {
+    this.sortColumnTournaments = sortColumnTournaments;
+  }
+
+  public boolean isSortAscendingTournaments ()
+  {
+    return sortAscendingTournaments;
+  }
+
+  public void setSortAscendingTournaments (boolean sortAscendingTournaments)
+  {
+    this.sortAscendingTournaments = sortAscendingTournaments;
+  }
+
+  public int getRowCountTournaments ()
+  {
+    return rowCountTournaments;
+  }
+
+  public void setRowCountTournaments (int rowCountTournaments)
+  {
+    this.rowCountTournaments = rowCountTournaments;
+  }
+
+  public String getSortColumnGames ()
+  {
+    return sortColumnGames;
+  }
+
+  public void setSortColumnGames (String sortColumnGames)
+  {
+    this.sortColumnGames = sortColumnGames;
+  }
+
+  public boolean isSortAscendingGames ()
+  {
+    return sortAscendingGames;
+  }
+
+  public void setSortAscendingGames (boolean sortAscendingGames)
+  {
+    this.sortAscendingGames = sortAscendingGames;
+  }
+
+  public int getRowCountGames ()
+  {
+    return rowCountGames;
+  }
+
+  public void setRowCountGames (int rowCountGames)
+  {
+    this.rowCountGames = rowCountGames;
   }
 
 }
