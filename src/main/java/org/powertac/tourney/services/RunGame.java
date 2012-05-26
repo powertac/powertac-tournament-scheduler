@@ -1,22 +1,16 @@
 package org.powertac.tourney.services;
 
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.TimerTask;
-
-import javax.faces.context.FacesContext;
 
 import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Machine;
-import org.powertac.tourney.beans.Scheduler;
 
 
 public class RunGame extends TimerTask
@@ -68,7 +62,6 @@ public class RunGame extends TimerTask
             db.startTrans();
             db.updateGameStatusById(Integer.parseInt(gameId), "game-pending");
             db.commitTrans();
-            db.closeConnection();
           }
           catch (SQLException e) {
             // TODO Auto-generated catch block
@@ -95,17 +88,14 @@ public class RunGame extends TimerTask
         }
       }
       catch (NumberFormatException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       catch (SQLException e) {
         System.out.println("Bootstrap Database error while scheduling sim!!");
         this.cancel();
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       catch (InterruptedException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
@@ -123,7 +113,6 @@ public class RunGame extends TimerTask
       int gId = Integer.parseInt(gameId);
 
       try {
-        db.openConnection();
         db.startTrans();
         Game g = db.getGame(gId);
 
@@ -179,15 +168,12 @@ public class RunGame extends TimerTask
         db.abortTrans();
         System.out.println("Broker Database error while scheduling sim!!");
         // System.exit(0);
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       catch (InterruptedException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
-
   }
 
   private void checkMachineAvailable ()
@@ -226,11 +212,9 @@ public class RunGame extends TimerTask
           System.out.println("Game: " + gameId + " running on machine: "
                              + this.machineName);
           db.commitTrans();
-          db.closeConnection();
         }
         else {
           db.abortTrans();
-          db.closeConnection();
           System.out.println("No machines available to run scheduled game: "
                              + gameId + " ... will retry in 5 minutes");
           Thread.sleep(300000);
@@ -238,21 +222,19 @@ public class RunGame extends TimerTask
         }
       }
       catch (NumberFormatException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       catch (SQLException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       catch (InterruptedException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
 
   }
 
+  @Override
   public void run ()
   {
     // Check if a boot exists
@@ -293,7 +275,5 @@ public class RunGame extends TimerTask
       System.out.println("Jenkins failure to start simulation game: "
                          + this.gameId);
     }
-
   }
-
 }
