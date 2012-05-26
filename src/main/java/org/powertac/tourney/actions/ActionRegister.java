@@ -26,16 +26,16 @@ public class ActionRegister
   {
     Database db = new Database();
     try {
-      db.openConnection();
+      db.startTrans();
       if (password1.equals(password2)) {
         db.addUser(this.getUsername(), this.getPassword1());
 
-        db.closeConnection();
+        db.commitTrans();
         return "Success";
       }
       else {
 
-        db.closeConnection();
+        db.abortTrans();
         FacesContext.getCurrentInstance()
                 .addMessage("registerForm",
                             new FacesMessage(FacesMessage.SEVERITY_INFO,
@@ -45,7 +45,8 @@ public class ActionRegister
 
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
+      db.abortTrans();
+      
       e.printStackTrace();
       return "Failure";
     }
