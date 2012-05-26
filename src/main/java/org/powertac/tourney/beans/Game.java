@@ -125,12 +125,13 @@ public class Game
     Database db = new Database();
     Broker b = new Broker("new");
     try {
+      db.openConnection();
       b = db.getBroker(brokerId);
       db.addBrokerToGame(gameId, b);
       db.closeConnection();
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
+      db.closeConnection();
       e.printStackTrace();
     }
 
@@ -248,7 +249,7 @@ public class Game
     Database db = new Database();
     boolean ingame = false;
     try {
-
+      db.openConnection();
       List<Broker> allBrokers = db.getBrokersInGame(gameId);
       for (Broker b: allBrokers) {
         if (b.getBrokerAuthToken().equalsIgnoreCase(authToken)) {

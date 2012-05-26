@@ -26,11 +26,16 @@ public class ActionRegister
   {
     Database db = new Database();
     try {
+      db.openConnection();
       if (password1.equals(password2)) {
         db.addUser(this.getUsername(), this.getPassword1());
+
+        db.closeConnection();
         return "Success";
       }
       else {
+
+        db.closeConnection();
         FacesContext.getCurrentInstance()
                 .addMessage("registerForm",
                             new FacesMessage(FacesMessage.SEVERITY_INFO,

@@ -162,7 +162,6 @@ public class Scheduler
                                                tournamentProperties.getProperty("destination")),
                                    new Date());
             }
-
             db.commitTrans();
           }
           catch (SQLException e) {
@@ -170,7 +169,6 @@ public class Scheduler
             this.cancel();
             e.printStackTrace();
           }
-          //db.closeConnection();
         }
 
         public void checkForBoots ()
@@ -184,6 +182,7 @@ public class Scheduler
                              + " : WatchDogTimer Looking for Bootstraps To Start..");
             // Check Database for startable games
             try {
+              db.startTrans();
               List<Game> games = db.getBootableGames();
               System.out.println("[INFO] WatchDogTimer reports " + games.size()
                                  + " boots are ready to start");
@@ -223,9 +222,11 @@ public class Scheduler
                 
                   
               }
+              db.commitTrans();
             }
             catch (SQLException e) {
               this.cancel();
+              db.abortTrans();
               e.printStackTrace();
             }
 
@@ -237,10 +238,12 @@ public class Scheduler
             Database db = new Database();
             List<Game> games = new ArrayList<Game>();
             try {
+              db.startTrans();
               games = db.getBootableGames();
               //db.closeConnection();
             }
             catch (SQLException e) {
+              db.abortTrans();
               e.printStackTrace();
             }
             System.out.println("[INFO] WatchDogTimer reports " + games.size()

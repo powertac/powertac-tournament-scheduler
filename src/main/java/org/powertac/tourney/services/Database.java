@@ -117,19 +117,6 @@ public class Database
 
   // Database Configurations
   private Connection conn = null;
-  private PreparedStatement loginStatement = null;
-  private PreparedStatement saltStatement = null;
-  private PreparedStatement addUserStatement = null;
-  private PreparedStatement selectUsersStatement = null;
-  private PreparedStatement addBrokerStatement = null;
-  private PreparedStatement selectBrokersByUserId = null;
-  private PreparedStatement selectBrokerByBrokerId = null;
-  private PreparedStatement updateBrokerById = null;
-  private PreparedStatement deleteBrokerById = null;
-  private PreparedStatement selectPropsById = null;
-  private PreparedStatement addPropsById = null;
-  private PreparedStatement addPom = null;
-  private PreparedStatement selectPoms = null;
 
   SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -194,12 +181,12 @@ public class Database
 
   public List<User> getAllUsers () throws SQLException
   {
-    checkDb();
+    
     List<User> users = new ArrayList<User>();
 
-    if (selectUsersStatement == null || selectUsersStatement.isClosed()) {
-      selectUsersStatement = conn.prepareStatement(Constants.SELECT_USERS);
-    }
+   
+    PreparedStatement selectUsersStatement = conn.prepareStatement(Constants.SELECT_USERS);
+    
 
     ResultSet rsUsers = selectUsersStatement.executeQuery();
     while (rsUsers.next()) {
@@ -212,7 +199,7 @@ public class Database
 
     }
 
-    conn.close();
+    //conn.close();
     rsUsers.close();
     selectUsersStatement.close();
 
@@ -227,10 +214,10 @@ public class Database
 
   public int addUser (String username, String password) throws SQLException
   {
-    checkDb();
+    
 
-    if (addUserStatement == null || addUserStatement.isClosed()) {
-      addUserStatement = conn.prepareStatement(Constants.ADD_USER);
+    
+      PreparedStatement addUserStatement = conn.prepareStatement(Constants.ADD_USER);
       // Use a pool of entropy to secure salts
       String genSalt =
         DigestUtils.md5Hex(Math.random() + (new Date()).toString());
@@ -244,20 +231,21 @@ public class Database
       addUserStatement.setInt(4, 3); // Lowest permission level for logged in
                                      // user is 3
 
-    }
+    
 
     return addUserStatement.executeUpdate();
   }
 
   public int[] loginUser (String username, String password) throws SQLException
   {
-    checkDb();
+    
 
     boolean userExist = false;
-    if (saltStatement == null || saltStatement.isClosed()) {
-      saltStatement = conn.prepareStatement(Constants.LOGIN_SALT);
-      saltStatement.setString(1, username);
-    }
+    
+
+    PreparedStatement saltStatement = conn.prepareStatement(Constants.LOGIN_SALT);
+    saltStatement.setString(1, username);
+    
 
     ResultSet rsSalt = saltStatement.executeQuery();
     // salt and hash password
@@ -299,13 +287,12 @@ public class Database
   public int addBroker (int userId, String brokerName, String shortDescription)
     throws SQLException
   {
-    checkDb();
+    
     org.powertac.tourney.beans.Broker b =
       new org.powertac.tourney.beans.Broker(brokerName, shortDescription);
 
-    if (addBrokerStatement == null || addBrokerStatement.isClosed()) {
-      addBrokerStatement = conn.prepareStatement(Constants.ADD_BROKER);
-    }
+    
+    PreparedStatement addBrokerStatement = conn.prepareStatement(Constants.ADD_BROKER);
 
     addBrokerStatement.setString(1, brokerName);
     addBrokerStatement.setString(2, b.getBrokerAuthToken());
@@ -318,13 +305,13 @@ public class Database
 
   public List<Broker> getBrokersByUserId (int userId) throws SQLException
   {
-    checkDb();
+    
     List<Broker> brokers = new ArrayList<Broker>();
 
-    if (selectBrokersByUserId == null || selectBrokersByUserId.isClosed()) {
-      selectBrokersByUserId =
+    
+    PreparedStatement selectBrokersByUserId =
         conn.prepareStatement(Constants.SELECT_BROKERS_BY_USERID);
-    }
+    
     selectBrokersByUserId.setInt(1, userId);
     ResultSet rsBrokers = selectBrokersByUserId.executeQuery();
     while (rsBrokers.next()) {
@@ -338,7 +325,7 @@ public class Database
       brokers.add(tmp);
 
     }
-    conn.close();
+    //conn.close();
     rsBrokers.close();
     selectBrokersByUserId.close();
 
@@ -348,12 +335,12 @@ public class Database
 
   public int deleteBrokerByBrokerId (int brokerId) throws SQLException
   {
-    checkDb();
+    
 
-    if (deleteBrokerById == null || deleteBrokerById.isClosed()) {
-      deleteBrokerById =
+    
+    PreparedStatement deleteBrokerById =
         conn.prepareStatement(Constants.DELETE_BROKER_BY_BROKERID);
-    }
+    
     deleteBrokerById.setInt(1, brokerId);
 
     return deleteBrokerById.executeUpdate();
@@ -363,12 +350,11 @@ public class Database
                                      String brokerAuth, String brokerShort)
     throws SQLException
   {
-    checkDb();
+    
 
-    if (updateBrokerById == null || updateBrokerById.isClosed()) {
-      updateBrokerById =
+    PreparedStatement updateBrokerById =
         conn.prepareStatement(Constants.UPDATE_BROKER_BY_BROKERID);
-    }
+    
     updateBrokerById.setString(1, brokerName);
     updateBrokerById.setString(2, brokerAuth);
     updateBrokerById.setString(3, brokerShort);
@@ -379,7 +365,7 @@ public class Database
 
   public Broker getBroker (int brokerId) throws SQLException
   {
-    checkDb();
+    
     Broker broker = new Broker("new");
 
     PreparedStatement selectBrokerByBrokerId =
@@ -395,7 +381,7 @@ public class Database
       broker.setShortDescription(rsBrokers.getString("brokerShort"));
       broker.setNumberInGame(rsBrokers.getInt("numberInGame"));
     }
-    conn.close();
+    //conn.close();
     rsBrokers.close();
     selectBrokerByBrokerId.close();
 
@@ -404,13 +390,13 @@ public class Database
 
   public List<String> getProperties (int gameId) throws SQLException
   {
-    checkDb();
+    
     List<String> props = new ArrayList<String>();
 
-    if (selectPropsById == null || selectPropsById.isClosed()) {
-      selectPropsById =
+    
+    PreparedStatement selectPropsById =
         conn.prepareStatement(Constants.SELECT_PROPERTIES_BY_ID);
-    }
+    
 
     selectPropsById.setInt(1, gameId);
 
@@ -421,7 +407,7 @@ public class Database
       props.add(rsProps.getString("jmsUrl"));
       props.add(rsProps.getString("vizQueue"));
     }
-    conn.close();
+    //conn.close();
     rsProps.close();
     selectPropsById.close();
 
@@ -432,7 +418,7 @@ public class Database
   public int addProperties (int gameId, String locationKV, String startTimeKV)
     throws SQLException
   {
-    checkDb();
+    
 
     PreparedStatement addPropsById =
       conn.prepareStatement(Constants.ADD_PROPERTIES);
@@ -447,7 +433,7 @@ public class Database
   public int updateProperties (int gameId, String jmsUrl, String vizQueue)
     throws SQLException
   {
-    checkDb();
+    
     PreparedStatement addPropsById =
       conn.prepareStatement(Constants.UPDATE_PROPETIES);
 
@@ -461,10 +447,10 @@ public class Database
   public int addPom (String uploadingUser, String name, String location)
     throws SQLException
   {
-    checkDb();
-    if (addPom == null || addPom.isClosed()) {
-      addPom = conn.prepareStatement(Constants.ADD_POM);
-    }
+    
+    
+    PreparedStatement addPom = conn.prepareStatement(Constants.ADD_POM);
+    
 
     addPom.setString(1, uploadingUser);
     addPom.setString(2, name);
@@ -513,12 +499,12 @@ public class Database
 
   public List<Pom> getPoms () throws SQLException
   {
-    checkDb();
+    
     List<Pom> poms = new ArrayList<Pom>();
 
-    if (selectPoms == null || selectPoms.isClosed()) {
-      selectPoms = conn.prepareStatement(Constants.SELECT_POMS);
-    }
+    
+    PreparedStatement selectPoms = conn.prepareStatement(Constants.SELECT_POMS);
+    
 
     ResultSet rsPoms = selectPoms.executeQuery();
     while (rsPoms.next()) {
@@ -530,7 +516,7 @@ public class Database
       poms.add(tmp);
     }
 
-    conn.close();
+    //conn.close();
     rsPoms.close();
     selectPoms.close();
 
@@ -543,7 +529,7 @@ public class Database
                             String pomUrl, String locations, int maxBrokers)
     throws SQLException
   {
-    checkDb();
+    
     dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
     PreparedStatement addTournament =
       conn.prepareStatement(Constants.ADD_TOURNAMENT);
@@ -562,7 +548,7 @@ public class Database
 
   public List<Tournament> getTournaments (String status) throws SQLException
   {
-    checkDb();
+    
     List<Tournament> ts = new ArrayList<Tournament>();
     PreparedStatement selectAllTournaments =
       conn.prepareStatement(Constants.SELECT_TOURNAMENTS);
@@ -575,16 +561,17 @@ public class Database
       Tournament tmp = new Tournament(rsTs);
       ts.add(tmp);
     }
-    conn.close();
-    rsTs.close();
+    
     selectAllTournaments.close();
+    rsTs.close();
+    
 
     return ts;
   }
 
   public Tournament getTournamentById (int tourneyId) throws SQLException
   {
-    checkDb();
+    
     Tournament ts = new Tournament();
     PreparedStatement selectTournament =
       conn.prepareStatement(Constants.SELECT_TOURNAMENT_BYID);
@@ -597,16 +584,17 @@ public class Database
       Tournament tmp = new Tournament(rsTs);
       ts = tmp;
     }
-    conn.close();
-    rsTs.close();
+    
+    
     selectTournament.close();
-
+    rsTs.close();
+    
     return ts;
   }
 
   public Tournament getTournamentByType (String type) throws SQLException
   {
-    checkDb();
+    
     Tournament ts = new Tournament();
     PreparedStatement selectTournament =
       conn.prepareStatement(Constants.SELECT_TOURNAMENT_BYTYPE);
@@ -620,16 +608,16 @@ public class Database
       ts = tmp;
     }
 
-    conn.close();
-    rsTs.close();
     selectTournament.close();
+    rsTs.close();
+    
 
     return ts;
   }
 
   public Tournament getTournamentByGameId (int gameId) throws SQLException
   {
-    checkDb();
+    
     Tournament ts = new Tournament();
     PreparedStatement selectTournament =
       conn.prepareStatement(Constants.SELECT_TOURNAMENT_BYGAMEID);
@@ -643,16 +631,17 @@ public class Database
       ts = tmp;
     }
 
-    rsTs.close();
     selectTournament.close();
-    conn.close();
+    rsTs.close();
+    
+    
     
     return ts;
   }
 
   public List<Game> getGamesInTourney (int tourneyId) throws SQLException
   {
-    checkDb();
+    
     List<Game> gs = new ArrayList<Game>();
     PreparedStatement selectAllGames =
       conn.prepareStatement(Constants.SELECT_GAMES_IN_TOURNEY);
@@ -664,7 +653,7 @@ public class Database
       Game tmp = new Game(rsGs);
       gs.add(tmp);
     }
-    conn.close();
+    
     rsGs.close();
     selectAllGames.close();
 
@@ -673,7 +662,7 @@ public class Database
 
   public int updateTournamentStatus (int tourneyId) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement updateStatus =
       conn.prepareStatement(Constants.UPDATE_TOURNAMENT_STATUS_BYID);
     updateStatus.setString(1, "in-progress");
@@ -684,7 +673,7 @@ public class Database
 
   public int registerBroker (int tourneyId, int brokerId) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement register =
       conn.prepareStatement(Constants.REGISTER_BROKER);
     register.setInt(1, tourneyId);
@@ -694,7 +683,7 @@ public class Database
 
   public int unregisterBroker (int tourneyId, int brokerId) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement register =
       conn.prepareStatement(Constants.UNREGISTER_BROKER);
     register.setInt(1, tourneyId);
@@ -704,7 +693,7 @@ public class Database
 
   public boolean isRegistered (int tourneyId, int brokerId) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement register = conn.prepareStatement(Constants.REGISTERED);
     register.setInt(1, tourneyId);
     register.setInt(2, brokerId);
@@ -722,7 +711,7 @@ public class Database
 
   public int getMaxGameId () throws SQLException
   {
-    checkDb();
+    
     int id = 0;
     PreparedStatement selectMaxId =
       conn.prepareStatement(Constants.SELECT_MAX_GAMEID);
@@ -741,7 +730,7 @@ public class Database
 
   public int getMaxTourneyId () throws SQLException
   {
-    checkDb();
+    
     int id = 0;
     PreparedStatement selectMaxId =
       conn.prepareStatement(Constants.SELECT_MAX_TOURNAMENTID);
@@ -759,7 +748,7 @@ public class Database
 
   public List<Broker> getBrokersRegistered (int tourneyId) throws SQLException
   {
-    checkDb();
+    
     List<Broker> result = new ArrayList<Broker>();
 
     PreparedStatement selectBrokers =
@@ -778,7 +767,7 @@ public class Database
 
       result.add(tmp);
     }
-    conn.close();
+    
     rsB.close();
     selectBrokers.close();
     return result;
@@ -786,7 +775,7 @@ public class Database
 
   public int getNumberBrokersRegistered (int tourneyId) throws SQLException
   {
-    checkDb();
+    
     int result = 0;
 
     PreparedStatement selectBrokers =
@@ -798,7 +787,7 @@ public class Database
     if (rsB.next()) {
       result = rsB.getInt("numRegistered");
     }
-    conn.close();
+    //conn.close();
     rsB.close();
     selectBrokers.close();
 
@@ -808,7 +797,7 @@ public class Database
 
   public List<Game> getGames () throws SQLException
   {
-    checkDb();
+    
     List<Game> gs = new ArrayList<Game>();
     PreparedStatement selectAllGames =
       conn.prepareStatement(Constants.SELECT_GAME);
@@ -819,7 +808,7 @@ public class Database
       Game tmp = new Game(rsGs);
       gs.add(tmp);
     }
-    conn.close();
+    //conn.close();
     rsGs.close();
     selectAllGames.close();
 
@@ -828,7 +817,7 @@ public class Database
 
   public List<Game> getStartableGames () throws SQLException
   {
-    checkDb();
+    
     List<Game> games = new ArrayList<Game>();
 
     PreparedStatement getGames =
@@ -845,7 +834,7 @@ public class Database
 
     rsGs.close();
     getGames.close();
-    conn.close();
+    //conn.close();
 
     return games;
 
@@ -853,7 +842,7 @@ public class Database
   
   public List<Game> getBootableGames () throws SQLException
   {
-    checkDb();
+    
     List<Game> games = new ArrayList<Game>();
 
     PreparedStatement getGames =
@@ -870,7 +859,7 @@ public class Database
 
     rsGs.close();
     getGames.close();
-    conn.close();
+    //conn.close();
 
     return games;
 
@@ -892,7 +881,7 @@ public class Database
 
     rsGs.close();
     getGames.close();
-    conn.close();
+    //conn.close();
     
     return games;
   }
@@ -900,7 +889,7 @@ public class Database
   public int addGame (String gameName, int tourneyId, int maxBrokers,
                       Date startTime) throws SQLException
   {
-    checkDb();
+    
     java.text.SimpleDateFormat sdf =
       new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -919,7 +908,7 @@ public class Database
 
   public Game getGame (int gameId) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement selectAllGames =
       conn.prepareStatement(Constants.SELECT_GAMEBYID);
     selectAllGames.setInt(1, gameId);
@@ -941,7 +930,7 @@ public class Database
 
   public int addBrokerToGame (int gameId, Broker b) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement addBrokerToGame =
       conn.prepareStatement(Constants.ADD_BROKER_TO_GAME);
 
@@ -955,7 +944,7 @@ public class Database
 
   public List<Broker> getBrokersInGame (int gameId) throws SQLException
   {
-    checkDb();
+    
     List<Broker> brokers = new ArrayList<Broker>();
     PreparedStatement getBrokers =
       conn.prepareStatement(Constants.GET_BROKERS_INGAME);
@@ -973,7 +962,7 @@ public class Database
 
       brokers.add(tmp);
     }
-    conn.close();
+    //conn.close();
     rs.close();
     getBrokers.close();
 
@@ -983,7 +972,7 @@ public class Database
   public List<Broker> getBrokersInTournament (int tourneyId)
     throws SQLException
   {
-    checkDb();
+    
     List<Broker> brokers = new ArrayList<Broker>();
     PreparedStatement getBrokers =
       conn.prepareStatement(Constants.GET_BROKERS_INTOURNAMENT);
@@ -1001,7 +990,7 @@ public class Database
 
       brokers.add(tmp);
     }
-    conn.close();
+    //conn.close();
     getBrokers.close();
     rs.close();
 
@@ -1010,7 +999,7 @@ public class Database
 
   public boolean isGameReady (int gameId) throws SQLException
   {
-    checkDb();
+    
 
     PreparedStatement hasBootstrap =
       conn.prepareStatement(Constants.GAME_READY);
@@ -1033,7 +1022,7 @@ public class Database
   public int updateGameStatusById (int gameId, String status)
     throws SQLException
   {
-    checkDb();
+    
     PreparedStatement updateGame = conn.prepareStatement(Constants.UPDATE_GAME);
 
     updateGame.setInt(2, gameId);
@@ -1044,7 +1033,7 @@ public class Database
 
   public int updateGameMachine (int gameId, int machineId) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement updateGame =
       conn.prepareStatement(Constants.UPDATE_GAME_MACHINE);
 
@@ -1056,7 +1045,7 @@ public class Database
 
   public int updateGameFreeMachine (int gameId) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement updateGame =
       conn.prepareStatement(Constants.UPDATE_GAME_FREE_MACHINE);
 
@@ -1067,7 +1056,7 @@ public class Database
 
   public int updateGameFreeBrokers (int gameId) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement updateGame =
       conn.prepareStatement(Constants.UPDATE_GAME_FREE_BROKERS);
 
@@ -1079,7 +1068,7 @@ public class Database
   public int updateGameJmsUrlById (int gameId, String jmsUrl)
     throws SQLException
   {
-    checkDb();
+    
     PreparedStatement updateGame =
       conn.prepareStatement(Constants.UPDATE_GAME_JMSURL);
 
@@ -1092,7 +1081,7 @@ public class Database
   public int updateGameBootstrapById (int gameId, String bootstrapUrl)
     throws SQLException
   {
-    checkDb();
+    
     PreparedStatement updateBoot =
       conn.prepareStatement(Constants.UPDATE_GAME_BOOTSTRAP);
 
@@ -1104,7 +1093,7 @@ public class Database
 
   public int updateGamePropertiesById (int gameId) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement updateProps =
       conn.prepareStatement(Constants.UPDATE_GAME_PROPERTIES);
 
@@ -1130,7 +1119,7 @@ public class Database
 
   public int updateGameViz (int gameId, String vizUrl) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement updateViz =
       conn.prepareStatement(Constants.UPDATE_GAME_VIZ);
 
@@ -1142,7 +1131,7 @@ public class Database
 
   public List<Machine> getMachines () throws SQLException
   {
-    checkDb();
+    
     List<Machine> machines = new ArrayList<Machine>();
 
     PreparedStatement selectMachines =
@@ -1155,6 +1144,7 @@ public class Database
       machines.add(tmp);
     }
     rsMachines.close();
+    selectMachines.close();
 
     return machines;
   }
@@ -1162,7 +1152,7 @@ public class Database
   public int setMachineAvailable (int machineId, boolean isAvailable)
     throws SQLException
   {
-    checkDb();
+    
 
     PreparedStatement updateMachine =
       conn.prepareStatement(Constants.UPDATE_MACHINE_AVAILABILITY);
@@ -1177,7 +1167,7 @@ public class Database
   public int setMachineStatus (int machineId, String status)
     throws SQLException
   {
-    checkDb();
+    
 
     PreparedStatement updateMachine =
       conn.prepareStatement(Constants.UPDATE_MACHINE_STATUS_BY_ID);
@@ -1193,7 +1183,7 @@ public class Database
                          String visualizerUrl, String visualizerQueue)
     throws SQLException
   {
-    checkDb();
+    
 
     PreparedStatement addMachine = conn.prepareStatement(Constants.ADD_MACHINE);
     addMachine.setString(1, machineName);
@@ -1206,7 +1196,7 @@ public class Database
 
   public int deleteMachine (int machineId) throws SQLException
   {
-    checkDb();
+    
 
     PreparedStatement deleteMachine =
       conn.prepareStatement(Constants.REMOVE_MACHINE);
@@ -1217,7 +1207,7 @@ public class Database
 
   public List<Location> getLocations () throws SQLException
   {
-    checkDb();
+    
     List<Location> locations = new ArrayList<Location>();
     PreparedStatement selectLocations =
       conn.prepareStatement(Constants.SELECT_LOCATIONS);
@@ -1238,7 +1228,7 @@ public class Database
       locations.add(tmp);
 
     }
-    conn.close();
+    //conn.close();
     rsLocations.close();
     selectLocations.close();
 
@@ -1248,7 +1238,7 @@ public class Database
 
   public int deleteLocation (int locationId) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement deleteLocation =
       conn.prepareStatement(Constants.DELETE_LOCATION);
 
@@ -1260,7 +1250,7 @@ public class Database
   public int addLocation (String location, Date newLocationStartTime,
                           Date newLocationEndTime) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement addLocations =
       conn.prepareStatement(Constants.ADD_LOCATION);
     addLocations.setString(1, location);
@@ -1272,7 +1262,7 @@ public class Database
 
   public Date selectMinDate (List<Location> locations) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement minDate =
       conn.prepareStatement(Constants.SELECT_MIN_DATE);
     Date min = new Date();
@@ -1294,7 +1284,7 @@ public class Database
 
   public Date selectMaxDate (List<Location> locations) throws SQLException
   {
-    checkDb();
+    
     PreparedStatement minDate =
       conn.prepareStatement(Constants.SELECT_MAX_DATE);
     Date max = new Date();
@@ -1323,7 +1313,6 @@ public class Database
 
   public int commitTrans () //throws SQLException
   {
-    //checkDb();
     try {
       PreparedStatement trans = conn.prepareCall(Constants.COMMIT_TRANS);
       trans.execute();
@@ -1351,16 +1340,26 @@ public class Database
   }
   public int truncateScheduler() throws SQLException
   {
-    checkDb();
+    
     PreparedStatement trunc = conn.prepareCall(Constants.CLEAR_SCHEDULE);
     trunc.execute();
     return 0;
   }
   
+  private void openConnection () throws SQLException
+  {
+    checkDb();
+  }
 
   private void closeConnection () throws SQLException
   {
-    conn.close();
+    try {
+      conn.close();
+    }
+    catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   public String getDbUrl ()

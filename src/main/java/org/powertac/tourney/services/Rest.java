@@ -64,6 +64,8 @@ public class Rest
     Database db = new Database();
 
     try {
+      db.openConnection();
+      db.startTrans();
       List<Game> allGames = db.getGames();
       if (competitionName != null && allGames != null) {
 
@@ -102,6 +104,7 @@ public class Rest
           }
 
         }
+        db.commitTrans();
         db.closeConnection();
 
         Date minDate = new Date(Long.MAX_VALUE);
@@ -134,12 +137,8 @@ public class Rest
 
     }
     catch (Exception e) {
-      try {
-        db.closeConnection();
-      }
-      catch (SQLException e1) {
-        e1.printStackTrace();
-      }
+      db.abortTrans();
+      db.closeConnection();
       e.printStackTrace();
     }
 
@@ -175,6 +174,7 @@ public class Rest
                            + gameId);
           Database db = new Database();
           try {
+            db.openConnection();
             db.updateGameStatusById(gameId, "boot-in-progress");
             System.out.println("[INFO] Setting game: " + gameId
                                + " to boot-in-progress");
@@ -203,6 +203,7 @@ public class Rest
           }
 
           try {
+            db.openConnection();
             db.startTrans();
             db.updateGameBootstrapById(gameId,
                                        hostip
@@ -220,6 +221,8 @@ public class Rest
             db.closeConnection();
           }
           catch (SQLException e) {
+            db.abortTrans();
+            db.closeConnection();
             e.printStackTrace();
           }
           return "Success";
@@ -241,6 +244,8 @@ public class Rest
             db.closeConnection();
           }
           catch (SQLException e) {
+            db.abortTrans();
+            db.closeConnection();
             e.printStackTrace();
           }
           return "success";
@@ -271,6 +276,7 @@ public class Rest
             db.closeConnection();
           }
           catch (SQLException e) {
+            db.abortTrans();
             e.printStackTrace();
           }
           return "success";
@@ -292,6 +298,8 @@ public class Rest
             db.closeConnection();
           }
           catch (SQLException e) {
+            db.abortTrans();
+            db.closeConnection();
             e.printStackTrace();
           }
           return "success";
