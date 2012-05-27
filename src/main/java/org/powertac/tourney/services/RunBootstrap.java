@@ -76,7 +76,7 @@ public class RunBootstrap extends TimerTask
                   .getMachineId());
           //db.setMachineStatus(available.get(0).getMachineId(), "running");
           this.machineName = "tac16";
-          this.machineName = available.get(0).getName();
+          //this.machineName = available.get(0).getName();
           System.out.println("Running boot " + gameId + " on machine "
                              + this.machineName);
           db.commitTrans();
