@@ -15,17 +15,17 @@ import org.springframework.stereotype.Service;
 public class RunBootstrap extends TimerTask
 {
 
-  String logSuffix = "boot-";// boot-game-" + game.getGameId() + "-tourney-"+
+  private String logSuffix = "boot-";// boot-game-" + game.getGameId() + "-tourney-"+
                              // game.getCompetitionName();
-  String tourneyUrl = "";// game.getTournamentSchedulerUrl();
-  String serverConfig = "";// game.getServerConfigUrl();
-  String bootstrapUrl = "";// This needs to be empty for jenkins to run a
+  private String tourneyUrl = "";// game.getTournamentSchedulerUrl();
+  private String serverConfig = "";// game.getServerConfigUrl();
+  private String bootstrapUrl = "";// This needs to be empty for jenkins to run a
                            // bootstrapgame.getBootstrapUrl();
-  String pomUrl = "";// game.getPomUrl();
-  String gameId = "";// String.valueOf(game.getGameId());
-  String brokers = "";
-  String machineName = "";
-  String destination = "";
+  private String pomUrl = "";// game.getPomUrl();
+  private String gameId = "";// String.valueOf(game.getGameId());
+  private String brokers = "";
+  private String machineName = "";
+  private String destination = "";
 
   public RunBootstrap (int gameId, String tourneyUrl, String pomUrl,
                        String destination)
