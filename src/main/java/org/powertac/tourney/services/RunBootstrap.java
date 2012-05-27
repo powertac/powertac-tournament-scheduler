@@ -99,7 +99,7 @@ public class RunBootstrap extends TimerTask
 
   public void run ()
   {
-    if(machineName.isEmpty()){
+    if(this.machineName.equalsIgnoreCase("")){
       checkMachineAvailable();
     }
 
