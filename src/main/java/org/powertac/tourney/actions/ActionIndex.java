@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.services.Database;
 import org.springframework.context.annotation.Scope;
@@ -42,6 +43,47 @@ public class ActionIndex
     
     return games;
 
+  }
+  
+  public String getBrokersInGame(Game g){
+    List<Broker> brokersRegistered = new ArrayList<Broker>();
+    
+    Database db = new Database();
+    
+    try{
+      db.startTrans();
+      brokersRegistered = db.getBrokersInGame(g.getGameId());
+      db.commitTrans();
+    }catch(Exception e){
+      db.abortTrans();
+      e.printStackTrace();
+    }
+    
+    String result = "";
+    
+    for(Broker b : brokersRegistered){
+      result += b.getBrokerName() + "\n";
+    }
+    
+    return result;
+        
+  }
+  
+  public String getTournamentNameByGame(Game g){
+    String result = "";
+    
+    Database db = new Database();
+    
+    try{
+      db.startTrans();
+      result = db.getTournamentByGameId(g.getGameId()).getTournamentName();
+      db.commitTrans();
+    }catch(Exception e){
+      db.abortTrans();
+      e.printStackTrace();
+    }
+    
+    return result;
   }
 
   public String getSortColumn ()

@@ -42,10 +42,19 @@
     				<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">
-							<h:outputText value="Game Name" />
+							<h:outputText value="Tournament Name" />
 						</f:facet>
 						<!-- row record -->
-    						#{g.gameName}
+    						#{actionIndex.getTournamentNameByGame(g)}
+    				</t:column>
+    				
+    				<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Brokers In Game" />
+						</f:facet>
+						<!-- row record -->
+    						#{actionIndex.getBrokersInGame(g)}
     				</t:column>
 
 					<t:column>
