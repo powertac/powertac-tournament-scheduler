@@ -26,6 +26,7 @@ public class RunBootstrap extends TimerTask
   private String brokers = "";
   private String machineName = "";
   private String destination = "";
+  private boolean usingMachine = false;
 
   public RunBootstrap (int gameId, String tourneyUrl, String pomUrl,
                        String destination)
@@ -48,6 +49,7 @@ public class RunBootstrap extends TimerTask
     this.pomUrl = pomUrl;
     this.destination = destination;
     this.machineName = machineName;
+    this.usingMachine = true;
 
     // Assumes Jenkins and TS live in the same location as per the install
     this.serverConfig =
@@ -70,11 +72,14 @@ public class RunBootstrap extends TimerTask
         }
         if (available.size() > 0) {
 
-          //db.updateGameJmsUrlById(Integer.parseInt(gameId),"tcp://"+available.get(0).getName() +":61616");
-          //db.updateGameMachine(Integer.parseInt(gameId), available.get(0).getMachineId());
-          //db.setMachineStatus(available.get(0).getMachineId(), "running");
-          this.machineName = ((TournamentProperties) SpringApplicationContext.getBean("tournamentProperties")).getProperty("bootserverName");
-          //this.machineName = available.get(0).getName();
+          if(!usingMachine){
+            db.updateGameJmsUrlById(Integer.parseInt(gameId),"tcp://"+available.get(0).getName() +":61616");
+            db.updateGameMachine(Integer.parseInt(gameId), available.get(0).getMachineId());
+            db.setMachineStatus(available.get(0).getMachineId(), "running");
+            this.machineName = available.get(0).getName();          
+          }
+          
+          
           System.out.println("Running boot " + gameId + " on machine "
                              + this.machineName);
           db.commitTrans();
