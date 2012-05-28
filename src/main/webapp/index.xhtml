@@ -21,6 +21,7 @@
 			<p>Create an account and register your broker as shown at 
 			https://github.com/powertac/powertac-server/wiki/Broker-Tournament-Login. </p>
 			
+			
 			<h4> Running Games and their Visualizers</h4>
 			<h:form>
 				
@@ -51,7 +52,7 @@
     				<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">
-							<h:outputText value="Brokers In Game" />
+							<h:outputText value="Brokers" />
 						</f:facet>
 						<!-- row record -->
     						#{actionIndex.getBrokersInGame(g)}
@@ -94,6 +95,54 @@
 					</t:column>
 
 				</t:dataTable>
+			</h:form>
+			
+			<h4> Complete Games and Logs</h4>
+			<h:form>
+				<t:dataTable id="datagames" border="1" sortable="true"
+					sortColumn="#{actionIndex.sortColumn}"
+					sortAscending="#{actionIndex.sortAscending}" preserveSort="true"
+					rowCount="#{actionIndex.rowCount}"
+					style="border:1px solid black;border-collapse:collapse;text-align:center"
+					value="#{actionIndex.gameCompleteList}" var="g">
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Game ID" />
+						</f:facet>
+						<!-- row record -->
+    						#{g.gameId}
+    				</t:column>
+    				
+    				<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Tournament Name" />
+						</f:facet>
+						<!-- row record -->
+    						#{actionIndex.getTournamentNameByGame(g)}
+    				</t:column>
+    				
+    				<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Brokers" />
+						</f:facet>
+						<!-- row record -->
+    						#{actionIndex.getBrokersInGame(g)}
+    				</t:column>
+    				
+    				<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Logs" />
+						</f:facet>
+						<!-- row record -->
+    						<a href="#game-{g.gameId}-sim-logs.tar.gz">Logs</a>
+    				</t:column>
+
+				</t:dataTable>
+
 			</h:form>
 
 

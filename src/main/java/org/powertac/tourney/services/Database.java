@@ -811,6 +811,26 @@ public class Database
 
     return gs;
   }
+  
+  public List<Game> getCompleteGames () throws SQLException
+  {
+    
+    List<Game> gs = new ArrayList<Game>();
+    PreparedStatement selectAllGames =
+      conn.prepareStatement(Constants.SELECT_COMPLETE_GAMES);
+
+    ResultSet rsGs = selectAllGames.executeQuery();
+
+    while (rsGs.next()) {
+      Game tmp = new Game(rsGs);
+      gs.add(tmp);
+    }
+    //conn.close();
+    rsGs.close();
+    selectAllGames.close();
+
+    return gs;
+  }
 
   public List<Game> getStartableGames () throws SQLException
   {

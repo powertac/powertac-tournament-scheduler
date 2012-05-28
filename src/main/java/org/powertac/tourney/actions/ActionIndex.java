@@ -27,62 +27,84 @@ public class ActionIndex
   private boolean sortAscending = true;
   private int rowCount = 5;
 
-  public List<Game> getGameList()
+  public List<Game> getGameList ()
   {
     List<Game> games = new ArrayList<Game>();
-    
+
     Database db = new Database();
-    try{
+    try {
       db.startTrans();
       games = db.getGames();
       db.commitTrans();
-    }catch (SQLException e){
+    }
+    catch (SQLException e) {
       db.abortTrans();
       e.printStackTrace();
     }
-    
-    return games;
 
+    return games;
   }
-  
-  public String getBrokersInGame(Game g){
-    List<Broker> brokersRegistered = new ArrayList<Broker>();
-    
+
+  public List<Game> getGameCompleteList ()
+  {
+    List<Game> games = new ArrayList<Game>();
+
     Database db = new Database();
-    
-    try{
+    try {
+      db.startTrans();
+      games = db.getCompleteGames();
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    return games;
+  }
+
+  public String getBrokersInGame (Game g)
+  {
+    List<Broker> brokersRegistered = new ArrayList<Broker>();
+
+    Database db = new Database();
+
+    try {
       db.startTrans();
       brokersRegistered = db.getBrokersInGame(g.getGameId());
       db.commitTrans();
-    }catch(Exception e){
+    }
+    catch (Exception e) {
       db.abortTrans();
       e.printStackTrace();
     }
-    
+
     String result = "";
-    
-    for(Broker b : brokersRegistered){
+
+    for (Broker b: brokersRegistered) {
       result += b.getBrokerName() + "\n";
     }
-    
+
     return result;
-        
+
   }
-  
-  public String getTournamentNameByGame(Game g){
+
+  public String getTournamentNameByGame (Game g)
+  {
     String result = "";
-    
+
     Database db = new Database();
-    
-    try{
+
+    try {
       db.startTrans();
       result = db.getTournamentByGameId(g.getGameId()).getTournamentName();
       db.commitTrans();
-    }catch(Exception e){
+    }
+    catch (Exception e) {
       db.abortTrans();
       e.printStackTrace();
     }
-    
+
     return result;
   }
 

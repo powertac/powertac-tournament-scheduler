@@ -437,6 +437,8 @@ public class Constants
   public static final String SELECT_GAME =
     "SELECT * FROM tourney.games WHERE (status LIKE 'boot%') OR (status LIKE '%pending') OR (status LIKE '%progress');";
 
+  
+  public static final String SELECT_COMPLETE_GAMES = "SELECT * FROM tourney.games WHERE status='game-complete';";
   /***
    * Select all games belonging to a tournament
    * 
