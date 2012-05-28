@@ -290,6 +290,28 @@ public class ActionAdmin
     }
 
   }
+  public void toggleStatus(Machine m){
+    Database db = new Database();
+    
+    try{
+      db.startTrans();
+      if(m.isInProgress()){
+        db.setMachineStatus(m.getMachineId(), "idle");
+      }else{
+        db.setMachineStatus(m.getMachineId(), "running");
+      }
+      db.commitTrans();
+    }catch(Exception e){
+      db.abortTrans();
+      e.printStackTrace();
+    }
+    
+    
+  }
+  
+  public void editMachine(Machine m){
+       
+  }
 
   public void deleteMachine (Machine m)
   {

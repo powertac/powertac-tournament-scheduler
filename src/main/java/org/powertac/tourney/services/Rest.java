@@ -352,6 +352,7 @@ public class Rest
     // Test Settings
     String minTimeslot = "common.competition.minimumTimeslotCount = 220";
     String expectedTimeslot = "common.competition.expectedTimeslotCount = 240";
+    String serverFirstTimeout = "server.competitionControlService.firstLoginTimeout = 600000";
 
     // Timeout Settings
     String serverTimeout =
@@ -361,6 +362,7 @@ public class Rest
       result += weatherLocation + props.get(0) + "\n";
       result += startTime + props.get(1) + "\n";
       result += jms + props.get(2) + "\n";
+      result += serverFirstTimeout + "\n";
       result += serverTimeout + "\n";
       if (props.get(2).length() > 2) {
         result += remote + "true\n";

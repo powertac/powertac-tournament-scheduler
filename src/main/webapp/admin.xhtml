@@ -238,7 +238,7 @@
 					<t:column defaultSorted="true">
 						<!-- column header -->
 						<f:facet name="header">
-							<h:outputText value="Toggle" />
+							<h:outputText value="Toggle Available" />
 						</f:facet>
 						<!-- row record -->
 						<h:commandButton value="enable"
@@ -248,6 +248,20 @@
 							action="#{actionAdmin.toggleAvailable(m)}"
 							rendered="#{m.available}" />
 					</t:column>
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Toggle Status" />
+						</f:facet>
+						<!-- row record -->
+						<h:commandButton value="Set Running"
+							action="#{actionAdmin.toggleStatus(m)}"
+							rendered="#{!m.inProgress}" />
+						<h:commandButton value="Set Idle"
+							action="#{actionAdmin.toggleStatus(m)}"
+							rendered="#{m.inProgress}"  />
+					</t:column>
+					
 
 					<t:column defaultSorted="true">
 						<!-- column header -->
@@ -257,6 +271,15 @@
 						<!-- row record -->
 						<h:commandButton value="delete"
 							action="#{actionAdmin.deleteMachine(m)}" />
+					</t:column>
+					<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Edit" />
+						</f:facet>
+						<!-- row record -->
+						<h:commandButton value="Edit"
+							action="#{actionAdmin.editMachine(m)}" />
 					</t:column>
 
 				</t:dataTable>
