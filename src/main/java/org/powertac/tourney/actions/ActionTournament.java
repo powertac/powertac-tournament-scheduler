@@ -394,7 +394,7 @@ public class ActionTournament
         System.out.println("[INFO] Starting transaction");
         // Adds new tournament to the database
         System.out.println("[INFO] Creating New tourney");
-        db.addTournament(newTourney.getTournamentName(), true, size1,
+        db.addTournament(newTourney.getTournamentName(), true, numberOfGames,
                          newTourney.getStartTime(), "SINGLE_GAME",
                          newTourney.getPomUrl(), allLocations, maxBrokers);
         // Grabs the tourney Id
@@ -422,6 +422,7 @@ public class ActionTournament
         
         db.commitTrans();
         
+        scheduler.initTournament(newTourney);
         
 
       }

@@ -12,6 +12,8 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.annotation.PreDestroy;
+
+import org.powertac.tourney.scheduling.MainScheduler;
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.RunBootstrap;
 import org.powertac.tourney.services.RunGame;
@@ -23,9 +25,8 @@ import org.springframework.stereotype.Service;
 public class Scheduler
 {
 
-  
   private TournamentProperties tournamentProperties;
-  
+
   public static final String key = "scheduler";
   public static boolean running = false;
   public boolean multigame = false;
@@ -33,13 +34,15 @@ public class Scheduler
   public boolean bootrunning = false;
 
   private Timer watchDogTimer = null;
+
+  private MainScheduler scheduler;
+
   SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 
   private HashMap<Integer, Integer> AgentIdToBrokerId =
     new HashMap<Integer, Integer>();
   private HashMap<Integer, Integer> ServerIdToMachineId =
     new HashMap<Integer, Integer>();
-
 
   private HashMap<Integer, Timer> bootToBeRun = new HashMap<Integer, Timer>();
   private HashMap<Integer, Timer> simToBeRun = new HashMap<Integer, Timer>();
@@ -48,11 +51,11 @@ public class Scheduler
   {
     return key;
   }
-  
-  public boolean isRunning(){
+
+  public boolean isRunning ()
+  {
     return watchDogTimer != null;
   }
-  
 
   @PreDestroy
   public void cleanUp () throws Exception
@@ -79,35 +82,76 @@ public class Scheduler
   {
 
     dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-    //this.startWatchDog();
+    // this.startWatchDog();
     lazyStart();
   }
+
+  public void initTournament (Tournament t)
+  {
+    Database db = new Database();
+    try{
+      db.startTrans();
+      db.truncateScheduler();
+      db.commitTrans();
+    }catch(Exception e){
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    int noofagents = t.getMaxBrokers();// maxBrokers;
+    int noofcopies = t.getMaxBrokerInstances();// maxBrokerInstances;
+    int noofservers = 7;
+    int iteration = 1, num;
+    int[] gtypes = { t.getSize1(), t.getSize2(), t.getSize3() };
+    int[] mxs = { t.getNumberSize1(), t.getNumberSize2(), t.getNumberSize3() };
+
+    try {
+      scheduler =  new MainScheduler(noofagents, noofcopies, noofservers, gtypes, mxs);
+      scheduler.initializeAgentsDB(noofagents, noofcopies);
+      scheduler.initGameCube(gtypes, mxs);
+      scheduler.resetCube();
+      
+    }
+    catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+  }
   
-  public void lazyStart(){
+  
+  public void tickScheduler(){
+    
+  }
+
+  public void lazyStart ()
+  {
     Timer t = new Timer();
     TimerTask tt = new TimerTask() {
 
       @Override
       public void run ()
       {
-        Scheduler.this.tournamentProperties = (TournamentProperties) SpringApplicationContext.getBean("tournamentProperties");
+        Scheduler.this.tournamentProperties =
+          (TournamentProperties) SpringApplicationContext
+                  .getBean("tournamentProperties");
         Scheduler.this.startWatchDog();
-      
+
       }
-      
+
     };
-    t.schedule(tt, 3000); 
+    t.schedule(tt, 3000);
   }
 
   public synchronized void startWatchDog ()
   {
     if (!running) {
       running = true;
-      
+
       Timer t = new Timer();
       TimerTask watchDog = new TimerTask() {
         Database db;
-        
+
         @Override
         public void run ()
         {
@@ -123,7 +167,7 @@ public class Scheduler
                              + " : WatchDogTimer Looking for Games To Start..");
           // Check Database for startable games
           try {
-            //db.openConnection();
+            // db.openConnection();
             db.startTrans();
             List<Game> games = db.getStartableGames();
             System.out.println("[INFO] WatchDogTimer reports " + games.size()
@@ -150,7 +194,8 @@ public class Scheduler
                                                g.getGameId(),
                                                hostip + "/TournamentScheduler/",
                                                t.getPomUrl(),
-                                               tournamentProperties.getProperty("destination")),
+                                               tournamentProperties
+                                                       .getProperty("destination")),
                                    new Date());
             }
             db.commitTrans();
@@ -166,7 +211,7 @@ public class Scheduler
         {
 
           if (!bootrunning) {
-            
+
             System.out
                     .println("[INFO] "
                              + dateFormatUTC.format(new Date())
@@ -187,31 +232,31 @@ public class Scheduler
               catch (UnknownHostException e2) {
                 e2.printStackTrace();
               }
-              
-              if (games.size()>0){
+
+              if (games.size() > 0) {
                 bootrunning = true;
                 Game g = games.get(0);
-                
+
                 Tournament t = db.getTournamentByGameId(g.getGameId());
-                //db.closeConnection();
-                
-  
+                // db.closeConnection();
+
                 System.out.println("[INFO] " + dateFormatUTC.format(new Date())
                                    + " : Boot: " + g.getGameId()
                                    + " will be started...");
-  
-                Scheduler.this.runBootTimer(g.getGameId(),
-                              new RunBootstrap(
-                                               g.getGameId(),
-                                               hostip + "/TournamentScheduler/",
-                                               t.getPomUrl(),
-                                               tournamentProperties.getProperty("destination"),
-                                               tournamentProperties.getProperty("bootserverName")),
-                              new Date());
-                
-                
-                
-                  
+
+                Scheduler.this
+                        .runBootTimer(g.getGameId(),
+                                      new RunBootstrap(
+                                                       g.getGameId(),
+                                                       hostip
+                                                               + "/TournamentScheduler/",
+                                                       t.getPomUrl(),
+                                                       tournamentProperties
+                                                               .getProperty("destination"),
+                                                       tournamentProperties
+                                                               .getProperty("bootserverName")),
+                                      new Date());
+
               }
               db.commitTrans();
             }
@@ -231,7 +276,7 @@ public class Scheduler
             try {
               db.startTrans();
               games = db.getBootableGames();
-              //db.closeConnection();
+              // db.closeConnection();
             }
             catch (SQLException e) {
               db.abortTrans();
@@ -246,10 +291,11 @@ public class Scheduler
 
       System.out.println("[INFO] " + dateFormatUTC.format(new Date())
                          + " : Starting WatchDog...");
-      
-     
-      long watchDogInt = Integer.parseInt(tournamentProperties.getProperty("scheduler.watchDogInterval", "120000"));
-      
+
+      long watchDogInt =
+        Integer.parseInt(tournamentProperties
+                .getProperty("scheduler.watchDogInterval", "120000"));
+
       t.schedule(watchDog, new Date(), watchDogInt);
 
       this.watchDogTimer = t;
