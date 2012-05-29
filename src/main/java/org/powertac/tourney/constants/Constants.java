@@ -225,7 +225,7 @@ public class Constants
    *          : The id of the tournament you wish to query
    */
   public static final String GET_NUMBER_REGISTERED_BYTOURNAMENTID =
-    "SELECT COUNT(brokerId) as numRegistered FROM registration JOIN games ON registration.tourneyId = games.tourneyId WHERE games.tourneyId=?;";
+    "SELECT COUNT(brokerId) as numRegistered FROM registration WHERE registration.tourneyId=?;";
 
   /***
    * Get a list of registered brokers for a tournament
