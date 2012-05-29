@@ -309,7 +309,7 @@ public class Scheduler
 
             List<Integer> brokerSet = new ArrayList<Integer>();
             for (AgentLet a: agentSet) {
-              brokerSet.add(AgentIdToBrokerId.get(a.getAgentId()));
+              brokerSet.add(AgentIdToBrokerId.get(a.getAgentType()));
             }
             System.out.println("[INFO] BrokerSet Size" + brokerSet.size());
 
