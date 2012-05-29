@@ -5,9 +5,12 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -304,12 +307,14 @@ public class Scheduler
         if (!scheduler.equilibrium()) {
           
           if(games.isEmpty()){
+            System.out.println("[INFO] Acquiring new schedule...");
             games = scheduler.Schedule();
           }
           System.out.println("[INFO] WatchDogTimer reports " + games.size()
                              + " tournament game(s) are ready to start");
-                    
-          for (Server s: games.keySet()) {
+          
+          List<Server> servers = new ArrayList<Server>(games.keySet());
+          for (Server s: servers) {
             if(gamesInTourney.size() == 0){
               break;
             }
@@ -368,6 +373,8 @@ public class Scheduler
                                                      .getProperty("destination"),
                                              m, brokers), new Date());
 
+
+            games.remove(s);
             // Wait for jenkins
             Thread.sleep(1000);
 
