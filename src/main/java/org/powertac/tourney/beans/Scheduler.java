@@ -242,7 +242,7 @@ public class Scheduler
         List<Broker> brokersInTourney =
           db.getBrokersInTournament(runningTournament.getTournamentId());
         int i = 0;
-        
+        System.out.println("[INFO] Brokers in Tournament: " + brokersInTourney.size());
         for (int agentId: AgentIdToBrokerId.keySet()) {
           if(i>=brokersInTourney.size()){
             break;
@@ -266,6 +266,8 @@ public class Scheduler
           System.out
                   .println("[INFO] Tournament is either complete or not enough bootstraps are available");
           return;
+        }else{
+          System.out.println("[INFO] Games with boots available " + gamesInTourney.size());
         }
 
         if (!scheduler.equilibrium()) {
@@ -281,6 +283,7 @@ public class Scheduler
             for (AgentLet a: agentSet) {
               brokerSet.add(AgentIdToBrokerId.get(a.getAgentId()));
             }
+            System.out.println("[INFO] BrokerSet Size" + brokerSet.size());
 
             Game somegame = gamesInTourney.get(0);
             gamesInTourney.remove(0);

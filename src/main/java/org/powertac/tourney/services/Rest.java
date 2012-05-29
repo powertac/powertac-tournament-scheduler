@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -30,6 +31,7 @@ public class Rest
 {
 
   private Scheduler scheduler;
+  private HashMap<Integer,String> skip = new HashMap<Integer,String>();
 
   public String parseBrokerLogin (Map<?, ?> params)
   {
@@ -84,20 +86,19 @@ public class Rest
             if (competitionName.equalsIgnoreCase(t.getTournamentName())
                 && g.isBrokerRegistered(brokerAuthToken)) {
 
+              if(skip.get(g.getGameId()).equalsIgnoreCase(brokerAuthToken)){
+                System.out.println("[INFO] Broker " + brokerAuthToken + " already recieved login for game " + g.getGameId());
+                continue;
+              }
               System.out.println("[INFO] Sending login to : " + brokerAuthToken
                                  + " jmsUrl : " + g.getJmsUrl());
+              skip.put(g.getGameId(), brokerAuthToken);
 
               return String.format(loginResponse, g.getJmsUrl(), "1234");
             }
 
           }
 
-          // Thow all the authorized games into matches
-          /*
-           * if (g.isBrokerRegistered(brokerAuthToken)) {
-           * matches.add(g);
-           * }
-           */
 
         }
         db.commitTrans();
