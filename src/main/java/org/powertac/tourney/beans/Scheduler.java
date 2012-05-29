@@ -122,6 +122,7 @@ public class Scheduler
       try {
         scheduler =
           new MainScheduler(noofagents, noofcopies, noofservers, gtypes, mxs);
+        scheduler.initServerPanel(noofservers);
         scheduler.initializeAgentsDB(noofagents, noofcopies);
         scheduler.initGameCube(gtypes, mxs);
         scheduler.resetCube();
@@ -195,6 +196,7 @@ public class Scheduler
     try {
       scheduler =
         new MainScheduler(noofagents, noofcopies, noofservers, gtypes, mxs);
+      scheduler.initServerPanel(noofservers);
       scheduler.initializeAgentsDB(noofagents, noofcopies);
       scheduler.initGameCube(gtypes, mxs);
       scheduler.resetCube();
