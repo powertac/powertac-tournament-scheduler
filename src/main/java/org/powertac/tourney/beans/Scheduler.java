@@ -273,7 +273,9 @@ public class Scheduler
 
         db.commitTrans();
 
-        for (Game g: gamesInTourney) {
+        int tourneySize = gamesInTourney.size();
+        for (int j=0; j<tourneySize; j++) {
+          Game g = gamesInTourney.get(j);
           if (!g.isHasBootstrp()
               || g.getStatus().equalsIgnoreCase("game-pending")
               || g.getStatus().equalsIgnoreCase("game-in-progress")
