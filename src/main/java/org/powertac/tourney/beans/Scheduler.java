@@ -274,15 +274,19 @@ public class Scheduler
         db.commitTrans();
 
         int tourneySize = gamesInTourney.size();
+        List<Game> finalGames = new ArrayList<Game>();
         for (int j=0; j<tourneySize; j++) {
           Game g = gamesInTourney.get(j);
           if (!g.isHasBootstrp()
               || g.getStatus().equalsIgnoreCase("game-pending")
               || g.getStatus().equalsIgnoreCase("game-in-progress")
               || g.getStatus().equalsIgnoreCase("game-complete")) {
-            gamesInTourney.remove(g);
+            //gamesInTourney.remove(g);
+          }else{
+            finalGames.add(g);
           }
         }
+        gamesInTourney = finalGames;
 
         if (gamesInTourney.size() == 0) {
           System.out
