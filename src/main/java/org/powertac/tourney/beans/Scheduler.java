@@ -304,6 +304,9 @@ public class Scheduler
                              + " tournament game(s) are ready to start");
           
           for (Server s: games.keySet()) {
+            if(gamesInTourney.size() == 0){
+              break;
+            }
             AgentLet[] agentSet = games.get(s);
             
             System.out.println("[INFO] Server " + s.getServerNumber() + " playing");
@@ -323,10 +326,11 @@ public class Scheduler
             for (AgentLet a: agentSet) {
               brokerSet.add(AgentIdToBrokerId.get(a.getAgentType()));
             }
-            System.out.println("[INFO] BrokerSet Size" + brokerSet.size());
+            System.out.println("[INFO] BrokerSet Size " + brokerSet.size());
 
+            System.out.println("[INFO] Games ready");
             Game somegame = gamesInTourney.get(0);
-            gamesInTourney.remove(0);
+            gamesInTourney.remove(somegame);
 
             System.out.println("[INFO] " + dateFormatUTC.format(new Date())
                                + " : Game: " + somegame.getGameId()
@@ -345,6 +349,8 @@ public class Scheduler
 
             int lastIndex = brokers.length();
             brokers = brokers.substring(0, lastIndex - 1);
+            
+            System.out.println("[INFO] Tourney Game " + somegame.getGameId() + " Brokers: " + brokers);
 
             Scheduler.this
                     .runSimTimer(somegame.getGameId(),
