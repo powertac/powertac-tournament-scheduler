@@ -13,7 +13,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javax.annotation.PreDestroy;
 
+import org.powertac.tourney.scheduling.AgentLet;
 import org.powertac.tourney.scheduling.MainScheduler;
+import org.powertac.tourney.scheduling.Server;
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.RunBootstrap;
 import org.powertac.tourney.services.RunGame;
@@ -36,6 +38,7 @@ public class Scheduler
   private Timer watchDogTimer = null;
 
   private MainScheduler scheduler;
+  private Tournament runningTournament;
 
   SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 
@@ -86,31 +89,47 @@ public class Scheduler
     lazyStart();
   }
 
-  public void initTournament (Tournament t)
+  public void initTournament (Tournament t, List<Machine> machines)
   {
     Database db = new Database();
-    try{
+    try {
       db.startTrans();
       db.truncateScheduler();
+      List<Database.Server> servers = db.getServers();
+      for(int i = 0; i < servers.size(); i++){
+        ServerIdToMachineId.put(servers.get(i).getServerNumber(), machines.get(i).getMachineId());
+      }
+      
+      // Initially no one is registered so set brokerId's to -1
+      List<Database.Agent> agents = db.getAgents();
+      for(int i = 0; i< agents.size(); i++){
+        AgentIdToBrokerId.put(agents.get(i).getInternalAgentID(), -1);
+      }
+      
       db.commitTrans();
-    }catch(Exception e){
+    }
+    catch (Exception e) {
       db.abortTrans();
       e.printStackTrace();
     }
+    
+    
+    
 
     int noofagents = t.getMaxBrokers();// maxBrokers;
     int noofcopies = t.getMaxBrokerInstances();// maxBrokerInstances;
-    int noofservers = 7;
-    int iteration = 1, num;
+    int noofservers = machines.size();
     int[] gtypes = { t.getSize1(), t.getSize2(), t.getSize3() };
     int[] mxs = { t.getNumberSize1(), t.getNumberSize2(), t.getNumberSize3() };
 
     try {
-      scheduler =  new MainScheduler(noofagents, noofcopies, noofservers, gtypes, mxs);
+      scheduler =
+        new MainScheduler(noofagents, noofcopies, noofservers, gtypes, mxs);
       scheduler.initializeAgentsDB(noofagents, noofcopies);
       scheduler.initGameCube(gtypes, mxs);
       scheduler.resetCube();
-      
+      runningTournament = t;
+
     }
     catch (Exception e) {
       // TODO Auto-generated catch block
@@ -120,8 +139,146 @@ public class Scheduler
   }
   
   
-  public void tickScheduler(){
-    
+  public void resetServer (int machineId)
+  {
+
+    // Find the serverId from a machineId
+    int serverNumber = 0;
+    for (Integer i: ServerIdToMachineId.keySet()) {
+      if (ServerIdToMachineId.get(i) == machineId) {
+        serverNumber = i;
+        break;
+      }
+    }
+
+    try {
+      scheduler.resetServers(serverNumber);
+    }
+    catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+  }
+
+  public void tickScheduler ()
+  {
+    if (runningTournament != null) {
+      if (runningTournament.getStartTime().before(new Date())) {
+        System.out
+                .println("[INFO] Multigame tournament available, ticking scheduler..");
+      }
+      else {
+        System.out.println("[INFO] Too early to start tournament: "
+                           + runningTournament.getTournamentName());
+        return;
+      }
+
+      try {
+
+        String hostip = "http://";
+
+        try {
+          InetAddress thisIp = InetAddress.getLocalHost();
+          hostip += thisIp.getHostAddress() + ":8080";
+        }
+        catch (UnknownHostException e2) {
+          e2.printStackTrace();
+        }
+        
+        Database db = new Database();
+        db.startTrans();
+        List<Game> gamesInTourney = db.getGamesInTourney(runningTournament.getTournamentId());
+        List<Broker> brokersInTourney = db.getBrokersInTournament(runningTournament.getTournamentId());
+        int i = 0;
+        for(int agentId : AgentIdToBrokerId.keySet()){
+          AgentIdToBrokerId.put(agentId, brokersInTourney.get(i++).getBrokerId());
+        }
+        
+        db.commitTrans();
+        
+        for (Game g : gamesInTourney){
+          if(!g.isHasBootstrp() || 
+              g.getStatus().equalsIgnoreCase("game-pending") ||
+              g.getStatus().equalsIgnoreCase("game-in-progress") || 
+              g.getStatus().equalsIgnoreCase("game-complete")){
+            gamesInTourney.remove(g);
+          }
+        }
+        
+        if(gamesInTourney.size()==0){
+          System.out.println("[INFO] Tournament is either complete or not enough bootstraps are available");
+          return;
+        }
+        
+        if (!scheduler.equilibrium()) {
+          HashMap<Server, AgentLet[]> games = scheduler.Schedule();
+          System.out.println("[INFO] WatchDogTimer reports " + games.size()
+                             + " tournament game(s) are ready to start");
+          for (Server s: games.keySet()) {
+            AgentLet[] agentSet = games.get(s);
+
+            Integer machineId = ServerIdToMachineId.get(s.getServerNumber());
+
+            List<Integer> brokerSet = new ArrayList<Integer>();
+            for (AgentLet a: agentSet) {
+              brokerSet.add(AgentIdToBrokerId.get(a.getAgentId()));
+            }
+            
+            
+
+            Game somegame = gamesInTourney.get(0);
+            gamesInTourney.remove(0);
+            
+            System.out.println("[INFO] " + dateFormatUTC.format(new Date())
+                               + " : Game: " + somegame.getGameId()
+                               + " will be started...");
+            
+            
+          
+            Database db1 = new Database();
+            db1.startTrans();
+            Machine m = db1.getMachineById(machineId);
+            String brokers = "";
+            for (Integer b : brokerSet){
+              Broker tmp = db1.getBroker(b);
+              db1.addBrokerToGame(somegame.getGameId(), tmp);
+              brokers += tmp.getBrokerName() + ",";
+            }
+            db1.commitTrans();
+            
+            int lastIndex = brokers.length();
+            brokers = brokers.substring(0, lastIndex - 1);
+            
+            
+            Scheduler.this
+                    .runSimTimer(somegame.getGameId(),
+                                 new RunGame(
+                                             somegame.getGameId(),
+                                             hostip + "/TournamentScheduler/",
+                                             runningTournament.getPomUrl(),
+                                             tournamentProperties
+                                                     .getProperty("destination"),
+                                             m,
+                                             brokers
+                                             ),
+                                 new Date());
+            
+            // Wait for jenkins
+            Thread.sleep(1000);
+
+          }
+        }
+      }
+      catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+    else {
+      System.out.println("[INFO] No multigame tournament available");
+
+    }
   }
 
   public void lazyStart ()
@@ -157,8 +314,12 @@ public class Scheduler
         {
           // Run watchDog
           db = new Database();
+
+          // Run the scheduler
+          Scheduler.this.tickScheduler();
           checkForSims();
           checkForBoots();
+
         }
 
         public void checkForSims ()
@@ -169,7 +330,15 @@ public class Scheduler
           try {
             // db.openConnection();
             db.startTrans();
-            List<Game> games = db.getStartableGames();
+            List<Game> games;
+            if (runningTournament == null) {
+              games = db.getStartableGames();
+            }
+            else {
+              System.out
+                      .println("[INFO] WatchDog CheckForSims ignoring multi-game tournament games");
+              games = db.getStartableGames(runningTournament.getTournamentId());
+            }
             System.out.println("[INFO] WatchDogTimer reports " + games.size()
                                + " game(s) are ready to start");
 
@@ -197,6 +366,14 @@ public class Scheduler
                                                tournamentProperties
                                                        .getProperty("destination")),
                                    new Date());
+              try {
+                // Wait for jenkins
+                Thread.sleep(1000);
+              }
+              catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }
             }
             db.commitTrans();
           }

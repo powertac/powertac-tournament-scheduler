@@ -1,5 +1,8 @@
 package org.powertac.tourney.scheduling;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,7 +113,7 @@ public class MainScheduler
    * }
    */
 
-  public int Schedule () throws Exception
+  public HashMap<Server,AgentLet[]> Schedule () throws Exception
   {
     /*
      * This is function is supposed to
@@ -137,6 +140,7 @@ public class MainScheduler
      */
     navail = serverpanel.LoadServerPanelFromDB(db);
     available_server = serverpanel.getAvailableServer();
+    HashMap<Server,AgentLet[]> gamesToStart = new HashMap<Server,AgentLet[]>();
     while (((gametype = scheduleMatrix.getDisparity()) > 0)
            && (available_server != null)/* server availability */) {
       System.out.println("Gametype " + gametype);
@@ -145,6 +149,8 @@ public class MainScheduler
        * particular game type.
        */
       agents = scheduleMatrix.getAgents(db, gametype);
+      
+     
       if (agents != null) {
         db.startTransaction();
         /* Make entries in Gamelog and GameArchive */
@@ -152,10 +158,13 @@ public class MainScheduler
         logGame(agents, gamenumber);
         /* Mark Agent's IsPlaying as true */
         updateAgentsStatus(agents);
+        
         /* Commit transaction */
         db.commitTransction();
         /* Set the server busy */
         serverpanel.publishBusy(available_server);
+        gamesToStart.put(available_server, agents);
+        
         /* update score board */
         // scoreboard.incrementScore(gametype);
         /* have some means to SEND selected Agents to the Server *** */
@@ -171,7 +180,7 @@ public class MainScheduler
     slist = serverpanel.getScheduledServers();
     serverpanel.publishDeployedServersToDB(db, slist);
     System.out.println("-----------" + iteration);
-    return nscheduleds;
+    return gamesToStart;
   }
 
   public void initGameCube (int[] gtypes, int[] mxgames) throws Exception
@@ -352,9 +361,9 @@ public class MainScheduler
    * return false;
    * }
    */
-  public void resetServers () throws Exception
+  public void resetServers (int ServerNumber) throws Exception
   {
-    int i = 0, len, num, randnum;
+    /*int i = 0, len, num, randnum;
     Server[] servernumbers;
     ResultSet rs;
     String wherestring = "(";
@@ -382,12 +391,14 @@ public class MainScheduler
     if (len > 1) {
       wherestring = wherestring.substring(0, len - 3) + ")";
       System.out.println("Releasing " + wherestring);
-      gameRelease(servernumbers);
+      gameRelease(servernumbers);*/
+    
+    
       String sql_reset =
-        "update GameServers " + "set	IsPlaying = 0 " + "where  " + wherestring;
+        "update GameServers " + "set	IsPlaying = 0 " + "where  ServerNumber = " + ServerNumber;
       // System.out.println(sql_reset);
       db.SetQuery(sql_reset, "update");
-    }
+    
   }
 
   public void resetCube ()

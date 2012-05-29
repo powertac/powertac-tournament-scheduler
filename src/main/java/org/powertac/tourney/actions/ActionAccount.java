@@ -19,13 +19,11 @@ import org.powertac.tourney.beans.User;
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.SpringApplicationContext;
 
-
 @ManagedBean
 @RequestScoped
 public class ActionAccount
 {
 
-  
   private String newBrokerName;
   private String newBrokerShortDescription;
   private int selectedBrokerId;
@@ -34,7 +32,7 @@ public class ActionAccount
 
   public ActionAccount ()
   {
-   
+
   }
 
   public String getNewBrokerName ()
@@ -99,7 +97,7 @@ public class ActionAccount
     b.setBrokerAuthToken(b.getNewAuth());
 
     Database db = new Database();
-    
+
     try {
       db.startTrans();
       db.updateBrokerByBrokerId(b.getBrokerId(), b.getBrokerName(),
@@ -131,16 +129,17 @@ public class ActionAccount
 
     List<Tournament> allTournaments = new ArrayList<Tournament>();
     Vector<Tournament> availableTourneys = new Vector<Tournament>();
-    Database db = new Database();   
+    Database db = new Database();
     try {
       db.startTrans();
       allTournaments = db.getTournaments("pending");
       allTournaments.addAll(db.getTournaments("in-progress"));
-    }catch(SQLException e){
+    }
+    catch (SQLException e) {
       db.abortTrans();
       e.printStackTrace();
     }
-    
+
     for (Tournament t: allTournaments) {
       try {
         if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())
@@ -148,7 +147,7 @@ public class ActionAccount
             && t.getStartTime().before(new Date())) {
           availableTourneys.add(t);
         }
-        
+
       }
       catch (SQLException e) {
         db.abortTrans();
@@ -171,9 +170,7 @@ public class ActionAccount
     }
     Database db = new Database();
     List<Tournament> allTournaments = new ArrayList<Tournament>();
-    
-    
-    
+
     try {
       db.startTrans();
       allTournaments = db.getTournaments("pending");
@@ -187,17 +184,19 @@ public class ActionAccount
                                + " with tournament: " + t.getTournamentId());
             db.registerBroker(t.getTournamentId(), b.getBrokerId());
 
-            // TODO: When kailash has his tourney code up we need to place
-            // brokers in a particular slot
-            for (Game g: t.getGames()) {
-              if (g.getNumBrokersRegistered() < g.getMaxBrokers()) {
-                System.out.println("Number registered: "
-                                   + g.getNumBrokersRegistered());
+            // Only do this for single game, otherwise the scheduler handles multigame tourneys
+            if (t.getType().equalsIgnoreCase("SINGLE_GAME")) {
+              for (Game g: t.getGames()) {
+                if (g.getNumBrokersRegistered() < g.getMaxBrokers()) {
+                  System.out.println("Number registered: "
+                                     + g.getNumBrokersRegistered());
 
-                g.addBroker(b.getBrokerId());
+                  g.addBroker(b.getBrokerId());
+                }
               }
             }
-          }         
+
+          }
         }
       }
       db.commitTrans();

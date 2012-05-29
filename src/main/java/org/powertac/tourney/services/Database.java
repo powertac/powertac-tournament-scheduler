@@ -832,13 +832,15 @@ public class Database
     return gs;
   }
 
-  public List<Game> getStartableGames () throws SQLException
+  public List<Game> getStartableGames (int excludedTourneyId) throws SQLException
   {
     
     List<Game> games = new ArrayList<Game>();
 
     PreparedStatement getGames =
-      conn.prepareStatement(Constants.GET_RUNNABLE_GAMES);
+      conn.prepareStatement(Constants.GET_RUNNABLE_GAMES_EXC);
+    
+    getGames.setInt(1, excludedTourneyId);
 
     ResultSet rsGs = getGames.executeQuery();
 
@@ -856,6 +858,121 @@ public class Database
     return games;
 
   }
+  public List<Game> getStartableGames () throws SQLException
+  {
+    
+    List<Game> games = new ArrayList<Game>();
+
+    PreparedStatement getGames =
+      conn.prepareStatement(Constants.GET_RUNNABLE_GAMES);
+    
+
+    ResultSet rsGs = getGames.executeQuery();
+
+    //System.out.println("[INFO] Parsing games " +rsGs.getFetchSize());
+    while (rsGs.next()) {
+      Game tmp = new Game(rsGs);
+      games.add(tmp);
+    }
+    
+
+    rsGs.close();
+    getGames.close();
+    //conn.close();
+
+    return games;
+
+  }
+  
+ 
+  
+  public class Server{
+    private int serverNumber = 0;
+    private boolean isPlaying = false;
+    public Server(ResultSet rs){
+      try{
+      serverNumber = rs.getInt("ServerNumber");
+      isPlaying = rs.getBoolean("IsPlaying");
+      }catch(Exception e){
+        System.out.println("Error making server from result set");
+        e.printStackTrace();
+      }
+    }
+
+    public int getServerNumber ()
+    {
+      return serverNumber;
+    }
+
+    public void setServerNumber (int serverNumber)
+    {
+      this.serverNumber = serverNumber;
+    }
+
+    public boolean getIsPlaying ()
+    {
+      return isPlaying;
+    }
+
+    public void setIsPlaying (boolean isPlaying)
+    {
+      this.isPlaying = isPlaying;
+    }
+    
+  }
+  
+  public class Agent {
+    private int InternalAgentID= 0;
+    
+    public Agent(ResultSet rs){
+      try{
+        InternalAgentID = rs.getInt("InternalAgentID");
+      }catch(Exception e){
+        System.out.println("Error making agent from result set");
+        e.printStackTrace();
+      }
+    }
+
+    public int getInternalAgentID ()
+    {
+      return InternalAgentID;
+    }
+
+    public void setInternalAgentID (int internalAgentID)
+    {
+      InternalAgentID = internalAgentID;
+    }
+  }
+  
+  public List<Server> getServers() throws SQLException{
+    List<Server> servers = new ArrayList<Server>();
+    
+    PreparedStatement gservers = conn.prepareStatement(Constants.SELECT_SERVERS);
+    
+    ResultSet rs = gservers.executeQuery();
+    
+    while(rs.next()){
+      servers.add(new Server(rs));
+    }
+    
+    return servers;
+    
+  }
+  
+  public List<Agent> getAgents() throws SQLException{
+    List<Agent> agents = new ArrayList<Agent>();
+    PreparedStatement gagents = conn.prepareStatement("SELECT * FROM tourney.AgentAdmin;"); 
+    
+    ResultSet rs = gagents.executeQuery();
+    
+    while(rs.next()){
+      agents.add(new Agent(rs));
+    }
+    
+    return agents;
+  }
+  
+  
   
   public List<Game> getBootableGames () throws SQLException
   {
@@ -958,6 +1075,8 @@ public class Database
 
     return addBrokerToGame.executeUpdate();
   }
+  
+  
 
   public List<Broker> getBrokersInGame (int gameId) throws SQLException
   {
@@ -1163,6 +1282,27 @@ public class Database
     selectMachines.close();
 
     return machines;
+  }
+  
+  public Machine getMachineById(int machineId) throws SQLException
+  {
+    
+    List<Machine> machines = new ArrayList<Machine>();
+
+    PreparedStatement selectMachines =
+      conn.prepareStatement(Constants.SELECT_MACHINES_BYID);
+    selectMachines.setInt(1, machineId);
+    
+    ResultSet rsMachines = selectMachines.executeQuery();
+
+    Machine tmp = new Machine();
+    if (rsMachines.next()) {
+      tmp = new Machine(rsMachines);
+    }
+    rsMachines.close();
+    selectMachines.close();
+
+    return tmp;
   }
 
   public int setMachineAvailable (int machineId, boolean isAvailable)

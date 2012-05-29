@@ -258,6 +258,8 @@ public class Rest
             System.out.println("[INFO] Freeing Brokers for game: " + gameId);
             db.updateGameFreeMachine(gameId);
             System.out.println("[INFO] Freeing Machines for game: " + gameId);
+            
+            scheduler.resetServer(g.getMachineId());
 
             db.setMachineStatus(g.getMachineId(), "idle");
             db.commitTrans();
@@ -278,6 +280,9 @@ public class Rest
 
             db.updateGameFreeBrokers(gameId);
             db.updateGameFreeMachine(gameId);
+            
+
+            scheduler.resetServer(g.getMachineId());
             db.setMachineStatus(g.getMachineId(), "idle");
 
             db.commitTrans();

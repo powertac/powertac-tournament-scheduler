@@ -18,7 +18,10 @@ public class RunGame extends TimerTask
   private int registerRetry = 8;
   private int bootstrapRetry = 100;
   private boolean running = false;
+  private boolean tourney = false;
 
+  private Machine machine;
+  
   String logSuffix = "sim-";// boot-game-" + game.getGameId() + "-tourney-"+
   // game.getCompetitionName();
   String tourneyUrl = "";// game.getTournamentSchedulerUrl();
@@ -45,43 +48,62 @@ public class RunGame extends TimerTask
       tourneyUrl + "faces/properties.jsp?gameId=" + this.gameId;
   }
 
+  public RunGame (int gameId, String tourneyUrl, String pomUrl,
+                  String destination, Machine machine, String brokers)
+  {
+    this.gameId = String.valueOf(gameId);
+    this.bootstrapUrl =
+      tourneyUrl + "/faces/pom.jsp?location=" + gameId + "-boot.xml";
+    this.tourneyUrl = tourneyUrl;
+    this.pomUrl = pomUrl;
+    this.destination = destination;
+    this.running = false;
+    this.tourney = true;
+    this.machine = machine;
+    // Assumes Jenkins and TS live in the same location as per the install
+    this.serverConfig =
+      tourneyUrl + "faces/properties.jsp?gameId=" + this.gameId;
+  }
+
   /***
    * Make sure a bootstrap has been run for the sim
    */
   private void checkBootstrap ()
   {
-    if (!running) {
-      Database db = new Database();
-     
-      try {
-        db.startTrans();
-        if (db.isGameReady(Integer.parseInt(gameId))) {
-          this.bootstrapUrl =
-            tourneyUrl + "/faces/pom.jsp?location=" + gameId + "-boot.xml";
-          try {
-            
-            db.updateGameStatusById(Integer.parseInt(gameId), "game-pending");
-            db.commitTrans();
-          }
-          catch (SQLException e) {
-            db.abortTrans();
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-        }
-        else {
-          System.out.println("Game: " + gameId
-                             + " reports that bootstrap is not ready!");
+    if (!tourney) {
+      if (!running) {
+        Database db = new Database();
 
+        try {
+          db.startTrans();
+          if (db.isGameReady(Integer.parseInt(gameId))) {
+            this.bootstrapUrl =
+              tourneyUrl + "/faces/pom.jsp?location=" + gameId + "-boot.xml";
+            try {
+
+              db.updateGameStatusById(Integer.parseInt(gameId), "game-pending");
+              db.commitTrans();
+            }
+            catch (SQLException e) {
+              db.abortTrans();
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+            }
+          }
+          else {
+            System.out.println("Game: " + gameId
+                               + " reports that bootstrap is not ready!");
+
+          }
         }
-      }
-      catch (NumberFormatException e) {
-        e.printStackTrace();
-      }
-      catch (SQLException e) {
-        System.out.println("Bootstrap Database error while scheduling sim!!");
-        this.cancel();
-        e.printStackTrace();
+        catch (NumberFormatException e) {
+          e.printStackTrace();
+        }
+        catch (SQLException e) {
+          System.out.println("Bootstrap Database error while scheduling sim!!");
+          this.cancel();
+          e.printStackTrace();
+        }
       }
     }
 
@@ -92,117 +114,147 @@ public class RunGame extends TimerTask
    */
   private boolean checkBrokers ()
   {
-    if (!running) {
-      Database db = new Database();
+    if (!tourney) {
+      if (!running) {
+        Database db = new Database();
 
-      int gId = Integer.parseInt(gameId);
+        int gId = Integer.parseInt(gameId);
 
-      try {
-        db.startTrans();
-        Game g = db.getGame(gId);
+        try {
+          db.startTrans();
+          Game g = db.getGame(gId);
 
-        int numRegistered = 0;
-        if ((numRegistered = db.getNumberBrokersRegistered(g.getTourneyId())) < 1) {
-          System.out.println("TourneyId: " + g.getTourneyId());
-          System.out
-                  .println("No brokers registered for tournament waiting to start game "
-                           + g.getGameId());
-          db.updateGameStatusById(Integer.parseInt(gameId), "boot-complete");
-          db.commitTrans();
-          this.cancel();
-          return false;
-
-        }
-        else {
-          System.out
-                  .println("There are "
-                           + numRegistered
-                           + " brokers registered for tournament... starting sim");
-          this.brokers = "";
-
-          List<Broker> brokerList =
-            db.getBrokersInGame(Integer.parseInt(gameId));
-          for (Broker b: brokerList) {
-            this.brokers += b.getBrokerName() + ",";
-          }
-          int lastIndex = this.brokers.length();
-          this.brokers = this.brokers.substring(0, lastIndex - 1);
-
-          if (brokerList.size() < 1) {
+          int numRegistered = 0;
+          if ((numRegistered = db.getNumberBrokersRegistered(g.getTourneyId())) < 1) {
+            System.out.println("TourneyId: " + g.getTourneyId());
             System.out
-                    .println("Error no brokers listed in database for gameId: "
-                             + gameId);
+                    .println("No brokers registered for tournament waiting to start game "
+                             + g.getGameId());
+            db.updateGameStatusById(Integer.parseInt(gameId), "boot-complete");
+            db.commitTrans();
             this.cancel();
-            db.abortTrans();
             return false;
-            // System.exit(0);
+
+          }
+          else {
+            System.out
+                    .println("There are "
+                             + numRegistered
+                             + " brokers registered for tournament... starting sim");
+            this.brokers = "";
+
+            List<Broker> brokerList =
+              db.getBrokersInGame(Integer.parseInt(gameId));
+            for (Broker b: brokerList) {
+              this.brokers += b.getBrokerName() + ",";
+            }
+            int lastIndex = this.brokers.length();
+            this.brokers = this.brokers.substring(0, lastIndex - 1);
+
+            if (brokerList.size() < 1) {
+              System.out
+                      .println("Error no brokers listed in database for gameId: "
+                               + gameId);
+              this.cancel();
+              db.abortTrans();
+              return false;
+              // System.exit(0);
+            }
+
           }
 
+          db.commitTrans();
+
         }
-        
-        db.commitTrans();
+        catch (SQLException e) {
+          db.abortTrans();
+          System.out.println("Broker Database error while scheduling sim!!");
+          // System.exit(0);
+          e.printStackTrace();
+        }
 
       }
-      catch (SQLException e) {
-        db.abortTrans();
-        System.out.println("Broker Database error while scheduling sim!!");
-        // System.exit(0);
-        e.printStackTrace();
-      }
-      
     }
-     return true;
+    return true;
   }
 
   private void checkMachineAvailable ()
   {
 
-    Database db = new Database();
-    if (!running) {
-      try {
-        db.startTrans();
-        List<Machine> machines = db.getMachines();
-        List<Machine> available = new ArrayList<Machine>();
-        for (Machine m: machines) {
-          if (m.getStatus().equalsIgnoreCase("idle") && m.isAvailable()) {
-            available.add(m);
+    if (!tourney) {
+      Database db = new Database();
+      if (!running) {
+        try {
+          db.startTrans();
+          List<Machine> machines = db.getMachines();
+          List<Machine> available = new ArrayList<Machine>();
+          for (Machine m: machines) {
+            if (m.getStatus().equalsIgnoreCase("idle") && m.isAvailable()) {
+              available.add(m);
+            }
+          }
+          if (available.size() > 0) {
+
+            db.updateGameJmsUrlById(Integer.parseInt(gameId), "tcp://"
+                                                              + available
+                                                                      .get(0)
+                                                                      .getUrl()
+                                                              + ":61616");
+            db.updateProperties(Integer.parseInt(gameId), "tcp://"
+                                                          + available.get(0)
+                                                                  .getUrl()
+                                                          + ":61616", available
+                    .get(0).getVizQueue());
+            db.updateGameMachine(Integer.parseInt(gameId), available.get(0)
+                    .getMachineId());
+            db.updateGameViz(Integer.parseInt(gameId), "http://"
+                                                       + available.get(0)
+                                                               .getVizUrl());
+
+            db.setMachineStatus(available.get(0).getMachineId(), "running");
+            this.machineName = available.get(0).getName();
+            System.out.println("Game: " + gameId + " running on machine: "
+                               + this.machineName);
+            db.commitTrans();
+          }
+          else {
+            db.abortTrans();
+
+            System.out.println("No machines available to run scheduled game: "
+                               + gameId + " ... will retry in 5 minutes");
+            // Thread.sleep(300000);
+            // this.run();
           }
         }
-        if (available.size() > 0) {
-
-          db.updateGameJmsUrlById(Integer.parseInt(gameId), "tcp://"
-                                                            + available.get(0)
-                                                                    .getUrl()
-                                                            + ":61616");
-          db.updateProperties(Integer.parseInt(gameId), "tcp://"
-                                                        + available.get(0)
-                                                                .getUrl()
-                                                        + ":61616", available
-                  .get(0).getVizQueue());
-          db.updateGameMachine(Integer.parseInt(gameId), available.get(0)
-                  .getMachineId());
-          db.updateGameViz(Integer.parseInt(gameId),
-                           "http://" + available.get(0).getVizUrl());
-
-          db.setMachineStatus(available.get(0).getMachineId(), "running");
-          this.machineName = available.get(0).getName();
-          System.out.println("Game: " + gameId + " running on machine: "
-                             + this.machineName);
-          db.commitTrans();
+        catch (NumberFormatException e) {
+          e.printStackTrace();
         }
-        else {
-          db.abortTrans();
-
-          System.out.println("No machines available to run scheduled game: "
-                             + gameId + " ... will retry in 5 minutes");
-          // Thread.sleep(300000);
-          // this.run();
+        catch (SQLException e) {
+          e.printStackTrace();
         }
       }
-      catch (NumberFormatException e) {
-        e.printStackTrace();
+    }
+    else {
+      Database db = new Database();
+      try {
+
+        db.startTrans();
+        db.updateGameJmsUrlById(Integer.parseInt(gameId), "tcp://"+ machine.getUrl()      
+                                                          + ":61616");
+        db.updateProperties(Integer.parseInt(gameId),
+                            "tcp://" + machine.getUrl() + ":61616",
+                            machine.getVizQueue());
+        db.updateGameMachine(Integer.parseInt(gameId), machine.getMachineId());
+        db.updateGameViz(Integer.parseInt(gameId), "http://" + machine.getVizUrl());
+
+        db.setMachineStatus(machine.getMachineId(), "running");
+        this.machineName = machine.getName();
+        System.out.println("Game: " + gameId + " running on machine: "
+                           + this.machineName);
+        db.commitTrans();
       }
-      catch (SQLException e) {
+      catch (Exception e) {
+        db.abortTrans();
         e.printStackTrace();
       }
     }
@@ -215,7 +267,7 @@ public class RunGame extends TimerTask
     // Check if a boot exists
     checkBootstrap();
     // Check if brokers are registered
-    if(!checkBrokers()){
+    if (!checkBrokers()) {
       return;
     }
     // Check if there is a machine available to run the sim and set it

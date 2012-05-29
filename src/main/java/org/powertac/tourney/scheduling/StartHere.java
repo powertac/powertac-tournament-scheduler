@@ -31,11 +31,11 @@ class StartHere {
 		mainsch.resetCube();
 		/*comment the while loop to prevent simulation*/
 		while(!mainsch.equilibrium()) {
-			nservers = mainsch.Schedule();
-			mainsch.resetServers();
+			nservers = mainsch.Schedule().size();
+			//mainsch.resetServers();
 			iteration++;
 		}	
-		mainsch.resetServers();
+		//mainsch.resetServers();
 		System.out.println("Final !!");
 		
 	}

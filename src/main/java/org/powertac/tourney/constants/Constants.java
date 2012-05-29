@@ -291,6 +291,13 @@ public class Constants
    * Returns a list of the runnable games as of now.
    */
 
+  public static final String GET_RUNNABLE_GAMES_EXC =
+    "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() AND status='boot-complete' AND tourneyId!=?;";
+  
+  /***
+   * Returns a list of the runnable games as of now.
+   */
+
   public static final String GET_RUNNABLE_GAMES =
     "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() AND status='boot-complete';";
   
@@ -391,6 +398,8 @@ public class Constants
    */
   public static final String UPDATE_GAME_MACHINE =
     "UPDATE tourney.games SET machineId=? WHERE gameId=?;";
+  
+  public static final String UPDATE_SERVER = "UPDATE GameServers SET IsPlaying = 0 WHERE ServerNumber=?;";
 
   /***
    * Update the game to free the machine
@@ -535,6 +544,21 @@ public class Constants
   public static final String SELECT_MACHINES =
     "SELECT * FROM tourney.machines;";
 
+  /***
+   * Select machine by id
+   * @param machineId : the id of the machine
+   */
+  public static final String SELECT_MACHINES_BYID =
+    "SELECT * FROM tourney.machines WHERE machineId=?;";
+  
+  
+  /***
+   * Select servers
+   * @param machineId : the id of the machine
+   */
+  public static final String SELECT_SERVERS =
+    "SELECT * FROM tourney.GameServers;";
+  
   /***
    * Change a machine's status based on id
    * 

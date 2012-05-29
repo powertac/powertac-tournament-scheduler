@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -401,7 +404,7 @@ public class ActionTournament
 
         System.out.println("[INFO] Getting tourneyId");
         tourneyId = db.getMaxTourneyId();
-        
+        List<Machine> machines= db.getMachines();
         
         // Adds a new game to the database
         for(int i=0; i< numberOfGames;i++){
@@ -422,7 +425,11 @@ public class ActionTournament
         
         db.commitTrans();
         
-        scheduler.initTournament(newTourney);
+        scheduler.initTournament(newTourney, machines);
+        FacesContext.getCurrentInstance()
+        .addMessage("Tournament",
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                                     "Number of games in tournament: " + numberOfGames, null));
         
 
       }

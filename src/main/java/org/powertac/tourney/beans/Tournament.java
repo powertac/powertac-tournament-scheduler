@@ -37,6 +37,8 @@ public class Tournament
   private int numberSize2 = 4;
   private int size3 = 8;
   private int numberSize3 = 4;
+  
+  private String type = "SINGLE_GAME";
 
   private int maxBrokerInstances = 2;
 
@@ -65,6 +67,7 @@ public class Tournament
       this.setTournamentId(rsTs.getInt("tourneyId"));
       this.setTournamentName(rsTs.getString("tourneyName"));
       this.setOpenRegistration(rsTs.getBoolean("openRegistration"));
+      this.setType(rsTs.getString("type"));
       this.setMaxGames(rsTs.getInt("maxGames"));
       this.setPomUrl(rsTs.getString("pomUrl"));
       this.setMaxBrokers(rsTs.getInt("maxBrokers"));
@@ -285,6 +288,16 @@ public class Tournament
   public void setMaxBrokerInstances (int maxBrokerInstances)
   {
     this.maxBrokerInstances = maxBrokerInstances;
+  }
+
+  public String getType ()
+  {
+    return type;
+  }
+
+  public void setType (String type)
+  {
+    this.type = type;
   }
 
 }
