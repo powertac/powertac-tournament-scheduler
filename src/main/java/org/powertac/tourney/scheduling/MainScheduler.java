@@ -143,7 +143,7 @@ public class MainScheduler
     HashMap<Server,AgentLet[]> gamesToStart = new HashMap<Server,AgentLet[]>();
     while (((gametype = scheduleMatrix.getDisparity()) > 0)
            && (available_server != null)/* server availability */) {
-      System.out.println("Gametype " + gametype);
+      //System.out.println("Gametype " + gametype);
       /*
        * this queries the game cube to get the next schedule for a
        * particular game type.

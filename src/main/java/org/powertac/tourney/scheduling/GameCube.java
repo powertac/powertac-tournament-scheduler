@@ -203,8 +203,8 @@ public class GameCube {
 		index = findGameTypeIndex(gametype);
 		cube[index].initializeCombination();
 		agentsindices = cube[index].sortAndGetIndices();
-		System.out.println("AgentsIndicies: "+ agentsindices.length);
-		System.out.println("GameType: "+ gametype);
+		//System.out.println("AgentsIndicies: "+ agentsindices.length);
+		//System.out.println("GameType: "+ gametype);
 		
 		//System.arraycopy(agentsindices, 0, rmask, 0, gametype);
 		cube[index].addGameToProposedSumArray();	
