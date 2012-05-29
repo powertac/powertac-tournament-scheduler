@@ -35,7 +35,10 @@ public class Scheduler
 
   public boolean bootrunning = false;
 
+  HashMap<Server, AgentLet[]> games = new HashMap<Server, AgentLet[]>();  
+  
   private Timer watchDogTimer = null;
+ 
 
   private MainScheduler scheduler;
   private Tournament runningTournament;
@@ -299,10 +302,13 @@ public class Scheduler
         }
 
         if (!scheduler.equilibrium()) {
-          HashMap<Server, AgentLet[]> games = scheduler.Schedule();
+          
+          if(games.isEmpty()){
+            games = scheduler.Schedule();
+          }
           System.out.println("[INFO] WatchDogTimer reports " + games.size()
                              + " tournament game(s) are ready to start");
-          
+                    
           for (Server s: games.keySet()) {
             if(gamesInTourney.size() == 0){
               break;
