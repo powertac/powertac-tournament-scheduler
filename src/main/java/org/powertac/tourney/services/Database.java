@@ -928,7 +928,7 @@ public class Database
     
     public Agent(ResultSet rs){
       try{
-        InternalAgentID = rs.getInt("InternalAgentID");
+        InternalAgentID = rs.getInt("AgentType");
       }catch(Exception e){
         System.out.println("Error making agent from result set");
         e.printStackTrace();
@@ -963,7 +963,7 @@ public class Database
   
   public List<Agent> getAgents() throws SQLException{
     List<Agent> agents = new ArrayList<Agent>();
-    PreparedStatement gagents = conn.prepareStatement("SELECT * FROM tourney.AgentAdmin;"); 
+    PreparedStatement gagents = conn.prepareStatement("SELECT DISTINCT AgentType FROM tourney.AgentAdmin;"); 
     
     ResultSet rs = gagents.executeQuery();
     
