@@ -312,6 +312,15 @@ public class ActionTournament
         e2.printStackTrace();
       }
 
+      int[] gtypes = new int[3];
+      int[] mxs = new int[3];
+      gtypes[0] = size1;
+      gtypes[1] = size2;
+      gtypes[2] = size3;
+      mxs[0] = numberSize1;
+      mxs[1] = numberSize2;
+      mxs[2] = numberSize3;
+      
       Database db = new Database();
 
       newTourney.setPomUrl(hostip
@@ -333,7 +342,7 @@ public class ActionTournament
         System.out.println("Adding tourney");
         db.addTournament(newTourney.getTournamentName(), true, size1,
                          startTime, "SINGLE_GAME",
-                         newTourney.getPomUrl(), allLocations, maxBrokers);
+                         newTourney.getPomUrl(), allLocations, maxBrokers,gtypes,mxs);
         // Grabs the tourney Id
 
         System.out.println("Getting tourneyId");
@@ -456,7 +465,7 @@ public class ActionTournament
         System.out.println("[INFO] Creating New tourney");
         db.addTournament(tournamentName, true, numberOfGames,
                          startTime, "MULTI_GAME",
-                         newTourney.getPomUrl(), allLocations, maxBrokers);
+                         newTourney.getPomUrl(), allLocations, maxBrokers,gtypes,mxs);
         // Grabs the tourney Id
 
         System.out.println("[INFO] Getting tourneyId");

@@ -188,7 +188,7 @@ public class Constants
    */
 
   public static final String ADD_TOURNAMENT =
-    "INSERT INTO tourney.tournaments (tourneyName, startTime, openRegistration,maxGames, type, pomUrl, locations, maxBrokers, status) VALUES (?,?,?,?,?,?,?,?,'pending');";
+    "INSERT INTO tourney.tournaments (tourneyName, startTime, openRegistration,maxGames, type, pomUrl, locations, maxBrokers, status, gameSize1, gameSize2, gameSize3, numberGameSize1,numberGameSize2,numberGameSize3) VALUES (?,?,?,?,?,?,?,?,'pending',?,?,?,?,?,?);";
 
   /***
    * Updates a particular tournament given the id

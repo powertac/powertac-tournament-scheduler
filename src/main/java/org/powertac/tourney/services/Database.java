@@ -523,7 +523,8 @@ public class Database
 
   public int addTournament (String tourneyName, boolean openRegistration,
                             int maxGames, Date startTime, String type,
-                            String pomUrl, String locations, int maxBrokers)
+                            String pomUrl, String locations, int maxBrokers, 
+                            int[] gameSizes, int[] numGames)
     throws SQLException
   {
     
@@ -540,10 +541,18 @@ public class Database
     addTournament.setString(6, pomUrl);
     addTournament.setString(7, locations);
     addTournament.setInt(8, maxBrokers);
-
+    addTournament.setInt(9, gameSizes[0]);
+    addTournament.setInt(10, gameSizes[1]);
+    addTournament.setInt(11, gameSizes[2]);
+    addTournament.setInt(12, numGames[0]);
+    addTournament.setInt(13, numGames[1]);
+    addTournament.setInt(14, numGames[2]);
+    
     return addTournament.executeUpdate();
 
   }
+  
+  
 
   public List<Tournament> getTournaments (String status) throws SQLException
   {
