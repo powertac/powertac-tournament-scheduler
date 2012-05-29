@@ -132,6 +132,15 @@
     						#{actionIndex.getBrokersInGame(g)}
     				</t:column>
     				
+    				<t:column defaultSorted="true">
+						<!-- column header -->
+						<f:facet name="header">
+							<h:outputText value="Logs" />
+						</f:facet>
+						<!-- row record -->
+    						<h:commandLink value="Logs" action="#{actionIndex.getDownload(g)}"/>
+    				</t:column>
+    				
     				
 				</t:dataTable>
 
