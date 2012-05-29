@@ -56,11 +56,11 @@ public class ActionIndex
     ServletContext context = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
     HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
     response.setContentType("application/force-download");
-    String downloadFile = "/project/msse01/powertac/game-logs/game-"+g.getGameId()+"-sim-logs.tar.gz";
+    String downloadFile = "game-"+g.getGameId()+"-sim-logs.tar.gz";
     response.addHeader("Content-Disposition", "attachment; filename=\"" + downloadFile + "\"");
     byte[] buf = new byte[1024];
     try{
-      String realPath = context.getRealPath("/resources/" + downloadFile);
+      String realPath = "/project/msse01/powertac/game-logs/";//context.getRealPath("/resources/" + downloadFile);
       File file = new File(realPath);
       long length = file.length();
       BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
