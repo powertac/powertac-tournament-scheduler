@@ -39,7 +39,7 @@ public class GameCube {
 		ResultSet rs;
 		int i=0;
 		//System.out.println("Kailash: initializeMap");
-		String sql_load_agents = "select distinct AgentType as atype from PowerTAC.AgentQueue order by rand()";
+		String sql_load_agents = "select distinct AgentType as atype from AgentQueue order by rand()";
 		//System.out.println(sql_load_agents);
 		rs = db.SetQuery(sql_load_agents);
 		while(rs.next()) {
@@ -198,7 +198,10 @@ public class GameCube {
 		index = findGameTypeIndex(gametype);
 		cube[index].initializeCombination();
 		agentsindices = cube[index].sortAndGetIndices();
-		System.arraycopy(agentsindices, 0, rmask, 0, gametype);
+		System.out.println("AgentsIndicies: "+ agentsindices.length);
+		System.out.println("GameType: "+ gametype);
+		
+		//System.arraycopy(agentsindices, 0, rmask, 0, gametype);
 		cube[index].addGameToProposedSumArray();	
 		cube[index].finalizeCombination(agentsindices);
 		return agentarray;

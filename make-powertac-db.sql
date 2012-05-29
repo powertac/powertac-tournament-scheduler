@@ -200,8 +200,7 @@ CREATE TABLE `tourney`.`AgentQueue` (
   `AgentType` int(10) DEFAULT NULL,
   `Prev_Age` int(18) unsigned NOT NULL,
   `Age` int(18) unsigned NOT NULL DEFAULT '0',
-  `IsPlaying` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`InternalAgentID`)
+  `IsPlaying` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `tourney`.`GameArchive` (

@@ -26,6 +26,17 @@
 							rendered="#{!scheduler.running}" />
 						<h:commandButton value="Restart WatchDog" action="#{scheduler.restartWatchDog}"/> 
 					</h:panelGroup>
+					
+					<h4>Tournament Status:</h4>
+					<h:panelGroup>
+						<h:outputText value="Tourney Loaded"
+							style="color:green;"
+							rendered="#{!scheduler.nullTourney}" />
+						<h:outputText value="Tourney not Loaded"
+							style="color:red;"
+							rendered="#{scheduler.nullTourney}" />
+						<h:commandButton value="Reload Tourney" action="#{scheduler.reloadTournament}"/> 
+					</h:panelGroup>
 
 
 					

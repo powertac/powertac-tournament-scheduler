@@ -200,7 +200,7 @@ public class MainScheduler
     for (i = 1; i <= noofagents; i++) {
       for (j = 1; j <= noofcopies; j++) {
         sql_insert_into_agents =
-          "insert into PowerTAC.AgentAdmin (InternalAgentID,AgentType, AgentCopy, AgentName, AgentDescription) "
+          "insert into AgentAdmin (InternalAgentID,AgentType, AgentCopy, AgentName, AgentDescription) "
                   + "values (default, "
                   + i
                   + ", "
@@ -213,8 +213,8 @@ public class MainScheduler
       }
     }
     sql_insert_into_queue =
-      "insert into PowerTAC.AgentQueue "
-              + "select InternalAgentID,AgentType,0,0,0 from	PowerTAC.AgentAdmin order by rand()";
+      "insert into AgentQueue "
+              + "select InternalAgentID,AgentType,0,0,0 from	AgentAdmin order by rand()";
     // System.out.println(sql_insert_into_queue);
     db.SetQuery(sql_insert_into_queue, "update");
   }

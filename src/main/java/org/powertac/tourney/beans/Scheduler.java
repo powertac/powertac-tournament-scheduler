@@ -88,33 +88,83 @@ public class Scheduler
     // this.startWatchDog();
     lazyStart();
   }
+  
+  public boolean isNullTourney(){
+    return this.runningTournament==null;
+  }
 
-  public void initTournament (Tournament t, List<Machine> machines)
+  public void reloadTournament ()
   {
     Database db = new Database();
     try {
       db.startTrans();
-      db.truncateScheduler();
+      Tournament t = db.getTournamentByType("MULTI_GAME");
+      this.runningTournament = t;
+      List<Machine> machines = db.getMachines();
       List<Database.Server> servers = db.getServers();
-      for(int i = 0; i < servers.size(); i++){
-        ServerIdToMachineId.put(servers.get(i).getServerNumber(), machines.get(i).getMachineId());
+      for (int i = 0; i < servers.size(); i++) {
+        ServerIdToMachineId.put(servers.get(i).getServerNumber(),
+                                machines.get(i).getMachineId());
       }
-      
+
       // Initially no one is registered so set brokerId's to -1
       List<Database.Agent> agents = db.getAgents();
-      for(int i = 0; i< agents.size(); i++){
+      for (int i = 0; i < agents.size(); i++) {
         AgentIdToBrokerId.put(agents.get(i).getInternalAgentID(), -1);
       }
+
       
+      db.commitTrans();
+      if (t != null) {
+        System.out.println("[INFO] Reloading Tournament: "
+                           + t.getTournamentName());
+      }
+      else {
+        System.out.println("[INFO] No tournament to reload");
+      }
+    }
+    catch (Exception e) {
+      System.out.println("Error retrieving tourney");
+      e.printStackTrace();
+    }
+  }
+
+  public void initTournament (Tournament t, List<Machine> machines)
+  {
+    Database db3 = new Database();
+    try {
+      db3.startTrans();
+      db3.truncateScheduler();
+      db3.commitTrans();
+    }
+    catch (Exception e) {
+      db3.abortTrans();
+      e.printStackTrace();
+    }
+
+    Database db = new Database();
+
+    try {
+      db.startTrans();
+      // db.truncateScheduler();
+      List<Database.Server> servers = db.getServers();
+      for (int i = 0; i < servers.size(); i++) {
+        ServerIdToMachineId.put(servers.get(i).getServerNumber(),
+                                machines.get(i).getMachineId());
+      }
+
+      // Initially no one is registered so set brokerId's to -1
+      List<Database.Agent> agents = db.getAgents();
+      for (int i = 0; i < agents.size(); i++) {
+        AgentIdToBrokerId.put(agents.get(i).getInternalAgentID(), -1);
+      }
+
       db.commitTrans();
     }
     catch (Exception e) {
       db.abortTrans();
       e.printStackTrace();
     }
-    
-    
-    
 
     int noofagents = t.getMaxBrokers();// maxBrokers;
     int noofcopies = t.getMaxBrokerInstances();// maxBrokerInstances;
@@ -137,8 +187,7 @@ public class Scheduler
     }
 
   }
-  
-  
+
   public void resetServer (int machineId)
   {
 
@@ -185,32 +234,40 @@ public class Scheduler
         catch (UnknownHostException e2) {
           e2.printStackTrace();
         }
-        
+
         Database db = new Database();
         db.startTrans();
-        List<Game> gamesInTourney = db.getGamesInTourney(runningTournament.getTournamentId());
-        List<Broker> brokersInTourney = db.getBrokersInTournament(runningTournament.getTournamentId());
+        List<Game> gamesInTourney =
+          db.getGamesInTourney(runningTournament.getTournamentId());
+        List<Broker> brokersInTourney =
+          db.getBrokersInTournament(runningTournament.getTournamentId());
         int i = 0;
-        for(int agentId : AgentIdToBrokerId.keySet()){
-          AgentIdToBrokerId.put(agentId, brokersInTourney.get(i++).getBrokerId());
+        
+        for (int agentId: AgentIdToBrokerId.keySet()) {
+          if(i>=brokersInTourney.size()){
+            break;
+          }
+          AgentIdToBrokerId.put(agentId, brokersInTourney.get(i++)
+                  .getBrokerId());
         }
-        
+
         db.commitTrans();
-        
-        for (Game g : gamesInTourney){
-          if(!g.isHasBootstrp() || 
-              g.getStatus().equalsIgnoreCase("game-pending") ||
-              g.getStatus().equalsIgnoreCase("game-in-progress") || 
-              g.getStatus().equalsIgnoreCase("game-complete")){
+
+        for (Game g: gamesInTourney) {
+          if (!g.isHasBootstrp()
+              || g.getStatus().equalsIgnoreCase("game-pending")
+              || g.getStatus().equalsIgnoreCase("game-in-progress")
+              || g.getStatus().equalsIgnoreCase("game-complete")) {
             gamesInTourney.remove(g);
           }
         }
-        
-        if(gamesInTourney.size()==0){
-          System.out.println("[INFO] Tournament is either complete or not enough bootstraps are available");
+
+        if (gamesInTourney.size() == 0) {
+          System.out
+                  .println("[INFO] Tournament is either complete or not enough bootstraps are available");
           return;
         }
-        
+
         if (!scheduler.equilibrium()) {
           HashMap<Server, AgentLet[]> games = scheduler.Schedule();
           System.out.println("[INFO] WatchDogTimer reports " + games.size()
@@ -224,33 +281,28 @@ public class Scheduler
             for (AgentLet a: agentSet) {
               brokerSet.add(AgentIdToBrokerId.get(a.getAgentId()));
             }
-            
-            
 
             Game somegame = gamesInTourney.get(0);
             gamesInTourney.remove(0);
-            
+
             System.out.println("[INFO] " + dateFormatUTC.format(new Date())
                                + " : Game: " + somegame.getGameId()
                                + " will be started...");
-            
-            
-          
+
             Database db1 = new Database();
             db1.startTrans();
             Machine m = db1.getMachineById(machineId);
             String brokers = "";
-            for (Integer b : brokerSet){
+            for (Integer b: brokerSet) {
               Broker tmp = db1.getBroker(b);
               db1.addBrokerToGame(somegame.getGameId(), tmp);
               brokers += tmp.getBrokerName() + ",";
             }
             db1.commitTrans();
-            
+
             int lastIndex = brokers.length();
             brokers = brokers.substring(0, lastIndex - 1);
-            
-            
+
             Scheduler.this
                     .runSimTimer(somegame.getGameId(),
                                  new RunGame(
@@ -259,11 +311,8 @@ public class Scheduler
                                              runningTournament.getPomUrl(),
                                              tournamentProperties
                                                      .getProperty("destination"),
-                                             m,
-                                             brokers
-                                             ),
-                                 new Date());
-            
+                                             m, brokers), new Date());
+
             // Wait for jenkins
             Thread.sleep(1000);
 

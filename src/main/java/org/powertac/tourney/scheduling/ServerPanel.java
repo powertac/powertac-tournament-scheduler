@@ -77,7 +77,7 @@ public class ServerPanel {
 	
 	public void publishDeployedServersToDB(DbConnection db,Server[] slist) throws Exception {
 		int i,len;
-		String wherestring = "",sql="update PowerTAC.GameServers set IsPlaying = 1 where ";
+		String wherestring = "",sql="update GameServers set IsPlaying = 1 where ";
 		for(i=0;i<slist.length;i++) {
 			wherestring += "ServerNumber = "+slist[i].getServerNumber()+" OR ";			
 		}

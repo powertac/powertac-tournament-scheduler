@@ -19,10 +19,10 @@ public class DbConnection
    * configuration parameters
    */
   private boolean debug = true;
-  private String serverip = "127.0.0.1";
-  private String database = "PowerTAC";
-  private String username = "root";
-  private String passwd = "H8G01Kae";
+  private String serverip = "";
+  private String database = "tourney";
+  private String username = "";
+  private String passwd = "";
   private String dbms = "mysql";
   private String port = "";
   private Connection myconnection = null;

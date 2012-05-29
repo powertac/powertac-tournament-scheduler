@@ -20,6 +20,7 @@ import org.powertac.tourney.beans.Machine;
 import org.powertac.tourney.beans.Scheduler;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.scheduling.MainScheduler;
+import org.powertac.tourney.scheduling.Server;
 import org.powertac.tourney.services.CreateProperties;
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.Upload;
@@ -331,7 +332,7 @@ public class ActionTournament
         // Adds new tournament to the database
         System.out.println("Adding tourney");
         db.addTournament(newTourney.getTournamentName(), true, size1,
-                         newTourney.getStartTime(), "SINGLE_GAME",
+                         startTime, "SINGLE_GAME",
                          newTourney.getPomUrl(), allLocations, maxBrokers);
         // Grabs the tourney Id
 
@@ -371,34 +372,90 @@ public class ActionTournament
       int tourneyId = 0;
       int gameId = 0;
       
+      System.out.println("[INFO] Multigame tournament selected");
       
+     
 
       int noofagents = maxBrokers;
       int noofcopies = maxBrokerInstances;
-      int noofservers = 7;
+      
       int iteration = 1, num;
-      int[] gtypes = { size1, size2, size3 };
-      int[] mxs = { numberSize1, numberSize1, numberSize1 };
+      int[] gtypes = new int[3];
+      int[] mxs = new int[3];
+      gtypes[0] = size1;
+      gtypes[1] = size2;
+      gtypes[2] = size3;
+      mxs[0] = numberSize1;
+      mxs[1] = numberSize2;
+      mxs[2] = numberSize3;
+      
+     /*
+      Server[] serverlist;
+      int noofagents = 5;
+      int noofcopies = 2; 
+      int noofservers = 3;
+      int iteration = 1,num;
+      int[] gtypes = {2,3,4};
+      int[] mxs = {2,3,4};
+      int nservers;*/
+      Database db2 = new Database();
+      try{
+      db2.startTrans();
+      db2.truncateScheduler();
+      db2.commitTrans();
+      }catch(Exception e){
+        db2.abortTrans();
+        e.printStackTrace();
+      }
 
       Database db = new Database();
+      
+      
       try {
+        db.startTrans();
+        int noofservers = db.getMachines().size();
+        System.out.println("[INFO] Starting MainScheduler..");
+        System.out.println("[INFO] Params -- Servers:"+noofservers + " Agents:"+noofagents + " Copies:"+noofcopies+" games={"+size1+":"+numberSize1+","+size2+":"+numberSize2+","+size3+":"+numberSize3+"}");
         MainScheduler gamescheduler = new MainScheduler(noofagents,noofcopies,noofservers, gtypes, mxs);
+        gamescheduler.initServerPanel(noofservers);
         gamescheduler.initializeAgentsDB(noofagents, noofcopies);
         gamescheduler.initGameCube(gtypes, mxs);
+        
+        
         int numberOfGames = gamescheduler.getGamesEstimate();
        
-        System.out.println("No. of games: "+numberOfGames);
+        System.out.println("[INFO] No. of games: "+numberOfGames);
         gamescheduler.resetCube();
         
+        newTourney.setPomName(selectedPom);
+
+        String hostip = "http://";
+
+        try {
+          InetAddress thisIp = InetAddress.getLocalHost();
+          hostip += thisIp.getHostAddress() + ":8080";
+        }
+        catch (UnknownHostException e2) {
+          // TODO Auto-generated catch block
+          e2.printStackTrace();
+        }
+
+
+        newTourney.setPomUrl(hostip
+                             + "/TournamentScheduler/faces/pom.jsp?location="
+                             + newTourney.getPomName());
+        newTourney.setMaxBrokers(getMaxBrokers());
+        newTourney.setStartTime(getStartTime());
+        newTourney.setTournamentName(getTournamentName());
         
-        db.startTrans();
+        
         // Add the number of games to a new tournament
         // Starts new transaction to prevent race conditions
         System.out.println("[INFO] Starting transaction");
         // Adds new tournament to the database
         System.out.println("[INFO] Creating New tourney");
-        db.addTournament(newTourney.getTournamentName(), true, numberOfGames,
-                         newTourney.getStartTime(), "SINGLE_GAME",
+        db.addTournament(tournamentName, true, numberOfGames,
+                         startTime, "MULTI_GAME",
                          newTourney.getPomUrl(), allLocations, maxBrokers);
         // Grabs the tourney Id
 
@@ -410,7 +467,7 @@ public class ActionTournament
         for(int i=0; i< numberOfGames;i++){
           System.out.println("[INFO] Adding game");
   
-          db.addGame(newTourney.getTournamentName(), tourneyId, size1, startTime);
+          db.addGame(newTourney.getTournamentName(), tourneyId, getMaxBrokers(), startTime);
           
           gameId = db.getMaxGameId();
           System.out.println("[INFO] Creating game: " + gameId + " properties");
@@ -426,7 +483,7 @@ public class ActionTournament
         db.commitTrans();
         
         scheduler.initTournament(newTourney, machines);
-        FacesContext.getCurrentInstance()
+        FacesContext.getCurrentInstance()        
         .addMessage("Tournament",
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                                      "Number of games in tournament: " + numberOfGames, null));
@@ -446,6 +503,8 @@ public class ActionTournament
       //WHat?
 
     }
+    
+    
 
    
     return "Success";

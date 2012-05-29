@@ -527,11 +527,13 @@ public class Database
     throws SQLException
   {
     
-    dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+    java.text.SimpleDateFormat sdf =
+            new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    
     PreparedStatement addTournament =
       conn.prepareStatement(Constants.ADD_TOURNAMENT);
     addTournament.setString(1, tourneyName);
-    addTournament.setString(2, dateFormatUTC.format(startTime));
+    addTournament.setString(2, sdf.format(startTime));
     addTournament.setBoolean(3, openRegistration);
     addTournament.setInt(4, maxGames);
     addTournament.setString(5, type);
@@ -1024,16 +1026,17 @@ public class Database
                       Date startTime) throws SQLException
   {
     
-    java.text.SimpleDateFormat sdf =
-      new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    java.text.SimpleDateFormat sdf =
+            new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    
     PreparedStatement insertGame = conn.prepareStatement(Constants.ADD_GAME);
 
     insertGame.setString(1, gameName);
     insertGame.setInt(2, tourneyId);
     // insertGame.setInt(3, machineId);
     insertGame.setInt(3, maxBrokers);
-    insertGame.setString(4, dateFormatUTC.format(startTime));
+    insertGame.setString(4, sdf.format(startTime));
     // insertGame.setString(4, properitesUrl);
     
 
@@ -1497,8 +1500,16 @@ public class Database
   public int truncateScheduler() throws SQLException
   {
     
-    PreparedStatement trunc = conn.prepareCall(Constants.CLEAR_SCHEDULE);
-    trunc.execute();
+    PreparedStatement trunc = conn.prepareStatement("DELETE FROM AgentAdmin;");
+    trunc.executeUpdate();
+    trunc = conn.prepareStatement("DELETE FROM AgentQueue;");
+    trunc.executeUpdate();
+    trunc = conn.prepareStatement("DELETE FROM GameArchive;");
+    trunc.executeUpdate();
+    trunc = conn.prepareStatement("DELETE FROM GameLog;");
+    trunc.executeUpdate();
+    trunc = conn.prepareStatement("DELETE FROM GameServers;");
+    trunc.executeUpdate();
     return 0;
   }
   

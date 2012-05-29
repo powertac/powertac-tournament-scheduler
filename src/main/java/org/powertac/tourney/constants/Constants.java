@@ -630,7 +630,7 @@ public class Constants
    * Clear scheduling database to schedule something else
    */
   public static final String CLEAR_SCHEDULE =
-    "truncate AgentAdmin;truncate AgentQueue;truncate GameArchive;truncate GameLog;truncate GameServers;";
+    "DELETE FROM AgentAdmin;DELETE FROM AgentQueue;DELETE FROM GameArchive;DELETE FROM GameLog;DELETE FROM GameServers;";
 
   /***
    * Select all available locations in the database
