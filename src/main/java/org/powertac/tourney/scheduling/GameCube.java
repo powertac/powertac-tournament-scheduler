@@ -157,10 +157,15 @@ public class GameCube {
 		 * 3. if present send the schedule
 		 * 
 		 */
+		
+                
 		index = findGameTypeIndex(gametype);
 		cube[index].initializeCombination();
 		do {
 			agentsindices = cube[index].sortAndGetIndices();
+			System.out.println("getAgents AgentsIndicies: "+ agentsindices.length);
+	                System.out.println("getAgents GameType: "+ gametype);
+	                
 			System.arraycopy(agentsindices, 0, rmask, 0, gametype);
 			agentarray = canSchedule(db, rmask);
 			cube[index].addGameToProposedSumArray();
