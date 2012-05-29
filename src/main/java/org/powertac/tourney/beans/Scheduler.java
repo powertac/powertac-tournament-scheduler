@@ -112,6 +112,26 @@ public class Scheduler
       for (int i = 0; i < agents.size(); i++) {
         AgentIdToBrokerId.put(agents.get(i).getInternalAgentID(), -1);
       }
+      
+      int noofagents = t.getMaxBrokers();// maxBrokers;
+      int noofcopies = t.getMaxBrokerInstances();// maxBrokerInstances;
+      int noofservers = machines.size();
+      int[] gtypes = { t.getSize1(), t.getSize2(), t.getSize3() };
+      int[] mxs = { t.getNumberSize1(), t.getNumberSize2(), t.getNumberSize3() };
+
+      try {
+        scheduler =
+          new MainScheduler(noofagents, noofcopies, noofservers, gtypes, mxs);
+        scheduler.initializeAgentsDB(noofagents, noofcopies);
+        scheduler.initGameCube(gtypes, mxs);
+        scheduler.resetCube();
+        runningTournament = t;
+
+      }
+      catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
 
       
       db.commitTrans();
