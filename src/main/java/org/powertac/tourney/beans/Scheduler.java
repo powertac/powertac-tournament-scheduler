@@ -262,7 +262,7 @@ public class Scheduler
         List<Broker> brokersInTourney =
           db.getBrokersInTournament(runningTournament.getTournamentId());
         int i = 0;
-        System.out.println("[INFO] Brokers in Tournament: " + brokersInTourney.size());
+        System.out.println("[INFO] Brokers in Tournament: " + brokersInTourney.size() + " TourneyId: "+runningTournament.getTournamentId());
         for (int agentId: AgentIdToBrokerId.keySet()) {
           if(i>=brokersInTourney.size()){
             break;
