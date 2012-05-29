@@ -163,9 +163,26 @@ public class Scheduler
       e.printStackTrace();
     }
 
-    Database db = new Database();
+    
 
+    
+
+    int noofagents = t.getMaxBrokers();// maxBrokers;
+    int noofcopies = t.getMaxBrokerInstances();// maxBrokerInstances;
+    int noofservers = machines.size();
+    int[] gtypes = { t.getSize1(), t.getSize2(), t.getSize3() };
+    int[] mxs = { t.getNumberSize1(), t.getNumberSize2(), t.getNumberSize3() };
+
+    Database db = new Database();
     try {
+      scheduler =
+        new MainScheduler(noofagents, noofcopies, noofservers, gtypes, mxs);
+      scheduler.initServerPanel(noofservers);
+      scheduler.initializeAgentsDB(noofagents, noofcopies);
+      scheduler.initGameCube(gtypes, mxs);
+      scheduler.resetCube();
+      runningTournament = t;
+      
       db.startTrans();
       // db.truncateScheduler();
       List<Database.Server> servers = db.getServers();
@@ -183,29 +200,10 @@ public class Scheduler
       }
 
       db.commitTrans();
+
     }
     catch (Exception e) {
       db.abortTrans();
-      e.printStackTrace();
-    }
-
-    int noofagents = t.getMaxBrokers();// maxBrokers;
-    int noofcopies = t.getMaxBrokerInstances();// maxBrokerInstances;
-    int noofservers = machines.size();
-    int[] gtypes = { t.getSize1(), t.getSize2(), t.getSize3() };
-    int[] mxs = { t.getNumberSize1(), t.getNumberSize2(), t.getNumberSize3() };
-
-    try {
-      scheduler =
-        new MainScheduler(noofagents, noofcopies, noofservers, gtypes, mxs);
-      scheduler.initServerPanel(noofservers);
-      scheduler.initializeAgentsDB(noofagents, noofcopies);
-      scheduler.initGameCube(gtypes, mxs);
-      scheduler.resetCube();
-      runningTournament = t;
-
-    }
-    catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
