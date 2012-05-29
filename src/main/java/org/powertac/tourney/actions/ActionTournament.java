@@ -479,10 +479,12 @@ public class ActionTournament
           db.updateGamePropertiesById(gameId);
         }
         System.out.println("[INFO] Committing transaction");
-        
+
+        int id = db.getMaxTourneyId();
+        Tournament t = db.getTournamentById(tourneyId);
+        System.out.println("Created Tournament " + t.getTournamentId()+":"+t.getTournamentName());
         db.commitTrans();
-        
-        scheduler.initTournament(newTourney, machines);
+        scheduler.initTournament(t, machines);
         FacesContext.getCurrentInstance()        
         .addMessage("Tournament",
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
