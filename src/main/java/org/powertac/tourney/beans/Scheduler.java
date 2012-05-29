@@ -169,6 +169,8 @@ public class Scheduler
       db.startTrans();
       // db.truncateScheduler();
       List<Database.Server> servers = db.getServers();
+      System.out.println("[INFO] Size of servers: " + servers.size());
+      System.out.println("[INFO] Size of machines: " + machines.size());
       for (int i = 0; i < servers.size(); i++) {
         ServerIdToMachineId.put(servers.get(i).getServerNumber(),
                                 machines.get(i).getMachineId());
@@ -302,9 +304,21 @@ public class Scheduler
           HashMap<Server, AgentLet[]> games = scheduler.Schedule();
           System.out.println("[INFO] WatchDogTimer reports " + games.size()
                              + " tournament game(s) are ready to start");
+          
           for (Server s: games.keySet()) {
             AgentLet[] agentSet = games.get(s);
-
+            
+            System.out.println("[INFO] Server " + s.getServerNumber() + " playing");
+            
+            for(AgentLet a : agentSet){
+              System.out.println("[INFO] Agent "+ a.getAgentType());
+            }
+            
+            String result ="";
+            for(Integer key : ServerIdToMachineId.keySet()){
+              result += key +",";
+            }
+            System.out.println("[INFO] Key Set in serversToMachines: " + result);
             Integer machineId = ServerIdToMachineId.get(s.getServerNumber());
 
             List<Integer> brokerSet = new ArrayList<Integer>();

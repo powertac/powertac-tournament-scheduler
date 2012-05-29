@@ -1299,7 +1299,6 @@ public class Database
   public Machine getMachineById(int machineId) throws SQLException
   {
     
-    List<Machine> machines = new ArrayList<Machine>();
 
     PreparedStatement selectMachines =
       conn.prepareStatement(Constants.SELECT_MACHINES_BYID);
