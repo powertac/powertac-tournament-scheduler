@@ -60,7 +60,7 @@ public class ActionIndex
     response.addHeader("Content-Disposition", "attachment; filename=\"" + downloadFile + "\"");
     byte[] buf = new byte[1024];
     try{
-      String realPath = "/project/msse01/powertac/game-logs/";//context.getRealPath("/resources/" + downloadFile);
+      String realPath = "/project/msse01/powertac/game-logs/" + downloadFile;//context.getRealPath("/resources/" + downloadFile);
       File file = new File(realPath);
       long length = file.length();
       BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
