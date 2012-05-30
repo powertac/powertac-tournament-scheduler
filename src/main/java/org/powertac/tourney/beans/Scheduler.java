@@ -353,6 +353,7 @@ public class Scheduler
             String brokers = "";
             for (Integer b: brokerSet) {
               Broker tmp = db1.getBroker(b);
+              System.out.println("[INFO] Adding broker " + tmp.getBrokerId() + " to game " + somegame.getGameId());
               db1.addBrokerToGame(somegame.getGameId(), tmp);
               brokers += tmp.getBrokerName() + ",";
             }
