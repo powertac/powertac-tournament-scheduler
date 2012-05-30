@@ -86,13 +86,13 @@ public class Rest
             if (competitionName.equalsIgnoreCase(t.getTournamentName())
                 && g.isBrokerRegistered(brokerAuthToken)) {
 
-              if(skip.containsKey(brokerAuthToken) && skip.get(brokerAuthToken) == g.getGameId()){
+              if(skip.containsKey(g.getGameId()+brokerAuthToken) && skip.get(g.getGameId()+brokerAuthToken) == g.getGameId()){
                 System.out.println("[INFO] Broker " + brokerAuthToken + " already recieved login for game " + g.getGameId());
                 continue;
               }
               System.out.println("[INFO] Sending login to : " + brokerAuthToken
                                  + " jmsUrl : " + g.getJmsUrl());
-              skip.put(brokerAuthToken, g.getGameId());
+              skip.put(g.getGameId()+brokerAuthToken, g.getGameId());
 
               return String.format(loginResponse, g.getJmsUrl(), "1234");
             }
