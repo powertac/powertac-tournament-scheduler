@@ -31,7 +31,7 @@ public class Rest
 {
 
   private Scheduler scheduler;
-  private HashMap<String,Integer> skip = new HashMap<String,Integer>();
+  private static HashMap<String,Integer> skip = new HashMap<String,Integer>();
 
   public String parseBrokerLogin (Map<?, ?> params)
   {
