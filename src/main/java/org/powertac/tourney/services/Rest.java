@@ -31,7 +31,7 @@ public class Rest
 {
 
   private Scheduler scheduler;
-  private HashMap<Integer,String> skip = new HashMap<Integer,String>();
+  private HashMap<String,Integer> skip = new HashMap<String,Integer>();
 
   public String parseBrokerLogin (Map<?, ?> params)
   {
@@ -86,13 +86,13 @@ public class Rest
             if (competitionName.equalsIgnoreCase(t.getTournamentName())
                 && g.isBrokerRegistered(brokerAuthToken)) {
 
-              if(skip.get(g.getGameId()).equalsIgnoreCase(brokerAuthToken)){
+              if(skip.containsKey(brokerAuthToken) && skip.get(brokerAuthToken) == g.getGameId()){
                 System.out.println("[INFO] Broker " + brokerAuthToken + " already recieved login for game " + g.getGameId());
                 continue;
               }
               System.out.println("[INFO] Sending login to : " + brokerAuthToken
                                  + " jmsUrl : " + g.getJmsUrl());
-              skip.put(g.getGameId(), brokerAuthToken);
+              skip.put(brokerAuthToken, g.getGameId());
 
               return String.format(loginResponse, g.getJmsUrl(), "1234");
             }
