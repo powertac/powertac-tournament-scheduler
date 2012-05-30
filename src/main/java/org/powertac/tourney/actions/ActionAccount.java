@@ -144,7 +144,7 @@ public class ActionAccount
       try {
         if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())
             && t.getNumberRegistered() < t.getMaxBrokers()
-            && t.getStartTime().before(new Date())) {
+            && t.getStartTime().after(new Date())) {
           availableTourneys.add(t);
         }
 
