@@ -59,6 +59,7 @@ public class RunGame extends TimerTask
     this.destination = destination;
     this.running = false;
     this.tourney = true;
+    this.brokers = brokers;
     this.machine = machine;
     // Assumes Jenkins and TS live in the same location as per the install
     this.serverConfig =
