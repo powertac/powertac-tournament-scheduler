@@ -2,10 +2,12 @@ package org.powertac.tourney.beans;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.Vector;
 
 import javax.faces.bean.ManagedBean;
@@ -63,6 +65,9 @@ public class Tournament
 
   public Tournament (ResultSet rsTs)
   {
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    SimpleDateFormat dateFormatUTC =
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
     try {
       this.setTournamentId(rsTs.getInt("tourneyId"));
       this.setTournamentName(rsTs.getString("tourneyName"));
@@ -71,7 +76,7 @@ public class Tournament
       this.setMaxGames(rsTs.getInt("maxGames"));
       this.setPomUrl(rsTs.getString("pomUrl"));
       this.setMaxBrokers(rsTs.getInt("maxBrokers"));
-      this.setStartTime(rsTs.getDate("startTime"));
+      this.setStartTime(dateFormatUTC.parse((rsTs.getString("startTime"))));
       this.setSize1(rsTs.getInt("gameSize1"));
       this.setSize2(rsTs.getInt("gameSize2"));
       this.setSize3(rsTs.getInt("gameSize3"));
