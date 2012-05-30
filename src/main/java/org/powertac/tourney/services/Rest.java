@@ -134,13 +134,14 @@ public class Rest
         }
 
       }
+      Thread.sleep(2000);
 
     }
     catch (Exception e) {
       db.abortTrans();
       e.printStackTrace();
     }
-
+    
     return doneResponse;
   }
 

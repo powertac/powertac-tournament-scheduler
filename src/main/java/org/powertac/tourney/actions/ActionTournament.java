@@ -283,7 +283,7 @@ public class ActionTournament
     
   }
 
-  public String createTournament ()
+  public synchronized String createTournament ()
   {
     // Create a tournament and insert it into the application context
     Tournament newTourney = new Tournament();
