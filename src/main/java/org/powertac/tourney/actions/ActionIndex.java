@@ -55,7 +55,8 @@ public class ActionIndex
   public void getDownload(Game g){
     ServletContext context = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
     HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-    response.setContentType("application/force-download");
+    //response.setContentType("application/force-download");
+    response.setContentType("application/x-gzip");
     String downloadFile = "game-"+g.getGameId()+"-sim-logs.tar.gz";
     response.addHeader("Content-Disposition", "attachment; filename=\"" + downloadFile + "\"");
     byte[] buf = new byte[1024];
