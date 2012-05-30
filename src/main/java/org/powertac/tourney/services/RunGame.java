@@ -290,7 +290,7 @@ public class RunGame extends TimerTask
         InputStream input = conn.getInputStream();
         System.out.println("Jenkins request to start simulation game: "
                            + this.gameId);
-        System.out.println("Bootstrap url: " + bootstrapUrl);
+        System.out.println("Final url: " + finalUrl);
         this.running = true;
       }
       else {
