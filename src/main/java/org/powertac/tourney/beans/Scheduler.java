@@ -216,7 +216,8 @@ public class Scheduler
 
   }
 
-  public void resetServer (int machineId)
+  // Resets the internal scheduling tables;
+  public synchronized void resetServer (int machineId)
   {
 
     // Find the serverId from a machineId
@@ -227,11 +228,15 @@ public class Scheduler
         break;
       }
     }
-
+    
+    Database db = new Database();
     try {
+      db.freeAgents(serverNumber);
       scheduler.resetServers(serverNumber);
+      db.commitTrans();
     }
     catch (Exception e) {
+      db.abortTrans();
       // TODO Auto-generated catch block
       e.printStackTrace();
     }

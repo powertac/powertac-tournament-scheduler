@@ -1521,6 +1521,13 @@ public class Database
     return 0;
   }
   
+  public int freeAgents(int serverNumber) throws SQLException{
+    PreparedStatement freeA = conn.prepareStatement(Constants.FREE_AGENTS_ON_SERVER);
+    freeA.setInt(1, serverNumber);
+    
+    return freeA.executeUpdate();
+  }
+  
   private void openConnection () throws SQLException
   {
     checkDb();
