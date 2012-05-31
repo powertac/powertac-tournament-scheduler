@@ -228,16 +228,17 @@ public class Scheduler
     }
 
     DbConnection db = new DbConnection();
-
     try {
+      db.Setup();
       System.out.println("[INFO] Freeing agents on " + serverNumber);
       String freeAgents = Constants.FREE_AGENTS_ON_SERVER;
+      System.out.println("[INFO] Query: " + freeAgents);
       freeAgents.replace("?", String.valueOf(serverNumber));
       db.SetQuery(freeAgents, "update");
     }
-    catch (SQLException e1) {
+    catch (Exception e) {
       // TODO Auto-generated catch block
-      e1.printStackTrace();
+      e.printStackTrace();
     }
     System.out.println("[INFO] Agents freed");
 
