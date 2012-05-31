@@ -633,7 +633,7 @@ public class Constants
    * @param ServerNumber
    */
   public static final String FREE_AGENTS_ON_SERVER = 
-     "UPDATE AgentQueue SET IsPlaying=0 WHERE AgentQueue.InternalAgentId IN (SELECT DISTINCT AgentQueue.InternalAgentId FROM GameLog JOIN GameArchive ON GameArchive.InternalGameID = GameLog.InternalGameId JOIN AgentQueue ON GameLog.InternalAgentID = AgentQueue.InternalAgentId WHERE AgentQueue.IsPlaying=1 and GameArchive.ServerNumber=?);";
+     "UPDATE AgentQueue SET IsPlaying=0 WHERE InternalAgentId IN (SELECT * FROM (SELECT DISTINCT AgentQueue.InternalAgentId FROM GameLog JOIN GameArchive ON GameArchive.InternalGameID = GameLog.InternalGameId JOIN AgentQueue ON GameLog.InternalAgentID = AgentQueue.InternalAgentId WHERE AgentQueue.IsPlaying=1 and GameArchive.ServerNumber=?) AS x)";
   
   
   
