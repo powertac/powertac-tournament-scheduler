@@ -134,7 +134,7 @@ public class Rest
         }
 
       }
-      Thread.sleep(2000);
+      Thread.sleep(30000);
 
     }
     catch (Exception e) {
