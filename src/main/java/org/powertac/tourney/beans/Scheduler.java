@@ -232,7 +232,7 @@ public class Scheduler
       db.Setup();
       System.out.println("[INFO] Freeing agents on " + serverNumber);
       String freeAgents = "%s";
-      String.format(freeAgents, Constants.FREE_AGENTS_ON_SERVER);
+      freeAgents = String.format(freeAgents, Constants.FREE_AGENTS_ON_SERVER);
       freeAgents.replace("?", String.valueOf(serverNumber));
       System.out.println("[INFO] Query: " + freeAgents);
       db.SetQuery(freeAgents, "update");
