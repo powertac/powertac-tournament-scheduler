@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.bean.SessionScoped;
@@ -50,6 +51,14 @@ public class ActionAccount
     User user =
       (User) FacesContext.getCurrentInstance().getExternalContext()
               .getSessionMap().get(User.getKey());
+    if(getNewBrokerName().equalsIgnoreCase("") || getNewBrokerShortDescription().equalsIgnoreCase("")){
+      FacesContext.getCurrentInstance()
+      .addMessage("accountForm",
+                  new FacesMessage(FacesMessage.SEVERITY_INFO,
+                                   "Broker requires a Name and an AuthToken", null));
+      return "Account";
+    }
+    
     // Check if user is null?
     user.addBroker(getNewBrokerName(), getNewBrokerShortDescription());
 
@@ -90,11 +99,22 @@ public class ActionAccount
     User user =
       (User) FacesContext.getCurrentInstance().getExternalContext()
               .getSessionMap().get(User.getKey());
+    
+    if(b.getNewName().equalsIgnoreCase("") || b.getBrokerAuthToken().equalsIgnoreCase("")){
+      FacesContext.getCurrentInstance()
+      .addMessage("accountForm",
+                  new FacesMessage(FacesMessage.SEVERITY_INFO,
+                                   "Broker requires a Name and an AuthToken", null));
+      return;
+    }
+    
     user.setEdit(false);
     b.setEdit(false);
     b.setBrokerName(b.getNewName());
     b.setShortDescription(b.getNewShort());
     b.setBrokerAuthToken(b.getNewAuth());
+    
+    
 
     Database db = new Database();
 

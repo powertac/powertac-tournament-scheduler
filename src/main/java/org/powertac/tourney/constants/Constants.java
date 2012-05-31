@@ -626,6 +626,17 @@ public class Constants
             + "JOIN GameLog b ON a.InternalAgentID = b.InternalAgentID"
             + "JOIN GameArchive c ON b.InternalGameID= c.InternalGameID"
             + "WHERE AgentType = ?";
+  
+  /**
+   * Free the Agent ids that are playing on a server that finished
+   * 
+   * @param ServerNumber
+   */
+  public static final String FREE_AGENTS_ON_SERVER = 
+     "UPDATE AgentQueue SET IsPlaying=0 WHERE InternalAgentId IN (SELECT * FROM (SELECT DISTINCT AgentQueue.InternalAgentId FROM GameLog JOIN GameArchive ON GameArchive.InternalGameID = GameLog.InternalGameId JOIN AgentQueue ON GameLog.InternalAgentID = AgentQueue.InternalAgentId WHERE AgentQueue.IsPlaying=1 and GameArchive.ServerNumber=?) AS x)";
+  
+  
+  
   /***
    * Clear scheduling database to schedule something else
    */

@@ -31,7 +31,8 @@ public class Rest
 {
 
   private Scheduler scheduler;
-  private static HashMap<String,Integer> skip = new HashMap<String,Integer>();
+  private static HashMap<String, Integer> skip = new HashMap<String, Integer>();
+  private static boolean lock;
 
   public String parseBrokerLogin (Map<?, ?> params)
   {
@@ -85,20 +86,24 @@ public class Rest
 
             if (competitionName.equalsIgnoreCase(t.getTournamentName())
                 && g.isBrokerRegistered(brokerAuthToken)) {
-
-              if(skip.containsKey(g.getGameId()+brokerAuthToken) && skip.get(g.getGameId()+brokerAuthToken) == g.getGameId()){
-                System.out.println("[INFO] Broker " + brokerAuthToken + " already recieved login for game " + g.getGameId());
-                continue;
+              synchronized (skip) {
+                if (skip.containsKey(g.getGameId() + brokerAuthToken)
+                    && skip.get(g.getGameId() + brokerAuthToken) == g
+                            .getGameId()) {
+                  System.out.println("[INFO] Broker " + brokerAuthToken
+                                     + " already recieved login for game "
+                                     + g.getGameId());
+                  continue;
+                }
+                System.out.println("[INFO] Sending login to : "
+                                   + brokerAuthToken + " jmsUrl : "
+                                   + g.getJmsUrl());
+                skip.put(g.getGameId() + brokerAuthToken, g.getGameId());
               }
-              System.out.println("[INFO] Sending login to : " + brokerAuthToken
-                                 + " jmsUrl : " + g.getJmsUrl());
-              skip.put(g.getGameId()+brokerAuthToken, g.getGameId());
-
               return String.format(loginResponse, g.getJmsUrl(), "1234");
             }
 
           }
-
 
         }
         db.commitTrans();
@@ -129,13 +134,14 @@ public class Rest
         }
 
       }
+      Thread.sleep(30000);
 
     }
     catch (Exception e) {
       db.abortTrans();
       e.printStackTrace();
     }
-
+    
     return doneResponse;
   }
 
@@ -247,20 +253,22 @@ public class Rest
         else if (statusString.equalsIgnoreCase("game-done")) {
           System.out.println("[INFO] Recieved game done message from game: "
                              + gameId);
+          
           Database db = new Database();
+          Game g = null;
           try {
             db.startTrans();
             db.updateGameStatusById(gameId, "game-complete");
             System.out.println("[INFO] Setting game: " + gameId
                                + " to game-complete");
-            Game g = db.getGame(gameId);
+            g = db.getGame(gameId);
             // Do some cleanup
             db.updateGameFreeBrokers(gameId);
             System.out.println("[INFO] Freeing Brokers for game: " + gameId);
             db.updateGameFreeMachine(gameId);
             System.out.println("[INFO] Freeing Machines for game: " + gameId);
+
             
-            scheduler.resetServer(g.getMachineId());
 
             db.setMachineStatus(g.getMachineId(), "idle");
             db.commitTrans();
@@ -269,6 +277,7 @@ public class Rest
             db.abortTrans();
             e.printStackTrace();
           }
+          scheduler.resetServer(g.getMachineId());
           return "success";
         }
         else if (statusString.equalsIgnoreCase("game-failed")) {
@@ -281,7 +290,6 @@ public class Rest
 
             db.updateGameFreeBrokers(gameId);
             db.updateGameFreeMachine(gameId);
-            
 
             scheduler.resetServer(g.getMachineId());
             db.setMachineStatus(g.getMachineId(), "idle");
@@ -358,7 +366,8 @@ public class Rest
     // Test Settings
     String minTimeslot = "common.competition.minimumTimeslotCount = 220";
     String expectedTimeslot = "common.competition.expectedTimeslotCount = 240";
-    String serverFirstTimeout = "server.competitionControlService.firstLoginTimeout = 600000";
+    String serverFirstTimeout =
+      "server.competitionControlService.firstLoginTimeout = 600000";
 
     // Timeout Settings
     String serverTimeout =

@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.powertac.tourney.constants.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
@@ -393,7 +395,7 @@ public class MainScheduler
       System.out.println("Releasing " + wherestring);
       gameRelease(servernumbers);*/
     
-    
+         
       String sql_reset =
         "update GameServers " + "set	IsPlaying = 0 " + "where  ServerNumber = " + ServerNumber;
       // System.out.println(sql_reset);

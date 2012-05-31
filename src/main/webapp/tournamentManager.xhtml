@@ -140,17 +140,7 @@
 
 					<h:outputText value="Maximum Number of Brokers to Participate" />
 					<h:panelGroup>
-						<h:selectOneMenu value="#{actionTournament.maxBrokers}">
-							<f:selectItem itemValue="1" itemLabel="1 Broker(s)" />
-							<f:selectItem itemValue="2" itemLabel="2 Broker(s)" />
-							<f:selectItem itemValue="3" itemLabel="3 Broker(s)" />
-							<f:selectItem itemValue="4" itemLabel="4 Broker(s)" />
-							<f:selectItem itemValue="5" itemLabel="5 Broker(s)" />
-							<f:selectItem itemValue="6" itemLabel="6 Broker(s)" />
-							<f:selectItem itemValue="7" itemLabel="7 Broker(s)" />
-							<f:selectItem itemValue="8" itemLabel="8 Broker(s)" />
-							<f:selectItem itemValue="-1" itemLabel="More Brokers" />
-						</h:selectOneMenu>
+						<h:inputText value="#{actionTournament.maxBrokers}"/>
 					</h:panelGroup>
 										
 
