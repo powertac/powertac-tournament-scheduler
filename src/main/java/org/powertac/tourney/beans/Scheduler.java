@@ -235,6 +235,12 @@ public class Scheduler
       db.freeAgents(serverNumber);
       System.out.println("[INFO] Agents freed");
       db.commitTrans();
+    }catch (Exception e){
+     db.abortTrans();
+     e.printStackTrace();
+    }
+     
+    try{
       scheduler.resetServers(serverNumber);
       System.out.println("[INFO] Servers freed");
     }
