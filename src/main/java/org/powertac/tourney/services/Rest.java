@@ -253,20 +253,22 @@ public class Rest
         else if (statusString.equalsIgnoreCase("game-done")) {
           System.out.println("[INFO] Recieved game done message from game: "
                              + gameId);
+          
           Database db = new Database();
+          Game g = null;
           try {
             db.startTrans();
             db.updateGameStatusById(gameId, "game-complete");
             System.out.println("[INFO] Setting game: " + gameId
                                + " to game-complete");
-            Game g = db.getGame(gameId);
+            g = db.getGame(gameId);
             // Do some cleanup
             db.updateGameFreeBrokers(gameId);
             System.out.println("[INFO] Freeing Brokers for game: " + gameId);
             db.updateGameFreeMachine(gameId);
             System.out.println("[INFO] Freeing Machines for game: " + gameId);
 
-            scheduler.resetServer(g.getMachineId());
+            
 
             db.setMachineStatus(g.getMachineId(), "idle");
             db.commitTrans();
@@ -275,6 +277,7 @@ public class Rest
             db.abortTrans();
             e.printStackTrace();
           }
+          scheduler.resetServer(g.getMachineId());
           return "success";
         }
         else if (statusString.equalsIgnoreCase("game-failed")) {
