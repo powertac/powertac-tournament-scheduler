@@ -364,10 +364,10 @@ public class Rest
     String queueName = "server.visualizerProxyService.visualizerQueueName = ";
 
     // Test Settings
-    String minTimeslot = "common.competition.minimumTimeslotCount = 220";
-    String expectedTimeslot = "common.competition.expectedTimeslotCount = 240";
-    //String minTimeslot = "common.competition.minimumTimeslotCount = 1320";
-    //String expectedTimeslot = "common.competition.expectedTimeslotCount = 1440";
+    //String minTimeslot = "common.competition.minimumTimeslotCount = 220";
+    //String expectedTimeslot = "common.competition.expectedTimeslotCount = 240";
+    String minTimeslot = "common.competition.minimumTimeslotCount = 1320";
+    String expectedTimeslot = "common.competition.expectedTimeslotCount = 1440";
     String serverFirstTimeout =
       "server.competitionControlService.firstLoginTimeout = 600000";
 
