@@ -231,9 +231,12 @@ public class Scheduler
     
     Database db = new Database();
     try {
+      System.out.println("[INFO] Freeing agents on " + serverNumber);
       db.freeAgents(serverNumber);
-      scheduler.resetServers(serverNumber);
+      System.out.println("[INFO] Agents freed");
       db.commitTrans();
+      scheduler.resetServers(serverNumber);
+      System.out.println("[INFO] Servers freed");
     }
     catch (Exception e) {
       db.abortTrans();
