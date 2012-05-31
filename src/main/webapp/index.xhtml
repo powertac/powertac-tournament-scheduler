@@ -15,11 +15,15 @@
 			<h2>Welcome to the PowerTac 2012 Tournament Scheduler!</h2>
 
 			<h4>News:</h4>
-			<p>Today we will be running some test competitions for your brokers. You are encouraged to
-			provide as much feedback as possible about your experience. </p>
+			<p>31 May 2012: Today at 12:00 UTC we will start the 2012 Power TAC qualifying
+			round. Please have your agent configured and ready to run before that time. We
+			will schedule 144 games, of sizes 2, 4, and 8 brokers. We expect to see six or
+			more games running in parallel much of the time. </p>
 			
-			<p>Create an account and register your broker as shown at 
-			https://github.com/powertac/powertac-server/wiki/Broker-Tournament-Login. </p>
+			<p>If you have not already done so, create an account and register and configure
+			your broker as shown at the
+			<a href="https://github.com/powertac/powertac-server/wiki/Broker-Tournament-Login">
+			Github wiki instruction page</a>. </p>
 			
 			
 			<h4> Running Games and their Visualizers</h4>
@@ -138,7 +142,7 @@
 							<h:outputText value="Logs" />
 						</f:facet>
 						<!-- row record -->
-    						<h:commandLink value="Logs" action="#{actionIndex.getDownload(g)}"/>
+    						<a href="download?game=#{g.gameId}">Logs</a>
     				</t:column>
     				
     				
