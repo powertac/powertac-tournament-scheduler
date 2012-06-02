@@ -364,8 +364,10 @@ public class Rest
     String queueName = "server.visualizerProxyService.visualizerQueueName = ";
 
     // Test Settings
-    String minTimeslot = "common.competition.minimumTimeslotCount = 220";
-    String expectedTimeslot = "common.competition.expectedTimeslotCount = 240";
+    //String minTimeslot = "common.competition.minimumTimeslotCount = 220";
+    //String expectedTimeslot = "common.competition.expectedTimeslotCount = 240";
+    String minTimeslot = "common.competition.minimumTimeslotCount = 1320";
+    String expectedTimeslot = "common.competition.expectedTimeslotCount = 1440";
     String serverFirstTimeout =
       "server.competitionControlService.firstLoginTimeout = 600000";
 
@@ -376,7 +378,13 @@ public class Rest
     if (props.size() == 4) {
       result += weatherLocation + props.get(0) + "\n";
       result += startTime + props.get(1) + "\n";
-      result += jms + props.get(2) + "\n";
+      if(props.get(2).isEmpty()){
+    	  result += jms + "tcp://localhost:61616" + "\n";
+      }else{
+    	  result += jms + props.get(2) + "\n";
+      }
+      
+      
       result += serverFirstTimeout + "\n";
       result += serverTimeout + "\n";
       if (props.get(2).length() > 2) {

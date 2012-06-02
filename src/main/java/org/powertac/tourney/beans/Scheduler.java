@@ -227,13 +227,15 @@ public class Scheduler
       }
     }
 
+    /* Moved to the scheduling code 
     DbConnection db = new DbConnection();
     try {
       db.Setup();
       System.out.println("[INFO] Freeing agents on " + serverNumber);
-      String freeAgents = Constants.FREE_AGENTS_ON_SERVER;
+      String freeAgents = "%s";
+      freeAgents = String.format(freeAgents, Constants.FREE_AGENTS_ON_SERVER);
+      freeAgents = freeAgents.replace("?", String.valueOf(serverNumber));
       System.out.println("[INFO] Query: " + freeAgents);
-      freeAgents.replace("?", String.valueOf(serverNumber));
       db.SetQuery(freeAgents, "update");
     }
     catch (Exception e) {
@@ -241,10 +243,10 @@ public class Scheduler
       e.printStackTrace();
     }
     System.out.println("[INFO] Agents freed");
-
+    */
     try {
       scheduler.resetServers(serverNumber);
-      System.out.println("[INFO] Servers freed");
+      System.out.println("[INFO] Servers and Agents freed");
     }
     catch (Exception e) {
       // TODO Auto-generated catch block
