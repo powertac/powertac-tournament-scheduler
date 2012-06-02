@@ -6,8 +6,6 @@ import java.util.List;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.powertac.tourney.constants.Constants;
-import org.springframework.beans.factory.annotation.Autowired;
 
 
 //import java.util.UUID;
@@ -46,6 +44,7 @@ public class MainScheduler
     }
     catch (Exception E) {
       System.out.println("Cannot open connection to DB");
+      E.printStackTrace();
       System.exit(1);
     }
     // might not be needed
@@ -175,13 +174,13 @@ public class MainScheduler
         iteration++;
         available_server = serverpanel.getAvailableServer();
         // System.out.println("Disparity Flag: "+scoreboard.isDisparity()+" scheduled server number: "+available_server.getServerNumber());
-        System.out.println("-----------");
+        //System.out.println("-----------");
       }
     }
     scheduleMatrix.clearLookAheads();
     slist = serverpanel.getScheduledServers();
     serverpanel.publishDeployedServersToDB(db, slist);
-    System.out.println("-----------" + iteration);
+    //System.out.println("-----------" + iteration);
     return gamesToStart;
   }
 
@@ -395,6 +394,15 @@ public class MainScheduler
       System.out.println("Releasing " + wherestring);
       gameRelease(servernumbers);*/
     
+     
+	  Server[] server = new Server[1];
+	  
+	  ResultSet rs = db.SetQuery("SELECT * FROM GameServers WHERE ServerNumber="+ServerNumber);
+	  if(rs.next()){
+		  server[0] = new Server(rs);
+	  }
+	  
+	  gameRelease(server);
          
       String sql_reset =
         "update GameServers " + "set	IsPlaying = 0 " + "where  ServerNumber = " + ServerNumber;
@@ -421,7 +429,7 @@ public class MainScheduler
     ResultSet rs;
     String wherestring = "(";
     String sql_release;
-    System.out.println(servernumbers.length);
+    //System.out.println(servernumbers.length);
     for (i = 0; i < servernumbers.length; i++) {
       wherestring +=
         "a.ServerNumber = " + servernumbers[i].getServerNumber() + " OR ";
@@ -454,12 +462,12 @@ public class MainScheduler
 
   private void printAgents (AgentLet[] agents)
   {
-    int i = 0;
+    /*int i = 0;
     System.out.println("Agents");
     for (i = 0; i < agents.length; i++) {
       System.out.println("Agent ID " + agents[i].getAgentId() + " Agent Type "
                          + agents[i].getAgentType());
-    }
+    }*/
   }
 
   private void reArrangeAgents (AgentLet[] agents, int gtype) throws Exception

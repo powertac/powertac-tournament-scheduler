@@ -1,10 +1,26 @@
 package org.powertac.tourney.scheduling;
 
+import java.sql.ResultSet;
+
 public class Server {
 	
 	private int ServerId; 
 	private int ServerNumber;
 	private String ServerName;	
+	
+	public Server(){
+		
+	}
+	
+	public Server(ResultSet rs){
+		try{
+			ServerName = rs.getString("ServerName");
+			ServerNumber = rs.getInt("ServerNumber");
+			ServerId = rs.getInt("ServerId");
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
 	
 	public String getServerName() {
 		return ServerName;		

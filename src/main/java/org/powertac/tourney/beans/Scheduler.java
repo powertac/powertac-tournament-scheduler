@@ -227,6 +227,7 @@ public class Scheduler
       }
     }
 
+    /* Moved to the scheduling code 
     DbConnection db = new DbConnection();
     try {
       db.Setup();
@@ -242,10 +243,10 @@ public class Scheduler
       e.printStackTrace();
     }
     System.out.println("[INFO] Agents freed");
-
+    */
     try {
       scheduler.resetServers(serverNumber);
-      System.out.println("[INFO] Servers freed");
+      System.out.println("[INFO] Servers and Agents freed");
     }
     catch (Exception e) {
       // TODO Auto-generated catch block
