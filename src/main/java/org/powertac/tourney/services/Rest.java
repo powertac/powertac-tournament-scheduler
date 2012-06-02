@@ -348,6 +348,18 @@ public class Rest
     List<String> props = new ArrayList<String>();
 
     props = CreateProperties.getPropertiesForGameId(Integer.parseInt(gameId));
+    
+    Game g = new Game();
+    Database db = new Database();
+    try{
+    	db.startTrans();
+    	g = db.getGame(Integer.parseInt(gameId));
+    	db.commitTrans();
+    }catch(Exception e){
+    	db.abortTrans();
+    	e.printStackTrace();
+    }
+    
 
     String result = "";
 
@@ -374,6 +386,11 @@ public class Rest
     // Timeout Settings
     String serverTimeout =
       "server.competitionControlService.loginTimeout = 120000";
+    
+    if(g.getGameName().contains("Test") || g.getGameName().contains("test")){
+       serverFirstTimeout = "server.competitionControlService.firstLoginTimeout = 200";
+       serverTimeout = "server.competitionControlService.loginTimeout = 220";
+    }
 
     if (props.size() == 4) {
       result += weatherLocation + props.get(0) + "\n";
