@@ -388,8 +388,8 @@ public class Rest
       "server.competitionControlService.loginTimeout = 120000";
     
     if(g.getGameName().contains("Test") || g.getGameName().contains("test")){
-    	minTimeslot = "server.competitionControlService.firstLoginTimeout = 200";
-    	expectedTimeslot = "server.competitionControlService.loginTimeout = 220";
+    	minTimeslot = "common.competition.minimumTimeslotCount = 200";
+    	expectedTimeslot = "common.competition.expectedTimeslotCount = 220";
     }
 
     if (props.size() == 4) {
