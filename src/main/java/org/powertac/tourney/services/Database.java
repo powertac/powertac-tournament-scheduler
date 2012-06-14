@@ -34,8 +34,6 @@ public class Database
   
   private TournamentProperties tournamentProps;
 
-
-
   public class User
   {
     private String username;
@@ -211,9 +209,6 @@ public class Database
 
   public int addUser (String username, String password) throws SQLException
   {
-    
-
-    
       PreparedStatement addUserStatement = conn.prepareStatement(Constants.ADD_USER);
       // Use a pool of entropy to secure salts
       String genSalt =
@@ -228,21 +223,15 @@ public class Database
       addUserStatement.setInt(4, 3); // Lowest permission level for logged in
                                      // user is 3
 
-    
-
     return addUserStatement.executeUpdate();
   }
 
   public int[] loginUser (String username, String password) throws SQLException
   {
-    
-
     boolean userExist = false;
-    
 
     PreparedStatement saltStatement = conn.prepareStatement(Constants.LOGIN_SALT);
     saltStatement.setString(1, username);
-    
 
     ResultSet rsSalt = saltStatement.executeQuery();
     // salt and hash password
@@ -264,7 +253,6 @@ public class Database
       userExist = false;
     }
 
-    
     // TODO: make sure things are inserted correctly in the database;
     if (DigestUtils.md5Hex(password + salt).equalsIgnoreCase(digest)
         && userExist) {
@@ -284,10 +272,8 @@ public class Database
   public int addBroker (int userId, String brokerName, String shortDescription)
     throws SQLException
   {
-    
     org.powertac.tourney.beans.Broker b =
       new org.powertac.tourney.beans.Broker(brokerName, shortDescription);
-
     
     PreparedStatement addBrokerStatement = conn.prepareStatement(Constants.ADD_BROKER);
 
@@ -297,15 +283,12 @@ public class Database
     addBrokerStatement.setInt(4, userId);
 
     return addBrokerStatement.executeUpdate();
-
   }
 
   public List<Broker> getBrokersByUserId (int userId) throws SQLException
   {
-    
     List<Broker> brokers = new ArrayList<Broker>();
 
-    
     PreparedStatement selectBrokersByUserId =
         conn.prepareStatement(Constants.SELECT_BROKERS_BY_USERID);
     
@@ -327,14 +310,10 @@ public class Database
     selectBrokersByUserId.close();
 
     return brokers;
-
   }
 
   public int deleteBrokerByBrokerId (int brokerId) throws SQLException
   {
-    
-
-    
     PreparedStatement deleteBrokerById =
         conn.prepareStatement(Constants.DELETE_BROKER_BY_BROKERID);
     
@@ -430,9 +409,7 @@ public class Database
   public int updateProperties (int gameId, String jmsUrl, String vizQueue)
     throws SQLException
   {
-    
-    PreparedStatement addPropsById =
-      conn.prepareStatement(Constants.UPDATE_PROPETIES);
+    PreparedStatement addPropsById = conn.prepareStatement(Constants.UPDATE_PROPETIES);
 
     addPropsById.setInt(3, gameId);
     addPropsById.setString(2, vizQueue);
@@ -444,10 +421,7 @@ public class Database
   public int addPom (String uploadingUser, String name, String location)
     throws SQLException
   {
-    
-    
     PreparedStatement addPom = conn.prepareStatement(Constants.ADD_POM);
-    
 
     addPom.setString(1, uploadingUser);
     addPom.setString(2, name);
@@ -496,12 +470,9 @@ public class Database
 
   public List<Pom> getPoms () throws SQLException
   {
-    
     List<Pom> poms = new ArrayList<Pom>();
-
     
     PreparedStatement selectPoms = conn.prepareStatement(Constants.SELECT_POMS);
-    
 
     ResultSet rsPoms = selectPoms.executeQuery();
     while (rsPoms.next()) {
@@ -551,8 +522,6 @@ public class Database
     return addTournament.executeUpdate();
 
   }
-  
-  
 
   public List<Tournament> getTournaments (String status) throws SQLException
   {
@@ -592,7 +561,6 @@ public class Database
       Tournament tmp = new Tournament(rsTs);
       ts = tmp;
     }
-    
     
     selectTournament.close();
     rsTs.close();
@@ -1278,7 +1246,6 @@ public class Database
 
   public List<Machine> getMachines () throws SQLException
   {
-    
     List<Machine> machines = new ArrayList<Machine>();
 
     PreparedStatement selectMachines =
@@ -1298,8 +1265,6 @@ public class Database
   
   public Machine getMachineById(int machineId) throws SQLException
   {
-    
-
     PreparedStatement selectMachines =
       conn.prepareStatement(Constants.SELECT_MACHINES_BYID);
     selectMachines.setInt(1, machineId);
@@ -1319,8 +1284,6 @@ public class Database
   public int setMachineAvailable (int machineId, boolean isAvailable)
     throws SQLException
   {
-    
-
     PreparedStatement updateMachine =
       conn.prepareStatement(Constants.UPDATE_MACHINE_AVAILABILITY);
 
@@ -1334,8 +1297,6 @@ public class Database
   public int setMachineStatus (int machineId, String status)
     throws SQLException
   {
-    
-
     PreparedStatement updateMachine =
       conn.prepareStatement(Constants.UPDATE_MACHINE_STATUS_BY_ID);
 
@@ -1350,8 +1311,6 @@ public class Database
                          String visualizerUrl, String visualizerQueue)
     throws SQLException
   {
-    
-
     PreparedStatement addMachine = conn.prepareStatement(Constants.ADD_MACHINE);
     addMachine.setString(1, machineName);
     addMachine.setString(2, machineUrl);
@@ -1361,10 +1320,23 @@ public class Database
     return addMachine.executeUpdate();
   }
 
+  public int editMachine (String machineName, String machineUrl,
+          				  String visualizerUrl, String visualizerQueue,
+          				  int machineId)
+    throws SQLException
+  {
+    PreparedStatement editMachine = conn.prepareStatement(Constants.EDIT_MACHINE);
+    editMachine.setString(1, machineName);
+    editMachine.setString(2, machineUrl);
+    editMachine.setString(3, visualizerUrl);
+    editMachine.setString(4, visualizerQueue);
+    editMachine.setString(5, String.valueOf(machineId));
+    
+    return editMachine.executeUpdate();
+  }
+  
   public int deleteMachine (int machineId) throws SQLException
   {
-    
-
     PreparedStatement deleteMachine =
       conn.prepareStatement(Constants.REMOVE_MACHINE);
     deleteMachine.setInt(1, machineId);
@@ -1374,7 +1346,6 @@ public class Database
 
   public List<Location> getLocations () throws SQLException
   {
-    
     List<Location> locations = new ArrayList<Location>();
     PreparedStatement selectLocations =
       conn.prepareStatement(Constants.SELECT_LOCATIONS);
@@ -1400,12 +1371,10 @@ public class Database
     selectLocations.close();
 
     return locations;
-
   }
 
   public int deleteLocation (int locationId) throws SQLException
   {
-    
     PreparedStatement deleteLocation =
       conn.prepareStatement(Constants.DELETE_LOCATION);
 
@@ -1429,7 +1398,6 @@ public class Database
 
   public Date selectMinDate (List<Location> locations) throws SQLException
   {
-    
     PreparedStatement minDate =
       conn.prepareStatement(Constants.SELECT_MIN_DATE);
     Date min = new Date();
@@ -1451,7 +1419,6 @@ public class Database
 
   public Date selectMaxDate (List<Location> locations) throws SQLException
   {
-    
     PreparedStatement minDate =
       conn.prepareStatement(Constants.SELECT_MAX_DATE);
     Date max = new Date();
@@ -1507,7 +1474,6 @@ public class Database
   }
   public int truncateScheduler() throws SQLException
   {
-    
     PreparedStatement trunc = conn.prepareStatement("DELETE FROM AgentAdmin;");
     trunc.executeUpdate();
     trunc = conn.prepareStatement("DELETE FROM AgentQueue;");
