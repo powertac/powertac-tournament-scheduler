@@ -595,6 +595,23 @@ public class Constants
     "INSERT INTO tourney.machines (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES (?,?,?,?,'idle',false);";
 
   /***
+   * Update a machines properties in the database
+   * 
+   * @param machineName
+   *          : The shorthand name of the machine to be displayed to the users
+   * @param machineUrl
+   *          : The fully qualified name of the machine like "tac04.cs.umn.edu"
+   * @param visualizerUrl
+   *          : The shorthand name of the machine to be displayed to the users
+   * @param visualizerQueue
+   *          : The shorthand name of the machine to be displayed to the users
+   * @param machineId
+   *          : the machines id in the DB
+   */
+  public static final String EDIT_MACHINE =
+    "UPDATE tourney.machines SET machineName=?, machineUrl=?, visualizerUrl=?, visualizerQueue=? WHERE machineId=?;";
+  
+  /***
    * Remove a machine from the database by id
    * 
    * @param machineId

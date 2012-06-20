@@ -66,9 +66,11 @@ public class ActionAdmin
   private int rowCountGames = 5;
   
   private String newLocationName = "";
-  private Date newLocationStartTime;
-  private Date newLocationEndTime;
+  private Date newLocationStartTime = null;
+  private Date newLocationEndTime = null;
 
+  private int machineId = -1;
+  
   private String newName = "";
   private String newUrl = "";
   private String newViz = "";
@@ -77,10 +79,11 @@ public class ActionAdmin
   private UploadedFile pom;
   private String pomName;
   private Properties props = new Properties();
+  
+  private String message = "";
 
   public ActionAdmin ()
   {
-
     try {
       props.load(Database.class.getClassLoader()
               .getResourceAsStream("/tournament.properties"));
@@ -211,7 +214,6 @@ public class ActionAdmin
     }
     
     return ts;
-    
   }
   
   public List<Location> getLocationList ()
@@ -231,7 +233,6 @@ public class ActionAdmin
     }
 
     return locations;
-
   }
 
   public List<Broker> getRegistered (int tourneyId)
@@ -305,12 +306,41 @@ public class ActionAdmin
       db.abortTrans();
       e.printStackTrace();
     }
-    
-    
   }
   
   public void editMachine(Machine m){
-       
+	machineId = m.getMachineId();
+	newName = m.getName();
+	newUrl = m.getUrl();
+	newViz = m.getVizUrl();
+	newQueue = m.getVizQueue();
+  }
+  
+  public void saveMachine(){
+    if (newName.isEmpty() || newUrl.isEmpty() || newViz.isEmpty() || newQueue.isEmpty()) {
+        System.out.println("Some machine fields are empty!");
+        message = "Error : machine not saved, some fields were empty!";
+  	  return;
+  	}  
+	  
+	// It's a new machine  
+	if (machineId == -1) {
+	  addMachine();
+	  return;
+	}
+	  
+    Database db = new Database();
+    try {
+      db.startTrans();
+      db.editMachine(newName, newUrl, newViz, newQueue, machineId);
+      db.commitTrans();
+      resetMachineData();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+      message = "Error : machine not edited " + e.getMessage();
+    }
   }
 
   public void deleteMachine (Machine m)
@@ -324,6 +354,7 @@ public class ActionAdmin
     catch (SQLException e) {
       db.abortTrans();
       e.printStackTrace();
+      message = "Error : machine not added " + e.getLocalizedMessage();
     }
   }
 
@@ -332,15 +363,16 @@ public class ActionAdmin
     Database db = new Database();
     try {
       db.startTrans();
-      db.addMachine(newName, newUrl, newViz, getNewQueue());
+      db.addMachine(newName, newUrl, newViz, newQueue);
       db.commitTrans();
+      
+      resetMachineData();
     }
     catch (SQLException e) {
       db.abortTrans();
-      // TODO Auto-generated catch block
       e.printStackTrace();
+      message = "Error : machine not added " + e.getMessage();
     }
-
   }
 
   public void restartGame (Game g)
@@ -446,7 +478,6 @@ public class ActionAdmin
     else {
       // Nothing
     }
-
   }
 
   public void deleteGame (Game g)
@@ -478,6 +509,11 @@ public class ActionAdmin
 
   public void addLocation ()
   {
+	if (newLocationName.isEmpty() || (newLocationStartTime == null) || (newLocationEndTime == null)) {
+	  System.out.println("Some location fields are empty!");	
+	  return;
+	}
+	  
     Database db = new Database();
     try {
       db.startTrans();
@@ -621,6 +657,26 @@ public class ActionAdmin
     this.newQueue = newQueue;
   }
 
+  public int getMachineId ()
+  {
+	return machineId;
+  }
+  public void setMachineId(int machineId) {
+	this.machineId = machineId;
+  }
+  
+  private void resetMachineData() {
+    machineId = -1;
+    newName = "";
+    newUrl = "";
+    newViz = "";
+    newQueue = "";  
+  }
+  
+  public String getMessage() {
+	  return message;
+  }
+  
   public String getSortColumnUsers ()
   {
     return sortColumnUsers;
