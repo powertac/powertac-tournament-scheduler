@@ -1,19 +1,13 @@
 /**
- * 
+ * @author constantine
+ *
  */
+
 package org.powertac.tourney.actions;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 
 import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
@@ -21,16 +15,10 @@ import org.powertac.tourney.services.Database;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-/**
- * @author constantine
- * 
- */
-
 @Component("actionIndex")
 @Scope("request")
 public class ActionIndex
 {
-
   private String sortColumn = null;
   private boolean sortAscending = true;
   private int rowCount = 5;
@@ -99,6 +87,12 @@ public class ActionIndex
 
   public String getBrokersInGame (Game g)
   {
+    String result = "";
+
+    if (g == null) {
+        return result;
+    }
+
     List<Broker> brokersRegistered = new ArrayList<Broker>();
 
     Database db = new Database();
@@ -113,19 +107,20 @@ public class ActionIndex
       e.printStackTrace();
     }
 
-    String result = "";
-
     for (Broker b: brokersRegistered) {
       result += b.getBrokerName() + "\n";
     }
 
     return result;
-
   }
 
   public String getTournamentNameByGame (Game g)
   {
     String result = "";
+
+    if (g == null) {
+      return result;
+    }
 
     Database db = new Database();
 

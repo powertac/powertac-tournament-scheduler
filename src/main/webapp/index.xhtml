@@ -7,7 +7,6 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:t="http://myfaces.apache.org/tomahawk">
 
-
 <h:body>
 	<ui:composition template="template.xhtml">
 
@@ -17,8 +16,7 @@
 			<h4>News:</h4>
 			<p>On 4 June 2012 at 6:00 UTC we will begin the 2012 Power TAC final 
 			round, and will end 14:00 UTC on Tuesday.</p>
-			
-			
+
 			<p>31 May 2012: Today at 12:00 UTC we will start the 2012 Power TAC qualifying
 			round. Please have your agent configured and ready to run before that time. We
 			will schedule 144 games, of sizes 2, 4, and 8 brokers. We expect to see six or
@@ -28,71 +26,55 @@
 			your broker as shown at the
 			<a href="https://github.com/powertac/powertac-server/wiki/Broker-Tournament-Login">
 			Github wiki instruction page</a>. </p>
-			
-			
-			<h4> Running Games and their Visualizers</h4>
+
+			<h3> Running Games and their Visualizers</h3>
 			<h:form>
-				
-				<t:dataTable id="datagames" border="1" sortable="true"
+				<t:dataTable id="datagames" border="1" sortable="false"
 					sortColumn="#{actionIndex.sortColumn}"
 					sortAscending="#{actionIndex.sortAscending}" preserveSort="true"
 					rowCount="#{actionIndex.rowCount}"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{actionIndex.gameList}" var="g">
-					<t:column defaultSorted="true">
-						<!-- column header -->
+					<t:column defaultSorted="true" sortable="true">
 						<f:facet name="header">
 							<h:outputText value="Game ID" />
 						</f:facet>
-						<!-- row record -->
-    						#{g.gameId}
+                        <h:outputText value="#{g.gameId}" />
     				</t:column>
     				
-    				<t:column defaultSorted="true">
-						<!-- column header -->
+    				<t:column>
 						<f:facet name="header">
 							<h:outputText value="Tournament Name" />
 						</f:facet>
-						<!-- row record -->
-    						#{actionIndex.getTournamentNameByGame(g)}
+                        <h:outputText value="#{actionIndex.getTournamentNameByGame(g)}" />
     				</t:column>
     				
-    				<t:column defaultSorted="true">
-						<!-- column header -->
+    				<t:column>
 						<f:facet name="header">
 							<h:outputText value="Brokers" />
 						</f:facet>
-						<!-- row record -->
-    						#{actionIndex.getBrokersInGame(g)}
+                        <h:outputText value="#{actionIndex.getBrokersInGame(g)}" />
     				</t:column>
 
-					<t:column>
-						<!-- column header -->
+					<t:column sortable="true">
 						<f:facet name="header">
 							<h:outputText value="Status" />
 						</f:facet>
-						<!-- row record -->
-    						#{g.status}    		
+                        <h:outputText value="#{g.status}" />
     				</t:column>
 
-
 					<t:column>
-						<!-- column header -->
 						<f:facet name="header">
 							<h:outputText value="Start Time" />
 						</f:facet>
-						<!-- row record -->
-    						#{g.toUTCStartTime()}    		
+                        <h:outputText value="#{g.toUTCStartTime()}" />
     				</t:column>
 
-
-					<t:column>
-						<!-- column header -->
+					<t:column sortable="true">
 						<f:facet name="header">
 							<h:outputText value="Max Brokers" />
 						</f:facet>
-						<!-- row record -->
-    						#{g.maxBrokers}
+                        <h:outputText value="#{g.maxBrokers}" />
     				</t:column>
 
 					<t:column>
@@ -101,61 +83,46 @@
 						</f:facet>
 						<a href="#{g.visualizerUrl}">Visualizer</a>
 					</t:column>
-
 				</t:dataTable>
 			</h:form>
-			
-			<h4> Complete Games and Logs</h4>
+
+			<h3> Complete Games and Logs</h3>
 			<h:form>
-				<t:dataTable id="datagames" border="1" sortable="true"
+				<t:dataTable id="datagames" border="1" sortable="false"
 					sortColumn="#{actionIndex.sortColumn}"
 					sortAscending="#{actionIndex.sortAscending}" preserveSort="true"
 					rowCount="#{actionIndex.rowCount}"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{actionIndex.gameCompleteList}" var="g">
-					<t:column defaultSorted="true">
-						<!-- column header -->
+					<t:column sortable="true" defaultSorted="true">
 						<f:facet name="header">
 							<h:outputText value="Game ID" />
 						</f:facet>
-						<!-- row record -->
-    						#{g.gameId}
+                        <h:outputText value="#{g.gameId}" />
     				</t:column>
     				
-    				<t:column defaultSorted="true">
-						<!-- column header -->
+    				<t:column>
 						<f:facet name="header">
 							<h:outputText value="Tournament Name" />
 						</f:facet>
-						<!-- row record -->
-    						#{actionIndex.getTournamentNameByGame(g)}
+    						<h:outputText value="#{actionIndex.getTournamentNameByGame(g)}" />
     				</t:column>
     				
-    				<t:column defaultSorted="true">
-						<!-- column header -->
+    				<t:column>
 						<f:facet name="header">
 							<h:outputText value="Brokers" />
 						</f:facet>
-						<!-- row record -->
-    						#{actionIndex.getBrokersInGame(g)}
+                        <h:outputText value="#{actionIndex.getBrokersInGame(g)}" />
     				</t:column>
     				
-    				<t:column defaultSorted="true">
-						<!-- column header -->
+    				<t:column>
 						<f:facet name="header">
 							<h:outputText value="Logs" />
 						</f:facet>
-						<!-- row record -->
     						<a href="download?game=#{g.gameId}">Logs</a>
     				</t:column>
-    				
-    				
 				</t:dataTable>
-
 			</h:form>
-
-
-
 		</ui:define>
 	</ui:composition>
 </h:body>

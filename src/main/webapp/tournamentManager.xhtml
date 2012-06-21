@@ -8,7 +8,6 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:t="http://myfaces.apache.org/tomahawk">
 
-
 <h:body>
 	<ui:composition template="template.xhtml">
 		<ui:define name="content">
@@ -16,52 +15,49 @@
 				<h2>Tournament Manager</h2>
 
 				<h4>Pending/Running Tournaments</h4>
-				<t:dataTable id="datatourneys" border="1" sortable="true"
+				<t:dataTable id="datatourneys" border="1" sortable="false"
 					sortColumn="#{actionTournament.sortColumn}"
 					sortAscending="#{actionTournament.sortAscending}" preserveSort="true"
 					rowCount="#{actionTournament.rowCount}"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{actionTournament.tournamentList}" var="t">
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
+					<t:column defaultSorted="true" sortable="true">
 						<f:facet name="header">
 							<h:outputText value="Tournament ID" />
 						</f:facet>
-						<!-- row record -->
 						<h:outputText value="#{t.tournamentId}" />
 					</t:column>
 
-					<t:column>
-						<!-- column header -->
+					<t:column sortable="true">
 						<f:facet name="header">
 							<h:outputText value="Competition Type" />
 						</f:facet>
-						<!-- row record -->
-						<h:outputText value="Single-game" />
+						<h:outputText value="#{t.type}" />
 					</t:column>
 
-					<t:column>
+					<t:column sortable="true">
 						<f:facet name="header">
 							<h:outputText value="Tournament Name" />
 						</f:facet>
 						<h:outputText value="#{t.tournamentName}" />
 					</t:column>
 
-					<t:column>
+					<t:column sortable="true">
 						<f:facet name="header">
 							<h:outputText value="Start Time" />
 						</f:facet>
-						#{t.startTime}
+                        <h:outputText value="#{t.startTime}" />
 					</t:column>
 
-					<t:column>
+					<t:column sortable="true">
 						<f:facet name="header">
 							<h:outputText value="Max Brokers" />
 						</f:facet>
 						<h:outputText value="#{t.maxBrokers}" />
 					</t:column>
-					<t:column>
+
+					<t:column sortable="true">
 						<f:facet name="header">
 							<h:outputText value="Registered Brokers" />
 						</f:facet>
@@ -74,15 +70,11 @@
 						</f:facet>
 						<a href="/TournamentScheduler/#{t.pomName}">Pom</a>
 					</t:column>
-
 				</t:dataTable>
 			</h:form>
 
-			<h:form enctype="multipart/form-data"
-				rendered="#{user.permissions le 0}">
-
-				<br />
-				<h4>Create Tournament</h4>
+			<h:form enctype="multipart/form-data" rendered="#{user.permissions le 0}">
+				<h3>Create Tournament</h3>
 				<h:panelGrid columns="2">
 
 					<h:outputText value="Tournament Name" />
@@ -129,8 +121,6 @@
 					<h:panelGroup>
 						<h:inputText value="#{actionTournament.numberSize3}" />
 					</h:panelGroup>
-				
-
 
 					<h:outputText value="Starting Date/Time in UTC(dd/month/yyyy/hh/mm):" />
 					<h:panelGroup>
@@ -142,9 +132,8 @@
 					<h:panelGroup>
 						<h:inputText value="#{actionTournament.maxBrokers}"/>
 					</h:panelGroup>
-										
 
-					<h:outputLabel value="Select Pom File:" />
+                    <h:outputText value="Select Pom File:" />
 					<h:panelGroup>
 						<h:selectOneMenu id="poms" value="#{actionTournament.selectedPom}" required="true">
 							<f:selectItems value="#{actionTournament.pomList}" var="p"
@@ -152,18 +141,19 @@
 						</h:selectOneMenu>
 					</h:panelGroup>
 
-					<h:outputLabel
-						value="Date Range (Random selection from interval): " />
+					<h:outputText value="Date Range from (random selection from interval): " />
 					<h:panelGroup>
-						<h:outputLabel value="From: " />
 						<t:inputDate value="#{actionTournament.fromTime}" type="both"
 							ampm="false" renderAsPopup="true" forceId="true" /><br/>
-						<h:outputLabel value="To: " />
-						<t:inputDate value="#{actionTournament.toTime}" type="both"
-							ampm="false" renderAsPopup="true" forceId="true" />
 					</h:panelGroup>
 
-					<h:outputLabel value="Locations: " />
+                    <h:outputText value="Date Range to: " />
+                    <h:panelGroup>
+                        <t:inputDate value="#{actionTournament.toTime}" type="both"
+                            ampm="false" renderAsPopup="true" forceId="true" />
+                    </h:panelGroup>
+
+					<h:outputText value="Locations: " />
 					<h:panelGroup>
 						<h:selectManyCheckbox id="locations" value="#{actionTournament.locations}" required="true">
 							<f:selectItems value="#{actionTournament.locationList}" var="L"
@@ -171,22 +161,18 @@
 						</h:selectManyCheckbox>
 					</h:panelGroup>
 
-
-
 					<h:outputText value="Submit Tournament (opens for registration):" />
 					<h:panelGroup>
 						<h:commandButton value="Submit"
 							action="#{actionTournament.createTournament}" />
 					</h:panelGroup>
 				</h:panelGrid>
-
-
 			</h:form>
+
 			<h:form rendered="#{user.permissions gt 0}">
 				<h2>Insufficient Permissions</h2>
 			</h:form>
 		</ui:define>
-
 	</ui:composition>
 </h:body>
 </html>
