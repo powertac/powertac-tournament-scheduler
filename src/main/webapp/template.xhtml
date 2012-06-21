@@ -6,21 +6,19 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 <head>
-<title>PowerTac Tournament Scheduler 2012</title>
+    <title>PowerTac Tournament Scheduler 2012</title>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
 </head>
 <f:view>
 	<body>
-		<div id="page"
-			style="margin-left: auto; margin-right: auto; width: 700px">
-
+		<div id="page">
 			<div id="header">
 				<ui:insert name="header">
 					<ui:include src="header.xhtml" />
 				</ui:insert>
 			</div>
 
-			<div id="content"
-				style="background-image: url(bg-image.png); background-repeat: repeat-x; border-radius: 15px; padding-left: 20px; padding-right: 20px; padding-top: 50px;">
+			<div id="content">
 				<ui:insert name="content">
 				</ui:insert>
 			</div>
@@ -29,7 +27,6 @@
 				<ui:insert name="footer">
 				</ui:insert>
 			</div>
-
 		</div>
 	</body>
 

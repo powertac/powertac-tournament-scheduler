@@ -5,16 +5,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
@@ -37,7 +31,6 @@ import org.springframework.stereotype.Component;
 @Scope("request")
 public class ActionAdmin
 {
-
   @Autowired
   private Upload upload;
 
@@ -55,22 +48,21 @@ public class ActionAdmin
   private String sortColumnUsers = null;
   private boolean sortAscendingUsers = true;
   private int rowCountUsers = 5;
-  
+
   private String sortColumnTournaments = null;
   private boolean sortAscendingTournaments = true;
   private int rowCountTournaments = 5;
-  
 
   private String sortColumnGames = null;
   private boolean sortAscendingGames = true;
   private int rowCountGames = 5;
-  
+
   private String newLocationName = "";
   private Date newLocationStartTime = null;
   private Date newLocationEndTime = null;
 
   private int machineId = -1;
-  
+
   private String newName = "";
   private String newUrl = "";
   private String newViz = "";
@@ -79,7 +71,7 @@ public class ActionAdmin
   private UploadedFile pom;
   private String pomName;
   private Properties props = new Properties();
-  
+
   private String message = "";
 
   public ActionAdmin ()
@@ -354,7 +346,7 @@ public class ActionAdmin
     catch (SQLException e) {
       db.abortTrans();
       e.printStackTrace();
-      message = "Error : machine not added " + e.getLocalizedMessage();
+      message = "Error : machine not added " + e.getMessage();
     }
   }
 

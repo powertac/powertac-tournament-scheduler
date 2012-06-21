@@ -1,0 +1,52 @@
+h4 {
+    margin: 0;
+}
+
+table {
+    border: 0px;
+    border-collapse: collapse;
+}
+
+table.dataTable {
+    border: 1px solid black;
+    text-align: center;
+}
+table.dataTable td {
+    padding-right: 0px;
+}
+
+th {
+    vertical-align: middle;
+    padding: 0 10px 0 10px;
+}
+td {
+    vertical-align: middle;
+    padding-right: 10px;
+}
+
+#page {
+    margin-left: auto;
+    margin-right: auto;
+    width: 800px;
+}
+
+#content {
+    background-image: url(bg-image.png);
+    background-repeat: repeat-x;
+    border-radius: 15px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 50px;
+}
+
+
+h3 {
+    margin: 30px 0 5px 0;
+}
+
+h3.withButton {
+    height: 23px;
+    display: inline-block;
+    padding-right: 10px;
+    margin: 30px 0 5px 30;
+}

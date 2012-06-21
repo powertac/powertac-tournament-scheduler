@@ -1,523 +1,460 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:t="http://myfaces.apache.org/tomahawk">
-
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:t="http://myfaces.apache.org/tomahawk">
 
 <h:body>
-	<ui:composition template="template.xhtml">
+    <ui:composition template="template.xhtml">
 
-		<ui:define name="content">
-			<h2>Admin</h2>
-			
-			<h:panelGroup rendered="#{actionAdmin.message != ''}" >
-				<h3>#{actionAdmin.message}</h3>
-			</h:panelGroup>
-			
-			<h:form rendered="#{user.permissions le 0}">
-				<h:panelGrid columns="3">
-					<h4>WatchDog Status:</h4>
-					<h:panelGroup>
-						<h:outputText value="WatchDog running"
-							style="color:green;"
-							rendered="#{scheduler.running}" />
-						<h:outputText value="WatchDog not running"
-							style="color:red;"
-							rendered="#{!scheduler.running}" />
-					</h:panelGroup>
-					<h:commandButton value="Restart WatchDog" action="#{scheduler.restartWatchDog}"/> 
-					
-					<h4>Tournament Status:</h4>
-					<h:panelGroup>
-						<h:outputText value="Tourney Loaded"
-							style="color:green;"
-							rendered="#{!scheduler.nullTourney}" />
-						<h:outputText value="Tourney not Loaded"
-							style="color:red;"
-							rendered="#{scheduler.nullTourney}" />
-					</h:panelGroup>
-					<h:commandButton value="Reload Tourney" action="#{scheduler.reloadTournament}"/> 
+        <ui:define name="content">
+            <h2>Admin</h2>
 
-					<h4>Weather Server Status:</h4>
-					<h:panelGroup>
-						<h:outputText value="#{checkWeatherServer.status}"
-							style="color:green;"
-							rendered="#{checkWeatherServer.status == 'Server Alive and Well'}" />
-						<h:outputText value="#{checkWeatherServer.status}"
-							style="color:red;"
-							rendered="#{checkWeatherServer.status == 'Server is Down'}" />
-						<h:outputText value="#{checkWeatherServer.status}"
-							style="color:orange;"
-							rendered="#{checkWeatherServer.status == 'Server Timeout or Network Error'}" />
-						<h:outputText value="Ping for info"
-							style="color:green;"
-							rendered="#{checkWeatherServer.status == ''}" />
-					</h:panelGroup>
-					<h:commandButton value="Ping Server" action="#{checkWeatherServer.ping}" />
-				</h:panelGrid>
-									
-				<h:panelGrid columns="2">
-					<h:outputText value="Weather Server Location: " />
-					<h:outputText value="#{checkWeatherServer.weatherServerLocation}" />
-				</h:panelGrid>
-			</h:form>
-			
-			<h:form rendered="#{user.permissions le 0}">
-				<br/>
-				<h4>Weather Server Locations and Dates:</h4>
-				<h:dataTable border="1"
-					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{actionAdmin.locationList}" var="l">
-					<h:column>
-						<f:facet name="header">Location Name</f:facet>
-						<h:outputText value="#{l.name}" />
-					</h:column>
+            <h:panelGroup rendered="#{actionAdmin.message != ''}" >
+                <h4>#{actionAdmin.message}</h4>
+            </h:panelGroup>
 
-					<h:column>
-						<!-- column header -->
-						<f:facet name="header">Start Date for Data</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{l.fromDate}" />
-					</h:column>
+            <h:form rendered="#{user.permissions le 0}">
+                <h:panelGrid columns="3">
+                    <h4>WatchDog Status:</h4>
+                    <h:panelGroup>
+                        <h:outputText value="WatchDog running"
+                                      style="color:green;"
+                                      rendered="#{scheduler.running}" />
+                        <h:outputText value="WatchDog not running"
+                                      style="color:red;"
+                                      rendered="#{!scheduler.running}" />
+                    </h:panelGroup>
+                    <h:commandButton value="Restart WatchDog" action="#{scheduler.restartWatchDog}"/>
 
-					<h:column>
-						<f:facet name="header">End Date for Data</f:facet>
-						<h:outputText value="#{l.toDate}" />
-					</h:column>
+                    <h4>Tournament Status:</h4>
+                    <h:panelGroup>
+                        <h:outputText value="Tourney Loaded"
+                                      style="color:green;"
+                                      rendered="#{!scheduler.nullTourney}" />
+                        <h:outputText value="Tourney not Loaded"
+                                      style="color:red;"
+                                      rendered="#{scheduler.nullTourney}" />
+                    </h:panelGroup>
+                    <h:commandButton value="Reload Tourney" action="#{scheduler.reloadTournament}"/>
 
-					<h:column>
-						<f:facet name="header">Action</f:facet>
-						<!-- Non Edit mode buttons -->
-						<h:commandButton value="delete"
-							action="#{actionAdmin.deleteLocation(l)}" />
-					</h:column>
-				</h:dataTable>
-			
-				<h:panelGrid columns="2">
-					<h4>New Location</h4>
-					<h:panelGroup></h:panelGroup>
+                    <h4>Weather Server Status:</h4>
+                    <h:panelGroup>
+                        <h:outputText value="#{checkWeatherServer.status}"
+                                      style="color:green;"
+                                      rendered="#{checkWeatherServer.status == 'Server Alive and Well'}" />
+                        <h:outputText value="#{checkWeatherServer.status}"
+                                      style="color:red;"
+                                      rendered="#{checkWeatherServer.status == 'Server is Down'}" />
+                        <h:outputText value="#{checkWeatherServer.status}"
+                                      style="color:orange;"
+                                      rendered="#{checkWeatherServer.status == 'Server Timeout or Network Error'}" />
+                        <h:outputText value="Ping for info"
+                                      style="color:green;"
+                                      rendered="#{checkWeatherServer.status == ''}" />
+                    </h:panelGroup>
+                    <h:commandButton value="Ping Server" action="#{checkWeatherServer.ping}" />
+                </h:panelGrid>
 
-					<h:outputText value="Name:" />
-					<h:inputText value="#{actionAdmin.newLocationName}" />
-					
-					<h:outputText value="Start Date:" />
-					<t:inputDate value="#{actionAdmin.newLocationStartTime}" />
-					
-					<h:outputText value="End Date:" />
-					<t:inputDate value="#{actionAdmin.newLocationEndTime}" />
-					
-					<h:commandButton value="add location"
-						action="#{actionAdmin.addLocation}" />
-					<h:panelGroup/>
-				</h:panelGrid>
-			</h:form>
+                <br/>
+                <h:panelGrid columns="2">
+                    <h:outputText value="Weather Server Location: " />
+                    <h:outputText value="#{checkWeatherServer.weatherServerLocation}" />
+                </h:panelGrid>
+            </h:form>
 
-			<h:form rendered="#{user.permissions le 0}">
-				<h4>Available Poms</h4>
-				<t:dataTable id="datausers" border="1" sortable="true"
-					sortColumn="#{actionAdmin.sortColumn}"
-					sortAscending="#{actionAdmin.sortAscending}" preserveSort="true"
-					rowCount="#{actionAdmin.rowCount}"
-					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{actionAdmin.pomList}" var="p">
+            <h:form rendered="#{user.permissions le 0}">
+                <h3>Weather Server Locations and Dates:</h3>
+                <h:dataTable border="1" styleClass="dataTable" value="#{actionAdmin.locationList}" var="l">
+                    <h:column>
+                        <f:facet name="header">Location Name</f:facet>
+                        <h:outputText value="#{l.name}" />
+                    </h:column>
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Pom Name" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{p.name}" />
-					</t:column>
+                    <h:column>
+                        <f:facet name="header">Start Date for Data</f:facet>
+                        <h:outputText value="#{l.fromDate}" />
+                    </h:column>
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Location" />
-						</f:facet>
-						<!-- row record -->
-						<a
-							href="TournamentScheduler/faces/pom.jsp?location=#{p.location}">#{p.location}</a>
-					</t:column>
+                    <h:column>
+                        <f:facet name="header">End Date for Data</f:facet>
+                        <h:outputText value="#{l.toDate}" />
+                    </h:column>
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Uploading User" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{p.uploadingUser}" />
-					</t:column>
+                    <h:column>
+                        <f:facet name="header">Action</f:facet>
+                        <h:commandButton value="Delete" action="#{actionAdmin.deleteLocation(l)}" />
+                    </h:column>
+                </h:dataTable>
 
+                <br/>
+                <h:panelGrid columns="2">
+                    <h4>New Location</h4>
+                    <h:panelGroup/>
 
-				</t:dataTable>
+                    <h:outputText value="Name:" />
+                    <h:inputText value="#{actionAdmin.newLocationName}" />
 
-			</h:form>
+                    <h:outputText value="Start Date:" />
+                    <t:inputDate value="#{actionAdmin.newLocationStartTime}" />
 
-			<h:form rendered="#{user.permissions le 0}" enctype="multipart/form-data">
-				<h4>Upload Pom:</h4>
-				<br />
-				<h:outputText value="Pom Name(X.X.X): " />
-				<h:inputText value="#{actionAdmin.pomName}" />
-				<h:outputText value="Upload Pom File:" />
-				<t:inputFileUpload disabled="false" value="#{actionAdmin.pom}"
-					accept="mime-type" storage="file" required="true" />
-				<h:commandButton value="Submit Pom"
-					action="#{actionAdmin.submitPom}" />
-			</h:form>
+                    <h:outputText value="End Date:" />
+                    <t:inputDate value="#{actionAdmin.newLocationEndTime}" />
 
-			<h:form rendered="#{user.permissions le 0}">
-				<h4>Available Machines <h:commandButton value="refresh" action="#{actionAdmin.refresh}"/></h4>
-				<t:dataTable id="machines" border="1" sortable="true"
-					sortColumn="#{actionAdmin.sortColumnMachine}"
-					sortAscending="#{actionAdmin.sortAscendingMachine}"
-					preserveSort="true" rowCount="#{actionAdmin.rowCountMachine}"
-					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{actionAdmin.machineList}" var="m">
+                    <h:commandButton value="Add location"
+                                     action="#{actionAdmin.addLocation}" />
+                    <h:panelGroup/>
+                </h:panelGrid>
+            </h:form>
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Machine Name" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{m.name}" />
-					</t:column>
+            <h:form rendered="#{user.permissions le 0}">
+                <h3>Available Poms</h3>
+                <t:dataTable id="datausers" border="1" sortable="true"
+                             sortColumn="#{actionAdmin.sortColumn}"
+                             sortAscending="#{actionAdmin.sortAscending}" preserveSort="true"
+                             rowCount="#{actionAdmin.rowCount}"
+                             styleClass="dataTable"
+                             value="#{actionAdmin.pomList}" var="p">
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Machine URL" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{m.url}" />
-					</t:column>
-					
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Vizualizer URL" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{m.vizUrl}" />
-					</t:column>
-					
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Vizualizer Queue" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{m.vizQueue}" />
-					</t:column>
+                    <t:column defaultSorted="true">
+                        <f:facet name="header">
+                            <h:outputText value="Pom Name" />
+                        </f:facet>
+                        <h:outputText value="#{p.name}" />
+                    </t:column>
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Idle" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{!m.inProgress}" />
-					</t:column>
+                    <t:column defaultSorted="true">
+                        <f:facet name="header">
+                            <h:outputText value="Location" />
+                        </f:facet>
+                        <a href="TournamentScheduler/faces/pom.jsp?location=#{p.location}">
+                            <h:outputText value="#{p.location}" />
+                        </a>
+                    </t:column>
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Available" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{m.available}" />
-					</t:column>
+                    <t:column defaultSorted="true">
+                        <f:facet name="header">
+                            <h:outputText value="Uploading User" />
+                        </f:facet>
+                        <h:outputText value="#{p.uploadingUser}" />
+                    </t:column>
+                </t:dataTable>
+            </h:form>
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Toggle Available" />
-						</f:facet>
-						<!-- row record -->
-						<h:commandButton value="enable"
-							action="#{actionAdmin.toggleAvailable(m)}"
-							rendered="#{!m.available}" />
-						<h:commandButton value="disable"
-							action="#{actionAdmin.toggleAvailable(m)}"
-							rendered="#{m.available}" />
-					</t:column>
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Toggle Status" />
-						</f:facet>
-						<!-- row record -->
-						<h:commandButton value="Set Running"
-							action="#{actionAdmin.toggleStatus(m)}"
-							rendered="#{!m.inProgress}" />
-						<h:commandButton value="Set Idle"
-							action="#{actionAdmin.toggleStatus(m)}"
-							rendered="#{m.inProgress}"  />
-					</t:column>
-					
+            <h:form rendered="#{user.permissions le 0}" enctype="multipart/form-data">
+                <br/>
+                <h4>Upload Pom File</h4>
+                <h:outputText value="Pom Name(X.X.X): " />
+                <h:inputText value="#{actionAdmin.pomName}" />
+                <br/>
+                <t:inputFileUpload disabled="false" value="#{actionAdmin.pom}"
+                                   accept="mime-type" storage="file" required="true" />
+                <br/>
+                <h:commandButton value="Submit Pom"
+                                 action="#{actionAdmin.submitPom}" />
+            </h:form>
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Delete" />
-						</f:facet>
-						<!-- row record -->
-						<h:commandButton value="delete"
-							action="#{actionAdmin.deleteMachine(m)}" />
-					</t:column>
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Edit" />
-						</f:facet>
-						<!-- row record -->
-						<h:commandButton value="Edit"
-							action="#{actionAdmin.editMachine(m)}" />
-					</t:column>
+            <h:form rendered="#{user.permissions le 0}">
+                <h3 class="withButton">Available Machines</h3><h:commandButton value="Refresh" action="#{actionAdmin.refresh}"/>
+                <t:dataTable id="machines" border="1" sortable="false"
+                             sortColumn="#{actionAdmin.sortColumnMachine}"
+                             sortAscending="#{actionAdmin.sortAscendingMachine}"
+                             preserveSort="true" rowCount="#{actionAdmin.rowCountMachine}"
+                             styleClass="dataTable"
+                             value="#{actionAdmin.machineList}" var="m">
 
-				</t:dataTable>
-			</h:form>
+                    <t:column defaultSorted="true" sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Machine Name" />
+                        </f:facet>
+                        <h:outputText value="#{m.name}" />
+                    </t:column>
+                    <t:column sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Machine URL" />
+                        </f:facet>
+                        <h:outputText value="#{m.url}" />
+                    </t:column>
+                    <t:column sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Vizualizer URL" />
+                        </f:facet>
+                        <h:outputText value="#{m.vizUrl}" />
+                    </t:column>
+                    <t:column sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Vizualizer Queue" />
+                        </f:facet>
+                        <h:outputText value="#{m.vizQueue}" />
+                    </t:column>
+                    <t:column sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Idle" />
+                        </f:facet>
+                        <h:outputText value="#{!m.inProgress}" />
+                    </t:column>
+                    <t:column sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Available" />
+                        </f:facet>
+                        <h:outputText value="#{m.available}" />
+                    </t:column>
 
-			<h:form rendered="#{user.permissions le 0}">
-				<h:panelGrid columns="2">
-					<h:panelGroup rendered="#{actionAdmin.machineId != -1}">
-						<h4>Edit machine</h4>
-					</h:panelGroup>
-					<h:panelGroup rendered="#{actionAdmin.machineId == -1}">
-						<h4>Add machine</h4>
-					</h:panelGroup>
-					<h:panelGroup/>
-				
-					<h:outputText value="Machine Name:" />
-					<h:inputText value="#{actionAdmin.newName}" />
-					
-					<h:outputText value="Machine Url:" />
-					<h:inputText value="#{actionAdmin.newUrl}" />
-					
-					<h:outputText value="Visualizer Url:" />
-					<h:inputText value="#{actionAdmin.newViz}" />
-					
-					<h:outputText value="Visualizer Queue:" />
-					<h:inputText value="#{actionAdmin.newQueue}" />
-				</h:panelGrid>
-				<h:commandButton value="Save" action="#{actionAdmin.saveMachine()}" />
-				<h:inputHidden id="machineId" value="#{actionAdmin.machineId}"/>
-			</h:form>
-			<br/>
+                    <t:column>
+                        <f:facet name="header">
+                            <h:outputText value="Toggle Available" />
+                        </f:facet>
+                        <h:commandButton value="Enable"
+                                         action="#{actionAdmin.toggleAvailable(m)}"
+                                         rendered="#{!m.available}" />
+                        <h:commandButton value="Disable"
+                                         action="#{actionAdmin.toggleAvailable(m)}"
+                                         rendered="#{m.available}" />
+                    </t:column>
+                    <t:column>
+                        <f:facet name="header">
+                            <h:outputText value="Toggle Status" />
+                        </f:facet>
+                        <h:commandButton value="Set Running"
+                                         action="#{actionAdmin.toggleStatus(m)}"
+                                         rendered="#{!m.inProgress}" />
+                        <h:commandButton value="Set Idle"
+                                         action="#{actionAdmin.toggleStatus(m)}"
+                                         rendered="#{m.inProgress}"  />
+                    </t:column>
+                    <t:column>
+                        <f:facet name="header">
+                            <h:outputText value="Delete" />
+                        </f:facet>
+                        <h:commandButton value="Delete" action="#{actionAdmin.deleteMachine(m)}" />
+                    </t:column>
+                    <t:column>
+                        <f:facet name="header">
+                            <h:outputText value="Edit" />
+                        </f:facet>
+                        <h:commandButton value="Edit" action="#{actionAdmin.editMachine(m)}" />
+                    </t:column>
 
-			<h:form rendered="#{user.permissions le 0}">
-				<h4>User Details</h4>
-				<t:dataTable id="datausers" border="1" sortable="true"
-					sortColumn="#{actionAdmin.sortColumnUsers}"
-					sortAscending="#{actionAdmin.sortAscendingUsers}" preserveSort="true"
-					rowCount="#{actionAdmin.rowCountUsers}"
-					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{actionAdmin.userList}" var="u">
+                </t:dataTable>
+            </h:form>
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="User ID" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{u.userId}" />
-					</t:column>
+            <h:form rendered="#{user.permissions le 0}">
+                <br/>
+                <h:panelGrid columns="2">
+                    <h:panelGroup rendered="#{actionAdmin.machineId != -1}">
+                        <h4>Edit machine</h4>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{actionAdmin.machineId == -1}">
+                        <h4>Add machine</h4>
+                    </h:panelGroup>
+                    <h:panelGroup/>
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Username" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{u.username}" />
-					</t:column>
+                    <h:outputText value="Machine Name:" />
+                    <h:inputText value="#{actionAdmin.newName}" />
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Change Password" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{u.password}" />
-					</t:column>
+                    <h:outputText value="Machine Url:" />
+                    <h:inputText value="#{actionAdmin.newUrl}" />
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Permission" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{u.permissions}" />
-					</t:column>
-				</t:dataTable>
+                    <h:outputText value="Visualizer Url:" />
+                    <h:inputText value="#{actionAdmin.newViz}" />
 
-				<h:form rendered="#{user.permissions le 0}">
-					<h4>Registered Brokers and Their Competitions</h4>
+                    <h:outputText value="Visualizer Queue:" />
+                    <h:inputText value="#{actionAdmin.newQueue}" />
+                </h:panelGrid>
+                <h:commandButton value="Save" action="#{actionAdmin.saveMachine()}" />
+                <h:inputHidden id="machineId" value="#{actionAdmin.machineId}"/>
+            </h:form>
 
-				</h:form>
+            <h:form rendered="#{user.permissions le 0}">
+                <h3>User Details</h3>
+                <t:dataTable id="datausers" border="1" sortable="true"
+                             sortColumn="#{actionAdmin.sortColumnUsers}"
+                             sortAscending="#{actionAdmin.sortAscendingUsers}" preserveSort="true"
+                             rowCount="#{actionAdmin.rowCountUsers}"
+                             style="border:1px solid black;border-collapse:collapse;text-align:center"
+                             value="#{actionAdmin.userList}" var="u">
 
-				<h:form rendered="#{user.permissions le 0}">
-					<h4>Pending/Running Competitions</h4>
+                    <t:column defaultSorted="true">
+                        <f:facet name="header">
+                            <h:outputText value="User ID" />
+                        </f:facet>
+                        <h:outputText value="#{u.userId}" />
+                    </t:column>
 
-				</h:form>
+                    <t:column defaultSorted="true">
+                        <f:facet name="header">
+                            <h:outputText value="Username" />
+                        </f:facet>
+                        <h:outputText value="#{u.username}" />
+                    </t:column>
 
-				<h4>Pending/Running Tournaments</h4>
-				<t:dataTable id="datatourneys" border="1" sortable="true"
-					sortColumn="#{actionAdmin.sortColumnTournaments}"
-					sortAscending="#{actionAdmin.sortAscendingTournaments}" preserveSort="true"
-					rowCount="#{actionAdmin.rowCountTournaments}"
-					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{actionAdmin.tournamentList}" var="t">
+                    <t:column defaultSorted="true">
+                        <f:facet name="header">
+                            <h:outputText value="Change Password" />
+                        </f:facet>
+                        <h:outputText value="#{u.password}" />
+                    </t:column>
 
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Tournament ID" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="#{t.tournamentId}" />
-					</t:column>
+                    <t:column defaultSorted="true">
+                        <f:facet name="header">
+                            <h:outputText value="Permission" />
+                        </f:facet>
+                        <h:outputText value="#{u.permissions}" />
+                    </t:column>
+                </t:dataTable>
+            </h:form>
 
-					<t:column>
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Competition Type" />
-						</f:facet>
-						<!-- row record -->
-						<h:outputText value="Single-game" />
-					</t:column>
+            <h:form rendered="#{user.permissions le 0}">
+                <h3>Registered Brokers and Their Competitions</h3>
+            </h:form>
 
-					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Tournament Name" />
-						</f:facet>
-						<h:outputText value="#{t.tournamentName}" />
-					</t:column>
+            <h:form rendered="#{user.permissions le 0}">
+                <h3>Pending/Running Competitions</h3>
+            </h:form>
 
-					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Start Time" />
-						</f:facet>
-						#{t.startTime}
-					</t:column>
+            <h:form rendered="#{user.permissions le 0}">
+                <h3>Pending/Running Tournaments</h3>
+                <t:dataTable id="datatourneys" border="1" sortable="false"
+                             sortColumn="#{actionAdmin.sortColumnTournaments}"
+                             sortAscending="#{actionAdmin.sortAscendingTournaments}" preserveSort="true"
+                             rowCount="#{actionAdmin.rowCountTournaments}"
+                             style="border:1px solid black;border-collapse:collapse;text-align:center"
+                             value="#{actionAdmin.tournamentList}" var="t">
 
-					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Max Brokers" />
-						</f:facet>
-						<h:outputText value="#{t.maxBrokers}" />
-					</t:column>
-					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Registered Brokers" />
-						</f:facet>
-						<h:outputText value="#{t.numberRegistered}" />
-					</t:column>
+                    <t:column defaultSorted="true" sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Tournament ID" />
+                        </f:facet>
+                        <h:outputText value="#{t.tournamentId}" />
+                    </t:column>
 
-					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Pom Link" />
-						</f:facet>
-						<a href="#{t.pomUrl}">Pom</a>
-					</t:column>
+                    <t:column sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Competition Type" />
+                        </f:facet>
+                        <h:outputText value="#{t.type}" />
+                    </t:column>
 
-				</t:dataTable>
-			</h:form>
+                    <t:column sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Tournament Name" />
+                        </f:facet>
+                        <h:outputText value="#{t.tournamentName}" />
+                    </t:column>
 
-			<h:form rendered="#{user.permissions le 0}">
-				<h4>Pending/Running Games <h:commandButton value="refresh" action="#{actionAdmin.refresh}"/></h4>
-				<t:dataTable id="datagames" border="1" sortable="true"
-					sortColumn="#{actionAdmin.sortColumnGames}"
-					sortAscending="#{actionAdmin.sortAscendingGames}" preserveSort="true"
-					rowCount="#{actionAdmin.rowCountGames}"
-					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{actionAdmin.gameList}" var="g">
-					<t:column defaultSorted="true">
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Game ID" />
-						</f:facet>
-						<!-- row record -->
-    						#{g.gameId}
-    				</t:column>
+                    <t:column sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Start Time" />
+                        </f:facet>
+                        <h:outputText value="#{t.startTime}" />
+                    </t:column>
 
-					<t:column>
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Status" />
-						</f:facet>
-						<!-- row record -->
-    						#{g.status}    		
-    				</t:column>
+                    <t:column sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Max Brokers" />
+                        </f:facet>
+                        <h:outputText value="#{t.maxBrokers}" />
+                    </t:column>
 
+                    <t:column sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Registered Brokers" />
+                        </f:facet>
+                        <h:outputText value="#{t.numberRegistered}" />
+                    </t:column>
 
-					<t:column>
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Start Time" />
-						</f:facet>
-						<!-- row record -->
-    						#{g.startTime}    		
-    				</t:column>
+                    <t:column>
+                        <f:facet name="header">
+                            <h:outputText value="Pom Link" />
+                        </f:facet>
+                        <a href="#{t.pomUrl}">Pom</a>
+                    </t:column>
+                </t:dataTable>
+            </h:form>
 
+            <h:form rendered="#{user.permissions le 0}">
+                <h3 class="withButton">Pending/Running Games</h3><h:commandButton value="refresh" action="#{actionAdmin.refresh}"/>
+                <t:dataTable id="datagames" border="1" sortable="false"
+                             sortColumn="#{actionAdmin.sortColumnGames}"
+                             sortAscending="#{actionAdmin.sortAscendingGames}" preserveSort="true"
+                             rowCount="#{actionAdmin.rowCountGames}"
+                             style="border:1px solid black;border-collapse:collapse;text-align:center"
+                             value="#{actionAdmin.gameList}" var="g">
+                    <t:column defaultSorted="true" sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Game ID" />
+                        </f:facet>
+                        <h:outputText value="#{g.gameId}" />
+                    </t:column>
 
-					<t:column>
-						<!-- column header -->
-						<f:facet name="header">
-							<h:outputText value="Max Brokers" />
-						</f:facet>
-						<!-- row record -->
-    						#{g.maxBrokers}
-    				</t:column>
-					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Properties Link" />
-						</f:facet>
-						<a href="#{g.propertiesUrl}">Properties</a>
-					</t:column>
-					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Bootstrap Link" />
-						</f:facet>
-						<a href="#{g.bootstrapUrl}">Bootstrap</a>
-					</t:column>
+                    <t:column sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Status" />
+                        </f:facet>
+                        <h:outputText value="#{g.status}" />
+                    </t:column>
 
-					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Visualizer Link" />
-						</f:facet>
-						<a href="#{g.visualizerUrl}">Visualizer</a>
-					</t:column>
+                    <t:column sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Start Time" />
+                        </f:facet>
+                        <h:outputText value="#{g.startTime}" />
+                    </t:column>
 
-					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Restart Game" />
-						</f:facet>
-						<h:commandButton value="restart"
-							action="#{actionAdmin.restartGame(g)}" />
-					</t:column>
+                    <t:column sortable="true">
+                        <f:facet name="header">
+                            <h:outputText value="Max Brokers" />
+                        </f:facet>
+                        <h:outputText value="#{g.maxBrokers}" />
+                    </t:column>
 
-					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Delete Game" />
-						</f:facet>
-						<h:commandButton value="delete"
-							action="#{actionAdmin.deleteGame(g)}" />
-					</t:column>
+                    <t:column>
+                        <f:facet name="header">
+                            <h:outputText value="Properties Link" />
+                        </f:facet>
+                        <a href="#{g.propertiesUrl}">Properties</a>
+                    </t:column>
 
-				</t:dataTable>
+                    <t:column>
+                        <f:facet name="header">
+                            <h:outputText value="Bootstrap Link" />
+                        </f:facet>
+                        <a href="#{g.bootstrapUrl}">Bootstrap</a>
+                    </t:column>
 
-			</h:form>
+                    <t:column>
+                        <f:facet name="header">
+                            <h:outputText value="Visualizer Link" />
+                        </f:facet>
+                        <a href="#{g.visualizerUrl}">Visualizer</a>
+                    </t:column>
 
-			<h:form rendered="#{user.permissions gt 0}">
-				<h2>Insufficient Permissions</h2>
-			</h:form>
-		</ui:define>
-	</ui:composition>
+                    <t:column>
+                        <f:facet name="header">
+                            <h:outputText value="Restart Game" />
+                        </f:facet>
+                        <h:commandButton value="restart" action="#{actionAdmin.restartGame(g)}" />
+                    </t:column>
+
+                    <t:column>
+                        <f:facet name="header">
+                            <h:outputText value="Delete Game" />
+                        </f:facet>
+                        <h:commandButton value="delete" action="#{actionAdmin.deleteGame(g)}" />
+                    </t:column>
+                </t:dataTable>
+            </h:form>
+
+            <h:form rendered="#{user.permissions gt 0}">
+                <h2>Insufficient Permissions</h2>
+            </h:form>
+
+        </ui:define>
+
+    </ui:composition>
+
 </h:body>
 </html>
