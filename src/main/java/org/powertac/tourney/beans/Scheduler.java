@@ -5,20 +5,15 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.annotation.PreDestroy;
 
-import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.scheduling.AgentLet;
-import org.powertac.tourney.scheduling.DbConnection;
 import org.powertac.tourney.scheduling.MainScheduler;
 import org.powertac.tourney.scheduling.Server;
 import org.powertac.tourney.services.Database;
@@ -31,7 +26,6 @@ import org.springframework.stereotype.Service;
 @Service("scheduler")
 public class Scheduler
 {
-
   private TournamentProperties tournamentProperties;
 
   public static final String key = "scheduler";
@@ -49,11 +43,8 @@ public class Scheduler
 
   SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 
-  private HashMap<Integer, Integer> AgentIdToBrokerId =
-    new HashMap<Integer, Integer>();
-  private HashMap<Integer, Integer> ServerIdToMachineId =
-    new HashMap<Integer, Integer>();
-
+  private HashMap<Integer, Integer> AgentIdToBrokerId = new HashMap<Integer, Integer>();
+  private HashMap<Integer, Integer> ServerIdToMachineId = new HashMap<Integer, Integer>();
   private HashMap<Integer, Timer> bootToBeRun = new HashMap<Integer, Timer>();
   private HashMap<Integer, Timer> simToBeRun = new HashMap<Integer, Timer>();
 
@@ -70,8 +61,8 @@ public class Scheduler
   @PreDestroy
   public void cleanUp () throws Exception
   {
-    System.out
-            .println("[INFO] Spring Container is destroyed! Scheduler clean up");
+    System.out.println(
+            "[INFO] Spring Container is destroyed! Scheduler clean up");
     if (watchDogTimer != null) {
       watchDogTimer.cancel();
     }
@@ -85,12 +76,10 @@ public class Scheduler
         t.cancel();
       }
     }
-
   }
 
   public Scheduler ()
   {
-
     dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
     // this.startWatchDog();
     lazyStart();
@@ -121,12 +110,11 @@ public class Scheduler
         AgentIdToBrokerId.put(agents.get(i).getInternalAgentID(), -1);
       }
 
-      int noofagents = t.getMaxBrokers();// maxBrokers;
-      int noofcopies = t.getMaxBrokerInstances();// maxBrokerInstances;
+      int noofagents = t.getMaxBrokers();
+      int noofcopies = t.getMaxBrokerInstances();
       int noofservers = machines.size();
       int[] gtypes = { t.getSize1(), t.getSize2(), t.getSize3() };
-      int[] mxs =
-        { t.getNumberSize1(), t.getNumberSize2(), t.getNumberSize3() };
+      int[] mxs = { t.getNumberSize1(), t.getNumberSize2(), t.getNumberSize3() };
 
       try {
         scheduler =
@@ -136,7 +124,6 @@ public class Scheduler
         scheduler.initGameCube(gtypes, mxs);
         scheduler.resetCube();
         runningTournament = t;
-
       }
       catch (Exception e) {
         // TODO Auto-generated catch block
@@ -171,8 +158,8 @@ public class Scheduler
       e.printStackTrace();
     }
 
-    int noofagents = t.getMaxBrokers();// maxBrokers;
-    int noofcopies = t.getMaxBrokerInstances();// maxBrokerInstances;
+    int noofagents = t.getMaxBrokers();
+    int noofcopies = t.getMaxBrokerInstances();
     int noofservers = machines.size();
     int[] gtypes = { t.getSize1(), t.getSize2(), t.getSize3() };
     int[] mxs = { t.getNumberSize1(), t.getNumberSize2(), t.getNumberSize3() };
@@ -204,20 +191,17 @@ public class Scheduler
       }
 
       db.commitTrans();
-
     }
     catch (Exception e) {
       db.abortTrans();
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
   }
 
   // Resets the internal scheduling tables;
   public synchronized void resetServer (int machineId)
   {
-
     // Find the serverId from a machineId
     int serverNumber = 0;
     for (Integer i: ServerIdToMachineId.keySet()) {
@@ -227,23 +211,6 @@ public class Scheduler
       }
     }
 
-    /* Moved to the scheduling code 
-    DbConnection db = new DbConnection();
-    try {
-      db.Setup();
-      System.out.println("[INFO] Freeing agents on " + serverNumber);
-      String freeAgents = "%s";
-      freeAgents = String.format(freeAgents, Constants.FREE_AGENTS_ON_SERVER);
-      freeAgents = freeAgents.replace("?", String.valueOf(serverNumber));
-      System.out.println("[INFO] Query: " + freeAgents);
-      db.SetQuery(freeAgents, "update");
-    }
-    catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    System.out.println("[INFO] Agents freed");
-    */
     try {
       scheduler.resetServers(serverNumber);
       System.out.println("[INFO] Servers and Agents freed");
@@ -252,15 +219,14 @@ public class Scheduler
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
   }
 
   public void tickScheduler ()
   {
     if (runningTournament != null) {
-      if (runningTournament.getStartTime().before(new Date())) {
-        System.out
-                .println("[INFO] Multigame tournament available, ticking scheduler..");
+      if ((runningTournament.getStartTime() == null) ||
+          (runningTournament.getStartTime().before(new Date()))) {
+        System.out.println("[INFO] Multigame tournament available, ticking scheduler..");
       }
       else {
         System.out.println("[INFO] Too early to start tournament: "
@@ -269,17 +235,6 @@ public class Scheduler
       }
 
       try {
-
-        String hostip = "http://";
-
-        try {
-          InetAddress thisIp = InetAddress.getLocalHost();
-          hostip += thisIp.getHostAddress() + ":8080";
-        }
-        catch (UnknownHostException e2) {
-          e2.printStackTrace();
-        }
-
         Database db = new Database();
         db.startTrans();
         List<Game> gamesInTourney =
@@ -317,13 +272,11 @@ public class Scheduler
         gamesInTourney = finalGames;
 
         if (gamesInTourney.size() == 0) {
-          System.out
-                  .println("[INFO] Tournament is either complete or not enough bootstraps are available");
+          System.out.println("[INFO] Tournament is either complete or not enough bootstraps are available");
           return;
         }
         else {
-          System.out.println("[INFO] Games with boots available "
-                             + gamesInTourney.size());
+          System.out.println("[INFO] Games with boots available " + gamesInTourney.size());
         }
 
         if (!scheduler.equilibrium()) {
@@ -342,8 +295,7 @@ public class Scheduler
             }
             AgentLet[] agentSet = games.get(s);
 
-            System.out.println("[INFO] Server " + s.getServerNumber()
-                               + " playing");
+            System.out.println("[INFO] Server " + s.getServerNumber() + " playing");
 
             for (AgentLet a: agentSet) {
               System.out.println("[INFO] Agent " + a.getAgentType());
@@ -353,8 +305,7 @@ public class Scheduler
             for (Integer key: ServerIdToMachineId.keySet()) {
               result += key + ",";
             }
-            System.out
-                    .println("[INFO] Key Set in serversToMachines: " + result);
+            System.out.println("[INFO] Key Set in serversToMachines: " + result);
             Integer machineId = ServerIdToMachineId.get(s.getServerNumber());
 
             List<Integer> brokerSet = new ArrayList<Integer>();
@@ -390,20 +341,18 @@ public class Scheduler
             System.out.println("[INFO] Tourney Game " + somegame.getGameId()
                                + " Brokers: " + brokers);
 
-            Scheduler.this
-                    .runSimTimer(somegame.getGameId(),
-                                 new RunGame(
-                                             somegame.getGameId(),
-                                             hostip + "/TournamentScheduler/",
-                                             runningTournament.getPomUrl(),
-                                             tournamentProperties
-                                                     .getProperty("destination"),
-                                             m, brokers), new Date());
+            RunGame runGame = new RunGame(somegame.getGameId(),
+                                          getTourneyUrl(),
+                                          runningTournament.getPomUrl(),
+                                          tournamentProperties.getProperty("destination"),
+                                          m,
+                                          brokers);
+
+            runSimTimer(somegame.getGameId(), runGame, new Date());
 
             games.remove(s);
             // Wait for jenkins
             Thread.sleep(1000);
-
           }
         }
       }
@@ -414,7 +363,6 @@ public class Scheduler
     }
     else {
       System.out.println("[INFO] No multigame tournament available");
-
     }
   }
 
@@ -422,17 +370,13 @@ public class Scheduler
   {
     Timer t = new Timer();
     TimerTask tt = new TimerTask() {
-
       @Override
       public void run ()
       {
-        Scheduler.this.tournamentProperties =
-          (TournamentProperties) SpringApplicationContext
-                  .getBean("tournamentProperties");
-        Scheduler.this.startWatchDog();
-
+        tournamentProperties = (TournamentProperties) SpringApplicationContext
+            .getBean("tournamentProperties");
+        startWatchDog();
       }
-
     };
     t.schedule(tt, 3000);
   }
@@ -453,10 +397,9 @@ public class Scheduler
           db = new Database();
 
           // Run the scheduler
-          Scheduler.this.tickScheduler();
+          tickScheduler();
           checkForSims();
           checkForBoots();
-
         }
 
         public void checkForSims ()
@@ -472,37 +415,26 @@ public class Scheduler
               games = db.getStartableGames();
             }
             else {
-              System.out
-                      .println("[INFO] WatchDog CheckForSims ignoring multi-game tournament games");
+              System.out.println("[INFO] WatchDog CheckForSims "
+                                 + "ignoring multi-game tournament games");
               games = db.getStartableGames(runningTournament.getTournamentId());
             }
             System.out.println("[INFO] WatchDogTimer reports " + games.size()
                                + " game(s) are ready to start");
-
-            String hostip = "http://";
-
-            try {
-              InetAddress thisIp = InetAddress.getLocalHost();
-              hostip += thisIp.getHostAddress() + ":8080";
-            }
-            catch (UnknownHostException e2) {
-              e2.printStackTrace();
-            }
 
             for (Game g: games) {
               Tournament t = db.getTournamentByGameId(g.getGameId());
               System.out.println("[INFO] " + dateFormatUTC.format(new Date())
                                  + " : Game: " + g.getGameId()
                                  + " will be started...");
-              Scheduler.this
-                      .runSimTimer(g.getGameId(),
-                                   new RunGame(
-                                               g.getGameId(),
-                                               hostip + "/TournamentScheduler/",
-                                               t.getPomUrl(),
-                                               tournamentProperties
-                                                       .getProperty("destination")),
-                                   new Date());
+
+              RunGame runGame = new RunGame(
+                  g.getGameId(),
+                  getTourneyUrl(),
+                  t.getPomUrl(),
+                  tournamentProperties.getProperty("destination"));
+              runSimTimer(g.getGameId(), runGame, new Date());
+
               try {
                 // Wait for jenkins
                 Thread.sleep(1000);
@@ -523,29 +455,17 @@ public class Scheduler
 
         public void checkForBoots ()
         {
-
           if (!bootrunning) {
 
-            System.out
-                    .println("[INFO] "
-                             + dateFormatUTC.format(new Date())
-                             + " : WatchDogTimer Looking for Bootstraps To Start..");
-            // Check Database for startable games
+            System.out.println("[INFO] "
+                               + dateFormatUTC.format(new Date())
+                               + " : WatchDogTimer Looking for Bootstraps To Start..");
+            // Check Database for bootable games
             try {
               db.startTrans();
               List<Game> games = db.getBootableGames();
               System.out.println("[INFO] WatchDogTimer reports " + games.size()
                                  + " boots are ready to start");
-
-              String hostip = "http://";
-
-              try {
-                InetAddress thisIp = InetAddress.getLocalHost();
-                hostip += thisIp.getHostAddress() + ":8080";
-              }
-              catch (UnknownHostException e2) {
-                e2.printStackTrace();
-              }
 
               if (games.size() > 0) {
                 bootrunning = true;
@@ -558,19 +478,13 @@ public class Scheduler
                                    + " : Boot: " + g.getGameId()
                                    + " will be started...");
 
-                Scheduler.this
-                        .runBootTimer(g.getGameId(),
-                                      new RunBootstrap(
-                                                       g.getGameId(),
-                                                       hostip
-                                                               + "/TournamentScheduler/",
-                                                       t.getPomUrl(),
-                                                       tournamentProperties
-                                                               .getProperty("destination"),
-                                                       tournamentProperties
-                                                               .getProperty("bootserverName")),
-                                      new Date());
-
+                RunBootstrap bootstrap = new RunBootstrap(
+                    g.getGameId(),
+                    getTourneyUrl(),
+                    t.getPomUrl(),
+                    tournamentProperties.getProperty("destination"),
+                    tournamentProperties.getProperty("bootserverName"));
+                runBootTimer(g.getGameId(), bootstrap, new Date());
               }
               db.commitTrans();
             }
@@ -579,7 +493,6 @@ public class Scheduler
               db.abortTrans();
               e.printStackTrace();
             }
-
           }
           else {
             System.out.println("[INFO] " + dateFormatUTC.format(new Date())
@@ -598,7 +511,6 @@ public class Scheduler
             }
             System.out.println("[INFO] WatchDogTimer reports " + games.size()
                                + " boot(s) are ready to start");
-
           }
         }
       };
@@ -613,7 +525,6 @@ public class Scheduler
       t.schedule(watchDog, new Date(), watchDogInt);
 
       this.watchDogTimer = t;
-
     }
     else {
       System.out.println("[WARN] Watchdog already running");
@@ -624,7 +535,6 @@ public class Scheduler
   {
     this.stopWatchDog();
     this.startWatchDog();
-
   }
 
   public void stopWatchDog ()
@@ -679,4 +589,16 @@ public class Scheduler
     }
   }
 
+  public String getTourneyUrl() {
+    String tourneyUrl = "http://%s:8080/TournamentScheduler/";
+    try {
+      InetAddress thisIp = InetAddress.getLocalHost();
+      tourneyUrl = String.format(tourneyUrl, thisIp.getHostAddress());
+    }
+    catch (UnknownHostException e2) {
+      e2.printStackTrace();
+    }
+
+    return tourneyUrl;
+  }
 }
