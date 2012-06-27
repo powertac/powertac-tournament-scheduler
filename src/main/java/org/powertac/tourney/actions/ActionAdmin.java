@@ -1,5 +1,16 @@
 package org.powertac.tourney.actions;
 
+import org.apache.myfaces.custom.fileupload.UploadedFile;
+import org.powertac.tourney.beans.*;
+import org.powertac.tourney.services.Database;
+import org.powertac.tourney.services.RunBootstrap;
+import org.powertac.tourney.services.RunGame;
+import org.powertac.tourney.services.Upload;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import javax.faces.context.FacesContext;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -8,24 +19,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-
-import javax.faces.context.FacesContext;
-
-import org.apache.myfaces.custom.fileupload.UploadedFile;
-import org.powertac.tourney.beans.Broker;
-import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Location;
-import org.powertac.tourney.beans.Machine;
-import org.powertac.tourney.beans.Scheduler;
-import org.powertac.tourney.beans.Tournament;
-import org.powertac.tourney.beans.User;
-import org.powertac.tourney.services.Database;
-import org.powertac.tourney.services.RunBootstrap;
-import org.powertac.tourney.services.RunGame;
-import org.powertac.tourney.services.Upload;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 @Component("actionAdmin")
 @Scope("request")
@@ -99,9 +92,8 @@ public class ActionAdmin
       db.abortTrans();
       e.printStackTrace();
     }
-    
-    return games;
 
+    return games;
   }
   
   public List<User> getUserList()
@@ -117,9 +109,8 @@ public class ActionAdmin
       db.abortTrans();
       e.printStackTrace();
     }
-    
-    return users;
 
+    return users;
   }
 
   public String getPomName ()
@@ -187,8 +178,8 @@ public class ActionAdmin
       db.abortTrans();
       e.printStackTrace();
     }
-    return poms;
 
+    return poms;
   }
 
   public List<Tournament> getTournamentList(){
@@ -204,7 +195,7 @@ public class ActionAdmin
     }catch(Exception e){
       db.abortTrans();
     }
-    
+
     return ts;
   }
   
@@ -281,7 +272,6 @@ public class ActionAdmin
       db.abortTrans();
       e.printStackTrace();
     }
-
   }
   public void toggleStatus(Machine m){
     Database db = new Database();
@@ -390,85 +380,30 @@ public class ActionAdmin
       e.printStackTrace();
     }
 
-    String hostip = "http://";
-
-    try {
-      InetAddress thisIp = InetAddress.getLocalHost();
-      hostip += thisIp.getHostAddress() + ":8080";
-    }
-    catch (UnknownHostException e2) {
-      // TODO Auto-generated catch block
-      e2.printStackTrace();
-    }
-
-    if (g.getStatus().equalsIgnoreCase("boot-failed")) {
+    if (g.getStatus().equalsIgnoreCase("boot-failed") ||
+        g.getStatus().equalsIgnoreCase("boot-pending") ||
+        g.getStatus().equalsIgnoreCase("boot-in-progress") ) {
       System.out.println("[INFO] Attempting to restart bootstrap " + gameId);
       scheduler.deleteBootTimer(gameId);
-      scheduler
-              .runBootTimer(gameId,
-                            new RunBootstrap(gameId, hostip
-                                                     + "/TournamentScheduler/",
-                                             t.getPomUrl(),
-                                             props.getProperty("destination")),
-                            new Date());
-
+      scheduler.runBootTimer(gameId,
+                             new RunBootstrap(gameId,
+                                              getTourneyUrl(),
+                                              t.getPomUrl(),
+                                              props.getProperty("destination")),
+                                              new Date());
     }
-    else if (g.getStatus().equalsIgnoreCase("game-failed")) {
-      // If restarting a failed game schedule it for immediate running
+    else if (g.getStatus().equalsIgnoreCase("game-failed") ||
+             g.getStatus().equalsIgnoreCase("game-pending") ||
+            g.getStatus().equalsIgnoreCase("boot-complete") ) {
       System.out.println("[INFO] Attempting to restart sim " + gameId);
       scheduler.deleteSimTimer(gameId);
       scheduler.runSimTimer(gameId,
-                            new RunGame(gameId, hostip
-                                                + "/TournamentScheduler/", t
-                                    .getPomUrl(), props
-                                    .getProperty("destination")), new Date());
+                            new RunGame(gameId,
+                                        getTourneyUrl(),
+                                        t.getPomUrl(),
+                                        props.getProperty("destination")),
+                                        new Date());
 
-    }
-    else if (g.getStatus().equalsIgnoreCase("boot-pending")) {
-      System.out.println("[INFO] Attempting to restart bootstrap " + gameId);
-      scheduler.deleteBootTimer(gameId);
-      scheduler
-              .runBootTimer(gameId,
-                            new RunBootstrap(gameId, hostip
-                                                     + "/TournamentScheduler/",
-                                             t.getPomUrl(),
-                                             props.getProperty("destination")),
-                            new Date());
-
-    }
-    else if (g.getStatus().equalsIgnoreCase("boot-in-progress")) {
-      System.out.println("[INFO] Attempting to restart bootstrap " + gameId);
-      scheduler.deleteBootTimer(gameId);
-      scheduler
-              .runBootTimer(gameId,
-                            new RunBootstrap(gameId, hostip
-                                                     + "/TournamentScheduler/",
-                                             t.getPomUrl(),
-                                             props.getProperty("destination")),
-                            new Date());
-
-    }
-    else if (g.getStatus().equalsIgnoreCase("game-pending")) {
-      System.out.println("[INFO] Attempting to restart sim " + gameId);
-      scheduler.deleteSimTimer(gameId);
-      scheduler.runSimTimer(gameId,
-                            new RunGame(gameId, hostip
-                                                + "/TournamentScheduler/", t
-                                    .getPomUrl(), props
-                                    .getProperty("destination")), new Date());
-
-    }
-    else if (g.getStatus().equalsIgnoreCase("boot-complete")) {
-      System.out.println("[INFO] Attempting to restart sim " + gameId);
-      scheduler.deleteSimTimer(gameId);
-      scheduler.runSimTimer(gameId,
-                            new RunGame(gameId, hostip
-                                                + "/TournamentScheduler/", t
-                                    .getPomUrl(), props
-                                    .getProperty("destination")), new Date());
-    }
-    else {
-      // Nothing
     }
   }
 
@@ -496,7 +431,6 @@ public class ActionAdmin
       db.abortTrans();
       e.printStackTrace();
     }
-
   }
 
   public void addLocation ()
@@ -759,4 +693,16 @@ public class ActionAdmin
     this.rowCountGames = rowCountGames;
   }
 
+  private String getTourneyUrl() {
+    String tourneyUrl = "http://%s:8080/TournamentScheduler/";
+    try {
+      InetAddress thisIp = InetAddress.getLocalHost();
+      tourneyUrl = String.format(tourneyUrl, thisIp.getHostAddress());
+    }
+    catch (UnknownHostException e2) {
+      e2.printStackTrace();
+    }
+
+    return tourneyUrl;
+  }
 }

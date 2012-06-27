@@ -81,7 +81,10 @@
 						<f:facet name="header">
 							<h:outputText value="Visualizer Link" />
 						</f:facet>
-						<a href="#{g.visualizerUrl}">Visualizer</a>
+                        <h:outputText value="Not available" rendered="#{g.visualizerUrl == ''}"/>
+                        <h:panelGroup rendered="#{g.visualizerUrl != ''}" >
+                            <a href="#{g.visualizerUrl}">Visualizer</a>
+                        </h:panelGroup>
 					</t:column>
 				</t:dataTable>
 			</h:form>
