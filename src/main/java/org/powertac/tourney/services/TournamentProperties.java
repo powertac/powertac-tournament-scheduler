@@ -15,10 +15,10 @@
  */
 package org.powertac.tourney.services;
 
+import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.util.Properties;
-
-import org.springframework.stereotype.Service;
 
 /**
  * Central source of Properties read from tournament.properties
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 @Service("tournamentProperties")
 public class TournamentProperties
 {
-  private Properties props = new Properties();
+  private Properties properties = new Properties();
   private boolean loaded = false;
   private String resourceName = "/tournament.properties";
   
@@ -35,13 +35,13 @@ public class TournamentProperties
   public String getProperty (String key)
   {
     loadIfNecessary();
-    return props.getProperty(key);
+    return properties.getProperty(key);
   }
   
   public String getProperty (String key, String defaultValue)
   {
     loadIfNecessary();
-    return props.getProperty(key, defaultValue);
+    return properties.getProperty(key, defaultValue);
   }
   
   // lazy loader
@@ -49,7 +49,7 @@ public class TournamentProperties
   {
     if (!loaded) {
       try {
-        props.load(TournamentProperties.class.getClassLoader()
+        properties.load(TournamentProperties.class.getClassLoader()
                    .getResourceAsStream(resourceName));
         loaded = true;
       }

@@ -401,23 +401,7 @@ public class ActionTournament
         
         newTourney.setPomName(selectedPom);
 
-<<<<<<< HEAD
         newTourney.setPomUrl(Utils.getTourneyUrl() + "faces/pom.jsp?location="
-=======
-        String hostip = "http://";
-
-        try {
-          InetAddress thisIp = InetAddress.getLocalHost();
-          hostip += thisIp.getHostAddress() + ":8080";
-        }
-        catch (UnknownHostException e2) {
-          // TODO Auto-generated catch block
-          e2.printStackTrace();
-        }
-
-        newTourney.setPomUrl(hostip
-                             + "/TournamentScheduler/faces/pom.jsp?location="
->>>>>>> 77ebc0bd960dacdfe7cb021d5c733107a0d83fb4
                              + newTourney.getPomName());
         newTourney.setMaxBrokers(getMaxBrokers());
         newTourney.setStartTime(getStartTime());

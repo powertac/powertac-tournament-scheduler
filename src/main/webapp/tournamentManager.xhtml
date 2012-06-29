@@ -68,7 +68,7 @@
 						<f:facet name="header">
 							<h:outputText value="Pom Link" />
 						</f:facet>
-						<a href="/TournamentScheduler/#{t.pomName}">Pom</a>
+						<a href="#{t.pomUrl}">Pom</a>
 					</t:column>
 				</t:dataTable>
 			</h:form>
@@ -147,11 +147,11 @@
 							ampm="false" renderAsPopup="true" forceId="true" /><br/>
 					</h:panelGroup>
 
-                    <h:outputText value="Date Range to: " />
-                    <h:panelGroup>
-                        <t:inputDate value="#{actionTournament.toTime}" type="both"
-                            ampm="false" renderAsPopup="true" forceId="true" />
-                    </h:panelGroup>
+          <h:outputText value="Date Range to: " />
+          <h:panelGroup>
+              <t:inputDate value="#{actionTournament.toTime}" type="both"
+                  ampm="false" renderAsPopup="true" forceId="true" />
+          </h:panelGroup>
 
 					<h:outputText value="Locations: " />
 					<h:panelGroup>

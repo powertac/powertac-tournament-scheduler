@@ -1,18 +1,12 @@
 package org.powertac.tourney.beans;
 
+import org.powertac.tourney.services.Database;
+
+import javax.faces.bean.ManagedBean;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.Vector;
-
-import javax.faces.bean.ManagedBean;
-
-import org.powertac.tourney.services.Database;
+import java.util.*;
 
 
 // Technically not a managed bean, this is an internal Class to the 
@@ -162,8 +156,6 @@ public class Tournament
     }
     return result;
   }
-
-
 
   public boolean isRegistered (String authToken)
   {

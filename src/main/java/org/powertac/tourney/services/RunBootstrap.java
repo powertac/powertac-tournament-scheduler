@@ -52,50 +52,52 @@ public class RunBootstrap extends TimerTask
 
   private void checkMachineAvailable ()
   {
-      Database db = new Database();
-      try {
-        db.startTrans();
-        List<Machine> machines = db.getMachines();
-        List<Machine> available = new ArrayList<Machine>();
-        for (Machine m: machines) {
-          if (m.getStatus().equalsIgnoreCase("idle") && m.isAvailable()) {
-            available.add(m);
-          }
-        }
-        if (available.size() > 0) {
-          if (!usingMachine) {
-            db.updateGameJmsUrlById(
-                Integer.parseInt(gameId),
-                "tcp://" + available.get(0).getName() + ":61616");
-            db.updateGameMachine(
-                Integer.parseInt(gameId),
-                available.get(0).getMachineId());
-            db.setMachineStatus(available.get(0).getMachineId(), "running");
-            this.machineName = available.get(0).getName();          
-          }
-          System.out.println("[INFO] Running boot " + gameId + " on machine "
-                             + machineName);
-          db.commitTrans();
-        }
-        else {
-          db.abortTrans();
-          System.out.println(
-              "[INFO] No machines available to run scheduled boot: "
-              + gameId + " ... will retry in 5 minutes");
-          // Thread.sleep(300000);
-          // this.run();
+    // TODO This doesn't seem to work properly
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      List<Machine> machines = db.getMachines();
+      List<Machine> available = new ArrayList<Machine>();
+      for (Machine m: machines) {
+        if (m.getStatus().equalsIgnoreCase("idle") && m.isAvailable()) {
+          available.add(m);
         }
       }
-      catch (NumberFormatException e) {
-        e.printStackTrace();
-      }
-      catch (SQLException e) {
-        e.printStackTrace();
-      }
-    }
+      if (available.size() > 0) {
+        if (!usingMachine) {
+          db.updateGameJmsUrlById(
+            Integer.parseInt(gameId  ), "tcp://" + available.get(0).getName() + ":61616");
+         db.updateGameMachine(
+             Integer.parseInt(gameId),
+             available.get(0).getMachineId());
+         db.setMachineStatus(available.get(0).getMachineId(), "running");
+         this.machineName = available.get(0).getName();
+       }
+       System.out.println("[INFO] Running boot " + gameId + " on machine "
+                          + machineName);
+       db.commitTrans();
+     }
+     else {
+       db.abortTrans();
+       System.out.println(
+           "[INFO] No machines available to run scheduled boot: "
+           + gameId + " ... will retry in 5 minutes");
+       // Thread.sleep(300000);
+       // this.run();
+     }
+   }
+   catch (NumberFormatException e) {
+     e.printStackTrace();
+   }
+   catch (SQLException e) {
+     e.printStackTrace();
+   }
+ }
 
   public void run ()
   {
+    // TODO
     checkMachineAvailable();
 
     String finalUrl =

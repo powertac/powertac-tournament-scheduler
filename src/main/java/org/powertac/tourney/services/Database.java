@@ -538,7 +538,6 @@ public class Database
 
   public Tournament getTournamentByType (String type) throws SQLException
   {
-    
     Tournament ts = new Tournament();
     PreparedStatement selectTournament =
       conn.prepareStatement(Constants.SELECT_TOURNAMENT_BYTYPE);
@@ -560,7 +559,6 @@ public class Database
 
   public Tournament getTournamentByGameId (int gameId) throws SQLException
   {
-    
     Tournament ts = new Tournament();
     PreparedStatement selectTournament =
       conn.prepareStatement(Constants.SELECT_TOURNAMENT_BYGAMEID);
@@ -612,7 +610,6 @@ public class Database
 
   public int registerBroker (int tourneyId, int brokerId) throws SQLException
   {
-    
     PreparedStatement register =
       conn.prepareStatement(Constants.REGISTER_BROKER);
     register.setInt(1, tourneyId);
@@ -780,7 +777,6 @@ public class Database
       Game tmp = new Game(rsGs);
       games.add(tmp);
     }
-    
 
     rsGs.close();
     getGames.close();
@@ -941,8 +937,6 @@ public class Database
   public int addGame (String gameName, int tourneyId, int maxBrokers,
                       Date startTime) throws SQLException
   {
-    
-
     java.text.SimpleDateFormat sdf =
             new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
@@ -961,7 +955,6 @@ public class Database
 
   public Game getGame (int gameId) throws SQLException
   {
-    
     PreparedStatement selectAllGames =
       conn.prepareStatement(Constants.SELECT_GAMEBYID);
     selectAllGames.setInt(1, gameId);

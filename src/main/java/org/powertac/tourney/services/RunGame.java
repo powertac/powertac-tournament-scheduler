@@ -251,6 +251,7 @@ public class RunGame extends TimerTask
   {
     // Check if a boot exists
     checkBootstrap();
+
     // Check if brokers are registered
     if (!checkBrokers()) {
       return;

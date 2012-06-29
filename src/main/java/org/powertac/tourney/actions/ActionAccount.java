@@ -1,35 +1,27 @@
 package org.powertac.tourney.actions;
 
+import org.powertac.tourney.beans.Broker;
+import org.powertac.tourney.beans.Game;
+import org.powertac.tourney.beans.Tournament;
+import org.powertac.tourney.beans.User;
+import org.powertac.tourney.services.Database;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+import javax.faces.context.FacesContext;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
-
-import org.powertac.tourney.beans.Broker;
-import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Tournament;
-import org.powertac.tourney.beans.User;
-import org.powertac.tourney.services.Database;
-import org.powertac.tourney.services.SpringApplicationContext;
-
 @ManagedBean
 @RequestScoped
 public class ActionAccount
 {
-
   private String newBrokerName;
   private String newBrokerShortDescription;
-  private int selectedBrokerId;
-  private String selectedBrokerName;
-  private String selectedBrokerAuth;
 
   public ActionAccount ()
   {
@@ -79,7 +71,6 @@ public class ActionAccount
       (User) FacesContext.getCurrentInstance().getExternalContext()
               .getSessionMap().get(User.getKey());
     user.deleteBroker(b.getBrokerId());
-
   }
 
   public void editBroker (Broker b)
@@ -113,8 +104,6 @@ public class ActionAccount
     b.setBrokerName(b.getNewName());
     b.setShortDescription(b.getNewShort());
     b.setBrokerAuthToken(b.getNewAuth());
-    
-    
 
     Database db = new Database();
 
@@ -178,12 +167,10 @@ public class ActionAccount
     db.commitTrans();
 
     return (List<Tournament>) availableTourneys;
-
   }
 
   public String register (Broker b)
   {
-
     String tournamentName = b.getSelectedTourney();
     if (tournamentName == null || tournamentName == "") {
       return null;
@@ -210,12 +197,10 @@ public class ActionAccount
                 if (g.getNumBrokersRegistered() < g.getMaxBrokers()) {
                   System.out.println("Number registered: "
                                      + g.getNumBrokersRegistered());
-
                   g.addBroker(b.getBrokerId());
                 }
               }
             }
-
           }
         }
       }
@@ -239,5 +224,4 @@ public class ActionAccount
   {
     this.newBrokerShortDescription = newBrokerShortDescription;
   }
-
 }

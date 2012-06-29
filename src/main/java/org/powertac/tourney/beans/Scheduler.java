@@ -7,11 +7,6 @@ import org.powertac.tourney.services.*;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
-<<<<<<< HEAD
-=======
-import java.net.InetAddress;
-import java.net.UnknownHostException;
->>>>>>> 77ebc0bd960dacdfe7cb021d5c733107a0d83fb4
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -266,7 +261,6 @@ public class Scheduler
         }
       }
       gamesInTourney = finalGames;
-<<<<<<< HEAD
 
       if (gamesInTourney.size() == 0) {
         System.out.println("[INFO] Tournament is either complete or not "
@@ -293,34 +287,6 @@ public class Scheduler
           }
           AgentLet[] agentSet = games.get(s);
 
-=======
-
-      if (gamesInTourney.size() == 0) {
-        System.out.println("[INFO] Tournament is either complete or not "
-                           + "enough bootstraps are available");
-        return;
-      }
-      else {
-        System.out.println("[INFO] Games with boots available "
-                           + gamesInTourney.size());
-      }
-
-      if (!scheduler.equilibrium()) {
-        if (games.isEmpty()) {
-          System.out.println("[INFO] Acquiring new schedule...");
-          games = scheduler.Schedule();
-        }
-        System.out.println("[INFO] WatchDogTimer reports " + games.size()
-                           + " tournament game(s) are ready to start");
-
-        List<Server> servers = new ArrayList<Server>(games.keySet());
-        for (Server s: servers) {
-          if (gamesInTourney.size() == 0) {
-            break;
-          }
-          AgentLet[] agentSet = games.get(s);
-
->>>>>>> 77ebc0bd960dacdfe7cb021d5c733107a0d83fb4
           System.out.println("[INFO] Server " + s.getServerNumber() + " playing");
 
           for (AgentLet a: agentSet) {
@@ -368,11 +334,7 @@ public class Scheduler
                              + " Brokers: " + brokers);
 
           RunGame runGame = new RunGame(somegame.getGameId(),
-<<<<<<< HEAD
                                         Utils.getTourneyUrl(),
-=======
-                                        getTourneyUrl(),
->>>>>>> 77ebc0bd960dacdfe7cb021d5c733107a0d83fb4
                                         runningTournament.getPomUrl(),
                                         tournamentProperties.getProperty("destination"),
                                         m,
@@ -614,21 +576,4 @@ public class Scheduler
       System.out.println("Timer thread is null for game: " + gameId);
     }
   }
-<<<<<<< HEAD
 }
-=======
-
-  private String getTourneyUrl() {
-    String tourneyUrl = "http://%s:8080/TournamentScheduler/";
-    try {
-      InetAddress thisIp = InetAddress.getLocalHost();
-      tourneyUrl = String.format(tourneyUrl, thisIp.getHostAddress());
-    }
-    catch (UnknownHostException e2) {
-      e2.printStackTrace();
-    }
-
-    return tourneyUrl;
-  }
-}
->>>>>>> 77ebc0bd960dacdfe7cb021d5c733107a0d83fb4

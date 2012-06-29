@@ -155,7 +155,6 @@ public class Rest
           System.out.println(
               "[INFO] Setting game: " + gameId + " to boot-in-progress");
         }
-<<<<<<< HEAD
         catch (SQLException e) {
           db.abortTrans();
           e.printStackTrace();
@@ -172,42 +171,6 @@ public class Rest
           String fileUploadLocation = props.getProperty("fileUploadLocation");
           if (!fileUploadLocation.endsWith("/")) {
             fileUploadLocation += "/";
-=======
-        else if (statusString.equalsIgnoreCase("bootstrap-done")) {
-          System.out
-                  .println("[INFO] Recieved bootstrap done message from game: "
-                           + gameId);
-
-          String hostip = "http://";
-
-          try {
-            InetAddress thisIp = InetAddress.getLocalHost();
-            hostip += thisIp.getHostAddress() + ":8080";
-          }
-          catch (UnknownHostException e2) {
-            e2.printStackTrace();
-          }
-          Database db = new Database();
-          try {
-            db.startTrans();
-            db.updateGameBootstrapById(gameId,
-                                       hostip
-                                               + "/TournamentScheduler/faces/pom.jsp?location="
-                                               + props.getProperty("fileUploadLocation")
-                                               + gameId + "-boot.xml");
-            db.updateGameStatusById(gameId, "boot-complete");
-            System.out.println("[INFO] Setting game: " + gameId
-                               + " to boot-complete");
-
-            scheduler.bootrunning = false;
-            Game g = db.getGame(gameId);
-            db.setMachineStatus(g.getMachineId(), "idle");
-            db.commitTrans();
-          }
-          catch (Exception e) {
-            db.abortTrans();
-            e.printStackTrace();
->>>>>>> 77ebc0bd960dacdfe7cb021d5c733107a0d83fb4
           }
           String updateUrl = Utils.getTourneyUrl() + "faces/pom.jsp?location="
                              + fileUploadLocation + gameId + "-boot.xml";

@@ -1,18 +1,16 @@
 package org.powertac.tourney.services;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Properties;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.springframework.stereotype.Service;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 @Service("upload")
 public class Upload
@@ -23,7 +21,6 @@ public class Upload
 
   private UploadedFile uploadedFile;
   private String fileName;
-  private Properties prop = new Properties();
   private String uploadLocation = "/export/scratch/";
 
   // Actions
@@ -31,17 +28,8 @@ public class Upload
   public Upload ()
   {
     System.out.println("Instantiated Upload Service");
-    try {
-      prop.load(Database.class.getClassLoader()
-              .getResourceAsStream("/tournament.properties"));
-    }
-    catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    // System.out.println(prop);
-    // Database Connection related properties
-    this.setUploadLocation(prop.getProperty("fileUploadLocation"));
+    TournamentProperties properties = new TournamentProperties();
+    setUploadLocation(properties.getProperty("fileUploadLocation"));
   }
 
   public String submit (String name)

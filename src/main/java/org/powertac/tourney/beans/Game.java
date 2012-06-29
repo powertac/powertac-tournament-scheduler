@@ -1,5 +1,8 @@
 package org.powertac.tourney.beans;
 
+import org.powertac.tourney.services.Database;
+
+import javax.faces.bean.ManagedBean;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -7,10 +10,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
-
-import javax.faces.bean.ManagedBean;
-
-import org.powertac.tourney.services.Database;
 
 
 @ManagedBean
@@ -68,12 +67,7 @@ public class Game
 
   public Game ()
   {
-    // System.out.println("Created Game Bean: " + gameId);
-    // gameId = maxGameId;
-    // maxGameId++;
-
     brokersToLogin = new HashMap<String, String>();
-
   }
 
   public Game (ResultSet rs)
@@ -96,7 +90,6 @@ public class Game
       this.setBootstrapUrl(rs.getString("bootstrapUrl"));
       this.setPropertiesUrl(rs.getString("propertiesUrl"));
       this.setLocation(rs.getString("location"));
-      
     }
     catch (Exception e) {
       System.out.println("[ERROR] Error creating game from result set");
@@ -231,10 +224,6 @@ public class Game
     this.gameId = gameId;
   }
 
-  // public void addBrokerLogin(String brokerName, String authToken){
-  // brokersToLogin.put(authToken, brokerName);
-  // }
-
   public void addGameLogin (String gameToken)
   {
 
@@ -269,8 +258,6 @@ public class Game
 
     return ingame;
   }
-
-
 
   public String getTournamentSchedulerUrl ()
   {
@@ -381,5 +368,4 @@ public class Game
   {
     this.machineId = machineId;
   }
-
 }

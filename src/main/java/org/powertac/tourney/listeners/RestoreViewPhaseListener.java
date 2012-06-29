@@ -42,6 +42,10 @@ public class RestoreViewPhaseListener implements PhaseListener {
   }
 
   private void respond(PhaseEvent pe, String responseString) {
+    if (responseString.isEmpty()) {
+      return;
+    }
+
     HttpServletResponse response = (HttpServletResponse) pe.getFacesContext().
         getExternalContext().getResponse();
     response.setContentType("text/plain; charset=UTF-8");

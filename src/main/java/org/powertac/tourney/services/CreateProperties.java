@@ -1,12 +1,11 @@
 package org.powertac.tourney.services;
 
+import org.springframework.stereotype.Service;
+
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import org.springframework.stereotype.Service;
 
 @Service
 public class CreateProperties
