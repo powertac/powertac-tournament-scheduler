@@ -208,7 +208,7 @@ public class Rest
             db.startTrans();
             db.updateGameBootstrapById(gameId,
                                        hostip
-                                               + "/TournamentScheduler/faces/poms.jsp?location="
+                                               + "/TournamentScheduler/faces/pom.jsp?location="
                                                + props.getProperty("fileUploadLocation")
                                                + gameId + "-boot.xml");
             db.updateGameStatusById(gameId, "boot-complete");

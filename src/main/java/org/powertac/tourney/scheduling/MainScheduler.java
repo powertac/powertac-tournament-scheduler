@@ -1,35 +1,18 @@
 package org.powertac.tourney.scheduling;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-
-
-//import java.util.UUID;
+import java.util.HashMap;
 
 public class MainScheduler
 {
-
   private int noofagents;
-  private int noofservers;
-
   private DbConnection db;
-  
-  /*
-   * tells us about the balance between games played and those to be played.
-   */
-  // private ScoreBoard scoreboard;
-  /*
-   * tells which servers are free and occupied
-   */
   private ServerPanel serverpanel;
+
   /*
    * cube is the routing matrix based on IncidenceCube class
    */
-
   private GameCube scheduleMatrix;
 
   public MainScheduler (int agents, int ncopies, int nservers, int[] gtypes,
@@ -37,7 +20,6 @@ public class MainScheduler
   {
 
     noofagents = agents;
-    noofservers = nservers;
     db = new DbConnection();
     try {
       db.Setup();
@@ -47,8 +29,10 @@ public class MainScheduler
       E.printStackTrace();
       System.exit(1);
     }
+
+    // TODO Check if this is needed
     // might not be needed
-    InitServers(nservers);
+    //InitServers(nservers);
   }
 
   private void InitServers (int num)
@@ -75,14 +59,8 @@ public class MainScheduler
   public void initServerPanel (int n) throws Exception
   {
     serverpanel = new ServerPanel(db, n);
-    noofservers = n;
   }
 
-  /*
-   * public void initScoreBoard() {
-   * scoreboard = new ScoreBoard();
-   * }
-   */
   public int getGamesEstimate () throws Exception
   {
     /*
@@ -108,12 +86,6 @@ public class MainScheduler
     return games;
   }
 
-  /*
-   * public void initScoreBoard(int[] nplayers, int[] max) {
-   * scoreboard = new ScoreBoard(nplayers,max);
-   * }
-   */
-
   public HashMap<Server,AgentLet[]> Schedule () throws Exception
   {
     /*
@@ -130,15 +102,7 @@ public class MainScheduler
     Server[] slist;
     AgentLet[] agents;
     float repeatratio;
-    /*
-     * scoreboard is initialized using configuration file.
-     * 3/30 it is by variables set in the constructor
-     */
-    // scoreboard.print();
-    /*
-     * Load which servers are freed and occupied from status in the DB
-     * Assumes that servers are updating their availability into the database.
-     */
+
     navail = serverpanel.LoadServerPanelFromDB(db);
     available_server = serverpanel.getAvailableServer();
     HashMap<Server,AgentLet[]> gamesToStart = new HashMap<Server,AgentLet[]>();
@@ -166,15 +130,11 @@ public class MainScheduler
         serverpanel.publishBusy(available_server);
         gamesToStart.put(available_server, agents);
         
-        /* update score board */
-        // scoreboard.incrementScore(gametype);
         /* have some means to SEND selected Agents to the Server *** */
         nscheduleds++;
         printAgents(agents);
         iteration++;
         available_server = serverpanel.getAvailableServer();
-        // System.out.println("Disparity Flag: "+scoreboard.isDisparity()+" scheduled server number: "+available_server.getServerNumber());
-        //System.out.println("-----------");
       }
     }
     scheduleMatrix.clearLookAheads();
@@ -497,9 +457,6 @@ public class MainScheduler
     rs = db.SetQuery(sql_rearrange);
     i = 0;
     while (rs.next()) {
-      // rval = (int) Math.round(Math.random()*agents.length);
-      // values[i] = (int)
-      // Math.round(10*(rs.getDouble("cnt")/scoreboard.getMax(gtype)));
       values[i] = rs.getInt("cnt");
       atype[i] = rs.getInt("AgentType");
       i++;
@@ -513,7 +470,6 @@ public class MainScheduler
 
   public boolean equilibrium ()
   {
-    // scoreboard.print();
     return !(scheduleMatrix.getDisparity() > 0);
   }
 

@@ -2,7 +2,6 @@ package org.powertac.tourney.scheduling;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.lang.Math;
 import java.util.HashMap;
 
 class StartHere {
@@ -74,8 +73,6 @@ class StartHere {
 			currScheduler.remove(tmp);
 			
 			mainsch.resetServers(server);
-			
-			
 
 			iteration++;
 		}

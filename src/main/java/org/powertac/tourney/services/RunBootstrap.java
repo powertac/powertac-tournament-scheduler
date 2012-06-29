@@ -1,5 +1,7 @@
 package org.powertac.tourney.services;
 
+import org.powertac.tourney.beans.Machine;
+
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -8,22 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 
-import org.powertac.tourney.beans.Machine;
-import org.springframework.stereotype.Service;
-
 public class RunBootstrap extends TimerTask
 {
-
-  private String logSuffix = "boot-";// boot-game-" + game.getGameId() + "-tourney-"+
-  // game.getCompetitionName();
-  private String tourneyUrl = "";// game.getTournamentSchedulerUrl();
-  private String serverConfig = "";// game.getServerConfigUrl();
-  private String bootstrapUrl = "";// This needs to be empty for jenkins to run
-                                   // a
-  // bootstrapgame.getBootstrapUrl();
-  private String pomUrl = "";// game.getPomUrl();
-  private String gameId = "";// String.valueOf(game.getGameId());
-  private String brokers = "";
+  private String logSuffix = "boot-";   // boot-game-" + game.getGameId() + "-tourney-"+
+                                        // game.getCompetitionName();
+  private String tourneyUrl = "";       // game.getTournamentSchedulerUrl();
+  private String serverConfig = "";     // game.getServerConfigUrl();
+  private String bootstrapUrl = "";     // This needs to be empty for jenkins to run
+                                        // a bootstrapgame.getBootstrapUrl();
+  private String pomUrl = "";           // game.getPomUrl();
+  private String gameId = "";           // String.valueOf(game.getGameId());
   private String machineName = "";
   private String destination = "";
   private boolean usingMachine = false;
@@ -37,8 +33,7 @@ public class RunBootstrap extends TimerTask
     this.destination = destination;
 
     // Assumes Jenkins and TS live in the same location as per the install
-    this.serverConfig =
-      tourneyUrl + "/faces/properties.jsp?gameId=" + this.gameId;
+    this.serverConfig = tourneyUrl + "/faces/properties.jsp?gameId=" + gameId;
   }
 
   public RunBootstrap (int gameId, String tourneyUrl, String pomUrl,
@@ -52,14 +47,11 @@ public class RunBootstrap extends TimerTask
     this.usingMachine = true;
 
     // Assumes Jenkins and TS live in the same location as per the install
-    this.serverConfig =
-      tourneyUrl + "/faces/properties.jsp?gameId=" + this.gameId;
+    this.serverConfig = tourneyUrl + "/faces/properties.jsp?gameId=" + gameId;
   }
 
   private void checkMachineAvailable ()
   {
-
-    
       Database db = new Database();
       try {
         db.startTrans();
@@ -71,23 +63,25 @@ public class RunBootstrap extends TimerTask
           }
         }
         if (available.size() > 0) {
-
-          if(!usingMachine){
-            db.updateGameJmsUrlById(Integer.parseInt(gameId),"tcp://"+available.get(0).getName() +":61616");
-            db.updateGameMachine(Integer.parseInt(gameId), available.get(0).getMachineId());
+          if (!usingMachine) {
+            db.updateGameJmsUrlById(
+                Integer.parseInt(gameId),
+                "tcp://" + available.get(0).getName() + ":61616");
+            db.updateGameMachine(
+                Integer.parseInt(gameId),
+                available.get(0).getMachineId());
             db.setMachineStatus(available.get(0).getMachineId(), "running");
             this.machineName = available.get(0).getName();          
           }
-          
-          
-          System.out.println("Running boot " + gameId + " on machine "
-                             + this.machineName);
+          System.out.println("[INFO] Running boot " + gameId + " on machine "
+                             + machineName);
           db.commitTrans();
         }
         else {
           db.abortTrans();
-          System.out.println("No machines available to run scheduled boot: "
-                             + gameId + " ... will retry in 5 minutes");
+          System.out.println(
+              "[INFO] No machines available to run scheduled boot: "
+              + gameId + " ... will retry in 5 minutes");
           // Thread.sleep(300000);
           // this.run();
         }
@@ -100,11 +94,8 @@ public class RunBootstrap extends TimerTask
       }
     }
 
-  
-
   public void run ()
   {
-
     checkMachineAvailable();
 
     String finalUrl =
@@ -116,17 +107,18 @@ public class RunBootstrap extends TimerTask
               + "&machine=" + machineName + "&gameId=" + gameId
               + "&destination=" + destination;
 
+    System.out.println("[INFO] Final url: " + finalUrl);
+
     try {
       URL url = new URL(finalUrl);
       URLConnection conn = url.openConnection();
       // Get the response
       InputStream input = conn.getInputStream();
-      System.out.println("Jenkins request to bootstrap game: " + this.gameId);
-
+      System.out.println("[INFO] Jenkins request to bootstrap game: " + gameId);
     }
     catch (Exception e) {
       e.printStackTrace();
-      System.out.println("Jenkins failure to bootstrap game: " + this.gameId);
+      System.out.println("[INFO] Jenkins failure to bootstrap game: " + gameId);
       Database db = new Database();
       try {
         db.updateGameStatusById(Integer.parseInt(gameId), "boot-failed");

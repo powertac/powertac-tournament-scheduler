@@ -20,7 +20,6 @@ import org.powertac.tourney.beans.Machine;
 import org.powertac.tourney.beans.Scheduler;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.scheduling.MainScheduler;
-import org.powertac.tourney.scheduling.Server;
 import org.powertac.tourney.services.CreateProperties;
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.Upload;
@@ -32,15 +31,11 @@ import org.springframework.stereotype.Component;
 @Scope("session")
 public class ActionTournament
 {
-
   @Autowired
   private Upload upload;
 
   @Autowired
   private Scheduler scheduler;
-
-
- 
 
   public enum TourneyType {
     SINGLE_GAME, MULTI_GAME;
@@ -81,12 +76,10 @@ public class ActionTournament
 
   public ActionTournament ()
   {
-
     initTime.set(2009, 2, 3);
     fromTime.setTime(initTime.getTimeInMillis());
     initTime.set(2011, 2, 3);
     toTime.setTime(initTime.getTimeInMillis());
-
   }
 
   public void formType (ActionEvent event)
@@ -329,7 +322,6 @@ public class ActionTournament
       newTourney.setMaxBrokers(getMaxBrokers());
       newTourney.setStartTime(getStartTime());
       newTourney.setTournamentName(getTournamentName());
-     
 
       try {
         int tourneyId = 0;
@@ -372,9 +364,6 @@ public class ActionTournament
         db.abortTrans();
         e1.printStackTrace();
       }
-
-     
-
     }
     else if (type == TourneyType.MULTI_GAME) {
       
@@ -383,8 +372,6 @@ public class ActionTournament
       
       System.out.println("[INFO] Multigame tournament selected");
       
-     
-
       int noofagents = maxBrokers;
       int noofcopies = maxBrokerInstances;
       
@@ -398,28 +385,17 @@ public class ActionTournament
       mxs[1] = numberSize2;
       mxs[2] = numberSize3;
       
-     /*
-      Server[] serverlist;
-      int noofagents = 5;
-      int noofcopies = 2; 
-      int noofservers = 3;
-      int iteration = 1,num;
-      int[] gtypes = {2,3,4};
-      int[] mxs = {2,3,4};
-      int nservers;*/
       Database db2 = new Database();
       try{
-      db2.startTrans();
-      db2.truncateScheduler();
-      db2.commitTrans();
+        db2.startTrans();
+        db2.truncateScheduler();
+        db2.commitTrans();
       }catch(Exception e){
         db2.abortTrans();
         e.printStackTrace();
       }
 
       Database db = new Database();
-      
-      
       try {
         db.startTrans();
         int noofservers = db.getMachines().size();
@@ -429,7 +405,6 @@ public class ActionTournament
         gamescheduler.initServerPanel(noofservers);
         gamescheduler.initializeAgentsDB(noofagents, noofcopies);
         gamescheduler.initGameCube(gtypes, mxs);
-        
         
         int numberOfGames = gamescheduler.getGamesEstimate();
        
@@ -449,15 +424,13 @@ public class ActionTournament
           e2.printStackTrace();
         }
 
-
         newTourney.setPomUrl(hostip
                              + "/TournamentScheduler/faces/pom.jsp?location="
                              + newTourney.getPomName());
         newTourney.setMaxBrokers(getMaxBrokers());
         newTourney.setStartTime(getStartTime());
         newTourney.setTournamentName(getTournamentName());
-        
-        
+
         // Add the number of games to a new tournament
         // Starts new transaction to prevent race conditions
         System.out.println("[INFO] Starting transaction");
@@ -498,28 +471,18 @@ public class ActionTournament
         .addMessage("Tournament",
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                                      "Number of games in tournament: " + numberOfGames, null));
-        
-
       }
       catch (Exception e) {
         db.abortTrans();
         System.out.println("[ERROR] Scheduling exception!");
         e.printStackTrace();
       }
-
-
     }
     else {
-      
       //WHat?
-
     }
     
-    
-
-   
     return "Success";
-
   }
 
   public List<Database.Pom> getPomList ()

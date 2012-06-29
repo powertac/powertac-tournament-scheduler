@@ -7,11 +7,11 @@
 	xmlns:h="http://java.sun.com/jsf/html">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title>Pom Interface</title>
+  <title>Boot Interface</title>
 </head>
 <body>
   <f:view>
-    <h2>Page for server to get the pom files with the Tournament Scheduler</h2>
+    <h2>Page for server to get the boot files from the Tournament Scheduler</h2>
   </f:view>
 </body>
 </html>
