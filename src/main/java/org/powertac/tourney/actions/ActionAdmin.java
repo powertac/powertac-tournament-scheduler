@@ -2,23 +2,16 @@ package org.powertac.tourney.actions;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.powertac.tourney.beans.*;
-import org.powertac.tourney.services.Database;
-import org.powertac.tourney.services.RunBootstrap;
-import org.powertac.tourney.services.RunGame;
-import org.powertac.tourney.services.Upload;
+import org.powertac.tourney.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.context.FacesContext;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 @Component("actionAdmin")
 @Scope("request")
@@ -63,20 +56,12 @@ public class ActionAdmin
 
   private UploadedFile pom;
   private String pomName;
-  private Properties props = new Properties();
+  private TournamentProperties properties = new TournamentProperties();
 
   private String message = "";
 
   public ActionAdmin ()
   {
-    try {
-      props.load(Database.class.getClassLoader()
-              .getResourceAsStream("/tournament.properties"));
-    }
-    catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
   }
   
   public List<Game> getGameList()
@@ -101,11 +86,12 @@ public class ActionAdmin
     List<User> users = new ArrayList<User>();
     
     Database db = new Database();
-    try{
+    try {
       db.startTrans();
       users = db.getAllUsers();
       db.commitTrans();
-    }catch (SQLException e){
+    }
+    catch (SQLException e){
       db.abortTrans();
       e.printStackTrace();
     }
@@ -385,25 +371,24 @@ public class ActionAdmin
         g.getStatus().equalsIgnoreCase("boot-in-progress") ) {
       System.out.println("[INFO] Attempting to restart bootstrap " + gameId);
       scheduler.deleteBootTimer(gameId);
-      scheduler.runBootTimer(gameId,
-                             new RunBootstrap(gameId,
-                                              getTourneyUrl(),
-                                              t.getPomUrl(),
-                                              props.getProperty("destination")),
-                                              new Date());
+
+      RunBootstrap runBootstrap = new RunBootstrap(gameId,
+                                                   Utils.getTourneyUrl(),
+                                                   t.getPomUrl(),
+                                                   properties.getProperty("destination"));
+      scheduler.runBootTimer(gameId, runBootstrap, new Date());
     }
     else if (g.getStatus().equalsIgnoreCase("game-failed") ||
              g.getStatus().equalsIgnoreCase("game-pending") ||
             g.getStatus().equalsIgnoreCase("boot-complete") ) {
       System.out.println("[INFO] Attempting to restart sim " + gameId);
       scheduler.deleteSimTimer(gameId);
-      scheduler.runSimTimer(gameId,
-                            new RunGame(gameId,
-                                        getTourneyUrl(),
-                                        t.getPomUrl(),
-                                        props.getProperty("destination")),
-                                        new Date());
 
+      RunGame runGame = new RunGame(gameId,
+                                    Utils.getTourneyUrl(),
+                                    t.getPomUrl(),
+                                    properties.getProperty("destination"));
+      scheduler.runSimTimer(gameId, runGame, new Date());
     }
   }
 
@@ -691,18 +676,5 @@ public class ActionAdmin
   public void setRowCountGames (int rowCountGames)
   {
     this.rowCountGames = rowCountGames;
-  }
-
-  private String getTourneyUrl() {
-    String tourneyUrl = "http://%s:8080/TournamentScheduler/";
-    try {
-      InetAddress thisIp = InetAddress.getLocalHost();
-      tourneyUrl = String.format(tourneyUrl, thisIp.getHostAddress());
-    }
-    catch (UnknownHostException e2) {
-      e2.printStackTrace();
-    }
-
-    return tourneyUrl;
   }
 }

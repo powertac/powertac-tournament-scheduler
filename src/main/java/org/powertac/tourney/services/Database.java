@@ -1,39 +1,23 @@
 package org.powertac.tourney.services;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-
-
 import org.apache.commons.codec.digest.DigestUtils;
-import org.powertac.tourney.beans.Broker;
-import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Location;
-import org.powertac.tourney.beans.Machine;
-import org.powertac.tourney.beans.Tournament;
+import org.powertac.tourney.beans.*;
 import org.powertac.tourney.constants.Constants;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Date;
 
 @Component("database")
 @Scope("request")
 public class Database
 {
-  // Database User container
-  
-  private TournamentProperties tournamentProps;
-
+  /*
+   * Database User container
+   */
   public class User
   {
     private String username;
@@ -123,15 +107,13 @@ public class Database
   public Database ()
   {
     // Database Connection related properties
-    tournamentProps = (TournamentProperties) SpringApplicationContext.getBean("tournamentProperties");
-    this.setDatabase(tournamentProps.getProperty("db.database"));
-    this.setDbms(tournamentProps.getProperty("db.dbms"));
-    this.setPort(tournamentProps.getProperty("db.port"));
-    this.setDbUrl(tournamentProps.getProperty("db.dbUrl"));
-    this.setUsername(tournamentProps.getProperty("db.username"));
-    this.setPassword(tournamentProps.getProperty("db.password"));
-
-    // System.out.println("Successfully instantiated Database bean!");
+    TournamentProperties properties = new TournamentProperties();
+    this.setDatabase(properties.getProperty("db.database"));
+    this.setDbms(properties.getProperty("db.dbms"));
+    this.setPort(properties.getProperty("db.port"));
+    this.setDbUrl(properties.getProperty("db.dbUrl"));
+    this.setUsername(properties.getProperty("db.username"));
+    this.setPassword(properties.getProperty("db.password"));
   }
 
   // TODO: Strategy Object find the correct dbms by reflection and call its
@@ -149,12 +131,10 @@ public class Database
             connectionProps.setProperty("password", this.password);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             conn =
-              DriverManager.getConnection("jdbc:" + this.dbms + "://"
-                                                  + this.dbUrl + "/"
-                                                  + this.database,
+              DriverManager.getConnection("jdbc:" + dbms + "://"
+                                                  + dbUrl + "/"
+                                                  + database,
                                           connectionProps);
-
-            // System.out.println("Connected Successfully");
           }
           catch (Exception e) {
             System.out.println("Connection Error");
@@ -162,7 +142,7 @@ public class Database
           }
         }
         else {
-          System.out.println("DBMS: " + this.dbms + " is not supported");
+          System.out.println("DBMS: " + dbms + " is not supported");
         }
       }
       else {
@@ -366,13 +346,10 @@ public class Database
 
   public List<String> getProperties (int gameId) throws SQLException
   {
-    
     List<String> props = new ArrayList<String>();
 
-    
     PreparedStatement selectPropsById =
         conn.prepareStatement(Constants.SELECT_PROPERTIES_BY_ID);
-    
 
     selectPropsById.setInt(1, gameId);
 
@@ -388,14 +365,11 @@ public class Database
     selectPropsById.close();
 
     return props;
-
   }
 
   public int addProperties (int gameId, String locationKV, String startTimeKV)
     throws SQLException
   {
-    
-
     PreparedStatement addPropsById =
       conn.prepareStatement(Constants.ADD_PROPERTIES);
 
@@ -465,7 +439,6 @@ public class Database
     {
       this.uploadingUser = uploadingUser;
     }
-
   }
 
   public List<Pom> getPoms () throws SQLException
@@ -489,7 +462,6 @@ public class Database
     selectPoms.close();
 
     return poms;
-
   }
 
   public int addTournament (String tourneyName, boolean openRegistration,
@@ -498,7 +470,6 @@ public class Database
                             int[] gameSizes, int[] numGames)
     throws SQLException
   {
-    
     java.text.SimpleDateFormat sdf =
             new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
@@ -520,7 +491,6 @@ public class Database
     addTournament.setInt(14, numGames[2]);
     
     return addTournament.executeUpdate();
-
   }
 
   public List<Tournament> getTournaments (String status) throws SQLException
@@ -542,13 +512,11 @@ public class Database
     selectAllTournaments.close();
     rsTs.close();
     
-
     return ts;
   }
 
   public Tournament getTournamentById (int tourneyId) throws SQLException
   {
-    
     Tournament ts = new Tournament();
     PreparedStatement selectTournament =
       conn.prepareStatement(Constants.SELECT_TOURNAMENT_BYID);
@@ -586,7 +554,6 @@ public class Database
 
     selectTournament.close();
     rsTs.close();
-    
 
     return ts;
   }
@@ -610,14 +577,11 @@ public class Database
     selectTournament.close();
     rsTs.close();
     
-    
-    
     return ts;
   }
 
   public List<Game> getGamesInTourney (int tourneyId) throws SQLException
   {
-    
     List<Game> gs = new ArrayList<Game>();
     PreparedStatement selectAllGames =
       conn.prepareStatement(Constants.SELECT_GAMES_IN_TOURNEY);
@@ -638,7 +602,6 @@ public class Database
 
   public int updateTournamentStatus (int tourneyId) throws SQLException
   {
-    
     PreparedStatement updateStatus =
       conn.prepareStatement(Constants.UPDATE_TOURNAMENT_STATUS_BYID);
     updateStatus.setString(1, "in-progress");
@@ -659,7 +622,6 @@ public class Database
 
   public int unregisterBroker (int tourneyId, int brokerId) throws SQLException
   {
-    
     PreparedStatement register =
       conn.prepareStatement(Constants.UNREGISTER_BROKER);
     register.setInt(1, tourneyId);
@@ -669,7 +631,6 @@ public class Database
 
   public boolean isRegistered (int tourneyId, int brokerId) throws SQLException
   {
-    
     PreparedStatement register = conn.prepareStatement(Constants.REGISTERED);
     register.setInt(1, tourneyId);
     register.setInt(2, brokerId);
@@ -687,7 +648,6 @@ public class Database
 
   public int getMaxGameId () throws SQLException
   {
-    
     int id = 0;
     PreparedStatement selectMaxId =
       conn.prepareStatement(Constants.SELECT_MAX_GAMEID);
@@ -701,12 +661,10 @@ public class Database
     rsId.close();
 
     return id;
-
   }
 
   public int getMaxTourneyId () throws SQLException
   {
-    
     int id = 0;
     PreparedStatement selectMaxId =
       conn.prepareStatement(Constants.SELECT_MAX_TOURNAMENTID);
@@ -724,7 +682,6 @@ public class Database
 
   public List<Broker> getBrokersRegistered (int tourneyId) throws SQLException
   {
-    
     List<Broker> result = new ArrayList<Broker>();
 
     PreparedStatement selectBrokers =
@@ -751,7 +708,6 @@ public class Database
 
   public int getNumberBrokersRegistered (int tourneyId) throws SQLException
   {
-    
     int result = 0;
 
     PreparedStatement selectBrokers =
@@ -768,12 +724,10 @@ public class Database
     selectBrokers.close();
 
     return result;
-
   }
 
   public List<Game> getGames () throws SQLException
   {
-    
     List<Game> gs = new ArrayList<Game>();
     PreparedStatement selectAllGames =
       conn.prepareStatement(Constants.SELECT_GAME);
@@ -793,7 +747,6 @@ public class Database
   
   public List<Game> getCompleteGames () throws SQLException
   {
-    
     List<Game> gs = new ArrayList<Game>();
     PreparedStatement selectAllGames =
       conn.prepareStatement(Constants.SELECT_COMPLETE_GAMES);
@@ -813,7 +766,6 @@ public class Database
 
   public List<Game> getStartableGames (int excludedTourneyId) throws SQLException
   {
-    
     List<Game> games = new ArrayList<Game>();
 
     PreparedStatement getGames =
@@ -835,16 +787,13 @@ public class Database
     //conn.close();
 
     return games;
-
   }
   public List<Game> getStartableGames () throws SQLException
   {
-    
     List<Game> games = new ArrayList<Game>();
 
     PreparedStatement getGames =
       conn.prepareStatement(Constants.GET_RUNNABLE_GAMES);
-    
 
     ResultSet rsGs = getGames.executeQuery();
 
@@ -854,16 +803,12 @@ public class Database
       games.add(tmp);
     }
     
-
     rsGs.close();
     getGames.close();
     //conn.close();
 
     return games;
-
   }
-  
- 
   
   public class Server{
     private int serverNumber = 0;
@@ -923,7 +868,7 @@ public class Database
     }
   }
   
-  public List<Server> getServers() throws SQLException{
+  public List<Server> getServers() throws SQLException {
     List<Server> servers = new ArrayList<Server>();
     
     PreparedStatement gservers = conn.prepareStatement(Constants.SELECT_SERVERS);
@@ -935,10 +880,9 @@ public class Database
     }
     
     return servers;
-    
   }
   
-  public List<Agent> getAgents() throws SQLException{
+  public List<Agent> getAgents() throws SQLException {
     List<Agent> agents = new ArrayList<Agent>();
     PreparedStatement gagents = conn.prepareStatement("SELECT DISTINCT AgentType FROM tourney.AgentAdmin;"); 
     
@@ -951,11 +895,8 @@ public class Database
     return agents;
   }
   
-  
-  
   public List<Game> getBootableGames () throws SQLException
   {
-    
     List<Game> games = new ArrayList<Game>();
 
     PreparedStatement getGames =
@@ -968,14 +909,12 @@ public class Database
       Game tmp = new Game(rsGs);
       games.add(tmp);
     }
-    
 
     rsGs.close();
     getGames.close();
     //conn.close();
 
     return games;
-
   }
 
   public List<Game> getWaitingGames () throws SQLException
@@ -1035,7 +974,6 @@ public class Database
 
     }
     
-    
     selectAllGames.close();
     rsGs.close();
     
@@ -1044,7 +982,6 @@ public class Database
 
   public int addBrokerToGame (int gameId, Broker b) throws SQLException
   {
-    
     PreparedStatement addBrokerToGame =
       conn.prepareStatement(Constants.ADD_BROKER_TO_GAME);
 
@@ -1056,11 +993,8 @@ public class Database
     return addBrokerToGame.executeUpdate();
   }
   
-  
-
   public List<Broker> getBrokersInGame (int gameId) throws SQLException
   {
-    
     List<Broker> brokers = new ArrayList<Broker>();
     PreparedStatement getBrokers =
       conn.prepareStatement(Constants.GET_BROKERS_INGAME);
@@ -1088,7 +1022,6 @@ public class Database
   public List<Broker> getBrokersInTournament (int tourneyId)
     throws SQLException
   {
-    
     List<Broker> brokers = new ArrayList<Broker>();
     PreparedStatement getBrokers =
       conn.prepareStatement(Constants.GET_BROKERS_INTOURNAMENT);
@@ -1115,16 +1048,12 @@ public class Database
 
   public boolean isGameReady (int gameId) throws SQLException
   {
-    
-
     PreparedStatement hasBootstrap =
       conn.prepareStatement(Constants.GAME_READY);
-
     hasBootstrap.setInt(1, gameId);
-
     ResultSet rs = hasBootstrap.executeQuery();
 
-    boolean result = false; // fail on
+    boolean result = false;
     if (rs.next()) {
       result = rs.getBoolean("ready");
     }
@@ -1138,7 +1067,6 @@ public class Database
   public int updateGameStatusById (int gameId, String status)
     throws SQLException
   {
-    
     PreparedStatement updateGame = conn.prepareStatement(Constants.UPDATE_GAME);
 
     updateGame.setInt(2, gameId);
@@ -1149,7 +1077,6 @@ public class Database
 
   public int updateGameMachine (int gameId, int machineId) throws SQLException
   {
-    
     PreparedStatement updateGame =
       conn.prepareStatement(Constants.UPDATE_GAME_MACHINE);
 
@@ -1161,7 +1088,6 @@ public class Database
 
   public int updateGameFreeMachine (int gameId) throws SQLException
   {
-    
     PreparedStatement updateGame =
       conn.prepareStatement(Constants.UPDATE_GAME_FREE_MACHINE);
 
@@ -1172,7 +1098,6 @@ public class Database
 
   public int updateGameFreeBrokers (int gameId) throws SQLException
   {
-    
     PreparedStatement updateGame =
       conn.prepareStatement(Constants.UPDATE_GAME_FREE_BROKERS);
 
@@ -1184,7 +1109,6 @@ public class Database
   public int updateGameJmsUrlById (int gameId, String jmsUrl)
     throws SQLException
   {
-    
     PreparedStatement updateGame =
       conn.prepareStatement(Constants.UPDATE_GAME_JMSURL);
 
@@ -1197,7 +1121,6 @@ public class Database
   public int updateGameBootstrapById (int gameId, String bootstrapUrl)
     throws SQLException
   {
-    
     PreparedStatement updateBoot =
       conn.prepareStatement(Constants.UPDATE_GAME_BOOTSTRAP);
 
@@ -1209,23 +1132,11 @@ public class Database
 
   public int updateGamePropertiesById (int gameId) throws SQLException
   {
-    
     PreparedStatement updateProps =
       conn.prepareStatement(Constants.UPDATE_GAME_PROPERTIES);
 
-    String hostip = "http://";
-
-    try {
-      InetAddress thisIp = InetAddress.getLocalHost();
-      hostip += thisIp.getHostAddress() + ":8080";
-    }
-    catch (UnknownHostException e2) {
-      e2.printStackTrace();
-    }
-
     updateProps
-            .setString(1, hostip
-                          + "/TournamentScheduler/faces/properties.jsp?gameId="
+            .setString(1, Utils.getTourneyUrl() + "faces/properties.jsp?gameId="
                           + String.valueOf(gameId));
     updateProps.setInt(2, gameId);
 
@@ -1234,7 +1145,6 @@ public class Database
 
   public int updateGameViz (int gameId, String vizUrl) throws SQLException
   {
-    
     PreparedStatement updateViz =
       conn.prepareStatement(Constants.UPDATE_GAME_VIZ);
 
@@ -1291,7 +1201,6 @@ public class Database
     updateMachine.setInt(2, machineId);
 
     return updateMachine.executeUpdate();
-
   }
 
   public int setMachineStatus (int machineId, String status)
@@ -1304,7 +1213,6 @@ public class Database
     updateMachine.setInt(2, machineId);
 
     return updateMachine.executeUpdate();
-
   }
 
   public int addMachine (String machineName, String machineUrl,
@@ -1325,7 +1233,8 @@ public class Database
           				  int machineId)
     throws SQLException
   {
-    PreparedStatement editMachine = conn.prepareStatement(Constants.EDIT_MACHINE);
+    PreparedStatement editMachine =
+      conn.prepareStatement(Constants.EDIT_MACHINE);
     editMachine.setString(1, machineName);
     editMachine.setString(2, machineUrl);
     editMachine.setString(3, visualizerUrl);
@@ -1386,7 +1295,6 @@ public class Database
   public int addLocation (String location, Date newLocationStartTime,
                           Date newLocationEndTime) throws SQLException
   {
-    
     PreparedStatement addLocations =
       conn.prepareStatement(Constants.ADD_LOCATION);
     addLocations.setString(1, location);
@@ -1470,8 +1378,8 @@ public class Database
       se.printStackTrace();
     }
     return 0;
-
   }
+
   public int truncateScheduler() throws SQLException
   {
     PreparedStatement trunc = conn.prepareStatement("DELETE FROM AgentAdmin;");
@@ -1568,5 +1476,4 @@ public class Database
   {
     this.dbms = dbms;
   }
-
 }
