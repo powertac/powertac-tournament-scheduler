@@ -1,5 +1,9 @@
 package org.powertac.tourney.services;
 
+import org.powertac.tourney.beans.Broker;
+import org.powertac.tourney.beans.Game;
+import org.powertac.tourney.beans.Machine;
+
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -8,28 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 
-import org.powertac.tourney.beans.Broker;
-import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Machine;
-
 public class RunGame extends TimerTask
 {
+  private Machine machine;
 
-  private int registerRetry = 8;
-  private int bootstrapRetry = 100;
   private boolean running = false;
   private boolean tourney = false;
 
-  private Machine machine;
-  
-  String logSuffix = "sim-";// boot-game-" + game.getGameId() + "-tourney-"+
-  // game.getCompetitionName();
-  String tourneyUrl = "";// game.getTournamentSchedulerUrl();
-  String serverConfig = "";// game.getServerConfigUrl();
-  String bootstrapUrl = "sim";// This needs to be empty for jenkins to run a
-  // bootstrapgame.getBootstrapUrl();
-  String pomUrl = "";// game.getPomUrl();
-  String gameId = "";// String.valueOf(game.getGameId());
+  String logSuffix = "sim-";    // boot-game-" + game.getGameId() + "-tourney-"+
+                                // game.getCompetitionName();
+  String tourneyUrl = "";       // game.getTournamentSchedulerUrl();
+  String serverConfig = "";     // game.getServerConfigUrl();
+  String bootstrapUrl = "sim";  // This needs to be empty for jenkins to run a
+                                // bootstrapgame.getBootstrapUrl();
+  String pomUrl = "";           // game.getPomUrl();
+  String gameId = "";           // String.valueOf(game.getGameId());
   String brokers = "";
   String machineName = "";
   String destination = "";
@@ -45,7 +42,7 @@ public class RunGame extends TimerTask
 
     // Assumes Jenkins and TS live in the same location as per the install
     this.serverConfig =
-      tourneyUrl + "faces/properties.jsp?gameId=" + this.gameId;
+        tourneyUrl + "faces/properties.jsp?gameId=" + this.gameId;
   }
 
   public RunGame (int gameId, String tourneyUrl, String pomUrl,
@@ -53,7 +50,7 @@ public class RunGame extends TimerTask
   {
     this.gameId = String.valueOf(gameId);
     this.bootstrapUrl =
-      tourneyUrl + "/faces/pom.jsp?location=" + gameId + "-boot.xml";
+        tourneyUrl + "/faces/pom.jsp?location=" + gameId + "-boot.xml";
     this.tourneyUrl = tourneyUrl;
     this.pomUrl = pomUrl;
     this.destination = destination;
@@ -63,7 +60,7 @@ public class RunGame extends TimerTask
     this.machine = machine;
     // Assumes Jenkins and TS live in the same location as per the install
     this.serverConfig =
-      tourneyUrl + "faces/properties.jsp?gameId=" + this.gameId;
+        tourneyUrl + "faces/properties.jsp?gameId=" + this.gameId;
   }
 
   /***
@@ -81,7 +78,6 @@ public class RunGame extends TimerTask
             this.bootstrapUrl =
               tourneyUrl + "/faces/pom.jsp?location=" + gameId + "-boot.xml";
             try {
-
               db.updateGameStatusById(Integer.parseInt(gameId), "game-pending");
               db.commitTrans();
             }
@@ -94,7 +90,6 @@ public class RunGame extends TimerTask
           else {
             System.out.println("Game: " + gameId
                                + " reports that bootstrap is not ready!");
-
           }
         }
         catch (NumberFormatException e) {
@@ -125,12 +120,12 @@ public class RunGame extends TimerTask
           db.startTrans();
           Game g = db.getGame(gId);
 
-          int numRegistered = 0;
-          if ((numRegistered = db.getNumberBrokersRegistered(g.getTourneyId())) < 1) {
+          int numRegistered = db.getNumberBrokersRegistered(g.getTourneyId());
+          if (numRegistered < 1) {
             System.out.println("TourneyId: " + g.getTourneyId());
-            System.out
-                    .println("No brokers registered for tournament waiting to start game "
-                             + g.getGameId());
+            System.out.println(
+                "No brokers registered for tournament waiting to start game "
+                + g.getGameId());
             db.updateGameStatusById(Integer.parseInt(gameId), "boot-complete");
             db.commitTrans();
             this.cancel();
@@ -138,10 +133,9 @@ public class RunGame extends TimerTask
 
           }
           else {
-            System.out
-                    .println("There are "
-                             + numRegistered
-                             + " brokers registered for tournament... starting sim");
+            System.out.println("There are "
+                + numRegistered
+                + " brokers registered for tournament... starting sim");
             this.brokers = "";
 
             List<Broker> brokerList =
@@ -153,19 +147,16 @@ public class RunGame extends TimerTask
             this.brokers = this.brokers.substring(0, lastIndex - 1);
 
             if (brokerList.size() < 1) {
-              System.out
-                      .println("Error no brokers listed in database for gameId: "
-                               + gameId);
+              System.out.println(
+                  "Error no brokers listed in database for gameId: " + gameId);
               this.cancel();
               db.abortTrans();
               return false;
               // System.exit(0);
             }
-
           }
 
           db.commitTrans();
-
         }
         catch (SQLException e) {
           db.abortTrans();
@@ -173,7 +164,6 @@ public class RunGame extends TimerTask
           // System.exit(0);
           e.printStackTrace();
         }
-
       }
     }
     return true;
@@ -181,7 +171,6 @@ public class RunGame extends TimerTask
 
   private void checkMachineAvailable ()
   {
-
     if (!tourney) {
       Database db = new Database();
       if (!running) {
@@ -195,22 +184,19 @@ public class RunGame extends TimerTask
             }
           }
           if (available.size() > 0) {
-
-            db.updateGameJmsUrlById(Integer.parseInt(gameId), "tcp://"
-                                                              + available
-                                                                      .get(0)
-                                                                      .getUrl()
-                                                              + ":61616");
-            db.updateProperties(Integer.parseInt(gameId), "tcp://"
-                                                          + available.get(0)
-                                                                  .getUrl()
-                                                          + ":61616", available
-                    .get(0).getVizQueue());
-            db.updateGameMachine(Integer.parseInt(gameId), available.get(0)
-                    .getMachineId());
-            db.updateGameViz(Integer.parseInt(gameId), "http://"
-                                                       + available.get(0)
-                                                               .getVizUrl());
+            db.updateGameJmsUrlById(
+                Integer.parseInt(gameId),
+                "tcp://" + available.get(0).getUrl() + ":61616");
+            db.updateProperties(
+                Integer.parseInt(gameId),
+                "tcp://" + available.get(0).getUrl() + ":61616",
+                available.get(0).getVizQueue());
+            db.updateGameMachine(
+                Integer.parseInt(gameId),
+                available.get(0).getMachineId());
+            db.updateGameViz(
+                Integer.parseInt(gameId),
+                "http://"+ available.get(0).getVizUrl());
 
             db.setMachineStatus(available.get(0).getMachineId(), "running");
             this.machineName = available.get(0).getName();
@@ -238,7 +224,6 @@ public class RunGame extends TimerTask
     else {
       Database db = new Database();
       try {
-
         db.startTrans();
         db.updateGameJmsUrlById(Integer.parseInt(gameId), "tcp://"+ machine.getUrl()      
                                                           + ":61616");
@@ -259,7 +244,6 @@ public class RunGame extends TimerTask
         e.printStackTrace();
       }
     }
-
   }
 
   @Override
@@ -283,15 +267,15 @@ public class RunGame extends TimerTask
               + brokers + "&machine=" + machineName + "&gameId=" + gameId
               + "&destination=" + destination;
 
+    System.out.println("{INFO] Final url: " + finalUrl);
+
     try {
       if (!running) {
         URL url = new URL(finalUrl);
         URLConnection conn = url.openConnection();
         // Get the response
         InputStream input = conn.getInputStream();
-        System.out.println("Jenkins request to start simulation game: "
-                           + this.gameId);
-        System.out.println("Final url: " + finalUrl);
+        System.out.println("Jenkins request to start sim game: " + gameId);
         this.running = true;
       }
       else {
@@ -302,8 +286,7 @@ public class RunGame extends TimerTask
     }
     catch (Exception e) {
       e.printStackTrace();
-      System.out.println("Jenkins failure to start simulation game: "
-                         + this.gameId);
+      System.out.println("Jenkins failure to start simulation game: " + gameId);
     }
   }
 }

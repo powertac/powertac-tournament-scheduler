@@ -5,18 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html">
-
-
 <head>
-
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-
-<title>Server Interface</title>
-<h2>Page for server to interface with the Tournament Scheduler</h2>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>Server Interface</title>
 </head>
 <body>
-<f:view>
-
-</f:view>
+  <f:view>
+    <h2>Page for server to interface with the Tournament Scheduler</h2>
+  </f:view>
 </body>
 </html>

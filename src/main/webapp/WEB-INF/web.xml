@@ -120,7 +120,7 @@
                         1g  - 1 GB
         </description>
       <param-name>uploadMaxFileSize</param-name>
-      <param-value>100k</param-value>
+      <param-value>100m</param-value>
     </init-param>
     <init-param>
       <description>
