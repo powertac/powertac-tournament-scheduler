@@ -48,7 +48,7 @@ public class RunBootstrap extends TimerTask
     this.usingMachine = true;
 
     // Assumes Jenkins and TS live in the same location as per the install
-    serverConfig = tourneyUrl + "/faces/properties.jsp?gameId=" + gameId;
+    this.serverConfig = tourneyUrl + "/faces/properties.jsp?gameId=" + gameId;
   }
 
   private void checkMachineAvailable ()

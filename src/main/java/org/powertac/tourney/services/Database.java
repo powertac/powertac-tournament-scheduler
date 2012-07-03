@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
 
@@ -15,79 +14,6 @@ import java.util.Date;
 @Scope("request")
 public class Database
 {
-  /*
-   * Database User container
-   */
-  public class User
-  {
-    private String username;
-    private String password;
-    private int permission;
-    private String salt;
-    private String id;
-    private String info;
-
-    public String getUsername ()
-    {
-      return username;
-    }
-
-    public void setUsername (String username)
-    {
-      this.username = username;
-    }
-
-    public String getPassword ()
-    {
-      return password;
-    }
-
-    public void setPassword (String password)
-    {
-      this.password = password;
-    }
-
-    public String getSalt ()
-    {
-      return salt;
-    }
-
-    public void setSalt (String salt)
-    {
-      this.salt = salt;
-    }
-
-    public String getId ()
-    {
-      return id;
-    }
-
-    public void setId (String id)
-    {
-      this.id = id;
-    }
-
-    public String getInfo ()
-    {
-      return info;
-    }
-
-    public void setInfo (String info)
-    {
-      this.info = info;
-    }
-
-    public int getPermission ()
-    {
-      return permission;
-    }
-
-    public void setPermission (int permission)
-    {
-      this.permission = permission;
-    }
-  }
-
   // Connection Related
   private String dbUrl = "";
   private String database = "";
@@ -99,21 +25,18 @@ public class Database
   // Database Configurations
   private Connection conn = null;
 
-  SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-  Properties connectionProps = new Properties();
-  //Properties prop = new Properties();
+  private Properties connectionProps = new Properties();
 
   public Database ()
   {
     // Database Connection related properties
     TournamentProperties properties = new TournamentProperties();
-    this.setDatabase(properties.getProperty("db.database"));
-    this.setDbms(properties.getProperty("db.dbms"));
-    this.setPort(properties.getProperty("db.port"));
-    this.setDbUrl(properties.getProperty("db.dbUrl"));
-    this.setUsername(properties.getProperty("db.username"));
-    this.setPassword(properties.getProperty("db.password"));
+    database = properties.getProperty("db.database");
+    dbms = properties.getProperty("db.dbms");
+    port = properties.getProperty("db.port");
+    dbUrl = properties.getProperty("db.dbUrl");
+    username = properties.getProperty("db.username");
+    password = properties.getProperty("db.password");
   }
 
   // TODO: Strategy Object find the correct dbms by reflection and call its
@@ -121,14 +44,13 @@ public class Database
   private void checkDb ()
   {
     try {
-
       if (conn == null || conn.isClosed()) {
         // System.out.println("Connection is null");
         if (this.dbms.equalsIgnoreCase("mysql")) {
           // System.out.println("Using mysql as dbms ...");
           try {
-            connectionProps.setProperty("user", this.username);
-            connectionProps.setProperty("password", this.password);
+            connectionProps.setProperty("user", username);
+            connectionProps.setProperty("password", password);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             conn =
               DriverManager.getConnection("jdbc:" + dbms + "://"
@@ -157,12 +79,9 @@ public class Database
 
   public List<org.powertac.tourney.beans.User> getAllUsers () throws SQLException
   {
-    
     List<org.powertac.tourney.beans.User> users = new ArrayList<org.powertac.tourney.beans.User>();
 
-   
     PreparedStatement selectUsersStatement = conn.prepareStatement(Constants.SELECT_USERS);
-    
 
     ResultSet rsUsers = selectUsersStatement.executeQuery();
     while (rsUsers.next()) {
@@ -306,8 +225,6 @@ public class Database
                                      String brokerAuth, String brokerShort)
     throws SQLException
   {
-    
-
     PreparedStatement updateBrokerById =
         conn.prepareStatement(Constants.UPDATE_BROKER_BY_BROKERID);
     
@@ -321,7 +238,6 @@ public class Database
 
   public Broker getBroker (int brokerId) throws SQLException
   {
-    
     Broker broker = new Broker("new");
 
     PreparedStatement selectBrokerByBrokerId =
@@ -404,43 +320,6 @@ public class Database
     return addPom.executeUpdate();
   }
 
-  public class Pom
-  {
-    private String name;
-    private String location;
-    private String uploadingUser;
-
-    public String getName ()
-    {
-      return name;
-    }
-
-    public void setName (String name)
-    {
-      this.name = name;
-    }
-
-    public String getLocation ()
-    {
-      return location;
-    }
-
-    public void setLocation (String location)
-    {
-      this.location = location;
-    }
-
-    public String getUploadingUser ()
-    {
-      return uploadingUser;
-    }
-
-    public void setUploadingUser (String uploadingUser)
-    {
-      this.uploadingUser = uploadingUser;
-    }
-  }
-
   public List<Pom> getPoms () throws SQLException
   {
     List<Pom> poms = new ArrayList<Pom>();
@@ -457,7 +336,6 @@ public class Database
       poms.add(tmp);
     }
 
-    //conn.close();
     rsPoms.close();
     selectPoms.close();
 
@@ -806,64 +684,6 @@ public class Database
     return games;
   }
   
-  public class Server{
-    private int serverNumber = 0;
-    private boolean isPlaying = false;
-    public Server(ResultSet rs){
-      try{
-      serverNumber = rs.getInt("ServerNumber");
-      isPlaying = rs.getBoolean("IsPlaying");
-      }catch(Exception e){
-        System.out.println("Error making server from result set");
-        e.printStackTrace();
-      }
-    }
-
-    public int getServerNumber ()
-    {
-      return serverNumber;
-    }
-
-    public void setServerNumber (int serverNumber)
-    {
-      this.serverNumber = serverNumber;
-    }
-
-    public boolean getIsPlaying ()
-    {
-      return isPlaying;
-    }
-
-    public void setIsPlaying (boolean isPlaying)
-    {
-      this.isPlaying = isPlaying;
-    }
-    
-  }
-  
-  public class Agent {
-    private int InternalAgentID= 0;
-    
-    public Agent(ResultSet rs){
-      try{
-        InternalAgentID = rs.getInt("AgentType");
-      }catch(Exception e){
-        System.out.println("Error making agent from result set");
-        e.printStackTrace();
-      }
-    }
-
-    public int getInternalAgentID ()
-    {
-      return InternalAgentID;
-    }
-
-    public void setInternalAgentID (int internalAgentID)
-    {
-      InternalAgentID = internalAgentID;
-    }
-  }
-  
   public List<Server> getServers() throws SQLException {
     List<Server> servers = new ArrayList<Server>();
     
@@ -1108,18 +928,6 @@ public class Database
     return updateGame.executeUpdate();
   }
 
-  public int updateGameBootstrapById (int gameId, String bootstrapUrl)
-    throws SQLException
-  {
-    PreparedStatement updateBoot =
-      conn.prepareStatement(Constants.UPDATE_GAME_BOOTSTRAP);
-
-    updateBoot.setInt(2, gameId);
-    updateBoot.setString(1, bootstrapUrl);
-
-    return updateBoot.executeUpdate();
-  }
-
   public int updateGameViz (int gameId, String vizUrl) throws SQLException
   {
     PreparedStatement updateViz =
@@ -1330,7 +1138,7 @@ public class Database
     return 0;
   }
 
-  public int commitTrans () //throws SQLException
+  public int commitTrans ()
   {
     try {
       PreparedStatement trans = conn.prepareCall(Constants.COMMIT_TRANS);
@@ -1343,7 +1151,7 @@ public class Database
     return 0;
   }
 
-  public int abortTrans () //throws SQLException
+  public int abortTrans ()
   {
     //checkDb();
     try {
@@ -1394,63 +1202,113 @@ public class Database
     }
   }
 
-  public String getDbUrl ()
+
+  /***
+  * Database containers
+  */
+  public class Pom
   {
-    return dbUrl;
+    private String name;
+    private String location;
+    private String uploadingUser;
+    private int pomId;
+
+    public String getName ()
+    {
+      return name;
+    }
+    public void setName (String name)
+    {
+      this.name = name;
+    }
+
+    public String getUploadingUser ()
+    {
+      return uploadingUser;
+    }
+    public void setUploadingUser (String uploadingUser)
+    {
+      this.uploadingUser = uploadingUser;
+    }
+
+    public String getLocation ()
+    {
+      return location;
+    }
+    public void setLocation (String location)
+    {
+      this.location = location;
+    }
+
+    public int getPomId() {
+      return pomId;
+    }
+    public void setPomId(int pomId) {
+      this.pomId = pomId;
+    }
   }
 
-  public void setDbUrl (String dbUrl)
+  public class Server
   {
-    this.dbUrl = dbUrl;
+    private int serverNumber = 0;
+    private boolean isPlaying = false;
+    public Server(ResultSet rs)
+    {
+      try {
+        serverNumber = rs.getInt("ServerNumber");
+        isPlaying = rs.getBoolean("IsPlaying");
+      }
+      catch(Exception e) {
+        System.out.println("Error making server from result set");
+        e.printStackTrace();
+      }
+    }
+
+    public int getServerNumber ()
+    {
+      return serverNumber;
+    }
+
+    public void setServerNumber (int serverNumber)
+    {
+      this.serverNumber = serverNumber;
+    }
+
+    public boolean getIsPlaying ()
+    {
+      return isPlaying;
+    }
+
+    public void setIsPlaying (boolean isPlaying)
+    {
+      this.isPlaying = isPlaying;
+    }
+
   }
 
-  public String getDatabase ()
+  public class Agent
   {
-    return database;
-  }
+    private int InternalAgentID= 0;
 
-  public void setDatabase (String database)
-  {
-    this.database = database;
-  }
+    public Agent(ResultSet rs)
+    {
+      try {
+        InternalAgentID = rs.getInt("AgentType");
+      }
+      catch(Exception e) {
+        System.out.println("Error making agent from result set");
+        e.printStackTrace();
+      }
+    }
 
-  public String getPort ()
-  {
-    return port;
-  }
+    public int getInternalAgentID ()
+    {
+      return InternalAgentID;
+    }
 
-  public void setPort (String port)
-  {
-    this.port = port;
-  }
-
-  public String getUsername ()
-  {
-    return username;
-  }
-
-  public void setUsername (String username)
-  {
-    this.username = username;
-  }
-
-  public String getPassword ()
-  {
-    return password;
-  }
-
-  public void setPassword (String password)
-  {
-    this.password = password;
-  }
-
-  public String getDbms ()
-  {
-    return dbms;
-  }
-
-  public void setDbms (String dbms)
-  {
-    this.dbms = dbms;
+    public void setInternalAgentID (int internalAgentID)
+    {
+      InternalAgentID = internalAgentID;
+    }
   }
 }

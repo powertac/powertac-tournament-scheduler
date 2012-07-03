@@ -38,29 +38,28 @@ public class RunGame extends TimerTask
     this.tourneyUrl = tourneyUrl;
     this.pomUrl = pomUrl;
     this.destination = destination;
-    this.running = false;
 
     // Assumes Jenkins and TS live in the same location as per the install
-    this.serverConfig =
-        tourneyUrl + "faces/properties.jsp?gameId=" + this.gameId;
+    serverConfig = tourneyUrl + "faces/properties.jsp?gameId=" + this.gameId;
+	running = false;
   }
 
   public RunGame (int gameId, String tourneyUrl, String pomUrl,
                   String destination, Machine machine, String brokers)
   {
     this.gameId = String.valueOf(gameId);
-    this.bootstrapUrl =
-        tourneyUrl + "/faces/pom.jsp?location=" + gameId + "-boot.xml";
     this.tourneyUrl = tourneyUrl;
     this.pomUrl = pomUrl;
     this.destination = destination;
-    this.running = false;
-    this.tourney = true;
+
     this.brokers = brokers;
     this.machine = machine;
+
     // Assumes Jenkins and TS live in the same location as per the install
-    this.serverConfig =
-        tourneyUrl + "faces/properties.jsp?gameId=" + this.gameId;
+    bootstrapUrl = tourneyUrl + "faces/pom.jsp?location=" + gameId + "-boot.xml";
+    serverConfig = tourneyUrl + "faces/properties.jsp?gameId=" + this.gameId;
+    running = false;
+    tourney = true;
   }
 
   /***

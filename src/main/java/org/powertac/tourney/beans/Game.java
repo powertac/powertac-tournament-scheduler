@@ -29,7 +29,6 @@ public class Game
   private String location = "";
   private String jmsUrl = "";
   private String tournamentSchedulerUrl = "";
-  private String bootstrapUrl = "";
   private String visualizerUrl = "";
   private String pomUrl = "";
 
@@ -81,7 +80,6 @@ public class Game
       setGameId(rs.getInt("gameId"));
       setJmsUrl(rs.getString("jmsUrl"));
       setVisualizerUrl(rs.getString("visualizerUrl"));
-      setBootstrapUrl(rs.getString("bootstrapUrl"));
       setLocation(rs.getString("location"));
     }
     catch (Exception e) {
@@ -258,16 +256,6 @@ public class Game
   public void setTournamentSchedulerUrl (String tournamentSchedulerUrl)
   {
     this.tournamentSchedulerUrl = tournamentSchedulerUrl;
-  }
-
-  public String getBootstrapUrl ()
-  {
-    return bootstrapUrl;
-  }
-
-  public void setBootstrapUrl (String bootstrapUrl)
-  {
-    this.bootstrapUrl = bootstrapUrl;
   }
 
   public boolean isHasBootstrp ()

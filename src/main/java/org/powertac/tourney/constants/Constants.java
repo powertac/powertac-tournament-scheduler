@@ -2,57 +2,41 @@ package org.powertac.tourney.constants;
 
 public class Constants
 {
+  public class Rest
+  {
+    // Possible Rest Parameters for Broker Login
+    public static final String REQ_PARAM_AUTH_TOKEN = "authToken";
+    public static final String REQ_PARAM_JOIN = "requestJoin";
+    public static final String REQ_PARAM_TYPE = "type";
 
-  // Possible Rest Parameters for Broker Login
-  public static final String REQ_PARAM_AUTH_TOKEN = "authToken";
-  public static final String REQ_PARAM_JOIN = "requestJoin";
-  public static final String REQ_PARAM_TYPE = "type";
+    // Possible Rest Paramenters for Server Interface
+    public static final String REQ_PARAM_STATUS = "status";
+    public static final String REQ_PARAM_GAME_ID = "gameId";
+    public static final String REQ_PARAM_ACTION = "action";
+    public static final String REQ_PARAM_FILENAME = "fileName";
 
-  // Possible Rest Paramenters for Server Interface
-  public static final String REQ_PARAM_STATUS = "status";
-  public static final String REQ_PARAM_MACHINE = "machine";
-  public static final String REQ_PARAM_GAME_ID = "gameId";
-  // action=config - returns server.properties file
-  // action=pom - returns the pom.xml file
-  // action=bootstrap - returns the bootstrap.xml file
-  public static final String REQ_PARAM_ACTION = "action";
-
-  // Possible Rest Parameters for properties service
-  public static final String REQ_PARAM_PROP_ID = "propId";
-
-  // Possible Rest Parameters for pom service
-  public static final String REQ_PARAM_POM = "location";
+    // Possible Rest Parameters for pom service
+    public static final String REQ_PARAM_POM_ID = "pomId";
+  }
 
   // Prepared Statements for Database access
-
   /***
-   * Start db transaction
+   * Start / commit / abort db transaction
    */
-  public static final String START_TRANS = "START TRANSACTION;";
-
-  /***
-   * Commit db transaction
-   */
+  public static final String START_TRANS  = "START TRANSACTION;";
   public static final String COMMIT_TRANS = "COMMIT;";
+  public static final String ABORT_TRANS  = "ROLLBACK;";
 
   /***
-   * Abort db transaction
-   */
-  public static final String ABORT_TRANS = "ROLLBACK;";
-
-  /***
-   * @param userName
-   *          : User name attempting to login
-   * @param password
-   *          : salted md5 hash of entered password
+   * @param userName : User name attempting to login
+   * @param password : salted md5 hash of entered password
    */
   public static final String LOGIN_USER =
     "SELECT * FROM users WHERE userName=? AND password=? LIMIT 1;";
   public static final String LOGIN_SALT =
     "SELECT password, salt, permissionId, userId FROM users WHERE userName=?;";
   /***
-   * @param userName
-   *          : User name to update account info
+   * @param userName : User name to update account info
    */
   public static final String UPDATE_USER = "";
 
@@ -285,7 +269,7 @@ public class Constants
    *          : The scheduled start time of the sim
    */
   public static final String ADD_GAME =
-    "INSERT INTO tourney.games (gameName, tourneyId, maxBrokers,startTime, status,jmsUrl, bootstrapUrl, visualizerUrl, location, hasBootstrap, brokers) VALUES (?,?,?,?,'boot-pending','','','','',false,'');";
+    "INSERT INTO tourney.games (gameName, tourneyId, maxBrokers, startTime, status, jmsUrl, visualizerUrl, location, hasBootstrap, brokers) VALUES(?,?,?,?,'boot-pending','','','',false,'');";
 
   /***
    * Returns a list of the runnable games as of now.
@@ -354,18 +338,6 @@ public class Constants
    */
   public static final String SELECT_GAMEBYID =
     "SELECT * FROM tourney.games WHERE gameId=?;";
-
-  /***
-   * Update bootstrap information in database, this is done directly before
-   * starting a game
-   * 
-   * @param bootstrapUrl
-   *          : The url where the bootstrap file can be accessed
-   * @param gameId
-   *          : The id of the game you wish to update
-   */
-  public static final String UPDATE_GAME_BOOTSTRAP =
-    "UPDATE tourney.games SET status='pending', bootstrapUrl=?, hasBootstrap=true WHERE gameId=?;";
 
   /***
    * Update jmsUrl

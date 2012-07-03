@@ -20,7 +20,7 @@ public class RestoreViewPhaseListener implements PhaseListener {
   public void beforePhase (PhaseEvent pe) {
     HttpServletRequest request = (HttpServletRequest) pe.getFacesContext().
         getExternalContext().getRequest();
-    Map<?, ?> params = request.getParameterMap();
+    Map<String, String[]> params = getParams(request);
 
     if (params.size() != 0) {
       Rest rest = new Rest();
@@ -68,5 +68,11 @@ public class RestoreViewPhaseListener implements PhaseListener {
 
   public void afterPhase (PhaseEvent arg0) {
 
+  }
+
+  private Map<String, String[]> getParams(HttpServletRequest request) {
+    @SuppressWarnings("unchecked")
+    Map<String, String[]> params = request.getParameterMap();
+    return params;
   }
 }
