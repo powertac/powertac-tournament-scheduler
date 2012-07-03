@@ -285,7 +285,7 @@ public class Constants
    *          : The scheduled start time of the sim
    */
   public static final String ADD_GAME =
-    "INSERT INTO tourney.games (gameName, tourneyId, maxBrokers,startTime, status,jmsUrl, bootstrapUrl, visualizerUrl, location, hasBootstrap, brokers) VALUES (?,?,?,'boot-pending','','','','','',false,'');";
+    "INSERT INTO tourney.games (gameName, tourneyId, maxBrokers,startTime, status,jmsUrl, bootstrapUrl, visualizerUrl, location, hasBootstrap, brokers) VALUES (?,?,?,?,'boot-pending','','','','',false,'');";
 
   /***
    * Returns a list of the runnable games as of now.
