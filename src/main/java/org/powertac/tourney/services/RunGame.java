@@ -262,10 +262,15 @@ public class RunGame extends TimerTask
     String finalUrl =
       "http://localhost:8080/jenkins/job/"
               + "start-server-instance/buildWithParameters?"
-              + "token=start-instance" + "&tourneyUrl=" + tourneyUrl
-              + "&suffix=" + logSuffix + "&propUrl=" + serverConfig
-              + "&pomUrl=" + pomUrl + "&bootUrl=" + bootstrapUrl + "&brokers="
-              + brokers + "&machine=" + machineName + "&gameId=" + gameId
+              + "token=start-instance"
+              + "&tourneyUrl=" + tourneyUrl
+              + "&suffix=" + logSuffix
+              + "&propUrl=" + serverConfig
+              + "&pomUrl=" + pomUrl
+              + "&bootUrl=" + bootstrapUrl
+              + "&brokers=" + brokers
+              + "&machine=" + machineName
+              + "&gameId=" + gameId
               + "&destination=" + destination;
 
     System.out.println("{INFO] Final url: " + finalUrl);

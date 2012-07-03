@@ -33,7 +33,7 @@ public class RunBootstrap extends TimerTask
     this.destination = destination;
 
     // Assumes Jenkins and TS live in the same location as per the install
-    this.serverConfig = tourneyUrl + "/faces/properties.jsp?gameId=" + gameId;
+    serverConfig = tourneyUrl + "/faces/properties.jsp?gameId=" + gameId;
   }
 
   public RunBootstrap (int gameId, String tourneyUrl, String pomUrl,
@@ -43,11 +43,12 @@ public class RunBootstrap extends TimerTask
     this.tourneyUrl = tourneyUrl;
     this.pomUrl = pomUrl;
     this.destination = destination;
+
     this.machineName = machineName;
     this.usingMachine = true;
 
     // Assumes Jenkins and TS live in the same location as per the install
-    this.serverConfig = tourneyUrl + "/faces/properties.jsp?gameId=" + gameId;
+    serverConfig = tourneyUrl + "/faces/properties.jsp?gameId=" + gameId;
   }
 
   private void checkMachineAvailable ()
@@ -103,10 +104,14 @@ public class RunBootstrap extends TimerTask
     String finalUrl =
       "http://localhost:8080/jenkins/job/"
               + "start-server-instance/buildWithParameters?"
-              + "token=start-instance" + "&tourneyUrl=" + tourneyUrl
-              + "&suffix=" + logSuffix + "&propUrl=" + serverConfig
-              + "&pomUrl=" + pomUrl + "&bootstrapUrl=" + bootstrapUrl
-              + "&machine=" + machineName + "&gameId=" + gameId
+              + "token=start-instance"
+              + "&tourneyUrl=" + tourneyUrl
+              + "&suffix=" + logSuffix
+              + "&propUrl=" + serverConfig
+              + "&pomUrl=" + pomUrl
+              + "&bootstrapUrl=" + bootstrapUrl
+              + "&machine=" + machineName
+              + "&gameId=" + gameId
               + "&destination=" + destination;
 
     System.out.println("[INFO] Final url: " + finalUrl);

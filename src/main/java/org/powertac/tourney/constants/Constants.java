@@ -285,7 +285,7 @@ public class Constants
    *          : The scheduled start time of the sim
    */
   public static final String ADD_GAME =
-    "INSERT INTO tourney.games (gameName, tourneyId, maxBrokers,startTime, status,jmsUrl, bootstrapUrl, visualizerUrl, propertiesUrl, location, hasBootstrap, brokers) VALUES (?,?,?,?,'boot-pending','','','','','',false,'');";
+    "INSERT INTO tourney.games (gameName, tourneyId, maxBrokers,startTime, status,jmsUrl, bootstrapUrl, visualizerUrl, location, hasBootstrap, brokers) VALUES (?,?,?,'boot-pending','','','','','',false,'');";
 
   /***
    * Returns a list of the runnable games as of now.
@@ -375,17 +375,6 @@ public class Constants
    */
   public static final String UPDATE_GAME_JMSURL =
     "UPDATE tourney.games SET jmsUrl=? WHERE gameId=?;";
-
-  /***
-   * Update properties information in the database
-   * 
-   * @param propertiesUrl
-   *          : The url where the properties file can be accessed
-   * @param gameId
-   *          : The id of the game you wish to update
-   */
-  public static final String UPDATE_GAME_PROPERTIES =
-    "UPDATE tourney.games SET propertiesUrl=? WHERE gameId=?;";
 
   /***
    * Update the machine a game is running on

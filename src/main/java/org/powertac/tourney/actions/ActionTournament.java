@@ -19,8 +19,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import java.awt.event.ActionEvent;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -338,11 +336,6 @@ public class ActionTournament
         System.out.println("Creating game: " + gameId + " properties");
         CreateProperties.genProperties(gameId,db, locations, fromTime, toTime);
 
-        // Sets the url for the properties file based on the game id.
-        // Properties are created at random withing specified parameters
-        System.out.println("Updating properties game: " + gameId);
-        db.updateGamePropertiesById(gameId);
-
         System.out.println("Committing transaction");
         db.commitTrans();
         
@@ -430,11 +423,6 @@ public class ActionTournament
           gameId = db.getMaxGameId();
           System.out.println("[INFO] Creating game: " + gameId + " properties");
           CreateProperties.genProperties(gameId,db, locations, fromTime, toTime);
-  
-          // Sets the url for the properties file based on the game id.
-          // Properties are created at random within specified parameters
-          System.out.println("[INFO] Updating properties game: " + gameId);
-          db.updateGamePropertiesById(gameId);
         }
         System.out.println("[INFO] Committing transaction");
 

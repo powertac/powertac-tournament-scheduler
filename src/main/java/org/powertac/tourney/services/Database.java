@@ -944,11 +944,8 @@ public class Database
 
     insertGame.setString(1, gameName);
     insertGame.setInt(2, tourneyId);
-    // insertGame.setInt(3, machineId);
     insertGame.setInt(3, maxBrokers);
     insertGame.setString(4, sdf.format(startTime));
-    // insertGame.setString(4, properitesUrl);
-    
 
     return insertGame.executeUpdate();
   }
@@ -1121,19 +1118,6 @@ public class Database
     updateBoot.setString(1, bootstrapUrl);
 
     return updateBoot.executeUpdate();
-  }
-
-  public int updateGamePropertiesById (int gameId) throws SQLException
-  {
-    PreparedStatement updateProps =
-      conn.prepareStatement(Constants.UPDATE_GAME_PROPERTIES);
-
-    updateProps
-            .setString(1, Utils.getTourneyUrl() + "faces/properties.jsp?gameId="
-                          + String.valueOf(gameId));
-    updateProps.setInt(2, gameId);
-
-    return updateProps.executeUpdate();
   }
 
   public int updateGameViz (int gameId, String vizUrl) throws SQLException

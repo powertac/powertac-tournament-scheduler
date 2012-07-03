@@ -21,21 +21,15 @@ public class Game
   private int tourneyId = 0;
   private int gameId = 0;
   private int machineId;
-  private static int maxGameId = 0;
   private String status = "pending";
-  private Machine runningMachine = null; // This is set when the game is
-  // actually running on a machine
   private boolean hasBootstrap = false;
   private String brokers = "";
-  private HashMap<String, String> brokerAuth = new HashMap<String, String>();
 
   private String gameName = "";
   private String location = "";
   private String jmsUrl = "";
-  private String serverConfigUrl = "";
   private String tournamentSchedulerUrl = "";
   private String bootstrapUrl = "";
-  private String propertiesUrl = "";
   private String visualizerUrl = "";
   private String pomUrl = "";
 
@@ -76,20 +70,19 @@ public class Game
     SimpleDateFormat dateFormatUTC =
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
     try {
-      this.setStatus(rs.getString("status"));
-      this.setMaxBrokers(rs.getInt("maxBrokers"));
-      this.setStartTime(dateFormatUTC.parse((rs.getString("startTime"))));
-      this.setBrokers(rs.getString("brokers"));
-      this.setTourneyId(rs.getInt("tourneyId"));
-      this.setMachineId(rs.getInt("machineId"));
-      this.setHasBootstrap(rs.getBoolean("hasBootstrap"));
-      this.setGameName(rs.getString("gameName"));
-      this.setGameId(rs.getInt("gameId"));
-      this.setJmsUrl(rs.getString("jmsUrl"));
-      this.setVisualizerUrl(rs.getString("visualizerUrl"));
-      this.setBootstrapUrl(rs.getString("bootstrapUrl"));
-      this.setPropertiesUrl(rs.getString("propertiesUrl"));
-      this.setLocation(rs.getString("location"));
+      setStatus(rs.getString("status"));
+      setMaxBrokers(rs.getInt("maxBrokers"));
+      setStartTime(dateFormatUTC.parse((rs.getString("startTime"))));
+      setBrokers(rs.getString("brokers"));
+      setTourneyId(rs.getInt("tourneyId"));
+      setMachineId(rs.getInt("machineId"));
+      setHasBootstrap(rs.getBoolean("hasBootstrap"));
+      setGameName(rs.getString("gameName"));
+      setGameId(rs.getInt("gameId"));
+      setJmsUrl(rs.getString("jmsUrl"));
+      setVisualizerUrl(rs.getString("visualizerUrl"));
+      setBootstrapUrl(rs.getString("bootstrapUrl"));
+      setLocation(rs.getString("location"));
     }
     catch (Exception e) {
       System.out.println("[ERROR] Error creating game from result set");
@@ -112,7 +105,6 @@ public class Game
       e.printStackTrace();
     }
     return result;
-
   }
 
   public void addBroker (int brokerId)
@@ -131,7 +123,31 @@ public class Game
     }
 
     brokers += b.getBrokerName() + ", ";
-    this.brokerAuth.put(b.getBrokerAuthToken(), b.getBrokerName());
+  }
+
+  public boolean isBrokerRegistered (String authToken)
+  {
+    System.out.println("Broker token: " + authToken);
+    Database db = new Database();
+    boolean ingame = false;
+    try {
+      db.startTrans();
+      List<Broker> allBrokers = db.getBrokersInGame(gameId);
+      for (Broker b: allBrokers) {
+        if (b.getBrokerAuthToken().equalsIgnoreCase(authToken)) {
+          ingame = true;
+          break;
+        }
+      }
+      db.commitTrans();
+
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    return ingame;
   }
 
   public HashMap<String, String> getBrokersToLogin ()
@@ -234,31 +250,6 @@ public class Game
     return true;
   }
 
-  public boolean isBrokerRegistered (String authToken)
-  {
-    System.out.println("Broker token: " + authToken);
-    Database db = new Database();
-    boolean ingame = false;
-    try {
-      db.startTrans();
-      List<Broker> allBrokers = db.getBrokersInGame(gameId);
-      for (Broker b: allBrokers) {
-        if (b.getBrokerAuthToken().equalsIgnoreCase(authToken)) {
-          ingame = true;
-          break;
-        }
-      }
-      db.commitTrans();
-
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return ingame;
-  }
-
   public String getTournamentSchedulerUrl ()
   {
     return tournamentSchedulerUrl;
@@ -267,16 +258,6 @@ public class Game
   public void setTournamentSchedulerUrl (String tournamentSchedulerUrl)
   {
     this.tournamentSchedulerUrl = tournamentSchedulerUrl;
-  }
-
-  public String getServerConfigUrl ()
-  {
-    return serverConfigUrl;
-  }
-
-  public void setServerConfigUrl (String serverConfigUrl)
-  {
-    this.serverConfigUrl = serverConfigUrl;
   }
 
   public String getBootstrapUrl ()
@@ -307,16 +288,6 @@ public class Game
   public void setGameName (String gameName)
   {
     this.gameName = gameName;
-  }
-
-  public String getPropertiesUrl ()
-  {
-    return propertiesUrl;
-  }
-
-  public void setPropertiesUrl (String propertiesUrl)
-  {
-    this.propertiesUrl = propertiesUrl;
   }
 
   public String getVisualizerUrl ()
