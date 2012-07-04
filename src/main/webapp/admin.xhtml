@@ -128,11 +128,9 @@
 
           <t:column defaultSorted="true">
             <f:facet name="header">
-              <h:outputText value="Location" />
+              <h:outputText value="Pom Id" />
             </f:facet>
-            <a href="TournamentScheduler/faces/pom.jsp?location=#{p.location}">
-              <h:outputText value="#{p.location}" />
-            </a>
+            <h:outputText value="#{p.pomId}" />
           </t:column>
 
           <t:column defaultSorted="true">
@@ -348,7 +346,7 @@
             <f:facet name="header">
               <h:outputText value="Start Time" />
             </f:facet>
-            <h:outputText value="#{t.startTime}" />
+            <h:outputText value="#{t.toUTCStartTime()}" />
           </t:column>
 
           <t:column sortable="true">
@@ -400,7 +398,7 @@
             <f:facet name="header">
               <h:outputText value="Start Time" />
             </f:facet>
-            <h:outputText value="#{g.startTime}" />
+            <h:outputText value="#{g.toUTCStartTime()}" />
           </t:column>
 
           <t:column sortable="true">
@@ -421,14 +419,20 @@
             <f:facet name="header">
               <h:outputText value="Bootstrap Link" />
             </f:facet>
-            <a href="serverInterface.jsp?action=boot&amp;gameId=#{g.gameId}">Bootstrap</a>
+            <h:outputText value="Not available" rendered="#{!g.hasBootstrap}"/>
+            <h:panelGroup rendered="#{g.hasBootstrap}" >
+              <a href="serverInterface.jsp?action=boot&amp;gameId=#{g.gameId}">Bootstrap</a>
+            </h:panelGroup>
           </t:column>
 
           <t:column>
             <f:facet name="header">
               <h:outputText value="Visualizer Link" />
             </f:facet>
-            <a href="#{g.visualizerUrl}">Visualizer</a>
+            <h:outputText value="Not available" rendered="#{g.visualizerUrl == ''}"/>
+            <h:panelGroup rendered="#{g.visualizerUrl != ''}" >
+              <a href="#{g.visualizerUrl}">Visualizer</a>
+            </h:panelGroup>
           </t:column>
 
           <t:column>

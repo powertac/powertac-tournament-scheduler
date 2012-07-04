@@ -250,7 +250,7 @@ public class Scheduler
       List<Game> finalGames = new ArrayList<Game>();
       for (int j = 0; j < tourneySize; j++) {
         Game g = gamesInTourney.get(j);
-        if (!g.isHasBootstrp()
+        if (!g.getHasBootstrap()
             || g.getStatus().equalsIgnoreCase("game-pending")
             || g.getStatus().equalsIgnoreCase("game-in-progress")
             || g.getStatus().equalsIgnoreCase("game-complete")) {

@@ -1,15 +1,14 @@
 package org.powertac.tourney.beans;
 
 import org.powertac.tourney.services.Database;
+import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TimeZone;
 
 
 @ManagedBean
@@ -39,25 +38,6 @@ public class Game
 
   public static final String key = "game";
 
-  public Date getStartTime ()
-  {
-    return startTime;
-  }
-
-  public String toUTCStartTime ()
-  {
-    SimpleDateFormat dateFormatUTC =
-      new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
-
-    // Time in GMT
-    return dateFormatUTC.format(startTime);
-  }
-
-  public void setStartTime (Date startTime)
-  {
-    this.startTime = startTime;
-  }
-
   public Game ()
   {
     brokersToLogin = new HashMap<String, String>();
@@ -65,13 +45,10 @@ public class Game
 
   public Game (ResultSet rs)
   {
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-    SimpleDateFormat dateFormatUTC =
-            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
     try {
       setStatus(rs.getString("status"));
       setMaxBrokers(rs.getInt("maxBrokers"));
-      setStartTime(dateFormatUTC.parse((rs.getString("startTime"))));
+      setStartTime(Utils.dateFormatUTCmilli(rs.getString("startTime")));
       setBrokers(rs.getString("brokers"));
       setTourneyId(rs.getInt("tourneyId"));
       setMachineId(rs.getInt("machineId"));
@@ -148,6 +125,33 @@ public class Game
     return ingame;
   }
 
+  public String toUTCStartTime ()
+  {
+    return Utils.dateFormatUTC(startTime);
+  }
+
+
+  //<editor-fold desc="Setter and getters">
+  public Date getStartTime ()
+  {
+    return startTime;
+  }
+
+  public void setStartTime (Date startTime)
+  {
+    this.startTime = startTime;
+  }
+
+  public static String getKey ()
+  {
+    return key;
+  }
+
+  public String[] getBrokersLoggedIn ()
+  {
+    return brokersLoggedIn;
+  }
+
   public HashMap<String, String> getBrokersToLogin ()
   {
     return brokersToLogin;
@@ -156,11 +160,6 @@ public class Game
   public void setBrokersToLogin (HashMap<String, String> brokersToLogin)
   {
     this.brokersToLogin = brokersToLogin;
-  }
-
-  public static String getKey ()
-  {
-    return key;
   }
 
   public String getCompetitionName ()
@@ -213,11 +212,6 @@ public class Game
     this.jmsUrl = jmsUrl;
   }
 
-  public String[] getBrokersLoggedIn ()
-  {
-    return brokersLoggedIn;
-  }
-
   public int getMaxBrokers ()
   {
     return maxBrokers;
@@ -238,16 +232,6 @@ public class Game
     this.gameId = gameId;
   }
 
-  public void addGameLogin (String gameToken)
-  {
-
-  }
-
-  public boolean isGameTokenValid (String gameToken)
-  {
-    return true;
-  }
-
   public String getTournamentSchedulerUrl ()
   {
     return tournamentSchedulerUrl;
@@ -258,7 +242,7 @@ public class Game
     this.tournamentSchedulerUrl = tournamentSchedulerUrl;
   }
 
-  public boolean isHasBootstrp ()
+  public boolean getHasBootstrap()
   {
     return hasBootstrap;
   }
@@ -327,4 +311,5 @@ public class Game
   {
     this.machineId = machineId;
   }
+  //</editor-fold>
 }

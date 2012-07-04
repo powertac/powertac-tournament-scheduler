@@ -39,52 +39,52 @@
 						<f:facet name="header">
 							<h:outputText value="Game ID" />
 						</f:facet>
-                        <h:outputText value="#{g.gameId}" />
+              <h:outputText value="#{g.gameId}" />
     				</t:column>
     				
     				<t:column>
 						<f:facet name="header">
 							<h:outputText value="Tournament Name" />
 						</f:facet>
-                        <h:outputText value="#{actionIndex.getTournamentNameByGame(g)}" />
+              <h:outputText value="#{actionIndex.getTournamentNameByGame(g)}" />
     				</t:column>
     				
     				<t:column>
 						<f:facet name="header">
 							<h:outputText value="Brokers" />
 						</f:facet>
-                        <h:outputText value="#{actionIndex.getBrokersInGame(g)}" />
+              <h:outputText value="#{actionIndex.getBrokersInGame(g)}" />
     				</t:column>
 
 					<t:column sortable="true">
 						<f:facet name="header">
 							<h:outputText value="Status" />
 						</f:facet>
-                        <h:outputText value="#{g.status}" />
+              <h:outputText value="#{g.status}" />
     				</t:column>
 
 					<t:column>
 						<f:facet name="header">
 							<h:outputText value="Start Time" />
 						</f:facet>
-                        <h:outputText value="#{g.toUTCStartTime()}" />
+              <h:outputText value="#{g.toUTCStartTime()}" />
     				</t:column>
 
 					<t:column sortable="true">
 						<f:facet name="header">
 							<h:outputText value="Max Brokers" />
 						</f:facet>
-                        <h:outputText value="#{g.maxBrokers}" />
+              <h:outputText value="#{g.maxBrokers}" />
     				</t:column>
 
 					<t:column>
 						<f:facet name="header">
 							<h:outputText value="Visualizer Link" />
 						</f:facet>
-                        <h:outputText value="Not available" rendered="#{g.visualizerUrl == ''}"/>
-                        <h:panelGroup rendered="#{g.visualizerUrl != ''}" >
-                            <a href="#{g.visualizerUrl}">Visualizer</a>
-                        </h:panelGroup>
+              <h:outputText value="Not available" rendered="#{g.visualizerUrl == ''}"/>
+              <h:panelGroup rendered="#{g.visualizerUrl != ''}" >
+                <a href="#{g.visualizerUrl}">Visualizer</a>
+              </h:panelGroup>
 					</t:column>
 				</t:dataTable>
 			</h:form>
@@ -101,28 +101,28 @@
 						<f:facet name="header">
 							<h:outputText value="Game ID" />
 						</f:facet>
-                        <h:outputText value="#{g.gameId}" />
+              <h:outputText value="#{g.gameId}" />
     				</t:column>
     				
     				<t:column>
 						<f:facet name="header">
 							<h:outputText value="Tournament Name" />
 						</f:facet>
-    						<h:outputText value="#{actionIndex.getTournamentNameByGame(g)}" />
+              <h:outputText value="#{actionIndex.getTournamentNameByGame(g)}" />
     				</t:column>
     				
     				<t:column>
 						<f:facet name="header">
 							<h:outputText value="Brokers" />
 						</f:facet>
-                        <h:outputText value="#{actionIndex.getBrokersInGame(g)}" />
+              <h:outputText value="#{actionIndex.getBrokersInGame(g)}" />
     				</t:column>
     				
     				<t:column>
 						<f:facet name="header">
 							<h:outputText value="Logs" />
 						</f:facet>
-    						<a href="download?game=#{g.gameId}">Logs</a>
+              <a href="download?game=#{g.gameId}">Logs</a>
     				</t:column>
 				</t:dataTable>
 			</h:form>

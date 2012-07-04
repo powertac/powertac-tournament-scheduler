@@ -392,6 +392,30 @@ public class Constants
     "UPDATE tourney.games SET visualizerUrl=? WHERE gameId=?;";
 
   /***
+   * Update Game hasBootstrap
+   *
+   * @param hasBootstrap
+   *          : Does the game has a bootstrap
+   * @param gameId
+   *          : The id of the game you wish to change
+   */
+  public static final String UPDATE_GAME_BOOTSTRAP =
+    "UPDATE tourney.games SET hasBootstrap=? WHERE gameId=?;";
+
+  /***
+   * Update Game status by gameId
+   *
+   * @param status
+   *          : The new status of the game either "pending", "boot-in-progress",
+   *          "boot-complete", "game-pending", "game-in-progress",
+   *          "game-complete", "boot-failed", or "game-failed"
+   * @param gameId
+   *          : The id of the game you wish to change
+   */
+  public static final String UPDATE_GAME =
+      "UPDATE tourney.games SET status = ? WHERE gameId = ?";
+
+  /***
    * Delete a game from the database (may need to do a cascading delete)
    * 
    * @param gameId
@@ -417,19 +441,6 @@ public class Constants
    */
   public static final String SELECT_GAMES_IN_TOURNEY =
     "SELECT * FROM tourney.games WHERE tourneyId=?;";
-
-  /***
-   * Update Game status by gameId
-   * 
-   * @param status
-   *          : The new status of the game either "pending", "boot-in-progress",
-   *          "boot-complete", "game-pending", "game-in-progress",
-   *          "game-complete", "boot-failed", or "game-failed"
-   * @param gameId
-   *          : The id of the game you wish to change
-   */
-  public static final String UPDATE_GAME =
-    "UPDATE tourney.games SET status = ? WHERE gameId = ?";
 
   /***
    * Get max gameid of all games

@@ -1,6 +1,7 @@
 package org.powertac.tourney.beans;
 
 import org.powertac.tourney.services.Database;
+import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import java.sql.ResultSet;
@@ -15,11 +16,6 @@ import java.util.*;
 @ManagedBean
 public class Tournament
 {
-  public enum TourneyType {
-    SINGLE_GAME, MULTI_GAME;
-  }
-
-  private static int maxTournamentId = 0;
   private int tourneyId = 0;
   private Date startTime;
   private String tournamentName;
@@ -49,11 +45,6 @@ public class Tournament
 
   public Tournament ()
   {
-    // System.out.println("Created Tournament Bean: " + tourneyId);
-    // tournyId = maxTournamentId;
-    // maxTournamentId++;
-
-    allGames = new HashMap<Integer, Game>();
     registeredBrokers = new HashMap<Integer, String>();
   }
 
@@ -63,82 +54,27 @@ public class Tournament
     SimpleDateFormat dateFormatUTC =
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
     try {
-      this.setTournamentId(rsTs.getInt("tourneyId"));
-      this.setTournamentName(rsTs.getString("tourneyName"));
-      this.setOpenRegistration(rsTs.getBoolean("openRegistration"));
-      this.setType(rsTs.getString("type"));
-      this.setMaxGames(rsTs.getInt("maxGames"));
-      this.setPomUrl(rsTs.getString("pomUrl"));
-      this.setMaxBrokers(rsTs.getInt("maxBrokers"));
-      this.setStartTime(dateFormatUTC.parse((rsTs.getString("startTime"))));
-      this.setSize1(rsTs.getInt("gameSize1"));
-      this.setSize2(rsTs.getInt("gameSize2"));
-      this.setSize3(rsTs.getInt("gameSize3"));
-      this.setNumberSize1(rsTs.getInt("numberGameSize1"));
-      this.setNumberSize2(rsTs.getInt("numberGameSize2"));
-      this.setNumberSize3(rsTs.getInt("numberGameSize3"));
-      this.setMaxBrokerInstances(rsTs.getInt("maxBrokerInstances"));
-      this.setTournamentName(rsTs.getString("tourneyName"));
+      setTournamentId(rsTs.getInt("tourneyId"));
+      setTournamentName(rsTs.getString("tourneyName"));
+      setOpenRegistration(rsTs.getBoolean("openRegistration"));
+      setType(rsTs.getString("type"));
+      setMaxGames(rsTs.getInt("maxGames"));
+      setPomUrl(rsTs.getString("pomUrl"));
+      setMaxBrokers(rsTs.getInt("maxBrokers"));
+      setStartTime(dateFormatUTC.parse((rsTs.getString("startTime"))));
+      setSize1(rsTs.getInt("gameSize1"));
+      setSize2(rsTs.getInt("gameSize2"));
+      setSize3(rsTs.getInt("gameSize3"));
+      setNumberSize1(rsTs.getInt("numberGameSize1"));
+      setNumberSize2(rsTs.getInt("numberGameSize2"));
+      setNumberSize3(rsTs.getInt("numberGameSize3"));
+      setMaxBrokerInstances(rsTs.getInt("maxBrokerInstances"));
+      setTournamentName(rsTs.getString("tourneyName"));
     }
     catch (Exception e) {
       System.out.println("[ERROR] Error creating tournament from result set");
       e.printStackTrace();
     }
-  }
-
-  public int getTournamentId ()
-  {
-    return tourneyId;
-  }
-
-  public void setTournamentId (int competitionId)
-  {
-    this.tourneyId = competitionId;
-  }
-
-  public Date getStartTime ()
-  {
-    return startTime;
-  }
-
-  public void setStartTime (Date startTime)
-  {
-    this.startTime = startTime;
-  }
-
-  public String getTournamentName ()
-  {
-    return tournamentName;
-  }
-
-  public void setTournamentName (String tournamentName)
-  {
-    this.tournamentName = tournamentName;
-  }
-
-  public int getMaxBrokers ()
-  {
-    return maxBrokers;
-  }
-
-  public void setMaxBrokers (int maxBrokers)
-  {
-    this.maxBrokers = maxBrokers;
-  }
-
-  public String getPomUrl ()
-  {
-    return pomUrl;
-  }
-
-  public void setPomUrl (String pomUrl)
-  {
-    this.pomUrl = pomUrl;
-  }
-
-  public void addGame (Game game)
-  {
-    this.allGames.put(game.getGameId(), game);
   }
 
   public List<Game> getGames ()
@@ -180,24 +116,24 @@ public class Tournament
     return result;
   }
 
-  /**
-   * @return the pomName
-   */
+  public String toUTCStartTime ()
+  {
+    return Utils.dateFormatUTC(startTime);
+  }
+
+
+  //<editor-fold desc="Getters and setters">
   public String getPomName ()
   {
     return pomName;
   }
 
-  /**
-   * @param pomName
-   *          the pomName to set
-   */
   public void setPomName (String pomName)
   {
     this.pomName = pomName;
   }
 
-  public boolean isOpenRegistration ()
+  public boolean getOpenRegistration ()
   {
     return openRegistration;
   }
@@ -297,4 +233,54 @@ public class Tournament
     this.type = type;
   }
 
+  public int getTournamentId ()
+  {
+    return tourneyId;
+  }
+
+  public void setTournamentId (int competitionId)
+  {
+    this.tourneyId = competitionId;
+  }
+
+  public Date getStartTime ()
+  {
+    return startTime;
+  }
+
+  public void setStartTime (Date startTime)
+  {
+    this.startTime = startTime;
+  }
+
+  public String getTournamentName ()
+  {
+    return tournamentName;
+  }
+
+  public void setTournamentName (String tournamentName)
+  {
+    this.tournamentName = tournamentName;
+  }
+
+  public int getMaxBrokers ()
+  {
+    return maxBrokers;
+  }
+
+  public void setMaxBrokers (int maxBrokers)
+  {
+    this.maxBrokers = maxBrokers;
+  }
+
+  public String getPomUrl ()
+  {
+    return pomUrl;
+  }
+
+  public void setPomUrl (String pomUrl)
+  {
+    this.pomUrl = pomUrl;
+  }
+  //</editor-fold>
 }
