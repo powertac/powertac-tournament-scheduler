@@ -15,13 +15,11 @@
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{actionAccount.brokers}" var="b">
 
-
 					<h:column>
 						<f:facet name="header">Broker Name</f:facet>
 						<h:outputText value="#{b.brokerName}" rendered="#{!b.edit}" />
 						<h:inputText value="#{b.newName}" rendered="#{b.edit}" />
 					</h:column>
-
 
 					<h:column>
 						<f:facet name="header">Broker Id</f:facet>
