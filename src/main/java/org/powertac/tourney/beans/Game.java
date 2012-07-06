@@ -27,9 +27,7 @@ public class Game
   private String gameName = "";
   private String location = "";
   private String jmsUrl = "";
-  private String tournamentSchedulerUrl = "";
   private String visualizerUrl = "";
-  private String pomUrl = "";
 
   private HashMap<String, String> brokersToLogin = null;
 
@@ -167,16 +165,6 @@ public class Game
     return competitionName;
   }
 
-  public String getPomUrl ()
-  {
-    return pomUrl;
-  }
-
-  public void setPomUrl (String pomUrl)
-  {
-    this.pomUrl = pomUrl;
-  }
-
   public void setCompetitionName (String competitionName)
   {
     this.competitionName = competitionName;
@@ -230,16 +218,6 @@ public class Game
   public void setGameId (int gameId)
   {
     this.gameId = gameId;
-  }
-
-  public String getTournamentSchedulerUrl ()
-  {
-    return tournamentSchedulerUrl;
-  }
-
-  public void setTournamentSchedulerUrl (String tournamentSchedulerUrl)
-  {
-    this.tournamentSchedulerUrl = tournamentSchedulerUrl;
   }
 
   public boolean getHasBootstrap()

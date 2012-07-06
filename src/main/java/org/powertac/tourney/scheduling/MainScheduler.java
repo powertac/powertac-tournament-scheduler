@@ -15,11 +15,10 @@ public class MainScheduler
    */
   private GameCube scheduleMatrix;
 
-  public MainScheduler (int agents, int ncopies, int nservers, int[] gtypes,
-                        int[] mxgames) throws Exception
+  public MainScheduler (int agents, int nservers) throws Exception
   {
-
     noofagents = agents;
+    // TODO Why is this a different connection?
     db = new DbConnection();
     try {
       db.Setup();
@@ -44,6 +43,7 @@ public class MainScheduler
     }
     len = insertstring.length();
     insertstring = insertstring.substring(0, len - 2);
+    // TODO Move this to Constants
     sql_insert =
       "insert into GameServers (ServerID, ServerName, ServerNumber, IsPlaying) values "
               + insertstring;
@@ -73,8 +73,8 @@ public class MainScheduler
      * b. gets the game types and number of each game to be played.
      * c. gets the number of servers available
      */
-    int gametype, navail, nrepeats, gamenumber, games = 0, iteration = 0, nscheduleds =
-      0;
+    int gametype, navail, nrepeats, gamenumber, games = 0,
+        iteration = 0, nscheduleds = 0;
     boolean available_server;
     Server[] slist;
     AgentLet[] agents;
@@ -115,7 +115,6 @@ public class MainScheduler
        */
       agents = scheduleMatrix.getAgents(db, gametype);
       
-     
       if (agents != null) {
         db.startTransaction();
         /* Make entries in Gamelog and GameArchive */
@@ -160,6 +159,7 @@ public class MainScheduler
     String sql_insert_into_agents, sql_insert_into_queue;
     for (i = 1; i <= noofagents; i++) {
       for (j = 1; j <= noofcopies; j++) {
+        // TODO Move this to Constants
         sql_insert_into_agents =
           "insert into AgentAdmin (InternalAgentID,AgentType, AgentCopy, AgentName, AgentDescription) "
                   + "values (default, "
@@ -173,6 +173,7 @@ public class MainScheduler
         db.SetQuery(sql_insert_into_agents, "update");
       }
     }
+    // TODO Move this to Constants
     sql_insert_into_queue =
       "insert into AgentQueue "
               + "select InternalAgentID,AgentType,0,0,0 from	AgentAdmin order by rand()";
@@ -192,6 +193,7 @@ public class MainScheduler
     }
     len = valuesstring.length();
     valuesstring = valuesstring.substring(0, len - 2);
+    // TODO Move this to Constants
     sql_insert = "INSERT into GameLog Values " + valuesstring;
     // System.out.println(sql_insert);
     db.SetQuery(sql_insert, "update");
@@ -202,6 +204,7 @@ public class MainScheduler
 
     String sql_insert, sql_gamenumber;
     ResultSet rs;
+    // TODO Move this to Constants
     sql_insert =
       "INSERT INTO GameArchive" + " (" + " InternalGameID," + " GameType,"
               + " TimePlayed," + " TimeCompleted," + " ServerNumber,"
@@ -209,6 +212,7 @@ public class MainScheduler
               + " now()," + " '0000-00-00 00:00:00',"
               + aserver.getServerNumber() + "," + " 1)";
     db.SetQuery(sql_insert, "update");
+    // TODO Move this to Constants
     sql_gamenumber =
       "select max(InternalGameID) as mx from GameArchive where IsPlaying = 1";
     rs = db.SetQuery(sql_gamenumber);
@@ -244,24 +248,23 @@ public class MainScheduler
     int i, len;
     String wherestring = "", secondwherestring = "";
 
-    // printAgents(agentids);
     for (i = 0; i < agentids.length; i++) {
       wherestring += " AgentType = " + agentids[i].getAgentType() + " OR";
       secondwherestring +=
         " InternalAgentID = " + agentids[i].getAgentId() + " OR";
     }
-    // System.out.println("Where String: "+wherestring);
     len = wherestring.length();
     wherestring = wherestring.substring(0, len - 3);
     len = secondwherestring.length();
     secondwherestring = secondwherestring.substring(0, len - 3);
+    // TODO Move this to Constants
     String sql_update_string =
       " update AgentQueue " + " set Prev_Age=Age, Age = Age+pow(2,"
               + agentids.length + ") " + " where (" + wherestring + ")";
 
-    // System.out.println(sql_update_string);
     db.SetQuery(sql_update_string, "update");
 
+    // TODO Move this to Constants
     sql_update_string =
       " update AgentQueue " + " set IsPlaying = 1 " + " where ("
               + secondwherestring + ")";
@@ -281,21 +284,20 @@ public class MainScheduler
   {
     int i, len, cnt = 0;
     ResultSet rs;
-    // printAgents(agents);
     String wherestring = "", sql_check_combos;
     for (i = 0; i < agents.length; i++) {
       wherestring += " b.AgentType = " + agents[i].getAgentType() + " OR ";
     }
     len = wherestring.length();
     wherestring = wherestring.substring(0, len - 3);
-    // System.out.println(wherestring);
+
+    // TODO Move this to Constants
     sql_check_combos =
       "select count(distinct b.AgentType) cnt" + " from GameLog a join "
               + " AgentQueue b on a.InternalAgentID=b.InternalAgentID join "
               + " GameArchive c on a.InternalGameID=c.InternalGameID"
               + " where c.GameType = " + gtype + " AND ( " + wherestring
               + " ) " + " group by a.InternalGameID" + " having cnt = " + gtype;
-    // System.out.println(sql_check_combos);
     rs = db.SetQuery(sql_check_combos);
     while (rs.next()) {
       cnt++;
@@ -353,28 +355,26 @@ public class MainScheduler
       wherestring = wherestring.substring(0, len - 3) + ")";
       System.out.println("Releasing " + wherestring);
       gameRelease(servernumbers);*/
-    
-     
+
 	  Server[] server = new Server[1];
-	  
+
+    // TODO Move this to Constants
 	  ResultSet rs = db.SetQuery("SELECT * FROM GameServers WHERE ServerNumber="+ServerNumber);
 	  if(rs.next()){
 		  server[0] = new Server(rs);
 	  }
 	  
 	  gameRelease(server);
-         
-      String sql_reset =
-        "update GameServers " + "set	IsPlaying = 0 " + "where  ServerNumber = " + ServerNumber;
-      // System.out.println(sql_reset);
-      db.SetQuery(sql_reset, "update");
-    
+
+    // TODO Move this to Constants
+    String sql_reset =
+      "update GameServers " + "set	IsPlaying = 0 " + "where  ServerNumber = " + ServerNumber;
+    db.SetQuery(sql_reset, "update");
   }
 
   public void resetCube ()
   {
     scheduleMatrix.resetActualSumsAndProposedSums();
-
   }
 
   /*
@@ -389,7 +389,6 @@ public class MainScheduler
     ResultSet rs;
     String wherestring = "(";
     String sql_release;
-    //System.out.println(servernumbers.length);
     for (i = 0; i < servernumbers.length; i++) {
       wherestring +=
         "a.ServerNumber = " + servernumbers[i].getServerNumber() + " OR ";
@@ -397,11 +396,12 @@ public class MainScheduler
 
     len = wherestring.length();
     wherestring = wherestring.substring(0, len - 3) + ")";
+    // TODO Move this to Constants
     rs =
       db.SetQuery("select count(*) cnt from GameArchive a where " + wherestring
                   + " and IsPlaying = 1");
     rs.next();
-    // System.out.println("Change1: "+rs.getInt("cnt"));
+    // TODO Move this to Constants
     sql_release =
       "update  GameArchive a 	"
               + "join GameLog b"
@@ -446,6 +446,7 @@ public class MainScheduler
     }
     len = wherestring.length();
     wherestring = wherestring.substring(0, len - 2);
+    // TODO Move this to Constants
     String sql_rearrange =
       "select count(distinct b.`InternalGameID`) cnt, AgentType "
               + " from GameLog a "
@@ -453,7 +454,6 @@ public class MainScheduler
               + " join AgentQueue c on a.`InternalAgentID`= c.`InternalAgentID` "
               + " where (" + wherestring + ") and GameType =  " + gtype
               + " group by AgentType ";
-    // System.out.println(sql_rearrange);
     rs = db.SetQuery(sql_rearrange);
     i = 0;
     while (rs.next()) {
@@ -465,13 +465,11 @@ public class MainScheduler
       sql = sqlpre + values[i] + sqlmid + atype[i] + sqlpost;
       db.SetQuery(sql, "update");
     }
-
   }
 
   public boolean equilibrium ()
   {
     return !(scheduleMatrix.getDisparity() > 0);
   }
-
 }
 

@@ -121,30 +121,31 @@ public class ActionAdmin
 
   public void submitPom ()
   {
-    if (pom != null) {
-      System.out.println("Pom is not null");
-      upload.setUploadedFile(this.pom);
-      String finalName = upload.submit(this.pomName);
-
-      User currentUser =
-        (User) FacesContext.getCurrentInstance().getExternalContext()
-                .getSessionMap().get(User.getKey());
-
-      Database db = new Database();
-      try {
-        db.startTrans();
-        db.addPom(currentUser.getUsername(), this.getPomName(),
-                  upload.getUploadLocation() + finalName);
-        db.commitTrans();
-
-      }
-      catch (SQLException e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-    }
-    else {
+    if (pom == null) {
       System.out.println("Pom was null");
+      return;
+    }
+
+    System.out.println("Pom is not null");
+    User currentUser =
+        (User) FacesContext.getCurrentInstance().getExternalContext()
+            .getSessionMap().get(User.getKey());
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      int id = db.addPom(currentUser.getUsername(), this.getPomName());
+
+      TournamentProperties properties = new TournamentProperties();
+      upload.setUploadedFile(pom);
+      upload.setUploadLocation(properties.getProperty("pomLocation"));
+      upload.submit("pom." + id + ".xml");
+
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
     }
   }
 
@@ -376,10 +377,7 @@ public class ActionAdmin
       System.out.println("[INFO] Attempting to restart bootstrap " + gameId);
       scheduler.deleteBootTimer(gameId);
 
-      RunBootstrap runBootstrap = new RunBootstrap(gameId,
-                                                   Utils.getTourneyUrl(),
-                                                   t.getPomUrl(),
-                                                   properties.getProperty("destination"));
+      RunBootstrap runBootstrap = new RunBootstrap(gameId, t.getPomId());
       scheduler.runBootTimer(gameId, runBootstrap, new Date());
     }
     else if (g.getStatus().equalsIgnoreCase("game-failed") ||
@@ -388,10 +386,7 @@ public class ActionAdmin
       System.out.println("[INFO] Attempting to restart sim " + gameId);
       scheduler.deleteSimTimer(gameId);
 
-      RunGame runGame = new RunGame(gameId,
-                                    Utils.getTourneyUrl(),
-                                    t.getPomUrl(),
-                                    properties.getProperty("destination"));
+      RunGame runGame = new RunGame(gameId, t.getPomId());
       scheduler.runSimTimer(gameId, runGame, new Date());
     }
   }

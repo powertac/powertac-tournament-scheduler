@@ -4,7 +4,6 @@ import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Machine;
 
-import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
@@ -19,45 +18,26 @@ public class RunGame extends TimerTask
   private boolean running = false;
   private boolean tourney = false;
 
-  String logSuffix = "sim-";    // boot-game-" + game.getGameId() + "-tourney-"+
-                                // game.getCompetitionName();
-  String tourneyUrl = "";       // game.getTournamentSchedulerUrl();
-  String serverConfig = "";     // game.getServerConfigUrl();
-  String bootstrapUrl = "sim";  // This needs to be empty for jenkins to run a
-                                // bootstrapgame.getBootstrapUrl();
-  String pomUrl = "";           // game.getPomUrl();
-  String gameId = "";           // String.valueOf(game.getGameId());
-  String brokers = "";
-  String machineName = "";
-  String destination = "";
+  private String logSuffix = "sim-";
+  private String pomId = "";
+  private String gameId = "";
+  private String brokers = "";
+  private String machineName = "";
 
-  public RunGame (int gameId, String tourneyUrl, String pomUrl,
-                  String destination)
+  public RunGame (int gameId, int pomId)
   {
     this.gameId = String.valueOf(gameId);
-    this.tourneyUrl = tourneyUrl;
-    this.pomUrl = pomUrl;
-    this.destination = destination;
-
-    // Assumes Jenkins and TS live in the same location as per the install
-    serverConfig = tourneyUrl + "faces/properties.jsp?gameId=" + this.gameId;
-	running = false;
+    this.pomId = String.valueOf(pomId);
+	  running = false;
   }
 
-  public RunGame (int gameId, String tourneyUrl, String pomUrl,
-                  String destination, Machine machine, String brokers)
+  public RunGame (int gameId, int pomId, Machine machine, String brokers)
   {
     this.gameId = String.valueOf(gameId);
-    this.tourneyUrl = tourneyUrl;
-    this.pomUrl = pomUrl;
-    this.destination = destination;
-
+    this.pomId = String.valueOf(pomId);
     this.brokers = brokers;
     this.machine = machine;
 
-    // Assumes Jenkins and TS live in the same location as per the install
-    bootstrapUrl = tourneyUrl + "faces/pom.jsp?location=" + gameId + "-boot.xml";
-    serverConfig = tourneyUrl + "faces/properties.jsp?gameId=" + this.gameId;
     running = false;
     tourney = true;
   }
@@ -74,15 +54,12 @@ public class RunGame extends TimerTask
         try {
           db.startTrans();
           if (db.isGameReady(Integer.parseInt(gameId))) {
-            this.bootstrapUrl =
-              tourneyUrl + "/faces/pom.jsp?location=" + gameId + "-boot.xml";
             try {
               db.updateGameStatusById(Integer.parseInt(gameId), "game-pending");
               db.commitTrans();
             }
             catch (SQLException e) {
               db.abortTrans();
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
           }
@@ -122,36 +99,30 @@ public class RunGame extends TimerTask
           int numRegistered = db.getNumberBrokersRegistered(g.getTourneyId());
           if (numRegistered < 1) {
             System.out.println("TourneyId: " + g.getTourneyId());
-            System.out.println(
-                "No brokers registered for tournament waiting to start game "
-                + g.getGameId());
-            db.updateGameStatusById(Integer.parseInt(gameId), "boot-complete");
+            System.out.println("No brokers registered, waiting to start game " + gameId);
+            db.updateGameStatusById(gId, "boot-complete");
             db.commitTrans();
-            this.cancel();
+            cancel();
             return false;
-
           }
           else {
-            System.out.println("There are "
-                + numRegistered
+            System.out.println("There are "+ numRegistered
                 + " brokers registered for tournament... starting sim");
-            this.brokers = "";
+            brokers = "";
 
             List<Broker> brokerList =
               db.getBrokersInGame(Integer.parseInt(gameId));
             for (Broker b: brokerList) {
-              this.brokers += b.getBrokerName() + ",";
+              brokers += b.getBrokerName() + ",";
             }
-            int lastIndex = this.brokers.length();
-            this.brokers = this.brokers.substring(0, lastIndex - 1);
+            brokers = brokers.substring(0, brokers.length() - 1);
 
             if (brokerList.size() < 1) {
               System.out.println(
                   "Error no brokers listed in database for gameId: " + gameId);
-              this.cancel();
+              cancel();
               db.abortTrans();
               return false;
-              // System.exit(0);
             }
           }
 
@@ -160,7 +131,6 @@ public class RunGame extends TimerTask
         catch (SQLException e) {
           db.abortTrans();
           System.out.println("Broker Database error while scheduling sim!!");
-          // System.exit(0);
           e.printStackTrace();
         }
       }
@@ -168,8 +138,11 @@ public class RunGame extends TimerTask
     return true;
   }
 
+  // TODO Combine with check in RunBootstrap? Make a queue?
   private void checkMachineAvailable ()
   {
+    // TODO
+
     if (!tourney) {
       Database db = new Database();
       if (!running) {
@@ -183,24 +156,18 @@ public class RunGame extends TimerTask
             }
           }
           if (available.size() > 0) {
-            db.updateGameJmsUrlById(
-                Integer.parseInt(gameId),
-                "tcp://" + available.get(0).getUrl() + ":61616");
-            db.updateProperties(
-                Integer.parseInt(gameId),
-                "tcp://" + available.get(0).getUrl() + ":61616",
-                available.get(0).getVizQueue());
-            db.updateGameMachine(
-                Integer.parseInt(gameId),
-                available.get(0).getMachineId());
-            db.updateGameViz(
-                Integer.parseInt(gameId),
-                "http://"+ available.get(0).getVizUrl());
+            Machine firstAvailable = available.get(0);
+            int gId = Integer.parseInt(gameId);
+            String jmsUrl = "tcp://" + firstAvailable.getUrl() + ":61616";
 
-            db.setMachineStatus(available.get(0).getMachineId(), "running");
-            this.machineName = available.get(0).getName();
+            db.updateGameJmsUrlById(gId, jmsUrl);
+            db.updateProperties(gId, jmsUrl, firstAvailable.getVizQueue());
+            db.updateGameMachine(gId, firstAvailable.getMachineId());
+            db.updateGameViz(gId, firstAvailable.getVizUrl());
+            db.setMachineStatus(firstAvailable.getMachineId(), "running");
+            machineName = firstAvailable.getName();
             System.out.println("Game: " + gameId + " running on machine: "
-                               + this.machineName);
+                               + machineName);
             db.commitTrans();
           }
           else {
@@ -224,18 +191,17 @@ public class RunGame extends TimerTask
       Database db = new Database();
       try {
         db.startTrans();
-        db.updateGameJmsUrlById(Integer.parseInt(gameId), "tcp://"+ machine.getUrl()      
-                                                          + ":61616");
-        db.updateProperties(Integer.parseInt(gameId),
-                            "tcp://" + machine.getUrl() + ":61616",
-                            machine.getVizQueue());
-        db.updateGameMachine(Integer.parseInt(gameId), machine.getMachineId());
-        db.updateGameViz(Integer.parseInt(gameId), "http://" + machine.getVizUrl());
+        int gId = Integer.parseInt(gameId);
+        String jmsUrl = "tcp://" + machine.getUrl() + ":61616";
 
+        db.updateGameJmsUrlById(gId, jmsUrl);
+        db.updateProperties(gId, jmsUrl, machine.getVizQueue());
+        db.updateGameMachine(gId, machine.getMachineId());
+        db.updateGameViz(gId, machine.getVizUrl());
         db.setMachineStatus(machine.getMachineId(), "running");
-        this.machineName = machine.getName();
+        machineName = machine.getName();
         System.out.println("Game: " + gameId + " running on machine: "
-                           + this.machineName);
+                           + machineName);
         db.commitTrans();
       }
       catch (Exception e) {
@@ -256,32 +222,44 @@ public class RunGame extends TimerTask
       return;
     }
     // Check if there is a machine available to run the sim and set it
+    // TODO
     checkMachineAvailable();
 
     String finalUrl =
-      "http://localhost:8080/jenkins/job/"
-              + "start-server-instance/buildWithParameters?"
-              + "token=start-instance"
-              + "&tourneyUrl=" + tourneyUrl
-              + "&suffix=" + logSuffix
-              + "&propUrl=" + serverConfig
-              + "&pomUrl=" + pomUrl
-              + "&bootUrl=" + bootstrapUrl
-              + "&brokers=" + brokers
-              + "&machine=" + machineName
-              + "&gameId=" + gameId
-              + "&destination=" + destination;
+        "http://localhost:8080/jenkins/job/"
+        + "start-server-instance/buildWithParameters?"
+        + "token=start-instance"
+        + "&tourneyUrl=" + Utils.getTourneyUrl()
+        + "&suffix=" + logSuffix
+        + "&pomId=" + pomId
+        + "&machine=" + machineName
+        + "&gameId=" + gameId
+        + "&brokers=" + brokers;
+
+      /*
+        http://localhost:8080/jenkins/job/
+          start-server-instance/buildWithParameters?
+          token=start-instance&
+          tourneyUrl=http://127.0.1.1:8080/TournamentScheduler/
+          &suffix=sim-
+          &propUrl=http://127.0.1.1:8080/TournamentScheduler/faces/properties.jsp?gameId=7
+          &pomUrl=http://127.0.1.1:8080/TournamentScheduler/faces/pom.jsp?pomId=1
+          &bootUrl=http://127.0.1.1:8080/TournamentScheduler/faces/serverInterface.jsp?action=boot&gameId=7
+          &machine=localhost
+          &gameId=7
+          &brokers=LARGEpower1,LARGEpower2
+          */
 
     System.out.println("{INFO] Final url: " + finalUrl);
 
     try {
       if (!running) {
+        // TODO Check if we need getinputstream
         URL url = new URL(finalUrl);
         URLConnection conn = url.openConnection();
-        // Get the response
-        InputStream input = conn.getInputStream();
+        conn.getInputStream();
         System.out.println("Jenkins request to start sim game: " + gameId);
-        this.running = true;
+        running = true;
       }
       else {
         // Should not get here

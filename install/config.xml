@@ -19,17 +19,12 @@
           <defaultValue>http://127.0.0.1:8080/TournamentScheduler</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>propUrl</name>
-          <description></description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
           <name>suffix</name>
           <description></description>
           <defaultValue>bootstrap</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>pomUrl</name>
+          <name>pomId</name>
           <description></description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
@@ -44,20 +39,10 @@
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>bootUrl</name>
-          <description></description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>destination</name>
-          <description>Jenkins needs to be running under the tacrun account and have ssh keys set-up for this to work</description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition>
           <name>machine</name>
           <description></description>
-          <defaultValue>master</defaultValue>
-        </org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -71,53 +56,145 @@
   <concurrentBuild>true</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>#!/bin/sh
-echo Job Name: $JOB_NAME
-echo Node Name: $NODE_NAME
-echo Tournament Scheduler URL: $tourneyUrl
-echo Server Config URL: $propUrl
-echo Log File Suffix: $suffix
-echo Build running under account...
-whoami
-echo Running on machine $machine
+      <command>#!/bin/bash
 
-wget $pomUrl
+###############################################################################
+# You might want or need to change these 
+###############################################################################
+LOGFILE=&quot;./log/$(date +%y%m%d_%H%M).log&quot;
+MVN_CMD=&quot;mvn&quot;
+#COMP_CMD=&quot;7za a -mx=9&quot; COMP_EXT=&quot;7z&quot;
+#COMP_CMD=&quot;tar -cjvf&quot; #COMP_EXT=&quot;bz2&quot;
+#COMP_CMD=&quot;zip -9&quot;    #COMP_EXT=&quot;9.zip&quot;
+#COMP_CMD=&quot;zip&quot;       #COMP_EXT=&quot;zip&quot;
+COMP_CMD=&quot;tar -czvf&quot;
+COMP_EXT=&quot;tar.gz&quot;
 
+interfacePath=&quot;faces/serverInterface.jsp&quot;
+propPath=&quot;faces/properties.jsp&quot;
+pomPath=&quot;faces/pom.jsp&quot;
+LOGFILE=&quot;./log/$(date +%y%m%d_%H%M).log&quot;
+
+
+###############################################################################
+# No need to change anything below this line
+###############################################################################
+
+function log () {
+    if [ &quot;$1&quot; == &apos;nl&apos; ]; then
+        echo -e &quot;\n$2&quot;  | tee -a $LOGFILE
+    else
+        echo &quot;$1&quot;       | tee -a $LOGFILE
+    fi
+}
+
+function cleanup () {
+    # TODO Enable below
+    #log nl &quot;Cleaning up&quot;
+    #rm -fr ./log/init*
+    #rm -fr ./log/powertac*
+    #rm -fr ./game*
+    #rm -fr ./pom.xml
+
+    log nl &quot;Not cleaning up, need to enable this&quot;
+}
+
+# Some intermediate variables
+interfaceUrl=&quot;$tourneyUrl$interfacePath&quot;
+bootUrl=&quot;$interfaceUrl?action=boot&amp;gameId=$gameId&quot;
+propUrl=&quot;$tourneyUrl$propPath?gameId=$gameId&quot;
+pomUrl=&quot;$tourneyUrl$pomPath?pomId=$pomId&quot;
+bootName=&quot;game-$gameId-boot&quot;
+simName=&quot;game-$gameId-sim&quot;
+
+log &quot;Nodename    : $NODE_NAME&quot;
+log &quot;Account     : ${USER}&quot;
+log &quot;Machine     : $machine&quot;
+log &quot;GameId      : $gameId&quot;
+log &quot;PomId       : $pomId&quot;
+log &quot;TourneyUrl  : $tourneyUrl&quot;
+log &quot;Suffix      : $suffix&quot;
+log &quot;Brokers     : $brokers&quot;
+log &quot;MVN_CMD     : $MVN_CMD&quot;
+log &quot;COMP_CMD    : $COMP_CMD&quot;
+log &quot;COMP_EXT    : $COMP_EXT&quot;
+
+# TODO Remove below
+log &quot;interfacePath : $interfacePath&quot;
+log &quot;propPath      : $propPath&quot;
+log &quot;pomPath       : $pomPath&quot;
+log &quot;interfaceUrl  : $interfaceUrl&quot;
+log &quot;bootUrl       : $bootUrl&quot;
+log &quot;propUrl       : $propUrl&quot;
+log &quot;pomUrl        : $pomUrl&quot;
+log &quot;bootName      : $bootName&quot;
+log &quot;simName       : $simName&quot;
+
+
+log nl &quot;Getting pom file from $pomUrl&quot;
 wget -O pom.xml $pomUrl
 
-if [ &quot;$bootUrl&quot; = &quot;&quot; ] ; then
-    echo &quot;Running in bootstrap mode!&quot;
-    wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-running&quot;
+if [ &quot;$brokers&quot; = &quot;&quot; ] ; then
+    log nl &quot;Running in bootstrap mode!&quot;
 
-    mvn -Pcli -Dexec.args=&quot;-boot $gameId-boot.xml --config $propUrl --log-suffix $suffix&quot;
-    echo &quot;Bootstrap complete!&quot;
-    echo &quot;Posting bootstrap&quot;
-    tar -cvzf game-$gameId-boot-logs.tar.gz log
+    log nl &quot;Notify TM we&apos;re bootstrap-running&quot;
+    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot-running&quot;
 
-    #need ssh keys setup to do this part without a password
-    #scp game-$gameId-boot-logs.tar.gz $destination
-    #scp $gameId-boot.xml $destination
-    cp game-$gameId-boot-logs.tar.gz $destination
-    cp $gameId-boot.xml $destination
-    wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=bootstrap-done&quot;
-    
+    CMD=&quot;$MVN_CMD -Pcli -Dexec.args=\&quot;--boot $bootName.xml --config=$propUrl --log-suffix $suffix$gameId\&quot;&quot;
+    log nl &quot;Run maven : $CMD&quot;
+    eval $CMD
 
-    #curl --upload-file boot.xml &quot;http://localhost:8080/TournamentScheduler/faces/serverInterface.jsp&quot;
-    exit 0
+    log nl &quot;Bootstrap complete!&quot;
+
+    if [ -e &quot;$bootName.xml&quot; ] ; then
+        FILESIZE=$(stat -c%s &quot;$bootName.xml&quot;)
+    else
+        FILESIZE=0
+    fi
+
+    if [ &quot;$FILESIZE&quot; -eq 0 ] ; then
+        log nl &quot;Notify TM we&apos;re boot-failed&quot;
+        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot-failed&quot;
+
+        cleanup
+        exit 1
+    else
+        log nl &quot;Compressing log files&quot;
+        $COMP_CMD &quot;$bootName-logs.$COMP_EXT&quot; log/powertac-$suffix$gameId.* log/init.*
+
+        log nl &quot;Sending log file&quot;
+        curl --upload-file &quot;$bootName-logs.$COMP_EXT&quot; &quot;$interfaceUrl?fileName=$bootName-logs.$COMP_EXT&quot;
+
+        log nl &quot;Sending boot file&quot;
+        curl --upload-file &quot;$bootName.xml&quot; &quot;$interfaceUrl?fileName=$bootName.xml&quot;
+
+        log nl &quot;Notify TM we&apos;re boot-done&quot;
+        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot-done&quot;
+    fi
 else
-    echo &quot;Running in sim mode!&quot;
-    echo Brokers: $brokers
-    #Notify the TM in 30 seconds that the server is ready for games in a subshell
-   (sleep 30; wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=game-ready&quot;)&amp;
-    mvn -Pcli -Dexec.args=&quot;-sim --boot-data=$bootUrl --config $propUrl --log-suffix $suffix --brokers $brokers&quot;
+    log &quot;Running in sim mode!&quot;
 
-    tar -cvzf game-$gameId-sim-logs.tar.gz log
-    cp game-$gameId-sim-logs.tar.gz $destination
+    log nl &quot;Brokers: $brokers&quot;
 
-    wget &quot;$tourneyUrl/faces/serverInterface.jsp?action=status&amp;gameId=$gameId&amp;status=game-done&quot;
+    log nl &quot;Notify TM we&apos;re game-ready in 30 seconds&quot;
+    (sleep 30; wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game-ready&quot;) &amp;
 
-    exit 0
-fi</command>
+    CMD=&quot;mvn -Pcli -Dexec.args=\&quot;-sim --boot-data=$bootUrl --config $propUrl --log-suffix $suffix$gameId --brokers $brokers\&quot;&quot;
+    log nl &quot;Run maven : $CMD&quot;
+    eval $CMD
+
+    log nl &quot;Compressing log files&quot;
+    $COMP_CMD &quot;$simName-logs.$COMP_EXT&quot; log/powertac-$suffix$gameId.* log/init.*
+
+    log nl &quot;Sending log file&quot;
+    curl --upload-file &quot;$simName-logs.$COMP_EXT&quot; &quot;$interfaceUrl?fileName=$simName-logs.$COMP_EXT&quot;
+
+    log nl &quot;Notify TM we&apos;re game-done&quot;
+    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game-done&quot;
+fi
+
+cleanup
+exit 0</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

@@ -57,28 +57,4 @@ public class Utils {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
     return sdf.parse(date);
   }
-
-
-  // TODO Get all these from config?
-  public static String getInterfacePath() {
-    return "faces/serverInterface.jsp";
-  }
-  public static String getBootUrl(int gameId) {
-    return getTourneyUrl() + getInterfacePath() + "?action=boot&gameId=" + gameId;
-  }
-  public static String getBootUrl(String gameId) {
-    return getTourneyUrl() + getInterfacePath() + "?action=boot&gameId=" + gameId;
-  }
-  public static String getPropertiesUrl(int gameId) {
-    return getTourneyUrl() + "faces/properties.jsp?gameId=" + gameId;
-  }
-  public static String getPropertiesUrl(String gameId) {
-    return getTourneyUrl() + "faces/properties.jsp?gameId=" + gameId;
-  }
-  public static String getPomUrl(int pomId) {
-    return getTourneyUrl() + "faces/pom.jsp?pomId=" + pomId;
-  }
-  public static String getPomUrl(String pomId) {
-    return getTourneyUrl() + "faces/pom.jsp?pomId=" + pomId;
-  }
 }

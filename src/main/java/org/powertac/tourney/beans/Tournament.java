@@ -37,14 +37,11 @@ public class Tournament
 
   private int maxBrokerInstances = 2;
 
+  private int pomId;
   private String pomName;
 
   // Probably Should check name against auth token
   private HashMap<Integer, String> registeredBrokers;
-
-  private String pomUrl;
-
-  private HashMap<Integer, Game> allGames;
 
   public Tournament ()
   {
@@ -60,7 +57,7 @@ public class Tournament
       setOpenRegistration(rsTs.getBoolean("openRegistration"));
       setType(rsTs.getString("type"));
       setMaxGames(rsTs.getInt("maxGames"));
-      setPomUrl(rsTs.getString("pomUrl"));
+      setPomId(rsTs.getInt("pomId"));
       setMaxBrokers(rsTs.getInt("maxBrokers"));
       setStartTime(Utils.dateFormatUTCmilli((rsTs.getString("startTime"))));
       setSize1(rsTs.getInt("gameSize1"));
@@ -276,14 +273,14 @@ public class Tournament
     this.maxBrokers = maxBrokers;
   }
 
-  public String getPomUrl ()
+  public int getPomId ()
   {
-    return pomUrl;
+    return pomId;
   }
 
-  public void setPomUrl (String pomUrl)
+  public void setPomId (int pomId)
   {
-    this.pomUrl = pomUrl;
+    this.pomId = pomId;
   }
 
   public String getStatus ()
