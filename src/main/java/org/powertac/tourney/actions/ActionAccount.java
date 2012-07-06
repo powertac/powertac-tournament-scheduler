@@ -118,7 +118,6 @@ public class ActionAccount
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
   }
 
   public void cancelBroker (Broker b)
@@ -132,12 +131,13 @@ public class ActionAccount
 
   public List<Tournament> getAvailableTournaments (Broker b)
   {
-    if (b == null) {
-      return null;
-    }
-
     List<Tournament> allTournaments = new ArrayList<Tournament>();
     Vector<Tournament> availableTourneys = new Vector<Tournament>();
+
+    if (b == null) {
+      return availableTourneys;
+    }
+
     Database db = new Database();
     try {
       db.startTrans();
@@ -156,7 +156,6 @@ public class ActionAccount
             && t.getStartTime().after(new Date())) {
           availableTourneys.add(t);
         }
-
       }
       catch (SQLException e) {
         db.abortTrans();
@@ -166,7 +165,7 @@ public class ActionAccount
     }
     db.commitTrans();
 
-    return (List<Tournament>) availableTourneys;
+    return availableTourneys;
   }
 
   public String register (Broker b)

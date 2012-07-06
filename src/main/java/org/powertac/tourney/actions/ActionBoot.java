@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @Scope("request")
 public class ActionBoot
 {
-
   @Autowired
   Upload upload;
 
@@ -31,7 +30,5 @@ public class ActionBoot
   {
     upload.setUploadedFile(boot);
     upload.submit(boot.getName());
-
   }
-
 }

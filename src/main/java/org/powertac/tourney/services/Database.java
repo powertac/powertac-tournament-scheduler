@@ -10,6 +10,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
+
 @Component("database")
 @Scope("request")
 public class Database
@@ -883,6 +884,20 @@ public class Database
     updateGame.setString(1, status);
 
     return updateGame.executeUpdate();
+  }
+
+  public int updateGameBootstrapById (int gameId, boolean hasBootstrap)
+      throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_BOOTSTRAP);
+    ps.setInt(2, gameId);
+    ps.setBoolean(1, hasBootstrap);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
   }
 
   public int updateGameMachine (int gameId, int machineId) throws SQLException

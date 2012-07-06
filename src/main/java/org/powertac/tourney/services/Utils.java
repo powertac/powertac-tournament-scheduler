@@ -16,7 +16,7 @@ import java.util.TimeZone;
 
 public class Utils {
   public static String getTourneyUrl() {
-    // TODO Get this from Properties
+    // TODO Get this from Properties ??
     String tourneyUrl = "http://%s:8080/TournamentScheduler/";
     try {
       InetAddress thisIp = InetAddress.getLocalHost();
@@ -27,6 +27,13 @@ public class Utils {
     }
 
     return tourneyUrl;
+  }
+
+  public static String getJenkinsUrl() {
+    // TODO Get this from Properties ??
+    String jenkinsUrl = "http://localhost:8080/jenkins/";
+
+    return jenkinsUrl;
   }
 
   public static boolean checkClientAllowed(String clientAddress) {
@@ -42,15 +49,13 @@ public class Utils {
   }
   public static String dateFormatUTC(Date date) {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-    // TODO Find out about the triple M
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     return sdf.format(date);
   }
   public static Date dateFormatUTCmilli(String date) throws ParseException {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-    // TODO Find out about the double quotes
-    return sdf.parse((date));
+    return sdf.parse(date);
   }
 
 

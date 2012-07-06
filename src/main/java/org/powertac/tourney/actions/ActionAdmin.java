@@ -158,7 +158,6 @@ public class ActionAdmin
       db.startTrans();
       poms = db.getPoms();
       db.commitTrans();
-
     }
     catch (SQLException e) {
       db.abortTrans();
@@ -276,26 +275,31 @@ public class ActionAdmin
     }
   }
   
-  public void editMachine(Machine m){
-	machineId = m.getMachineId();
-	newName = m.getName();
-	newUrl = m.getUrl();
-	newViz = m.getVizUrl();
-	newQueue = m.getVizQueue();
+  public void editMachine(Machine m)
+  {
+    machineId = m.getMachineId();
+    newName = m.getName();
+    newUrl = m.getUrl();
+    newViz = m.getVizUrl();
+    newQueue = m.getVizQueue();
   }
   
-  public void saveMachine(){
+  public void saveMachine()
+  {
+    newUrl = newUrl.replace("https://", "").replace("http://", "");
+    newViz = newViz.replace("https://", "").replace("http://", "");
+
     if (newName.isEmpty() || newUrl.isEmpty() || newViz.isEmpty() || newQueue.isEmpty()) {
-        System.out.println("Some machine fields are empty!");
-        message = "Error : machine not saved, some fields were empty!";
+      System.out.println("Some machine fields are empty!");
+      message = "Error : machine not saved, some fields were empty!";
   	  return;
   	}  
 	  
-	// It's a new machine  
-	if (machineId == -1) {
-	  addMachine();
-	  return;
-	}
+    // It's a new machine
+    if (machineId == -1) {
+      addMachine();
+      return;
+    }
 	  
     Database db = new Database();
     try {
@@ -420,10 +424,10 @@ public class ActionAdmin
 
   public void addLocation ()
   {
-	if (newLocationName.isEmpty() || (newLocationStartTime == null) || (newLocationEndTime == null)) {
-	  System.out.println("Some location fields are empty!");	
-	  return;
-	}
+    if (newLocationName.isEmpty() || (newLocationStartTime == null) || (newLocationEndTime == null)) {
+      System.out.println("Some location fields are empty!");
+      return;
+    }
 	  
     Database db = new Database();
     try {
@@ -435,14 +439,22 @@ public class ActionAdmin
       db.abortTrans();
       e.printStackTrace();
     }
-
   }
 
+  private void resetMachineData() {
+    machineId = -1;
+    newName = "";
+    newUrl = "";
+    newViz = "";
+    newQueue = "";
+  }
+
+
+  //<editor-fold desc="Setters and Getters">
   public int getRowCount ()
   {
     return rowCount;
   }
-
   public void setRowCount (int rowCount)
   {
     this.rowCount = rowCount;
@@ -452,7 +464,6 @@ public class ActionAdmin
   {
     return sortAscending;
   }
-
   public void setSortAscending (boolean sortAscending)
   {
     this.sortAscending = sortAscending;
@@ -462,7 +473,6 @@ public class ActionAdmin
   {
     return sortColumn;
   }
-
   public void setSortColumn (String sortColumn)
   {
     this.sortColumn = sortColumn;
@@ -472,7 +482,6 @@ public class ActionAdmin
   {
     return newLocationName;
   }
-
   public void setNewLocationName (String newLocationName)
   {
     this.newLocationName = newLocationName;
@@ -482,7 +491,6 @@ public class ActionAdmin
   {
     return newLocationStartTime;
   }
-
   public void setNewLocationStartTime (Date newLocationStartTime)
   {
     this.newLocationStartTime = newLocationStartTime;
@@ -492,7 +500,6 @@ public class ActionAdmin
   {
     return newLocationEndTime;
   }
-
   public void setNewLocationEndTime (Date newLocationEndTime)
   {
     this.newLocationEndTime = newLocationEndTime;
@@ -502,7 +509,6 @@ public class ActionAdmin
   {
     return sortColumnMachine;
   }
-
   public void setSortColumnMachine (String sortColumnMachine)
   {
     this.sortColumnMachine = sortColumnMachine;
@@ -512,7 +518,6 @@ public class ActionAdmin
   {
     return sortAscendingMachine;
   }
-
   public void setSortAscendingMachine (boolean sortAscendingMachine)
   {
     this.sortAscendingMachine = sortAscendingMachine;
@@ -522,7 +527,6 @@ public class ActionAdmin
   {
     return rowCountMachine;
   }
-
   public void setRowCountMachine (int rowCountMachine)
   {
     this.rowCountMachine = rowCountMachine;
@@ -532,7 +536,6 @@ public class ActionAdmin
   {
     return newName;
   }
-
   public void setNewName (String newName)
   {
     this.newName = newName;
@@ -542,7 +545,6 @@ public class ActionAdmin
   {
     return newUrl;
   }
-
   public void setNewUrl (String newUrl)
   {
     this.newUrl = newUrl;
@@ -552,7 +554,6 @@ public class ActionAdmin
   {
     return newViz;
   }
-
   public void setNewViz (String newViz)
   {
     this.newViz = newViz;
@@ -562,7 +563,6 @@ public class ActionAdmin
   {
     return newQueue;
   }
-
   public void setNewQueue (String newQueue)
   {
     this.newQueue = newQueue;
@@ -570,20 +570,12 @@ public class ActionAdmin
 
   public int getMachineId ()
   {
-	return machineId;
+	  return machineId;
   }
   public void setMachineId(int machineId) {
-	this.machineId = machineId;
+	  this.machineId = machineId;
   }
-  
-  private void resetMachineData() {
-    machineId = -1;
-    newName = "";
-    newUrl = "";
-    newViz = "";
-    newQueue = "";  
-  }
-  
+
   public String getMessage() {
 	  return message;
   }
@@ -592,7 +584,6 @@ public class ActionAdmin
   {
     return sortColumnUsers;
   }
-
   public void setSortColumnUsers (String sortColumnUsers)
   {
     this.sortColumnUsers = sortColumnUsers;
@@ -602,7 +593,6 @@ public class ActionAdmin
   {
     return sortAscendingUsers;
   }
-
   public void setSortAscendingUsers (boolean sortAscendingUsers)
   {
     this.sortAscendingUsers = sortAscendingUsers;
@@ -612,7 +602,6 @@ public class ActionAdmin
   {
     return rowCountUsers;
   }
-
   public void setRowCountUsers (int rowCountUsers)
   {
     this.rowCountUsers = rowCountUsers;
@@ -622,7 +611,6 @@ public class ActionAdmin
   {
     return sortColumnTournaments;
   }
-
   public void setSortColumnTournaments (String sortColumnTournaments)
   {
     this.sortColumnTournaments = sortColumnTournaments;
@@ -632,7 +620,6 @@ public class ActionAdmin
   {
     return sortAscendingTournaments;
   }
-
   public void setSortAscendingTournaments (boolean sortAscendingTournaments)
   {
     this.sortAscendingTournaments = sortAscendingTournaments;
@@ -642,7 +629,6 @@ public class ActionAdmin
   {
     return rowCountTournaments;
   }
-
   public void setRowCountTournaments (int rowCountTournaments)
   {
     this.rowCountTournaments = rowCountTournaments;
@@ -652,7 +638,6 @@ public class ActionAdmin
   {
     return sortColumnGames;
   }
-
   public void setSortColumnGames (String sortColumnGames)
   {
     this.sortColumnGames = sortColumnGames;
@@ -662,7 +647,6 @@ public class ActionAdmin
   {
     return sortAscendingGames;
   }
-
   public void setSortAscendingGames (boolean sortAscendingGames)
   {
     this.sortAscendingGames = sortAscendingGames;
@@ -672,9 +656,9 @@ public class ActionAdmin
   {
     return rowCountGames;
   }
-
   public void setRowCountGames (int rowCountGames)
   {
     this.rowCountGames = rowCountGames;
   }
+  //</editor-fold>
 }
