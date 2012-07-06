@@ -6,10 +6,13 @@ import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.constants.Constants;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("rest")
 public class Rest
@@ -21,10 +24,6 @@ public class Rest
     String responseType = params.get(Constants.Rest.REQ_PARAM_TYPE)[0];
     String brokerAuthToken = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
     String competitionName = params.get(Constants.Rest.REQ_PARAM_JOIN)[0];
-
-    SimpleDateFormat dateFormatUTC =
-      new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
-    dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
 
     String retryResponse;
     String loginResponse;
@@ -105,7 +104,6 @@ public class Rest
                            + competitionName + " --sending done");
           return doneResponse;
         }
-
       }
       Thread.sleep(30000);
     }
@@ -238,7 +236,7 @@ public class Rest
       // Determine pom-file location
       TournamentProperties properties = new TournamentProperties();
       String pomLocation = properties.getProperty("pomLocation") +
-                            "pom."+ pomId +".xml";
+          "pom."+ pomId +".xml";
 
       // Read the file
       FileInputStream fstream = new FileInputStream(pomLocation);
@@ -328,6 +326,7 @@ public class Rest
         db.startTrans();
 
         db.updateGameStatusById(gameId, "boot-complete");
+        db.updateGameBootstrapById(gameId, true);
         scheduler.bootrunning = false;
         Game g = db.getGame(gameId);
         db.setMachineStatus(g.getMachineId(), "idle");
@@ -448,5 +447,40 @@ public class Rest
     if (!f.delete()) {
       System.out.println("[Error] Failed to delete : " + bootLocation);
     }
+  }
+
+  /***
+   * Handle 'PUT' to serverInterface.jsp, either boot.xml or (Boot|Sim) log
+   */
+  public String handleServerInterfacePUT (Map<String, String[]> params, HttpServletRequest request)
+  {
+    if (!Utils.checkClientAllowed(request.getRemoteAddr())) {
+      return "error";
+    }
+
+    try {
+      String fileName = params.get(Constants.Rest.REQ_PARAM_FILENAME)[0];
+      TournamentProperties properties = new TournamentProperties();
+
+      String path;
+      if (fileName.endsWith("boot.xml")) {
+        path = properties.getProperty("bootLocation") + fileName;
+      } else {
+        path = properties.getProperty("logLocation") + fileName;
+      }
+
+      // Write to file
+      InputStream is = request.getInputStream();
+      FileOutputStream fos = new FileOutputStream(path);
+      byte buf[] = new byte[1024];
+      int letti;
+      while ((letti = is.read(buf)) > 0) {
+        fos.write(buf, 0, letti);
+      }
+      fos.close();
+    } catch (Exception e) {
+      return "error";
+    }
+    return "success";
   }
 }

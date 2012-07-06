@@ -68,7 +68,7 @@
 						<f:facet name="header">
 							<h:outputText value="Pom Link" />
 						</f:facet>
-						<a href="#{t.pomUrl}">Pom</a>
+						<a href="pom.jsp?pomId=#{t.pomId}">Pom</a>
 					</t:column>
 				</t:dataTable>
 			</h:form>
@@ -137,7 +137,7 @@
 					<h:panelGroup>
 						<h:selectOneMenu id="poms" value="#{actionTournament.selectedPom}" required="true">
 							<f:selectItems value="#{actionTournament.pomList}" var="p"
-								itemValue="#{p.location}" itemLabel="#{p.name}" />
+								itemValue="#{p.pomId}" itemLabel="#{p.name}" />
 						</h:selectOneMenu>
 					</h:panelGroup>
 

@@ -13,8 +13,6 @@ CREATE TABLE `tourney`.`users` (
 	PRIMARY KEY (`userId`)
 ) ENGINE=InnoDB;
 
-/* Admin Erik user insert for testing should be removed in prod*/
-INSERT INTO `tourney`.`users` (userName, salt, password, permissionId) VALUES ('erik', '1234567testsalt', md5('test1234567testsalt'), 0);
 
 /* Create broker table with key constraint on userId */
 DROP TABLE IF EXISTS `tourney`.`brokers`;
@@ -48,9 +46,11 @@ CREATE TABLE `tourney`.`tournaments` (
 	`numberGameSize3` integer NOT NULL,
 	`maxBrokerInstances` integer NOT NULL DEFAULT 2,
 	`type` VARCHAR(32) NOT NULL, /* Type is either multi-game or single game if single game ignore the gameSize params */
-	`pomUrl` VARCHAR(256) NOT NULL, /* This will be the url to the pom file */
+	`pomId` integer NOT NULL, /* This will be a foreign key to poms.pomId */
 	`locations` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
-	PRIMARY KEY (`tourneyId`)
+	PRIMARY KEY (`tourneyId`),
+
+	CONSTRAINT `tournaments_refs` FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`);
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `tourney`.`registration`;
@@ -71,6 +71,7 @@ CREATE TABLE `tourney`.`logs` (
 	PRIMARY KEY (`logId`)
 ) ENGINE=InnoDB;
 
+
 DROP TABLE IF EXISTS `tourney`.`machines`;
 CREATE TABLE `tourney`.`machines` (
 	`machineId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -82,18 +83,6 @@ CREATE TABLE `tourney`.`machines` (
 	`available` BOOLEAN NOT NULL,
 	PRIMARY KEY (`machineId`)
 ) ENGINE=InnoDB;
-
-/* Local machines for testing purposes should be removed in prod*/
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac09', 'tac09.cs.umn.edu','tac02.cs.umn.edu:8080/viz1','vizQueue1', 'idle', true);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac10', 'tac10.cs.umn.edu','tac02.cs.umn.edu:8080/viz2','vizQueue2', 'idle', true);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac11', 'tac11.cs.umn.edu','tac02.cs.umn.edu:8080/viz3','vizQueue3', 'idle', true);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac12', 'tac12.cs.umn.edu','tac02.cs.umn.edu:8080/viz4','vizQueue4', 'idle', true);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac13', 'tac13.cs.umn.edu','tac02.cs.umn.edu:8080/viz5','vizQueue5', 'idle', true);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac14', 'tac14.cs.umn.edu','tac02.cs.umn.edu:8080/viz6','vizQueue6', 'idle', true);
-INSERT INTO `tourney`.`machines` (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES ('tac15', 'tac15.cs.umn.edu','tac02.cs.umn.edu:8080/viz7','vizQueue7', 'idle', true);
-
-
-
 
 
 /* Create properties list*/
@@ -107,6 +96,7 @@ CREATE TABLE `tourney`.`properties` (
 	`vizQueue` VARCHAR(256) NOT NULL,
 	PRIMARY KEY (`propId`)
 ) ENGINE=InnoDB;
+
 
 /* Create top level tournament list */
 DROP TABLE IF EXISTS `tourney`.`games`;
@@ -129,7 +119,7 @@ CREATE TABLE `tourney`.`games` (
 ) ENGINE=InnoDB;
 
 
-
+/* Create permissions list */
 DROP TABLE IF EXISTS `tourney`.`permissions`;
 CREATE TABLE `tourney`.`permissions` (
 	`permissionId` integer UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -138,6 +128,7 @@ CREATE TABLE `tourney`.`permissions` (
 ) ENGINE=InnoDB;
 
 
+/* Create poms list */
 DROP TABLE IF EXISTS `tourney`.`poms`;
 CREATE TABLE `tourney`.`poms` (
 	`pomId` integer UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -157,6 +148,9 @@ CREATE TABLE `tourney`.`locations` (
 	PRIMARY KEY (`locationId`)
 ) ENGINE=InnoDB;
 
+INSERT INTO `locations` (`locationId`, `location`, `fromDate`, `toDate`) VALUES (1, 'minneapolis', '2009-01-01 00:00:00', '2009-06-01 00:00:00');
+
+
 DROP TABLE IF EXISTS `tourney`.`ingame`;
 CREATE TABLE `tourney`.`ingame` (
 	`ingameId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -168,6 +162,7 @@ CREATE TABLE `tourney`.`ingame` (
 	CONSTRAINT gameId_refs2 FOREIGN KEY (`gameId`) REFERENCES `tourney`.`games` ( `gameId` ),
 	PRIMARY KEY (`ingameId`)
 ) ENGINE=InnoDB;
+
 
 DROP TABLE IF EXISTS `tourney`.`competitions`;
 CREATE TABLE `tourney`.`competitions` (
@@ -183,7 +178,6 @@ CREATE TABLE `tourney`.`competitions` (
 
 /*** SCHEDULING TABLES ****/
 
-                                             
 CREATE TABLE `tourney`.`AgentAdmin` (
   `InternalAgentID` int(18) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Internal Game ID',
   `AgentType` int(18) unsigned NOT NULL,
@@ -193,6 +187,7 @@ CREATE TABLE `tourney`.`AgentAdmin` (
   PRIMARY KEY (`InternalAgentID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 
+
 CREATE TABLE `tourney`.`AgentQueue` (
   `InternalAgentID` int(18) unsigned NOT NULL,
   `AgentType` int(10) DEFAULT NULL,
@@ -200,6 +195,7 @@ CREATE TABLE `tourney`.`AgentQueue` (
   `Age` int(18) unsigned NOT NULL DEFAULT '0',
   `IsPlaying` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 
 CREATE TABLE `tourney`.`GameArchive` (
   `InternalGameID` int(18) unsigned NOT NULL AUTO_INCREMENT,
@@ -210,6 +206,7 @@ CREATE TABLE `tourney`.`GameArchive` (
   `IsPlaying` tinyint(1) unsigned NOT NULL,
   PRIMARY KEY (`InternalGameID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=latin1;
+
 
 CREATE TABLE `tourney`.`GameLog` (
   `InternalAgentID` int(18) unsigned NOT NULL,
@@ -225,5 +222,3 @@ CREATE TABLE `tourney`.`GameServers` (
   `IsPlaying` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ServerNumber`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
-
-

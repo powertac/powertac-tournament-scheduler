@@ -10,6 +10,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
+
 @Component("database")
 @Scope("request")
 public class Database
@@ -39,24 +40,1028 @@ public class Database
     password = properties.getProperty("db.password");
   }
 
+  public List<org.powertac.tourney.beans.User> getAllUsers () throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_USERS);
+
+    List<org.powertac.tourney.beans.User> users = new ArrayList<org.powertac.tourney.beans.User>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      org.powertac.tourney.beans.User tmp = new org.powertac.tourney.beans.User();
+      tmp.setUsername(rs.getString("userName"));
+      tmp.setPassword(rs.getString("password"));
+      tmp.setUserId(rs.getInt("userId"));
+      tmp.setPermissions(rs.getInt("permissionId"));
+      users.add(tmp);
+    }
+
+    rs.close();
+    ps.close();
+
+    return users;
+  }
+
+  public int addUser (String username, String password) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.ADD_USER);
+    // Use a pool of entropy to secure salts
+    String genSalt = DigestUtils.md5Hex(Math.random() + (new Date()).toString());
+    ps.setString(1, username);
+    ps.setString(2, genSalt);
+    // Store hashed and salted passwords
+    ps.setString(3, DigestUtils.md5Hex(password + genSalt));
+    ps.setInt(4, 3); // Lowest perm level for logged in user is 3
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int[] loginUser (String username, String password) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.LOGIN_SALT);
+    ps.setString(1, username);
+
+    boolean userExist = false;
+    ResultSet rs = ps.executeQuery();
+    // salt and hash password
+    String salt = "";
+    String digest = "";
+    int userId = -1;
+    int permission = 99; // Lowest permission level
+    if (rs.next()) {
+      digest = rs.getString("password");
+      salt = rs.getString("salt");
+      permission = rs.getInt("permissionId");
+      userId = rs.getInt("userId");
+      userExist = true;
+    }
+    else { // Time resistant attack we need to hash something
+      digest = "000000000000000000000000000=";
+      salt = "00000000000=";
+      userExist = false;
+    }
+
+    int[] result = {-1, -1};
+    if (DigestUtils.md5Hex(password + salt).equals(digest) && userExist) {
+      result[0] = permission;
+      result[1] = userId;
+    }
+
+    rs.close();
+    ps.close();
+
+    return result;
+  }
+
+  public int addBroker (int userId, String brokerName, String shortDescription)
+    throws SQLException
+  {
+    org.powertac.tourney.beans.Broker b =
+      new org.powertac.tourney.beans.Broker(brokerName, shortDescription);
+    
+    PreparedStatement ps = conn.prepareStatement(Constants.ADD_BROKER);
+    ps.setString(1, brokerName);
+    ps.setString(2, b.getBrokerAuthToken());
+    ps.setString(3, shortDescription);
+    ps.setInt(4, userId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public List<Broker> getBrokersByUserId (int userId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.SELECT_BROKERS_BY_USERID);
+    ps.setInt(1, userId);
+
+    List<Broker> brokers = new ArrayList<Broker>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Broker tmp = new Broker("new");
+      tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
+      tmp.setBrokerId(rs.getInt("brokerId"));
+      tmp.setBrokerName(rs.getString("brokerName"));
+      tmp.setShortDescription(rs.getString("brokerShort"));
+      tmp.setNumberInGame(rs.getInt("numberInGame"));
+
+      brokers.add(tmp);
+    }
+
+    rs.close();
+    ps.close();
+
+    return brokers;
+  }
+
+  public int deleteBrokerByBrokerId (int brokerId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.DELETE_BROKER_BY_BROKERID);
+    ps.setInt(1, brokerId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int updateBrokerByBrokerId (int brokerId, String brokerName,
+                                     String brokerAuth, String brokerShort)
+    throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.UPDATE_BROKER_BY_BROKERID);
+    
+    ps.setString(1, brokerName);
+    ps.setString(2, brokerAuth);
+    ps.setString(3, brokerShort);
+    ps.setInt(4, brokerId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public Broker getBroker (int brokerId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.SELECT_BROKER_BY_BROKERID);
+    ps.setInt(1, brokerId);
+
+    Broker broker = null;
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      broker = new Broker("new");
+      broker.setBrokerAuthToken(rs.getString("brokerAuth"));
+      broker.setBrokerId(rs.getInt("brokerId"));
+      broker.setBrokerName(rs.getString("brokerName"));
+      broker.setShortDescription(rs.getString("brokerShort"));
+      broker.setNumberInGame(rs.getInt("numberInGame"));
+    }
+
+    rs.close();
+    ps.close();
+
+    return broker;
+  }
+
+  public List<String> getProperties (int gameId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.SELECT_PROPERTIES_BY_ID);
+    ps.setInt(1, gameId);
+
+    List<String> props = new ArrayList<String>();
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      props.add(rs.getString("location"));
+      props.add(rs.getString("startTime"));
+      props.add(rs.getString("jmsUrl"));
+      props.add(rs.getString("vizQueue"));
+    }
+
+    rs.close();
+    ps.close();
+
+    return props;
+  }
+
+  public int addProperties (int gameId, String locationKV, String startTimeKV)
+    throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.ADD_PROPERTIES);
+
+    ps.setString(1, locationKV);
+    ps.setString(2, startTimeKV);
+    ps.setInt(3, gameId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int updateProperties (int gameId, String jmsUrl, String vizQueue)
+    throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_PROPETIES);
+
+    ps.setInt(3, gameId);
+    ps.setString(2, vizQueue);
+    ps.setString(1, jmsUrl);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int addPom (String uploadingUser, String name)
+		 throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.ADD_POM,
+        Statement.RETURN_GENERATED_KEYS);
+
+    ps.setString(1, uploadingUser);
+    ps.setString(2, name);
+    ps.executeUpdate();
+
+    // Return id of inserted pom
+    int result = -1;
+    ResultSet rs = ps.getGeneratedKeys();
+    if (rs != null && rs.next()) {
+      result = rs.getInt(1);
+    }
+
+    try {
+      rs.close();
+    } catch (NullPointerException ignored) {}
+    ps.close();
+
+    return result;
+  }
+
+  public List<Pom> getPoms () throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_POMS);
+
+    List<Pom> poms = new ArrayList<Pom>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Pom tmp = new Pom();
+      tmp.setName(rs.getString("name"));
+      tmp.setUploadingUser(rs.getString("uploadingUser"));
+      tmp.setPomId(rs.getInt("pomId"));
+
+      poms.add(tmp);
+    }
+
+    rs.close();
+    ps.close();
+
+    return poms;
+  }
+
+  public int addTournament (String tourneyName, boolean openRegistration,
+                            int maxGames, Date startTime, String type,
+                            int pomId, String locations, int maxBrokers,
+                            int[] gameSizes, int[] numGames)
+    throws SQLException
+  {
+    PreparedStatement ps =conn.prepareStatement(
+        Constants.ADD_TOURNAMENT, Statement.RETURN_GENERATED_KEYS);
+
+    ps.setString(1, tourneyName);
+    ps.setString(2, Utils.dateFormat(startTime));
+    ps.setBoolean(3, openRegistration);
+    ps.setInt(4, maxGames);
+    ps.setString(5, type);
+    ps.setString(6, locations);
+    ps.setInt(7, maxBrokers);
+    ps.setInt(8, gameSizes[0]);
+    ps.setInt(9, gameSizes[1]);
+    ps.setInt(10, gameSizes[2]);
+    ps.setInt(11, numGames[0]);
+    ps.setInt(12, numGames[1]);
+    ps.setInt(13, numGames[2]);
+    ps.setInt(14, pomId);
+    ps.executeUpdate();
+
+    // Return id of inserted tournament
+    int result = -1;
+    ResultSet rs = ps.getGeneratedKeys();
+    if (rs != null && rs.next()) {
+      result = rs.getInt(1);
+    }
+
+    try {
+      rs.close();
+    } catch (NullPointerException ignored) {}
+    ps.close();
+
+    return result;
+  }
+
+  public List<Tournament> getTournaments (String status) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_TOURNAMENTS);
+    ps.setString(1, status);
+
+    List<Tournament> ts = new ArrayList<Tournament>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      ts.add(new Tournament(rs));
+    }
+    
+    ps.close();
+    rs.close();
+    
+    return ts;
+  }
+
+  public Tournament getTournamentById (int tourneyId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.SELECT_TOURNAMENT_BYID);
+    ps.setInt(1, tourneyId);
+
+    Tournament ts = null;
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      ts = new Tournament(rs);
+    }
+    
+    ps.close();
+    rs.close();
+    
+    return ts;
+  }
+
+  public Tournament getTournamentByType (String type) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.SELECT_TOURNAMENT_BYTYPE);
+    ps.setString(1, type);
+
+    Tournament ts = null;
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      ts = new Tournament(rs);
+    }
+
+    ps.close();
+    rs.close();
+
+    return ts;
+  }
+
+  public Tournament getTournamentByGameId (int gameId) throws SQLException
+  {
+    PreparedStatement ps =conn.prepareStatement(
+        Constants.SELECT_TOURNAMENT_BYGAMEID);
+    ps.setInt(1, gameId);
+
+    Tournament ts = null;
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      ts = new Tournament(rs);
+    }
+
+    ps.close();
+    rs.close();
+    
+    return ts;
+  }
+
+  public List<Game> getGamesInTourney (int tourneyId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.SELECT_GAMES_IN_TOURNEY);
+    ps.setInt(1, tourneyId);
+
+    List<Game> gs = new ArrayList<Game>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Game tmp = new Game(rs);
+      gs.add(tmp);
+    }
+    
+    rs.close();
+    ps.close();
+
+    return gs;
+  }
+
+  public int updateTournamentStatus (int tourneyId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.UPDATE_TOURNAMENT_STATUS_BYID);
+    ps.setString(1, "in-progress");
+    ps.setInt(2, tourneyId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int registerBroker (int tourneyId, int brokerId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.REGISTER_BROKER);
+    ps.setInt(1, tourneyId);
+    ps.setInt(2, brokerId);
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int unregisterBroker (int tourneyId, int brokerId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.UNREGISTER_BROKER);
+    ps.setInt(1, tourneyId);
+    ps.setInt(2, brokerId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public boolean isRegistered (int tourneyId, int brokerId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.REGISTERED);
+    ps.setInt(1, tourneyId);
+    ps.setInt(2, brokerId);
+
+    boolean result = false;
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      result = rs.getBoolean("registered");
+    }
+
+    rs.close();
+    ps.close();
+
+    return result;
+  }
+
+  public List<Broker> getBrokersRegistered (int tourneyId) throws SQLException
+  {
+    List<Broker> result = new ArrayList<Broker>();
+
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.GET_BROKERS_BYTOURNAMENTID);
+    ps.setInt(1, tourneyId);
+
+    ResultSet rs = ps.executeQuery();
+
+    while (rs.next()) {
+      Broker tmp = new Broker("new");
+      tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
+      tmp.setBrokerId(rs.getInt("brokerId"));
+      tmp.setBrokerName(rs.getString("brokerName"));
+      tmp.setShortDescription(rs.getString("brokerShort"));
+      tmp.setNumberInGame(rs.getInt("numberInGame"));
+
+      result.add(tmp);
+    }
+    
+    rs.close();
+    ps.close();
+    return result;
+  }
+
+  public int getNumberBrokersRegistered (int tourneyId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.GET_NUMBER_REGISTERED_BYTOURNAMENTID);
+    ps.setInt(1, tourneyId);
+
+    int result = 0;
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      result = rs.getInt("numRegistered");
+    }
+
+    rs.close();
+    ps.close();
+
+    return result;
+  }
+
+  public List<Game> getGames () throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_GAME);
+
+    List<Game> gs = new ArrayList<Game>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Game tmp = new Game(rs);
+      gs.add(tmp);
+    }
+
+    rs.close();
+    ps.close();
+
+    return gs;
+  }
+  
+  public List<Game> getCompleteGames () throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.SELECT_COMPLETE_GAMES);
+
+    List<Game> gs = new ArrayList<Game>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Game tmp = new Game(rs);
+      gs.add(tmp);
+    }
+
+    rs.close();
+    ps.close();
+
+    return gs;
+  }
+
+  public List<Game> getStartableGames (int excludedTourneyId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.GET_RUNNABLE_GAMES_EXC);
+    ps.setInt(1, excludedTourneyId);
+
+    List<Game> games = new ArrayList<Game>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Game tmp = new Game(rs);
+      games.add(tmp);
+    }
+
+    rs.close();
+    ps.close();
+
+    return games;
+  }
+
+  public List<Game> getStartableGames () throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.GET_RUNNABLE_GAMES);
+
+    List<Game> games = new ArrayList<Game>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Game tmp = new Game(rs);
+      games.add(tmp);
+    }
+    
+    rs.close();
+    ps.close();
+
+    return games;
+  }
+  
+  public List<Server> getServers() throws SQLException {
+    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_SERVERS);
+
+    List<Server> servers = new ArrayList<Server>();
+    ResultSet rs = ps.executeQuery();
+    while(rs.next()){
+      servers.add(new Server(rs));
+    }
+
+    ps.close();
+    rs.close();
+    
+    return servers;
+  }
+  
+  public List<Agent> getAgents() throws SQLException {
+    PreparedStatement ps = conn.prepareStatement(Constants.GET_AGENT_TYPE);
+
+    List<Agent> agents = new ArrayList<Agent>();
+    ResultSet rs = ps.executeQuery();
+    while(rs.next()){
+      agents.add(new Agent(rs));
+    }
+
+    ps.close();
+    rs.close();
+    
+    return agents;
+  }
+  
+  public List<Game> getBootableGames () throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.GET_BOOTABLE_GAMES);
+
+    List<Game> games = new ArrayList<Game>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Game tmp = new Game(rs);
+      games.add(tmp);
+    }
+
+    rs.close();
+    ps.close();
+
+    return games;
+  }
+
+  public int addGame (String gameName, int tourneyId, int maxBrokers,
+                      Date startTime) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.ADD_GAME, Statement.RETURN_GENERATED_KEYS);
+
+    ps.setString(1, gameName);
+    ps.setInt(2, tourneyId);
+    ps.setInt(3, maxBrokers);
+    ps.setString(4, Utils.dateFormat(startTime));
+    ps.executeUpdate();
+
+    // Return id of inserted game
+    int gameId = -1;
+    ResultSet rs = ps.getGeneratedKeys();
+    if (rs != null && rs.next()) {
+      gameId = rs.getInt(1);
+    }
+
+    try {
+      rs.close();
+    } catch (NullPointerException ignored) {}
+    ps.close();
+
+    return gameId;
+  }
+
+  public Game getGame (int gameId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_GAMEBYID);
+    ps.setInt(1, gameId);
+
+    Game tmp = null;
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      tmp = new Game(rs);
+    }
+    
+    ps.close();
+    rs.close();
+    
+    return tmp;
+  }
+
+  public int addBrokerToGame (int gameId, Broker b) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.ADD_BROKER_TO_GAME);
+    ps.setInt(1, gameId);
+    ps.setInt(2, b.getBrokerId());
+    ps.setString(3, b.getBrokerAuthToken());
+    ps.setString(4, b.getBrokerName());
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+  
+  public List<Broker> getBrokersInGame (int gameId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.GET_BROKERS_INGAME);
+    ps.setInt(1, gameId);
+
+    List<Broker> brokers = new ArrayList<Broker>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Broker tmp = new Broker("new");
+      tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
+      tmp.setBrokerId(rs.getInt("brokerId"));
+      tmp.setBrokerName(rs.getString("brokerName"));
+      tmp.setShortDescription(rs.getString("brokerShort"));
+      tmp.setNumberInGame(rs.getInt("numberInGame"));
+
+      brokers.add(tmp);
+    }
+
+    rs.close();
+    ps.close();
+
+    return brokers;
+  }
+
+  public List<Broker> getBrokersInTournament (int tourneyId)
+    throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.GET_BROKERS_INTOURNAMENT);
+    ps.setInt(1, tourneyId);
+
+    List<Broker> brokers = new ArrayList<Broker>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Broker tmp = new Broker("new");
+      tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
+      tmp.setBrokerId(rs.getInt("brokerId"));
+      tmp.setBrokerName(rs.getString("brokerName"));
+      tmp.setShortDescription(rs.getString("brokerShort"));
+      tmp.setNumberInGame(rs.getInt("numberInGame"));
+
+      brokers.add(tmp);
+    }
+    ps.close();
+    rs.close();
+
+    return brokers;
+  }
+
+  public boolean isGameReady (int gameId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.GAME_READY);
+    ps.setInt(1, gameId);
+
+    boolean result = false;
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      result = rs.getBoolean("ready");
+    }
+
+    rs.close();
+    ps.close();
+
+    return result;
+  }
+
+  public int updateGameStatusById (int gameId, String status)
+    throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME);
+    ps.setInt(2, gameId);
+    ps.setString(1, status);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int updateGameBootstrapById (int gameId, boolean hasBootstrap)
+      throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_BOOTSTRAP);
+    ps.setInt(2, gameId);
+    ps.setBoolean(1, hasBootstrap);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int updateGameMachine (int gameId, int machineId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_MACHINE);
+    ps.setInt(2, gameId);
+    ps.setInt(1, machineId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int updateGameFreeMachine (int gameId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_FREE_MACHINE);
+    ps.setInt(1, gameId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int updateGameFreeBrokers (int gameId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_FREE_BROKERS);
+    ps.setInt(1, gameId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int updateGameJmsUrlById (int gameId, String jmsUrl)
+    throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_JMSURL);
+    ps.setInt(2, gameId);
+    ps.setString(1, jmsUrl);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int updateGameViz (int gameId, String vizUrl) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_VIZ);
+    ps.setString(1, vizUrl);
+    ps.setInt(2, gameId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public List<Machine> getMachines () throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_MACHINES);
+
+    List<Machine> machines = new ArrayList<Machine>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Machine tmp = new Machine(rs);
+      machines.add(tmp);
+    }
+
+    rs.close();
+    ps.close();
+
+    return machines;
+  }
+  
+  public Machine getMachineById(int machineId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_MACHINES_BYID);
+    ps.setInt(1, machineId);
+
+    Machine tmp = null;
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      tmp = new Machine(rs);
+    }
+
+    rs.close();
+    ps.close();
+
+    return tmp;
+  }
+
+  public int setMachineAvailable (int machineId, boolean isAvailable)
+    throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.UPDATE_MACHINE_AVAILABILITY);
+    ps.setBoolean(1, isAvailable);
+    ps.setInt(2, machineId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int setMachineStatus (int machineId, String status)
+    throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_MACHINE_STATUS_BY_ID);
+    ps.setString(1, status);
+    ps.setInt(2, machineId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int addMachine (String machineName, String machineUrl,
+                         String visualizerUrl, String visualizerQueue)
+    throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.ADD_MACHINE);
+    ps.setString(1, machineName);
+    ps.setString(2, machineUrl);
+    ps.setString(3, visualizerUrl);
+    ps.setString(4, visualizerQueue);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int editMachine (String machineName, String machineUrl,
+          				  String visualizerUrl, String visualizerQueue,
+          				  int machineId)
+    throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.EDIT_MACHINE);
+    ps.setString(1, machineName);
+    ps.setString(2, machineUrl);
+    ps.setString(3, visualizerUrl);
+    ps.setString(4, visualizerQueue);
+    ps.setString(5, String.valueOf(machineId));
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+    
+    return result;
+  }
+  
+  public int deleteMachine (int machineId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.REMOVE_MACHINE);
+    ps.setInt(1, machineId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public List<Location> getLocations () throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_LOCATIONS);
+
+    List<Location> locations = new ArrayList<Location>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Location tmp = new Location();
+      tmp.setLocationId(rs.getInt("locationId"));
+      tmp.setName(rs.getString("location"));
+      Calendar fromDate = Calendar.getInstance();
+      fromDate.setTimeInMillis(rs.getDate("fromDate").getTime());
+      tmp.setFromDate(fromDate.getTime());
+      Calendar toDate = Calendar.getInstance();
+      toDate.setTimeInMillis(rs.getDate("toDate").getTime());
+      tmp.setToDate(toDate.getTime());
+
+      locations.add(tmp);
+    }
+
+    rs.close();
+    ps.close();
+
+    return locations;
+  }
+
+  public int deleteLocation (int locationId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.DELETE_LOCATION);
+    ps.setInt(1, locationId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int addLocation (String location, Date newLocationStartTime,
+                          Date newLocationEndTime) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.ADD_LOCATION);
+    ps.setString(1, location);
+    ps.setDate(2, new java.sql.Date(newLocationStartTime.getTime()));
+    ps.setDate(3, new java.sql.Date(newLocationEndTime.getTime()));
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  /***
+   * Database connection methods
+   */
   // TODO: Strategy Object find the correct dbms by reflection and call its
   // connection method
   private void checkDb ()
   {
     try {
       if (conn == null || conn.isClosed()) {
-        // System.out.println("Connection is null");
         if (this.dbms.equalsIgnoreCase("mysql")) {
-          // System.out.println("Using mysql as dbms ...");
           try {
             connectionProps.setProperty("user", username);
             connectionProps.setProperty("password", password);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             conn =
-              DriverManager.getConnection("jdbc:" + dbms + "://"
-                                                  + dbUrl + "/"
-                                                  + database,
-                                          connectionProps);
+                DriverManager.getConnection("jdbc:" + dbms + "://"
+                    + dbUrl + "/"
+                    + database,
+                    connectionProps);
           }
           catch (Exception e) {
             System.out.println("Connection Error");
@@ -74,1060 +1079,6 @@ public class Database
     catch (SQLException e) {
       e.printStackTrace();
     }
-    // System.out.println("Connection established correctly");
-  }
-
-  public List<org.powertac.tourney.beans.User> getAllUsers () throws SQLException
-  {
-    List<org.powertac.tourney.beans.User> users = new ArrayList<org.powertac.tourney.beans.User>();
-
-    PreparedStatement selectUsersStatement = conn.prepareStatement(Constants.SELECT_USERS);
-
-    ResultSet rsUsers = selectUsersStatement.executeQuery();
-    while (rsUsers.next()) {
-      org.powertac.tourney.beans.User tmp = new org.powertac.tourney.beans.User();
-      tmp.setUsername(rsUsers.getString("userName"));
-      tmp.setPassword(rsUsers.getString("password"));
-      tmp.setUserId(rsUsers.getInt("userId"));
-      tmp.setPermissions(rsUsers.getInt("permissionId"));
-      users.add(tmp);
-    }
-
-    //conn.close();
-    rsUsers.close();
-    selectUsersStatement.close();
-
-    return users;
-  }
-
-  public int updateUser (String username, String key, String value)
-  {
-    return 0;
-
-  }
-
-  public int addUser (String username, String password) throws SQLException
-  {
-      PreparedStatement addUserStatement = conn.prepareStatement(Constants.ADD_USER);
-      // Use a pool of entropy to secure salts
-      String genSalt =
-        DigestUtils.md5Hex(Math.random() + (new Date()).toString());
-      addUserStatement.setString(1, username);
-      addUserStatement.setString(2, genSalt);
-      addUserStatement.setString(3, DigestUtils.md5Hex(password + genSalt)); // Store
-                                                                             // hashed
-                                                                             // and
-                                                                             // salted
-                                                                             // passwords
-      addUserStatement.setInt(4, 3); // Lowest permission level for logged in
-                                     // user is 3
-
-    return addUserStatement.executeUpdate();
-  }
-
-  public int[] loginUser (String username, String password) throws SQLException
-  {
-    boolean userExist = false;
-
-    PreparedStatement saltStatement = conn.prepareStatement(Constants.LOGIN_SALT);
-    saltStatement.setString(1, username);
-
-    ResultSet rsSalt = saltStatement.executeQuery();
-    // salt and hash password
-    String salt = "";
-    String digest = "";
-    int userId = -1;
-    int permission = 99; // Lowest permission level
-    String hashedPass = "";// DigestUtils.md5Hex(password + salt);
-    if (rsSalt.next()) {
-      digest = rsSalt.getString("password");
-      salt = rsSalt.getString("salt");
-      permission = rsSalt.getInt("permissionId");
-      userId = rsSalt.getInt("userId");
-      userExist = true;
-    }
-    else { // Time resistant attack we need to hash something
-      digest = "000000000000000000000000000=";
-      salt = "00000000000=";
-      userExist = false;
-    }
-
-    // TODO: make sure things are inserted correctly in the database;
-    if (DigestUtils.md5Hex(password + salt).equalsIgnoreCase(digest)
-        && userExist) {
-      int[] result = new int[2];
-      result[0] = permission;
-      result[1] = userId;
-      return result;
-    }
-    else {
-      int[] result = new int[2];
-      result[0] = -1;
-      result[1] = -1;
-      return result;
-    }
-  }
-
-  public int addBroker (int userId, String brokerName, String shortDescription)
-    throws SQLException
-  {
-    org.powertac.tourney.beans.Broker b =
-      new org.powertac.tourney.beans.Broker(brokerName, shortDescription);
-    
-    PreparedStatement addBrokerStatement = conn.prepareStatement(Constants.ADD_BROKER);
-
-    addBrokerStatement.setString(1, brokerName);
-    addBrokerStatement.setString(2, b.getBrokerAuthToken());
-    addBrokerStatement.setString(3, shortDescription);
-    addBrokerStatement.setInt(4, userId);
-
-    return addBrokerStatement.executeUpdate();
-  }
-
-  public List<Broker> getBrokersByUserId (int userId) throws SQLException
-  {
-    List<Broker> brokers = new ArrayList<Broker>();
-
-    PreparedStatement selectBrokersByUserId =
-        conn.prepareStatement(Constants.SELECT_BROKERS_BY_USERID);
-    
-    selectBrokersByUserId.setInt(1, userId);
-    ResultSet rsBrokers = selectBrokersByUserId.executeQuery();
-    while (rsBrokers.next()) {
-      Broker tmp = new Broker("new");
-      tmp.setBrokerAuthToken(rsBrokers.getString("brokerAuth"));
-      tmp.setBrokerId(rsBrokers.getInt("brokerId"));
-      tmp.setBrokerName(rsBrokers.getString("brokerName"));
-      tmp.setShortDescription(rsBrokers.getString("brokerShort"));
-      tmp.setNumberInGame(rsBrokers.getInt("numberInGame"));
-
-      brokers.add(tmp);
-
-    }
-    //conn.close();
-    rsBrokers.close();
-    selectBrokersByUserId.close();
-
-    return brokers;
-  }
-
-  public int deleteBrokerByBrokerId (int brokerId) throws SQLException
-  {
-    PreparedStatement deleteBrokerById =
-        conn.prepareStatement(Constants.DELETE_BROKER_BY_BROKERID);
-    
-    deleteBrokerById.setInt(1, brokerId);
-
-    return deleteBrokerById.executeUpdate();
-  }
-
-  public int updateBrokerByBrokerId (int brokerId, String brokerName,
-                                     String brokerAuth, String brokerShort)
-    throws SQLException
-  {
-    PreparedStatement updateBrokerById =
-        conn.prepareStatement(Constants.UPDATE_BROKER_BY_BROKERID);
-    
-    updateBrokerById.setString(1, brokerName);
-    updateBrokerById.setString(2, brokerAuth);
-    updateBrokerById.setString(3, brokerShort);
-    updateBrokerById.setInt(4, brokerId);
-
-    return updateBrokerById.executeUpdate();
-  }
-
-  public Broker getBroker (int brokerId) throws SQLException
-  {
-    Broker broker = new Broker("new");
-
-    PreparedStatement selectBrokerByBrokerId =
-      conn.prepareStatement(Constants.SELECT_BROKER_BY_BROKERID);
-
-    selectBrokerByBrokerId.setInt(1, brokerId);
-
-    ResultSet rsBrokers = selectBrokerByBrokerId.executeQuery();
-    if (rsBrokers.next()) {
-      broker.setBrokerAuthToken(rsBrokers.getString("brokerAuth"));
-      broker.setBrokerId(rsBrokers.getInt("brokerId"));
-      broker.setBrokerName(rsBrokers.getString("brokerName"));
-      broker.setShortDescription(rsBrokers.getString("brokerShort"));
-      broker.setNumberInGame(rsBrokers.getInt("numberInGame"));
-    }
-    //conn.close();
-    rsBrokers.close();
-    selectBrokerByBrokerId.close();
-
-    return broker;
-  }
-
-  public List<String> getProperties (int gameId) throws SQLException
-  {
-    List<String> props = new ArrayList<String>();
-
-    PreparedStatement selectPropsById =
-        conn.prepareStatement(Constants.SELECT_PROPERTIES_BY_ID);
-
-    selectPropsById.setInt(1, gameId);
-
-    ResultSet rsProps = selectPropsById.executeQuery();
-    if (rsProps.next()) {
-      props.add(rsProps.getString("location"));
-      props.add(rsProps.getString("startTime"));
-      props.add(rsProps.getString("jmsUrl"));
-      props.add(rsProps.getString("vizQueue"));
-    }
-    //conn.close();
-    rsProps.close();
-    selectPropsById.close();
-
-    return props;
-  }
-
-  public int addProperties (int gameId, String locationKV, String startTimeKV)
-    throws SQLException
-  {
-    PreparedStatement addPropsById =
-      conn.prepareStatement(Constants.ADD_PROPERTIES);
-
-    addPropsById.setString(1, locationKV);
-    addPropsById.setString(2, startTimeKV);
-    addPropsById.setInt(3, gameId);
-
-    return addPropsById.executeUpdate();
-  }
-
-  public int updateProperties (int gameId, String jmsUrl, String vizQueue)
-    throws SQLException
-  {
-    PreparedStatement addPropsById = conn.prepareStatement(Constants.UPDATE_PROPETIES);
-
-    addPropsById.setInt(3, gameId);
-    addPropsById.setString(2, vizQueue);
-    addPropsById.setString(1, jmsUrl);
-
-    return addPropsById.executeUpdate();
-  }
-
-  public int addPom (String uploadingUser, String name, String location)
-    throws SQLException
-  {
-    PreparedStatement addPom = conn.prepareStatement(Constants.ADD_POM);
-
-    addPom.setString(1, uploadingUser);
-    addPom.setString(2, name);
-    addPom.setString(3, location);
-
-    return addPom.executeUpdate();
-  }
-
-  public List<Pom> getPoms () throws SQLException
-  {
-    List<Pom> poms = new ArrayList<Pom>();
-    
-    PreparedStatement selectPoms = conn.prepareStatement(Constants.SELECT_POMS);
-
-    ResultSet rsPoms = selectPoms.executeQuery();
-    while (rsPoms.next()) {
-      Pom tmp = new Pom();
-      tmp.setLocation(rsPoms.getString("location"));
-      tmp.setName(rsPoms.getString("name"));
-      tmp.setUploadingUser(rsPoms.getString("uploadingUser"));
-
-      poms.add(tmp);
-    }
-
-    rsPoms.close();
-    selectPoms.close();
-
-    return poms;
-  }
-
-  public int addTournament (String tourneyName, boolean openRegistration,
-                            int maxGames, Date startTime, String type,
-                            String pomUrl, String locations, int maxBrokers, 
-                            int[] gameSizes, int[] numGames)
-    throws SQLException
-  {
-    java.text.SimpleDateFormat sdf =
-            new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    
-    PreparedStatement addTournament =
-      conn.prepareStatement(Constants.ADD_TOURNAMENT);
-    addTournament.setString(1, tourneyName);
-    addTournament.setString(2, sdf.format(startTime));
-    addTournament.setBoolean(3, openRegistration);
-    addTournament.setInt(4, maxGames);
-    addTournament.setString(5, type);
-    addTournament.setString(6, pomUrl);
-    addTournament.setString(7, locations);
-    addTournament.setInt(8, maxBrokers);
-    addTournament.setInt(9, gameSizes[0]);
-    addTournament.setInt(10, gameSizes[1]);
-    addTournament.setInt(11, gameSizes[2]);
-    addTournament.setInt(12, numGames[0]);
-    addTournament.setInt(13, numGames[1]);
-    addTournament.setInt(14, numGames[2]);
-    
-    return addTournament.executeUpdate();
-  }
-
-  public List<Tournament> getTournaments (String status) throws SQLException
-  {
-    
-    List<Tournament> ts = new ArrayList<Tournament>();
-    PreparedStatement selectAllTournaments =
-      conn.prepareStatement(Constants.SELECT_TOURNAMENTS);
-
-    selectAllTournaments.setString(1, status);
-
-    ResultSet rsTs = selectAllTournaments.executeQuery();
-
-    while (rsTs.next()) {
-      Tournament tmp = new Tournament(rsTs);
-      ts.add(tmp);
-    }
-    
-    selectAllTournaments.close();
-    rsTs.close();
-    
-    return ts;
-  }
-
-  public Tournament getTournamentById (int tourneyId) throws SQLException
-  {
-    Tournament ts = new Tournament();
-    PreparedStatement selectTournament =
-      conn.prepareStatement(Constants.SELECT_TOURNAMENT_BYID);
-
-    selectTournament.setInt(1, tourneyId);
-
-    ResultSet rsTs = selectTournament.executeQuery();
-
-    if (rsTs.next()) {
-      Tournament tmp = new Tournament(rsTs);
-      ts = tmp;
-    }
-    
-    selectTournament.close();
-    rsTs.close();
-    
-    return ts;
-  }
-
-  public Tournament getTournamentByType (String type) throws SQLException
-  {
-    Tournament ts = new Tournament();
-    PreparedStatement selectTournament =
-      conn.prepareStatement(Constants.SELECT_TOURNAMENT_BYTYPE);
-
-    selectTournament.setString(1, type);
-
-    ResultSet rsTs = selectTournament.executeQuery();
-
-    if (rsTs.next()) {
-      Tournament tmp = new Tournament(rsTs);
-      ts = tmp;
-    }
-
-    selectTournament.close();
-    rsTs.close();
-
-    return ts;
-  }
-
-  public Tournament getTournamentByGameId (int gameId) throws SQLException
-  {
-    Tournament ts = new Tournament();
-    PreparedStatement selectTournament =
-      conn.prepareStatement(Constants.SELECT_TOURNAMENT_BYGAMEID);
-
-    selectTournament.setInt(1, gameId);
-
-    ResultSet rsTs = selectTournament.executeQuery();
-
-    if (rsTs.next()) {
-      Tournament tmp = new Tournament(rsTs);
-      ts = tmp;
-    }
-
-    selectTournament.close();
-    rsTs.close();
-    
-    return ts;
-  }
-
-  public List<Game> getGamesInTourney (int tourneyId) throws SQLException
-  {
-    List<Game> gs = new ArrayList<Game>();
-    PreparedStatement selectAllGames =
-      conn.prepareStatement(Constants.SELECT_GAMES_IN_TOURNEY);
-    selectAllGames.setInt(1, tourneyId);
-
-    ResultSet rsGs = selectAllGames.executeQuery();
-
-    while (rsGs.next()) {
-      Game tmp = new Game(rsGs);
-      gs.add(tmp);
-    }
-    
-    rsGs.close();
-    selectAllGames.close();
-
-    return gs;
-  }
-
-  public int updateTournamentStatus (int tourneyId) throws SQLException
-  {
-    PreparedStatement updateStatus =
-      conn.prepareStatement(Constants.UPDATE_TOURNAMENT_STATUS_BYID);
-    updateStatus.setString(1, "in-progress");
-    updateStatus.setInt(2, tourneyId);
-
-    return updateStatus.executeUpdate();
-  }
-
-  public int registerBroker (int tourneyId, int brokerId) throws SQLException
-  {
-    PreparedStatement register =
-      conn.prepareStatement(Constants.REGISTER_BROKER);
-    register.setInt(1, tourneyId);
-    register.setInt(2, brokerId);
-    return register.executeUpdate();
-  }
-
-  public int unregisterBroker (int tourneyId, int brokerId) throws SQLException
-  {
-    PreparedStatement register =
-      conn.prepareStatement(Constants.UNREGISTER_BROKER);
-    register.setInt(1, tourneyId);
-    register.setInt(2, brokerId);
-    return register.executeUpdate();
-  }
-
-  public boolean isRegistered (int tourneyId, int brokerId) throws SQLException
-  {
-    PreparedStatement register = conn.prepareStatement(Constants.REGISTERED);
-    register.setInt(1, tourneyId);
-    register.setInt(2, brokerId);
-    ResultSet rs = register.executeQuery();
-    boolean result = false;
-    if (rs.next()) {
-      result = rs.getBoolean("registered");
-    }
-
-    rs.close();
-    register.close();
-
-    return result;
-  }
-
-  public int getMaxGameId () throws SQLException
-  {
-    int id = 0;
-    PreparedStatement selectMaxId =
-      conn.prepareStatement(Constants.SELECT_MAX_GAMEID);
-
-    ResultSet rsId = selectMaxId.executeQuery();
-    if (rsId.next()) {
-      id = rsId.getInt("maxId");
-    }
-
-    selectMaxId.close();
-    rsId.close();
-
-    return id;
-  }
-
-  public int getMaxTourneyId () throws SQLException
-  {
-    int id = 0;
-    PreparedStatement selectMaxId =
-      conn.prepareStatement(Constants.SELECT_MAX_TOURNAMENTID);
-
-    ResultSet rsId = selectMaxId.executeQuery();
-    if (rsId.next()) {
-      id = rsId.getInt("maxId");
-    }
-
-    selectMaxId.close();
-    rsId.close();
-
-    return id;
-  }
-
-  public List<Broker> getBrokersRegistered (int tourneyId) throws SQLException
-  {
-    List<Broker> result = new ArrayList<Broker>();
-
-    PreparedStatement selectBrokers =
-      conn.prepareStatement(Constants.GET_BROKERS_BYTOURNAMENTID);
-    selectBrokers.setInt(1, tourneyId);
-
-    ResultSet rsB = selectBrokers.executeQuery();
-
-    while (rsB.next()) {
-      Broker tmp = new Broker("new");
-      tmp.setBrokerAuthToken(rsB.getString("brokerAuth"));
-      tmp.setBrokerId(rsB.getInt("brokerId"));
-      tmp.setBrokerName(rsB.getString("brokerName"));
-      tmp.setShortDescription(rsB.getString("brokerShort"));
-      tmp.setNumberInGame(rsB.getInt("numberInGame"));
-
-      result.add(tmp);
-    }
-    
-    rsB.close();
-    selectBrokers.close();
-    return result;
-  }
-
-  public int getNumberBrokersRegistered (int tourneyId) throws SQLException
-  {
-    int result = 0;
-
-    PreparedStatement selectBrokers =
-      conn.prepareStatement(Constants.GET_NUMBER_REGISTERED_BYTOURNAMENTID);
-    selectBrokers.setInt(1, tourneyId);
-
-    ResultSet rsB = selectBrokers.executeQuery();
-
-    if (rsB.next()) {
-      result = rsB.getInt("numRegistered");
-    }
-    //conn.close();
-    rsB.close();
-    selectBrokers.close();
-
-    return result;
-  }
-
-  public List<Game> getGames () throws SQLException
-  {
-    List<Game> gs = new ArrayList<Game>();
-    PreparedStatement selectAllGames =
-      conn.prepareStatement(Constants.SELECT_GAME);
-
-    ResultSet rsGs = selectAllGames.executeQuery();
-
-    while (rsGs.next()) {
-      Game tmp = new Game(rsGs);
-      gs.add(tmp);
-    }
-    //conn.close();
-    rsGs.close();
-    selectAllGames.close();
-
-    return gs;
-  }
-  
-  public List<Game> getCompleteGames () throws SQLException
-  {
-    List<Game> gs = new ArrayList<Game>();
-    PreparedStatement selectAllGames =
-      conn.prepareStatement(Constants.SELECT_COMPLETE_GAMES);
-
-    ResultSet rsGs = selectAllGames.executeQuery();
-
-    while (rsGs.next()) {
-      Game tmp = new Game(rsGs);
-      gs.add(tmp);
-    }
-    //conn.close();
-    rsGs.close();
-    selectAllGames.close();
-
-    return gs;
-  }
-
-  public List<Game> getStartableGames (int excludedTourneyId) throws SQLException
-  {
-    List<Game> games = new ArrayList<Game>();
-
-    PreparedStatement getGames =
-      conn.prepareStatement(Constants.GET_RUNNABLE_GAMES_EXC);
-    
-    getGames.setInt(1, excludedTourneyId);
-
-    ResultSet rsGs = getGames.executeQuery();
-
-    //System.out.println("[INFO] Parsing games " +rsGs.getFetchSize());
-    while (rsGs.next()) {
-      Game tmp = new Game(rsGs);
-      games.add(tmp);
-    }
-
-    rsGs.close();
-    getGames.close();
-    //conn.close();
-
-    return games;
-  }
-  public List<Game> getStartableGames () throws SQLException
-  {
-    List<Game> games = new ArrayList<Game>();
-
-    PreparedStatement getGames =
-      conn.prepareStatement(Constants.GET_RUNNABLE_GAMES);
-
-    ResultSet rsGs = getGames.executeQuery();
-
-    //System.out.println("[INFO] Parsing games " +rsGs.getFetchSize());
-    while (rsGs.next()) {
-      Game tmp = new Game(rsGs);
-      games.add(tmp);
-    }
-    
-    rsGs.close();
-    getGames.close();
-    //conn.close();
-
-    return games;
-  }
-  
-  public List<Server> getServers() throws SQLException {
-    List<Server> servers = new ArrayList<Server>();
-    
-    PreparedStatement gservers = conn.prepareStatement(Constants.SELECT_SERVERS);
-    
-    ResultSet rs = gservers.executeQuery();
-    
-    while(rs.next()){
-      servers.add(new Server(rs));
-    }
-    
-    return servers;
-  }
-  
-  public List<Agent> getAgents() throws SQLException {
-    List<Agent> agents = new ArrayList<Agent>();
-    PreparedStatement gagents = conn.prepareStatement("SELECT DISTINCT AgentType FROM tourney.AgentAdmin;"); 
-    
-    ResultSet rs = gagents.executeQuery();
-    
-    while(rs.next()){
-      agents.add(new Agent(rs));
-    }
-    
-    return agents;
-  }
-  
-  public List<Game> getBootableGames () throws SQLException
-  {
-    List<Game> games = new ArrayList<Game>();
-
-    PreparedStatement getGames =
-      conn.prepareStatement(Constants.GET_BOOTABLE_GAMES);
-
-    ResultSet rsGs = getGames.executeQuery();
-
-    //System.out.println("[INFO] Parsing games " +rsGs.getFetchSize());
-    while (rsGs.next()) {
-      Game tmp = new Game(rsGs);
-      games.add(tmp);
-    }
-
-    rsGs.close();
-    getGames.close();
-    //conn.close();
-
-    return games;
-  }
-
-  public List<Game> getWaitingGames () throws SQLException
-  {
-    List<Game> games = new ArrayList<Game>();
-
-    PreparedStatement getGames =
-      conn.prepareStatement(Constants.GET_PENDING_GAMES);
-
-    ResultSet rsGs = getGames.executeQuery();
-
-    while (rsGs.next()) {
-      Game tmp = new Game(rsGs);
-      games.add(tmp);
-    }
-
-    rsGs.close();
-    getGames.close();
-    //conn.close();
-    
-    return games;
-  }
-
-  public int addGame (String gameName, int tourneyId, int maxBrokers,
-                      Date startTime) throws SQLException
-  {
-    java.text.SimpleDateFormat sdf =
-            new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    
-    PreparedStatement insertGame = conn.prepareStatement(Constants.ADD_GAME);
-
-    insertGame.setString(1, gameName);
-    insertGame.setInt(2, tourneyId);
-    insertGame.setInt(3, maxBrokers);
-    insertGame.setString(4, sdf.format(startTime));
-
-    return insertGame.executeUpdate();
-  }
-
-  public Game getGame (int gameId) throws SQLException
-  {
-    PreparedStatement selectAllGames =
-      conn.prepareStatement(Constants.SELECT_GAMEBYID);
-    selectAllGames.setInt(1, gameId);
-
-    ResultSet rsGs = selectAllGames.executeQuery();
-
-    Game tmp = new Game();
-    if (rsGs.next()) {
-      tmp = new Game(rsGs);
-
-    }
-    
-    selectAllGames.close();
-    rsGs.close();
-    
-    return tmp;
-  }
-
-  public int addBrokerToGame (int gameId, Broker b) throws SQLException
-  {
-    PreparedStatement addBrokerToGame =
-      conn.prepareStatement(Constants.ADD_BROKER_TO_GAME);
-
-    addBrokerToGame.setInt(1, gameId);
-    addBrokerToGame.setInt(2, b.getBrokerId());
-    addBrokerToGame.setString(3, b.getBrokerAuthToken());
-    addBrokerToGame.setString(4, b.getBrokerName());
-
-    return addBrokerToGame.executeUpdate();
-  }
-  
-  public List<Broker> getBrokersInGame (int gameId) throws SQLException
-  {
-    List<Broker> brokers = new ArrayList<Broker>();
-    PreparedStatement getBrokers =
-      conn.prepareStatement(Constants.GET_BROKERS_INGAME);
-
-    getBrokers.setInt(1, gameId);
-
-    ResultSet rs = getBrokers.executeQuery();
-    while (rs.next()) {
-      Broker tmp = new Broker("new");
-      tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
-      tmp.setBrokerId(rs.getInt("brokerId"));
-      tmp.setBrokerName(rs.getString("brokerName"));
-      tmp.setShortDescription(rs.getString("brokerShort"));
-      tmp.setNumberInGame(rs.getInt("numberInGame"));
-
-      brokers.add(tmp);
-    }
-    //conn.close();
-    rs.close();
-    getBrokers.close();
-
-    return brokers;
-  }
-
-  public List<Broker> getBrokersInTournament (int tourneyId)
-    throws SQLException
-  {
-    List<Broker> brokers = new ArrayList<Broker>();
-    PreparedStatement getBrokers =
-      conn.prepareStatement(Constants.GET_BROKERS_INTOURNAMENT);
-
-    getBrokers.setInt(1, tourneyId);
-
-    ResultSet rs = getBrokers.executeQuery();
-    while (rs.next()) {
-      Broker tmp = new Broker("new");
-      tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
-      tmp.setBrokerId(rs.getInt("brokerId"));
-      tmp.setBrokerName(rs.getString("brokerName"));
-      tmp.setShortDescription(rs.getString("brokerShort"));
-      tmp.setNumberInGame(rs.getInt("numberInGame"));
-
-      brokers.add(tmp);
-    }
-    //conn.close();
-    getBrokers.close();
-    rs.close();
-
-    return brokers;
-  }
-
-  public boolean isGameReady (int gameId) throws SQLException
-  {
-    PreparedStatement hasBootstrap =
-      conn.prepareStatement(Constants.GAME_READY);
-    hasBootstrap.setInt(1, gameId);
-    ResultSet rs = hasBootstrap.executeQuery();
-
-    boolean result = false;
-    if (rs.next()) {
-      result = rs.getBoolean("ready");
-    }
-
-    rs.close();
-    hasBootstrap.close();
-
-    return result;
-  }
-
-  public int updateGameStatusById (int gameId, String status)
-    throws SQLException
-  {
-    PreparedStatement updateGame = conn.prepareStatement(Constants.UPDATE_GAME);
-
-    updateGame.setInt(2, gameId);
-    updateGame.setString(1, status);
-
-    return updateGame.executeUpdate();
-  }
-
-  public int updateGameMachine (int gameId, int machineId) throws SQLException
-  {
-    PreparedStatement updateGame =
-      conn.prepareStatement(Constants.UPDATE_GAME_MACHINE);
-
-    updateGame.setInt(2, gameId);
-    updateGame.setInt(1, machineId);
-
-    return updateGame.executeUpdate();
-  }
-
-  public int updateGameFreeMachine (int gameId) throws SQLException
-  {
-    PreparedStatement updateGame =
-      conn.prepareStatement(Constants.UPDATE_GAME_FREE_MACHINE);
-
-    updateGame.setInt(1, gameId);
-
-    return updateGame.executeUpdate();
-  }
-
-  public int updateGameFreeBrokers (int gameId) throws SQLException
-  {
-    PreparedStatement updateGame =
-      conn.prepareStatement(Constants.UPDATE_GAME_FREE_BROKERS);
-
-    updateGame.setInt(1, gameId);
-
-    return updateGame.executeUpdate();
-  }
-
-  public int updateGameJmsUrlById (int gameId, String jmsUrl)
-    throws SQLException
-  {
-    PreparedStatement updateGame =
-      conn.prepareStatement(Constants.UPDATE_GAME_JMSURL);
-
-    updateGame.setInt(2, gameId);
-    updateGame.setString(1, jmsUrl);
-
-    return updateGame.executeUpdate();
-  }
-
-  public int updateGameViz (int gameId, String vizUrl) throws SQLException
-  {
-    PreparedStatement updateViz =
-      conn.prepareStatement(Constants.UPDATE_GAME_VIZ);
-
-    updateViz.setString(1, vizUrl);
-    updateViz.setInt(2, gameId);
-
-    return updateViz.executeUpdate();
-  }
-
-  public List<Machine> getMachines () throws SQLException
-  {
-    List<Machine> machines = new ArrayList<Machine>();
-
-    PreparedStatement selectMachines =
-      conn.prepareStatement(Constants.SELECT_MACHINES);
-
-    ResultSet rsMachines = selectMachines.executeQuery();
-
-    while (rsMachines.next()) {
-      Machine tmp = new Machine(rsMachines);
-      machines.add(tmp);
-    }
-    rsMachines.close();
-    selectMachines.close();
-
-    return machines;
-  }
-  
-  public Machine getMachineById(int machineId) throws SQLException
-  {
-    PreparedStatement selectMachines =
-      conn.prepareStatement(Constants.SELECT_MACHINES_BYID);
-    selectMachines.setInt(1, machineId);
-    
-    ResultSet rsMachines = selectMachines.executeQuery();
-
-    Machine tmp = new Machine();
-    if (rsMachines.next()) {
-      tmp = new Machine(rsMachines);
-    }
-    rsMachines.close();
-    selectMachines.close();
-
-    return tmp;
-  }
-
-  public int setMachineAvailable (int machineId, boolean isAvailable)
-    throws SQLException
-  {
-    PreparedStatement updateMachine =
-      conn.prepareStatement(Constants.UPDATE_MACHINE_AVAILABILITY);
-
-    updateMachine.setBoolean(1, isAvailable);
-    updateMachine.setInt(2, machineId);
-
-    return updateMachine.executeUpdate();
-  }
-
-  public int setMachineStatus (int machineId, String status)
-    throws SQLException
-  {
-    PreparedStatement updateMachine =
-      conn.prepareStatement(Constants.UPDATE_MACHINE_STATUS_BY_ID);
-
-    updateMachine.setString(1, status);
-    updateMachine.setInt(2, machineId);
-
-    return updateMachine.executeUpdate();
-  }
-
-  public int addMachine (String machineName, String machineUrl,
-                         String visualizerUrl, String visualizerQueue)
-    throws SQLException
-  {
-    PreparedStatement addMachine = conn.prepareStatement(Constants.ADD_MACHINE);
-    addMachine.setString(1, machineName);
-    addMachine.setString(2, machineUrl);
-    addMachine.setString(3, visualizerUrl);
-    addMachine.setString(4, visualizerQueue);
-
-    return addMachine.executeUpdate();
-  }
-
-  public int editMachine (String machineName, String machineUrl,
-          				  String visualizerUrl, String visualizerQueue,
-          				  int machineId)
-    throws SQLException
-  {
-    PreparedStatement editMachine =
-      conn.prepareStatement(Constants.EDIT_MACHINE);
-    editMachine.setString(1, machineName);
-    editMachine.setString(2, machineUrl);
-    editMachine.setString(3, visualizerUrl);
-    editMachine.setString(4, visualizerQueue);
-    editMachine.setString(5, String.valueOf(machineId));
-    
-    return editMachine.executeUpdate();
-  }
-  
-  public int deleteMachine (int machineId) throws SQLException
-  {
-    PreparedStatement deleteMachine =
-      conn.prepareStatement(Constants.REMOVE_MACHINE);
-    deleteMachine.setInt(1, machineId);
-
-    return deleteMachine.executeUpdate();
-  }
-
-  public List<Location> getLocations () throws SQLException
-  {
-    List<Location> locations = new ArrayList<Location>();
-    PreparedStatement selectLocations =
-      conn.prepareStatement(Constants.SELECT_LOCATIONS);
-
-    ResultSet rsLocations = selectLocations.executeQuery();
-
-    while (rsLocations.next()) {
-      Location tmp = new Location();
-      tmp.setLocationId(rsLocations.getInt("locationId"));
-      tmp.setName(rsLocations.getString("location"));
-      Calendar fromDate = Calendar.getInstance();
-      fromDate.setTimeInMillis(rsLocations.getDate("fromDate").getTime());
-      tmp.setFromDate(fromDate.getTime());
-      Calendar toDate = Calendar.getInstance();
-      toDate.setTimeInMillis(rsLocations.getDate("toDate").getTime());
-      tmp.setToDate(toDate.getTime());
-
-      locations.add(tmp);
-
-    }
-    //conn.close();
-    rsLocations.close();
-    selectLocations.close();
-
-    return locations;
-  }
-
-  public int deleteLocation (int locationId) throws SQLException
-  {
-    PreparedStatement deleteLocation =
-      conn.prepareStatement(Constants.DELETE_LOCATION);
-
-    deleteLocation.setInt(1, locationId);
-
-    return deleteLocation.executeUpdate();
-  }
-
-  public int addLocation (String location, Date newLocationStartTime,
-                          Date newLocationEndTime) throws SQLException
-  {
-    PreparedStatement addLocations =
-      conn.prepareStatement(Constants.ADD_LOCATION);
-    addLocations.setString(1, location);
-    addLocations.setDate(2, new java.sql.Date(newLocationStartTime.getTime()));
-    addLocations.setDate(3, new java.sql.Date(newLocationEndTime.getTime()));
-
-    return addLocations.executeUpdate();
-  }
-
-  public Date selectMinDate (List<Location> locations) throws SQLException
-  {
-    PreparedStatement minDate =
-      conn.prepareStatement(Constants.SELECT_MIN_DATE);
-    Date min = new Date();
-
-    for (Location l: locations) {
-      minDate.setString(1, l.getName());
-      ResultSet rs = minDate.executeQuery();
-      if (rs.next()) {
-        if (rs.getDate("minDate").before(min)) {
-          min = rs.getDate("minDate");
-        }
-      }
-    }
-
-    minDate.close();
-
-    return min;
-  }
-
-  public Date selectMaxDate (List<Location> locations) throws SQLException
-  {
-    PreparedStatement minDate =
-      conn.prepareStatement(Constants.SELECT_MAX_DATE);
-    Date max = new Date();
-
-    for (Location l: locations) {
-      minDate.setString(1, l.getName());
-      ResultSet rs = minDate.executeQuery();
-      if (rs.next()) {
-        if (rs.getDate("maxDate").after(max)) {
-          max = rs.getDate("maxDate");
-        }
-      }
-    }
-    minDate.close();
-
-    return max;
   }
 
   public int startTrans () throws SQLException
@@ -1153,7 +1104,6 @@ public class Database
 
   public int abortTrans ()
   {
-    //checkDb();
     try {
       PreparedStatement trans = conn.prepareCall(Constants.ABORT_TRANS);
       trans.execute();
@@ -1169,22 +1119,20 @@ public class Database
   {
     PreparedStatement trunc = conn.prepareStatement("DELETE FROM AgentAdmin;");
     trunc.executeUpdate();
+    trunc.close();
     trunc = conn.prepareStatement("DELETE FROM AgentQueue;");
     trunc.executeUpdate();
+    trunc.close();
     trunc = conn.prepareStatement("DELETE FROM GameArchive;");
     trunc.executeUpdate();
+    trunc.close();
     trunc = conn.prepareStatement("DELETE FROM GameLog;");
     trunc.executeUpdate();
+    trunc.close();
     trunc = conn.prepareStatement("DELETE FROM GameServers;");
     trunc.executeUpdate();
+    trunc.close();
     return 0;
-  }
-  
-  public int freeAgents(int serverNumber) throws SQLException{
-    PreparedStatement freeA = conn.prepareStatement(Constants.FREE_AGENTS_ON_SERVER);
-    freeA.setInt(1, serverNumber);
-    
-    return freeA.executeUpdate();
   }
   
   private void openConnection () throws SQLException
@@ -1192,7 +1140,7 @@ public class Database
     checkDb();
   }
 
-  private void closeConnection () throws SQLException
+  public void closeConnection ()
   {
     try {
       conn.close();
@@ -1209,7 +1157,6 @@ public class Database
   public class Pom
   {
     private String name;
-    private String location;
     private String uploadingUser;
     private int pomId;
 
@@ -1229,15 +1176,6 @@ public class Database
     public void setUploadingUser (String uploadingUser)
     {
       this.uploadingUser = uploadingUser;
-    }
-
-    public String getLocation ()
-    {
-      return location;
-    }
-    public void setLocation (String location)
-    {
-      this.location = location;
     }
 
     public int getPomId() {
@@ -1283,7 +1221,6 @@ public class Database
     {
       this.isPlaying = isPlaying;
     }
-
   }
 
   public class Agent

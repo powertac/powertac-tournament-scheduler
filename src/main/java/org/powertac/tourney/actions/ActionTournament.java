@@ -1,24 +1,17 @@
 package org.powertac.tourney.actions;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.powertac.tourney.beans.Location;
 import org.powertac.tourney.beans.Machine;
-import org.powertac.tourney.beans.Scheduler;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.scheduling.MainScheduler;
 import org.powertac.tourney.services.CreateProperties;
 import org.powertac.tourney.services.Database;
-import org.powertac.tourney.services.Upload;
-import org.powertac.tourney.services.Utils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import java.awt.event.ActionEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -29,21 +22,11 @@ import java.util.List;
 @Scope("session")
 public class ActionTournament
 {
-  @Autowired
-  private Upload upload;
+  public enum TourneyType { SINGLE_GAME, MULTI_GAME }
 
-  @Autowired
-  private Scheduler scheduler;
+  private int selectedPom;
 
-  public enum TourneyType {
-    SINGLE_GAME, MULTI_GAME;
-  }
-
-  private String selectedPom;
-
-  private Calendar initTime = Calendar.getInstance();
-
-  private Date startTime = new Date(); // Default to current date/time
+  private Date startTime = new Date();
   private Date fromTime = new Date();
   private Date toTime = new Date();
 
@@ -55,14 +38,7 @@ public class ActionTournament
   private boolean sortAscending = true;
   private int rowCount = 5;
 
-  // private List<Integer> machines;
   private List<String> locations;
-  private String pomName;
-  private String bootName;
-  private String propertiesName;
-  private UploadedFile pom;
-  private UploadedFile boot;
-  private UploadedFile properties;
   private TourneyType type = TourneyType.SINGLE_GAME;
 
   private int size1 = 2;
@@ -74,19 +50,12 @@ public class ActionTournament
 
   public ActionTournament ()
   {
+    Calendar initTime = Calendar.getInstance();
+
     initTime.set(2009, 2, 3);
     fromTime.setTime(initTime.getTimeInMillis());
     initTime.set(2011, 2, 3);
     toTime.setTime(initTime.getTimeInMillis());
-  }
-
-  public void formType (ActionEvent event)
-  {
-
-    // Get submit button id
-    SelectItem ls = (SelectItem) event.getSource();
-    ls.getValue();
-
   }
 
   public TourneyType getMulti ()
@@ -97,112 +66,6 @@ public class ActionTournament
   public TourneyType getSingle ()
   {
     return TourneyType.SINGLE_GAME;
-  }
-
-  /**
-   * @return the properties
-   */
-  public UploadedFile getProperties ()
-  {
-    return properties;
-  }
-
-  /**
-   * @param properties
-   *          the properties to set
-   */
-  public void setProperties (UploadedFile properties)
-  {
-    this.properties = properties;
-  }
-
-  /**
-   * @return the boot
-   */
-  public UploadedFile getBoot ()
-  {
-    return boot;
-  }
-
-  /**
-   * @param boot
-   *          the boot to set
-   */
-  public void setBoot (UploadedFile boot)
-  {
-    this.boot = boot;
-  }
-
-  /**
-   * @return the pom
-   */
-  public UploadedFile getPom ()
-  {
-    return pom;
-  }
-
-  /**
-   * @param pom
-   *          the pom to set
-   */
-  public void setPom (UploadedFile pom)
-  {
-    this.pom = pom;
-  }
-
-  /**
-   * @return the propertiesName
-   */
-  public String getPropertiesName ()
-  {
-    return propertiesName;
-  }
-
-  /**
-   * @param propertiesName
-   *          the propertiesName to set
-   */
-
-  public void setPropertiesName (String propertiesName)
-  {
-
-    // Generate MD5 hash
-    this.propertiesName =
-      DigestUtils.md5Hex(propertiesName + (new Date()).toString()
-                         + Math.random());
-  }
-
-  /**
-   * @return the bootName
-   */
-  public String getBootName ()
-  {
-    return bootName;
-  }
-
-  /**
-   * @param bootName
-   *          the bootName to set
-   */
-  public void setBootName (String bootName)
-  {
-    // Generate MD5 hash
-
-    this.bootName =
-      DigestUtils.md5Hex(bootName + (new Date()).toString() + Math.random());
-
-  }
-
-  public String getPomName ()
-  {
-    return pomName;
-  }
-
-  public void setPomName (String pomName)
-  {
-    // Generate MD5 hash
-    this.pomName =
-      DigestUtils.md5Hex(pomName + (new Date()).toString() + Math.random());
   }
 
   // Method to list the type enumeration in the jsf select Item component
@@ -216,225 +79,134 @@ public class ActionTournament
     return items;
   }
 
-  public TourneyType getType ()
-  {
-    return type;
-  }
-
-  public void setType (TourneyType type)
-  {
-    this.type = type;
-  }
-
-  public Date getStartTime ()
-  {
-    return startTime;
-  }
-
-  public void setStartTime (Date startTime)
-  {
-    this.startTime = startTime;
-  }
-
-  public int getMaxBrokers ()
-  {
-    return maxBrokers;
-  }
-
-  public void setMaxBrokers (int maxBrokers)
-  {
-    this.maxBrokers = maxBrokers;
-  }
-
-  public String getTournamentName ()
-  {
-    return tournamentName;
-  }
-
-  public void setTournamentName (String tournamentName)
-  {
-    this.tournamentName = tournamentName;
-  }
-  
   public List<Tournament> getTournamentList(){
     List<Tournament> ts = new ArrayList<Tournament>();
-    
+
     Database db = new Database();
-    try{
+    try {
       db.startTrans();
       ts = db.getTournaments("pending");
       ts.addAll(db.getTournaments("in-progress"));
       db.commitTrans();
-    
-    }catch(Exception e){
+    }
+    catch(Exception e){
       db.abortTrans();
     }
-    
+
     return ts;
-    
   }
 
   public synchronized String createTournament ()
   {
     // Create a tournament and insert it into the application context
     Tournament newTourney = new Tournament();
+    newTourney.setPomId(selectedPom);
+    newTourney.setMaxBrokers(getMaxBrokers());
+    newTourney.setStartTime(getStartTime());
+    newTourney.setTournamentName(getTournamentName());
+
     String allLocations = "";
     for (String s: locations) {
       allLocations += s + ",";
     }
-    
+    int[] gtypes = {size1, size2, size3};
+    int[] mxs = {numberSize1, numberSize2, numberSize3};
+
     if (type == TourneyType.SINGLE_GAME) {
+      System.out.println("[INFO] Multigame tournament selected");
 
-      /*
-       * this.setPomName(pom.getName());
-       * upload.setUploadedFile(getPom());
-       * String finalFile = upload.submit(this.getPomName());
-       */
-      newTourney.setPomName(selectedPom);
-
-      int[] gtypes = new int[3];
-      int[] mxs = new int[3];
-      gtypes[0] = size1;
-      gtypes[1] = size2;
-      gtypes[2] = size3;
-      mxs[0] = numberSize1;
-      mxs[1] = numberSize2;
-      mxs[2] = numberSize3;
-      
       Database db = new Database();
-
-      newTourney.setPomUrl(Utils.getTourneyUrl() + "faces/pom.jsp?location="
-                           + newTourney.getPomName());
-      newTourney.setMaxBrokers(getMaxBrokers());
-      newTourney.setStartTime(getStartTime());
-      newTourney.setTournamentName(getTournamentName());
-
       try {
-        int tourneyId = 0;
-        int gameId = 0;
         // Starts new transaction to prevent race conditions
-        System.out.println("Starting transaction");
-
         db.startTrans();
+        System.out.println("[INFO] Starting transaction");
+
         // Adds new tournament to the database
-        System.out.println("Adding tourney");
-        db.addTournament(newTourney.getTournamentName(), true, size1,
-                         startTime, "SINGLE_GAME",
-                         newTourney.getPomUrl(), allLocations, maxBrokers,gtypes,mxs);
-        // Grabs the tourney Id
+        int tourneyId = db.addTournament(getTournamentName(), true, size1,
+            startTime, "SINGLE_GAME", selectedPom, allLocations,
+            maxBrokers, gtypes, mxs);
+        System.out.println("[INFO] Adding new tourney " + tourneyId);
 
-        System.out.println("Getting tourneyId");
-        tourneyId = db.getMaxTourneyId();
         // Adds a new game to the database
+        int gameId = db.addGame(
+            newTourney.getTournamentName(), tourneyId, size1, startTime);
+        System.out.println("[INFO] Adding game " + gameId);
 
-        System.out.println("Adding game");
-
-        db.addGame(newTourney.getTournamentName(), tourneyId, size1, startTime);
-        // Grabs the game id
-        System.out.println("Getting gameId");
-        gameId = db.getMaxGameId();
-        System.out.println("Creating game: " + gameId + " properties");
+        // Create game properties
+        System.out.println("[INFO] Creating game: " + gameId + " properties");
         CreateProperties.genProperties(gameId,db, locations, fromTime, toTime);
 
-        System.out.println("Committing transaction");
         db.commitTrans();
-        
+        System.out.println("[INFO] Committing transaction");
       }
-      catch (SQLException e1) {
-        // TODO Auto-generated catch block
+      catch (SQLException sqle) {
         db.abortTrans();
-        e1.printStackTrace();
+        sqle.printStackTrace();
       }
     }
     else if (type == TourneyType.MULTI_GAME) {
-      
-      int tourneyId = 0;
-      int gameId = 0;
-      
       System.out.println("[INFO] Multigame tournament selected");
-      
-      int noofagents = maxBrokers;
-      int noofcopies = maxBrokerInstances;
-      
-      int iteration = 1, num;
-      int[] gtypes = new int[3];
-      int[] mxs = new int[3];
-      gtypes[0] = size1;
-      gtypes[1] = size2;
-      gtypes[2] = size3;
-      mxs[0] = numberSize1;
-      mxs[1] = numberSize2;
-      mxs[2] = numberSize3;
-      
-      Database db2 = new Database();
-      try{
-        db2.startTrans();
-        db2.truncateScheduler();
-        db2.commitTrans();
-      }catch(Exception e){
-        db2.abortTrans();
-        e.printStackTrace();
-      }
+
+      truncateScheduler();
 
       Database db = new Database();
       try {
+        // Starts new transaction to prevent race conditions
         db.startTrans();
+        System.out.println("[INFO] Starting transaction");
+
+        int noofagents = maxBrokers;
+        int noofcopies = maxBrokerInstances;
         int noofservers = db.getMachines().size();
+
         System.out.println("[INFO] Starting MainScheduler..");
-        System.out.println("[INFO] Params -- Servers:"+noofservers + " Agents:"+noofagents + " Copies:"+noofcopies+" games={"+size1+":"+numberSize1+","+size2+":"+numberSize2+","+size3+":"+numberSize3+"}");
-        MainScheduler gamescheduler = new MainScheduler(noofagents,noofcopies,noofservers, gtypes, mxs);
+        System.out.println("[INFO] Params -- Servers:" + noofservers
+                          + " Agents:" + noofagents
+                          + " Copies:" + noofcopies
+                          + " games={" + size1
+                            + ":" + numberSize1
+                            + "," + size2
+                            + ":" + numberSize2
+                            + "," + size3
+                            + ":" + numberSize3
+                          + "}");
+
+        MainScheduler gamescheduler = new MainScheduler(noofagents, noofservers);
         gamescheduler.initServerPanel(noofservers);
         gamescheduler.initializeAgentsDB(noofagents, noofcopies);
         gamescheduler.initGameCube(gtypes, mxs);
         
         int numberOfGames = gamescheduler.getGamesEstimate();
        
-        System.out.println("[INFO] No. of games: "+numberOfGames);
+        System.out.println("[INFO] No. of games: " + numberOfGames);
         gamescheduler.resetCube();
-        
-        newTourney.setPomName(selectedPom);
 
-        newTourney.setPomUrl(Utils.getTourneyUrl() + "faces/pom.jsp?location="
-                             + newTourney.getPomName());
-        newTourney.setMaxBrokers(getMaxBrokers());
-        newTourney.setStartTime(getStartTime());
-        newTourney.setTournamentName(getTournamentName());
-
-        // Add the number of games to a new tournament
-        // Starts new transaction to prevent race conditions
-        System.out.println("[INFO] Starting transaction");
         // Adds new tournament to the database
-        System.out.println("[INFO] Creating New tourney");
-        db.addTournament(tournamentName, true, numberOfGames,
-                         startTime, "MULTI_GAME",
-                         newTourney.getPomUrl(), allLocations, maxBrokers,gtypes,mxs);
-        // Grabs the tourney Id
+        int tourneyId = db.addTournament(tournamentName, true, numberOfGames,
+            startTime, "MULTI_GAME", selectedPom, allLocations,
+            maxBrokers, gtypes, mxs);
+        System.out.println("[INFO] Adding new tourney " + tourneyId);
 
-        System.out.println("[INFO] Getting tourneyId");
-        tourneyId = db.getMaxTourneyId();
-        List<Machine> machines= db.getMachines();
-        
-        // Adds a new game to the database
-        for(int i=0; i< numberOfGames;i++){
-          System.out.println("[INFO] Adding game");
-  
-          db.addGame(newTourney.getTournamentName(), tourneyId, getMaxBrokers(), startTime);
-          
-          gameId = db.getMaxGameId();
+        // Adds new games to the database
+        for (int i=0; i<numberOfGames; i++) {
+          int gameId = db.addGame(tournamentName + "_" + i,
+              tourneyId, getMaxBrokers(), startTime);
+          System.out.println("[INFO] Adding game " + gameId);
+
+          CreateProperties.genProperties(gameId, db, locations, fromTime, toTime);
           System.out.println("[INFO] Creating game: " + gameId + " properties");
-          CreateProperties.genProperties(gameId,db, locations, fromTime, toTime);
         }
+
+        db.commitTrans();
         System.out.println("[INFO] Committing transaction");
 
-        int id = db.getMaxTourneyId();
-        Tournament t = db.getTournamentById(tourneyId);
-        System.out.println("Created Tournament " + t.getTournamentId()+":"+t.getTournamentName());
-        db.commitTrans();
-        scheduler.initTournament(t, machines);
-        FacesContext.getCurrentInstance()        
-        .addMessage("Tournament",
-                    new FacesMessage(FacesMessage.SEVERITY_INFO,
-                                     "Number of games in tournament: " + numberOfGames, null));
+        String msg = "Number of games in tournament: " + numberOfGames;
+        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+        FacesContext.getCurrentInstance().addMessage("Tournament", fm);
+      }
+      catch (SQLException sqle) {
+        db.abortTrans();
+        sqle.printStackTrace();
       }
       catch (Exception e) {
         db.abortTrans();
@@ -465,7 +237,6 @@ public class ActionTournament
       e.printStackTrace();
     }
     return poms;
-
   }
 
   public List<Machine> getAvailableMachineList ()
@@ -492,26 +263,6 @@ public class ActionTournament
     return machines;
   }
 
-  public Date getFromTime ()
-  {
-    return fromTime;
-  }
-
-  public void setFromTime (Date fromTime)
-  {
-    this.fromTime = fromTime;
-  }
-
-  public Date getToTime ()
-  {
-    return toTime;
-  }
-
-  public void setToTime (Date toTime)
-  {
-    this.toTime = toTime;
-  }
-
   public List<Location> getLocationList(){
     List<Location> locations = new ArrayList<Location>();
     
@@ -526,7 +277,21 @@ public class ActionTournament
     }
     return locations;
   }
-  
+
+  private void truncateScheduler() {
+    Database db = new Database();
+    try {
+      db.startTrans();
+      db.truncateScheduler();
+      db.commitTrans();
+    }
+    catch(Exception e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+  }
+
+  //<editor-fold desc="Setters and getters">
   public List<String> getLocations ()
   {
     return locations;
@@ -537,12 +302,12 @@ public class ActionTournament
     this.locations = locations;
   }
 
-  public String getSelectedPom ()
+  public int getSelectedPom ()
   {
     return selectedPom;
   }
 
-  public void setSelectedPom (String selectedPom)
+  public void setSelectedPom (int selectedPom)
   {
     this.selectedPom = selectedPom;
   }
@@ -647,4 +412,64 @@ public class ActionTournament
     this.rowCount = rowCount;
   }
 
+  public TourneyType getType ()
+  {
+    return type;
+  }
+
+  public void setType (TourneyType type)
+  {
+    this.type = type;
+  }
+
+  public Date getStartTime ()
+  {
+    return startTime;
+  }
+
+  public void setStartTime (Date startTime)
+  {
+    this.startTime = startTime;
+  }
+
+  public int getMaxBrokers ()
+  {
+    return maxBrokers;
+  }
+
+  public void setMaxBrokers (int maxBrokers)
+  {
+    this.maxBrokers = maxBrokers;
+  }
+
+  public String getTournamentName ()
+  {
+    return tournamentName;
+  }
+
+  public void setTournamentName (String tournamentName)
+  {
+    this.tournamentName = tournamentName;
+  }
+
+  public Date getFromTime ()
+  {
+    return fromTime;
+  }
+
+  public void setFromTime (Date fromTime)
+  {
+    this.fromTime = fromTime;
+  }
+
+  public Date getToTime ()
+  {
+    return toTime;
+  }
+
+  public void setToTime (Date toTime)
+  {
+    this.toTime = toTime;
+  }
+  //</editor-fold>
 }

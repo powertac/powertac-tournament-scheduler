@@ -6,8 +6,10 @@ import org.powertac.tourney.services.Utils;
 import javax.faces.bean.ManagedBean;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 
 // Technically not a managed bean, this is an internal Class to the 
@@ -19,6 +21,7 @@ public class Tournament
   private int tourneyId = 0;
   private Date startTime;
   private String tournamentName;
+  private String status = "pending";
   private int maxBrokers; // -1 means inf, otherwise integer specific
   private boolean openRegistration = false;
   private int maxGames;
@@ -34,14 +37,11 @@ public class Tournament
 
   private int maxBrokerInstances = 2;
 
+  private int pomId;
   private String pomName;
 
   // Probably Should check name against auth token
   private HashMap<Integer, String> registeredBrokers;
-
-  private String pomUrl;
-
-  private HashMap<Integer, Game> allGames;
 
   public Tournament ()
   {
@@ -50,18 +50,16 @@ public class Tournament
 
   public Tournament (ResultSet rsTs)
   {
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-    SimpleDateFormat dateFormatUTC =
-            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
     try {
+      setStatus(rsTs.getString("status"));
       setTournamentId(rsTs.getInt("tourneyId"));
       setTournamentName(rsTs.getString("tourneyName"));
       setOpenRegistration(rsTs.getBoolean("openRegistration"));
       setType(rsTs.getString("type"));
       setMaxGames(rsTs.getInt("maxGames"));
-      setPomUrl(rsTs.getString("pomUrl"));
+      setPomId(rsTs.getInt("pomId"));
       setMaxBrokers(rsTs.getInt("maxBrokers"));
-      setStartTime(dateFormatUTC.parse((rsTs.getString("startTime"))));
+      setStartTime(Utils.dateFormatUTCmilli((rsTs.getString("startTime"))));
       setSize1(rsTs.getInt("gameSize1"));
       setSize2(rsTs.getInt("gameSize2"));
       setSize3(rsTs.getInt("gameSize3"));
@@ -93,11 +91,6 @@ public class Tournament
     return result;
   }
 
-  public boolean isRegistered (String authToken)
-  {
-    return registeredBrokers.containsValue(authToken);
-  }
-
   public int getNumberRegistered ()
   {
     Database db = new Database();
@@ -121,6 +114,13 @@ public class Tournament
     return Utils.dateFormatUTC(startTime);
   }
 
+  // TODO Still needed ??
+  /*
+  public boolean isRegistered (String authToken)
+  {
+    return registeredBrokers.containsValue(authToken);
+  }
+  */
 
   //<editor-fold desc="Getters and setters">
   public String getPomName ()
@@ -273,14 +273,23 @@ public class Tournament
     this.maxBrokers = maxBrokers;
   }
 
-  public String getPomUrl ()
+  public int getPomId ()
   {
-    return pomUrl;
+    return pomId;
   }
 
-  public void setPomUrl (String pomUrl)
+  public void setPomId (int pomId)
   {
-    this.pomUrl = pomUrl;
+    this.pomId = pomId;
+  }
+
+  public String getStatus ()
+  {
+    return status;
+  }
+  public void setStatus (String status)
+  {
+    this.status = status;
   }
   //</editor-fold>
 }

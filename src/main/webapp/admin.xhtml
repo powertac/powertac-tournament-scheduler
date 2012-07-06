@@ -123,7 +123,9 @@
             <f:facet name="header">
               <h:outputText value="Pom Name" />
             </f:facet>
-              <h:outputText value="#{p.name}" />
+            <a href="pom.jsp?pomId=#{p.pomId}">
+                <h:outputText value="#{p.name}" />
+            </a>
           </t:column>
 
           <t:column defaultSorted="true">
@@ -180,7 +182,9 @@
             <f:facet name="header">
               <h:outputText value="Vizualizer URL" />
             </f:facet>
-            <h:outputText value="#{m.vizUrl}" />
+            <a href="http://#{m.vizUrl}">
+              <h:outputText value="#{m.vizUrl}" />
+            </a>
           </t:column>
           <t:column sortable="true">
             <f:facet name="header">
@@ -313,7 +317,7 @@
       </h:form>
 
       <h:form rendered="#{user.permissions le 0}">
-        <h3>Pending/Running Tournaments</h3>
+        <h3>Pending/Running Tournaments</h3><h:commandButton value="refresh" action="#{actionAdmin.refresh}"/>
         <t:dataTable id="datatourneys" border="1" sortable="false"
                      sortColumn="#{actionAdmin.sortColumnTournaments}"
                      sortAscending="#{actionAdmin.sortAscendingTournaments}" preserveSort="true"
@@ -326,6 +330,13 @@
               <h:outputText value="Tournament ID" />
             </f:facet>
             <h:outputText value="#{t.tournamentId}" />
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Status" />
+            </f:facet>
+            <h:outputText value="#{t.status}" />
           </t:column>
 
           <t:column sortable="true">
@@ -365,9 +376,11 @@
 
           <t:column>
             <f:facet name="header">
-              <h:outputText value="Pom Link" />
+              <h:outputText value="Pom ID" />
             </f:facet>
-            <a href="#{t.pomUrl}">Pom</a>
+            <a href="pom.jsp?pomId=#{t.pomId}">
+              <h:outputText value="#{t.pomId}" />
+            </a>
           </t:column>
         </t:dataTable>
       </h:form>
@@ -431,7 +444,7 @@
             </f:facet>
             <h:outputText value="Not available" rendered="#{g.visualizerUrl == ''}"/>
             <h:panelGroup rendered="#{g.visualizerUrl != ''}" >
-              <a href="#{g.visualizerUrl}">Visualizer</a>
+              <a href="http://#{g.visualizerUrl}">Visualizer</a>
             </h:panelGroup>
           </t:column>
 
