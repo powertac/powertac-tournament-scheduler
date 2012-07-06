@@ -28,17 +28,13 @@ public class Constants
   public static final String ABORT_TRANS  = "ROLLBACK;";
 
   /***
-   * @param userName : User name attempting to login
-   * @param password : salted md5 hash of entered password
+   * @param userName
+   *          : User name attempting to login
+   * @param password
+   *          : salted md5 hash of entered password
    */
-  public static final String LOGIN_USER =
-    "SELECT * FROM users WHERE userName=? AND password=? LIMIT 1;";
   public static final String LOGIN_SALT =
     "SELECT password, salt, permissionId, userId FROM users WHERE userName=?;";
-  /***
-   * @param userName : User name to update account info
-   */
-  public static final String UPDATE_USER = "";
 
   /***
    * @param userName
@@ -49,12 +45,12 @@ public class Constants
    *          : The desired permission level 0=Admin 4=Guest (Recommend Guest)
    */
   public static final String ADD_USER =
-    "INSERT INTO tourney.users (userName, salt, password, permissionId) VALUES (?,?,?,?); ";
+    "INSERT INTO users (userName, salt, password, permissionId) VALUES (?,?,?,?); ";
 
   /***
    * Select all users
    */
-  public static final String SELECT_USERS = "SELECT * FROM tourney.users;";
+  public static final String SELECT_USERS = "SELECT * FROM users;";
 
   /***
    * @param brokerName
@@ -67,7 +63,7 @@ public class Constants
    *          : The userId of the user that owns this broker
    */
   public static final String ADD_BROKER =
-    "INSERT INTO tourney.brokers (brokerName,brokerAuth,brokerShort, userId, numberInGame) VALUES (?,?,?,?,0);";
+    "INSERT INTO brokers (brokerName,brokerAuth,brokerShort, userId, numberInGame) VALUES (?,?,?,?,0);";
 
   /***
    * Select all brokers by their userId
@@ -76,7 +72,7 @@ public class Constants
    *          : The userId of the brokers to return
    */
   public static final String SELECT_BROKERS_BY_USERID =
-    "SELECT * FROM tourney.brokers WHERE userID = ?;";
+    "SELECT * FROM brokers WHERE userID = ?;";
 
   /***
    * Select broker by their brokerId
@@ -85,7 +81,7 @@ public class Constants
    *          : The brokerId of the broker you wish to return
    */
   public static final String SELECT_BROKER_BY_BROKERID =
-    "SELECT * FROM tourney.brokers WHERE brokerId = ? LIMIT 1;";
+    "SELECT * FROM brokers WHERE brokerId = ? LIMIT 1;";
 
   /**
    * Delete a broker by their brokerId
@@ -95,7 +91,7 @@ public class Constants
    * 
    */
   public static final String DELETE_BROKER_BY_BROKERID =
-    "DELETE FROM tourney.brokers WHERE brokerId = ?;";
+    "DELETE FROM brokers WHERE brokerId = ?;";
 
   /**
    * Update a broker by their brokerId
@@ -107,7 +103,7 @@ public class Constants
    *          : The brokerId of the broker you wish to update
    */
   public static final String UPDATE_BROKER_BY_BROKERID =
-    "UPDATE tourney.brokers SET brokerName = ?, brokerAuth = ?, brokerShort = ? WHERE brokerId = ?;";
+    "UPDATE brokers SET brokerName = ?, brokerAuth = ?, brokerShort = ? WHERE brokerId = ?;";
 
   /***
    * Returns the list of all tournaments in the database of a particular status
@@ -117,7 +113,7 @@ public class Constants
    *          : either "pending", "in-progress", or "complete"
    */
   public static final String SELECT_TOURNAMENTS =
-    "SELECT * FROM tourney.tournaments WHERE status=?;";
+    "SELECT * FROM tournaments WHERE status=?;";
 
   /***
    * Selects a tournament from the database by tournamentId
@@ -128,7 +124,7 @@ public class Constants
    * 
    */
   public static final String SELECT_TOURNAMENT_BYID =
-    "SELECT * FROM tourney.tournaments WHERE tourneyId=?;";
+    "SELECT * FROM tournaments WHERE tourneyId=?;";
 
   /***
    * Selects a tournament from the database by gameId
@@ -161,18 +157,20 @@ public class Constants
    *          : Whether or not brokers may register for this tournament
    * @param type
    *          : This is either "MULTI_GAME" or "SINGLE_GAME"
-   * @param pomUrl
-   *          : This is the url where the pom.xml file can be located for this
-   *          tournament
    * @param locations
    *          : This is a comma delimited list of the possible locations
    *          available in the tournament (Used for weather models)
    * @param maxBrokers
    *          : Maximum brokers allowed in this tournament round
+   * @param pomId
+   *          : pomId of the pom (foreignkey)
    */
-
   public static final String ADD_TOURNAMENT =
-    "INSERT INTO tourney.tournaments (tourneyName, startTime, openRegistration,maxGames, type, pomUrl, locations, maxBrokers, status, gameSize1, gameSize2, gameSize3, numberGameSize1,numberGameSize2,numberGameSize3) VALUES (?,?,?,?,?,?,?,?,'pending',?,?,?,?,?,?);";
+    "INSERT INTO tournaments " +
+    "(tourneyName, startTime, openRegistration, maxGames, type, " +
+     "locations, maxBrokers, status, gameSize1, gameSize2, gameSize3, " +
+     "numberGameSize1, numberGameSize2, numberGameSize3, pomId) " +
+    "VALUES (?,?,?,?,?,?,?,'pending',?,?,?,?,?,?,?);";
 
   /***
    * Updates a particular tournament given the id
@@ -184,7 +182,7 @@ public class Constants
    *          : The id of the tournament you wish to change
    */
   public static final String UPDATE_TOURNAMENT_STATUS_BYID =
-    "UPDATE tourney.tournaments SET status = ? WHERE tourneyId=?";
+    "UPDATE tournaments SET status = ? WHERE tourneyId=?";
 
   /***
    * Delete a particular tournament permanently, works only if all the games
@@ -194,13 +192,13 @@ public class Constants
    *          : The id of the tournament you wish to delete
    */
   public static final String DELETE_TOURNAMENT_BYID =
-    "DELETE FROM tourney.tournaments WHERE tourneyId=?;";
+    "DELETE FROM tournaments WHERE tourneyId=?;";
 
   /**
    * Select the max tournament id from all the tournaments
    */
   public static final String SELECT_MAX_TOURNAMENTID =
-    "SELECT MAX(tourneyId) as maxId FROM tourney.tournaments;";
+    "SELECT MAX(tourneyId) as maxId FROM tournaments;";
 
   /***
    * Get the number of brokers registered for a tournament
@@ -229,7 +227,7 @@ public class Constants
    *          : The id of the broker you wish to register
    */
   public static final String REGISTER_BROKER =
-    "INSERT INTO tourney.registration (tourneyId,brokerId) VALUES (?,?);";
+    "INSERT INTO registration (tourneyId,brokerId) VALUES (?,?);";
 
   /***
    * Unregister for a tournament (admin functionality)
@@ -240,7 +238,7 @@ public class Constants
    *          : The id of the broker
    */
   public static final String UNREGISTER_BROKER =
-    "DELETE FROM tourney.registration WHERE tourneyId=? AND brokerId=?;";
+    "DELETE FROM registration WHERE tourneyId=? AND brokerId=?;";
 
   /***
    * Check if a broker is registered for a tournament
@@ -251,7 +249,7 @@ public class Constants
    *          : The id of the broker
    */
   public static final String REGISTERED =
-    "SELECT COUNT(*)=1 as registered FROM tourney.registration WHERE tourneyId=? AND brokerId=?;";
+    "SELECT COUNT(*)=1 as registered FROM registration WHERE tourneyId=? AND brokerId=?;";
 
   /***
    * Insert a new game into the database to be run (only ever insert games
@@ -269,7 +267,7 @@ public class Constants
    *          : The scheduled start time of the sim
    */
   public static final String ADD_GAME =
-    "INSERT INTO tourney.games (gameName, tourneyId, maxBrokers, startTime, status, jmsUrl, visualizerUrl, location, hasBootstrap, brokers) VALUES(?,?,?,?,'boot-pending','','','',false,'');";
+    "INSERT INTO games (gameName, tourneyId, maxBrokers, startTime, status, jmsUrl, visualizerUrl, location, hasBootstrap, brokers) VALUES(?,?,?,?,'boot-pending','','','',false,'');";
 
   /***
    * Returns a list of the runnable games as of now.
@@ -312,7 +310,7 @@ public class Constants
    *          : The name of the broker
    */
   public static final String ADD_BROKER_TO_GAME =
-    "INSERT INTO tourney.ingame (gameId,brokerId,brokerAuth,brokerName) VALUES (?,?,?,?)";
+    "INSERT INTO ingame (gameId,brokerId,brokerAuth,brokerName) VALUES (?,?,?,?)";
 
   /***
    * Get brokers in a game by gameid
@@ -337,7 +335,7 @@ public class Constants
    *          : The id of the game you wish to retrieve from the db
    */
   public static final String SELECT_GAMEBYID =
-    "SELECT * FROM tourney.games WHERE gameId=?;";
+    "SELECT * FROM games WHERE gameId=?;";
 
   /***
    * Update jmsUrl
@@ -346,7 +344,7 @@ public class Constants
    * @param gameId
    */
   public static final String UPDATE_GAME_JMSURL =
-    "UPDATE tourney.games SET jmsUrl=? WHERE gameId=?;";
+    "UPDATE games SET jmsUrl=? WHERE gameId=?;";
 
   /***
    * Update the machine a game is running on
@@ -355,10 +353,9 @@ public class Constants
    *          : The id of the machine the game is running on
    * @param gameId
    *          : The id of the game
-   * 
    */
   public static final String UPDATE_GAME_MACHINE =
-    "UPDATE tourney.games SET machineId=? WHERE gameId=?;";
+    "UPDATE games SET machineId=? WHERE gameId=?;";
   
   public static final String UPDATE_SERVER = "UPDATE GameServers SET IsPlaying = 0 WHERE ServerNumber=?;";
 
@@ -369,7 +366,7 @@ public class Constants
    *          : the id of the game
    */
   public static final String UPDATE_GAME_FREE_MACHINE =
-    "UPDATE tourney.games SET machineId=NULL WHERE gameId=?;";
+    "UPDATE games SET machineId=NULL WHERE gameId=?;";
 
   /***
    * Update the game to free the brokers
@@ -378,7 +375,7 @@ public class Constants
    *          : the id of the game
    */
   public static final String UPDATE_GAME_FREE_BROKERS =
-    "DELETE FROM tourney.ingame WHERE gameId=?;";
+    "DELETE FROM ingame WHERE gameId=?;";
 
   /***
    * Update the visualizerUrl for a game that is running
@@ -389,7 +386,7 @@ public class Constants
    *          : The id of the game
    */
   public static final String UPDATE_GAME_VIZ =
-    "UPDATE tourney.games SET visualizerUrl=? WHERE gameId=?;";
+    "UPDATE games SET visualizerUrl=? WHERE gameId=?;";
 
   /***
    * Update Game hasBootstrap
@@ -400,7 +397,7 @@ public class Constants
    *          : The id of the game you wish to change
    */
   public static final String UPDATE_GAME_BOOTSTRAP =
-    "UPDATE tourney.games SET hasBootstrap=? WHERE gameId=?;";
+    "UPDATE games SET hasBootstrap=? WHERE gameId=?;";
 
   /***
    * Update Game status by gameId
@@ -413,7 +410,7 @@ public class Constants
    *          : The id of the game you wish to change
    */
   public static final String UPDATE_GAME =
-      "UPDATE tourney.games SET status = ? WHERE gameId = ?";
+      "UPDATE games SET status = ? WHERE gameId = ?";
 
   /***
    * Delete a game from the database (may need to do a cascading delete)
@@ -422,17 +419,17 @@ public class Constants
    *          : The id of the game to delete
    */
   public static final String DELETE_GAME =
-    "DELETE FROM tourney.games WHERE gameId=?;";
+    "DELETE FROM games WHERE gameId=?;";
 
   /***
    * Select all running and pending games
    * 
    */
   public static final String SELECT_GAME =
-    "SELECT * FROM tourney.games WHERE (status LIKE 'boot%') OR (status LIKE '%pending') OR (status LIKE '%progress');";
+    "SELECT * FROM games WHERE (status LIKE 'boot%') OR (status LIKE '%pending') OR (status LIKE '%progress');";
 
   
-  public static final String SELECT_COMPLETE_GAMES = "SELECT * FROM tourney.games WHERE status='game-complete';";
+  public static final String SELECT_COMPLETE_GAMES = "SELECT * FROM games WHERE status='game-complete';";
   /***
    * Select all games belonging to a tournament
    * 
@@ -440,13 +437,13 @@ public class Constants
    *          :
    */
   public static final String SELECT_GAMES_IN_TOURNEY =
-    "SELECT * FROM tourney.games WHERE tourneyId=?;";
+    "SELECT * FROM games WHERE tourneyId=?;";
 
   /***
    * Get max gameid of all games
    */
   public static final String SELECT_MAX_GAMEID =
-    "SELECT MAX(gameId) as maxId FROM tourney.games;";
+    "SELECT MAX(gameId) as maxId FROM games;";
 
   /***
    * Check to see if a gameid has a bootstrap
@@ -455,7 +452,7 @@ public class Constants
    *          : The id of the game to check
    */
   public static final String GAME_READY =
-    "SELECT hasBootstrap as ready FROM tourney.games WHERE gameId=?;";
+    "SELECT hasBootstrap as ready FROM games WHERE gameId=?;";
 
   /***
    * Select the properties given a certain property id
@@ -464,7 +461,7 @@ public class Constants
    *          : The id of the properties you wish to query
    */
   public static final String SELECT_PROPERTIES_BY_ID =
-    "SELECT * FROM tourney.properties WHERE gameId=?;";
+    "SELECT * FROM properties WHERE gameId=?;";
 
   /***
    * Add properties to the database
@@ -479,7 +476,7 @@ public class Constants
    *          : The gameId that this property file belongs to
    */
   public static final String ADD_PROPERTIES =
-    "INSERT INTO tourney.properties (jmsUrl,vizQueue,location,startTime,gameId) VALUES ('','',?,?,?);";
+    "INSERT INTO properties (jmsUrl,vizQueue,location,startTime,gameId) VALUES ('','',?,?,?);";
 
   /***
    * Update the properties with jmsUrl for sims, this is done as soon as you
@@ -493,43 +490,44 @@ public class Constants
    *          : The game id of the game you wish to change
    */
   public static final String UPDATE_PROPETIES =
-    "UPDATE tourney.properties SET jmsUrl=?, vizQueue=? WHERE gameId=?;";
+    "UPDATE properties SET jmsUrl=?, vizQueue=? WHERE gameId=?;";
 
   /***
    * Add pom names and locations
    * 
    * @param uploadingUser
    * @param name
-   * @param location
    */
   public static final String ADD_POM =
-    "INSERT INTO tourney.poms (uploadingUser, name, location) VALUES (?,?,?);";
+    "INSERT INTO poms (uploadingUser, name) VALUES (?,?);";
 
   /***
    * Select all poms
    */
-  public static final String SELECT_POMS = "SELECT * FROM tourney.poms;";
+  public static final String SELECT_POMS = "SELECT * FROM poms;";
 
   /***
    * Select all machines
    */
   public static final String SELECT_MACHINES =
-    "SELECT * FROM tourney.machines;";
+    "SELECT * FROM machines;";
 
   /***
    * Select machine by id
-   * @param machineId : the id of the machine
+   * @param machineId
+   *          : the id of the machine
    */
   public static final String SELECT_MACHINES_BYID =
-    "SELECT * FROM tourney.machines WHERE machineId=?;";
+    "SELECT * FROM machines WHERE machineId=?;";
   
   
   /***
    * Select servers
-   * @param machineId : the id of the machine
+   * @param machineId
+   *          : the id of the machine
    */
   public static final String SELECT_SERVERS =
-    "SELECT * FROM tourney.GameServers;";
+    "SELECT * FROM GameServers;";
   
   /***
    * Change a machine's status based on id
@@ -540,7 +538,7 @@ public class Constants
    *          : The id of the machine to change
    */
   public static final String UPDATE_MACHINE_STATUS_BY_ID =
-    "UPDATE tourney.machines SET status=? WHERE machineId=?;";
+    "UPDATE machines SET status=? WHERE machineId=?;";
 
   /***
    * Change a machine's status based on name
@@ -552,7 +550,7 @@ public class Constants
    * 
    */
   public static final String UPDATE_MACHINE_STATUS_BY_NAME =
-    "UPDATE tourney.machines SET status=? WHERE machineName=?;";
+    "UPDATE machines SET status=? WHERE machineName=?;";
 
   /***
    * Add a machine into the database, default status is "idle"
@@ -564,7 +562,7 @@ public class Constants
    *          : The fully qualified name of the machine like "tac04.cs.umn.edu"
    */
   public static final String ADD_MACHINE =
-    "INSERT INTO tourney.machines (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES (?,?,?,?,'idle',false);";
+    "INSERT INTO machines (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES (?,?,?,?,'idle',false);";
 
   /***
    * Update a machines properties in the database
@@ -581,7 +579,7 @@ public class Constants
    *          : the machines id in the DB
    */
   public static final String EDIT_MACHINE =
-    "UPDATE tourney.machines SET machineName=?, machineUrl=?, visualizerUrl=?, visualizerQueue=? WHERE machineId=?;";
+    "UPDATE machines SET machineName=?, machineUrl=?, visualizerUrl=?, visualizerQueue=? WHERE machineId=?;";
   
   /***
    * Remove a machine from the database by id
@@ -590,7 +588,7 @@ public class Constants
    *          : THe id of the machine you wish to remove
    */
   public static final String REMOVE_MACHINE =
-    "DELETE FROM tourney.machines WHERE machineId=?;";
+    "DELETE FROM machines WHERE machineId=?;";
 
   /***
    * Change a machines availabilty based on name
@@ -601,7 +599,7 @@ public class Constants
    *          : the name of the machine
    */
   public static final String UPDATE_MACHINE_AVAILABILITY =
-    "UPDATE tourney.machines SET available=? WHERE machineId=?;";
+    "UPDATE machines SET available=? WHERE machineId=?;";
 
   /***
    * Get the games scheduled for a particular agentType
@@ -615,6 +613,10 @@ public class Constants
             + "JOIN GameLog b ON a.InternalAgentID = b.InternalAgentID"
             + "JOIN GameArchive c ON b.InternalGameID= c.InternalGameID"
             + "WHERE AgentType = ?";
+
+  public static final String GET_AGENT_TYPE =
+    "SELECT DISTINCT AgentType FROM AgentAdmin;";
+
   
   /**
    * Free the Agent ids that are playing on a server that finished
@@ -637,7 +639,7 @@ public class Constants
    * 
    */
   public static final String SELECT_LOCATIONS =
-    "SELECT * FROM tourney.locations";
+    "SELECT * FROM locations";
 
   /***
    * Adds a location to the database
@@ -650,7 +652,7 @@ public class Constants
    *          : The end date of the weather data
    */
   public static final String ADD_LOCATION =
-    "INSERT INTO tourney.locations (location, fromDate, toDate) VALUES (?,?,?);";
+    "INSERT INTO locations (location, fromDate, toDate) VALUES (?,?,?);";
 
   /***
    * Delete a location by id
@@ -659,7 +661,7 @@ public class Constants
    *          : The id of the location you wish to remove
    */
   public static final String DELETE_LOCATION =
-    "DELETE FROM tourney.locations WHERE locationId=?;";
+    "DELETE FROM locations WHERE locationId=?;";
 
   /***
    * Select the minimum date available for a location
