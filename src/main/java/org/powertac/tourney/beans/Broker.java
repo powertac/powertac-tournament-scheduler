@@ -1,13 +1,24 @@
 package org.powertac.tourney.beans;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 import java.sql.ResultSet;
 import java.util.Date;
 
 import javax.faces.bean.ManagedBean;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-@ManagedBean
+@Entity
+@Table(name = "brokers", catalog = "tourney", uniqueConstraints = {
+            @UniqueConstraint(columnNames = "brokerId")})
 public class Broker
 {
   private static final String key = "broker";
@@ -62,6 +73,7 @@ public class Broker
 
   }
 
+  @Column(name = "brokerName", unique = false, nullable = false)
   public String getBrokerName ()
   {
     return brokerName;
@@ -72,6 +84,9 @@ public class Broker
     this.brokerName = brokerName;
   }
 
+  @Id
+  @GeneratedValue(strategy = IDENTITY)
+  @Column(name = "brokerId", unique = true, nullable = false)
   public int getBrokerId ()
   {
     return brokerId;
@@ -82,6 +97,7 @@ public class Broker
     this.brokerId = brokerId;
   }
 
+  @Column(name = "brokerAuth", unique = true, nullable = false)
   public String getBrokerAuthToken ()
   {
     return brokerAuthToken;
@@ -92,6 +108,7 @@ public class Broker
     this.brokerAuthToken = brokerAuthToken;
   }
 
+  @Column(name = "brokerShort", unique = false, nullable = false)
   public String getShortDescription ()
   {
     return shortDescription;
@@ -108,6 +125,7 @@ public class Broker
     }
   }
 
+  @Transient
   public boolean isEdit ()
   {
     return edit;
@@ -118,16 +136,19 @@ public class Broker
     this.edit = edit;
   }
 
+  @Transient
   public String getNewName ()
   {
     return newName;
   }
 
+  
   public void setNewName (String newName)
   {
     this.newName = newName;
   }
 
+  @Transient
   public String getNewAuth ()
   {
     return newAuth;
@@ -138,6 +159,7 @@ public class Broker
     this.newAuth = newAuth;
   }
 
+  @Transient
   public String getNewShort ()
   {
     return newShort;
@@ -148,6 +170,7 @@ public class Broker
     this.newShort = newShort;
   }
 
+  @Transient
   public String getSelectedTourney ()
   {
     return selectedTourney;
@@ -158,6 +181,7 @@ public class Broker
     this.selectedTourney = selectedTourney;
   }
 
+  @Column(name = "numberInGame", unique = false, nullable = false)
   public int getNumberInGame ()
   {
     return numberInGame;

@@ -1,9 +1,21 @@
 package org.powertac.tourney.beans;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -15,7 +27,9 @@ import java.util.List;
 // Technically not a managed bean, this is an internal Class to the 
 // Tournaments bean which is an application scoped bean that acts as 
 // a collection for all the active tournaments
-@ManagedBean
+@Entity
+@Table(name = "tournaments", catalog = "tourney", uniqueConstraints = {
+            @UniqueConstraint(columnNames = "tourneyId")})
 public class Tournament
 {
   private int tourneyId = 0;
@@ -25,6 +39,7 @@ public class Tournament
   private int maxBrokers; // -1 means inf, otherwise integer specific
   private boolean openRegistration = false;
   private int maxGames;
+  private String locations = "";
 
   private int size1 = 2;
   private int numberSize1 = 2;
@@ -75,6 +90,7 @@ public class Tournament
     }
   }
 
+  @Transient
   public List<Game> getGames ()
   {
     List<Game> result = new ArrayList<Game>();
@@ -91,6 +107,7 @@ public class Tournament
     return result;
   }
 
+  @Transient
   public int getNumberRegistered ()
   {
     Database db = new Database();
@@ -109,6 +126,7 @@ public class Tournament
     return result;
   }
 
+  @Transient
   public String toUTCStartTime ()
   {
     return Utils.dateFormatUTC(startTime);
@@ -123,6 +141,7 @@ public class Tournament
   */
 
   //<editor-fold desc="Getters and setters">
+  @Column(name = "pomName", unique = false, nullable = false)
   public String getPomName ()
   {
     return pomName;
@@ -133,6 +152,7 @@ public class Tournament
     this.pomName = pomName;
   }
 
+  @Column(name = "openRegistration", unique = false, nullable = false)
   public boolean getOpenRegistration ()
   {
     return openRegistration;
@@ -143,6 +163,7 @@ public class Tournament
     this.openRegistration = openRegistration;
   }
 
+  @Column(name = "maxGames", unique = false, nullable = false)
   public int getMaxGames ()
   {
     return maxGames;
@@ -153,6 +174,7 @@ public class Tournament
     this.maxGames = maxGames;
   }
 
+  @Column(name = "gameSize1", unique = false, nullable = false)
   public int getSize1 ()
   {
     return size1;
@@ -162,7 +184,8 @@ public class Tournament
   {
     this.size1 = size1;
   }
-
+  
+  @Column(name = "maxGames", unique = false, nullable = false)
   public int getNumberSize1 ()
   {
     return numberSize1;
@@ -172,7 +195,8 @@ public class Tournament
   {
     this.numberSize1 = numberSize1;
   }
-
+  
+  @Column(name = "gameSize2", unique = false, nullable = false)
   public int getSize2 ()
   {
     return size2;
@@ -183,6 +207,7 @@ public class Tournament
     this.size2 = size2;
   }
 
+  @Column(name = "numberGameSize2", unique = false, nullable = false)
   public int getNumberSize2 ()
   {
     return numberSize2;
@@ -193,6 +218,7 @@ public class Tournament
     this.numberSize2 = numberSize2;
   }
 
+  @Column(name = "gameSize3", unique = false, nullable = false)
   public int getSize3 ()
   {
     return size3;
@@ -203,6 +229,7 @@ public class Tournament
     this.size3 = size3;
   }
 
+  @Column(name = "numberGameSize3", unique = false, nullable = false)
   public int getNumberSize3 ()
   {
     return numberSize3;
@@ -213,6 +240,7 @@ public class Tournament
     this.numberSize3 = numberSize3;
   }
 
+  @Column(name = "maxGames", unique = false, nullable = false)
   public int getMaxBrokerInstances ()
   {
     return maxBrokerInstances;
@@ -223,6 +251,7 @@ public class Tournament
     this.maxBrokerInstances = maxBrokerInstances;
   }
 
+  @Column(name = "type", unique = false, nullable = false)
   public String getType ()
   {
     return type;
@@ -233,6 +262,9 @@ public class Tournament
     this.type = type;
   }
 
+  @Id
+  @GeneratedValue(strategy = IDENTITY)
+  @Column(name = "tourneyId", unique = true, nullable = false)
   public int getTournamentId ()
   {
     return tourneyId;
@@ -243,6 +275,8 @@ public class Tournament
     this.tourneyId = competitionId;
   }
 
+  @Temporal(TemporalType.DATE)
+  @Column(name = "startTime", unique = false, nullable = false, length = 10)
   public Date getStartTime ()
   {
     return startTime;
@@ -253,6 +287,7 @@ public class Tournament
     this.startTime = startTime;
   }
 
+  @Column(name = "tourneyName", unique = false, nullable = false)
   public String getTournamentName ()
   {
     return tournamentName;
@@ -263,6 +298,7 @@ public class Tournament
     this.tournamentName = tournamentName;
   }
 
+  @Column(name = "maxBrokers", unique = false, nullable = false)
   public int getMaxBrokers ()
   {
     return maxBrokers;
@@ -273,6 +309,7 @@ public class Tournament
     this.maxBrokers = maxBrokers;
   }
 
+  @Column(name = "pomId", unique = false, nullable = false)
   public int getPomId ()
   {
     return pomId;
@@ -283,6 +320,7 @@ public class Tournament
     this.pomId = pomId;
   }
 
+  @Column(name = "status", unique = false, nullable = false)
   public String getStatus ()
   {
     return status;
@@ -290,6 +328,17 @@ public class Tournament
   public void setStatus (String status)
   {
     this.status = status;
+  }
+ 
+  @Column(name = "locations", unique = false, nullable = false)
+  public String getLocations ()
+  {
+    return locations;
+  }
+
+  public void setLocations (String locations)
+  {
+    this.locations = locations;
   }
   //</editor-fold>
 }

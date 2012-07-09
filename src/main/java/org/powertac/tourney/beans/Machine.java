@@ -1,10 +1,22 @@
 package org.powertac.tourney.beans;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 import java.sql.ResultSet;
 
 import javax.faces.bean.ManagedBean;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
-@ManagedBean
+//Create hibernate mapping with annotations
+@Entity
+@Table(name = "machines", catalog = "tourney", uniqueConstraints = {
+            @UniqueConstraint(columnNames = "machineId")})
 public class Machine
 {
   private String name;
@@ -19,7 +31,6 @@ public class Machine
 
   public Machine ()
   {
-
   }
 
   public Machine (ResultSet rsMachines)
@@ -38,6 +49,7 @@ public class Machine
     }
   }
 
+  @Column(name = "machineName", unique = false, nullable = false)
   public String getName ()
   {
     return name;
@@ -47,7 +59,8 @@ public class Machine
   {
     this.name = name;
   }
-
+  
+  @Column(name = "machineUrl", unique = false, nullable = false)
   public String getUrl ()
   {
     return url;
@@ -58,6 +71,7 @@ public class Machine
     this.url = url;
   }
 
+  @Transient
   public boolean isInProgress ()
   {
     return inProgress;
@@ -68,6 +82,7 @@ public class Machine
     this.inProgress = inProgress;
   }
 
+  @Column(name = "gameId", unique = false, nullable = false)
   public int getGameId ()
   {
     return gameId;
@@ -78,6 +93,10 @@ public class Machine
     this.gameId = gameId;
   }
 
+  
+  @Id
+  @GeneratedValue(strategy = IDENTITY)
+  @Column(name = "machineId", unique = true, nullable = false)
   public int getMachineId ()
   {
     return machineId;
@@ -88,6 +107,7 @@ public class Machine
     this.machineId = machineId;
   }
 
+  @Column(name = "status", unique = false, nullable = false)
   public String getStatus ()
   {
     return status;
@@ -104,6 +124,8 @@ public class Machine
     }
   }
 
+  
+  @Column(name = "available", unique = false, nullable = false)
   public boolean isAvailable ()
   {
     return available;
@@ -114,6 +136,7 @@ public class Machine
     this.available = available;
   }
 
+  @Column(name = "visualizerUrl", unique = false, nullable = false)
   public String getVizUrl ()
   {
     return vizUrl;
@@ -124,6 +147,7 @@ public class Machine
     this.vizUrl = vizUrl;
   }
 
+  @Column(name = "visualizerQueue", unique = false, nullable = false)
   public String getVizQueue ()
   {
     return vizQueue;

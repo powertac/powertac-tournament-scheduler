@@ -28,6 +28,17 @@ CREATE TABLE `tourney`.`brokers` (
 ) ENGINE=InnoDB;
 
 
+/* Create poms list */
+DROP TABLE IF EXISTS `tourney`.`poms`;
+CREATE TABLE `tourney`.`poms` (
+	`pomId` integer UNSIGNED NOT NULL AUTO_INCREMENT,
+	`location` VARCHAR(256) NOT NULL,
+	`name` VARCHAR(45) NOT NULL,
+	`uploadingUser` VARCHAR(45) NOT NULL,
+	PRIMARY KEY (`pomId`)
+) ENGINE=InnoDB;
+
+
 /* Create top level tournament list */
 DROP TABLE IF EXISTS `tourney`.`tournaments`;
 CREATE TABLE `tourney`.`tournaments` (
@@ -49,8 +60,7 @@ CREATE TABLE `tourney`.`tournaments` (
 	`pomId` integer NOT NULL, /* This will be a foreign key to poms.pomId */
 	`locations` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
 	PRIMARY KEY (`tourneyId`),
-
-	CONSTRAINT `tournaments_refs` FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`);
+	CONSTRAINT tourney_refs FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` ( `pomId` ),
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `tourney`.`registration`;
@@ -128,15 +138,7 @@ CREATE TABLE `tourney`.`permissions` (
 ) ENGINE=InnoDB;
 
 
-/* Create poms list */
-DROP TABLE IF EXISTS `tourney`.`poms`;
-CREATE TABLE `tourney`.`poms` (
-	`pomId` integer UNSIGNED NOT NULL AUTO_INCREMENT,
-	`location` VARCHAR(256) NOT NULL,
-	`name` VARCHAR(45) NOT NULL,
-	`uploadingUser` VARCHAR(45) NOT NULL,
-	PRIMARY KEY (`pomId`)
-) ENGINE=InnoDB;
+
 
 
 DROP TABLE IF EXISTS `tourney`.`locations`;
@@ -148,7 +150,7 @@ CREATE TABLE `tourney`.`locations` (
 	PRIMARY KEY (`locationId`)
 ) ENGINE=InnoDB;
 
-INSERT INTO `locations` (`locationId`, `location`, `fromDate`, `toDate`) VALUES (1, 'minneapolis', '2009-01-01 00:00:00', '2009-06-01 00:00:00');
+INSERT INTO `tourney`.`locations` (`locationId`, `location`, `fromDate`, `toDate`) VALUES (1, 'minneapolis', '2009-01-01 00:00:00', '2009-06-01 00:00:00');
 
 
 DROP TABLE IF EXISTS `tourney`.`ingame`;
