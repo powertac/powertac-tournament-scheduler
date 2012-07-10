@@ -57,10 +57,10 @@ CREATE TABLE `tourney`.`tournaments` (
 	`numberGameSize3` integer NOT NULL,
 	`maxBrokerInstances` integer NOT NULL DEFAULT 2,
 	`type` VARCHAR(32) NOT NULL, /* Type is either multi-game or single game if single game ignore the gameSize params */
-	`pomId` integer NOT NULL, /* This will be a foreign key to poms.pomId */
+	`pomId` integer UNSIGNED NOT NULL, /* This will be a foreign key to poms.pomId */
 	`locations` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
 	PRIMARY KEY (`tourneyId`),
-	CONSTRAINT tourney_refs FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` ( `pomId` ),
+	CONSTRAINT tourney_refs FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` ( `pomId` )
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `tourney`.`registration`;
