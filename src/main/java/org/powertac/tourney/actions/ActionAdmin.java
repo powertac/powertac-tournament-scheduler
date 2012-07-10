@@ -1,6 +1,7 @@
 package org.powertac.tourney.actions;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
+import org.hibernate.Session;
 import org.powertac.tourney.beans.*;
 import org.powertac.tourney.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,22 +132,25 @@ public class ActionAdmin
         (User) FacesContext.getCurrentInstance().getExternalContext()
             .getSessionMap().get(User.getKey());
 
-    Database db = new Database();
-    try {
-      db.startTrans();
-      int id = db.addPom(currentUser.getUsername(), this.getPomName());
+    TournamentProperties properties = new TournamentProperties();
+      Session session = HibernateUtil.getSessionFactory().openSession();
+      session.beginTransaction();
+      
+      Pom p = new Pom();
+      p.setName(this.getPomName());
+      p.setUploadingUser(currentUser.getUsername());
+      p.setLocation(properties.getProperty("pomLocation"));
+      
+      session.save(p);
+      
+      
+      //int id = db.addPom(currentUser.getUsername(), this.getPomName());
 
-      TournamentProperties properties = new TournamentProperties();
       upload.setUploadedFile(pom);
       upload.setUploadLocation(properties.getProperty("pomLocation"));
-      upload.submit("pom." + id + ".xml");
-
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
+      upload.submit("pom." + p.getPomId() + ".xml");
+      
+      session.getTransaction().commit();
   }
 
   public List<Database.Pom> getPomList ()
