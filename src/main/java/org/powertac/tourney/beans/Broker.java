@@ -5,7 +5,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 import java.sql.ResultSet;
 import java.util.Date;
 
-import javax.faces.bean.ManagedBean;
+//import javax.faces.bean.ManagedBean;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,6 +36,7 @@ public class Broker
   private String brokerName;
   private int brokerId = 0;
   private String brokerAuthToken;
+  private String brokerQueueName; // per-game value
   private String shortDescription;
   private int numberInGame = 0;
 
@@ -106,6 +107,24 @@ public class Broker
   public void setBrokerAuthToken (String brokerAuthToken)
   {
     this.brokerAuthToken = brokerAuthToken;
+  }
+  
+  public String createQueueName ()
+  {
+    long time = new Date().getTime() & 0xffffffff;
+    long ran = new java.util.Random(time).nextLong();
+    return Long.toString(ran, 31);
+  }
+  
+  @Transient
+  public String getQueueName ()
+  {
+    return brokerQueueName;
+  }
+  
+  public void setQueueName (String queue)
+  {
+    brokerQueueName = queue;
   }
 
   @Column(name = "brokerShort", unique = false, nullable = false)

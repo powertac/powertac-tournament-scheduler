@@ -10,8 +10,8 @@ CREATE TABLE `tourney`.`users` (
 	`salt` VARCHAR(45) NOT NULL,
 	`password` VARCHAR(45) NOT NULL, 
 	`permissionId` BIGINT(20) UNSIGNED NOT NULL,
-	PRIMARY KEY (`userId`)
-	UNIQUE KEY `userName` (`userName`)
+	PRIMARY KEY (`userId`),
+	UNIQUE KEY (`userName`)
 ) ENGINE=InnoDB;
 
 
@@ -33,6 +33,7 @@ CREATE TABLE `tourney`.`brokers` (
 DROP TABLE IF EXISTS `tourney`.`poms`;
 CREATE TABLE `tourney`.`poms` (
   `pomId` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `location` VARCHAR(256) NOT NULL,
   `name` VARCHAR(45) NOT NULL,
   `uploadingUser` VARCHAR(45) NOT NULL,
 	PRIMARY KEY (`pomId`),
@@ -161,6 +162,7 @@ CREATE TABLE `tourney`.`ingame` (
 	`gameId` BIGINT(20) UNSIGNED NOT NULL,
 	`brokerId` BIGINT(20) UNSIGNED NOT NULL,
 	`brokerAuth` VARCHAR(256) NOT NULL,
+	`brokerQueue` VARCHAR(64),
 	`brokerName` VARCHAR(256) NOT NULL,
 	CONSTRAINT brokerId_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`),
 	CONSTRAINT gameId_refs2 FOREIGN KEY (`gameId`) REFERENCES `tourney`.`games` ( `gameId` ),

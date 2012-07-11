@@ -1,5 +1,6 @@
 package org.powertac.tourney.services;
 
+import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Scheduler;
 import org.powertac.tourney.beans.Tournament;
@@ -33,19 +34,20 @@ public class Rest
       retryResponse =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><retry>%d</retry></message>";
       loginResponse =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><login><jmsUrl>%s</jmsUrl><gameToken>%s</gameToken></login></message>";
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><login><jmsUrl>%s</jmsUrl><queueName>%s</queueName></login></message>";
       doneResponse =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><done></done></message>";
     }
     else {
       retryResponse = "{\n \"retry\":%d\n}";
-      loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"gameToken\":%s\n}";
+      loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"queueName\":%s\n}";
       doneResponse = "{\n \"done\":\"true\"\n}";
     }
     Database db = new Database();
 
     try {
       db.startTrans();
+      // JEC - this could be a REALLY long list after a while.
       List<Game> allGames = db.getGames();
       List<Tournament> allTournaments = db.getTournaments("pending");
       allTournaments.addAll(db.getTournaments("in-progress"));
@@ -76,7 +78,16 @@ public class Rest
                                    + g.getJmsUrl());
                 skip.put(g.getGameId() + brokerAuthToken, g.getGameId());
               }
-              return String.format(loginResponse, g.getJmsUrl(), "1234");
+              // here we need to add the queue name
+              Broker b = db.getBrokerInGame(g.getGameId(), brokerAuthToken);
+              if (null == b) {
+                System.out.println("[ERROR] Broker " + brokerAuthToken +
+                                   " is not in game " + g.getGameId());
+                return String.format(retryResponse, 60);
+              }
+              else {
+                return String.format(loginResponse, g.getJmsUrl(), b.getQueueName());
+              }
             }
           }
         }

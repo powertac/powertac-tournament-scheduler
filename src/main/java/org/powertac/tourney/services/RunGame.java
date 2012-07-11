@@ -18,7 +18,7 @@ public class RunGame extends TimerTask
   private boolean running = false;
   private boolean tourney = false;
 
-  private String logSuffix = "sim-";
+  private String logSuffix = "sim";
   private String pomId = "";
   private String gameId = "";
   private String brokers = "";
@@ -28,7 +28,7 @@ public class RunGame extends TimerTask
   {
     this.gameId = String.valueOf(gameId);
     this.pomId = String.valueOf(pomId);
-	  running = false;
+    running = false;
   }
 
   public RunGame (int gameId, int pomId, Machine machine, String brokers)
@@ -113,8 +113,9 @@ public class RunGame extends TimerTask
             List<Broker> brokerList =
               db.getBrokersInGame(Integer.parseInt(gameId));
             for (Broker b: brokerList) {
-              brokers += b.getBrokerName() + ",";
+              brokers += b.getBrokerName() + "/" + b.getQueueName() +",";
             }
+            // strip off trailing comma
             brokers = brokers.substring(0, brokers.length() - 1);
 
             if (brokerList.size() < 1) {

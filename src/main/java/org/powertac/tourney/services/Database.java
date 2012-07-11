@@ -712,7 +712,8 @@ public class Database
     ps.setInt(1, gameId);
     ps.setInt(2, b.getBrokerId());
     ps.setString(3, b.getBrokerAuthToken());
-    ps.setString(4, b.getBrokerName());
+    ps.setString(4, b.createQueueName());
+    ps.setString(5, b.getBrokerName());
 
     int result = ps.executeUpdate();
 
@@ -733,6 +734,7 @@ public class Database
       tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
       tmp.setBrokerId(rs.getInt("brokerId"));
       tmp.setBrokerName(rs.getString("brokerName"));
+      tmp.setQueueName(rs.getString("brokerQueue"));
       tmp.setShortDescription(rs.getString("brokerShort"));
       tmp.setNumberInGame(rs.getInt("numberInGame"));
 
@@ -743,6 +745,32 @@ public class Database
     ps.close();
 
     return brokers;
+  }
+  
+  public Broker getBrokerInGame (int gameId, String brokerAuth)
+          throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.GET_BROKER_INGAME);
+    ps.setInt(1, gameId);
+
+    List<Broker> brokers = new ArrayList<Broker>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Broker tmp = new Broker("new");
+      tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
+      tmp.setBrokerId(rs.getInt("brokerId"));
+      tmp.setBrokerName(rs.getString("brokerName"));
+      tmp.setQueueName(rs.getString("brokerQueue"));
+      tmp.setShortDescription(rs.getString("brokerShort"));
+      tmp.setNumberInGame(rs.getInt("numberInGame"));
+
+      brokers.add(tmp);
+    }
+
+    rs.close();
+    ps.close();
+
+    return brokers.get(0);
   }
 
   public List<Broker> getBrokersInTournament (int tourneyId)
