@@ -1,13 +1,16 @@
 package org.powertac.tourney.beans;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
+import javax.persistence.*;
 import java.sql.ResultSet;
 import java.util.Date;
 
-import javax.faces.bean.ManagedBean;
+import static javax.persistence.GenerationType.IDENTITY;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
-@ManagedBean
+@Entity
+@Table(name = "brokers", catalog = "tourney", uniqueConstraints = {
+            @UniqueConstraint(columnNames = "brokerId")})
 public class Broker
 {
   private static final String key = "broker";
@@ -28,40 +31,29 @@ public class Broker
   private String shortDescription;
   private int numberInGame = 0;
 
-  public Broker (String brokerName)
-  {
-    this.brokerName = brokerName;
-    // System.out.println("Created Broker Bean: " + brokerId);
-    brokerId = maxBrokerId;
-    maxBrokerId++;
-
-    // Generate MD5 hash
-    DigestUtils dg = new DigestUtils();
-    brokerAuthToken =
-      dg.md5Hex(brokerName + brokerId + (new Date()).toString() + Math.random());
-
-  }
-
   public Broker (ResultSet rs)
   {
 
+  }
+
+  public Broker (String brokerName)
+  {
+    this(brokerName, "");
   }
 
   public Broker (String brokerName, String shortDescription)
   {
     this.brokerName = brokerName;
     this.shortDescription = shortDescription;
-    System.out.println("Created Broker Bean: " + brokerId);
     brokerId = maxBrokerId;
     maxBrokerId++;
 
     // Generate MD5 hash
-    DigestUtils dg = new DigestUtils();
-    brokerAuthToken =
-      dg.md5Hex(brokerName + brokerId + (new Date()).toString() + Math.random());
-
+    brokerAuthToken = DigestUtils.md5Hex(brokerName + brokerId +
+        (new Date()).toString() + Math.random());
   }
 
+  @Column(name = "brokerName", unique = false, nullable = false)
   public String getBrokerName ()
   {
     return brokerName;
@@ -72,6 +64,9 @@ public class Broker
     this.brokerName = brokerName;
   }
 
+  @Id
+  @GeneratedValue(strategy = IDENTITY)
+  @Column(name = "brokerId", unique = true, nullable = false)
   public int getBrokerId ()
   {
     return brokerId;
@@ -82,6 +77,7 @@ public class Broker
     this.brokerId = brokerId;
   }
 
+  @Column(name = "brokerAuth", unique = true, nullable = false)
   public String getBrokerAuthToken ()
   {
     return brokerAuthToken;
@@ -92,6 +88,7 @@ public class Broker
     this.brokerAuthToken = brokerAuthToken;
   }
 
+  @Column(name = "brokerShort", unique = false, nullable = false)
   public String getShortDescription ()
   {
     return shortDescription;
@@ -108,6 +105,7 @@ public class Broker
     }
   }
 
+  @Transient
   public boolean isEdit ()
   {
     return edit;
@@ -118,6 +116,7 @@ public class Broker
     this.edit = edit;
   }
 
+  @Transient
   public String getNewName ()
   {
     return newName;
@@ -128,6 +127,7 @@ public class Broker
     this.newName = newName;
   }
 
+  @Transient
   public String getNewAuth ()
   {
     return newAuth;
@@ -138,6 +138,7 @@ public class Broker
     this.newAuth = newAuth;
   }
 
+  @Transient
   public String getNewShort ()
   {
     return newShort;
@@ -148,6 +149,7 @@ public class Broker
     this.newShort = newShort;
   }
 
+  @Transient
   public String getSelectedTourney ()
   {
     return selectedTourney;
@@ -158,6 +160,7 @@ public class Broker
     this.selectedTourney = selectedTourney;
   }
 
+  @Column(name = "numberInGame", unique = false, nullable = false)
   public int getNumberInGame ()
   {
     return numberInGame;

@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Properties;
 
+import static org.powertac.tourney.services.Utils.log;
+
 /**
  * Central source of Properties read from tournament.properties
  * @author John Collins
@@ -54,7 +56,7 @@ public class TournamentProperties
         loaded = true;
       }
       catch (IOException e) {
-        System.out.println("[ERROR] Failed to load " + resourceName);
+        log("[ERROR] Failed to load {0}" + resourceName);
       }
     }
   }

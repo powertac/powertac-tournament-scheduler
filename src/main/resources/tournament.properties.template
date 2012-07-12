@@ -1,0 +1,35 @@
+# This is the tournament scheduler properites file
+
+# Database type, only tested with mysql
+db.dbms = mysql
+# Database url, usually localhost or 127.0.0.1
+db.dbUrl = localhost
+# Database port, default is 3306 for mysql
+db.port = 3306
+# Database name, tourney is used in make-powertac-db.sql
+db.database = tourney
+# Username for accessing db
+db.username = powertac
+# Password for accessing db
+db.password = powertac
+
+# Configuration information for the weather server, for now this is the only one
+weatherServerLocation = http://tac05.cs.umn.edu:8080/WeatherServer/faces/index.xhtml
+
+# URL of the Jenkins server. TODO Not used yet, we assume localhost:8080
+jenkinsLocation = http://localhost:8080/jenkins
+
+# This is the directory where the uploaded POMs are stored
+pomLocation = /media/Data/Projects/powertac/files/pom/
+# This is the directory where the boot files are stored
+bootLocation = /media/Data/Projects/powertac/files/boot/
+# This is the directory where the game- and sim-logs are stored
+logLocation = /media/Data/Projects/powertac/files/log/
+
+# Interval (ms) to check the machine states, to-be-run bootstraps and sims
+scheduler.watchDogInterval = 60000
+
+# The name of a dedicated slave to run the bootstraps
+# Leave empty if any slave can run bootstraps
+bootserverName = 
+

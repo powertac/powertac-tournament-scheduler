@@ -5,15 +5,15 @@
 
 package org.powertac.tourney.actions;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.services.Database;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component("actionIndex")
 @Scope("request")
@@ -41,32 +41,6 @@ public class ActionIndex
     return games;
   }
   
-//  public void getDownload(Game g){
-//    ServletContext context = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
-//    HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-//    //response.setContentType("application/force-download");
-//    response.setCharacterEncoding("x-gzip");
-//    response.setContentType("application/x-tar");
-//    String downloadFile = "game-"+g.getGameId()+"-sim-logs.tar.gz";
-//    response.addHeader("Content-Disposition", "attachment; filename=\"" + downloadFile + "\"");
-//    byte[] buf = new byte[1024];
-//    try{
-//      String realPath = "/project/msse01/powertac/game-logs/" + downloadFile;//context.getRealPath("/resources/" + downloadFile);
-//      File file = new File(realPath);
-//      long length = file.length();
-//      BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
-//      ServletOutputStream out = response.getOutputStream();
-//      response.setContentLength((int)length);
-//      while ((in != null) && ((length = in.read(buf)) != -1)) {
-//        out.write(buf, 0, (int)length);
-//      }
-//      in.close();
-//      out.close();
-//    }catch (Exception exc){
-//      exc.printStackTrace();
-//    } 
-//  }
-
   public List<Game> getGameCompleteList ()
   {
     List<Game> games = new ArrayList<Game>();

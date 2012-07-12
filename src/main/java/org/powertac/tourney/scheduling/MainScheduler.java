@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+import static org.powertac.tourney.services.Utils.log;
+
 public class MainScheduler
 {
   private int noofagents;
@@ -24,7 +26,7 @@ public class MainScheduler
       db.Setup();
     }
     catch (Exception E) {
-      System.out.println("Cannot open connection to DB");
+      log("Cannot open connection to DB");
       E.printStackTrace();
       System.exit(1);
     }
@@ -51,7 +53,7 @@ public class MainScheduler
       db.SetQuery(sql_insert, "update");
     }
     catch (Exception e) {
-      System.out.println("Cannot create Server Table Entries");
+      log("Cannot create Server Table Entries");
       System.exit(1);
     }
   }
@@ -108,7 +110,7 @@ public class MainScheduler
     HashMap<Server,AgentLet[]> gamesToStart = new HashMap<Server,AgentLet[]>();
     while (((gametype = scheduleMatrix.getDisparity()) > 0)
            && (available_server != null)/* server availability */) {
-      //System.out.println("Gametype " + gametype);
+      //log("Gametype {0}", gametype);
       /*
        * this queries the game cube to get the next schedule for a
        * particular game type.
@@ -139,7 +141,7 @@ public class MainScheduler
     scheduleMatrix.clearLookAheads();
     slist = serverpanel.getScheduledServers();
     serverpanel.publishDeployedServersToDB(db, slist);
-    //System.out.println("-----------" + iteration);
+    //log("-----------{0}", iteration);
     return gamesToStart;
   }
 
@@ -169,7 +171,7 @@ public class MainScheduler
                   + ",'Agent"
                   + i
                   + "_Copy" + j + "','')";
-        // System.out.println(sql_insert_into_agents);
+        // log(sql_insert_into_agents);
         db.SetQuery(sql_insert_into_agents, "update");
       }
     }
@@ -177,7 +179,7 @@ public class MainScheduler
     sql_insert_into_queue =
       "insert into AgentQueue "
               + "select InternalAgentID,AgentType,0,0,0 from	AgentAdmin order by rand()";
-    // System.out.println(sql_insert_into_queue);
+    // log(sql_insert_into_queue);
     db.SetQuery(sql_insert_into_queue, "update");
   }
 
@@ -195,7 +197,7 @@ public class MainScheduler
     valuesstring = valuesstring.substring(0, len - 2);
     // TODO Move this to Constants
     sql_insert = "INSERT into GameLog Values " + valuesstring;
-    // System.out.println(sql_insert);
+    // log(sql_insert);
     db.SetQuery(sql_insert, "update");
   }
 
@@ -218,7 +220,6 @@ public class MainScheduler
     rs = db.SetQuery(sql_gamenumber);
     rs.next();
     return rs.getInt("mx");
-
   }
 
   /* calculates the number of m combinations out of n samples */
@@ -316,7 +317,7 @@ public class MainScheduler
    * "	where IsPlaying = 0" +
    * "	group by AgentType" +
    * ") as AA";
-   * //System.out.println(sql_get_agent_count);
+   * //log(sql_get_agent_count);
    * rs = db.SetQuery(sql_get_agent_count);
    * rs.next();
    * cnt = Integer.parseInt(rs.getString("cnt"));
@@ -337,11 +338,11 @@ public class MainScheduler
     num = rs.getInt("cnt");
     randnum = (int) Math.ceil(Math.random() * num);
     servernumbers = new Server[randnum];
-    // System.out.println(randnum);
+    // log(randnum.toString());
     sql_select =
       "select ServerNumber from GameServers " + " where IsPlaying = 1 "
               + " limit " + randnum;
-    // System.out.println(sql_select);
+    // log(sql_select);
     rs = db.SetQuery(sql_select);
     while (rs.next()) {
       servernumbers[i] = new Server();
@@ -353,7 +354,7 @@ public class MainScheduler
     len = wherestring.length();
     if (len > 1) {
       wherestring = wherestring.substring(0, len - 3) + ")";
-      System.out.println("Releasing " + wherestring);
+      log("Releasing {0}", wherestring);
       gameRelease(servernumbers);*/
 
 	  Server[] server = new Server[1];
@@ -416,17 +417,17 @@ public class MainScheduler
      * db.SetQuery("select count(*) cnt from GameArchive a where "+wherestring
      * +" and IsPlaying = 1");
      * rs.next();
-     * System.out.println("Change2: "+rs.getInt("cnt"));
+     * log("Change2: {0}", rs.getInt("cnt"));
      */
   }
 
   private void printAgents (AgentLet[] agents)
   {
     /*int i = 0;
-    System.out.println("Agents");
+    log("Agents");
     for (i = 0; i < agents.length; i++) {
-      System.out.println("Agent ID " + agents[i].getAgentId() + " Agent Type "
-                         + agents[i].getAgentType());
+      log("Agent ID {0} Agent Type {1}",
+          agents[i].getAgentId(), agents[i].getAgentType());
     }*/
   }
 

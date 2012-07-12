@@ -3,16 +3,23 @@ package org.powertac.tourney.beans;
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.Utils;
 
-import javax.faces.bean.ManagedBean;
+import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import static javax.persistence.GenerationType.IDENTITY;
+import static org.powertac.tourney.services.Utils.log;
 
-@ManagedBean
-public class Game
+
+// Create hibernate mapping with annotations
+@Entity
+@Table(name = "games", catalog = "tourney", uniqueConstraints = {
+		@UniqueConstraint(columnNames = "gameId")})
+public class Game implements Serializable
 {
   private String competitionName = "";
   private Date startTime;
@@ -20,7 +27,7 @@ public class Game
   private int tourneyId = 0;
   private int gameId = 0;
   private int machineId;
-  private String status = "pending";
+  private String status = STATE.boot_pending.toString();
   private boolean hasBootstrap = false;
   private String brokers = "";
 
@@ -29,12 +36,19 @@ public class Game
   private String jmsUrl = "";
   private String visualizerUrl = "";
 
+  @Transient
   private HashMap<String, String> brokersToLogin = null;
 
+  @Transient
   private String[] brokersLoggedIn = null;
   private int maxBrokers = 1;
 
   public static final String key = "game";
+
+  public static enum STATE {
+    boot_pending, boot_in_progress, boot_complete, boot_failed,
+    game_pending, game_ready, game_in_progress, game_complete, game_failed
+  }
 
   public Game ()
   {
@@ -58,11 +72,12 @@ public class Game
       setLocation(rs.getString("location"));
     }
     catch (Exception e) {
-      System.out.println("[ERROR] Error creating game from result set");
+      log("[ERROR] Error creating game from result set");
       e.printStackTrace();
     }
   }
 
+  @Transient
   public int getNumBrokersRegistered ()
   {
     Database db = new Database();
@@ -100,7 +115,7 @@ public class Game
 
   public boolean isBrokerRegistered (String authToken)
   {
-    System.out.println("Broker token: " + authToken);
+    log("Broker token: {0}", authToken);
     Database db = new Database();
     boolean ingame = false;
     try {
@@ -113,7 +128,6 @@ public class Game
         }
       }
       db.commitTrans();
-
     }
     catch (SQLException e) {
       db.abortTrans();
@@ -130,6 +144,8 @@ public class Game
 
 
   //<editor-fold desc="Setter and getters">
+  @Temporal(TemporalType.DATE)
+  @Column(name = "startTime", unique = false, nullable = false, length = 10)
   public Date getStartTime ()
   {
     return startTime;
@@ -145,11 +161,13 @@ public class Game
     return key;
   }
 
+  @Transient
   public String[] getBrokersLoggedIn ()
   {
     return brokersLoggedIn;
   }
 
+  @Transient
   public HashMap<String, String> getBrokersToLogin ()
   {
     return brokersToLogin;
@@ -180,6 +198,7 @@ public class Game
     this.competitionId = competitionId;
   }
 
+  @Column(name = "status", unique = false, nullable = false)
   public String getStatus ()
   {
     return status;
@@ -190,6 +209,7 @@ public class Game
     this.status = status;
   }
 
+  @Column(name = "jmsUrl", unique = false, nullable = true)
   public String getJmsUrl ()
   {
     return jmsUrl;
@@ -200,6 +220,7 @@ public class Game
     this.jmsUrl = jmsUrl;
   }
 
+  @Column(name = "maxBrokers", unique = false, nullable = true)
   public int getMaxBrokers ()
   {
     return maxBrokers;
@@ -210,6 +231,9 @@ public class Game
     this.maxBrokers = maxBrokers;
   }
 
+  @Id
+  @GeneratedValue(strategy = IDENTITY)
+  @Column(name = "gameId", unique = true, nullable = false)
   public int getGameId ()
   {
     return gameId;
@@ -220,6 +244,7 @@ public class Game
     this.gameId = gameId;
   }
 
+  @Column(name = "hasBootstrap", unique = false, nullable = false)
   public boolean getHasBootstrap()
   {
     return hasBootstrap;
@@ -230,6 +255,7 @@ public class Game
     this.hasBootstrap = hasBootstrap;
   }
 
+  @Column(name = "gameName", unique = false, nullable = false)
   public String getGameName ()
   {
     return gameName;
@@ -240,6 +266,7 @@ public class Game
     this.gameName = gameName;
   }
 
+  @Column(name = "visualizerUrl", unique = false, nullable = false)
   public String getVisualizerUrl ()
   {
     return visualizerUrl;
@@ -250,6 +277,7 @@ public class Game
     this.visualizerUrl = visualizerUrl;
   }
 
+  @Column(name = "location", unique = false, nullable = false)
   public String getLocation ()
   {
     return location;
@@ -260,6 +288,7 @@ public class Game
     this.location = location;
   }
 
+  @Column(name = "tourneyId", unique = false, nullable = false)
   public int getTourneyId ()
   {
     return tourneyId;
@@ -270,6 +299,8 @@ public class Game
     this.tourneyId = tourneyId;
   }
 
+  // Comma delimited list of brokers to be sent to the server command line
+  @Column(name = "brokers", unique = false, nullable = false)
   public String getBrokers ()
   {
     return brokers;
@@ -280,6 +311,7 @@ public class Game
     this.brokers = brokers;
   }
 
+  @Column(name = "machineId", unique = false, nullable = true)
   public int getMachineId ()
   {
     return machineId;

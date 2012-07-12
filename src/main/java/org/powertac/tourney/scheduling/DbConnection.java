@@ -1,20 +1,14 @@
 package org.powertac.tourney.scheduling;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import org.powertac.tourney.services.SpringApplicationContext;
 import org.powertac.tourney.services.TournamentProperties;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
+import java.sql.*;
+
+import static org.powertac.tourney.services.Utils.log;
 
 public class DbConnection
 {
-  private TournamentProperties tournamentProperties;
-  
   /*
    * configuration parameters
    */
@@ -30,15 +24,16 @@ public class DbConnection
 
   public DbConnection ()
   {
-    tournamentProperties = (TournamentProperties) SpringApplicationContext.getBean("tournamentProperties");
+    TournamentProperties tournamentProperties =
+        (TournamentProperties) SpringApplicationContext.getBean("tournamentProperties");
     
     // Database Connection related properties
-    this.database = (tournamentProperties.getProperty("db.database"));
-    this.dbms = (tournamentProperties.getProperty("db.dbms"));
-    this.port = (tournamentProperties.getProperty("db.port"));
-    this.serverip = (tournamentProperties.getProperty("db.dbUrl"));
-    this.username = (tournamentProperties.getProperty("db.username"));
-    this.passwd = (tournamentProperties.getProperty("db.password"));
+    database = (tournamentProperties.getProperty("db.database"));
+    dbms = (tournamentProperties.getProperty("db.dbms"));
+    port = (tournamentProperties.getProperty("db.port"));
+    serverip = (tournamentProperties.getProperty("db.dbUrl"));
+    username = (tournamentProperties.getProperty("db.username"));
+    passwd = (tournamentProperties.getProperty("db.password"));
   }
 
   public void startTransaction () throws SQLException
@@ -60,16 +55,14 @@ public class DbConnection
 
   public void Setup () throws Exception
   {
-    String setupstring =
-      "jdbc:mysql://" + serverip + "/" + database + "?user=" + username
-              + "&password=" + passwd;
-    ;
+    // TODO Actually use dbms + port
+    String setupstring = "jdbc:mysql://" + serverip + "/" + database
+                         + "?user=" + username + "&password=" + passwd;
     if (debug) {
-      System.out.println(setupstring);
+      log(setupstring);
     }
     myconnection = DriverManager.getConnection(setupstring);
     statement = myconnection.createStatement();
-    // return statement;
   }
 
   public void Close () throws Exception
@@ -79,32 +72,25 @@ public class DbConnection
 
   public void PrintResultSet (ResultSet rs, String[] input) throws Exception
   {
-
-    int i;
-    String token;
-
-    for (i = 0; i < input.length; i++) {
-      token = input[i];
-      System.out.print(token + ": ");
+    for (String token: input) {
+      log(token + ": ");
     }
-    System.out.println("");
+    log("");
     while (rs.next()) {
-      for (i = 0; i < input.length; i++) {
-        token = input[i];
-        System.out.print(rs.getString(token) + ", ");
+      for (String token: input) {
+        log(rs.getString(token) + ", ");
       }
-      System.out.println("");
+      log("");
     }
-
   }
 
   public ResultSet SetQuery (String sql, String flag) throws SQLException
   {
     ResultSet rs = null;
-    if (flag == "read")
+    if (flag.equals("read")) {
       rs = statement.executeQuery(sql);
-    else if (flag == "update") {
-      // System.out.println(sql);
+    }
+    else if (flag.equals("update")) {
       statement.executeUpdate(sql);
     }
     return rs;
@@ -116,5 +102,4 @@ public class DbConnection
     rs = statement.executeQuery(sql);
     return rs;
   }
-
 }

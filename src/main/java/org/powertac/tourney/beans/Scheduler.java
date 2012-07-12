@@ -5,10 +5,20 @@ import org.powertac.tourney.scheduling.MainScheduler;
 import org.powertac.tourney.scheduling.Server;
 import org.powertac.tourney.services.*;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.annotation.PreDestroy;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
+
+import static org.powertac.tourney.services.Utils.log;
+
 
 @Service("scheduler")
 public class Scheduler
@@ -16,8 +26,7 @@ public class Scheduler
   private TournamentProperties tournamentProperties;
 
   public static final String key = "scheduler";
-  public static boolean running = false;
-  public boolean bootrunning = false;
+  public static boolean bootRunning = false;
 
   private Timer watchDogTimer = null;
   private MainScheduler scheduler;
@@ -26,8 +35,11 @@ public class Scheduler
   private HashMap<Server, AgentLet[]> games = new HashMap<Server, AgentLet[]>();
   private HashMap<Integer, Integer> AgentIdToBrokerId = new HashMap<Integer, Integer>();
   private HashMap<Integer, Integer> ServerIdToMachineId = new HashMap<Integer, Integer>();
-  private HashMap<Integer, Timer> bootToBeRun = new HashMap<Integer, Timer>();
-  private HashMap<Integer, Timer> simToBeRun = new HashMap<Integer, Timer>();
+
+  /* TODO
+     We need to keep score of the startTime of boot,
+     If the boot takes to long, cancel + reschedule it
+    */
 
   public Scheduler ()
   {
@@ -42,12 +54,12 @@ public class Scheduler
 
       Tournament t = db.getTournamentByType("MULTI_GAME");
       if (t == null) {
-        System.out.println("[INFO] No tournament to reload");
+        log("[INFO] No tournament to reload");
         db.commitTrans();
         return;
       }
 
-      System.out.println("[INFO] Reloading Tournament: " + t.getTournamentName());
+      log("[INFO] Reloading Tournament: {0}", t.getTournamentName());
 
       runningTournament = t;
       List<Machine> machines = db.getMachines();
@@ -58,9 +70,8 @@ public class Scheduler
       }
 
       // Initially no one is registered so set brokerId's to -1
-      List<Database.Agent> agents = db.getAgents();
-      for (int i = 0; i < agents.size(); i++) {
-        AgentIdToBrokerId.put(agents.get(i).getInternalAgentID(), -1);
+      for (Database.Agent agent: db.getAgents()) {
+        AgentIdToBrokerId.put(agent.getInternalAgentID(), -1);
       }
 
       int noofagents = t.getMaxBrokers();
@@ -78,14 +89,13 @@ public class Scheduler
         runningTournament = t;
       }
       catch (Exception e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
 
       db.commitTrans();
     }
     catch (Exception e) {
-      System.out.println("Error retrieving tourney");
+      log("Error retrieving tourney");
       e.printStackTrace();
       db.closeConnection();
     }
@@ -109,28 +119,26 @@ public class Scheduler
 
     try {
       scheduler.resetServers(serverNumber);
-      System.out.println("[INFO] Servers and Agents freed");
+      log("[INFO] Servers and Agents freed");
     }
     catch (Exception e) {
-      // TODO Auto-generated catch block
-      //e.printStackTrace();
+      e.printStackTrace();
     }
   }
 
   private void tickScheduler ()
   {
     if (runningTournament == null) {
-      System.out.println("[INFO] No multigame tournament available");
+      log("[INFO] No multigame tournament available");
       return;
     }
 
     if ((runningTournament.getStartTime() == null) ||
         (runningTournament.getStartTime().before(new Date()))) {
-      System.out.println("[INFO] Multigame tournament available, ticking scheduler..");
+      log("[INFO] Multigame tournament available, ticking scheduler..");
     }
     else {
-      System.out.println(
-          "[INFO] Too early to start tournament: "
+      log("[INFO] Too early to start tournament: "
           + runningTournament.getTournamentName());
       return;
     }
@@ -143,9 +151,9 @@ public class Scheduler
       List<Broker> brokersInTourney =
         db.getBrokersInTournament(runningTournament.getTournamentId());
       int i = 0;
-      System.out.println("[INFO] Brokers in Tournament: "
-                         + brokersInTourney.size() + " TourneyId: "
-                         + runningTournament.getTournamentId());
+      log("[INFO] Brokers in Tournament: {0}  TourneyId: {1}",
+          brokersInTourney.size(), runningTournament.getTournamentId());
+
       for (int agentId: AgentIdToBrokerId.keySet()) {
         if (i >= brokersInTourney.size()) {
           break;
@@ -154,39 +162,35 @@ public class Scheduler
       }
       db.commitTrans();
 
-      int tourneySize = gamesInTourney.size();
       List<Game> finalGames = new ArrayList<Game>();
-      for (int j = 0; j < tourneySize; j++) {
-        Game g = gamesInTourney.get(j);
+      for (Game g : gamesInTourney) {
         if (!g.getHasBootstrap()
-            || g.getStatus().equalsIgnoreCase("game-pending")
-            || g.getStatus().equalsIgnoreCase("game-in-progress")
-            || g.getStatus().equalsIgnoreCase("game-complete")) {
+            || g.getStatus().equals(Game.STATE.game_pending.toString())
+            || g.getStatus().equals(Game.STATE.game_in_progress.toString())
+            || g.getStatus().equals(Game.STATE.game_complete.toString())) {
           // gamesInTourney.remove(g);
-        }
-        else {
+        } else {
           finalGames.add(g);
         }
       }
       gamesInTourney = finalGames;
 
       if (gamesInTourney.size() == 0) {
-        System.out.println("[INFO] Tournament is either complete or not "
-                           + "enough bootstraps are available");
+        log("[INFO] Tournament is either complete or not " +
+            "enough bootstraps are available");
         return;
       }
       else {
-        System.out.println("[INFO] Games with boots available "
-                           + gamesInTourney.size());
+        log("[INFO] Games with boots available " + gamesInTourney.size());
       }
 
       if (!scheduler.equilibrium()) {
         if (games.isEmpty()) {
-          System.out.println("[INFO] Acquiring new schedule...");
+          log("[INFO] Acquiring new schedule...");
           games = scheduler.Schedule();
         }
-        System.out.println("[INFO] WatchDogTimer reports " + games.size()
-                           + " tournament game(s) are ready to start");
+        log("[INFO] WatchDogTimer reports {0} tournament game(s) are ready to "+
+            "start", games.size());
 
         List<Server> servers = new ArrayList<Server>(games.keySet());
         for (Server s: servers) {
@@ -195,32 +199,31 @@ public class Scheduler
           }
           AgentLet[] agentSet = games.get(s);
 
-          System.out.println("[INFO] Server " + s.getServerNumber() + " playing");
+          log("[INFO] Server {0} playing", s.getServerNumber());
 
           for (AgentLet a: agentSet) {
-            System.out.println("[INFO] Agent " + a.getAgentType());
+            log("[INFO] Agent " + a.getAgentType());
           }
 
           String result = "";
           for (Integer key: ServerIdToMachineId.keySet()) {
             result += key + ",";
           }
-          System.out.println("[INFO] Key Set in serversToMachines: " + result);
+          log("[INFO] Key Set in serversToMachines: " + result);
           Integer machineId = ServerIdToMachineId.get(s.getServerNumber());
 
           List<Integer> brokerSet = new ArrayList<Integer>();
           for (AgentLet a: agentSet) {
             brokerSet.add(AgentIdToBrokerId.get(a.getAgentType()));
           }
-          System.out.println("[INFO] BrokerSet Size " + brokerSet.size());
+          log("[INFO] BrokerSet Size " + brokerSet.size());
 
-          System.out.println("[INFO] Games ready");
+          log("[INFO] Games ready");
           Game somegame = gamesInTourney.get(0);
           gamesInTourney.remove(somegame);
 
-          System.out.println("[INFO] " + Utils.dateFormatUTC(new Date())
-                             + " : Game: " + somegame.getGameId()
-                             + " will be started...");
+          log("[INFO] {0} : Game: {1} will be started...",
+              Utils.dateFormatUTC(new Date()), somegame.getGameId());
 
           Database db1 = new Database();
           db1.startTrans();
@@ -228,8 +231,8 @@ public class Scheduler
           String brokers = "";
           for (Integer b: brokerSet) {
             Broker tmp = db1.getBroker(b);
-            System.out.println("[INFO] Adding broker " + tmp.getBrokerId()
-                               + " to game " + somegame.getGameId());
+            log("[INFO] Adding broker {0} to game {1}",
+                tmp.getBrokerId(), somegame.getGameId());
             db1.addBrokerToGame(somegame.getGameId(), tmp);
             brokers += tmp.getBrokerName() + ",";
           }
@@ -238,22 +241,18 @@ public class Scheduler
           int lastIndex = brokers.length();
           brokers = brokers.substring(0, lastIndex - 1);
 
-          System.out.println("[INFO] Tourney Game " + somegame.getGameId()
-                             + " Brokers: " + brokers);
+          log("[INFO] Tourney Game {0} Brokers: {1}", somegame.getGameId(), brokers);
 
           RunGame runGame = new RunGame(somegame.getGameId(),
                                         runningTournament.getPomId(),
                                         m, brokers);
-          runSimTimer(somegame.getGameId(), runGame, new Date());
+          new Thread(runGame).start();
 
           games.remove(s);
-          // Wait for jenkins
-          Thread.sleep(1000);
         }
       }
     }
     catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -275,47 +274,48 @@ public class Scheduler
 
   private synchronized void startWatchDog ()
   {
-    if (!running) {
-      running = true;
+    if (watchDogTimer != null) {
+      log("[WARN] Watchdog already running");
+      return;
+    }
 
-      Timer t = new Timer();
-      TimerTask watchDog = new TimerTask() {
-        @Override
-        public void run ()
-        {
+    watchDogTimer = new Timer();
+    TimerTask watchDog = new TimerTask() {
+      @Override
+      public void run ()
+      {
+        try {
+          checkMachines();
+
           tickScheduler();
-          checkForSims(this);
-          checkForBoots(this);
+          checkForBoots();
+          checkForSims();
         }
-      };
+        catch (Exception e) {
+          log("[ERROR] Severe error in WatchDogTimer!");
+          e.printStackTrace();
+        }
+      }
+    };
 
-      System.out.println("[INFO] " + Utils.dateFormatUTC(new Date())
-                         + " : Starting WatchDog...");
+    long watchDogInt =
+      Integer.parseInt(tournamentProperties
+              .getProperty("scheduler.watchDogInterval", "120000"));
 
-      long watchDogInt =
-        Integer.parseInt(tournamentProperties
-                .getProperty("scheduler.watchDogInterval", "120000"));
-
-      t.schedule(watchDog, new Date(), watchDogInt);
-
-      watchDogTimer = t;
-    }
-    else {
-      System.out.println("[WARN] Watchdog already running");
-    }
+    watchDogTimer.schedule(watchDog, new Date(), watchDogInt);
   }
 
   private void stopWatchDog ()
   {
+    String date = Utils.dateFormatUTC(new Date());
+
     if (watchDogTimer != null) {
       watchDogTimer.cancel();
-      running = false;
-      System.out.println("[INFO] " + Utils.dateFormatUTC(new Date())
-                         + " : Stopping WatchDog...");
+      watchDogTimer = null;
+      log("[INFO] {0} : Stopping WatchDog...", date);
     }
     else {
-      System.out.println("[WARN] " + Utils.dateFormatUTC(new Date())
-                         + " : WatchDogTimer Already Stopped");
+      log("[WARN] {0} : WatchDogTimer Already Stopped", date);
     }
   }
 
@@ -325,10 +325,114 @@ public class Scheduler
     startWatchDog();
   }
 
-  private void checkForSims (TimerTask watchDog)
+  private void checkMachines() {
+    log("[INFO] {0} : WatchDogTimer Checking Machine States..",
+        Utils.dateFormatUTC(new Date()));
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+
+      // TODO Get Jenkins URL from config
+      String url = "http://localhost:8080/jenkins/computer/api/xml";
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilder docB = dbf.newDocumentBuilder();
+      Document doc = docB.parse(new URL(url).openStream());
+      NodeList nList = doc.getElementsByTagName("computer");
+
+      for (int temp = 0; temp < nList.getLength(); temp++) {
+        try{
+          Node nNode = nList.item(temp);
+          if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+            Element eElement = (Element) nNode;
+
+            String displayName = eElement.getElementsByTagName("displayName")
+                .item(0).getChildNodes().item(0).getNodeValue();
+            String offline = eElement.getElementsByTagName("offline")
+                .item(0).getChildNodes().item(0).getNodeValue();
+            String idle = eElement.getElementsByTagName("idle")
+                .item(0).getChildNodes().item(0).getNodeValue();
+
+            // We don't the status of the master
+            if (displayName.equals("master")) {
+              continue;
+            }
+
+            Machine machine = db.getMachineByName(displayName);
+            if (machine == null) {
+              log("[WARN] Machine {0} doesn't exist in the TM", displayName);
+              continue;
+            }
+
+            if (machine.isAvailable() && offline.equals("true")) {
+              log("[WARN] Machine {0} is set available, but Jenkins reports"
+                  + " offline", displayName);
+              db.setMachineAvailable(machine.getMachineId(), false);
+            }
+
+            if (machine.getStatus().equals(Machine.STATE.idle.toString())
+                  && idle.equals("false")) {
+              log("[WARN] Machine {0} has status 'idle', but Jenkins reports "
+                  + "'not idle'", displayName);
+              db.setMachineStatus(machine.getMachineId(), Machine.STATE.running);
+            }
+          }
+        }
+        catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      db.commitTrans();
+    }
+    catch (Exception ignored) {
+      db.abortTrans();
+    }
+  }
+
+  /***
+   * Check if games need to be booted, only pick the first one
+   * bootRunning is set to true if by RunBootstrap, if it actually runs
+   */
+  private void checkForBoots ()
   {
-    System.out.println("[INFO] " + Utils.dateFormatUTC(new Date())
-        + " : WatchDogTimer Looking for Games To Start..");
+    String date = Utils.dateFormatUTC(new Date());
+    if (bootRunning) {
+      log("[INFO] {0} : WatchDogTimer Reports a boot is running", date);
+      return;
+    }
+    else {
+      log("[INFO] {0} : WatchDogTimer Looking for Bootstraps To Start..", date);
+    }
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      List<Game> games = db.getBootableGames();
+      log("[INFO] WatchDogTimer reports {0} boots are ready to start",
+          games.size());
+
+      if (games.size() > 0) {
+        Game g = games.get(0);
+        Tournament t = db.getTournamentByGameId(g.getGameId());
+
+        log("[INFO] {0} : Boot: {1} will be started...",
+            Utils.dateFormatUTC(new Date()), g.getGameId());
+
+        RunBootstrap runBootstrap = new RunBootstrap(g.getGameId(), t.getPomId());
+        new Thread(runBootstrap).start();
+      }
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+  }
+
+  private void checkForSims ()
+  {
+    log("[INFO] {0} : WatchDogTimer Looking for Games To Start..",
+        Utils.dateFormatUTC(new Date()));
 
     // Check Database for startable games
     Database db = new Database();
@@ -337,134 +441,28 @@ public class Scheduler
       List<Game> games;
 
       if (runningTournament == null) {
-        games = db.getStartableGames();
+        games = db.getRunnableGames();
       }
       else {
-        System.out.println("[INFO] WatchDog CheckForSims "
-            + "ignoring multi-game tournament games");
-        games = db.getStartableGames(runningTournament.getTournamentId());
+        log("[INFO] WatchDog CheckForSims ignoring multi-game tournament games");
+        games = db.getRunnableGames(runningTournament.getTournamentId());
       }
-      System.out.println("[INFO] WatchDogTimer reports " + games.size()
-          + " game(s) are ready to start");
+      log("[INFO] WatchDogTimer reports {0} game(s) are ready to start",
+          games.size());
 
       for (Game g: games) {
         Tournament t = db.getTournamentByGameId(g.getGameId());
-        System.out.println("[INFO] " + Utils.dateFormatUTC(new Date())
-            + " : Game: " + g.getGameId()
-            + " will be started...");
+        log("[INFO] {0} : Game: {1} will be started...",
+            Utils.dateFormatUTC(new Date()), g.getGameId());
 
         RunGame runGame = new RunGame(g.getGameId(), t.getPomId());
-        runSimTimer(g.getGameId(), runGame, new Date());
-
-        try {
-          // Wait for jenkins
-          Thread.sleep(1000);
-        }
-        catch (InterruptedException e) {
-          e.printStackTrace();
-        }
+        new Thread(runGame).start();
       }
       db.commitTrans();
     }
     catch (SQLException e) {
       db.abortTrans();
-      watchDog.cancel();
       e.printStackTrace();
-    }
-  }
-
-  private void checkForBoots (TimerTask watchDog)
-  {
-    Database db = new Database();
-
-    if (bootrunning) {
-      System.out.format("[INFO] %s : WatchDogTimer Reports a boot is running\n",
-          Utils.dateFormatUTC(new Date()));
-
-      List<Game> games = new ArrayList<Game>();
-      try {
-        games = db.getBootableGames();
-      }
-      catch (SQLException e) {
-        e.printStackTrace();
-      }
-      System.out.format(
-          "[INFO] WatchDogTimer reports %d boot(s) are ready to start\n",
-          games.size());
-
-      return;
-    }
-
-    System.out.format(
-        "[INFO] %s : WatchDogTimer Looking for Bootstraps To Start..\n",
-        Utils.dateFormatUTC(new Date()));
-    // Check Database for bootable games
-    try {
-      db.startTrans();
-      List<Game> games = db.getBootableGames();
-      System.out.println("[INFO] WatchDogTimer reports " + games.size()
-          + " boots are ready to start");
-
-      if (games.size() > 0) {
-        bootrunning = true;
-        Game g = games.get(0);
-
-        Tournament t = db.getTournamentByGameId(g.getGameId());
-
-        System.out.println("[INFO] " + Utils.dateFormatUTC(new Date())
-            + " : Boot: " + g.getGameId()
-            + " will be started...");
-
-        RunBootstrap bootstrap = new RunBootstrap(
-            g.getGameId(),
-            t.getPomId(),
-            tournamentProperties.getProperty("bootserverName"));
-        runBootTimer(g.getGameId(), bootstrap, new Date());
-      }
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      watchDog.cancel();
-      db.abortTrans();
-      e.printStackTrace();
-    }
-  }
-
-  public void runBootTimer (int gameId, TimerTask t, Date time)
-  {
-    Timer timer = new Timer();
-    timer.schedule(t, time);
-    bootToBeRun.put(gameId, timer);
-  }
-
-  public void runSimTimer (int gameId, TimerTask t, Date time)
-  {
-    Timer timer = new Timer();
-    timer.schedule(t, time);
-    simToBeRun.put(gameId, timer);
-  }
-
-  public void deleteSimTimer (int gameId)
-  {
-    Timer t = simToBeRun.get(gameId);
-    if (t != null) {
-      t.cancel();
-      simToBeRun.remove(gameId);
-    }
-    else {
-      System.out.println("Timer thread is null for game: " + gameId);
-    }
-  }
-
-  public void deleteBootTimer (int gameId)
-  {
-    Timer t = bootToBeRun.get(gameId);
-    if (t != null) {
-      t.cancel();
-      bootToBeRun.remove(gameId);
-    }
-    else {
-      System.out.println("Timer thread is null for game: " + gameId);
     }
   }
 
@@ -486,77 +484,8 @@ public class Scheduler
   @PreDestroy
   private void cleanUp () throws Exception
   {
-    System.out.println(
-        "[INFO] Spring Container is destroyed! Scheduler clean up");
-    if (watchDogTimer != null) {
-      watchDogTimer.cancel();
-    }
-    for (Timer t: bootToBeRun.values()) {
-      if (t != null) {
-        t.cancel();
-      }
-    }
-    for (Timer t: simToBeRun.values()) {
-      if (t != null) {
-        t.cancel();
-      }
-    }
+    log("[INFO] Spring Container is destroyed! Scheduler clean up");
+
+    stopWatchDog();
   }
-
-  // TODO Still needed ?
-  /*
-  public void initTournament (Tournament t, List<Machine> machines)
-  {
-    Database db3 = new Database();
-    try {
-      db3.startTrans();
-      db3.truncateScheduler();
-      db3.commitTrans();
-    }
-    catch (Exception e) {
-      db3.abortTrans();
-      e.printStackTrace();
-    }
-
-    int noofagents = t.getMaxBrokers();
-    int noofcopies = t.getMaxBrokerInstances();
-    int noofservers = machines.size();
-    int[] gtypes = { t.getSize1(), t.getSize2(), t.getSize3() };
-    int[] mxs = { t.getNumberSize1(), t.getNumberSize2(), t.getNumberSize3() };
-
-    Database db = new Database();
-    try {
-      scheduler =
-          new MainScheduler(noofagents, noofcopies, noofservers, gtypes, mxs);
-      scheduler.initServerPanel(noofservers);
-      scheduler.initializeAgentsDB(noofagents, noofcopies);
-      scheduler.initGameCube(gtypes, mxs);
-      scheduler.resetCube();
-      runningTournament = t;
-
-      db.startTrans();
-      // db.truncateScheduler();
-      List<Database.Server> servers = db.getServers();
-      System.out.println("[INFO] Size of servers: " + servers.size());
-      System.out.println("[INFO] Size of machines: " + machines.size());
-      for (int i = 0; i < servers.size(); i++) {
-        ServerIdToMachineId.put(servers.get(i).getServerNumber(),
-            machines.get(i).getMachineId());
-      }
-
-      // Initially no one is registered so set brokerId's to -1
-      List<Database.Agent> agents = db.getAgents();
-      for (int i = 0; i < agents.size(); i++) {
-        AgentIdToBrokerId.put(agents.get(i).getInternalAgentID(), -1);
-      }
-
-      db.commitTrans();
-    }
-    catch (Exception e) {
-      db.abortTrans();
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-  }
-  */
 }

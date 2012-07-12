@@ -38,31 +38,28 @@ public class GameCube {
 		AgentLet a;
 		ResultSet rs;
 		int i=0;
-		//System.out.println("Kailash: initializeMap");
+		//log("Kailash: initializeMap");
 		String sql_load_agents = "select distinct AgentType as atype from AgentQueue order by rand()";
-		//System.out.println(sql_load_agents);
+		//log(sql_load_agents);
 		rs = db.SetQuery(sql_load_agents);
 		while(rs.next()) {
-			//System.out.println("Kailash:initializeMap:While");
+			//log("Kailash:initializeMap:While");
 			map[i] = new AgentLet(0,rs.getInt("atype"));
 			map[i].getAgentId();
 			i++;
 		}
-		//System.out.println("Kailash:initializeMap:"+i);
+		//log("Kailash:initializeMap: {0}", i);
 	}	
 	
-	/* 
-	 * 
+	/**
 	 * returns the game id where (current_games_played) - (max_games_to_play) is max.
-	 * 
-	 * 
 	 */
 	private int maxDisparity() {
 		int i,tempmax,maxdiff= 0,mark = -1;
 		int maxgame=0;
 		int j =0;
 		for(i=index;j<cube.length; i=(i+1)%cube.length,j++) {
-			//System.out.println("i ="+i);
+			//log("i ={0}", i);
 			if(!cube[i].getLookAhead()) {
 				tempmax = cube[i].getReqMax() - cube[i].getCurrentMin();
 				if(maxdiff<tempmax) {
@@ -123,7 +120,7 @@ public class GameCube {
 		 */
 		String wherestring=" (";		
 		for(i=0;i<tmask.length;i++) {
-			//System.out.println("Kailash:tmask:"+tmask[i]);
+			//log("Kailash:tmask: {0}", tmask[i]);
 			wherestring+= map[tmask[i]].getAgentType()+", ";
 		}
 		len = wherestring.length();
@@ -133,7 +130,7 @@ public class GameCube {
 				" where AgentType in "+ wherestring +" " +
 				" and IsPlaying = 0  " +
 				" group by AgentType ";
-		//System.out.println(sql_get_query);
+		//log(sql_get_query);
 		rs = db.SetQuery(sql_get_query);
 		i = 0;
 		agentlist = new AgentLet[tmask.length];
@@ -157,14 +154,13 @@ public class GameCube {
 		 * 3. if present send the schedule
 		 * 
 		 */
-		
-                
+
 		index = findGameTypeIndex(gametype);
 		cube[index].initializeCombination();
 		do {
 			agentsindices = cube[index].sortAndGetIndices();
-			//System.out.println("getAgents AgentsIndicies: "+ agentsindices.length);
-	       //         System.out.println("getAgents GameType: "+ gametype);
+			//log("getAgents AgentsIndicies: {0}", agentsindices.length);
+	    //log("getAgents GameType: {0}", gametype);
 	                
 			System.arraycopy(agentsindices, 0, rmask, 0, gametype);
 			agentarray = canSchedule(db, rmask);
@@ -203,8 +199,8 @@ public class GameCube {
 		index = findGameTypeIndex(gametype);
 		cube[index].initializeCombination();
 		agentsindices = cube[index].sortAndGetIndices();
-		//System.out.println("AgentsIndicies: "+ agentsindices.length);
-		//System.out.println("GameType: "+ gametype);
+		//log("AgentsIndicies: {0}", agentsindices.length);
+		//log("GameType: {0}"+ gametype);
 		
 		//System.arraycopy(agentsindices, 0, rmask, 0, gametype);
 		cube[index].addGameToProposedSumArray();	
