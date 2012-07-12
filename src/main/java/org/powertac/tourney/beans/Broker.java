@@ -1,20 +1,12 @@
 package org.powertac.tourney.beans;
 
-import static javax.persistence.GenerationType.IDENTITY;
+import org.apache.commons.codec.digest.DigestUtils;
 
+import javax.persistence.*;
 import java.sql.ResultSet;
 import java.util.Date;
 
-import javax.faces.bean.ManagedBean;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-
-import org.apache.commons.codec.digest.DigestUtils;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "brokers", catalog = "tourney", uniqueConstraints = {
@@ -39,38 +31,26 @@ public class Broker
   private String shortDescription;
   private int numberInGame = 0;
 
-  public Broker (String brokerName)
-  {
-    this.brokerName = brokerName;
-    // System.out.println("Created Broker Bean: " + brokerId);
-    brokerId = maxBrokerId;
-    maxBrokerId++;
-
-    // Generate MD5 hash
-    DigestUtils dg = new DigestUtils();
-    brokerAuthToken =
-      dg.md5Hex(brokerName + brokerId + (new Date()).toString() + Math.random());
-
-  }
-
   public Broker (ResultSet rs)
   {
 
+  }
+
+  public Broker (String brokerName)
+  {
+    this(brokerName, "");
   }
 
   public Broker (String brokerName, String shortDescription)
   {
     this.brokerName = brokerName;
     this.shortDescription = shortDescription;
-    System.out.println("Created Broker Bean: " + brokerId);
     brokerId = maxBrokerId;
     maxBrokerId++;
 
     // Generate MD5 hash
-    DigestUtils dg = new DigestUtils();
-    brokerAuthToken =
-      dg.md5Hex(brokerName + brokerId + (new Date()).toString() + Math.random());
-
+    brokerAuthToken = DigestUtils.md5Hex(brokerName + brokerId +
+        (new Date()).toString() + Math.random());
   }
 
   @Column(name = "brokerName", unique = false, nullable = false)
@@ -142,7 +122,6 @@ public class Broker
     return newName;
   }
 
-  
   public void setNewName (String newName)
   {
     this.newName = newName;

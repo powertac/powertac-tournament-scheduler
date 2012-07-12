@@ -192,29 +192,12 @@
             </f:facet>
             <h:outputText value="#{m.vizQueue}" />
           </t:column>
+
           <t:column sortable="true">
             <f:facet name="header">
               <h:outputText value="Idle" />
             </f:facet>
             <h:outputText value="#{!m.inProgress}" />
-          </t:column>
-          <t:column sortable="true">
-            <f:facet name="header">
-              <h:outputText value="Available" />
-            </f:facet>
-            <h:outputText value="#{m.available}" />
-          </t:column>
-
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Toggle Available" />
-            </f:facet>
-            <h:commandButton value="Enable"
-                             action="#{actionAdmin.toggleAvailable(m)}"
-                             rendered="#{!m.available}" />
-            <h:commandButton value="Disable"
-                             action="#{actionAdmin.toggleAvailable(m)}"
-                             rendered="#{m.available}" />
           </t:column>
           <t:column>
             <f:facet name="header">
@@ -227,6 +210,25 @@
                              action="#{actionAdmin.toggleStatus(m)}"
                              rendered="#{m.inProgress}"  />
           </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Available" />
+            </f:facet>
+            <h:outputText value="#{m.available}" />
+          </t:column>
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Toggle Available" />
+            </f:facet>
+            <h:commandButton value="Enable"
+                             action="#{actionAdmin.toggleAvailable(m)}"
+                             rendered="#{!m.available}" />
+            <h:commandButton value="Disable"
+                             action="#{actionAdmin.toggleAvailable(m)}"
+                             rendered="#{m.available}" />
+          </t:column>
+
           <t:column>
             <f:facet name="header">
               <h:outputText value="Delete" />
@@ -317,7 +319,7 @@
       </h:form>
 
       <h:form rendered="#{user.permissions le 0}">
-        <h3>Pending/Running Tournaments</h3><h:commandButton value="refresh" action="#{actionAdmin.refresh}"/>
+        <h3 class="withButton">Pending/Running Tournaments</h3><h:commandButton value="refresh" action="#{actionAdmin.refresh}"/>
         <t:dataTable id="datatourneys" border="1" sortable="false"
                      sortColumn="#{actionAdmin.sortColumnTournaments}"
                      sortAscending="#{actionAdmin.sortAscendingTournaments}" preserveSort="true"

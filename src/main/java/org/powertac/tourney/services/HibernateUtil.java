@@ -2,6 +2,8 @@ package org.powertac.tourney.services;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+
+import static org.powertac.tourney.services.Utils.log;
  
 public class HibernateUtil {
  
@@ -13,7 +15,7 @@ public class HibernateUtil {
 			return new Configuration().configure().buildSessionFactory();
 		} catch (Throwable ex) {
 			// Make sure you log the exception, as it might be swallowed
-			System.err.println("Initial SessionFactory creation failed." + ex);
+			log("Initial SessionFactory creation failed. {0}", ex);
 			throw new ExceptionInInitializerError(ex);
 		}
 	}

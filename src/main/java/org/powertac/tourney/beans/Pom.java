@@ -1,13 +1,8 @@
 package org.powertac.tourney.beans;
 
-import static javax.persistence.GenerationType.IDENTITY;
+import javax.persistence.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import static javax.persistence.GenerationType.IDENTITY;
 
 
 //Create hibernate mapping with annotations
@@ -16,11 +11,9 @@ import javax.persistence.UniqueConstraint;
 		@UniqueConstraint(columnNames = "pomId")})
 public class Pom {
 	private int pomId;
-	private String location;
 	private String name;
 	private String uploadingUser;
-	
-	
+
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "pomId", unique = true, nullable = false)
@@ -29,14 +22,6 @@ public class Pom {
 	}
 	public void setPomId(int pomId) {
 		this.pomId = pomId;
-	}
-	
-	@Column(name = "location", unique = true, nullable = false)
-	public String getLocation() {
-		return location;
-	}
-	public void setLocation(String location) {
-		this.location = location;
 	}
 	
 	@Column(name = "name", unique = true, nullable = false)
@@ -54,6 +39,4 @@ public class Pom {
 	public void setUploadingUser(String uploadingUser) {
 		this.uploadingUser = uploadingUser;
 	}
-	
-	
 }

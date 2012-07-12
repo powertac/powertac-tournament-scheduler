@@ -11,7 +11,6 @@ CREATE TABLE `tourney`.`users` (
 	`password` VARCHAR(45) NOT NULL, 
 	`permissionId` BIGINT(20) UNSIGNED NOT NULL,
 	PRIMARY KEY (`userId`)
-	UNIQUE KEY `userName` (`userName`)
 ) ENGINE=InnoDB;
 
 

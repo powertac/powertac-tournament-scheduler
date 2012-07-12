@@ -1,27 +1,18 @@
 package org.powertac.tourney.beans;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.Utils;
 
-import javax.faces.bean.ManagedBean;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-
+import javax.persistence.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
+import static javax.persistence.GenerationType.IDENTITY;
+import static org.powertac.tourney.services.Utils.log;
 
 
 // Technically not a managed bean, this is an internal Class to the 
@@ -35,7 +26,7 @@ public class Tournament
   private int tourneyId = 0;
   private Date startTime;
   private String tournamentName;
-  private String status = "pending";
+  private String status = STATE.pending.toString();
   private int maxBrokers; // -1 means inf, otherwise integer specific
   private boolean openRegistration = false;
   private int maxGames;
@@ -56,7 +47,12 @@ public class Tournament
   private String pomName;
 
   // Probably Should check name against auth token
+  // TODO Cleanup
   private HashMap<Integer, String> registeredBrokers;
+
+  public static enum STATE {
+    pending, in_progress, complete
+  }
 
   public Tournament ()
   {
@@ -85,7 +81,7 @@ public class Tournament
       setTournamentName(rsTs.getString("tourneyName"));
     }
     catch (Exception e) {
-      System.out.println("[ERROR] Error creating tournament from result set");
+      log("[ERROR] Error creating tournament from result set");
       e.printStackTrace();
     }
   }
@@ -184,7 +180,7 @@ public class Tournament
   {
     this.size1 = size1;
   }
-  
+
   @Column(name = "maxGames", unique = false, nullable = false)
   public int getNumberSize1 ()
   {
@@ -195,7 +191,7 @@ public class Tournament
   {
     this.numberSize1 = numberSize1;
   }
-  
+
   @Column(name = "gameSize2", unique = false, nullable = false)
   public int getSize2 ()
   {

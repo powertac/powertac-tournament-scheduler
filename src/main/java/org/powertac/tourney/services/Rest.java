@@ -1,6 +1,7 @@
 package org.powertac.tourney.services;
 
 import org.powertac.tourney.beans.Game;
+import org.powertac.tourney.beans.Machine;
 import org.powertac.tourney.beans.Scheduler;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.constants.Constants;
@@ -8,16 +9,17 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.powertac.tourney.services.Utils.log;
+
 @Service("rest")
 public class Rest
 {
-  private static HashMap<String, Integer> skip = new HashMap<String, Integer>();
+  private static final HashMap<String, Integer> skip = new HashMap<String, Integer>();
+  private TournamentProperties properties = new TournamentProperties();
 
   public String parseBrokerLogin (Map<String, String[]> params)
   {
@@ -25,55 +27,44 @@ public class Rest
     String brokerAuthToken = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
     String competitionName = params.get(Constants.Rest.REQ_PARAM_JOIN)[0];
 
-    String retryResponse;
-    String loginResponse;
-    String doneResponse;
-
+    String retryResponse = "{\n \"retry\":%d\n}";
+    String loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"gameToken\":%s\n}";
+    String doneResponse = "{\n \"done\":\"true\"\n}";;
     if (responseType.equalsIgnoreCase("xml")) {
-      retryResponse =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><retry>%d</retry></message>";
-      loginResponse =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><login><jmsUrl>%s</jmsUrl><gameToken>%s</gameToken></login></message>";
-      doneResponse =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message><done></done></message>";
+      String head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>";
+      String tail = "</message>";
+      retryResponse = head + "<retry>%d</retry>" + tail;
+      loginResponse = head + "<login><jmsUrl>%s</jmsUrl><gameToken>%s</gameToken></login>" + tail;
+      doneResponse = head + "<done></done>" + tail;
     }
-    else {
-      retryResponse = "{\n \"retry\":%d\n}";
-      loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"gameToken\":%s\n}";
-      doneResponse = "{\n \"done\":\"true\"\n}";
-    }
-    Database db = new Database();
 
+    Database db = new Database();
     try {
       db.startTrans();
       List<Game> allGames = db.getGames();
-      List<Tournament> allTournaments = db.getTournaments("pending");
-      allTournaments.addAll(db.getTournaments("in-progress"));
+      List<Tournament> allTournaments = db.getTournaments(Tournament.STATE.pending);
+      allTournaments.addAll(db.getTournaments(Tournament.STATE.in_progress));
+
       if (competitionName != null && allGames != null) {
-
-        // First find all games that match the competition name and have brokers
+        // Find all games that match the competition name and have brokers
         // registered
-        List<Game> matches = new ArrayList<Game>();
         for (Game g: allGames) {
-          // Only consider games that have started and are ready for
-          // brokers to join
-          Tournament t = db.getTournamentByGameId(g.getGameId());
-          if (g.getStatus().equalsIgnoreCase("game-in-progress")) {
+          // Only consider games that are ready (started, but waiting for logins)
+          if (g.getStatus().equals(Game.STATE.game_ready.toString())) {
+            Tournament t = db.getTournamentByGameId(g.getGameId());
 
-            if (competitionName.equalsIgnoreCase(t.getTournamentName())
+            if (competitionName.equals(t.getTournamentName())
                 && g.isBrokerRegistered(brokerAuthToken)) {
+
               synchronized (skip) {
-                if (skip.containsKey(g.getGameId() + brokerAuthToken)
-                    && skip.get(g.getGameId() + brokerAuthToken) == g
-                            .getGameId()) {
-                  System.out.println("[INFO] Broker " + brokerAuthToken
-                                     + " already recieved login for game "
-                                     + g.getGameId());
+                if (skip.containsKey(g.getGameId() + brokerAuthToken) &&
+                    skip.get(g.getGameId() + brokerAuthToken) == g.getGameId()) {
+                  log("[INFO] Broker {0} already recieved login for game {1}",
+                      brokerAuthToken, g.getGameId());
                   continue;
                 }
-                System.out.println("[INFO] Sending login to : "
-                                   + brokerAuthToken + " jmsUrl : "
-                                   + g.getJmsUrl());
+                log("[INFO] Sending login to : {0} jmsUrl : {1}",
+                    brokerAuthToken, g.getJmsUrl());
                 skip.put(g.getGameId() + brokerAuthToken, g.getGameId());
               }
               return String.format(loginResponse, g.getJmsUrl(), "1234");
@@ -83,7 +74,6 @@ public class Rest
         db.commitTrans();
 
         boolean competitionExists = false;
-
         for (Tournament t: allTournaments) {
           if (competitionName.equals(t.getTournamentName())) {
             competitionExists = true;
@@ -92,16 +82,13 @@ public class Rest
         }
 
         if (competitionExists) {
-          System.out.println("[INFO] Broker: " + brokerAuthToken
-                             + " attempted to log into existing tournament: "
-                             + competitionName + " --sending retry");
+          log("[INFO] Broker: {0} attempted to log into existing tournament"
+              + ": {1} --sending retry", brokerAuthToken, competitionName);
           return String.format(retryResponse, 20);
         }
         else {
-          System.out
-                  .println("[INFO] Broker: " + brokerAuthToken
-                           + " attempted to log into non-existing tournament: "
-                           + competitionName + " --sending done");
+          log("[INFO] Broker: {0} attempted to log into non-existing tournament"
+              + ": {1} --sending done", brokerAuthToken, competitionName);
           return doneResponse;
         }
       }
@@ -115,12 +102,11 @@ public class Rest
     return doneResponse;
   }
 
-  public String parseServerInterface (Map<String, String[]> params)
+  public String parseServerInterface (Map<String, String[]> params, String clientAddress)
   {
-    // TODO Check IP of sending client
-    //if (!Utils.checkClientAllowed(request.getRemoteAddr())) {
-    //  return "error";
-    //}
+    if (!Utils.checkClientAllowed(clientAddress)) {
+      return "error";
+    }
 
     try {
       String actionString = params.get(Constants.Rest.REQ_PARAM_ACTION)[0];
@@ -156,15 +142,17 @@ public class Rest
     List<String> props;
     props = CreateProperties.getPropertiesForGameId(Integer.parseInt(gameId));
 
-    Game g = new Game();
+    Game g;
     Database db = new Database();
-    try{
+    try {
     	db.startTrans();
     	g = db.getGame(Integer.parseInt(gameId));
     	db.commitTrans();
-    }catch(Exception e){
+    }
+    catch(Exception e) {
     	db.abortTrans();
     	e.printStackTrace();
+      return "";
     }
 
     String weatherLocation = "server.weatherService.weatherLocation = ";
@@ -224,7 +212,7 @@ public class Rest
       return servePom(pomId);
     }
     catch (Exception e) {
-      System.err.println("Error: " + e.getMessage());
+      log("Error: " + e.getMessage());
       return "error";
     }
   }
@@ -234,7 +222,6 @@ public class Rest
     String result = "";
     try {
       // Determine pom-file location
-      TournamentProperties properties = new TournamentProperties();
       String pomLocation = properties.getProperty("pomLocation") +
           "pom."+ pomId +".xml";
 
@@ -253,7 +240,7 @@ public class Rest
       br.close();
     }
     catch (Exception e) {
-      System.err.println("Error : " + e.getMessage());
+      log("Error : " + e.getMessage());
       result = "error";
     }
 
@@ -266,7 +253,6 @@ public class Rest
 
     try {
       // Determine boot-file location
-      TournamentProperties properties = new TournamentProperties();
       String bootLocation = properties.getProperty("bootLocation") +
                             "game-" + gameId + "-boot.xml";
 
@@ -285,7 +271,7 @@ public class Rest
       br.close();
     }
     catch (Exception e) {
-      System.err.println("Error : " + e.getMessage());
+      log("Error : " + e.getMessage());
       result = "error";
     }
 
@@ -295,143 +281,239 @@ public class Rest
   // TODO This should be moved to a Game StateMachine
   private String handleStatus(String status, int gameId)
   {
-    Scheduler scheduler = (Scheduler) SpringApplicationContext.getBean("scheduler");
+    log("[INFO] Recieved {0} message from game: {1}", status, gameId);
 
-    if (status.equalsIgnoreCase("boot-running")) {
-      System.out.println(
-          "[INFO] Recieved bootstrap running message from game: " + gameId);
-
-      // Remove bootfile, but it shouldn't exist
-      removeBootFile(gameId);
-
-      Database db = new Database();
-      try {
-        db.startTrans();
-        db.updateGameStatusById(gameId, "boot-in-progress");
-        db.commitTrans();
-        System.out.println(
-            "[INFO] Setting game: " + gameId + " to boot-in-progress");
-      }
-      catch (SQLException e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
+    Game.STATE state;
+    try {
+      state = Game.STATE.valueOf(status);
     }
-    else if (status.equalsIgnoreCase("boot-done")) {
-      System.out.println(
-          "[INFO] Recieved bootstrap done message from game: " + gameId);
-
-      Database db = new Database();
-      try {
-        db.startTrans();
-
-        db.updateGameStatusById(gameId, "boot-complete");
-        db.updateGameBootstrapById(gameId, true);
-        scheduler.bootrunning = false;
-        Game g = db.getGame(gameId);
-        db.setMachineStatus(g.getMachineId(), "idle");
-
-        db.commitTrans();
-
-        System.out.println(
-            "[INFO] Setting game: " + gameId + " to boot-complete");
-      }
-      catch (Exception e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-    }
-    else if (status.equalsIgnoreCase("boot-failed")) {
-      System.out.println("[WARN] GAME " + gameId + " FAILED!");
-      Database db = new Database();
-      try {
-        db.startTrans();
-        db.updateGameStatusById(gameId, "boot-failed");
-        Game g = db.getGame(gameId);
-        db.setMachineStatus(g.getMachineId(), "idle");
-        db.commitTrans();
-      }
-      catch (SQLException e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-    }
-    else if (status.equalsIgnoreCase("game-ready")) {
-      System.out.println(
-          "[INFO] Recieved game ready message from game: " + gameId);
-      Database db = new Database();
-      try {
-        db.startTrans();
-        db.updateGameStatusById(gameId, "game-in-progress");
-        db.commitTrans();
-        System.out.println(
-            "[INFO] Setting game: " + gameId + " to game-in-progress");
-      }
-      catch (SQLException e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-    }
-    else if (status.equalsIgnoreCase("game-running")) {
-      // TODO Implement a message from the server to the ts
-    }
-    else if (status.equalsIgnoreCase("game-done")) {
-      System.out.println(
-          "[INFO] Recieved game done message from game: " + gameId);
-
-      Database db = new Database();
-      Game g = null;
-      try {
-        db.startTrans();
-        db.updateGameStatusById(gameId, "game-complete");
-        System.out.println("[INFO] Setting game: " + gameId
-            + " to game-complete");
-        g = db.getGame(gameId);
-        // Do some cleanup
-        db.updateGameFreeBrokers(gameId);
-        System.out.println("[INFO] Freeing Brokers for game: " + gameId);
-        db.updateGameFreeMachine(gameId);
-        System.out.println("[INFO] Freeing Machines for game: " + gameId);
-
-        db.setMachineStatus(g.getMachineId(), "idle");
-        db.commitTrans();
-      }
-      catch (Exception e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-      scheduler.resetServer(g.getMachineId());
-    }
-    else if (status.equalsIgnoreCase("game-failed")) {
-      System.out.println("[WARN] GAME " + gameId + " FAILED!");
-      Database db = new Database();
-      try {
-        db.startTrans();
-        db.updateGameStatusById(gameId, "game-failed");
-        Game g = db.getGame(gameId);
-
-        db.updateGameFreeBrokers(gameId);
-        db.updateGameFreeMachine(gameId);
-
-        scheduler.resetServer(g.getMachineId());
-        db.setMachineStatus(g.getMachineId(), "idle");
-
-        db.commitTrans();
-      }
-      catch (SQLException e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-    }
-    else {
+    catch (Exception e) {
       return "error";
+    }
+
+    Scheduler scheduler = (Scheduler) SpringApplicationContext.getBean("scheduler");
+    Database db = new Database();
+
+    try {
+      db.startTrans();
+      Game g = db.getGame(gameId);
+
+      db.updateGameStatusById(gameId, state);
+      log("[INFO] Update game: {0} to {1}", gameId, status);
+
+      switch (state) {
+        case boot_in_progress:
+          // Remove bootfile, it shouldn't exist anyway
+          removeBootFile(gameId);
+          break;
+
+        case boot_complete:
+          db.updateGameBootstrapById(gameId, true);
+          log("[INFO] Update game: {0} to hasBootstrap", gameId);
+
+          db.updateGameFreeMachine(gameId);
+          log("[INFO] Freeing Machines for game: {0}", gameId);
+          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
+          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+          Scheduler.bootRunning = false;
+          break;
+
+        case boot_failed:
+          log("[WARN] BOOT {0} FAILED!", gameId);
+
+          db.updateGameFreeMachine(gameId);
+          log("[INFO] Freeing Machines for game: {0}", gameId);
+          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
+          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+          Scheduler.bootRunning = false;
+          break;
+
+        case game_complete:
+          db.updateGameFreeBrokers(gameId);
+          log("[INFO] Freeing Brokers for game: {0}", gameId);
+          db.updateGameFreeMachine(gameId);
+          log("[INFO] Freeing Machines for game: {0}", gameId);
+          scheduler.resetServer(g.getMachineId());
+          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
+          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+          break;
+
+        case game_failed:
+          log("[WARN] GAME {0} FAILED!", gameId);
+
+          db.updateGameFreeBrokers(gameId);
+          log("[INFO] Freeing Brokers for game: {0}", gameId);
+          db.updateGameFreeMachine(gameId);
+          log("[INFO] Freeing Machines for game: {0}", gameId);
+          scheduler.resetServer(g.getMachineId());
+          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
+          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+          break;
+      }
+
+      db.commitTrans();
+    }
+    catch (Exception e) {
+      db.abortTrans();
+      e.printStackTrace();
     }
     return "success";
   }
 
+  //<editor-fold desc="TODO Cleanup">
+  /*
+    if (status.equals(Game.STATES.boot_in_progress.toString())) {
+      log("[INFO] Recieved bootstrap running message from game: {0}", gameId);
+
+      // Remove bootfile, but it shouldn't exist anyway
+      removeBootFile(gameId);
+
+      try {
+        db.startTrans();
+
+        db.updateGameStatusById(gameId, Game.STATES.boot_in_progress.toString());
+        log("[INFO] Update game: {0} to {1}", gameId, status);
+
+        db.commitTrans();
+      }
+      catch (SQLException e) {
+        db.abortTrans();
+        e.printStackTrace();
+      }
+    }
+    else if (status.equals(Game.STATES.boot_complete.toString())) {
+      log("[INFO] Recieved bootstrap done message from game: {0}", gameId);
+
+      try {
+        db.startTrans();
+
+        db.updateGameStatusById(gameId, Game.STATES.boot_complete.toString());
+        db.updateGameBootstrapById(gameId, true);
+        log("[INFO] Update game: {0} to {1} and hasBootstrap", gameId, status);
+        Game g = db.getGame(gameId);
+        db.updateGameFreeMachine(gameId);
+        log("[INFO] Freeing Machines for game: {0}", gameId);
+        db.setMachineStatus(g.getMachineId(), Machine.STATES.idle);
+        log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+        Scheduler.bootRunning = false;
+
+        db.commitTrans();
+      }
+      catch (Exception e) {
+        db.abortTrans();
+        e.printStackTrace();
+      }
+    }
+    else if (status.equals(Game.STATES.boot_failed.toString())) {
+      log("[WARN] BOOT {0} FAILED!", gameId);
+
+      try {
+        db.startTrans();
+
+        db.updateGameStatusById(gameId, Game.STATES.boot_failed.toString());
+        log("[INFO] Update game: {0} to {1}", gameId, status);
+        Game g = db.getGame(gameId);
+        db.updateGameFreeMachine(gameId);
+        log("[INFO] Freeing Machines for game: {0}", gameId);
+        db.setMachineStatus(g.getMachineId(), Machine.STATES.idle);
+        log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+        Scheduler.bootRunning = false;
+
+        db.commitTrans();
+      }
+      catch (SQLException e) {
+        db.abortTrans();
+        e.printStackTrace();
+      }
+    }
+    else if (status.equals(Game.STATES.game_ready.toString())) {
+      log("[INFO] Recieved game ready message from game: {0}", gameId);
+
+      try {
+        db.startTrans();
+
+        db.updateGameStatusById(gameId, Game.STATES.game_ready.toString());
+        log("[INFO] Update game: {0} to {1}", gameId, status);
+
+        db.commitTrans();
+      }
+      catch (SQLException e) {
+        db.abortTrans();
+        e.printStackTrace();
+      }
+    }
+
+    else if (status.equals(Game.STATES.game_in_progress.toString())) {
+      log("[INFO] Recieved game ready message from game: {0}", gameId);
+
+      try {
+        db.startTrans();
+
+        db.updateGameStatusById(gameId, Game.STATES.game_in_progress.toString());
+        log("[INFO] Update game: {0} to {1}", gameId, status);
+
+        db.commitTrans();
+      }
+      catch (SQLException e) {
+        db.abortTrans();
+        e.printStackTrace();
+      }
+    }
+    else if (status.equals(Game.STATES.game_complete.toString())) {
+      log("[INFO] Recieved game done message from game: {0}", gameId);
+
+      try {
+        db.startTrans();
+
+        db.updateGameStatusById(gameId, Game.STATES.game_complete.toString());
+        log("[INFO] Update game: {0} to {1}", gameId, status);
+        db.updateGameFreeBrokers(gameId);
+        log("[INFO] Freeing Brokers for game: {0}", gameId);
+        db.updateGameFreeMachine(gameId);
+        log("[INFO] Freeing Machines for game: {0}", gameId);
+        Game g = db.getGame(gameId);
+        scheduler.resetServer(g.getMachineId());
+        db.setMachineStatus(g.getMachineId(), Machine.STATES.idle);
+        log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+
+        db.commitTrans();
+      }
+      catch (Exception e) {
+        db.abortTrans();
+        e.printStackTrace();
+      }
+    }
+    else if (status.equals(Game.STATES.game_failed.toString())) {
+      log("[WARN] GAME {0} FAILED!", gameId);
+
+      try {
+        db.startTrans();
+
+        db.updateGameStatusById(gameId, Game.STATES.game_failed.toString());
+        log("[INFO] Update game: {0} to {1}", gameId, status);
+        db.updateGameFreeBrokers(gameId);
+        log("[INFO] Freeing Brokers for game: {0}", gameId);
+        db.updateGameFreeMachine(gameId);
+        log("[INFO] Freeing Machines for game: {0}", gameId);
+        Game g = db.getGame(gameId);
+        scheduler.resetServer(g.getMachineId());
+        db.setMachineStatus(g.getMachineId(), Machine.STATES.idle);
+        log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+
+        db.commitTrans();
+      }
+      catch (SQLException e) {
+        db.abortTrans();
+        e.printStackTrace();
+      }
+    }
+    return "success";
+  }
+  */
+  //</editor-fold>
+
   private void removeBootFile(int gameId)
   {
-    TournamentProperties properties = new TournamentProperties();
     String bootLocation = properties.getProperty("bootLocation") +
         gameId + "-boot.xml";
     File f = new File(bootLocation);
@@ -441,11 +523,11 @@ public class Rest
     }
 
     if (!f.canWrite()) {
-      System.out.println("[Error] Write protected: " + bootLocation);
+      log("[Error] Write protected: {0}", bootLocation);
     }
 
     if (!f.delete()) {
-      System.out.println("[Error] Failed to delete : " + bootLocation);
+      log("[Error] Failed to delete : {0}", bootLocation);
     }
   }
 
@@ -460,7 +542,6 @@ public class Rest
 
     try {
       String fileName = params.get(Constants.Rest.REQ_PARAM_FILENAME)[0];
-      TournamentProperties properties = new TournamentProperties();
 
       String path;
       if (fileName.endsWith("boot.xml")) {
