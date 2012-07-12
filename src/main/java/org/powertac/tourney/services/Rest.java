@@ -10,15 +10,14 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
+//import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service("rest")
 public class Rest
 {
-  private static HashMap<String, Integer> skip = new HashMap<String, Integer>();
+  //private static HashMap<String, Integer> skip = new HashMap<String, Integer>();
 
   public String parseBrokerLogin (Map<String, String[]> params)
   {
@@ -55,38 +54,43 @@ public class Rest
 
         // First find all games that match the competition name and have brokers
         // registered
-        List<Game> matches = new ArrayList<Game>();
+        //List<Game> matches = new ArrayList<Game>();
         for (Game g: allGames) {
           // Only consider games that have started and are ready for
           // brokers to join
           Tournament t = db.getTournamentByGameId(g.getGameId());
           if (g.getStatus().equalsIgnoreCase("game-in-progress")) {
 
-            if (competitionName.equalsIgnoreCase(t.getTournamentName())
-                && g.isBrokerRegistered(brokerAuthToken)) {
-              synchronized (skip) {
-                if (skip.containsKey(g.getGameId() + brokerAuthToken)
-                    && skip.get(g.getGameId() + brokerAuthToken) == g
-                            .getGameId()) {
-                  System.out.println("[INFO] Broker " + brokerAuthToken
-                                     + " already recieved login for game "
-                                     + g.getGameId());
-                  continue;
-                }
-                System.out.println("[INFO] Sending login to : "
-                                   + brokerAuthToken + " jmsUrl : "
-                                   + g.getJmsUrl());
-                skip.put(g.getGameId() + brokerAuthToken, g.getGameId());
-              }
+            if (competitionName.equalsIgnoreCase(t.getTournamentName())) {
+              Broker broker = g.getBrokerRegistration(brokerAuthToken);
+//              synchronized (skip) {
+//                if (skip.containsKey(g.getGameId() + brokerAuthToken)
+//                    && skip.get(g.getGameId() + brokerAuthToken) == g
+//                            .getGameId()) {
+//                  System.out.println("[INFO] Broker " + brokerAuthToken
+//                                     + " already recieved login for game "
+//                                     + g.getGameId());
+//                  continue;
+//                }
+//                System.out.println("[INFO] Sending login to : "
+//                                   + brokerAuthToken + " jmsUrl : "
+//                                   + g.getJmsUrl());
+//                skip.put(g.getGameId() + brokerAuthToken, g.getGameId());
+//              }
               // here we need to add the queue name
-              Broker b = db.getBrokerInGame(g.getGameId(), brokerAuthToken);
-              if (null == b) {
-                System.out.println("[ERROR] Broker " + brokerAuthToken +
-                                   " is not in game " + g.getGameId());
-                return String.format(retryResponse, 60);
+              // update ingame gameid, brokerid, true
+              if (null == broker) {
+                // broker is not in this game
+                continue;
+              }
+              else if (broker.getBrokerInGame()) {
+                // this broker is already in this game
+                continue;
               }
               else {
-                return String.format(loginResponse, g.getJmsUrl(), b.getQueueName());
+                broker.setBrokerInGame(true);
+                db.updateBrokerInGame(g.getGameId(), broker);
+                return String.format(loginResponse, g.getJmsUrl(), broker.getQueueName());
               }
             }
           }

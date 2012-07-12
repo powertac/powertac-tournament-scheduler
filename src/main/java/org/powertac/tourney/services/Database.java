@@ -711,9 +711,8 @@ public class Database
     PreparedStatement ps = conn.prepareStatement(Constants.ADD_BROKER_TO_GAME);
     ps.setInt(1, gameId);
     ps.setInt(2, b.getBrokerId());
-    ps.setString(3, b.getBrokerAuthToken());
-    ps.setString(4, b.createQueueName());
-    ps.setString(5, b.getBrokerName());
+    ps.setString(3, b.createQueueName());
+    ps.setBoolean(4, false);
 
     int result = ps.executeUpdate();
 
@@ -724,7 +723,8 @@ public class Database
   
   public List<Broker> getBrokersInGame (int gameId) throws SQLException
   {
-    PreparedStatement ps = conn.prepareStatement(Constants.GET_BROKERS_INGAME);
+    PreparedStatement ps = 
+            conn.prepareStatement(Constants.GET_BROKERS_INGAME);
     ps.setInt(1, gameId);
 
     List<Broker> brokers = new ArrayList<Broker>();
@@ -737,6 +737,7 @@ public class Database
       tmp.setQueueName(rs.getString("brokerQueue"));
       tmp.setShortDescription(rs.getString("brokerShort"));
       tmp.setNumberInGame(rs.getInt("numberInGame"));
+      tmp.setBrokerInGame(rs.getBoolean("brokerInGame"));
 
       brokers.add(tmp);
     }
@@ -747,37 +748,23 @@ public class Database
     return brokers;
   }
   
-  public Broker getBrokerInGame (int gameId, String brokerAuth)
+  public void updateBrokerInGame (int gameId, Broker broker)
           throws SQLException
   {
-    PreparedStatement ps = conn.prepareStatement(Constants.GET_BROKER_INGAME);
-    ps.setInt(1, gameId);
-
-    List<Broker> brokers = new ArrayList<Broker>();
-    ResultSet rs = ps.executeQuery();
-    while (rs.next()) {
-      Broker tmp = new Broker("new");
-      tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
-      tmp.setBrokerId(rs.getInt("brokerId"));
-      tmp.setBrokerName(rs.getString("brokerName"));
-      tmp.setQueueName(rs.getString("brokerQueue"));
-      tmp.setShortDescription(rs.getString("brokerShort"));
-      tmp.setNumberInGame(rs.getInt("numberInGame"));
-
-      brokers.add(tmp);
-    }
-
-    rs.close();
+    PreparedStatement ps =
+            conn.prepareStatement(Constants.UDATE_BROKER_INGAME);
+    ps.setBoolean(1, broker.getBrokerInGame());
+    ps.setInt(2, gameId);
+    ps.setString(3, broker.getBrokerAuthToken());
+    ps.executeQuery();
     ps.close();
-
-    return brokers.get(0);
   }
 
   public List<Broker> getBrokersInTournament (int tourneyId)
     throws SQLException
   {
-    PreparedStatement ps = conn.prepareStatement(
-        Constants.GET_BROKERS_INTOURNAMENT);
+    PreparedStatement ps = 
+            conn.prepareStatement(Constants.GET_BROKERS_INTOURNAMENT);
     ps.setInt(1, tourneyId);
 
     List<Broker> brokers = new ArrayList<Broker>();

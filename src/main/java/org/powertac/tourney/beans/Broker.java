@@ -39,6 +39,7 @@ public class Broker
   private String brokerQueueName; // per-game value
   private String shortDescription;
   private int numberInGame = 0;
+  private boolean brokerInGame = false;
 
   public Broker (String brokerName)
   {
@@ -125,6 +126,17 @@ public class Broker
   public void setQueueName (String queue)
   {
     brokerQueueName = queue;
+  }
+  
+  @Transient
+  public boolean getBrokerInGame ()
+  {
+    return brokerInGame;
+  }
+  
+  public void setBrokerInGame (boolean value)
+  {
+    brokerInGame = value;
   }
 
   @Column(name = "brokerShort", unique = false, nullable = false)

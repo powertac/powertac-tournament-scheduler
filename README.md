@@ -22,6 +22,6 @@ The Power TAC Tournament Schedudler is a dynamic jsf web application for schedul
 
 * Run the ./startup.sh script for apache tomcat
 
-* Navigate to the tournament scheduler project and run `mvn tomcat:deploy` or `mvn tomcat:redeploy`
+* Navigate to the tournament scheduler project and run `mvn compile tomcat7:deploy`
 
 

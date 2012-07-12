@@ -124,33 +124,30 @@ public class Game implements Serializable
       db.abortTrans();
       e.printStackTrace();
     }
-
     brokers += b.getBrokerName() + ", ";
   }
 
-  public boolean isBrokerRegistered (String authToken)
+  public Broker getBrokerRegistration (String authToken)
   {
     System.out.println("Broker token: " + authToken);
     Database db = new Database();
-    boolean ingame = false;
+    Broker result = null;
     try {
       db.startTrans();
       List<Broker> allBrokers = db.getBrokersInGame(gameId);
       for (Broker b: allBrokers) {
         if (b.getBrokerAuthToken().equalsIgnoreCase(authToken)) {
-          ingame = true;
+          result = b;
           break;
         }
       }
       db.commitTrans();
-
     }
     catch (SQLException e) {
       db.abortTrans();
       e.printStackTrace();
     }
-
-    return ingame;
+    return result;
   }
 
   public String toUTCStartTime ()

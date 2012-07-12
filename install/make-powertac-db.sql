@@ -161,9 +161,8 @@ CREATE TABLE `tourney`.`ingame` (
 	`ingameId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`gameId` BIGINT(20) UNSIGNED NOT NULL,
 	`brokerId` BIGINT(20) UNSIGNED NOT NULL,
-	`brokerAuth` VARCHAR(256) NOT NULL,
 	`brokerQueue` VARCHAR(64),
-	`brokerName` VARCHAR(256) NOT NULL,
+	`brokerInGame` BOOLEAN NOT NULL,
 	CONSTRAINT brokerId_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`),
 	CONSTRAINT gameId_refs2 FOREIGN KEY (`gameId`) REFERENCES `tourney`.`games` ( `gameId` ),
 	PRIMARY KEY (`ingameId`)

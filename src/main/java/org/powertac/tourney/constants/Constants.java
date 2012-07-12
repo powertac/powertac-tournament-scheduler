@@ -310,7 +310,7 @@ public class Constants
    *          : The name of the broker
    */
   public static final String ADD_BROKER_TO_GAME =
-    "INSERT INTO ingame (gameId,brokerId,brokerAuth,brokerQueue,brokerName) VALUES (?,?,?,?,?)";
+    "INSERT INTO ingame (gameId,brokerId,brokerQueue,brokerInGame) VALUES (?,?,?,?)";
 
   /***
    * Get brokers in a game by gameid
@@ -320,8 +320,8 @@ public class Constants
   public static final String GET_BROKERS_INGAME =
     "SELECT * FROM brokers JOIN ingame ON brokers.brokerId = ingame.brokerId WHERE gameId=?";
 
-  public static final String GET_BROKER_INGAME =
-          "SELECT * FROM brokers JOIN ingame ON brokers.brokerId = ingame.brokerId WHERE gameId=? and brokerAuth=?";
+  public static final String UDATE_BROKER_INGAME =
+          "UPDATE ingame SET brokerInGame = ? WHERE gameId=? and brokerAuth=?";
 
   /***
    * Get brokers in a tournament
