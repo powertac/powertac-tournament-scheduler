@@ -33,7 +33,7 @@ public class RestoreViewPhaseListener implements PhaseListener {
         respond(pe, rest.parseBrokerLogin(params));
       }
       else if (url.contains("serverInterface.jsp")) {
-        respond(pe, rest.parseServerInterface(params));
+        respond(pe, rest.parseServerInterface(params, request.getRemoteAddr()));
       }
       else if (url.contains("properties.jsp")) {
         respond(pe, rest.parseProperties(params));

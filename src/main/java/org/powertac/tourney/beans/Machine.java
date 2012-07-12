@@ -1,17 +1,10 @@
 package org.powertac.tourney.beans;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
+import javax.persistence.*;
 import java.sql.ResultSet;
 
-import javax.faces.bean.ManagedBean;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
+import static javax.persistence.GenerationType.IDENTITY;
+import static org.powertac.tourney.services.Utils.log;
 
 //Create hibernate mapping with annotations
 @Entity
@@ -29,6 +22,8 @@ public class Machine
   private String vizUrl;
   private String vizQueue;
 
+  public static enum STATE { idle, running }
+
   public Machine ()
   {
   }
@@ -36,16 +31,17 @@ public class Machine
   public Machine (ResultSet rsMachines)
   {
     try {
-      this.setMachineId(rsMachines.getInt("machineId"));
-      this.setStatus(rsMachines.getString("status"));
-      this.setUrl(rsMachines.getString("machineUrl"));
-      this.setVizUrl(rsMachines.getString("visualizerUrl"));
-      this.setVizQueue(rsMachines.getString("visualizerQueue"));
-      this.setName(rsMachines.getString("machineName"));
-      this.setAvailable(rsMachines.getBoolean("available"));
+      setMachineId(rsMachines.getInt("machineId"));
+      setStatus(rsMachines.getString("status"));
+      setUrl(rsMachines.getString("machineUrl"));
+      setVizUrl(rsMachines.getString("visualizerUrl"));
+      setVizQueue(rsMachines.getString("visualizerQueue"));
+      setName(rsMachines.getString("machineName"));
+      setAvailable(rsMachines.getBoolean("available"));
     }
     catch (Exception e) {
-      System.out.println("[ERROR] Error creating tournament from result set");
+      log("[ERROR] Error creating machine from result set");
+      e.printStackTrace();
     }
   }
 
@@ -59,7 +55,7 @@ public class Machine
   {
     this.name = name;
   }
-  
+
   @Column(name = "machineUrl", unique = false, nullable = false)
   public String getUrl ()
   {
@@ -93,7 +89,6 @@ public class Machine
     this.gameId = gameId;
   }
 
-  
   @Id
   @GeneratedValue(strategy = IDENTITY)
   @Column(name = "machineId", unique = true, nullable = false)
@@ -116,15 +111,14 @@ public class Machine
   public void setStatus (String status)
   {
     this.status = status;
-    if (status.equalsIgnoreCase("idle")) {
-      this.inProgress = false;
+    if (status.equals(STATE.idle.toString())) {
+      inProgress = false;
     }
-    else if (status.equalsIgnoreCase("running")) {
-      this.inProgress = true;
+    else if (status.equals(STATE.running.toString())) {
+      inProgress = true;
     }
   }
 
-  
   @Column(name = "available", unique = false, nullable = false)
   public boolean isAvailable ()
   {

@@ -1,5 +1,9 @@
 package org.powertac.tourney.constants;
 
+import org.powertac.tourney.beans.Game;
+import org.powertac.tourney.beans.Machine;
+import org.powertac.tourney.beans.Tournament;
+
 public class Constants
 {
   public class Rest
@@ -135,7 +139,8 @@ public class Constants
    * 
    */
   public static final String SELECT_TOURNAMENT_BYGAMEID =
-    "SELECT * FROM tournaments JOIN games ON tournaments.tourneyId = games.tourneyId WHERE gameId=?;";
+    "SELECT * FROM tournaments "
+        + "JOIN games ON tournaments.tourneyId = games.tourneyId WHERE gameId=?;";
 
   /***
    * Select a tournament by type
@@ -170,7 +175,7 @@ public class Constants
     "(tourneyName, startTime, openRegistration, maxGames, type, " +
      "locations, maxBrokers, status, gameSize1, gameSize2, gameSize3, " +
      "numberGameSize1, numberGameSize2, numberGameSize3, pomId) " +
-    "VALUES (?,?,?,?,?,?,?,'pending',?,?,?,?,?,?,?);";
+    "VALUES (?,?,?,?,?,?,?,'" + Tournament.STATE.pending + "',?,?,?,?,?,?,?);";
 
   /***
    * Updates a particular tournament given the id
@@ -207,7 +212,8 @@ public class Constants
    *          : The id of the tournament you wish to query
    */
   public static final String GET_NUMBER_REGISTERED_BYTOURNAMENTID =
-    "SELECT COUNT(brokerId) as numRegistered FROM registration WHERE registration.tourneyId=?;";
+    "SELECT COUNT(brokerId) as numRegistered FROM registration "
+        + "WHERE registration.tourneyId=?;";
 
   /***
    * Get a list of registered brokers for a tournament
@@ -216,7 +222,9 @@ public class Constants
    *          : The id of the tournament you wish to query
    */
   public static final String GET_BROKERS_BYTOURNAMENTID =
-    "SELECT * FROM brokers JOIN registration ON registration.brokerId = brokers.brokerId WHERE registration.tourneyId=?;";
+    "SELECT * FROM brokers JOIN registration "
+        + "ON registration.brokerId = brokers.brokerId "
+        + "WHERE registration.tourneyId=?;";
 
   /***
    * Register for a tournament by tourneyId and brokerId
@@ -249,7 +257,8 @@ public class Constants
    *          : The id of the broker
    */
   public static final String REGISTERED =
-    "SELECT COUNT(*)=1 as registered FROM registration WHERE tourneyId=? AND brokerId=?;";
+    "SELECT COUNT(*)=1 as registered FROM registration WHERE tourneyId=? "
+        + "AND brokerId=?;";
 
   /***
    * Insert a new game into the database to be run (only ever insert games
@@ -267,35 +276,29 @@ public class Constants
    *          : The scheduled start time of the sim
    */
   public static final String ADD_GAME =
-    "INSERT INTO games (gameName, tourneyId, maxBrokers, startTime, status, jmsUrl, visualizerUrl, location, hasBootstrap, brokers) VALUES(?,?,?,?,'boot-pending','','','',false,'');";
+    "INSERT INTO games (gameName, tourneyId, maxBrokers, startTime, status, "
+        + "jmsUrl, visualizerUrl, location, hasBootstrap, brokers) "
+        + "VALUES(?,?,?,?,'" + Game.STATE.boot_pending + "','','','',false,'');";
 
   /***
    * Returns a list of the runnable games as of now.
    */
-
   public static final String GET_RUNNABLE_GAMES_EXC =
-    "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() AND status='boot-complete' AND tourneyId!=?;";
+    "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() "
+        + "AND status='" + Game.STATE.boot_complete + "' AND tourneyId!=?;";
   
   /***
    * Returns a list of the runnable games as of now.
    */
-
   public static final String GET_RUNNABLE_GAMES =
-    "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() AND status='boot-complete';";
+    "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() AND status='" +
+        Game.STATE.boot_complete + "';";
   
   /***
    * Returns a list of the bootable games as of now
    */
-  
   public static final String GET_BOOTABLE_GAMES =
-          "SELECT * FROM games WHERE status='boot-pending';";
-
-  /***
-   * Returns a list of the waiting games as of now
-   */
-
-  public static final String GET_PENDING_GAMES =
-    "SELECT * FROM games WHERE startTime>UTC_TIMESTAMP() AND status!='game-in-progres' OR status!='game-compele';";
+    "SELECT * FROM games WHERE status='" + Game.STATE.boot_pending + "';";
 
   /***
    * Add broker to game in database
@@ -318,7 +321,8 @@ public class Constants
    * @param gameId
    */
   public static final String GET_BROKERS_INGAME =
-    "SELECT * FROM brokers JOIN ingame ON brokers.brokerId = ingame.brokerId WHERE gameId=?";
+    "SELECT * FROM brokers JOIN ingame "
+        + "ON brokers.brokerId = ingame.brokerId WHERE gameId=?";
 
   public static final String UDATE_BROKER_INGAME =
           "UPDATE ingame SET brokerInGame = ? WHERE gameId=? and brokerAuth=?";
@@ -329,7 +333,8 @@ public class Constants
    * @param tourneyId
    */
   public static final String GET_BROKERS_INTOURNAMENT =
-    "SELECT * FROM brokers JOIN registration ON registration.brokerId = brokers.brokerId WHERE tourneyId=?";
+    "SELECT * FROM brokers JOIN registration "
+        + "ON registration.brokerId = brokers.brokerId WHERE tourneyId=?";
 
   /***
    * Select game by id
@@ -360,7 +365,8 @@ public class Constants
   public static final String UPDATE_GAME_MACHINE =
     "UPDATE games SET machineId=? WHERE gameId=?;";
   
-  public static final String UPDATE_SERVER = "UPDATE GameServers SET IsPlaying = 0 WHERE ServerNumber=?;";
+  public static final String UPDATE_SERVER = "UPDATE GameServers "
+      + "SET IsPlaying = 0 WHERE ServerNumber=?;";
 
   /***
    * Update the game to free the machine
@@ -406,9 +412,9 @@ public class Constants
    * Update Game status by gameId
    *
    * @param status
-   *          : The new status of the game either "pending", "boot-in-progress",
-   *          "boot-complete", "game-pending", "game-in-progress",
-   *          "game-complete", "boot-failed", or "game-failed"
+   *          : The new status of the game either
+   *          "boot_pending", "boot_in_progress", "boot_complete", "boot_failed",
+   *          "game_pending", "game_in_progress", "game_complete", "game_failed"
    * @param gameId
    *          : The id of the game you wish to change
    */
@@ -426,13 +432,13 @@ public class Constants
 
   /***
    * Select all running and pending games
-   * 
    */
   public static final String SELECT_GAME =
-    "SELECT * FROM games WHERE (status LIKE 'boot%') OR (status LIKE '%pending') OR (status LIKE '%progress');";
+    "SELECT * FROM games WHERE NOT status = '" + Game.STATE.game_complete + "';";
 
   
-  public static final String SELECT_COMPLETE_GAMES = "SELECT * FROM games WHERE status='game-complete';";
+  public static final String SELECT_COMPLETE_GAMES = "SELECT * FROM games "
+      + "WHERE status='" + Game.STATE.game_complete + "';";
   /***
    * Select all games belonging to a tournament
    * 
@@ -479,7 +485,8 @@ public class Constants
    *          : The gameId that this property file belongs to
    */
   public static final String ADD_PROPERTIES =
-    "INSERT INTO properties (jmsUrl,vizQueue,location,startTime,gameId) VALUES ('','',?,?,?);";
+    "INSERT INTO properties (jmsUrl,vizQueue,location,startTime,gameId) "
+        + "VALUES ('','',?,?,?);";
 
   /***
    * Update the properties with jmsUrl for sims, this is done as soon as you
@@ -520,8 +527,16 @@ public class Constants
    * @param machineId
    *          : the id of the machine
    */
-  public static final String SELECT_MACHINES_BYID =
+  public static final String SELECT_MACHINES_BY_ID =
     "SELECT * FROM machines WHERE machineId=?;";
+
+  /***
+   * Select machine by id
+   * @param machineName
+   *          : the id of the machine
+   */
+  public static final String SELECT_MACHINES_BY_NAME =
+      "SELECT * FROM machines WHERE machineName=?;";
   
   
   /***
@@ -565,7 +580,9 @@ public class Constants
    *          : The fully qualified name of the machine like "tac04.cs.umn.edu"
    */
   public static final String ADD_MACHINE =
-    "INSERT INTO machines (machineName, machineUrl, visualizerUrl, visualizerQueue, status, available) VALUES (?,?,?,?,'idle',false);";
+    "INSERT INTO machines (machineName, machineUrl, visualizerUrl, "+
+    "visualizerQueue, status, available) VALUES (?,?,?,?,'" +
+    Machine.STATE.idle + "',false);";
 
   /***
    * Update a machines properties in the database
@@ -582,7 +599,8 @@ public class Constants
    *          : the machines id in the DB
    */
   public static final String EDIT_MACHINE =
-    "UPDATE machines SET machineName=?, machineUrl=?, visualizerUrl=?, visualizerQueue=? WHERE machineId=?;";
+    "UPDATE machines SET machineName=?, machineUrl=?, visualizerUrl=?, "
+        + "visualizerQueue=? WHERE machineId=?;";
   
   /***
    * Remove a machine from the database by id
@@ -605,17 +623,25 @@ public class Constants
     "UPDATE machines SET available=? WHERE machineId=?;";
 
   /***
+   * Return the machineId of the first free machine
+   */
+  public static final String FIRST_FREE_MACHINE =
+      "SELECT * FROM machines WHERE status='" + Machine.STATE.idle
+          + "' and available=1 ORDER BY machineId LIMIT 1;";
+
+  /***
    * Get the games scheduled for a particular agentType
    * 
    * @param AgentType
    *          :
    */
   public static final String GET_GAMES_FOR_AGENT =
-    "SELECT AgentName, AgentType, a.InternalAgentID,b.InternalGameID, GameType, ServerNumber"
-            + "FROM AgentAdmin a "
-            + "JOIN GameLog b ON a.InternalAgentID = b.InternalAgentID"
-            + "JOIN GameArchive c ON b.InternalGameID= c.InternalGameID"
-            + "WHERE AgentType = ?";
+    "SELECT AgentName, AgentType, a.InternalAgentID,b.InternalGameID, GameType,"
+        + " ServerNumber"
+        + "FROM AgentAdmin a "
+        + "JOIN GameLog b ON a.InternalAgentID = b.InternalAgentID"
+        + "JOIN GameArchive c ON b.InternalGameID= c.InternalGameID"
+        + "WHERE AgentType = ?";
 
   public static final String GET_AGENT_TYPE =
     "SELECT DISTINCT AgentType FROM AgentAdmin;";
@@ -627,7 +653,12 @@ public class Constants
    * @param ServerNumber
    */
   public static final String FREE_AGENTS_ON_SERVER = 
-     "UPDATE AgentQueue SET IsPlaying=0 WHERE InternalAgentId IN (SELECT * FROM (SELECT DISTINCT AgentQueue.InternalAgentId FROM GameLog JOIN GameArchive ON GameArchive.InternalGameID = GameLog.InternalGameId JOIN AgentQueue ON GameLog.InternalAgentID = AgentQueue.InternalAgentId WHERE AgentQueue.IsPlaying=1 and GameArchive.ServerNumber=?) AS x)";
+     "UPDATE AgentQueue SET IsPlaying=0 WHERE InternalAgentId IN (SELECT * FROM"
+         + " (SELECT DISTINCT AgentQueue.InternalAgentId FROM GameLog JOIN"
+         + " GameArchive ON GameArchive.InternalGameID = GameLog.InternalGameId"
+         + " JOIN AgentQueue ON"
+         + " GameLog.InternalAgentID = AgentQueue.InternalAgentId"
+         + " WHERE AgentQueue.IsPlaying=1 and GameArchive.ServerNumber=?) AS x)";
   
   
   
@@ -635,7 +666,11 @@ public class Constants
    * Clear scheduling database to schedule something else
    */
   public static final String CLEAR_SCHEDULE =
-    "DELETE FROM AgentAdmin;DELETE FROM AgentQueue;DELETE FROM GameArchive;DELETE FROM GameLog;DELETE FROM GameServers;";
+    "DELETE FROM AgentAdmin;"
+        + " DELETE FROM AgentQueue;"
+        + " DELETE FROM GameArchive;"
+        + " DELETE FROM GameLog;"
+        + " DELETE FROM GameServers;";
 
   /***
    * Select all available locations in the database

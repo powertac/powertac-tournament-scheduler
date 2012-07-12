@@ -10,6 +10,8 @@ import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
+import static org.powertac.tourney.services.Utils.log;
+
 
 @Component("database")
 @Scope("request")
@@ -354,10 +356,10 @@ public class Database
     return result;
   }
 
-  public List<Tournament> getTournaments (String status) throws SQLException
+  public List<Tournament> getTournaments (Enum status) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.SELECT_TOURNAMENTS);
-    ps.setString(1, status);
+    ps.setString(1, status.toString());
 
     List<Tournament> ts = new ArrayList<Tournament>();
     ResultSet rs = ps.executeQuery();
@@ -448,7 +450,7 @@ public class Database
   {
     PreparedStatement ps = conn.prepareStatement(
         Constants.UPDATE_TOURNAMENT_STATUS_BYID);
-    ps.setString(1, "in-progress");
+    ps.setString(1, Tournament.STATE.in_progress.toString());
     ps.setInt(2, tourneyId);
 
     int result = ps.executeUpdate();
@@ -580,7 +582,7 @@ public class Database
     return gs;
   }
 
-  public List<Game> getStartableGames (int excludedTourneyId) throws SQLException
+  public List<Game> getRunnableGames(int excludedTourneyId) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.GET_RUNNABLE_GAMES_EXC);
     ps.setInt(1, excludedTourneyId);
@@ -598,7 +600,7 @@ public class Database
     return games;
   }
 
-  public List<Game> getStartableGames () throws SQLException
+  public List<Game> getRunnableGames() throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.GET_RUNNABLE_GAMES);
 
@@ -802,12 +804,12 @@ public class Database
     return result;
   }
 
-  public int updateGameStatusById (int gameId, String status)
+  public int updateGameStatusById (int gameId, Game.STATE status)
     throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME);
     ps.setInt(2, gameId);
-    ps.setString(1, status);
+    ps.setString(1, status.toString());
 
     int result = ps.executeUpdate();
 
@@ -913,19 +915,37 @@ public class Database
   
   public Machine getMachineById(int machineId) throws SQLException
   {
-    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_MACHINES_BYID);
+    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_MACHINES_BY_ID);
     ps.setInt(1, machineId);
 
-    Machine tmp = null;
+    Machine result = null;
     ResultSet rs = ps.executeQuery();
     if (rs.next()) {
-      tmp = new Machine(rs);
+      result = new Machine(rs);
     }
 
     rs.close();
     ps.close();
 
-    return tmp;
+    return result;
+  }
+
+  public Machine getMachineByName(String machineName) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.SELECT_MACHINES_BY_NAME);
+    ps.setString(1, machineName);
+
+    Machine result = null;
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      result = new Machine(rs);
+    }
+
+    rs.close();
+    ps.close();
+
+    return result;
   }
 
   public int setMachineAvailable (int machineId, boolean isAvailable)
@@ -943,11 +963,16 @@ public class Database
     return result;
   }
 
-  public int setMachineStatus (int machineId, String status)
+
+  /**
+   * Set the status of the machine : 'idle' or 'running'
+   */
+  public int setMachineStatus (int machineId, Machine.STATE status)
     throws SQLException
   {
-    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_MACHINE_STATUS_BY_ID);
-    ps.setString(1, status);
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.UPDATE_MACHINE_STATUS_BY_ID);
+    ps.setString(1, status.toString());
     ps.setInt(2, machineId);
 
     int result = ps.executeUpdate();
@@ -975,8 +1000,8 @@ public class Database
   }
 
   public int editMachine (String machineName, String machineUrl,
-          				  String visualizerUrl, String visualizerQueue,
-          				  int machineId)
+          				        String visualizerUrl, String visualizerQueue,
+          				        int machineId)
     throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.EDIT_MACHINE);
@@ -1003,6 +1028,37 @@ public class Database
     ps.close();
 
     return result;
+  }
+
+  public Machine claimFreeMachine () throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.FIRST_FREE_MACHINE);
+
+    Machine result = null;
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      result = new Machine(rs);
+      setMachineStatus(result.getMachineId(), Machine.STATE.running);
+    }
+
+    rs.close();
+    ps.close();
+
+    return result;
+  }
+
+  public Machine claimFreeMachine (String machineName) throws SQLException
+  {
+    Machine result = getMachineByName(machineName);
+
+    if ((result != null) &&
+        (result.isAvailable()) &&
+        (result.getStatus().equals(Machine.STATE.idle.toString()))) {
+      setMachineStatus(result.getMachineId(), Machine.STATE.running);
+      return result;
+    }
+
+    return null;
   }
 
   public List<Location> getLocations () throws SQLException
@@ -1067,7 +1123,7 @@ public class Database
   {
     try {
       if (conn == null || conn.isClosed()) {
-        if (this.dbms.equalsIgnoreCase("mysql")) {
+        if (dbms.equalsIgnoreCase("mysql")) {
           try {
             connectionProps.setProperty("user", username);
             connectionProps.setProperty("password", password);
@@ -1079,16 +1135,13 @@ public class Database
                     connectionProps);
           }
           catch (Exception e) {
-            System.out.println("Connection Error");
+            log("Connection Error");
             e.printStackTrace();
           }
         }
         else {
-          System.out.println("DBMS: " + dbms + " is not supported");
+          log("DBMS: {0} is not supported", dbms);
         }
-      }
-      else {
-        // System.out.println("Connection is good");
       }
     }
     catch (SQLException e) {
@@ -1212,7 +1265,7 @@ public class Database
         isPlaying = rs.getBoolean("IsPlaying");
       }
       catch(Exception e) {
-        System.out.println("Error making server from result set");
+        log("Error making server from result set");
         e.printStackTrace();
       }
     }
@@ -1248,7 +1301,7 @@ public class Database
         InternalAgentID = rs.getInt("AgentType");
       }
       catch(Exception e) {
-        System.out.println("Error making agent from result set");
+        log("Error making agent from result set");
         e.printStackTrace();
       }
     }

@@ -1,23 +1,9 @@
 package org.powertac.tourney.beans;
 
-import org.hibernate.Query;
-import org.hibernate.Session;
 import org.powertac.tourney.services.Database;
-import org.powertac.tourney.services.HibernateUtil;
 import org.powertac.tourney.services.Utils;
 
-import javax.faces.bean.ManagedBean;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-import static javax.persistence.GenerationType.IDENTITY;
-
+import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,6 +11,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import static javax.persistence.GenerationType.IDENTITY;
+import static org.powertac.tourney.services.Utils.log;
 
 
 // Create hibernate mapping with annotations
@@ -33,12 +21,13 @@ import java.util.List;
 		@UniqueConstraint(columnNames = "gameId")})
 public class Game implements Serializable
 {
-  
+  private String competitionName = "";
   private Date startTime;
+  private int competitionId = -1;
   private int tourneyId = 0;
   private int gameId = 0;
   private int machineId;
-  private String status = "pending";
+  private String status = STATE.boot_pending.toString();
   private boolean hasBootstrap = false;
   private String brokers = "";
 
@@ -55,6 +44,11 @@ public class Game implements Serializable
   private int maxBrokers = 1;
 
   public static final String key = "game";
+
+  public static enum STATE {
+    boot_pending, boot_in_progress, boot_complete, boot_failed,
+    game_pending, game_ready, game_in_progress, game_complete, game_failed
+  }
 
   public Game ()
   {
@@ -78,18 +72,9 @@ public class Game implements Serializable
       setLocation(rs.getString("location"));
     }
     catch (Exception e) {
-      System.out.println("[ERROR] Error creating game from result set");
+      log("[ERROR] Error creating game from result set");
       e.printStackTrace();
     }
-  }
-  
-  
-  public static List<Game> getGames(){
-	  Session session = HibernateUtil.getSessionFactory().openSession();
-	  
-	  Query q = session.createQuery("from Games");
-	  return q.list();
-	  
   }
 
   @Transient
@@ -129,7 +114,7 @@ public class Game implements Serializable
 
   public Broker getBrokerRegistration (String authToken)
   {
-    System.out.println("Broker token: " + authToken);
+    log("Broker token: {0}", authToken);
     Database db = new Database();
     Broker result = null;
     try {
@@ -191,6 +176,25 @@ public class Game implements Serializable
     this.brokersToLogin = brokersToLogin;
   }
 
+  public String getCompetitionName ()
+  {
+    return competitionName;
+  }
+
+  public void setCompetitionName (String competitionName)
+  {
+    this.competitionName = competitionName;
+  }
+
+  public int getCompetitionId ()
+  {
+    return competitionId;
+  }
+
+  public void setCompetitionId (int competitionId)
+  {
+    this.competitionId = competitionId;
+  }
 
   @Column(name = "status", unique = false, nullable = false)
   public String getStatus ()
@@ -281,7 +285,7 @@ public class Game implements Serializable
   {
     this.location = location;
   }
-  
+
   @Column(name = "tourneyId", unique = false, nullable = false)
   public int getTourneyId ()
   {

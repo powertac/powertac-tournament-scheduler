@@ -38,11 +38,17 @@
           <description></description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
+        <org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition>
           <name>machine</name>
           <description></description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
+          <allowedSlaves>
+            <string>ALL (no restriction)</string>
+          </allowedSlaves>
+          <defaultValue>master</defaultValue>
+          <triggerIfResult>multiSelectionDisallowed</triggerIfResult>
+          <allowMultiNodeSelection>false</allowMultiNodeSelection>
+          <triggerConcurrentBuilds>false</triggerConcurrentBuilds>
+        </org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -94,10 +100,40 @@ function cleanup () {
     #rm -fr ./log/init*
     #rm -fr ./log/powertac*
     #rm -fr ./game*
-    #rm -fr ./pom.xml
+    #rm -f ./pom.xml
+    #rm -f ./properties
 
     log nl &quot;Not cleaning up, need to enable this&quot;
 }
+
+function handle_states () {
+    LOGGEDIN=&quot;server.CompetitionControlService: first login observed&quot;
+    FILE=&quot;./log/powertac-sim-$gameId.trace&quot;
+            
+    # Wait for the game to get ready
+    sleep 30
+        
+    log nl &quot;Notify TM we&apos;re game_ready&quot;
+    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_ready&quot;
+        
+    while [ 1==1 ]; do
+        COUNT=0
+        if [ -f $FILE ]; then
+            COUNT=$(grep -c &quot;$LOGGEDIN&quot; &quot;$FILE&quot;)
+        fi
+        
+        if [ $COUNT -gt 0 ]; then
+            log &quot;$COUNT &gt; 0, breaking&quot;
+            break
+        fi 
+
+        sleep 1
+    done
+
+    log nl &quot;Notify TM we&apos;re game_in_progress&quot;
+    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_in_progress&quot;
+}
+
 
 # Some intermediate variables
 interfaceUrl=&quot;$tourneyUrl$interfacePath&quot;
@@ -107,19 +143,17 @@ pomUrl=&quot;$tourneyUrl$pomPath?pomId=$pomId&quot;
 bootName=&quot;game-$gameId-boot&quot;
 simName=&quot;game-$gameId-sim&quot;
 
-log &quot;Nodename    : $NODE_NAME&quot;
-log &quot;Account     : ${USER}&quot;
-log &quot;Machine     : $machine&quot;
-log &quot;GameId      : $gameId&quot;
-log &quot;PomId       : $pomId&quot;
-log &quot;TourneyUrl  : $tourneyUrl&quot;
-log &quot;Suffix      : $suffix&quot;
-log &quot;Brokers     : $brokers&quot;
-log &quot;MVN_CMD     : $MVN_CMD&quot;
-log &quot;COMP_CMD    : $COMP_CMD&quot;
-log &quot;COMP_EXT    : $COMP_EXT&quot;
-
-# TODO Remove below
+log &quot;Nodename      : $NODE_NAME&quot;
+log &quot;Account       : ${USER}&quot;
+log &quot;Machine       : $machine&quot;
+log &quot;GameId        : $gameId&quot;
+log &quot;PomId         : $pomId&quot;
+log &quot;TourneyUrl    : $tourneyUrl&quot;
+log &quot;Suffix        : $suffix&quot;
+log &quot;Brokers       : $brokers&quot;
+log &quot;MVN_CMD       : $MVN_CMD&quot;
+log &quot;COMP_CMD      : $COMP_CMD&quot;
+log &quot;COMP_EXT      : $COMP_EXT&quot;
 log &quot;interfacePath : $interfacePath&quot;
 log &quot;propPath      : $propPath&quot;
 log &quot;pomPath       : $pomPath&quot;
@@ -130,15 +164,26 @@ log &quot;pomUrl        : $pomUrl&quot;
 log &quot;bootName      : $bootName&quot;
 log &quot;simName       : $simName&quot;
 
+log nl &quot;These are the game properties&quot;
+wget -O properties $propUrl
+COUNT=$(grep -c &apos;server.weatherService.weatherLocation&apos; properties)
+if [ $COUNT -le 0 ] ; then
+    log nl &quot;Error getting game properties : $propUrl&quot;
+    cleanup
+    exit 1
+else
+    cat properties &gt;&gt; $LOGFILE
+fi
 
 log nl &quot;Getting pom file from $pomUrl&quot;
 wget -O pom.xml $pomUrl
+log &quot;&quot;
 
 if [ &quot;$brokers&quot; = &quot;&quot; ] ; then
     log nl &quot;Running in bootstrap mode!&quot;
 
-    log nl &quot;Notify TM we&apos;re bootstrap-running&quot;
-    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot-running&quot;
+    log nl &quot;Notify TM we&apos;re boot_in_progress&quot;
+    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_in_progress&quot;
 
     CMD=&quot;$MVN_CMD -Pcli -Dexec.args=\&quot;--boot $bootName.xml --config=$propUrl --log-suffix $suffix$gameId\&quot;&quot;
     log nl &quot;Run maven : $CMD&quot;
@@ -153,8 +198,8 @@ if [ &quot;$brokers&quot; = &quot;&quot; ] ; then
     fi
 
     if [ &quot;$FILESIZE&quot; -eq 0 ] ; then
-        log nl &quot;Notify TM we&apos;re boot-failed&quot;
-        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot-failed&quot;
+        log nl &quot;Notify TM we&apos;re boot_failed&quot;
+        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_failed&quot;
 
         cleanup
         exit 1
@@ -168,16 +213,16 @@ if [ &quot;$brokers&quot; = &quot;&quot; ] ; then
         log nl &quot;Sending boot file&quot;
         curl --upload-file &quot;$bootName.xml&quot; &quot;$interfaceUrl?fileName=$bootName.xml&quot;
 
-        log nl &quot;Notify TM we&apos;re boot-done&quot;
-        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot-done&quot;
+        log nl &quot;Notify TM we&apos;re boot_complete&quot;
+        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_complete&quot;
     fi
 else
     log &quot;Running in sim mode!&quot;
 
     log nl &quot;Brokers: $brokers&quot;
 
-    log nl &quot;Notify TM we&apos;re game-ready in 30 seconds&quot;
-    (sleep 30; wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game-ready&quot;) &amp;
+    log nl &quot;Handle game states&quot;
+    handle_states &amp;
 
     CMD=&quot;mvn -Pcli -Dexec.args=\&quot;-sim --boot-data=$bootUrl --config $propUrl --log-suffix $suffix$gameId --brokers $brokers\&quot;&quot;
     log nl &quot;Run maven : $CMD&quot;
@@ -189,8 +234,8 @@ else
     log nl &quot;Sending log file&quot;
     curl --upload-file &quot;$simName-logs.$COMP_EXT&quot; &quot;$interfaceUrl?fileName=$simName-logs.$COMP_EXT&quot;
 
-    log nl &quot;Notify TM we&apos;re game-done&quot;
-    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game-done&quot;
+    log nl &quot;Notify TM we&apos;re game_complete&quot;
+    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_complete&quot;
 fi
 
 cleanup

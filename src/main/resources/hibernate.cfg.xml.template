@@ -7,8 +7,8 @@
 <session-factory>
     <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
     <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/tourney</property>
-    <property name="hibernate.connection.username">powertac</property>
-    <property name="hibernate.connection.password">powertac</property>
+    <property name="hibernate.connection.username">localUsername</property>
+    <property name="hibernate.connection.password">localPassword</property>
     <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
     <property name="show_sql">true</property>
     <mapping class="org.powertac.tourney.beans.Game" />

@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
+import static org.powertac.tourney.services.Utils.log;
+
 @ManagedBean
 @RequestScoped
 public class ActionAccount
@@ -141,8 +143,8 @@ public class ActionAccount
     Database db = new Database();
     try {
       db.startTrans();
-      allTournaments = db.getTournaments("pending");
-      allTournaments.addAll(db.getTournaments("in-progress"));
+      allTournaments = db.getTournaments(Tournament.STATE.pending);
+      allTournaments.addAll(db.getTournaments(Tournament.STATE.in_progress));
     }
     catch (SQLException e) {
       db.abortTrans();
@@ -159,7 +161,6 @@ public class ActionAccount
       }
       catch (SQLException e) {
         db.abortTrans();
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
@@ -171,32 +172,33 @@ public class ActionAccount
   public String register (Broker b)
   {
     String tournamentName = b.getSelectedTourney();
-    if (tournamentName == null || tournamentName == "") {
+    if (tournamentName == null || tournamentName.equals("")) {
       return null;
     }
+
     Database db = new Database();
-    List<Tournament> allTournaments = new ArrayList<Tournament>();
+    List<Tournament> allTournaments;
 
     try {
       db.startTrans();
-      allTournaments = db.getTournaments("pending");
-      allTournaments.addAll(db.getTournaments("in-progress"));
+      allTournaments = db.getTournaments(Tournament.STATE.pending);
+      allTournaments.addAll(db.getTournaments(Tournament.STATE.in_progress));
       for (Tournament t: allTournaments) {
         if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())
             && t.getTournamentName().equalsIgnoreCase(tournamentName)) {
 
           if (t.getNumberRegistered() < t.getMaxBrokers()) {
-            System.out.println("Registering broker: " + b.getBrokerId()
-                               + " with tournament: " + t.getTournamentId());
+            log("Registering broker: {0} with tournament: {1}",
+                b.getBrokerId(), t.getTournamentId());
             db.registerBroker(t.getTournamentId(), b.getBrokerId());
 
             // Only do this for single game, otherwise the scheduler handles multigame tourneys
             if (t.getType().equalsIgnoreCase("SINGLE_GAME")) {
               for (Game g: t.getGames()) {
                 if (g.getNumBrokersRegistered() < g.getMaxBrokers()) {
-                  System.out.println("Number registered: "
-                                     + g.getNumBrokersRegistered());
                   g.addBroker(b.getBrokerId());
+                  log("Number registered: {0} of {1}",
+                      g.getNumBrokersRegistered(), t.getMaxBrokers());
                 }
               }
             }
@@ -207,7 +209,6 @@ public class ActionAccount
     }
     catch (SQLException e) {
       db.abortTrans();
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 

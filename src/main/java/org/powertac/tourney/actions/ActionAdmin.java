@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.powertac.tourney.services.Utils.log;
+
 @Component("actionAdmin")
 @Scope("request")
 public class ActionAdmin
@@ -123,34 +125,30 @@ public class ActionAdmin
   public void submitPom ()
   {
     if (pom == null) {
-      System.out.println("Pom was null");
+      log("Pom was null");
       return;
     }
 
-    System.out.println("Pom is not null");
+    log("Pom is not null");
     User currentUser =
         (User) FacesContext.getCurrentInstance().getExternalContext()
             .getSessionMap().get(User.getKey());
 
     TournamentProperties properties = new TournamentProperties();
-      Session session = HibernateUtil.getSessionFactory().openSession();
-      session.beginTransaction();
-      
-      Pom p = new Pom();
-      p.setName(this.getPomName());
-      p.setUploadingUser(currentUser.getUsername());
-      p.setLocation(properties.getProperty("pomLocation"));
-      
-      session.save(p);
-      
-      
-      //int id = db.addPom(currentUser.getUsername(), this.getPomName());
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    session.beginTransaction();
 
-      upload.setUploadedFile(pom);
-      upload.setUploadLocation(properties.getProperty("pomLocation"));
-      upload.submit("pom." + p.getPomId() + ".xml");
-      
-      session.getTransaction().commit();
+    Pom p = new Pom();
+    p.setName(this.getPomName());
+    p.setUploadingUser(currentUser.getUsername());
+
+    session.save(p);
+
+    upload.setUploadedFile(pom);
+    upload.setUploadLocation(properties.getProperty("pomLocation"));
+    upload.submit("pom." + p.getPomId() + ".xml");
+
+    session.getTransaction().commit();
   }
 
   public List<Database.Pom> getPomList ()
@@ -176,13 +174,13 @@ public class ActionAdmin
     List<Tournament> ts = new ArrayList<Tournament>();
     
     Database db = new Database();
-    try{
+    try {
       db.startTrans();
-      ts = db.getTournaments("pending");
-      ts.addAll(db.getTournaments("in-progress"));
+      ts = db.getTournaments(Tournament.STATE.pending);
+      ts.addAll(db.getTournaments(Tournament.STATE.in_progress));
       db.commitTrans();
-    
-    }catch(Exception e){
+    }
+    catch(Exception e) {
       db.abortTrans();
     }
 
@@ -198,7 +196,6 @@ public class ActionAdmin
       db.startTrans();
       locations = db.getLocations();
       db.commitTrans();
-
     }
     catch (SQLException e) {
       db.abortTrans();
@@ -266,15 +263,16 @@ public class ActionAdmin
   public void toggleStatus(Machine m){
     Database db = new Database();
     
-    try{
+    try {
       db.startTrans();
       if(m.isInProgress()){
-        db.setMachineStatus(m.getMachineId(), "idle");
+        db.setMachineStatus(m.getMachineId(), Machine.STATE.idle);
       }else{
-        db.setMachineStatus(m.getMachineId(), "running");
+        db.setMachineStatus(m.getMachineId(), Machine.STATE.running);
       }
       db.commitTrans();
-    }catch(Exception e){
+    }
+    catch(Exception e) {
       db.abortTrans();
       e.printStackTrace();
     }
@@ -295,7 +293,7 @@ public class ActionAdmin
     newViz = newViz.replace("https://", "").replace("http://", "");
 
     if (newName.isEmpty() || newUrl.isEmpty() || newViz.isEmpty() || newQueue.isEmpty()) {
-      System.out.println("Some machine fields are empty!");
+      log("Some machine fields are empty!");
       message = "Error : machine not saved, some fields were empty!";
   	  return;
   	}  
@@ -356,16 +354,15 @@ public class ActionAdmin
   {
     Database db = new Database();
     int gameId = g.getGameId();
-    System.out.println("[INFO] Restarting Game " + gameId + " has status: "
-                       + g.getStatus());
+    log("[INFO] Restarting Game {0} has status: {1}", gameId, g.getStatus());
     Tournament t = new Tournament();
+
     try {
       db.startTrans();
       t = db.getTournamentByGameId(gameId);
 
-      db.setMachineStatus(g.getMachineId(), "idle");
-      System.out.println("[INFO] Setting machine: " + g.getMachineId()
-                         + " to idle");
+      db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
+      log("[INFO] Setting machine: {0} to idle", g.getMachineId());
       db.commitTrans();
 
     }
@@ -375,31 +372,34 @@ public class ActionAdmin
       e.printStackTrace();
     }
 
-    if (g.getStatus().equalsIgnoreCase("boot-failed") ||
-        g.getStatus().equalsIgnoreCase("boot-pending") ||
-        g.getStatus().equalsIgnoreCase("boot-in-progress") ) {
-      System.out.println("[INFO] Attempting to restart bootstrap " + gameId);
-      scheduler.deleteBootTimer(gameId);
+    if (g.getStatus().equals(Game.STATE.boot_failed.toString()) ||
+        g.getStatus().equals(Game.STATE.boot_pending.toString()) ||
+        g.getStatus().equals(Game.STATE.boot_in_progress.toString()) ) {
+      log("[INFO] Attempting to restart bootstrap {0}", gameId);
 
       RunBootstrap runBootstrap = new RunBootstrap(gameId, t.getPomId());
-      scheduler.runBootTimer(gameId, runBootstrap, new Date());
+      new Thread(runBootstrap).start();
     }
-    else if (g.getStatus().equalsIgnoreCase("game-failed") ||
-             g.getStatus().equalsIgnoreCase("game-pending") ||
-            g.getStatus().equalsIgnoreCase("boot-complete") ) {
-      System.out.println("[INFO] Attempting to restart sim " + gameId);
-      scheduler.deleteSimTimer(gameId);
+    else if (g.getStatus().equals(Game.STATE.game_failed.toString()) ||
+             g.getStatus().equals(Game.STATE.game_in_progress.toString()) ||
+            g.getStatus().equals(Game.STATE.boot_failed.toString()) ) {
+      log("[INFO] Attempting to restart sim {0}", gameId);
 
       RunGame runGame = new RunGame(gameId, t.getPomId());
-      scheduler.runSimTimer(gameId, runGame, new Date());
+      new Thread(runGame).start();
     }
   }
 
+  /**
+   * We should be able to delete games
+   * But should we be able to abandon running games?
+   * @param g : the Game to delete
+   */
   public void deleteGame (Game g)
   {
     // TODO: ARE YOU SURE?
-    scheduler.deleteBootTimer(g.getGameId());
-    scheduler.deleteSimTimer(g.getGameId());
+    //scheduler.deleteBootTimer(g.getGameId());
+    //scheduler.deleteSimTimer(g.getGameId());
   }
 
   public void refresh ()
@@ -424,7 +424,7 @@ public class ActionAdmin
   public void addLocation ()
   {
     if (newLocationName.isEmpty() || (newLocationStartTime == null) || (newLocationEndTime == null)) {
-      System.out.println("Some location fields are empty!");
+      log("Some location fields are empty!");
       return;
     }
 	  
@@ -447,7 +447,6 @@ public class ActionAdmin
     newViz = "";
     newQueue = "";
   }
-
 
   //<editor-fold desc="Setters and Getters">
   public int getRowCount ()

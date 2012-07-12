@@ -18,13 +18,13 @@ CREATE TABLE `tourney`.`users` (
 /* Create broker table with key constraint on userId */
 DROP TABLE IF EXISTS `tourney`.`brokers`;
 CREATE TABLE `tourney`.`brokers` (
-  `brokerId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `userId` BIGINT(20) UNSIGNED NOT NULL,
-  `brokerName` VARCHAR(45) NOT NULL,
-  `brokerAuth` VARCHAR(32) NOT NULL,
-  `brokerShort` VARCHAR(200) NOT NULL,
-  `numberInGame` INT(11) NOT NULL,
-  PRIMARY KEY (`brokerId`),
+	`brokerId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`userId` BIGINT(20) UNSIGNED NOT NULL,
+	`brokerName` VARCHAR(45) NOT NULL,
+	`brokerAuth` VARCHAR(32) NOT NULL,
+	`brokerShort` VARCHAR(200) NOT NULL,
+	`numberInGame` INT NOT NULL,
+	PRIMARY KEY (`brokerId`),
 	CONSTRAINT userId_refs FOREIGN KEY (`userId`) REFERENCES `tourney`.`users` (`userId`)
 ) ENGINE=InnoDB;
 
@@ -58,11 +58,11 @@ CREATE TABLE `tourney`.`tournaments` (
 	`gameSize3` integer NOT NULL,
 	`numberGameSize3` integer NOT NULL,
 	`maxBrokerInstances` integer NOT NULL DEFAULT 2,
-	`type` VARCHAR(32) NOT NULL,
-	`pomId` integer UNSIGNED NOT NULL, /* This will be a foreign key to poms.pomId */
+	`type` VARCHAR(32) NOT NULL, /* Type is either multi-game or single game if single game ignore the gameSize params */
+	`pomId` INT(10) UNSIGNED NOT NULL, /* This will be a foreign key to poms.pomId */
 	`locations` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
 	PRIMARY KEY (`tourneyId`),
-	CONSTRAINT tourney_refs FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` ( `pomId` )
+	CONSTRAINT tourney_refs FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `tourney`.`registration`;
@@ -88,10 +88,10 @@ DROP TABLE IF EXISTS `tourney`.`machines`;
 CREATE TABLE `tourney`.`machines` (
 	`machineId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`machineName` VARCHAR(30) NOT NULL,
-	`machineUrl` VARCHAR(256) NOT NULL,
+	`machineUrl` VARCHAR(256) NOT NULL, /* Url to the machine */
 	`visualizerUrl` VARCHAR(256) NOT NULL,
 	`visualizerQueue` VARCHAR(256) NOT NULL,
-	`status` VARCHAR(20) NOT NULL,
+	`status` VARCHAR(20) NOT NULL, /* Indicates wether a game is running on this machine or not, either "running" or "idle" */
 	`available` BOOLEAN NOT NULL,
 	PRIMARY KEY (`machineId`)
 ) ENGINE=InnoDB;
@@ -101,7 +101,7 @@ CREATE TABLE `tourney`.`machines` (
 DROP TABLE IF EXISTS `tourney`.`properties`;
 CREATE TABLE `tourney`.`properties` (
 	`propId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`gameId` BIGINT(20) UNSIGNED NOT NULL,
+	`gameId` BIGINT(20) UNSIGNED NOT NULL, /* Not a foreign key to prevent cycles*/
 	`location` VARCHAR(256) NOT NULL,
 	`startTime` VARCHAR(256) NOT NULL,
 	`jmsUrl` VARCHAR(256) NOT NULL,
@@ -124,7 +124,7 @@ CREATE TABLE `tourney`.`games` (
 	`startTime` DATETIME NOT NULL,
 	`jmsUrl` VARCHAR(256) NOT NULL,
 	`visualizerUrl` VARCHAR(256) NOT NULL,
-	`location` VARCHAR(256) NOT NULL,
+	`location` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
 	PRIMARY KEY (`gameId`),
 	CONSTRAINT tourneyId2_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),
 	CONSTRAINT machineId_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` )
@@ -138,9 +138,6 @@ CREATE TABLE `tourney`.`permissions` (
 	`permissionName` VARCHAR(20) NOT NULL,
 	PRIMARY KEY (`permissionId`)
 ) ENGINE=InnoDB;
-
-
-
 
 
 DROP TABLE IF EXISTS `tourney`.`locations`;

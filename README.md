@@ -22,6 +22,10 @@ The Power TAC Tournament Schedudler is a dynamic jsf web application for schedul
 
 * Run the ./startup.sh script for apache tomcat
 
-* Navigate to the tournament scheduler project and run `mvn compile tomcat7:deploy`
+* Copy the example config files, and edit the properties if needed.
+  Usually only db user/pass and the file locations are needed
+  $cp src/main/resources/tournament.properties.template src/main/resources/tournament.properties
+  $cp src/main/resources/hibernate.cfg.xml.template     src/main/resources/hibernate.cfg.xml
 
+* Navigate to the tournament scheduler project and run `mvn compile tomcat7:deploy`
 
