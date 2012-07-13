@@ -24,8 +24,6 @@ import static org.powertac.tourney.services.Utils.log;
 @Scope("session")
 public class ActionTournament
 {
-  public enum TourneyType { SINGLE_GAME, MULTI_GAME }
-
   private int selectedPom;
 
   private Date startTime = new Date();
@@ -41,7 +39,7 @@ public class ActionTournament
   private int rowCount = 5;
 
   private List<String> locations;
-  private TourneyType type = TourneyType.SINGLE_GAME;
+  private Tournament.TYPE type = Tournament.TYPE.SINGLE_GAME;
 
   private int size1 = 2;
   private int numberSize1 = 2;
@@ -60,22 +58,22 @@ public class ActionTournament
     toTime.setTime(initTime.getTimeInMillis());
   }
 
-  public TourneyType getMulti ()
+  public Tournament.TYPE getMulti ()
   {
-    return TourneyType.MULTI_GAME;
+    return Tournament.TYPE.MULTI_GAME;
   }
 
-  public TourneyType getSingle ()
+  public Tournament.TYPE getSingle ()
   {
-    return TourneyType.SINGLE_GAME;
+    return Tournament.TYPE.SINGLE_GAME;
   }
 
   // Method to list the type enumeration in the jsf select Item component
   public SelectItem[] getTypes ()
   {
-    SelectItem[] items = new SelectItem[TourneyType.values().length];
+    SelectItem[] items = new SelectItem[Tournament.TYPE.values().length];
     int i = 0;
-    for (TourneyType t: TourneyType.values()) {
+    for (Tournament.TYPE t: Tournament.TYPE.values()) {
       items[i++] = new SelectItem(t, t.name());
     }
     return items;
@@ -114,10 +112,10 @@ public class ActionTournament
     int[] gtypes = {size1, size2, size3};
     int[] mxs = {numberSize1, numberSize2, numberSize3};
 
-    if (type == TourneyType.SINGLE_GAME) {
+    if (type == Tournament.TYPE.SINGLE_GAME) {
       return createSingleGameTournament(newTourney, allLocations, gtypes, mxs);
     }
-    else if (type == TourneyType.MULTI_GAME) {
+    else if (type == Tournament.TYPE.MULTI_GAME) {
       return createMultiGameTournament(newTourney, allLocations, gtypes, mxs);
     }
 
@@ -138,8 +136,8 @@ public class ActionTournament
 
       // Adds new tournament to the database
       int tourneyId = db.addTournament(getTournamentName(), true, size1,
-          startTime, "SINGLE_GAME", selectedPom, allLocations,
-          maxBrokers, gtypes, mxs);
+          startTime, Tournament.TYPE.SINGLE_GAME.toString(), selectedPom,
+          allLocations, maxBrokers, gtypes, mxs);
       log("[INFO] Adding new tourney {0}", tourneyId);
 
       // Adds a new game to the database
@@ -201,8 +199,8 @@ public class ActionTournament
 
       // Adds new tournament to the database
       int tourneyId = db.addTournament(tournamentName, true, numberOfGames,
-          startTime, "MULTI_GAME", selectedPom, allLocations,
-          maxBrokers, gtypes, mxs);
+          startTime, Tournament.TYPE.MULTI_GAME.toString(), selectedPom,
+          allLocations, maxBrokers, gtypes, mxs);
       log("[INFO] Adding new tourney {0}", tourneyId);
 
       // Adds new games to the database
@@ -427,12 +425,12 @@ public class ActionTournament
     this.rowCount = rowCount;
   }
 
-  public TourneyType getType ()
+  public Tournament.TYPE getType ()
   {
     return type;
   }
 
-  public void setType (TourneyType type)
+  public void setType (Tournament.TYPE type)
   {
     this.type = type;
   }

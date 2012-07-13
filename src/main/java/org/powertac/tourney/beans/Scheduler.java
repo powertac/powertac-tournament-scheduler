@@ -52,7 +52,7 @@ public class Scheduler
     try {
       db.startTrans();
 
-      Tournament t = db.getTournamentByType("MULTI_GAME");
+      Tournament t = db.getTournamentByType(Tournament.TYPE.MULTI_GAME);
       if (t == null) {
         log("[INFO] No tournament to reload");
         db.commitTrans();
@@ -135,11 +135,12 @@ public class Scheduler
 
     if ((runningTournament.getStartTime() == null) ||
         (runningTournament.getStartTime().before(new Date()))) {
-      log("[INFO] Multigame tournament available, ticking scheduler..");
+      log("[INFO] Multigame tournament available ({0}), ticking scheduler..",
+          runningTournament.getTournamentName());
     }
     else {
-      log("[INFO] Too early to start tournament: "
-          + runningTournament.getTournamentName());
+      log("[INFO] Too early to start tournament: {0}",
+          runningTournament.getTournamentName());
       return;
     }
 
@@ -165,9 +166,9 @@ public class Scheduler
       List<Game> finalGames = new ArrayList<Game>();
       for (Game g : gamesInTourney) {
         if (!g.getHasBootstrap()
-            || g.getStatus().equals(Game.STATE.game_pending.toString())
-            || g.getStatus().equals(Game.STATE.game_in_progress.toString())
-            || g.getStatus().equals(Game.STATE.game_complete.toString())) {
+            || g.stateEquals(Game.STATE.game_pending)
+            || g.stateEquals(Game.STATE.game_in_progress)
+            || g.stateEquals(Game.STATE.game_complete)) {
           // gamesInTourney.remove(g);
         } else {
           finalGames.add(g);
@@ -370,8 +371,7 @@ public class Scheduler
               db.setMachineAvailable(machine.getMachineId(), false);
             }
 
-            if (machine.getStatus().equals(Machine.STATE.idle.toString())
-                  && idle.equals("false")) {
+            if (machine.stateEquals(Machine.STATE.idle) && idle.equals("false")) {
               log("[WARN] Machine {0} has status 'idle', but Jenkins reports "
                   + "'not idle'", displayName);
               db.setMachineStatus(machine.getMachineId(), Machine.STATE.running);
@@ -441,10 +441,11 @@ public class Scheduler
       List<Game> games;
 
       if (runningTournament == null) {
+        log("[INFO] WatchDog CheckForSims ignoring multi-game tournament games");
         games = db.getRunnableGames();
       }
       else {
-        log("[INFO] WatchDog CheckForSims ignoring multi-game tournament games");
+        log("[INFO] WatchDog CheckForSims ignoring single-game tournament games");
         games = db.getRunnableGames(runningTournament.getTournamentId());
       }
       log("[INFO] WatchDogTimer reports {0} game(s) are ready to start",

@@ -185,12 +185,12 @@ public class RunGame implements Runnable
     }
   }
 
-  private void setGamePending() {
-    int gId = Integer.parseInt(gameId);
+  private void setGameState(Game.STATE state) {
     Database db = new Database();
     try {
+      int gId = Integer.parseInt(gameId);
       db.startTrans();
-      db.updateGameStatusById(gId, Game.STATE.game_pending);
+      db.updateGameStatusById(gId, state);
       db.commitTrans();
     }
     catch (Exception e) {
@@ -237,28 +237,20 @@ public class RunGame implements Runnable
 
     log("[INFO] Final url: {0}", finalUrl);
 
+    /*
     try {
       URL url = new URL(finalUrl);
       URLConnection conn = url.openConnection();
       conn.getInputStream();
       log("Jenkins request to start sim game: {0}", gameId);
       running = true;
-      setGamePending();
+      setGameState(Game.STATE.game_pending);
     }
     catch (Exception e) {
       e.printStackTrace();
       log("Jenkins failure to start simulation game: {0}", gameId);
-
-      Database db = new Database();
-      try {
-        db.updateGameStatusById(Integer.parseInt(gameId), Game.STATE.game_failed);
-      }
-      catch (NumberFormatException e1) {
-        e1.printStackTrace();
-      }
-      catch (SQLException e1) {
-        e1.printStackTrace();
-      }
+      setGameState(Game.STATE.game_failed);
     }
+    */
   }
 }

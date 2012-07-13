@@ -1,8 +1,6 @@
 package org.powertac.tourney.services;
 
 import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Machine;
-import org.powertac.tourney.beans.Scheduler;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.constants.Constants;
 import org.springframework.stereotype.Service;
@@ -50,7 +48,7 @@ public class Rest
         // registered
         for (Game g: allGames) {
           // Only consider games that are ready (started, but waiting for logins)
-          if (g.getStatus().equals(Game.STATE.game_ready.toString())) {
+          if (g.stateEquals(Game.STATE.game_ready)) {
             Tournament t = db.getTournamentByGameId(g.getGameId());
 
             if (competitionName.equals(t.getTournamentName())
@@ -114,7 +112,7 @@ public class Rest
         String statusString = params.get(Constants.Rest.REQ_PARAM_STATUS)[0];
         int gameId = Integer.parseInt(
             params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0]);
-        return handleStatus(statusString, gameId);
+        return Game.handleStatus(statusString, gameId);
       }
       else if (actionString.equalsIgnoreCase("boot")) {
         String gameId = params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0];
@@ -276,259 +274,6 @@ public class Rest
     }
 
     return result;
-  }
-
-  // TODO This should be moved to a Game StateMachine
-  private String handleStatus(String status, int gameId)
-  {
-    log("[INFO] Recieved {0} message from game: {1}", status, gameId);
-
-    Game.STATE state;
-    try {
-      state = Game.STATE.valueOf(status);
-    }
-    catch (Exception e) {
-      return "error";
-    }
-
-    Scheduler scheduler = (Scheduler) SpringApplicationContext.getBean("scheduler");
-    Database db = new Database();
-
-    try {
-      db.startTrans();
-      Game g = db.getGame(gameId);
-
-      db.updateGameStatusById(gameId, state);
-      log("[INFO] Update game: {0} to {1}", gameId, status);
-
-      switch (state) {
-        case boot_in_progress:
-          // Remove bootfile, it shouldn't exist anyway
-          removeBootFile(gameId);
-          break;
-
-        case boot_complete:
-          db.updateGameBootstrapById(gameId, true);
-          log("[INFO] Update game: {0} to hasBootstrap", gameId);
-
-          db.updateGameFreeMachine(gameId);
-          log("[INFO] Freeing Machines for game: {0}", gameId);
-          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
-          Scheduler.bootRunning = false;
-          break;
-
-        case boot_failed:
-          log("[WARN] BOOT {0} FAILED!", gameId);
-
-          db.updateGameFreeMachine(gameId);
-          log("[INFO] Freeing Machines for game: {0}", gameId);
-          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
-          Scheduler.bootRunning = false;
-          break;
-
-        case game_complete:
-          db.updateGameFreeBrokers(gameId);
-          log("[INFO] Freeing Brokers for game: {0}", gameId);
-          db.updateGameFreeMachine(gameId);
-          log("[INFO] Freeing Machines for game: {0}", gameId);
-          scheduler.resetServer(g.getMachineId());
-          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
-          break;
-
-        case game_failed:
-          log("[WARN] GAME {0} FAILED!", gameId);
-
-          db.updateGameFreeBrokers(gameId);
-          log("[INFO] Freeing Brokers for game: {0}", gameId);
-          db.updateGameFreeMachine(gameId);
-          log("[INFO] Freeing Machines for game: {0}", gameId);
-          scheduler.resetServer(g.getMachineId());
-          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
-          break;
-      }
-
-      db.commitTrans();
-    }
-    catch (Exception e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-    return "success";
-  }
-
-  //<editor-fold desc="TODO Cleanup">
-  /*
-    if (status.equals(Game.STATES.boot_in_progress.toString())) {
-      log("[INFO] Recieved bootstrap running message from game: {0}", gameId);
-
-      // Remove bootfile, but it shouldn't exist anyway
-      removeBootFile(gameId);
-
-      try {
-        db.startTrans();
-
-        db.updateGameStatusById(gameId, Game.STATES.boot_in_progress.toString());
-        log("[INFO] Update game: {0} to {1}", gameId, status);
-
-        db.commitTrans();
-      }
-      catch (SQLException e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-    }
-    else if (status.equals(Game.STATES.boot_complete.toString())) {
-      log("[INFO] Recieved bootstrap done message from game: {0}", gameId);
-
-      try {
-        db.startTrans();
-
-        db.updateGameStatusById(gameId, Game.STATES.boot_complete.toString());
-        db.updateGameBootstrapById(gameId, true);
-        log("[INFO] Update game: {0} to {1} and hasBootstrap", gameId, status);
-        Game g = db.getGame(gameId);
-        db.updateGameFreeMachine(gameId);
-        log("[INFO] Freeing Machines for game: {0}", gameId);
-        db.setMachineStatus(g.getMachineId(), Machine.STATES.idle);
-        log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
-        Scheduler.bootRunning = false;
-
-        db.commitTrans();
-      }
-      catch (Exception e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-    }
-    else if (status.equals(Game.STATES.boot_failed.toString())) {
-      log("[WARN] BOOT {0} FAILED!", gameId);
-
-      try {
-        db.startTrans();
-
-        db.updateGameStatusById(gameId, Game.STATES.boot_failed.toString());
-        log("[INFO] Update game: {0} to {1}", gameId, status);
-        Game g = db.getGame(gameId);
-        db.updateGameFreeMachine(gameId);
-        log("[INFO] Freeing Machines for game: {0}", gameId);
-        db.setMachineStatus(g.getMachineId(), Machine.STATES.idle);
-        log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
-        Scheduler.bootRunning = false;
-
-        db.commitTrans();
-      }
-      catch (SQLException e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-    }
-    else if (status.equals(Game.STATES.game_ready.toString())) {
-      log("[INFO] Recieved game ready message from game: {0}", gameId);
-
-      try {
-        db.startTrans();
-
-        db.updateGameStatusById(gameId, Game.STATES.game_ready.toString());
-        log("[INFO] Update game: {0} to {1}", gameId, status);
-
-        db.commitTrans();
-      }
-      catch (SQLException e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-    }
-
-    else if (status.equals(Game.STATES.game_in_progress.toString())) {
-      log("[INFO] Recieved game ready message from game: {0}", gameId);
-
-      try {
-        db.startTrans();
-
-        db.updateGameStatusById(gameId, Game.STATES.game_in_progress.toString());
-        log("[INFO] Update game: {0} to {1}", gameId, status);
-
-        db.commitTrans();
-      }
-      catch (SQLException e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-    }
-    else if (status.equals(Game.STATES.game_complete.toString())) {
-      log("[INFO] Recieved game done message from game: {0}", gameId);
-
-      try {
-        db.startTrans();
-
-        db.updateGameStatusById(gameId, Game.STATES.game_complete.toString());
-        log("[INFO] Update game: {0} to {1}", gameId, status);
-        db.updateGameFreeBrokers(gameId);
-        log("[INFO] Freeing Brokers for game: {0}", gameId);
-        db.updateGameFreeMachine(gameId);
-        log("[INFO] Freeing Machines for game: {0}", gameId);
-        Game g = db.getGame(gameId);
-        scheduler.resetServer(g.getMachineId());
-        db.setMachineStatus(g.getMachineId(), Machine.STATES.idle);
-        log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
-
-        db.commitTrans();
-      }
-      catch (Exception e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-    }
-    else if (status.equals(Game.STATES.game_failed.toString())) {
-      log("[WARN] GAME {0} FAILED!", gameId);
-
-      try {
-        db.startTrans();
-
-        db.updateGameStatusById(gameId, Game.STATES.game_failed.toString());
-        log("[INFO] Update game: {0} to {1}", gameId, status);
-        db.updateGameFreeBrokers(gameId);
-        log("[INFO] Freeing Brokers for game: {0}", gameId);
-        db.updateGameFreeMachine(gameId);
-        log("[INFO] Freeing Machines for game: {0}", gameId);
-        Game g = db.getGame(gameId);
-        scheduler.resetServer(g.getMachineId());
-        db.setMachineStatus(g.getMachineId(), Machine.STATES.idle);
-        log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
-
-        db.commitTrans();
-      }
-      catch (SQLException e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-    }
-    return "success";
-  }
-  */
-  //</editor-fold>
-
-  private void removeBootFile(int gameId)
-  {
-    String bootLocation = properties.getProperty("bootLocation") +
-        gameId + "-boot.xml";
-    File f = new File(bootLocation);
-
-    if (!f.exists()) {
-      return;
-    }
-
-    if (!f.canWrite()) {
-      log("[Error] Write protected: {0}", bootLocation);
-    }
-
-    if (!f.delete()) {
-      log("[Error] Failed to delete : {0}", bootLocation);
-    }
   }
 
   /***

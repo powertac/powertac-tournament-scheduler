@@ -371,17 +371,17 @@ public class ActionAdmin
       e.printStackTrace();
     }
 
-    if (g.getStatus().equals(Game.STATE.boot_failed.toString()) ||
-        g.getStatus().equals(Game.STATE.boot_pending.toString()) ||
-        g.getStatus().equals(Game.STATE.boot_in_progress.toString()) ) {
+    if (g.stateEquals(Game.STATE.boot_failed) ||
+        g.stateEquals(Game.STATE.boot_pending) ||
+        g.stateEquals(Game.STATE.boot_in_progress) ) {
       log("[INFO] Attempting to restart bootstrap {0}", gameId);
 
       RunBootstrap runBootstrap = new RunBootstrap(gameId, t.getPomId());
       new Thread(runBootstrap).start();
     }
-    else if (g.getStatus().equals(Game.STATE.game_failed.toString()) ||
-             g.getStatus().equals(Game.STATE.game_in_progress.toString()) ||
-            g.getStatus().equals(Game.STATE.boot_failed.toString()) ) {
+    else if (g.stateEquals(Game.STATE.game_failed) ||
+             g.stateEquals(Game.STATE.game_in_progress) ||
+            g.stateEquals(Game.STATE.boot_failed) ) {
       log("[INFO] Attempting to restart sim {0}", gameId);
 
       RunGame runGame = new RunGame(gameId, t.getPomId());
