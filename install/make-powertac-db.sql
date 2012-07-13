@@ -20,7 +20,7 @@ DROP TABLE IF EXISTS `tourney`.`brokers`;
 CREATE TABLE `tourney`.`brokers` (
 	`brokerId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`userId` BIGINT(20) UNSIGNED NOT NULL,
-	`brokerName` VARCHAR(45) NOT NULL,
+	`brokerName` VARCHAR(45) UNIQUE NOT NULL,
 	`brokerAuth` VARCHAR(32) NOT NULL,
 	`brokerShort` VARCHAR(200) NOT NULL,
 	`numberInGame` INT NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE `tourney`.`brokers` (
 DROP TABLE IF EXISTS `tourney`.`poms`;
 CREATE TABLE `tourney`.`poms` (
   `pomId` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `location` VARCHAR(256) NOT NULL,
+  /* `location` VARCHAR(256) NOT NULL, */
   `name` VARCHAR(45) NOT NULL,
   `uploadingUser` VARCHAR(45) NOT NULL,
 	PRIMARY KEY (`pomId`),
