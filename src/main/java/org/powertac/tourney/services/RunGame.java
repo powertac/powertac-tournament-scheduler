@@ -237,7 +237,6 @@ public class RunGame implements Runnable
 
     log("[INFO] Final url: {0}", finalUrl);
 
-    /*
     try {
       URL url = new URL(finalUrl);
       URLConnection conn = url.openConnection();
@@ -251,6 +250,5 @@ public class RunGame implements Runnable
       log("Jenkins failure to start simulation game: {0}", gameId);
       setGameState(Game.STATE.game_failed);
     }
-    */
   }
 }
