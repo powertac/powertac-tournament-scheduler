@@ -17,12 +17,13 @@ public class RunBootstrap implements Runnable
   private String gameId = "";
   private String machineName = "";
 
+  private TournamentProperties properties = new TournamentProperties();
+
   public RunBootstrap (int gameId, int pomId)
   {
     this.gameId = String.valueOf(gameId);
     this.pomId = String.valueOf(pomId);
 
-    TournamentProperties properties = new TournamentProperties();
     machineName = properties.getProperty("bootserverName", "");
   }
 
@@ -65,11 +66,12 @@ public class RunBootstrap implements Runnable
   public void run ()
   {
     if (!checkMachineAvailable()) {
-      log("[INFO] No machines available to run scheduled boot: {0}", gameId);
+      log("[INFO] No machines available to run scheduled boot: {0}... will retry"
+          + " in {1} seconds", gameId, Integer.parseInt(
+          properties.getProperty("scheduler.watchDogInterval")) / 1000);
       return;
     }
 
-    // TODO Check if we still need machineName
     String finalUrl =
         "http://localhost:8080/jenkins/job/"
         + "start-server-instance/buildWithParameters?"
@@ -92,6 +94,7 @@ public class RunBootstrap implements Runnable
     catch (Exception e) {
       e.printStackTrace();
       log("[INFO] Jenkins failure to bootstrap game: {0}", gameId);
+
       Database db = new Database();
       try {
         db.updateGameStatusById(Integer.parseInt(gameId), Game.STATE.boot_failed);

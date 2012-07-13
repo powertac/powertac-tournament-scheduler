@@ -202,6 +202,11 @@ public class RunGame implements Runnable
   @Override
   public synchronized void run ()
   {
+    if (running) {
+      // Should not get here
+      log("[ERROR] Game {0} is already running!", gameId);
+    }
+
     // Check if a boot exists
     if (!checkBootstrap()) {
       return;
@@ -213,15 +218,11 @@ public class RunGame implements Runnable
     }
     // Check if there is a machine available to run the sim and set it
     if (!checkMachineAvailable()) {
-      log("No machines available to run scheduled game: {0}... will retry"
+      log("[INFO] No machines available to run scheduled game: {0}... will retry"
           + " in {1} seconds", gameId, Integer.parseInt(
           properties.getProperty("scheduler.watchDogInterval")) / 1000);
       return;
     }
-
-    setGamePending();
-
-    //TODO Check for start date
 
     String finalUrl =
         "http://localhost:8080/jenkins/job/"
@@ -237,23 +238,27 @@ public class RunGame implements Runnable
     log("[INFO] Final url: {0}", finalUrl);
 
     try {
-      if (!running) {
-        // TODO Check if we need getinputstream
-        URL url = new URL(finalUrl);
-        URLConnection conn = url.openConnection();
-        conn.getInputStream();
-        log("Jenkins request to start sim game: {0}", gameId);
-        running = true;
-      }
-      else {
-        // Should not get here
-        log("Request already sent, what?");
-      }
-
+      URL url = new URL(finalUrl);
+      URLConnection conn = url.openConnection();
+      conn.getInputStream();
+      log("Jenkins request to start sim game: {0}", gameId);
+      running = true;
+      setGamePending();
     }
     catch (Exception e) {
       e.printStackTrace();
       log("Jenkins failure to start simulation game: {0}", gameId);
+
+      Database db = new Database();
+      try {
+        db.updateGameStatusById(Integer.parseInt(gameId), Game.STATE.game_failed);
+      }
+      catch (NumberFormatException e1) {
+        e1.printStackTrace();
+      }
+      catch (SQLException e1) {
+        e1.printStackTrace();
+      }
     }
   }
 }

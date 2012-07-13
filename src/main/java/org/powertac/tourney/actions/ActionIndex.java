@@ -8,6 +8,7 @@ package org.powertac.tourney.actions;
 import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.services.Database;
+import org.powertac.tourney.services.TournamentProperties;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -111,6 +112,15 @@ public class ActionIndex
     return result;
   }
 
+  public String getLogUrl (Game g)
+  {
+    TournamentProperties properties = new TournamentProperties();
+    String baseUrl = properties.getProperty("actionIndex.logUrl",
+                                            "download?game=%d");
+    return String.format(baseUrl, g.getGameId());
+  }
+
+  //<editor-fold desc="Setters and Getters">
   public String getSortColumn ()
   {
     return sortColumn;
@@ -140,5 +150,5 @@ public class ActionIndex
   {
     this.rowCount = rowCount;
   }
-
+  //</editor-fold>
 }
