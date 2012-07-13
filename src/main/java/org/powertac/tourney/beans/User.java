@@ -1,16 +1,13 @@
 package org.powertac.tourney.beans;
 
+import org.powertac.tourney.services.Database;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
-
-import org.powertac.tourney.actions.ActionAccount;
-import org.powertac.tourney.services.Database;
 
 
 @SessionScoped
@@ -161,17 +158,10 @@ public class User
 
   public List<Broker> getBrokers ()
   {
-    /*
-     * Broker[] newBroker = new Broker[brokers.size()];
-     * int i = 0;
-     * for (Broker b : brokers) {
-     * newBroker[i] = brokers.get(i);
-     * i++;
-     * }
-     */
+    brokers = new ArrayList<Broker>();
+
     if (!isEditing && loggedIn) {
       Database db = new Database();
-      brokers = new ArrayList<Broker>();
       try {
         db.startTrans();
         brokers = db.getBrokersByUserId(getUserId());
@@ -179,8 +169,6 @@ public class User
       }
       catch (SQLException e) {
         db.abortTrans();
-        // TODO Auto-generated catch block
-        e.printStackTrace();
       }
     }
 

@@ -162,8 +162,8 @@ public class ActionTournament
         int noofservers = db.getMachines().size();
 
         log("[INFO] Starting MainScheduler..");
-        log("[INFO] Params -- Servers: {0} Agents: {1} Copies: {2} games={ {3}:"
-            + " {4}, {5}: {6}, {7}: {8} }",
+        log("[INFO] Params -- Servers: {0} Agents: {1} Copies: {2} games=[ {3}:"
+            + " {4}, {5}: {6}, {7}: {8} ]",
             new Object[] {noofservers, noofagents, noofcopies, size1,
                           numberSize1, size2, numberSize2, size3, numberSize3});
 

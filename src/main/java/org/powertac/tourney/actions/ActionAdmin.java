@@ -59,7 +59,6 @@ public class ActionAdmin
 
   private UploadedFile pom;
   private String pomName;
-  private TournamentProperties properties = new TournamentProperties();
 
   private String message = "";
 
