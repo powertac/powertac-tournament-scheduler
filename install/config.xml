@@ -30,12 +30,17 @@
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>brokers</name>
-          <description></description>
+          <description>list of brokers/queues</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>gameId</name>
           <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>serverQueue</name>
+          <description>name of server input queue</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition>
@@ -109,7 +114,7 @@ function cleanup () {
 function handle_states () {
     LOGGEDIN=&quot;server.CompetitionControlService: first login observed&quot;
     FILE=&quot;./log/powertac-sim-$gameId.trace&quot;
-            
+
     # Wait for the game to get ready
     sleep 30
         
@@ -224,7 +229,7 @@ else
     log nl &quot;Handle game states&quot;
     handle_states &amp;
 
-    CMD=&quot;mvn -Pcli -Dexec.args=\&quot;-sim --boot-data=$bootUrl --config $propUrl --log-suffix $suffix$gameId --brokers $brokers\&quot;&quot;
+    CMD=&quot;mvn -Pcli -Dexec.args=\&quot;-sim --boot-data=$bootUrl --config $propUrl --log-suffix $suffix$gameId --brokers $brokers --input-queue $serverQueue\&quot;&quot;
     log nl &quot;Run maven : $CMD&quot;
     eval $CMD
 

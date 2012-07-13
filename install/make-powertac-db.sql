@@ -90,7 +90,7 @@ CREATE TABLE `tourney`.`machines` (
 	`machineName` VARCHAR(30) NOT NULL,
 	`machineUrl` VARCHAR(256) NOT NULL, /* Url to the machine */
 	`visualizerUrl` VARCHAR(256) NOT NULL,
-	`visualizerQueue` VARCHAR(256) NOT NULL,
+	/* `visualizerQueue` VARCHAR(256) NOT NULL, */
 	`status` VARCHAR(20) NOT NULL, /* Indicates wether a game is running on this machine or not, either "running" or "idle" */
 	`available` BOOLEAN NOT NULL,
 	PRIMARY KEY (`machineId`)
@@ -124,6 +124,8 @@ CREATE TABLE `tourney`.`games` (
 	`startTime` DATETIME NOT NULL,
 	`jmsUrl` VARCHAR(256) NOT NULL,
 	`visualizerUrl` VARCHAR(256) NOT NULL,
+	`visualizerQueue` VARCHAR(256) NOT NULL, /* name of visualizer output queue */
+	`serverQueue` VARCHAR(256) NOT NULL, /* name of server input queue */
 	`location` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
 	PRIMARY KEY (`gameId`),
 	CONSTRAINT tourneyId2_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),

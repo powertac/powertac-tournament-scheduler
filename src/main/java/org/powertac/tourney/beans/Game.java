@@ -37,7 +37,9 @@ public class Game implements Serializable
   private String gameName = "";
   private String location = "";
   private String jmsUrl = "";
+  private String serverQueue = "";
   private String visualizerUrl = "";
+  private String visualizerQueue = "";
 
   @Transient
   private HashMap<String, String> brokersToLogin = null;
@@ -71,7 +73,9 @@ public class Game implements Serializable
       setGameName(rs.getString("gameName"));
       setGameId(rs.getInt("gameId"));
       setJmsUrl(rs.getString("jmsUrl"));
+      setServerQueue(rs.getString("serverQueue"));
       setVisualizerUrl(rs.getString("visualizerUrl"));
+      setVisualizerQueue(rs.getString("visualizerQueue"));
       setLocation(rs.getString("location"));
     }
     catch (Exception e) {
@@ -327,6 +331,28 @@ public class Game implements Serializable
   public void setJmsUrl (String jmsUrl)
   {
     this.jmsUrl = jmsUrl;
+  }
+  
+  @Column(name = "serverQueue", unique = false, nullable = true)
+  public String getServerQueue ()
+  {
+    return serverQueue;
+  }
+  
+  public void setServerQueue (String name)
+  {
+    this.serverQueue = name;
+  }
+  
+  @Column(name="visualizerQueue", unique = false, nullable = true)
+  public String getVisualizerQueue ()
+  {
+    return visualizerQueue;
+  }
+  
+  public void setVisualizerQueue (String name)
+  {
+    this.visualizerQueue = name;
   }
 
   @Column(name = "maxBrokers", unique = false, nullable = true)

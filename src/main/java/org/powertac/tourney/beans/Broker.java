@@ -100,13 +100,6 @@ public class Broker
     this.brokerAuthToken = brokerAuthToken;
   }
   
-  public String createQueueName ()
-  {
-    long time = new Date().getTime() & 0xffffffff;
-    long ran = new java.util.Random(time).nextLong();
-    return Long.toString(ran, 31);
-  }
-  
   @Transient
   public String getQueueName ()
   {

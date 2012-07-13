@@ -277,8 +277,10 @@ public class Constants
    */
   public static final String ADD_GAME =
     "INSERT INTO games (gameName, tourneyId, maxBrokers, startTime, status, "
-        + "jmsUrl, visualizerUrl, location, hasBootstrap, brokers) "
-        + "VALUES(?,?,?,?,'" + Game.STATE.boot_pending + "','','','',false,'');";
+        + "jmsUrl, visualizerUrl, visualizerQueue, serverQueue, location, "
+        + "hasBootstrap, brokers) "
+        + "VALUES(?,?,?,?,'" + Game.STATE.boot_pending
+        + "','','','','','',false,'');";
 
   /***
    * Returns a list of the runnable games as of now.
@@ -352,7 +354,7 @@ public class Constants
    * @param gameId
    */
   public static final String UPDATE_GAME_JMSURL =
-    "UPDATE games SET jmsUrl=? WHERE gameId=?;";
+    "UPDATE games SET jmsUrl=?, serverQueue=? WHERE gameId=?;";
 
   /***
    * Update the machine a game is running on
@@ -395,7 +397,7 @@ public class Constants
    *          : The id of the game
    */
   public static final String UPDATE_GAME_VIZ =
-    "UPDATE games SET visualizerUrl=? WHERE gameId=?;";
+    "UPDATE games SET visualizerUrl=?, visualizerQueue=? WHERE gameId=?;";
 
   /***
    * Update Game hasBootstrap

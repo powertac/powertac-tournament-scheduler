@@ -713,7 +713,7 @@ public class Database
     PreparedStatement ps = conn.prepareStatement(Constants.ADD_BROKER_TO_GAME);
     ps.setInt(1, gameId);
     ps.setInt(2, b.getBrokerId());
-    ps.setString(3, b.createQueueName());
+    ps.setString(3, createQueueName());
     ps.setBoolean(4, false);
 
     int result = ps.executeUpdate();
@@ -873,8 +873,9 @@ public class Database
     throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_JMSURL);
-    ps.setInt(2, gameId);
+    ps.setInt(3, gameId);
     ps.setString(1, jmsUrl);
+    ps.setString(2, createQueueName());
 
     int result = ps.executeUpdate();
 
@@ -887,7 +888,8 @@ public class Database
   {
     PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_VIZ);
     ps.setString(1, vizUrl);
-    ps.setInt(2, gameId);
+    ps.setString(2, createQueueName());
+    ps.setInt(3, gameId);
 
     int result = ps.executeUpdate();
 
@@ -1112,6 +1114,12 @@ public class Database
     ps.close();
 
     return result;
+  }
+  
+  private Random queueGenerator = new Random(new Date().getTime());
+  public String createQueueName ()
+  {
+    return Long.toString(queueGenerator.nextLong(), 31);
   }
 
   /***

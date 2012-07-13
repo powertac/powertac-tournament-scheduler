@@ -19,6 +19,7 @@ public class RunGame implements Runnable
   private boolean running = false;
   private boolean tourney = false;
 
+  private Game game;
   private String logSuffix = "sim";
   private String pomId = "";
   private String gameId = "";
@@ -27,16 +28,18 @@ public class RunGame implements Runnable
 
   private TournamentProperties properties = new TournamentProperties();
 
-  public RunGame (int gameId, int pomId)
+  public RunGame (Game game, int pomId)
   {
-    this.gameId = String.valueOf(gameId);
+    this.game = game;
+    this.gameId = String.valueOf(game.getGameId());
     this.pomId = String.valueOf(pomId);
     running = false;
   }
 
-  public RunGame (int gameId, int pomId, Machine machine, String brokers)
+  public RunGame (Game game, int pomId, Machine machine, String brokers)
   {
-    this.gameId = String.valueOf(gameId);
+    this.game = game;
+    this.gameId = String.valueOf(game.getGameId());
     this.pomId = String.valueOf(pomId);
     this.brokers = brokers;
     this.machine = machine;
@@ -171,6 +174,7 @@ public class RunGame implements Runnable
       }
 
       String jmsUrl = "tcp://" + machine.getUrl() + ":61616";
+      // JEC - most of this should be done through a Game instance
       db.updateGameJmsUrlById(gId, jmsUrl);
       db.updateProperties(gId, jmsUrl, machine.getVizQueue());
       db.updateGameMachine(gId, machine.getMachineId());
@@ -236,7 +240,8 @@ public class RunGame implements Runnable
         + "&pomId=" + pomId
         + "&machine=" + machineName
         + "&gameId=" + gameId
-        + "&brokers=" + brokers;
+        + "&brokers=" + brokers
+        + "&serverQueue=" + game.getServerQueue();
 
     log("[INFO] Final url: {0}", finalUrl);
 

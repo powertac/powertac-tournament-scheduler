@@ -21,10 +21,6 @@ import org.springframework.stereotype.Component;
 public class ActionLogin
 {
 
-  // Database should not be as service, sharing information causes issues
-  // @Autowired
-  // private Database database;
-
   private String username;
   private String password;
 

@@ -32,7 +32,7 @@ public class Rest
       String head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>";
       String tail = "</message>";
       retryResponse = head + "<retry>%d</retry>" + tail;
-      loginResponse = head + "<login><jmsUrl>%s</jmsUrl><queueName>%s</queueName></login>" + tail;
+      loginResponse = head + "<login><jmsUrl>%s</jmsUrl><queueName>%s</queueName><serverQueue>%s</serverQueue></login>" + tail;
       doneResponse = head + "<done></done>" + tail;
     }
     else {
@@ -86,7 +86,10 @@ public class Rest
               else {
                 broker.setBrokerInGame(true);
                 db.updateBrokerInGame(g.getGameId(), broker);
-                return String.format(loginResponse, g.getJmsUrl(), broker.getQueueName());
+                return String.format(loginResponse,
+                                     g.getJmsUrl(),
+                                     broker.getQueueName(),
+                                     g.getServerQueue());
               }
             }
           }

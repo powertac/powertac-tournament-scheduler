@@ -384,7 +384,7 @@ public class ActionAdmin
             g.stateEquals(Game.STATE.boot_failed) ) {
       log("[INFO] Attempting to restart sim {0}", gameId);
 
-      RunGame runGame = new RunGame(gameId, t.getPomId());
+      RunGame runGame = new RunGame(g, t.getPomId());
       new Thread(runGame).start();
     }
   }

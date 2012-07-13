@@ -244,7 +244,7 @@ public class Scheduler
 
           log("[INFO] Tourney Game {0} Brokers: {1}", somegame.getGameId(), brokers);
 
-          RunGame runGame = new RunGame(somegame.getGameId(),
+          RunGame runGame = new RunGame(somegame,
                                         runningTournament.getPomId(),
                                         m, brokers);
           new Thread(runGame).start();
@@ -456,7 +456,7 @@ public class Scheduler
         log("[INFO] {0} : Game: {1} will be started...",
             Utils.dateFormatUTC(new Date()), g.getGameId());
 
-        RunGame runGame = new RunGame(g.getGameId(), t.getPomId());
+        RunGame runGame = new RunGame(g, t.getPomId());
         new Thread(runGame).start();
       }
       db.commitTrans();
