@@ -24,8 +24,6 @@ import static org.powertac.tourney.services.Utils.log;
 @Scope("session")
 public class ActionTournament
 {
-  public enum TourneyType { SINGLE_GAME, MULTI_GAME }
-
   private int selectedPom;
 
   private Date startTime = new Date();
@@ -41,7 +39,7 @@ public class ActionTournament
   private int rowCount = 5;
 
   private List<String> locations;
-  private TourneyType type = TourneyType.SINGLE_GAME;
+  private Tournament.TYPE type = Tournament.TYPE.SINGLE_GAME;
 
   private int size1 = 2;
   private int numberSize1 = 2;
@@ -60,22 +58,22 @@ public class ActionTournament
     toTime.setTime(initTime.getTimeInMillis());
   }
 
-  public TourneyType getMulti ()
+  public Tournament.TYPE getMulti ()
   {
-    return TourneyType.MULTI_GAME;
+    return Tournament.TYPE.MULTI_GAME;
   }
 
-  public TourneyType getSingle ()
+  public Tournament.TYPE getSingle ()
   {
-    return TourneyType.SINGLE_GAME;
+    return Tournament.TYPE.SINGLE_GAME;
   }
 
   // Method to list the type enumeration in the jsf select Item component
   public SelectItem[] getTypes ()
   {
-    SelectItem[] items = new SelectItem[TourneyType.values().length];
+    SelectItem[] items = new SelectItem[Tournament.TYPE.values().length];
     int i = 0;
-    for (TourneyType t: TourneyType.values()) {
+    for (Tournament.TYPE t: Tournament.TYPE.values()) {
       items[i++] = new SelectItem(t, t.name());
     }
     return items;
@@ -114,106 +112,125 @@ public class ActionTournament
     int[] gtypes = {size1, size2, size3};
     int[] mxs = {numberSize1, numberSize2, numberSize3};
 
-    if (type == TourneyType.SINGLE_GAME) {
-      log("[INFO] Multigame tournament selected");
+    if (type == Tournament.TYPE.SINGLE_GAME) {
+      return createSingleGameTournament(newTourney, allLocations, gtypes, mxs);
+    }
+    else if (type == Tournament.TYPE.MULTI_GAME) {
+      return createMultiGameTournament(newTourney, allLocations, gtypes, mxs);
+    }
 
-      Database db = new Database();
-      try {
-        // Starts new transaction to prevent race conditions
-        db.startTrans();
-        log("[INFO] Starting transaction");
+    return "Success??";
+  }
 
-        // Adds new tournament to the database
-        int tourneyId = db.addTournament(getTournamentName(), true, size1,
-            startTime, "SINGLE_GAME", selectedPom, allLocations,
-            maxBrokers, gtypes, mxs);
-        log("[INFO] Adding new tourney {0}", tourneyId);
+  private String createSingleGameTournament(Tournament newTourney,
+                                            String allLocations,
+                                            int[] gtypes, int[] mxs)
+  {
+    log("[INFO] Multigame tournament selected");
 
-        // Adds a new game to the database
-        int gameId = db.addGame(
-            newTourney.getTournamentName(), tourneyId, size1, startTime);
+    Database db = new Database();
+    try {
+      // Starts new transaction to prevent race conditions
+      db.startTrans();
+      log("[INFO] Starting transaction");
+
+      // Adds new tournament to the database
+      int tourneyId = db.addTournament(getTournamentName(), true, size1,
+          startTime, Tournament.TYPE.SINGLE_GAME.toString(), selectedPom,
+          allLocations, maxBrokers, gtypes, mxs);
+      log("[INFO] Adding new tourney {0}", tourneyId);
+
+      // Adds a new game to the database
+      int gameId = db.addGame(
+          newTourney.getTournamentName(), tourneyId, size1, startTime);
+      log("[INFO] Adding game {0}", gameId);
+
+      // Create game properties
+      log("[INFO] Creating game: {0} properties", gameId);
+      CreateProperties.genProperties(gameId, db, locations, fromTime, toTime);
+
+      db.commitTrans();
+      log("[INFO] Committing transaction");
+    }
+    catch (SQLException sqle) {
+      db.abortTrans();
+      sqle.printStackTrace();
+      log("[ERROR] Scheduling exception (single game tournament) !");
+      return "Error";
+    }
+
+    return "Success";
+  }
+
+  private String createMultiGameTournament(Tournament newTourney,
+                                           String allLocations,
+                                           int[] gtypes, int[] mxs)
+  {
+
+    log("[INFO] Multigame tournament selected");
+
+    truncateScheduler();
+
+    Database db = new Database();
+    try {
+      // Starts new transaction to prevent race conditions
+      db.startTrans();
+      log("[INFO] Starting transaction");
+
+      int noofagents = maxBrokers;
+      int noofcopies = maxBrokerInstances;
+      int noofservers = db.getMachines().size();
+
+      log("[INFO] Starting MainScheduler..");
+      log("[INFO] Params -- Servers: {0} Agents: {1} Copies: {2} games=[ {3}:"
+          + " {4}, {5}: {6}, {7}: {8} ]",
+          new Object[] {noofservers, noofagents, noofcopies, size1,
+              numberSize1, size2, numberSize2, size3, numberSize3});
+
+      MainScheduler gamescheduler = new MainScheduler(noofagents, noofservers);
+      gamescheduler.initServerPanel(noofservers);
+      gamescheduler.initializeAgentsDB(noofagents, noofcopies);
+      gamescheduler.initGameCube(gtypes, mxs);
+
+      int numberOfGames = gamescheduler.getGamesEstimate();
+
+      log("[INFO] No. of games: {0}", numberOfGames);
+      gamescheduler.resetCube();
+
+      // Adds new tournament to the database
+      int tourneyId = db.addTournament(tournamentName, true, numberOfGames,
+          startTime, Tournament.TYPE.MULTI_GAME.toString(), selectedPom,
+          allLocations, maxBrokers, gtypes, mxs);
+      log("[INFO] Adding new tourney {0}", tourneyId);
+
+      // Adds new games to the database
+      for (int i=0; i<numberOfGames; i++) {
+        int gameId = db.addGame(tournamentName + "_" + i,
+            tourneyId, getMaxBrokers(), startTime);
         log("[INFO] Adding game {0}", gameId);
 
-        // Create game properties
-        log("[INFO] Creating game: {0} properties", gameId);
         CreateProperties.genProperties(gameId, db, locations, fromTime, toTime);
+        log("[INFO] Creating game: {0} properties", gameId);
+      }
 
-        db.commitTrans();
-        log("[INFO] Committing transaction");
-      }
-      catch (SQLException sqle) {
-        db.abortTrans();
-        sqle.printStackTrace();
-      }
+      db.commitTrans();
+      log("[INFO] Committing transaction");
+
+      String msg = "Number of games in tournament: " + numberOfGames;
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+      FacesContext.getCurrentInstance().addMessage("Tournament", fm);
     }
-    else if (type == TourneyType.MULTI_GAME) {
-      log("[INFO] Multigame tournament selected");
-
-      truncateScheduler();
-
-      Database db = new Database();
-      try {
-        // Starts new transaction to prevent race conditions
-        db.startTrans();
-        log("[INFO] Starting transaction");
-
-        int noofagents = maxBrokers;
-        int noofcopies = maxBrokerInstances;
-        int noofservers = db.getMachines().size();
-
-        log("[INFO] Starting MainScheduler..");
-        log("[INFO] Params -- Servers: {0} Agents: {1} Copies: {2} games={ {3}:"
-            + " {4}, {5}: {6}, {7}: {8} }",
-            new Object[] {noofservers, noofagents, noofcopies, size1,
-                          numberSize1, size2, numberSize2, size3, numberSize3});
-
-        MainScheduler gamescheduler = new MainScheduler(noofagents, noofservers);
-        gamescheduler.initServerPanel(noofservers);
-        gamescheduler.initializeAgentsDB(noofagents, noofcopies);
-        gamescheduler.initGameCube(gtypes, mxs);
-        
-        int numberOfGames = gamescheduler.getGamesEstimate();
-       
-        log("[INFO] No. of games: {0}", numberOfGames);
-        gamescheduler.resetCube();
-
-        // Adds new tournament to the database
-        int tourneyId = db.addTournament(tournamentName, true, numberOfGames,
-            startTime, "MULTI_GAME", selectedPom, allLocations,
-            maxBrokers, gtypes, mxs);
-        log("[INFO] Adding new tourney {0}", tourneyId);
-
-        // Adds new games to the database
-        for (int i=0; i<numberOfGames; i++) {
-          int gameId = db.addGame(tournamentName + "_" + i,
-              tourneyId, getMaxBrokers(), startTime);
-          log("[INFO] Adding game {0}", gameId);
-
-          CreateProperties.genProperties(gameId, db, locations, fromTime, toTime);
-          log("[INFO] Creating game: {0} properties", gameId);
-        }
-
-        db.commitTrans();
-        log("[INFO] Committing transaction");
-
-        String msg = "Number of games in tournament: " + numberOfGames;
-        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-        FacesContext.getCurrentInstance().addMessage("Tournament", fm);
-      }
-      catch (SQLException sqle) {
-        db.abortTrans();
-        sqle.printStackTrace();
-      }
-      catch (Exception e) {
-        db.abortTrans();
-        log("[ERROR] Scheduling exception!");
-        e.printStackTrace();
-      }
+    catch (SQLException sqle) {
+      db.abortTrans();
+      sqle.printStackTrace();
     }
-    else {
-      //WHat?
+    catch (Exception e) {
+      db.abortTrans();
+      log("[ERROR] Scheduling exception (multi game tournament) !");
+      e.printStackTrace();
+      return "Error";
     }
-    
+
     return "Success";
   }
 
@@ -408,12 +425,12 @@ public class ActionTournament
     this.rowCount = rowCount;
   }
 
-  public TourneyType getType ()
+  public Tournament.TYPE getType ()
   {
     return type;
   }
 
-  public void setType (TourneyType type)
+  public void setType (Tournament.TYPE type)
   {
     this.type = type;
   }

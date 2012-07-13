@@ -45,6 +45,11 @@ public class Machine
     }
   }
 
+  public boolean stateEquals(STATE state)
+  {
+    return this.status.equals(state.toString());
+  }
+
   @Column(name = "machineName", unique = false, nullable = false)
   public String getName ()
   {

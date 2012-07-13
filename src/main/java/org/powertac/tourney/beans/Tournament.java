@@ -8,7 +8,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -39,24 +38,24 @@ public class Tournament
   private int size3 = 8;
   private int numberSize3 = 4;
   
-  private String type = "SINGLE_GAME";
+  private String type = TYPE.SINGLE_GAME.toString();
 
   private int maxBrokerInstances = 2;
 
   private int pomId;
   private String pomName;
 
-  // Probably Should check name against auth token
-  // TODO Cleanup
-  private HashMap<Integer, String> registeredBrokers;
-
+  // TODO Set completed Tournaments to 'complete'. Combine with Hibernate?
   public static enum STATE {
     pending, in_progress, complete
   }
 
+  public static enum TYPE {
+    SINGLE_GAME, MULTI_GAME
+  }
+
   public Tournament ()
   {
-    registeredBrokers = new HashMap<Integer, String>();
   }
 
   public Tournament (ResultSet rsTs)
@@ -128,13 +127,23 @@ public class Tournament
     return Utils.dateFormatUTC(startTime);
   }
 
-  // TODO Still needed ??
+  // TODO Cleanup. Still needed ??
   /*
+  // Probably Should check name against auth token
+  private HashMap<Integer, String> registeredBrokers;
+
   public boolean isRegistered (String authToken)
   {
     return registeredBrokers.containsValue(authToken);
   }
+
+  // This goes into the default constructor
+  registeredBrokers = new HashMap<Integer, String>();
   */
+
+  public boolean typeEquals(TYPE type) {
+    return this.type.equals(type.toString());
+  }
 
   //<editor-fold desc="Getters and setters">
   @Column(name = "pomName", unique = false, nullable = false)

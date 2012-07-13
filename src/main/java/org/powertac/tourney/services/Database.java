@@ -391,11 +391,11 @@ public class Database
     return ts;
   }
 
-  public Tournament getTournamentByType (String type) throws SQLException
+  public Tournament getTournamentByType (Tournament.TYPE type) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(
         Constants.SELECT_TOURNAMENT_BYTYPE);
-    ps.setString(1, type);
+    ps.setString(1, type.toString());
 
     Tournament ts = null;
     ResultSet rs = ps.executeQuery();
@@ -1053,7 +1053,7 @@ public class Database
 
     if ((result != null) &&
         (result.isAvailable()) &&
-        (result.getStatus().equals(Machine.STATE.idle.toString()))) {
+        (result.stateEquals(Machine.STATE.idle))) {
       setMachineStatus(result.getMachineId(), Machine.STATE.running);
       return result;
     }

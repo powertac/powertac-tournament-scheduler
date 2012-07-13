@@ -5,6 +5,7 @@ import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.beans.User;
 import org.powertac.tourney.services.Database;
+import org.powertac.tourney.services.TournamentProperties;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -45,11 +46,11 @@ public class ActionAccount
     User user =
       (User) FacesContext.getCurrentInstance().getExternalContext()
               .getSessionMap().get(User.getKey());
-    if(getNewBrokerName().equalsIgnoreCase("") || getNewBrokerShortDescription().equalsIgnoreCase("")){
-      FacesContext.getCurrentInstance()
-      .addMessage("accountForm",
-                  new FacesMessage(FacesMessage.SEVERITY_INFO,
-                                   "Broker requires a Name and an AuthToken", null));
+    if (getNewBrokerName().equalsIgnoreCase("")
+          || getNewBrokerShortDescription().equalsIgnoreCase("")) {
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,
+            "Broker requires a Name and an AuthToken", null);
+      FacesContext.getCurrentInstance().addMessage("accountForm", fm);
       return "Account";
     }
     
@@ -153,9 +154,15 @@ public class ActionAccount
 
     for (Tournament t: allTournaments) {
       try {
+        TournamentProperties properties = new TournamentProperties();
+        long loginDeadline = Integer.parseInt(
+            properties.getProperty("loginDeadline", "3600000"));
+        long startStamp = t.getStartTime().getTime();
+        long nowStamp = new Date().getTime();
+
         if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())
             && t.getNumberRegistered() < t.getMaxBrokers()
-            && t.getStartTime().after(new Date())) {
+            && (startStamp-nowStamp) > loginDeadline ) {
           availableTourneys.add(t);
         }
       }
@@ -193,7 +200,7 @@ public class ActionAccount
             db.registerBroker(t.getTournamentId(), b.getBrokerId());
 
             // Only do this for single game, otherwise the scheduler handles multigame tourneys
-            if (t.getType().equalsIgnoreCase("SINGLE_GAME")) {
+            if (t.typeEquals(Tournament.TYPE.SINGLE_GAME)) {
               for (Game g: t.getGames()) {
                 if (g.getNumBrokersRegistered() < g.getMaxBrokers()) {
                   g.addBroker(b.getBrokerId());

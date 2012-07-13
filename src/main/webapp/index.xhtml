@@ -83,7 +83,7 @@
 						</f:facet>
               <h:outputText value="Not available" rendered="#{g.visualizerUrl == ''}"/>
               <h:panelGroup rendered="#{g.visualizerUrl != ''}" >
-                <a href="#{g.visualizerUrl}">Visualizer</a>
+                <a href="http://#{g.visualizerUrl}">Visualizer</a>
               </h:panelGroup>
 					</t:column>
 				</t:dataTable>
@@ -122,7 +122,7 @@
 						<f:facet name="header">
 							<h:outputText value="Logs" />
 						</f:facet>
-              <a href="download?game=#{g.gameId}">Logs</a>
+              <a href="#{actionIndex.getLogUrl(g)}">Logs</a>
     				</t:column>
 				</t:dataTable>
 			</h:form>

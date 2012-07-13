@@ -1,9 +1,12 @@
 package org.powertac.tourney.beans;
 
 import org.powertac.tourney.services.Database;
+import org.powertac.tourney.services.SpringApplicationContext;
+import org.powertac.tourney.services.TournamentProperties;
 import org.powertac.tourney.services.Utils;
 
 import javax.persistence.*;
+import java.io.File;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -135,9 +138,117 @@ public class Game implements Serializable
     return result;
   }
 
+  // TODO Make this an object method, combine with Hibernate
+  // TODO Add status machine for Game
+  public static String handleStatus(String status, int gameId)
+  {
+    log("[INFO] Recieved {0} message from game: {1}", status, gameId);
+
+    STATE state;
+    try {
+      state = STATE.valueOf(status);
+    }
+    catch (Exception e) {
+      return "error";
+    }
+
+    Scheduler scheduler = (Scheduler) SpringApplicationContext.getBean("scheduler");
+    Database db = new Database();
+
+    try {
+      db.startTrans();
+      Game g = db.getGame(gameId);
+
+      db.updateGameStatusById(gameId, state);
+      log("[INFO] Update game: {0} to {1}", gameId, status);
+
+      switch (state) {
+        case boot_in_progress:
+          // Remove bootfile, it shouldn't exist anyway
+          g.removeBootFile();
+          break;
+
+        case boot_complete:
+          db.updateGameBootstrapById(gameId, true);
+          log("[INFO] Update game: {0} to hasBootstrap", gameId);
+
+          db.updateGameFreeMachine(gameId);
+          log("[INFO] Freeing Machines for game: {0}", gameId);
+          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
+          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+          Scheduler.bootRunning = false;
+          break;
+
+        case boot_failed:
+          log("[WARN] BOOT {0} FAILED!", gameId);
+
+          db.updateGameFreeMachine(gameId);
+          log("[INFO] Freeing Machines for game: {0}", gameId);
+          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
+          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+          Scheduler.bootRunning = false;
+          break;
+
+        case game_complete:
+          db.updateGameFreeBrokers(gameId);
+          log("[INFO] Freeing Brokers for game: {0}", gameId);
+          db.updateGameFreeMachine(gameId);
+          log("[INFO] Freeing Machines for game: {0}", gameId);
+          scheduler.resetServer(g.getMachineId());
+          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
+          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+          break;
+
+        case game_failed:
+          log("[WARN] GAME {0} FAILED!", gameId);
+
+          db.updateGameFreeBrokers(gameId);
+          log("[INFO] Freeing Brokers for game: {0}", gameId);
+          db.updateGameFreeMachine(gameId);
+          log("[INFO] Freeing Machines for game: {0}", gameId);
+          scheduler.resetServer(g.getMachineId());
+          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
+          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+          break;
+      }
+
+      db.commitTrans();
+    }
+    catch (Exception e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+    return "success";
+  }
+
+  private void removeBootFile()
+  {
+    TournamentProperties properties = new TournamentProperties();
+    String bootLocation = properties.getProperty("bootLocation") +
+        gameId + "-boot.xml";
+    File f = new File(bootLocation);
+
+    if (!f.exists()) {
+      return;
+    }
+
+    if (!f.canWrite()) {
+      log("[Error] Write protected: {0}", bootLocation);
+    }
+
+    if (!f.delete()) {
+      log("[Error] Failed to delete : {0}", bootLocation);
+    }
+  }
+
   public String toUTCStartTime ()
   {
     return Utils.dateFormatUTC(startTime);
+  }
+
+  public boolean stateEquals(STATE state)
+  {
+    return this.status.equals(state.toString());
   }
 
 
