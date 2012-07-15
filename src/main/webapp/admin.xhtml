@@ -174,7 +174,7 @@
           </t:column>
           <t:column sortable="true">
             <f:facet name="header">
-              <h:outputText value="Machine URL" />
+              <h:outputText value="Machine Hostname" />
             </f:facet>
             <h:outputText value="#{m.url}" />
           </t:column>
@@ -185,12 +185,6 @@
             <a href="http://#{m.vizUrl}">
               <h:outputText value="#{m.vizUrl}" />
             </a>
-          </t:column>
-          <t:column sortable="true">
-            <f:facet name="header">
-              <h:outputText value="Vizualizer Queue" />
-            </f:facet>
-            <h:outputText value="#{m.vizQueue}" />
           </t:column>
 
           <t:column sortable="true">
@@ -264,8 +258,6 @@
               <h:outputText value="Visualizer Url:" />
               <h:inputText value="#{actionAdmin.newViz}" />
 
-              <h:outputText value="Visualizer Queue:" />
-              <h:inputText value="#{actionAdmin.newQueue}" />
           </h:panelGrid>
           <h:commandButton value="Save" action="#{actionAdmin.saveMachine()}" />
           <h:inputHidden id="machineId" value="#{actionAdmin.machineId}"/>

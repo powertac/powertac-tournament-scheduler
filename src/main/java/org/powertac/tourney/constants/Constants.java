@@ -327,7 +327,7 @@ public class Constants
         + "ON brokers.brokerId = ingame.brokerId WHERE gameId=?";
 
   public static final String UDATE_BROKER_INGAME =
-          "UPDATE ingame SET brokerInGame = ? WHERE gameId=? and brokerAuth=?";
+          "UPDATE ingame SET brokerInGame = ? WHERE gameId=? and brokerId=?";
 
   /***
    * Get brokers in a tournament
@@ -487,8 +487,8 @@ public class Constants
    *          : The gameId that this property file belongs to
    */
   public static final String ADD_PROPERTIES =
-    "INSERT INTO properties (jmsUrl,vizQueue,location,startTime,gameId) "
-        + "VALUES ('','',?,?,?);";
+    "INSERT INTO properties (jmsUrl,location,startTime,gameId) "
+        + "VALUES ('',?,?,?);";
 
   /***
    * Update the properties with jmsUrl for sims, this is done as soon as you
@@ -496,13 +496,13 @@ public class Constants
    * 
    * @param jmsUrl
    *          : The url of the jms connection
-   * @param vizQueue
+   * @param vizQueue (not used)
    *          : The name of the visualizer queue
    * @param gameId
    *          : The game id of the game you wish to change
    */
   public static final String UPDATE_PROPETIES =
-    "UPDATE properties SET jmsUrl=?, vizQueue=? WHERE gameId=?;";
+    "UPDATE properties SET jmsUrl=? WHERE gameId=?;";
 
   /***
    * Add pom names and locations
@@ -583,7 +583,7 @@ public class Constants
    */
   public static final String ADD_MACHINE =
     "INSERT INTO machines (machineName, machineUrl, visualizerUrl, "+
-    "visualizerQueue, status, available) VALUES (?,?,?,?,'" +
+    "status, available) VALUES (?,?,?,'" +
     Machine.STATE.idle + "',false);";
 
   /***
@@ -595,14 +595,12 @@ public class Constants
    *          : The fully qualified name of the machine like "tac04.cs.umn.edu"
    * @param visualizerUrl
    *          : The shorthand name of the machine to be displayed to the users
-   * @param visualizerQueue
-   *          : The shorthand name of the machine to be displayed to the users
    * @param machineId
    *          : the machines id in the DB
    */
   public static final String EDIT_MACHINE =
     "UPDATE machines SET machineName=?, machineUrl=?, visualizerUrl=?, "
-        + "visualizerQueue=? WHERE machineId=?;";
+        + "WHERE machineId=?;";
   
   /***
    * Remove a machine from the database by id
@@ -628,8 +626,7 @@ public class Constants
    * Return the machineId of the first free machine
    */
   public static final String FIRST_FREE_MACHINE =
-      "SELECT * FROM machines WHERE status='" + Machine.STATE.idle
-          + "' and available=1 ORDER BY machineId LIMIT 1;";
+      "SELECT * FROM machines WHERE status='idle' and available=1 ORDER BY machineId LIMIT 1;";
 
   /***
    * Get the games scheduled for a particular agentType

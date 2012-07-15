@@ -21,12 +21,13 @@ public class Rest
 
   public String parseBrokerLogin (Map<String, String[]> params)
   {
+    System.out.println("Broker login request");
     String responseType = params.get(Constants.Rest.REQ_PARAM_TYPE)[0];
     String brokerAuthToken = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
     String competitionName = params.get(Constants.Rest.REQ_PARAM_JOIN)[0];
 
     String retryResponse = "{\n \"retry\":%d\n}";
-    String loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"gameToken\":%s\n}";
+    String loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"queueName\":%s\n \"serverQueue\":%s\n}";
     String doneResponse = "{\n \"done\":\"true\"\n}";;
     if (responseType.equalsIgnoreCase("xml")) {
       String head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>";
@@ -107,7 +108,7 @@ public class Rest
         if (competitionExists) {
           log("[INFO] Broker: {0} attempted to log into existing tournament"
               + ": {1} --sending retry", brokerAuthToken, competitionName);
-          return String.format(retryResponse, 20);
+          return String.format(retryResponse, 60);
         }
         else {
           log("[INFO] Broker: {0} attempted to log into non-existing tournament"
@@ -156,6 +157,11 @@ public class Rest
    */
   public String parseProperties (Map<String, String[]> params)
   {
+    StringBuffer sb = new StringBuffer();
+    for (String key : params.keySet()) {
+      sb.append(key).append(":").append(params.get(key)).append(",");
+    }
+    System.out.println("parseProperties [" + sb.toString() + "]");
     String gameId = "0";
     try {
       gameId = params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0];
@@ -181,9 +187,9 @@ public class Rest
     String weatherLocation = "server.weatherService.weatherLocation = ";
     String startTime = "common.competition.simulationBaseTime = ";
     String jms = "server.jmsManagementService.jmsBrokerUrl = ";
-    String remote = "server.visualizerProxyService.remoteVisualizer = ";
-    String queueName = "server.visualizerProxyService.visualizerQueueName = ";
-    String minTimeslot = "common.competition.minimumTimeslotCount = 1320";
+    String remote = "server.visualizerProxyService.remoteVisualizer = true";
+    //String queueName = "server.visualizerProxyService.visualizerQueueName = ";
+    String minTimeslot = "common.competition.minimumTimeslotCount = 1380";
     String expectedTimeslot = "common.competition.expectedTimeslotCount = 1440";
     String serverFirstTimeout =
       "server.competitionControlService.firstLoginTimeout = 600000";
@@ -197,27 +203,27 @@ public class Rest
     }
 
     String result = "";
-    if (props.size() == 4) {
+    // JEC - replaced a HORRIBLE magic number.
+    if (props.size() > 0) {
       result += weatherLocation + props.get(0) + "\n";
+    }
+    if (props.size() > 1) {
       result += startTime + props.get(1) + "\n";
+    }
+    if (props.size() > 2) {
       if (props.get(2).isEmpty()) {
     	  result += jms + "tcp://localhost:61616" + "\n";
       }
       else {
     	  result += jms + props.get(2) + "\n";
       }
-      result += serverFirstTimeout + "\n";
-      result += serverTimeout + "\n";
-      if (props.get(2).length() > 2) {
-        result += remote + "true\n";
-      }
-      else {
-        result += remote + "\n";
-      }
-      result += minTimeslot + "\n";
-      result += expectedTimeslot + "\n";
-      result += queueName + props.get(3) + "\n";
     }
+    result += serverFirstTimeout + "\n";
+    result += serverTimeout + "\n";
+    result += remote + "\n";
+    result += minTimeslot + "\n";
+    result += expectedTimeslot + "\n";
+    System.out.println("Props for game " + g.getGameId() + ":\n" + result);
 
     return result;
   }

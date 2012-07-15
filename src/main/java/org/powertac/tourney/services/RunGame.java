@@ -125,10 +125,10 @@ public class RunGame implements Runnable
           return false;
         }
 
-        brokers = "";
-        for (Broker b: brokerList) {
-          brokers += b.getBrokerName() + ",";
-        }
+//        brokers = "";
+//        for (Broker b: brokerList) {
+//          brokers += b.getBrokerName() + ",";
+//        }
         brokers = brokers.substring(0, brokers.length()-1);
       }
 
@@ -176,7 +176,7 @@ public class RunGame implements Runnable
       String jmsUrl = "tcp://" + machine.getUrl() + ":61616";
       // JEC - most of this should be done through a Game instance
       db.updateGameJmsUrlById(gId, jmsUrl);
-      db.updateProperties(gId, jmsUrl, machine.getVizQueue());
+      db.updateProperties(gId, jmsUrl);
       db.updateGameMachine(gId, machine.getMachineId());
       db.updateGameViz(gId, machine.getVizUrl());
       db.setMachineStatus(machine.getMachineId(), Machine.STATE.running);

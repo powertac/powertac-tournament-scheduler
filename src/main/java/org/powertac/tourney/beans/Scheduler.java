@@ -355,6 +355,7 @@ public class Scheduler
                 .item(0).getChildNodes().item(0).getNodeValue();
 
             // We don't the status of the master
+            log("[DEBUG] checking machine " + displayName);
             if (displayName.equals("master")) {
               continue;
             }

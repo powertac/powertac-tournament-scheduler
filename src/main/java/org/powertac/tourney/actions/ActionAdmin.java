@@ -283,7 +283,7 @@ public class ActionAdmin
     newName = m.getName();
     newUrl = m.getUrl();
     newViz = m.getVizUrl();
-    newQueue = m.getVizQueue();
+    //newQueue = m.getVizQueue();
   }
   
   public void saveMachine()
@@ -291,7 +291,7 @@ public class ActionAdmin
     newUrl = newUrl.replace("https://", "").replace("http://", "");
     newViz = newViz.replace("https://", "").replace("http://", "");
 
-    if (newName.isEmpty() || newUrl.isEmpty() || newViz.isEmpty() || newQueue.isEmpty()) {
+    if (newName.isEmpty() || newUrl.isEmpty() || newViz.isEmpty()) {
       log("Some machine fields are empty!");
       message = "Error : machine not saved, some fields were empty!";
   	  return;
@@ -306,7 +306,7 @@ public class ActionAdmin
     Database db = new Database();
     try {
       db.startTrans();
-      db.editMachine(newName, newUrl, newViz, newQueue, machineId);
+      db.editMachine(newName, newUrl, newViz, machineId);
       db.commitTrans();
       resetMachineData();
     }
@@ -337,7 +337,7 @@ public class ActionAdmin
     Database db = new Database();
     try {
       db.startTrans();
-      db.addMachine(newName, newUrl, newViz, newQueue);
+      db.addMachine(newName, newUrl, newViz);
       db.commitTrans();
       
       resetMachineData();

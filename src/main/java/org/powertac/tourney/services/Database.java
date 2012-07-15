@@ -229,7 +229,7 @@ public class Database
       props.add(rs.getString("location"));
       props.add(rs.getString("startTime"));
       props.add(rs.getString("jmsUrl"));
-      props.add(rs.getString("vizQueue"));
+      //props.add(rs.getString("vizQueue"));
     }
 
     rs.close();
@@ -254,13 +254,13 @@ public class Database
     return result;
   }
 
-  public int updateProperties (int gameId, String jmsUrl, String vizQueue)
+  public int updateProperties (int gameId, String jmsUrl)
     throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_PROPETIES);
 
-    ps.setInt(3, gameId);
-    ps.setString(2, vizQueue);
+    ps.setInt(2, gameId);
+    //ps.setString(2, vizQueue);
     ps.setString(1, jmsUrl);
 
     int result = ps.executeUpdate();
@@ -364,6 +364,7 @@ public class Database
     List<Tournament> ts = new ArrayList<Tournament>();
     ResultSet rs = ps.executeQuery();
     while (rs.next()) {
+      System.out.println("getTournaments: adding tourney " + rs.getInt("tourneyId"));
       ts.add(new Tournament(rs));
     }
     
@@ -757,8 +758,8 @@ public class Database
             conn.prepareStatement(Constants.UDATE_BROKER_INGAME);
     ps.setBoolean(1, broker.getBrokerInGame());
     ps.setInt(2, gameId);
-    ps.setString(3, broker.getBrokerAuthToken());
-    ps.executeQuery();
+    ps.setInt(3, broker.getBrokerId());
+    ps.executeUpdate();
     ps.close();
   }
 
@@ -985,14 +986,14 @@ public class Database
   }
 
   public int addMachine (String machineName, String machineUrl,
-                         String visualizerUrl, String visualizerQueue)
+                         String visualizerUrl)
     throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.ADD_MACHINE);
     ps.setString(1, machineName);
     ps.setString(2, machineUrl);
     ps.setString(3, visualizerUrl);
-    ps.setString(4, visualizerQueue);
+    //ps.setString(4, visualizerQueue);
 
     int result = ps.executeUpdate();
 
@@ -1002,7 +1003,7 @@ public class Database
   }
 
   public int editMachine (String machineName, String machineUrl,
-          				        String visualizerUrl, String visualizerQueue,
+          				        String visualizerUrl,
           				        int machineId)
     throws SQLException
   {
@@ -1010,8 +1011,8 @@ public class Database
     ps.setString(1, machineName);
     ps.setString(2, machineUrl);
     ps.setString(3, visualizerUrl);
-    ps.setString(4, visualizerQueue);
-    ps.setString(5, String.valueOf(machineId));
+    //ps.setString(4, visualizerQueue);
+    ps.setString(4, String.valueOf(machineId));
 
     int result = ps.executeUpdate();
 
@@ -1039,8 +1040,12 @@ public class Database
     Machine result = null;
     ResultSet rs = ps.executeQuery();
     if (rs.next()) {
+      System.out.println("Claiming " + rs.toString());
       result = new Machine(rs);
       setMachineStatus(result.getMachineId(), Machine.STATE.running);
+    }
+    else {
+      System.out.println("No free machines found.");
     }
 
     rs.close();

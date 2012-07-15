@@ -165,6 +165,12 @@ public class ActionAccount
             && (startStamp-nowStamp) > loginDeadline ) {
           availableTourneys.add(t);
         }
+        else if (t.getNumberRegistered() >= t.getMaxBrokers()) {
+          System.out.println("Cannot register for " + t.getTournamentName() + ": maxBrokers");
+        }
+        else if ((startStamp-nowStamp) <= loginDeadline ) {
+          System.out.println("Cannot register for " + t.getTournamentName() + ": too late");
+        }
       }
       catch (SQLException e) {
         db.abortTrans();

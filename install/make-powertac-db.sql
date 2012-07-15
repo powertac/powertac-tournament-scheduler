@@ -105,7 +105,7 @@ CREATE TABLE `tourney`.`properties` (
 	`location` VARCHAR(256) NOT NULL,
 	`startTime` VARCHAR(256) NOT NULL,
 	`jmsUrl` VARCHAR(256) NOT NULL,
-	`vizQueue` VARCHAR(256) NOT NULL,
+	/* `vizQueue` VARCHAR(256) NOT NULL, */
 	PRIMARY KEY (`propId`)
 ) ENGINE=InnoDB;
 

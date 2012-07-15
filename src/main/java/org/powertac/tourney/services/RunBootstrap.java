@@ -35,9 +35,11 @@ public class RunBootstrap implements Runnable
 
       Machine freeMachine;
       if (machineName.isEmpty()) {
+        System.out.println("Claiming free machine");
         freeMachine = db.claimFreeMachine();
       }
       else {
+        System.out.println("Claiming machine " + machineName);
         freeMachine = db.claimFreeMachine(machineName);
       }
 
