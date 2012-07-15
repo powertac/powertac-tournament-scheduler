@@ -87,10 +87,11 @@ public class Rest
               else {
                 broker.setBrokerInGame(true);
                 db.updateBrokerInGame(g.getGameId(), broker);
-                return String.format(loginResponse,
-                                     g.getJmsUrl(),
-                                     broker.getQueueName(),
-                                     g.getServerQueue());
+                String result =String.format(loginResponse,
+                                             g.getJmsUrl(),
+                                             broker.getQueueName(),
+                                             g.getServerQueue()); 
+                return result;
               }
             }
           }

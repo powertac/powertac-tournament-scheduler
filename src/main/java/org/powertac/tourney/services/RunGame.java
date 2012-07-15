@@ -19,30 +19,30 @@ public class RunGame implements Runnable
   private boolean running = false;
   private boolean tourney = false;
 
-  private Game game;
   private String logSuffix = "sim";
   private String pomId = "";
-  private String gameId = "";
+  private int gameId;
   private String brokers = "";
   private String machineName = "";
+  private Database db;
 
   private TournamentProperties properties = new TournamentProperties();
 
-  public RunGame (Game game, int pomId)
+  public RunGame (int gameId, int pomId)
   {
-    this.game = game;
-    this.gameId = String.valueOf(game.getGameId());
+    this.gameId = gameId;
     this.pomId = String.valueOf(pomId);
     running = false;
+    db = new Database();
   }
 
-  public RunGame (Game game, int pomId, Machine machine, String brokers)
+  public RunGame (int gameId, int pomId, Machine machine, String brokers)
   {
-    this.game = game;
-    this.gameId = String.valueOf(game.getGameId());
+    this.gameId = gameId;
     this.pomId = String.valueOf(pomId);
     this.brokers = brokers;
     this.machine = machine;
+    db = new Database();
 
     running = false;
     tourney = true;
@@ -55,11 +55,10 @@ public class RunGame implements Runnable
   {
     if (!tourney) {
       if (!running) {
-        Database db = new Database();
 
         try {
           db.startTrans();
-          if (db.isGameReady(Integer.parseInt(gameId))) {
+          if (db.isGameReady(gameId)) {
             db.commitTrans();
             return true;
           }
@@ -75,7 +74,7 @@ public class RunGame implements Runnable
           e.printStackTrace();
         }
 
-				db.abortTrans();
+        db.abortTrans();
         return false;
       }
     }
@@ -97,8 +96,7 @@ public class RunGame implements Runnable
       return true;
     }
 
-    int gId = Integer.parseInt(gameId);
-    Database db = new Database();
+    int gId = gameId;
 
     try {
       db.startTrans();
@@ -116,19 +114,15 @@ public class RunGame implements Runnable
             numRegistered);
 
         List<Broker> brokerList = db.getBrokersInGame(gId);
-        for (Broker b: brokerList) {
-          brokers += b.getBrokerName() + "/" + b.getQueueName() +",";
-        }
+
         if (brokerList.size() < 1) {
           db.commitTrans();
           log("Game: {0} reports no brokers listed in database, ", gId);
           return false;
         }
-
-//        brokers = "";
-//        for (Broker b: brokerList) {
-//          brokers += b.getBrokerName() + ",";
-//        }
+        for (Broker b: brokerList) {
+          brokers += b.getBrokerName() + "/" + b.getQueueName() +",";
+        }
         brokers = brokers.substring(0, brokers.length()-1);
       }
 
@@ -148,8 +142,7 @@ public class RunGame implements Runnable
    */
   private boolean checkMachineAvailable ()
   {
-    int gId = Integer.parseInt(gameId);
-    Database db = new Database();
+    int gId = gameId;
 
     if ((!tourney) && (running)) {
       return false;
@@ -193,9 +186,8 @@ public class RunGame implements Runnable
   }
 
   private void setGameState(Game.STATE state) {
-    Database db = new Database();
     try {
-      int gId = Integer.parseInt(gameId);
+      int gId = gameId;
       db.startTrans();
       db.updateGameStatusById(gId, state);
       db.commitTrans();
@@ -228,6 +220,18 @@ public class RunGame implements Runnable
       log("[INFO] No machines available to run scheduled game: {0}... will retry"
           + " in {1} seconds", gameId, Integer.parseInt(
           properties.getProperty("scheduler.watchDogInterval")) / 1000);
+      return;
+    }
+    
+    Game game;
+    try {
+      db.startTrans();
+      game = db.getGame(gameId);
+      db.commitTrans();
+    }
+    catch (SQLException e1) {
+      db.abortTrans();
+      e1.printStackTrace();
       return;
     }
 

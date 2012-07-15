@@ -169,8 +169,8 @@ log &quot;pomUrl        : $pomUrl&quot;
 log &quot;bootName      : $bootName&quot;
 log &quot;simName       : $simName&quot;
 
-log nl &quot;These are the game properties&quot;
-wget -O properties $propUrl
+#log nl &quot;These are the game properties&quot;
+#wget -O properties $propUrl
 COUNT=$(grep -c &apos;server.weatherService.weatherLocation&apos; properties)
 if [ $COUNT -le 0 ] ; then
     log nl &quot;Error getting game properties : $propUrl&quot;
