@@ -73,8 +73,9 @@
 					<h:inputTextarea value="#{actionAccount.newBrokerShortDescription}" />
 					<h:commandButton value="Add Broker"
 						action="#{actionAccount.addBroker}" />
+          <br/>
+          <h:message for="accountForm" />
 				</h:panelGrid>
-
 			</h:form>
 
 			<h:form rendered="#{user.permissions gt 3}">

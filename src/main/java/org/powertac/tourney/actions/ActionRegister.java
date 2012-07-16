@@ -1,13 +1,12 @@
 package org.powertac.tourney.actions;
 
-import java.sql.SQLException;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-
 import org.powertac.tourney.services.Database;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import java.sql.SQLException;
 
 
 @Component("actionRegister")
@@ -29,12 +28,10 @@ public class ActionRegister
       db.startTrans();
       if (password1.equals(password2)) {
         db.addUser(this.getUsername(), this.getPassword1());
-
         db.commitTrans();
         return "Success";
       }
       else {
-
         db.abortTrans();
         FacesContext.getCurrentInstance()
                 .addMessage("registerForm",
@@ -42,17 +39,15 @@ public class ActionRegister
                                              "Passwords do not match", null));
         return "Failure";
       }
-
     }
     catch (SQLException e) {
       db.abortTrans();
-      
       e.printStackTrace();
       return "Failure";
     }
-
   }
 
+  //<editor-fold desc="Setters and Getters">
   public String getName ()
   {
     return name;
@@ -122,5 +117,5 @@ public class ActionRegister
   {
     this.phone = phone;
   }
-
+  //</editor-fold>
 }

@@ -126,7 +126,7 @@ public class ActionTournament
                                             String allLocations,
                                             int[] gtypes, int[] mxs)
   {
-    log("[INFO] Multigame tournament selected");
+    log("[INFO] Singlegame tournament selected");
 
     Database db = new Database();
     try {
@@ -166,7 +166,6 @@ public class ActionTournament
                                            String allLocations,
                                            int[] gtypes, int[] mxs)
   {
-
     log("[INFO] Multigame tournament selected");
 
     truncateScheduler();
@@ -218,7 +217,7 @@ public class ActionTournament
 
       String msg = "Number of games in tournament: " + numberOfGames;
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("Tournament", fm);
+      FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
     }
     catch (SQLException sqle) {
       db.abortTrans();

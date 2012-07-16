@@ -14,14 +14,11 @@
 
 			<h2>Register for an Account</h2>
 			<h:form>
-
 				<h:panelGrid columns="2">
-
 					<h:outputText value="Username of Group:" />
 					<h:panelGroup>
 						<h:inputText value="#{actionRegister.username}" />
 					</h:panelGroup>
-
 
 					<h:outputText value="Institution/Research Group:" />
 					<h:panelGroup>
@@ -56,6 +53,8 @@
 					<h:panelGroup>
 						<h:commandButton value="Submit Registration"
 							action="#{actionRegister.register}" />
+            <br/>
+            <h:message for="registerForm" />
 					</h:panelGroup>
 				</h:panelGrid>
 

@@ -9,18 +9,14 @@
 
 <h:body>
 	<ui:composition template="template.xhtml">
-
 		<ui:define name="content">
-
 			<h:form rendered="#{!user.loggedIn}">
 				<h2>Login:</h2>
 				<h:panelGrid columns="2">
-
 					<h:outputText value="Username:" />
 					<h:panelGroup>
 						<h:inputText value="#{actionLogin.username}" />
 					</h:panelGroup>
-
 
 					<h:outputText value="Password:" />
 					<h:panelGroup>
@@ -30,9 +26,10 @@
 					<h:commandLink value="Register" action="Register" />
 					<h:panelGroup>
 						<h:commandButton value="Login" action="#{actionLogin.login}" />
+            <br/>
+            <h:message for="loginForm" />
 					</h:panelGroup>
 				</h:panelGrid>
-
 			</h:form>
 
 			<h:form rendered="#{user.loggedIn}">
