@@ -96,11 +96,9 @@ public class RunGame implements Runnable
       return true;
     }
 
-    int gId = gameId;
-
     try {
       db.startTrans();
-      Game g = db.getGame(gId);
+      Game g = db.getGame(gameId);
 
       int numRegistered = db.getNumberBrokersRegistered(g.getTourneyId());
       if (numRegistered < 1) {
@@ -113,11 +111,11 @@ public class RunGame implements Runnable
         log("There are {0} brokers registered for tournament... starting sim",
             numRegistered);
 
-        List<Broker> brokerList = db.getBrokersInGame(gId);
+        List<Broker> brokerList = db.getBrokersInGame(gameId);
 
         if (brokerList.size() < 1) {
           db.commitTrans();
-          log("Game: {0} reports no brokers listed in database, ", gId);
+          log("Game: {0} reports no brokers listed in database, ", gameId);
           return false;
         }
         for (Broker b: brokerList) {
@@ -142,8 +140,6 @@ public class RunGame implements Runnable
    */
   private boolean checkMachineAvailable ()
   {
-    int gId = gameId;
-
     if ((!tourney) && (running)) {
       return false;
     }
@@ -168,10 +164,10 @@ public class RunGame implements Runnable
 
       String jmsUrl = "tcp://" + machine.getUrl() + ":61616";
       // JEC - most of this should be done through a Game instance
-      db.updateGameJmsUrlById(gId, jmsUrl);
-      db.updateProperties(gId, jmsUrl);
-      db.updateGameMachine(gId, machine.getMachineId());
-      db.updateGameViz(gId, machine.getVizUrl());
+      db.updateGameJmsUrlById(gameId, jmsUrl);
+      db.updateProperties(gameId, jmsUrl);
+      db.updateGameMachine(gameId, machine.getMachineId());
+      db.updateGameViz(gameId, machine.getVizUrl());
       db.setMachineStatus(machine.getMachineId(), Machine.STATE.running);
       db.commitTrans();
       log("Game: {0} running on machine: {1}", gameId, machineName);
@@ -187,9 +183,8 @@ public class RunGame implements Runnable
 
   private void setGameState(Game.STATE state) {
     try {
-      int gId = gameId;
       db.startTrans();
-      db.updateGameStatusById(gId, state);
+      db.updateGameStatusById(gameId, state);
       db.commitTrans();
     }
     catch (Exception e) {

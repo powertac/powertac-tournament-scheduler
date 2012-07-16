@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -60,8 +61,6 @@ public class ActionAdmin
   private UploadedFile pom;
   private String pomName;
 
-  private String message = "";
-
   public ActionAdmin ()
   {
   }
@@ -101,39 +100,33 @@ public class ActionAdmin
     return users;
   }
 
-  public String getPomName ()
-  {
-    return pomName;
-  }
-
-  public void setPomName (String pomName)
-  {
-    this.pomName = pomName;
-  }
-
-  public UploadedFile getPom ()
-  {
-    return pom;
-  }
-
-  public void setPom (UploadedFile pom)
-  {
-    this.pom = pom;
-  }
-
   public void submitPom ()
   {
-    if (pom == null) {
-      log("Pom was null");
+    try {
+      System.out.println(pom);
+      System.out.println(pom.getSize());
+      System.out.println(pom.getName());
+    } catch(Exception ignored) {}
+
+    if (pomName.isEmpty()) {
+      // Show succes message.
+      String msg = "Error: You need to fill in the pom name";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
       return;
     }
 
-    log("Pom is not null");
+    if (pom == null) {
+      String msg = "Error: You need to choose a pom file";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
+      return;
+    }
+
     User currentUser =
         (User) FacesContext.getCurrentInstance().getExternalContext()
             .getSessionMap().get(User.getKey());
 
-    TournamentProperties properties = new TournamentProperties();
     Session session = HibernateUtil.getSessionFactory().openSession();
     session.beginTransaction();
 
@@ -143,11 +136,17 @@ public class ActionAdmin
 
     session.save(p);
 
+    TournamentProperties properties = new TournamentProperties();
     upload.setUploadedFile(pom);
-    upload.setUploadLocation(properties.getProperty("pomLocation"));
-    upload.submit("pom." + p.getPomId() + ".xml");
+    upload.setUploadLocation(properties.getProperty("pomLocation", "/tmp/"));
+    boolean pomStored = upload.submit("pom." + p.getPomId() + ".xml");
 
-    session.getTransaction().commit();
+    if (pomStored) {
+      session.getTransaction().commit();
+    }
+    else {
+      session.getTransaction().rollback();
+    }
   }
 
   public List<Database.Pom> getPomList ()
@@ -292,8 +291,9 @@ public class ActionAdmin
     newViz = newViz.replace("https://", "").replace("http://", "");
 
     if (newName.isEmpty() || newUrl.isEmpty() || newViz.isEmpty()) {
-      log("Some machine fields are empty!");
-      message = "Error : machine not saved, some fields were empty!";
+      String msg = "Error: machine not saved, some fields were empty!";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
   	  return;
   	}  
 	  
@@ -313,7 +313,9 @@ public class ActionAdmin
     catch (SQLException e) {
       db.abortTrans();
       e.printStackTrace();
-      message = "Error : machine not edited " + e.getMessage();
+      String msg = "Error : machine not edited " + e.getMessage();
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
     }
   }
 
@@ -328,7 +330,9 @@ public class ActionAdmin
     catch (SQLException e) {
       db.abortTrans();
       e.printStackTrace();
-      message = "Error : machine not added " + e.getMessage();
+      String msg = "Error : machine not added " + e.getMessage();
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
     }
   }
 
@@ -345,7 +349,9 @@ public class ActionAdmin
     catch (SQLException e) {
       db.abortTrans();
       e.printStackTrace();
-      message = "Error : machine not added " + e.getMessage();
+      String msg = "Error : machine not added " + e.getMessage();
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
     }
   }
 
@@ -448,6 +454,26 @@ public class ActionAdmin
   }
 
   //<editor-fold desc="Setters and Getters">
+  public String getPomName ()
+  {
+    return pomName;
+  }
+
+  public void setPomName (String pomName)
+  {
+    this.pomName = pomName.trim();
+  }
+
+  public UploadedFile getPom ()
+  {
+    return pom;
+  }
+
+  public void setPom (UploadedFile pom)
+  {
+    this.pom = pom;
+  }
+
   public int getRowCount ()
   {
     return rowCount;
@@ -573,10 +599,6 @@ public class ActionAdmin
 	  this.machineId = machineId;
   }
 
-  public String getMessage() {
-	  return message;
-  }
-  
   public String getSortColumnUsers ()
   {
     return sortColumnUsers;

@@ -26,6 +26,7 @@ The Power TAC Tournament Schedudler is a dynamic jsf web application for schedul
   Usually only db user/pass and the file locations are needed
   $cp src/main/resources/tournament.properties.template src/main/resources/tournament.properties
   $cp src/main/resources/hibernate.cfg.xml.template     src/main/resources/hibernate.cfg.xml
+  $cp src/main/resources/log4j.cfg.xml.template         src/main/resources/log4j.cfg.xml
 
 * Navigate to the tournament scheduler project and run `mvn compile tomcat7:deploy`
 

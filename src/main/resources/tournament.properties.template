@@ -20,11 +20,11 @@ weatherServerLocation = http://tac05.cs.umn.edu:8080/WeatherServer/faces/index.x
 jenkinsLocation = http://localhost:8080/jenkins
 
 # This is the directory where the uploaded POMs are stored
-pomLocation = /media/Data/Projects/powertac/files/pom/
+pomLocation = /tmp/
 # This is the directory where the boot files are stored
-bootLocation = /media/Data/Projects/powertac/files/boot/
+bootLocation = /tmp/
 # This is the directory where the game- and sim-logs are stored
-logLocation = /media/Data/Projects/powertac/files/log/
+logLocation = /tmp/
 
 # This is the url for serving the log files. The %d will be replaced with the gameId.
 # Without changing the code, this url needs to serve 'logLocation'.

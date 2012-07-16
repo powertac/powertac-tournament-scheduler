@@ -13,10 +13,6 @@
     <ui:define name="content">
       <h2>Admin</h2>
 
-      <h:panelGroup rendered="#{actionAdmin.message != ''}" >
-        <h4>#{actionAdmin.message}</h4>
-      </h:panelGroup>
-
       <h:form rendered="#{user.permissions le 0}">
         <h:panelGrid columns="3">
           <h4>WatchDog Status:</h4>
@@ -144,17 +140,18 @@
         </t:dataTable>
       </h:form>
 
-      <h:form rendered="#{user.permissions le 0}" enctype="multipart/form-data">
+      <h:form rendered="#{user.permissions le 0}" enctype="multipart/form-data" id="pomUploadForm" >
         <br/>
         <h4>Upload Pom File</h4>
         <h:outputText value="Pom Name(X.X.X): " />
         <h:inputText value="#{actionAdmin.pomName}" />
         <br/>
         <t:inputFileUpload disabled="false" value="#{actionAdmin.pom}"
-                           accept="mime-type" storage="file" required="true" />
+                           accept="mime-type" storage="file" />
         <br/>
         <h:commandButton value="Submit Pom"
                          action="#{actionAdmin.submitPom}" />
+        <h:message for="pomUploadForm" />
       </h:form>
 
       <h:form rendered="#{user.permissions le 0}">
@@ -238,7 +235,7 @@
         </t:dataTable>
       </h:form>
 
-      <h:form rendered="#{user.permissions le 0}">
+      <h:form rendered="#{user.permissions le 0}" id="saveMachine">
           <br/>
           <h:panelGrid columns="2">
               <h:panelGroup rendered="#{actionAdmin.machineId != -1}">
@@ -257,9 +254,9 @@
 
               <h:outputText value="Visualizer Url:" />
               <h:inputText value="#{actionAdmin.newViz}" />
-
           </h:panelGrid>
           <h:commandButton value="Save" action="#{actionAdmin.saveMachine()}" />
+          <h:message for="saveMachine" />
           <h:inputHidden id="machineId" value="#{actionAdmin.machineId}"/>
       </h:form>
 
