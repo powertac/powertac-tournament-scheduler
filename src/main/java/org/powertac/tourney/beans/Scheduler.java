@@ -265,8 +265,7 @@ public class Scheduler
       @Override
       public void run ()
       {
-        tournamentProperties = (TournamentProperties) SpringApplicationContext
-            .getBean("tournamentProperties");
+        tournamentProperties = TournamentProperties.getProperties();
         startWatchDog();
       }
     };

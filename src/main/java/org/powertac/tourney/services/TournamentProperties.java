@@ -17,7 +17,13 @@ package org.powertac.tourney.services;
 
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 
 import static org.powertac.tourney.services.Utils.log;
@@ -31,21 +37,22 @@ public class TournamentProperties
 {
   private Properties properties = new Properties();
   private boolean loaded = false;
+  private List<String> messages = new ArrayList<String>();
   private String resourceName = "/tournament.properties";
-  
+
   // delegate to props
   public String getProperty (String key)
   {
     loadIfNecessary();
     return properties.getProperty(key);
   }
-  
+
   public String getProperty (String key, String defaultValue)
   {
     loadIfNecessary();
     return properties.getProperty(key, defaultValue);
   }
-  
+
   // lazy loader
   private void loadIfNecessary ()
   {
@@ -53,11 +60,106 @@ public class TournamentProperties
       try {
         properties.load(TournamentProperties.class.getClassLoader()
                    .getResourceAsStream(resourceName));
+
         loaded = true;
+
+        checkProperties();
       }
       catch (IOException e) {
         log("[ERROR] Failed to load {0}" + resourceName);
       }
     }
+  }
+
+  public List<String> getConfigErrors ()
+  {
+    return messages;
+  }
+
+  /**
+   * Check if given properties are correct (file locations) and add some more
+   */
+  private void checkProperties() {
+    properties.put("tourneyUrl", getTourneyUrl());
+    properties.put("jenkinsUrl", getJenkinsUrl());
+
+    String catalinaBase = System.getProperty("catalina.base");
+    if (!catalinaBase.endsWith(File.separator)) {
+      catalinaBase += File.separator;
+    }
+
+    // Check if the filelocations exist and are writeable, else replace
+    checkFileLocation("pomLocation", catalinaBase);
+    checkFileLocation("bootLocation", catalinaBase);
+    checkFileLocation("logLocation", catalinaBase);
+  }
+
+  private static String getTourneyUrl ()
+  {
+    // TODO Get these from tournament.properties ??
+    String tourneyUrl = "http://%s:8080/TournamentScheduler/";
+    String address = "127.0.0.1";
+
+    try {
+      Enumeration<NetworkInterface> n = NetworkInterface.getNetworkInterfaces();
+      while (n.hasMoreElements()) {
+        NetworkInterface e = n.nextElement();
+        if (e.getName().startsWith("lo")) {
+          continue;
+        }
+
+        Enumeration<InetAddress> a = e.getInetAddresses();
+        while (a.hasMoreElements()) {
+          InetAddress addr = a.nextElement();
+          if (addr.getClass().getName().equals("java.net.Inet4Address")) {
+            address = addr.getHostAddress();
+          }
+        }
+      }
+    }
+    catch (Exception ignored) {}
+
+    return String.format(tourneyUrl, address);
+  }
+
+  public static String getJenkinsUrl ()
+  {
+    // TODO Get this from tournament.properties ??
+    String jenkinsUrl = "http://localhost:8080/jenkins/";
+
+    return jenkinsUrl;
+  }
+
+  /**
+   * Make sure filelocation exists, fall back to catalina dir, we know that exists
+   */
+  private void checkFileLocation(String name, String catalinaBase) {
+    String directory = properties.getProperty(name);
+
+    if (!directory.endsWith(File.separator)) {
+      directory += File.separator;
+      properties.setProperty(name, directory);
+    }
+
+    File test = new File(directory);
+    if (! test.exists()) {
+      String msg = String.format("%s '%s' doesn't exist<br/>falling back on : %s",
+          name, directory, catalinaBase);
+      log("[ERROR] {0}", msg);
+      messages.add(msg);
+      properties.setProperty(name, catalinaBase);
+    }
+    else if (! test.canWrite()) {
+      String msg = String.format("%s '%s' isn't writeable<br/>falling back on : %s",
+          name, directory, catalinaBase);
+      log("[ERROR] {0}", msg);
+      messages.add(msg);
+      properties.setProperty(name, catalinaBase);
+    }
+  }
+
+  public static TournamentProperties getProperties() {
+    return (TournamentProperties) SpringApplicationContext
+        .getBean("tournamentProperties");
   }
 }

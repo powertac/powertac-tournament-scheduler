@@ -227,7 +227,7 @@ public class Game implements Serializable
 
   private void removeBootFile()
   {
-    TournamentProperties properties = new TournamentProperties();
+    TournamentProperties properties = TournamentProperties.getProperties();
     String bootLocation = properties.getProperty("bootLocation") +
         gameId + "-boot.xml";
     File f = new File(bootLocation);

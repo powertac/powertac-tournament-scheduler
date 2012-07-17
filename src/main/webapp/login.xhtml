@@ -10,7 +10,7 @@
 <h:body>
 	<ui:composition template="template.xhtml">
 		<ui:define name="content">
-			<h:form rendered="#{!user.loggedIn}">
+			<h:form rendered="#{!user.loggedIn}" id="loginForm">
 				<h2>Login:</h2>
 				<h:panelGrid columns="2">
 					<h:outputText value="Username:" />

@@ -13,17 +13,20 @@ import static org.powertac.tourney.services.Utils.log;
 public class RunBootstrap implements Runnable
 {
   private String logSuffix = "boot-";
-  private String pomId = "";
-  private String gameId = "";
+  private int pomId;
+  private int gameId;
   private String machineName = "";
-
-  private TournamentProperties properties = new TournamentProperties();
+  private int watchDogInterval;
+  private TournamentProperties properties;
 
   public RunBootstrap (int gameId, int pomId)
   {
-    this.gameId = String.valueOf(gameId);
-    this.pomId = String.valueOf(pomId);
+    this.gameId = gameId;
+    this.pomId = pomId;
 
+    properties = TournamentProperties.getProperties();
+    watchDogInterval = Integer.parseInt(
+        properties.getProperty("scheduler.watchDogInterval")) / 1000;
     machineName = properties.getProperty("bootserverName", "");
   }
 
@@ -44,11 +47,10 @@ public class RunBootstrap implements Runnable
       }
 
       if (freeMachine != null) {
-        int gId = Integer.parseInt(gameId);
         String jmsUrl = "tcp://" + freeMachine.getUrl() + ":61616";
 
-        db.updateGameJmsUrlById(gId, jmsUrl);
-        db.updateGameMachine(gId, freeMachine.getMachineId());
+        db.updateGameJmsUrlById(gameId, jmsUrl);
+        db.updateGameMachine(gameId, freeMachine.getMachineId());
         db.commitTrans();
 
         machineName = freeMachine.getName();
@@ -69,8 +71,7 @@ public class RunBootstrap implements Runnable
   {
     if (!checkMachineAvailable()) {
       log("[INFO] No machines available to run scheduled boot: {0}... will retry"
-          + " in {1} seconds", gameId, Integer.parseInt(
-          properties.getProperty("scheduler.watchDogInterval")) / 1000);
+          + " in {1} seconds", gameId, watchDogInterval);
       return;
     }
 
@@ -78,7 +79,7 @@ public class RunBootstrap implements Runnable
         "http://localhost:8080/jenkins/job/"
         + "start-server-instance/buildWithParameters?"
         + "token=start-instance"
-        + "&tourneyUrl=" + Utils.getTourneyUrl()
+        + "&tourneyUrl=" + properties.getProperty("tourneyUrl")
         + "&suffix=" + logSuffix
         + "&pomId=" + pomId
         + "&machine=" + machineName
@@ -99,7 +100,7 @@ public class RunBootstrap implements Runnable
 
       Database db = new Database();
       try {
-        db.updateGameStatusById(Integer.parseInt(gameId), Game.STATE.boot_failed);
+        db.updateGameStatusById(gameId, Game.STATE.boot_failed);
       }
       catch (NumberFormatException e1) {
         e1.printStackTrace();

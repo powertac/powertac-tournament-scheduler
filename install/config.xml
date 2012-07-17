@@ -111,6 +111,34 @@ function cleanup () {
     log nl &quot;Not cleaning up, need to enable this&quot;
 }
 
+function get_properties () {
+    wget -O properties $propUrl
+    COUNT=$(grep -c &apos;server.weatherService.weatherLocation&apos; properties)
+    if [ $COUNT -le 0 ] ; then
+        log nl &quot;Error getting game properties : $propUrl&quot;
+        log nl &quot;Notify TM we&apos;re game_failed&quot;
+        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_failed&quot;
+        cleanup
+        exit 1
+    else
+        cat properties &gt;&gt; $LOGFILE
+    fi
+}
+
+function get_pom () {
+    wget -O pom.xml $pomUrl
+    SIZE=$(stat -c%s &quot;pom.xml&quot;)
+    if [ $size -le 10 ] ; then
+        log nl &quot;Error getting pom : $pomUrl&quot;
+        log nl &quot;Notify TM we&apos;re game_failed&quot;
+        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_failed&quot;
+        cleanup
+        exit 1
+    else
+        log &quot;Pom retrieved\n&quot;
+    fi
+}
+
 function handle_states () {
     LOGGEDIN=&quot;server.CompetitionControlService: first login observed&quot;
     FILE=&quot;./log/powertac-sim-$gameId.trace&quot;
@@ -128,17 +156,20 @@ function handle_states () {
         fi
         
         if [ $COUNT -gt 0 ]; then
-            log &quot;$COUNT &gt; 0, breaking&quot;
+            log nl &quot;$COUNT &gt; 0, breaking&quot;
             break
         fi 
 
         sleep 1
     done
 
-    log nl &quot;Notify TM we&apos;re game_in_progress&quot;
+    log &quot;Notify TM we&apos;re game_in_progress&quot;
     wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_in_progress&quot;
 }
 
+###############################################################################
+# Here we go!
+###############################################################################
 
 # Some intermediate variables
 interfaceUrl=&quot;$tourneyUrl$interfacePath&quot;
@@ -169,20 +200,11 @@ log &quot;pomUrl        : $pomUrl&quot;
 log &quot;bootName      : $bootName&quot;
 log &quot;simName       : $simName&quot;
 
-log nl &quot;These are the game properties&quot;
-wget -O properties $propUrl
-COUNT=$(grep -c &apos;server.weatherService.weatherLocation&apos; properties)
-if [ $COUNT -le 0 ] ; then
-    log nl &quot;Error getting game properties : $propUrl&quot;
-    cleanup
-    exit 1
-else
-    cat properties &gt;&gt; $LOGFILE
-fi
+log nl &quot;Get the game properties from $propUrl&quot;
+get_properties
 
-log nl &quot;Getting pom file from $pomUrl&quot;
-wget -O pom.xml $pomUrl
-log &quot;&quot;
+log nl &quot;Get the pom file from $pomUrl&quot;
+get_pom
 
 if [ &quot;$brokers&quot; = &quot;&quot; ] ; then
     log nl &quot;Running in bootstrap mode!&quot;

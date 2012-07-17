@@ -626,7 +626,9 @@ public class Constants
    * Return the machineId of the first free machine
    */
   public static final String FIRST_FREE_MACHINE =
-      "SELECT * FROM machines WHERE status='idle' and available=1 ORDER BY machineId LIMIT 1;";
+      "SELECT * FROM machines WHERE status='"
+          + Machine.STATE.idle.toString()
+          + "' and available=1 ORDER BY machineId LIMIT 1;";
 
   /***
    * Get the games scheduled for a particular agentType
@@ -658,8 +660,7 @@ public class Constants
          + " JOIN AgentQueue ON"
          + " GameLog.InternalAgentID = AgentQueue.InternalAgentId"
          + " WHERE AgentQueue.IsPlaying=1 and GameArchive.ServerNumber=?) AS x)";
-  
-  
+
   
   /***
    * Clear scheduling database to schedule something else

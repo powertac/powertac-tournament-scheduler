@@ -1,26 +1,18 @@
 package org.powertac.tourney.actions;
 
-import java.sql.SQLException;
-
-
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
-
 import org.powertac.tourney.beans.User;
 import org.powertac.tourney.services.Database;
-import org.powertac.tourney.services.Upload;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import java.sql.SQLException;
 
 @Component("actionLogin")
 @Scope("request")
 public class ActionLogin
 {
-
   private String username;
   private String password;
 
@@ -67,8 +59,6 @@ public class ActionLogin
         return "Failure";
       }
       database.commitTrans();
-      
-
     }
     catch (SQLException e) {
       database.abortTrans();
@@ -79,7 +69,6 @@ public class ActionLogin
       e.printStackTrace();
 
       return "Failure";
-
     }
 
     return "Success";
@@ -87,7 +76,6 @@ public class ActionLogin
 
   public String logout ()
   {
-
     User test =
       (User) FacesContext.getCurrentInstance().getExternalContext()
               .getSessionMap().get(User.getKey());

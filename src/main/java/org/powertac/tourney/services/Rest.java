@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-//import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -17,8 +16,6 @@ import static org.powertac.tourney.services.Utils.log;
 @Service("rest")
 public class Rest
 {
-  private TournamentProperties properties = new TournamentProperties();
-
   public String parseBrokerLogin (Map<String, String[]> params)
   {
     System.out.println("Broker login request");
@@ -28,18 +25,13 @@ public class Rest
 
     String retryResponse = "{\n \"retry\":%d\n}";
     String loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"queueName\":%s\n \"serverQueue\":%s\n}";
-    String doneResponse = "{\n \"done\":\"true\"\n}";;
+    String doneResponse = "{\n \"done\":\"true\"\n}";
     if (responseType.equalsIgnoreCase("xml")) {
       String head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>";
       String tail = "</message>";
       retryResponse = head + "<retry>%d</retry>" + tail;
       loginResponse = head + "<login><jmsUrl>%s</jmsUrl><queueName>%s</queueName><serverQueue>%s</serverQueue></login>" + tail;
       doneResponse = head + "<done></done>" + tail;
-    }
-    else {
-      retryResponse = "{\n \"retry\":%d\n}";
-      loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"queueName\":%s\n}";
-      doneResponse = "{\n \"done\":\"true\"\n}";
     }
 
     Database db = new Database();
@@ -54,14 +46,12 @@ public class Rest
         // Find all games that match the competition name and have brokers
         // registered
         for (Game g: allGames) {
-          log("Game " + g.getGameId() + ": state=" + g.getStatus());
           // Only consider games that are ready (started, but waiting for logins)
           if (g.stateEquals(Game.STATE.game_ready)) {
             Tournament t = db.getTournamentByGameId(g.getGameId());
 
             if (competitionName.equalsIgnoreCase(t.getTournamentName())) {
               Broker broker = g.getBrokerRegistration(brokerAuthToken);
-
               // here we need to add the queue name
               // update ingame gameid, brokerid, true
               if (null == broker) {
@@ -75,11 +65,10 @@ public class Rest
               else {
                 broker.setBrokerInGame(true);
                 db.updateBrokerInGame(g.getGameId(), broker);
-                String result =String.format(loginResponse,
-                                             g.getJmsUrl(),
-                                             broker.getQueueName(),
-                                             g.getServerQueue()); 
-                return result;
+                return String.format(loginResponse,
+                                     g.getJmsUrl(),
+                                     broker.getQueueName(),
+                                     g.getServerQueue());
               }
             }
           }
@@ -111,7 +100,7 @@ public class Rest
       db.abortTrans();
       e.printStackTrace();
     }
-    
+
     return doneResponse;
   }
 
@@ -173,7 +162,6 @@ public class Rest
       return "";
     }
 
-    //String tourneyGameId = "common.competition.tourneyGameId = ";
     String weatherLocation = "server.weatherService.weatherLocation = ";
     String startTime = "common.competition.simulationBaseTime = ";
     String jms = "server.jmsManagementService.jmsBrokerUrl = ";
@@ -207,7 +195,6 @@ public class Rest
     	  result += jms + props.get(2) + "\n";
       }
     }
-    //result += tourneyGameId + g.getGameId() + "\n";
     result += serverFirstTimeout + "\n";
     result += serverTimeout + "\n";
     result += remote + "\n";
@@ -241,6 +228,7 @@ public class Rest
     String result = "";
     try {
       // Determine pom-file location
+      TournamentProperties properties = TournamentProperties.getProperties();
       String pomLocation = properties.getProperty("pomLocation") +
           "pom."+ pomId +".xml";
 
@@ -271,8 +259,8 @@ public class Rest
     String result = "";
 
     try {
-      log("Serving boot record for game " + gameId);
       // Determine boot-file location
+      TournamentProperties properties = TournamentProperties.getProperties();
       String bootLocation = properties.getProperty("bootLocation") +
                             "game-" + gameId + "-boot.xml";
 
@@ -309,6 +297,7 @@ public class Rest
 
     try {
       String fileName = params.get(Constants.Rest.REQ_PARAM_FILENAME)[0];
+      TournamentProperties properties = TournamentProperties.getProperties();
 
       String path;
       if (fileName.endsWith("boot.xml")) {

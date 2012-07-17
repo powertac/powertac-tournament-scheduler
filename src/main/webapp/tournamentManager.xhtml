@@ -73,11 +73,11 @@
 				</t:dataTable>
 			</h:form>
 
-			<h:form enctype="multipart/form-data" rendered="#{user.permissions le 0}">
+			<h:form enctype="multipart/form-data" rendered="#{user.permissions le 0}" id="saveTournament">
 				<h3>Create Tournament</h3>
 				<h:panelGrid columns="2">
 
-					<h:outputText value="Tournament Name" />
+					<h:outputText value="Tournament Name:" />
 					<h:panelGroup>
 						<h:inputText value="#{actionTournament.tournamentName}" />
 					</h:panelGroup>
@@ -90,34 +90,34 @@
 						</h:selectOneMenu>
 					</h:panelGroup>
 					
-					<h:outputText value="Max Broker Instances: " />
+					<h:outputText value="Max Broker Instances:" />
 					<h:panelGroup>
 						<h:inputText value="#{actionTournament.maxBrokerInstances}" />
 					</h:panelGroup>
 					
-					<h:outputText value="Game 1 Size: " />
+					<h:outputText value="Game 1 Size:" />
 					<h:panelGroup>
 						<h:inputText value="#{actionTournament.size1}" />
 					</h:panelGroup>
-					<h:outputText value="Number of Game 1 Size: " />
+					<h:outputText value="Number of Game 1 Size:" />
 					<h:panelGroup>
 						<h:inputText value="#{actionTournament.numberSize1}" />
 					</h:panelGroup>
 					
-					<h:outputText value="Game 2 Size: " />
+					<h:outputText value="Game 2 Size:" />
 					<h:panelGroup>
 						<h:inputText value="#{actionTournament.size2}" />
 					</h:panelGroup>
-					<h:outputText value="Number of Game 2 Size: " />
+					<h:outputText value="Number of Game 2 Size:" />
 					<h:panelGroup>
 						<h:inputText value="#{actionTournament.numberSize2}" />
 					</h:panelGroup>
 					
-					<h:outputText value="Game 3 Size: " />
+					<h:outputText value="Game 3 Size:" />
 					<h:panelGroup>
 						<h:inputText value="#{actionTournament.size3}" />
 					</h:panelGroup>
-					<h:outputText value="Number of Game 3 Size: " />
+					<h:outputText value="Number of Game 3 Size:" />
 					<h:panelGroup>
 						<h:inputText value="#{actionTournament.numberSize3}" />
 					</h:panelGroup>
@@ -147,13 +147,13 @@
 							ampm="false" renderAsPopup="true" forceId="true" /><br/>
 					</h:panelGroup>
 
-          <h:outputText value="Date Range to: " />
+          <h:outputText value="Date Range to:" />
           <h:panelGroup>
             <t:inputDate value="#{actionTournament.toTime}" type="both"
               ampm="false" renderAsPopup="true" forceId="true" />
           </h:panelGroup>
 
-					<h:outputText value="Locations: " />
+					<h:outputText value="Locations:" />
 					<h:panelGroup>
 						<h:selectManyCheckbox id="locations" value="#{actionTournament.locations}" required="true">
 							<f:selectItems value="#{actionTournament.locationList}" var="L"

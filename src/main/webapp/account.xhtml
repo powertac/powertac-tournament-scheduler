@@ -9,7 +9,7 @@
 
 		<ui:define name="content">
 			<h2>Account</h2>
-			<h:form id="account" rendered="#{user.permissions le 3}">
+			<h:form id="accountForm" rendered="#{user.permissions le 3}">
 				<h5>Available Brokers for user: #{user.username}</h5>
 				<h:dataTable border="1"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"

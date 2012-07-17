@@ -18,22 +18,21 @@ public class RunGame implements Runnable
 
   private boolean running = false;
   private boolean tourney = false;
+  private int watchDogInterval;
 
-  private String logSuffix = "sim";
+  private String logSuffix = "sim-";
   private String pomId = "";
   private int gameId;
   private String brokers = "";
   private String machineName = "";
   private Database db;
 
-  private TournamentProperties properties = new TournamentProperties();
+  private TournamentProperties properties;
 
   public RunGame (int gameId, int pomId)
   {
-    this.gameId = gameId;
-    this.pomId = String.valueOf(pomId);
-    running = false;
-    db = new Database();
+    this(gameId, pomId, null, "");
+    tourney = false;
   }
 
   public RunGame (int gameId, int pomId, Machine machine, String brokers)
@@ -44,8 +43,11 @@ public class RunGame implements Runnable
     this.machine = machine;
     db = new Database();
 
-    running = false;
     tourney = true;
+
+    properties = TournamentProperties.getProperties();
+    watchDogInterval = Integer.parseInt(
+        properties.getProperty("scheduler.watchDogInterval")) / 1000;
   }
 
   /***
@@ -213,8 +215,7 @@ public class RunGame implements Runnable
     // Check if there is a machine available to run the sim and set it
     if (!checkMachineAvailable()) {
       log("[INFO] No machines available to run scheduled game: {0}... will retry"
-          + " in {1} seconds", gameId, Integer.parseInt(
-          properties.getProperty("scheduler.watchDogInterval")) / 1000);
+          + " in {1} seconds", gameId, watchDogInterval);
       return;
     }
     
@@ -234,7 +235,7 @@ public class RunGame implements Runnable
         "http://localhost:8080/jenkins/job/"
         + "start-server-instance/buildWithParameters?"
         + "token=start-instance"
-        + "&tourneyUrl=" + Utils.getTourneyUrl()
+        + "&tourneyUrl=" + properties.getProperty("tourneyUrl")
         + "&suffix=" + logSuffix
         + "&pomId=" + pomId
         + "&machine=" + machineName

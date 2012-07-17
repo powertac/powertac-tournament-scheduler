@@ -14,20 +14,13 @@ public class CheckWeatherServer
   private String weatherServerLocation = "";
   private String status = "";
 
-  public CheckWeatherServer ()
-  {
-    TournamentProperties properties = new TournamentProperties();
-    setWeatherServerLocation(properties.getProperty("weatherServerLocation"));
-  }
-
   // TODO Make this run every 5 minutes
   public void ping ()
   {
     try {
-      URL url = new URL(this.getWeatherServerLocation());
+      URL url = new URL( getWeatherServerLocation() );
       URLConnection conn = url.openConnection();
-      // Get the response
-      InputStream input = conn.getInputStream();
+      conn.getInputStream();
 
       int status = ((HttpURLConnection) conn).getResponseCode();
       if (status == 200) {
@@ -36,7 +29,6 @@ public class CheckWeatherServer
       else {
         this.setStatus("Server is Down");
       }
-
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -46,6 +38,11 @@ public class CheckWeatherServer
 
   public String getWeatherServerLocation ()
   {
+    if (weatherServerLocation.equals("")) {
+      TournamentProperties properties = TournamentProperties.getProperties();
+      setWeatherServerLocation(properties.getProperty("weatherServerLocation"));
+    }
+
     return weatherServerLocation;
   }
 

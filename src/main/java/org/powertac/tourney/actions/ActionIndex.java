@@ -114,7 +114,7 @@ public class ActionIndex
 
   public String getLogUrl (Game g)
   {
-    TournamentProperties properties = new TournamentProperties();
+    TournamentProperties properties = TournamentProperties.getProperties();
     String baseUrl = properties.getProperty("actionIndex.logUrl",
                                             "download?game=%d");
     return String.format(baseUrl, g.getGameId());

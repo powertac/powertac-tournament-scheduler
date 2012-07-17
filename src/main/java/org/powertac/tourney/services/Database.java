@@ -33,7 +33,7 @@ public class Database
   public Database ()
   {
     // Database Connection related properties
-    TournamentProperties properties = new TournamentProperties();
+    TournamentProperties properties = TournamentProperties.getProperties();
     database = properties.getProperty("db.database");
     dbms = properties.getProperty("db.dbms");
     port = properties.getProperty("db.port");
@@ -364,7 +364,6 @@ public class Database
     List<Tournament> ts = new ArrayList<Tournament>();
     ResultSet rs = ps.executeQuery();
     while (rs.next()) {
-      System.out.println("getTournaments: adding tourney " + rs.getInt("tourneyId"));
       ts.add(new Tournament(rs));
     }
     
@@ -1040,12 +1039,12 @@ public class Database
     Machine result = null;
     ResultSet rs = ps.executeQuery();
     if (rs.next()) {
-      System.out.println("Claiming " + rs.toString());
+      log("Claiming {0}", rs.toString());
       result = new Machine(rs);
       setMachineStatus(result.getMachineId(), Machine.STATE.running);
     }
     else {
-      System.out.println("No free machines found.");
+      log("No free machines found.");
     }
 
     rs.close();

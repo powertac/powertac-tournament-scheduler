@@ -28,7 +28,6 @@ public class ActionAccount
 
   public ActionAccount ()
   {
-
   }
 
   public String getNewBrokerName ()
@@ -152,13 +151,14 @@ public class ActionAccount
       e.printStackTrace();
     }
 
+    TournamentProperties properties = TournamentProperties.getProperties();
+    long loginDeadline = Integer.parseInt(
+        properties.getProperty("loginDeadline", "3600000"));
+    long nowStamp = new Date().getTime();
+
     for (Tournament t: allTournaments) {
       try {
-        TournamentProperties properties = new TournamentProperties();
-        long loginDeadline = Integer.parseInt(
-            properties.getProperty("loginDeadline", "3600000"));
         long startStamp = t.getStartTime().getTime();
-        long nowStamp = new Date().getTime();
 
         if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())
             && t.getNumberRegistered() < t.getMaxBrokers()
@@ -166,10 +166,10 @@ public class ActionAccount
           availableTourneys.add(t);
         }
         else if (t.getNumberRegistered() >= t.getMaxBrokers()) {
-          System.out.println("Cannot register for " + t.getTournamentName() + ": maxBrokers");
+          log("Cannot register for {0}: maxBrokers", t.getTournamentName());
         }
         else if ((startStamp-nowStamp) <= loginDeadline ) {
-          System.out.println("Cannot register for " + t.getTournamentName() + ": too late");
+          log("Cannot register for {0}: too late", t.getTournamentName());
         }
       }
       catch (SQLException e) {

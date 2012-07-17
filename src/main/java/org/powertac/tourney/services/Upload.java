@@ -65,10 +65,6 @@ public class Upload
 
   public void setUploadLocation (String uploadLocation)
   {
-    if (!uploadLocation.endsWith("/")) {
-      uploadLocation += "/";
-    }
-
     this.uploadLocation = uploadLocation;
   }
 

@@ -13,6 +13,14 @@
     <ui:define name="content">
       <h2>Admin</h2>
 
+      <h:panelGroup rendered="#{!actionAdmin.getConfigErrors().isEmpty()}">
+        <h:outputText value="There are config errors!" style="color: red;" />
+        <t:dataList var="message" value="#{actionAdmin.getConfigErrors()}" layout="unorderedList">
+          <t:outputText value="#{message}" escape="false"/>
+        </t:dataList>
+        <br/>
+      </h:panelGroup>
+
       <h:form rendered="#{user.permissions le 0}">
         <h:panelGrid columns="3">
           <h4>WatchDog Status:</h4>

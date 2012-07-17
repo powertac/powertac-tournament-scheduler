@@ -61,10 +61,17 @@ public class ActionAdmin
   private UploadedFile pom;
   private String pomName;
 
+  private TournamentProperties properties = TournamentProperties.getProperties();
+
   public ActionAdmin ()
   {
   }
-  
+
+  public List<String> getConfigErrors()
+  {
+    return properties.getConfigErrors();
+  }
+
   public List<Game> getGameList()
   {
     List<Game> games = new ArrayList<Game>();
@@ -102,12 +109,6 @@ public class ActionAdmin
 
   public void submitPom ()
   {
-    try {
-      System.out.println(pom);
-      System.out.println(pom.getSize());
-      System.out.println(pom.getName());
-    } catch(Exception ignored) {}
-
     if (pomName.isEmpty()) {
       // Show succes message.
       String msg = "Error: You need to fill in the pom name";
@@ -136,7 +137,7 @@ public class ActionAdmin
 
     session.save(p);
 
-    TournamentProperties properties = new TournamentProperties();
+    properties = TournamentProperties.getProperties();
     upload.setUploadedFile(pom);
     upload.setUploadLocation(properties.getProperty("pomLocation", "/tmp/"));
     boolean pomStored = upload.submit("pom." + p.getPomId() + ".xml");
@@ -458,7 +459,6 @@ public class ActionAdmin
   {
     return pomName;
   }
-
   public void setPomName (String pomName)
   {
     this.pomName = pomName.trim();
@@ -468,7 +468,6 @@ public class ActionAdmin
   {
     return pom;
   }
-
   public void setPom (UploadedFile pom)
   {
     this.pom = pom;

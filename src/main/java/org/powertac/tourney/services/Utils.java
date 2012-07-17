@@ -8,59 +8,25 @@
 package org.powertac.tourney.services;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.TimeZone;
 
 
 public class Utils {
-  private static String tmLogFile =
-      System.getProperty("catalina.base") + "/logs/tournament.out";
-
-  public static String getTourneyUrl ()
-  {
-    // TODO Get these from Properties ??
-    String tourneyUrl = "http://%s:8080/TournamentScheduler/";
-    String address = "127.0.0.1";
-    try {
-      Enumeration<NetworkInterface> n = NetworkInterface.getNetworkInterfaces();
-      while (n.hasMoreElements()) {
-        NetworkInterface e = n.nextElement();
-        if (e.getName().startsWith("lo")) {
-          continue;
-        }
-
-        Enumeration<InetAddress> a = e.getInetAddresses();
-        while (a.hasMoreElements()) {
-          InetAddress addr = a.nextElement();
-          if (addr.getClass().getName().equals("java.net.Inet4Address")) {
-            address = addr.getHostAddress();
-          }
-        }
-      }
-    }
-    catch (Exception ignored) {}
-
-    return String.format(tourneyUrl, address);
-  }
-
-  public static String getJenkinsUrl ()
-  {
-    // TODO Get this from Properties ??
-    String jenkinsUrl = "http://localhost:8080/jenkins/";
-
-    return jenkinsUrl;
-  }
-
   public static boolean checkClientAllowed (String clientAddress)
   {
     // TODO Only allow access to slave, defined in db.machines
+    System.out.println("[DEBUG] Testing checkClientAllowed");
+    System.out.println(clientAddress);
+
+    if (clientAddress.equals("127.0.0.1")) {
+      return true;
+    }
 
     return true;
   }
@@ -91,8 +57,14 @@ public class Utils {
   {
     System.out.println(base);
 
+    String catalinaBase = System.getProperty("catalina.base");
+    if (!catalinaBase.endsWith(File.separator)) {
+      catalinaBase += File.separator;
+    }
+    String tmLogFile = catalinaBase + "logs" + File.separator + "tournament.out";
+
     try {
-      FileWriter fstream = new FileWriter(Utils.tmLogFile, true);
+      FileWriter fstream = new FileWriter(tmLogFile, true);
       BufferedWriter out = new BufferedWriter(fstream);
       out.write(base + "\n");
       out.close();

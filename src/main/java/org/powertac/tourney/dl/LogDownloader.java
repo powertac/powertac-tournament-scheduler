@@ -21,7 +21,7 @@ public class LogDownloader extends HttpServlet
 {
 	private static final long serialVersionUID = 1L;
 
-  TournamentProperties properties = new TournamentProperties();
+  TournamentProperties properties = TournamentProperties.getProperties();
   String absolutePath = properties.getProperty("logLocation");
 
 	public LogDownloader() {
