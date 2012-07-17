@@ -20,7 +20,6 @@ public class Machine
   private int machineId;
   private int gameId;
   private String vizUrl;
-  //private String vizQueue;
 
   public static enum STATE { idle, running }
 
@@ -35,7 +34,6 @@ public class Machine
       setStatus(rsMachines.getString("status"));
       setUrl(rsMachines.getString("machineUrl"));
       setVizUrl(rsMachines.getString("visualizerUrl"));
-      //setVizQueue(rsMachines.getString("visualizerQueue"));
       setName(rsMachines.getString("machineName"));
       setAvailable(rsMachines.getBoolean("available"));
     }
@@ -146,14 +144,4 @@ public class Machine
     this.vizUrl = vizUrl;
   }
 
-//  @Column(name = "visualizerQueue", unique = false, nullable = false)
-//  public String getVizQueue ()
-//  {
-//    return vizQueue;
-//  }
-//
-//  public void setVizQueue (String vizQueue)
-//  {
-//    this.vizQueue = vizQueue;
-//  }
 }

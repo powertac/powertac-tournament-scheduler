@@ -43,7 +43,14 @@
                           style="color:red;"
                           rendered="#{scheduler.nullTourney}" />
           </h:panelGroup>
-          <h:commandButton value="Reload Tourney" action="#{scheduler.reloadTournament}"/>
+          <h:panelGroup>
+            <h:commandButton value="Reload Tourney"
+                             action="#{scheduler.reloadTournament}"
+                             rendered="#{!scheduler.nullTourney}" />
+            <h:commandButton value="Load Tourney"
+                             action="#{scheduler.reloadTournament}"
+                             rendered="#{scheduler.nullTourney}" />
+          </h:panelGroup>
 
           <h4>Weather Server Status:</h4>
           <h:panelGroup>

@@ -137,9 +137,8 @@ public class ActionAdmin
 
     session.save(p);
 
-    properties = TournamentProperties.getProperties();
     upload.setUploadedFile(pom);
-    upload.setUploadLocation(properties.getProperty("pomLocation", "/tmp/"));
+    upload.setUploadLocation(properties.getProperty("pomLocation"));
     boolean pomStored = upload.submit("pom." + p.getPomId() + ".xml");
 
     if (pomStored) {
@@ -283,7 +282,6 @@ public class ActionAdmin
     newName = m.getName();
     newUrl = m.getUrl();
     newViz = m.getVizUrl();
-    //newQueue = m.getVizQueue();
   }
   
   public void saveMachine()

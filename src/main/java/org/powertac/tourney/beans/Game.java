@@ -201,6 +201,10 @@ public class Game implements Serializable
           scheduler.resetServer(g.getMachineId());
           db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
           log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+
+					// If all games of tournament are complete, set tournament complete
+					Tournament t = db.getTournamentByGameId(g.gameId);
+          t.processGameFinished(db, g.getGameId());
           break;
 
         case game_failed:

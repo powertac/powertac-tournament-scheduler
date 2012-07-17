@@ -17,14 +17,13 @@ public class RunBootstrap implements Runnable
   private int gameId;
   private String machineName = "";
   private int watchDogInterval;
-  private TournamentProperties properties;
+  private TournamentProperties properties = TournamentProperties.getProperties();
 
   public RunBootstrap (int gameId, int pomId)
   {
     this.gameId = gameId;
     this.pomId = pomId;
 
-    properties = TournamentProperties.getProperties();
     watchDogInterval = Integer.parseInt(
         properties.getProperty("scheduler.watchDogInterval")) / 1000;
     machineName = properties.getProperty("bootserverName", "");
@@ -38,11 +37,11 @@ public class RunBootstrap implements Runnable
 
       Machine freeMachine;
       if (machineName.isEmpty()) {
-        System.out.println("Claiming free machine");
+        log("Claiming free machine");
         freeMachine = db.claimFreeMachine();
       }
       else {
-        System.out.println("Claiming machine " + machineName);
+        log("Claiming machine {0}", machineName);
         freeMachine = db.claimFreeMachine(machineName);
       }
 

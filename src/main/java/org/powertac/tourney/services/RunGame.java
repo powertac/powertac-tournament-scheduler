@@ -21,13 +21,13 @@ public class RunGame implements Runnable
   private int watchDogInterval;
 
   private String logSuffix = "sim-";
-  private String pomId = "";
+  private int pomId;
   private int gameId;
   private String brokers = "";
   private String machineName = "";
   private Database db;
 
-  private TournamentProperties properties;
+  private TournamentProperties properties = TournamentProperties.getProperties();
 
   public RunGame (int gameId, int pomId)
   {
@@ -38,14 +38,13 @@ public class RunGame implements Runnable
   public RunGame (int gameId, int pomId, Machine machine, String brokers)
   {
     this.gameId = gameId;
-    this.pomId = String.valueOf(pomId);
+    this.pomId = pomId;
     this.brokers = brokers;
     this.machine = machine;
     db = new Database();
 
     tourney = true;
 
-    properties = TournamentProperties.getProperties();
     watchDogInterval = Integer.parseInt(
         properties.getProperty("scheduler.watchDogInterval")) / 1000;
   }

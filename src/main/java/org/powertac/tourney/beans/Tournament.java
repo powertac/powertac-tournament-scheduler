@@ -85,6 +85,30 @@ public class Tournament
     }
   }
 
+  /**
+   * If a game is complete, check if it was the last one to complete
+   * If so, set tournament state to complete
+   */
+  public void processGameFinished(Database db, int finishedGameId)
+      throws SQLException
+  {
+    boolean allDone = true;
+
+    for (Game g: getGames()) {
+      // The state of the finished game isn't in the db yet.
+      if (g.getGameId() == finishedGameId) {
+        continue;
+      }
+      if (!g.stateEquals(Game.STATE.game_complete)) {
+        allDone = false;
+      }
+    }
+
+    if (allDone) {
+      db.updateTournamentStatus(tourneyId, STATE.complete);
+    }
+  }
+
   @Transient
   public List<Game> getGames ()
   {

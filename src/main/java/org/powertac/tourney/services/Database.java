@@ -229,7 +229,6 @@ public class Database
       props.add(rs.getString("location"));
       props.add(rs.getString("startTime"));
       props.add(rs.getString("jmsUrl"));
-      //props.add(rs.getString("vizQueue"));
     }
 
     rs.close();
@@ -259,9 +258,8 @@ public class Database
   {
     PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_PROPETIES);
 
-    ps.setInt(2, gameId);
-    //ps.setString(2, vizQueue);
     ps.setString(1, jmsUrl);
+		ps.setInt(2, gameId);
 
     int result = ps.executeUpdate();
 
@@ -356,7 +354,8 @@ public class Database
     return result;
   }
 
-  public List<Tournament> getTournaments (Enum status) throws SQLException
+  public List<Tournament> getTournaments (Enum status)
+      throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.SELECT_TOURNAMENTS);
     ps.setString(1, status.toString());
@@ -446,11 +445,11 @@ public class Database
     return gs;
   }
 
-  public int updateTournamentStatus (int tourneyId) throws SQLException
+  public int updateTournamentStatus (int tourneyId, Tournament.STATE state) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(
         Constants.UPDATE_TOURNAMENT_STATUS_BYID);
-    ps.setString(1, Tournament.STATE.in_progress.toString());
+    ps.setString(1, state.toString());
     ps.setInt(2, tourneyId);
 
     int result = ps.executeUpdate();
@@ -611,6 +610,24 @@ public class Database
       games.add(tmp);
     }
     
+    rs.close();
+    ps.close();
+
+    return games;
+  }
+
+  public List<Game> getRunnableSingleGames() throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.GET_RUNNABLE_SINGLE_GAMES);
+
+    List<Game> games = new ArrayList<Game>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Game tmp = new Game(rs);
+      games.add(tmp);
+    }
+
     rs.close();
     ps.close();
 
@@ -873,9 +890,9 @@ public class Database
     throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_JMSURL);
-    ps.setInt(3, gameId);
     ps.setString(1, jmsUrl);
     ps.setString(2, createQueueName());
+		ps.setInt(3, gameId);
 
     int result = ps.executeUpdate();
 
@@ -992,7 +1009,6 @@ public class Database
     ps.setString(1, machineName);
     ps.setString(2, machineUrl);
     ps.setString(3, visualizerUrl);
-    //ps.setString(4, visualizerQueue);
 
     int result = ps.executeUpdate();
 
@@ -1010,7 +1026,6 @@ public class Database
     ps.setString(1, machineName);
     ps.setString(2, machineUrl);
     ps.setString(3, visualizerUrl);
-    //ps.setString(4, visualizerQueue);
     ps.setString(4, String.valueOf(machineId));
 
     int result = ps.executeUpdate();

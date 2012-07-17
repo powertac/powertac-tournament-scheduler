@@ -443,8 +443,12 @@ public class Scheduler
       if (runningTournament == null) {
         log("[INFO] WatchDog CheckForSims ignoring multi-game tournament games");
         games = db.getRunnableGames();
+
+				//log("[INFO] WatchDog CheckForSims for SINGLE_GAME tournament games");
+				//games = db.getRunnableSingleGames();
       }
       else {
+				//log("[INFO] WatchDog CheckForSims for MULTI_GAME tournament games");
         log("[INFO] WatchDog CheckForSims ignoring single-game tournament games");
         games = db.getRunnableGames(runningTournament.getTournamentId());
       }
@@ -469,7 +473,7 @@ public class Scheduler
 
   public boolean isNullTourney ()
   {
-    return this.runningTournament == null;
+    return runningTournament == null;
   }
 
   public static String getKey ()

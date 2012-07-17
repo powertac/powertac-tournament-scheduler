@@ -295,7 +295,16 @@ public class Constants
   public static final String GET_RUNNABLE_GAMES =
     "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() AND status='" +
         Game.STATE.boot_complete + "';";
-  
+
+  /***
+   * Returns a list of the runnable SINGLE_GAME games as of now.
+   */
+  public static final String GET_RUNNABLE_SINGLE_GAMES =
+      "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() AND status='" +
+          Game.STATE.boot_complete + "' " +
+          "AND tourneyId in (SELECT tourneyId FROM tournaments WHERE type='" +
+          Tournament.TYPE.SINGLE_GAME + "');";
+
   /***
    * Returns a list of the bootable games as of now
    */
@@ -496,8 +505,6 @@ public class Constants
    * 
    * @param jmsUrl
    *          : The url of the jms connection
-   * @param vizQueue (not used)
-   *          : The name of the visualizer queue
    * @param gameId
    *          : The game id of the game you wish to change
    */

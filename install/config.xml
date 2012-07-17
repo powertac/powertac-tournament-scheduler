@@ -163,7 +163,7 @@ function handle_states () {
         sleep 1
     done
 
-    log &quot;Notify TM we&apos;re game_in_progress&quot;
+    log nl &quot;Notify TM we&apos;re game_in_progress&quot;
     wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_in_progress&quot;
 }
 

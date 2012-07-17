@@ -13,25 +13,10 @@ import java.io.FileOutputStream;
 public class Upload
 {
   private UploadedFile uploadedFile;
-  private String uploadLocation = "/tmp/";
+  private String uploadLocation;
 
   public boolean submit (String fileName) {
     String filePath = uploadLocation + fileName;
-
-    // Check if pomLocation exists and is writeable
-    File test = new File(uploadLocation);
-    if (! test.exists()) {
-      String msg = "pomLocation (given in tournament.properties) does not exist!";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
-      return false;
-    }
-    if (! test.canWrite()) {
-      String msg = "pomLocation (given in tournament.properties) is not writeable!";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
-      return false;
-    }
 
     FileOutputStream fos = null;
     try {

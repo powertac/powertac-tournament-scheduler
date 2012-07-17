@@ -60,7 +60,6 @@ public class TournamentProperties
       try {
         properties.load(TournamentProperties.class.getClassLoader()
                    .getResourceAsStream(resourceName));
-
         loaded = true;
 
         checkProperties();
