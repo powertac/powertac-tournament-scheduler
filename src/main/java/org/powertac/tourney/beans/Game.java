@@ -146,7 +146,7 @@ public class Game implements Serializable
   // TODO Add status machine for Game
   public static String handleStatus(String status, int gameId)
   {
-    log("[INFO] Recieved {0} message from game: {1}", status, gameId);
+    log("[INFO] Received {0} message from game: {1}", status, gameId);
 
     STATE state;
     try {

@@ -54,26 +54,14 @@ public class Rest
         // Find all games that match the competition name and have brokers
         // registered
         for (Game g: allGames) {
+          log("Game " + g.getGameId() + ": state=" + g.getStatus());
           // Only consider games that are ready (started, but waiting for logins)
           if (g.stateEquals(Game.STATE.game_ready)) {
             Tournament t = db.getTournamentByGameId(g.getGameId());
 
             if (competitionName.equalsIgnoreCase(t.getTournamentName())) {
               Broker broker = g.getBrokerRegistration(brokerAuthToken);
-//              synchronized (skip) {
-//                if (skip.containsKey(g.getGameId() + brokerAuthToken)
-//                    && skip.get(g.getGameId() + brokerAuthToken) == g
-//                            .getGameId()) {
-//                  System.out.println("[INFO] Broker " + brokerAuthToken
-//                                     + " already recieved login for game "
-//                                     + g.getGameId());
-//                  continue;
-//                }
-//                System.out.println("[INFO] Sending login to : "
-//                                   + brokerAuthToken + " jmsUrl : "
-//                                   + g.getJmsUrl());
-//                skip.put(g.getGameId() + brokerAuthToken, g.getGameId());
-//              }
+
               // here we need to add the queue name
               // update ingame gameid, brokerid, true
               if (null == broker) {
@@ -185,11 +173,11 @@ public class Rest
       return "";
     }
 
+    //String tourneyGameId = "common.competition.tourneyGameId = ";
     String weatherLocation = "server.weatherService.weatherLocation = ";
     String startTime = "common.competition.simulationBaseTime = ";
     String jms = "server.jmsManagementService.jmsBrokerUrl = ";
     String remote = "server.visualizerProxyService.remoteVisualizer = true";
-    //String queueName = "server.visualizerProxyService.visualizerQueueName = ";
     String minTimeslot = "common.competition.minimumTimeslotCount = 1380";
     String expectedTimeslot = "common.competition.expectedTimeslotCount = 1440";
     String serverFirstTimeout =
@@ -219,6 +207,7 @@ public class Rest
     	  result += jms + props.get(2) + "\n";
       }
     }
+    //result += tourneyGameId + g.getGameId() + "\n";
     result += serverFirstTimeout + "\n";
     result += serverTimeout + "\n";
     result += remote + "\n";
@@ -282,6 +271,7 @@ public class Rest
     String result = "";
 
     try {
+      log("Serving boot record for game " + gameId);
       // Determine boot-file location
       String bootLocation = properties.getProperty("bootLocation") +
                             "game-" + gameId + "-boot.xml";

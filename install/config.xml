@@ -227,9 +227,9 @@ else
     log nl &quot;Brokers: $brokers&quot;
 
     log nl &quot;Handle game states&quot;
-    handle_states &amp;
+    #handle_states &amp;
 
-    CMD=&quot;mvn -Pcli -Dexec.args=\&quot;-sim --boot-data=$bootUrl --config $propUrl --log-suffix $suffix$gameId --brokers $brokers --input-queue $serverQueue\&quot;&quot;
+    CMD=&quot;mvn -Pcli -Dexec.args=\&quot;-sim --control $tourneyUrl --game-id $gameId --log-suffix $suffix$gameId --brokers $brokers --input-queue $serverQueue\&quot;&quot;
     log nl &quot;Run maven : $CMD&quot;
     eval $CMD
 
