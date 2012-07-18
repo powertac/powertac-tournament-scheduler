@@ -57,6 +57,14 @@ public class Constants
   public static final String SELECT_USERS = "SELECT * FROM users;";
 
   /***
+   * Select user name
+   * @param userId
+   *          : The id of the user we want to get the name from
+   */
+  public static final String SELECT_USER_BYID =
+      "SELECT * FROM users WHERE userId=? limit 1;";
+
+  /***
    * @param brokerName
    *          : The name of the Broker to use for logins
    * @param brokerAuth
@@ -118,6 +126,18 @@ public class Constants
    */
   public static final String SELECT_TOURNAMENTS =
     "SELECT * FROM tournaments WHERE status=?;";
+
+  /***
+   * Returns the list of all tournaments a broker is registered in
+   *
+   * @param brokerId
+   *          : id of the broker we want the tournaments for
+   */
+  public static final String SELECT_TOURNAMENTS_BY_BROKERID =
+      "SELECT * FROM tournaments "
+          + "JOIN registration ON tournaments.tourneyId = registration.tourneyId "
+          + "JOIN brokers ON registration.brokerId = brokers.brokerId "
+          + "WHERE brokers.brokerId = ?;";
 
   /***
    * Selects a tournament from the database by tournamentId
@@ -216,15 +236,16 @@ public class Constants
         + "WHERE registration.tourneyId=?;";
 
   /***
-   * Get a list of registered brokers for a tournament
-   * 
-   * @param tourneyId
-   *          : The id of the tournament you wish to query
+   * Get a list of all brokers
    */
-  public static final String GET_BROKERS_BYTOURNAMENTID =
+  public static final String GET_BROKERS =
+     "SELECT * FROM brokers;";
+
+    /*
     "SELECT * FROM brokers JOIN registration "
         + "ON registration.brokerId = brokers.brokerId "
         + "WHERE registration.tourneyId=?;";
+    */
 
   /***
    * Register for a tournament by tourneyId and brokerId
@@ -235,7 +256,7 @@ public class Constants
    *          : The id of the broker you wish to register
    */
   public static final String REGISTER_BROKER =
-    "INSERT INTO registration (tourneyId,brokerId) VALUES (?,?);";
+    "INSERT INTO registration (tourneyId, brokerId) VALUES (?, ?);";
 
   /***
    * Unregister for a tournament (admin functionality)

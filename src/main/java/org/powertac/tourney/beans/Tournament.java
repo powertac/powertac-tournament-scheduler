@@ -116,7 +116,7 @@ public class Tournament
     Database db = new Database();
     try {
       db.startTrans();
-      result = db.getGamesInTourney(this.tourneyId);
+      result = db.getGamesInTourney(tourneyId);
       db.commitTrans();
     }
     catch (SQLException e) {

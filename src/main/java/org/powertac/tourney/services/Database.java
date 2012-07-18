@@ -63,6 +63,23 @@ public class Database
     return users;
   }
 
+  public String getUserName (int userId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_USER_BYID);
+    ps.setInt(1, userId);
+
+    String userName = "";
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      userName = rs.getString("userName");
+    }
+
+    rs.close();
+    ps.close();
+
+    return userName;
+  }
+
   public int addUser (String username, String password) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.ADD_USER);
@@ -426,6 +443,25 @@ public class Database
     return ts;
   }
 
+  public List<Tournament> getTournamentsByBrokerId (int brokerId)
+      throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.SELECT_TOURNAMENTS_BY_BROKERID);
+    ps.setString(1, String.valueOf(brokerId));
+
+    List<Tournament> ts = new ArrayList<Tournament>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      ts.add(new Tournament(rs));
+    }
+
+    ps.close();
+    rs.close();
+
+    return ts;
+  }
+
   public List<Game> getGamesInTourney (int tourneyId) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(
@@ -502,29 +538,26 @@ public class Database
     return result;
   }
 
-  public List<Broker> getBrokersRegistered (int tourneyId) throws SQLException
+  public List<Broker> getBrokers () throws SQLException
   {
     List<Broker> result = new ArrayList<Broker>();
 
-    PreparedStatement ps = conn.prepareStatement(
-        Constants.GET_BROKERS_BYTOURNAMENTID);
-    ps.setInt(1, tourneyId);
+    PreparedStatement ps = conn.prepareStatement(Constants.GET_BROKERS);
 
     ResultSet rs = ps.executeQuery();
-
     while (rs.next()) {
-      Broker tmp = new Broker("new");
+      Broker tmp = new Broker(rs.getString("brokerName"));
+      tmp.setShortDescription(rs.getString("brokerShort"));
       tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
       tmp.setBrokerId(rs.getInt("brokerId"));
-      tmp.setBrokerName(rs.getString("brokerName"));
-      tmp.setShortDescription(rs.getString("brokerShort"));
       tmp.setNumberInGame(rs.getInt("numberInGame"));
-
+      tmp.setUserId(rs.getInt("userId"));
       result.add(tmp);
     }
     
     rs.close();
     ps.close();
+
     return result;
   }
 

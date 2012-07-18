@@ -14,12 +14,6 @@ import java.util.Vector;
 @ManagedBean
 public class User
 {
-
-  /*
-   * Possible permisssions that a user can have Changes the form displayed to
-   * the user
-   */
-
   public static final String key = "user";
 
   private String username;
@@ -30,23 +24,18 @@ public class User
   private boolean isEditing;
   private List<Broker> brokers;
 
-  // Brokers
-
   public User ()
   {
-    this.brokers = new Vector<Broker>();
-    this.userId = -1;
-    this.username = "Guest";
-    this.password = "";
-    this.permissions = Permission.GUEST;
-    this.loggedIn = false;
+    brokers = new Vector<Broker>();
+    userId = -1;
+    username = "Guest";
+    password = "";
+    permissions = Permission.GUEST;
+    loggedIn = false;
   }
 
   public void addBroker (String brokerName, String shortDescription)
   {
-    // Broker b = new Broker(brokerName, shortDescription);
-    // brokers.add(b);
-
     if (userId != -1) {
       Database db = new Database();
       try {
@@ -59,7 +48,6 @@ public class User
         e.printStackTrace();
       }
     }
-
   }
 
   public void deleteBroker (int brokerId)
@@ -91,7 +79,6 @@ public class User
       e.printStackTrace();
       return null;
     }
-
   }
 
   public static String getKey ()
@@ -101,7 +88,7 @@ public class User
 
   public String getUsername ()
   {
-    return this.username;
+    return username;
   }
 
   public void setUsername (String username)
@@ -111,7 +98,7 @@ public class User
 
   public String getPassword ()
   {
-    return this.password;
+    return password;
   }
 
   public void setPassword (String password)
@@ -121,7 +108,7 @@ public class User
 
   public int getPermissions ()
   {
-    return this.permissions;
+    return permissions;
   }
 
   public void setPermissions (int permissions)
@@ -132,7 +119,7 @@ public class User
   public boolean login ()
   {
     // Set loggedIn value
-    this.loggedIn = true;
+    loggedIn = true;
 
     return false;
   }
@@ -140,27 +127,25 @@ public class User
   public boolean logout ()
   {
     // There is probably a better way to do this
-    this.brokers = null;
-    this.userId = -1;
-    this.username = "Guest";
-    this.password = "";
-    this.permissions = Permission.GUEST;
-    this.loggedIn = false;
+    brokers = null;
+    userId = -1;
+    username = "Guest";
+    password = "";
+    permissions = Permission.GUEST;
+    loggedIn = false;
 
     return false;
-
   }
 
   public boolean getLoggedIn ()
   {
-    return this.loggedIn;
+    return loggedIn;
   }
 
   public List<Broker> getBrokers ()
   {
-    brokers = new ArrayList<Broker>();
-
     if (!isEditing && loggedIn) {
+      brokers = new ArrayList<Broker>();
       Database db = new Database();
       try {
         db.startTrans();

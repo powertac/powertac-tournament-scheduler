@@ -33,6 +33,7 @@ server-main/boot-data.xml
 # Deployment setting
 src/main/resources/hibernate.cfg.xml
 src/main/resources/tournament.properties
+src/main/resources/log4j.properties
 
 # OS generated files
 .DS_Store?

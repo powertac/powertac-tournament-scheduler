@@ -10,7 +10,6 @@
 		<el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver</el-resolver>
 	</application>
 
-
 	<!-- Listeners -->
 	<lifecycle>
 		<phase-listener>
@@ -24,60 +23,55 @@
     	<location>/sessionExpired.jsf</location>
 	</error-page>-->
 
-
 	<!-- Objects -->
-	
 
 	<!-- Application Scoped Objects -->
 
-
 	<!-- Actions -->
 	
-
-
 	<!-- Services -->
-	
-
-
 
 	<!-- Navigation rules -->
 	<navigation-rule>
-		<!-- Nav Bar Navigation Only!!! -->
-		<from-view-id>/*</from-view-id>
-		<navigation-case>
-			<from-outcome>Register</from-outcome>
-			<to-view-id>/register.xhtml</to-view-id>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>Account</from-outcome>
-			<to-view-id>/account.xhtml</to-view-id>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>Login</from-outcome>
-			<to-view-id>/login.xhtml</to-view-id>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>Home</from-outcome>
-			<to-view-id>/index.xhtml</to-view-id>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>About</from-outcome>
-			<to-view-id>/about.xhtml</to-view-id>
-		</navigation-case>
+    <!-- Nav Bar Navigation Only!!! -->
+    <from-view-id>/*</from-view-id>
+    <navigation-case>
+        <from-outcome>Register</from-outcome>
+        <to-view-id>/register.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+        <from-outcome>Account</from-outcome>
+        <to-view-id>/account.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+        <from-outcome>Login</from-outcome>
+        <to-view-id>/login.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+        <from-outcome>Home</from-outcome>
+        <to-view-id>/index.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+        <from-outcome>About</from-outcome>
+        <to-view-id>/about.xhtml</to-view-id>
+    </navigation-case>
 
-		<navigation-case>
-			<from-outcome>Tournament</from-outcome>
-			<to-view-id>/tournamentManager.xhtml</to-view-id>
-		</navigation-case>
+    <navigation-case>
+        <from-outcome>Tournament</from-outcome>
+        <to-view-id>/tournamentManager.xhtml</to-view-id>
+    </navigation-case>
 
-		<navigation-case>
-			<from-outcome>Admin</from-outcome>
-			<to-view-id>/admin.xhtml</to-view-id>
-		</navigation-case>
+    <navigation-case>
+        <from-outcome>Overview</from-outcome>
+        <to-view-id>/overview.xhtml</to-view-id>
+    </navigation-case>
 
-		<!-- Specific Navigation rules -->
+    <navigation-case>
+        <from-outcome>Admin</from-outcome>
+        <to-view-id>/admin.xhtml</to-view-id>
+    </navigation-case>
 
-
+    <!-- Specific Navigation rules -->
 	</navigation-rule>
 	<navigation-rule>
 		<from-view-id>/tournamentManager.xhtml</from-view-id>

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:t="http://myfaces.apache.org/tomahawk">
+
+<h:body>
+  <ui:composition template="template.xhtml">
+    <ui:define name="content">
+      <h2>Overview</h2>
+
+      <h:form rendered="#{user.permissions le 0}">
+        <h3 class="withButton">Registered Brokers</h3><h:commandButton value="refresh" action="#{actionOverview.refresh}"/>
+        <t:dataTable id="databrokers" border="1" sortable="false"
+                     sortColumnPom="#{actionOverview.sortColumnBrokers}"
+                     sortAscending="#{actionOverview.sortAscendingBrokers}" preserveSort="true"
+                     style="border:1px solid black;border-collapse:collapse;text-align:center"
+                     value="#{actionOverview.brokerList}" var="b">
+
+          <t:column defaultSorted="true" sortable="true">
+            <f:facet name="header">
+              <h:outputText value="ID" />
+            </f:facet>
+            <h:outputText value="#{b.brokerId}" />
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Name" />
+            </f:facet>
+            <h:outputText value="#{b.brokerName}" />
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="User" />
+            </f:facet>
+            <h:outputText value="#{b.getUserName()}" />
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Tournaments" />
+            </f:facet>
+            <h:outputText value="#{actionOverview.getTournamentByBrokerId(b.brokerId)}" />
+          </t:column>
+        </t:dataTable>
+      </h:form>
+
+      <h:form rendered="#{user.permissions le 0}">
+        <h3 class="withButton">Pending/Running Tournaments</h3><h:commandButton value="refresh" action="#{actionOverview.refresh}"/>
+        <t:dataTable id="datatourneys" border="1" sortable="false"
+                     sortColumnPom="#{actionOverview.sortColumnTournaments}"
+                     sortAscending="#{actionOverview.sortAscendingTournaments}" preserveSort="true"
+                     style="border:1px solid black;border-collapse:collapse;text-align:center"
+                     value="#{actionOverview.tournamentList}" var="t">
+
+          <t:column defaultSorted="true" sortable="true">
+            <f:facet name="header">
+              <h:outputText value="ID" />
+            </f:facet>
+            <h:outputText value="#{t.tournamentId}" />
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Name" />
+            </f:facet>
+            <h:outputText value="#{t.tournamentName}" />
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Status" />
+            </f:facet>
+            <h:outputText value="#{t.status}" />
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Type" />
+            </f:facet>
+            <h:outputText value="Multi" rendered="#{t.type == 'MULTI_GAME'}"/>
+            <h:outputText value="Single" rendered="#{t.type == 'SINGLE_GAME'}"/>
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Start Time" />
+            </f:facet>
+            <h:outputText value="#{t.toUTCStartTime()}" />
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Max Bro" />
+            </f:facet>
+            <h:outputText value="#{t.maxBrokers}" />
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Reg Bro" />
+            </f:facet>
+            <h:outputText value="#{t.numberRegistered}" />
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Pom" />
+            </f:facet>
+            <a href="pom.jsp?pomId=#{t.pomId}">
+              <h:outputText value="#{t.pomId}" />
+            </a>
+          </t:column>
+        </t:dataTable>
+      </h:form>
+
+      <h:form rendered="#{user.permissions le 0}">
+        <h3 class="withButton">Pending/Running Games</h3><h:commandButton value="refresh" action="#{actionOverview.refresh}"/>
+        <t:dataTable id="datagames" border="1" sortable="false"
+                     sortColumnPom="#{actionOverview.sortColumnGames}"
+                     sortAscending="#{actionOverview.sortAscendingGames}" preserveSort="true"
+                     style="border:1px solid black;border-collapse:collapse;text-align:center"
+                     value="#{actionOverview.gameList}" var="g">
+          <t:column defaultSorted="true" sortable="true">
+            <f:facet name="header">
+              <h:outputText value="ID" />
+            </f:facet>
+            <h:outputText value="#{g.gameId}" />
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Name" />
+            </f:facet>
+            <h:outputText value="#{g.gameName}" />
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Status" />
+            </f:facet>
+            <h:outputText value="#{g.status}" />
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Start Time" />
+            </f:facet>
+            <h:outputText value="#{g.toUTCStartTime()}" />
+          </t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Max Bro" />
+            </f:facet>
+            <h:outputText value="#{g.maxBrokers}" />
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Prop Link" />
+            </f:facet>
+            <a href="properties.jsp?gameId=#{g.gameId}">Props</a>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Boot Link" />
+            </f:facet>
+            <h:outputText value="Not avail." rendered="#{!g.hasBootstrap}"/>
+            <h:panelGroup rendered="#{g.hasBootstrap}" >
+              <a href="serverInterface.jsp?action=boot&amp;gameId=#{g.gameId}">Boot</a>
+            </h:panelGroup>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Viz Link" />
+            </f:facet>
+            <h:outputText value="Not avail." rendered="#{g.visualizerUrl == ''}"/>
+            <h:panelGroup rendered="#{g.visualizerUrl != ''}" >
+              <a href="http://#{g.visualizerUrl}">Viz</a>
+            </h:panelGroup>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Restart" />
+            </f:facet>
+            <h:commandButton value="restart" action="#{actionOverview.restartGame(g)}" />
+          </t:column>
+
+          <!--
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Delete Game" />
+            </f:facet>
+            <h:commandButton value="delete" action="#{actionOverview.deleteGame(g)}" />
+          </t:column>
+          -->
+        </t:dataTable>
+      </h:form>
+
+      <h:form rendered="#{user.permissions gt 0}">
+        <h2>Insufficient Permissions</h2>
+      </h:form>
+
+    </ui:define>
+  </ui:composition>
+</h:body>
+</html>

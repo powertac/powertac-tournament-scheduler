@@ -80,6 +80,7 @@ public class ActionAccount
     User user =
       (User) FacesContext.getCurrentInstance().getExternalContext()
               .getSessionMap().get(User.getKey());
+
     user.setEdit(true);
     b.setEdit(true);
     b.setNewAuth(b.getBrokerAuthToken());
@@ -129,6 +130,25 @@ public class ActionAccount
               .getSessionMap().get(User.getKey());
     user.setEdit(false);
     b.setEdit(false);
+  }
+
+  public List<Tournament> getRegisteredTournaments (Broker b)
+  {
+    List<Tournament> tournaments = new ArrayList<Tournament>();
+
+    Database db = new Database();
+
+    try {
+      db.startTrans();
+      tournaments = db.getTournamentsByBrokerId(b.getBrokerId());
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    return tournaments;
   }
 
   public List<Tournament> getAvailableTournaments (Broker b)

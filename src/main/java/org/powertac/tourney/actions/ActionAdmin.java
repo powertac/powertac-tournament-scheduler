@@ -5,10 +5,10 @@ import org.hibernate.Session;
 import org.powertac.tourney.beans.*;
 import org.powertac.tourney.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,19 +17,16 @@ import java.util.List;
 
 import static org.powertac.tourney.services.Utils.log;
 
-@Component("actionAdmin")
-@Scope("request")
+@ManagedBean
+@RequestScoped
 public class ActionAdmin
 {
   @Autowired
   private Upload upload;
 
-  @Autowired
-  private Scheduler scheduler;
-
-  private String sortColumn = null;
-  private boolean sortAscending = true;
-  private int rowCount = 5;
+  private String sortColumnPom = null;
+  private boolean sortAscendingPom = true;
+  private int rowCountPom = 5;
 
   private String sortColumnMachine = null;
   private boolean sortAscendingMachine = true;
@@ -38,14 +35,6 @@ public class ActionAdmin
   private String sortColumnUsers = null;
   private boolean sortAscendingUsers = true;
   private int rowCountUsers = 5;
-
-  private String sortColumnTournaments = null;
-  private boolean sortAscendingTournaments = true;
-  private int rowCountTournaments = 5;
-
-  private String sortColumnGames = null;
-  private boolean sortAscendingGames = true;
-  private int rowCountGames = 5;
 
   private String newLocationName = "";
   private Date newLocationStartTime = null;
@@ -72,23 +61,6 @@ public class ActionAdmin
     return properties.getConfigErrors();
   }
 
-  public List<Game> getGameList()
-  {
-    List<Game> games = new ArrayList<Game>();
-    
-    Database db = new Database();
-    try{
-      db.startTrans();
-      games = db.getGames();
-      db.commitTrans();
-    }catch (SQLException e){
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return games;
-  }
-  
   public List<User> getUserList()
   {
     List<User> users = new ArrayList<User>();
@@ -168,23 +140,6 @@ public class ActionAdmin
     return poms;
   }
 
-  public List<Tournament> getTournamentList(){
-    List<Tournament> ts = new ArrayList<Tournament>();
-    
-    Database db = new Database();
-    try {
-      db.startTrans();
-      ts = db.getTournaments(Tournament.STATE.pending);
-      ts.addAll(db.getTournaments(Tournament.STATE.in_progress));
-      db.commitTrans();
-    }
-    catch(Exception e) {
-      db.abortTrans();
-    }
-
-    return ts;
-  }
-  
   public List<Location> getLocationList ()
   {
     List<Location> locations = new ArrayList<Location>();
@@ -201,24 +156,6 @@ public class ActionAdmin
     }
 
     return locations;
-  }
-
-  public List<Broker> getRegistered (int tourneyId)
-  {
-    List<Broker> registered = new ArrayList<Broker>();
-    Database db = new Database();
-
-    try {
-      db.startTrans();
-      registered = db.getBrokersInTournament(tourneyId);
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return registered;
   }
 
   public List<Machine> getMachineList ()
@@ -354,58 +291,6 @@ public class ActionAdmin
     }
   }
 
-  public void restartGame (Game g)
-  {
-    Database db = new Database();
-    int gameId = g.getGameId();
-    log("[INFO] Restarting Game {0} has status: {1}", gameId, g.getStatus());
-    Tournament t = new Tournament();
-
-    try {
-      db.startTrans();
-      t = db.getTournamentByGameId(gameId);
-
-      db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-      log("[INFO] Setting machine: {0} to idle", g.getMachineId());
-      db.commitTrans();
-
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-
-    if (g.stateEquals(Game.STATE.boot_failed) ||
-        g.stateEquals(Game.STATE.boot_pending) ||
-        g.stateEquals(Game.STATE.boot_in_progress) ) {
-      log("[INFO] Attempting to restart bootstrap {0}", gameId);
-
-      RunBootstrap runBootstrap = new RunBootstrap(gameId, t.getPomId());
-      new Thread(runBootstrap).start();
-    }
-    else if (g.stateEquals(Game.STATE.game_failed) ||
-             g.stateEquals(Game.STATE.game_in_progress) ||
-            g.stateEquals(Game.STATE.boot_failed) ) {
-      log("[INFO] Attempting to restart sim {0}", gameId);
-
-      RunGame runGame = new RunGame(g.getGameId(), t.getPomId());
-      new Thread(runGame).start();
-    }
-  }
-
-  /**
-   * We should be able to delete games
-   * But should we be able to abandon running games?
-   * @param g : the Game to delete
-   */
-  public void deleteGame (Game g)
-  {
-    // TODO: ARE YOU SURE?
-    //scheduler.deleteBootTimer(g.getGameId());
-    //scheduler.deleteSimTimer(g.getGameId());
-  }
-
   public void refresh ()
   {
 
@@ -471,31 +356,31 @@ public class ActionAdmin
     this.pom = pom;
   }
 
-  public int getRowCount ()
+  public int getRowCountPom ()
   {
-    return rowCount;
+    return rowCountPom;
   }
-  public void setRowCount (int rowCount)
+  public void setRowCountPom (int rowCountPom)
   {
-    this.rowCount = rowCount;
-  }
-
-  public boolean isSortAscending ()
-  {
-    return sortAscending;
-  }
-  public void setSortAscending (boolean sortAscending)
-  {
-    this.sortAscending = sortAscending;
+    this.rowCountPom = rowCountPom;
   }
 
-  public String getSortColumn ()
+  public boolean isSortAscendingPom ()
   {
-    return sortColumn;
+    return sortAscendingPom;
   }
-  public void setSortColumn (String sortColumn)
+  public void setSortAscendingPom (boolean sortAscendingPom)
   {
-    this.sortColumn = sortColumn;
+    this.sortAscendingPom = sortAscendingPom;
+  }
+
+  public String getSortColumnPom()
+  {
+    return sortColumnPom;
+  }
+  public void setSortColumnPom(String sortColumnPom)
+  {
+    this.sortColumnPom = sortColumnPom;
   }
 
   public String getNewLocationName ()
@@ -621,60 +506,6 @@ public class ActionAdmin
   public void setRowCountUsers (int rowCountUsers)
   {
     this.rowCountUsers = rowCountUsers;
-  }
-
-  public String getSortColumnTournaments ()
-  {
-    return sortColumnTournaments;
-  }
-  public void setSortColumnTournaments (String sortColumnTournaments)
-  {
-    this.sortColumnTournaments = sortColumnTournaments;
-  }
-
-  public boolean isSortAscendingTournaments ()
-  {
-    return sortAscendingTournaments;
-  }
-  public void setSortAscendingTournaments (boolean sortAscendingTournaments)
-  {
-    this.sortAscendingTournaments = sortAscendingTournaments;
-  }
-
-  public int getRowCountTournaments ()
-  {
-    return rowCountTournaments;
-  }
-  public void setRowCountTournaments (int rowCountTournaments)
-  {
-    this.rowCountTournaments = rowCountTournaments;
-  }
-
-  public String getSortColumnGames ()
-  {
-    return sortColumnGames;
-  }
-  public void setSortColumnGames (String sortColumnGames)
-  {
-    this.sortColumnGames = sortColumnGames;
-  }
-
-  public boolean isSortAscendingGames ()
-  {
-    return sortAscendingGames;
-  }
-  public void setSortAscendingGames (boolean sortAscendingGames)
-  {
-    this.sortAscendingGames = sortAscendingGames;
-  }
-
-  public int getRowCountGames ()
-  {
-    return rowCountGames;
-  }
-  public void setRowCountGames (int rowCountGames)
-  {
-    this.rowCountGames = rowCountGames;
   }
   //</editor-fold>
 }

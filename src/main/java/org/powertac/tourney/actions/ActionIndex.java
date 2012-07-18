@@ -9,20 +9,19 @@ import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.TournamentProperties;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component("actionIndex")
-@Scope("request")
+@ManagedBean
+@RequestScoped
 public class ActionIndex
 {
   private String sortColumn = null;
   private boolean sortAscending = true;
-  private int rowCount = 5;
 
   public List<Game> getGameList ()
   {
@@ -139,16 +138,6 @@ public class ActionIndex
   public void setSortAscending (boolean sortAscending)
   {
     this.sortAscending = sortAscending;
-  }
-
-  public int getRowCount ()
-  {
-    return rowCount;
-  }
-
-  public void setRowCount (int rowCount)
-  {
-    this.rowCount = rowCount;
   }
   //</editor-fold>
 }

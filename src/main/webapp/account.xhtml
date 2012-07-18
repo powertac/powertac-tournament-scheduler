@@ -8,12 +8,51 @@
 	<ui:composition template="template.xhtml">
 
 		<ui:define name="content">
-			<h2>Account</h2>
+			<h2>Account for user: #{user.username}</h2>
+
+      <h:form id="accountForm0" rendered="#{user.permissions le 3}">
+        <h4>Brokers in Tournaments</h4>
+        <h:dataTable border="1"
+                     style="border:1px solid black;border-collapse:collapse;text-align:center"
+                     value="#{actionAccount.brokers}" var="b">
+          <h:column>
+            <f:facet name="header">Broker Name</f:facet>
+            <h:outputText value="#{b.brokerName}" />
+          </h:column>
+
+          <h:column>
+            <f:facet name="header">Tournaments</f:facet>
+            <ui:repeat value="#{actionAccount.getRegisteredTournaments(b)}" varStatus="loop" var="t">
+              <h:outputText value="#{t.getTournamentName()}, " />
+            </ui:repeat>
+          </h:column>
+
+          <h:column>
+            <f:facet name="header">Available</f:facet>
+            <h:selectOneMenu value="#{b.selectedTourney}">
+              <f:selectItems value="#{actionAccount.getAvailableTournaments(b)}" var="t"
+                             itemValue="#{t.tournamentName}" itemLabel="#{t.tournamentName}" rendered="{(t.maxBrokers != t.numberRegistered)}"/>
+            </h:selectOneMenu>
+          </h:column>
+
+          <h:column>
+            <f:facet name="header">Register</f:facet>
+            <h:commandButton value="register" action="#{actionAccount.register(b)}" />
+          </h:column>
+        </h:dataTable>
+      </h:form>
+
 			<h:form id="accountForm" rendered="#{user.permissions le 3}">
-				<h5>Available Brokers for user: #{user.username}</h5>
+        <br/>
+				<h4>Manage Brokers</h4>
 				<h:dataTable border="1"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{actionAccount.brokers}" var="b">
+
+          <h:column>
+            <f:facet name="header">Weg</f:facet>
+            <h:outputText value="#{b.edit}" />
+          </h:column>
 
 					<h:column>
 						<f:facet name="header">Broker Name</f:facet>
@@ -23,13 +62,11 @@
 
 					<h:column>
 						<f:facet name="header">Broker Id</f:facet>
-              #{b.brokerId}
-    				</h:column>
+            <h:outputText value="#{b.brokerId}" />
+          </h:column>
 
 					<h:column>
-						<!-- column header -->
 						<f:facet name="header">Broker Auth Token</f:facet>
-						<!-- row record -->
 						<h:outputText value="#{b.brokerAuthToken}" rendered="#{!b.edit}" />
 						<h:inputText value="#{b.newAuth}" rendered="#{b.edit}" />
 					</h:column>
@@ -41,14 +78,6 @@
 					</h:column>
 
 					<h:column>
-						<f:facet name="header">Available Tournaments</f:facet>
-						<h:selectOneMenu value="#{b.selectedTourney}">
-							<f:selectItems value="#{actionAccount.getAvailableTournaments(b)}" var="t"
-								itemValue="#{t.tournamentName}" itemLabel="#{t.tournamentName}" rendered="{(t.maxBrokers != t.numberRegistered)}"/>
-						</h:selectOneMenu>
-					</h:column>
-
-					<h:column>
 						<f:facet name="header">Action</f:facet>
 						<!-- Non Edit mode buttons -->
 						<h:commandButton value="edit"
@@ -56,15 +85,12 @@
 						<h:commandButton value="delete"
 							action="#{actionAccount.deleteBroker(b)}" rendered="#{!b.edit}" />
 							
-						<h:commandButton value="register" action="#{actionAccount.register(b)}" rendered="#{!b.edit}"/>
-
 						<!-- Edit mode buttons -->
 						<h:commandButton value="save"
 							action="#{actionAccount.saveBroker(b)}" rendered="#{b.edit}" />
 						<h:commandButton value="cancel"
 							action="#{actionAccount.cancelBroker(b)}" rendered="#{b.edit}" />
 					</h:column>
-
 				</h:dataTable>
 
 				<h5>Add Broker Name/Description</h5>

@@ -1,23 +1,16 @@
 package org.powertac.tourney.beans;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.powertac.tourney.services.Database;
 
+import javax.faces.bean.ManagedBean;
 import javax.persistence.*;
-import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 
-//import javax.faces.bean.ManagedBean;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-
-import org.apache.commons.codec.digest.DigestUtils;
 import static javax.persistence.GenerationType.IDENTITY;
 
+@ManagedBean
 @Entity
 @Table(name = "brokers", catalog = "tourney", uniqueConstraints = {
             @UniqueConstraint(columnNames = "brokerId")})
@@ -37,16 +30,12 @@ public class Broker
 
   private String brokerName;
   private int brokerId = 0;
+  private int userId = 0;
   private String brokerAuthToken;
   private String brokerQueueName; // per-game value
   private String shortDescription;
   private int numberInGame = 0;
   private boolean brokerInGame = false;
-
-  public Broker (ResultSet rs)
-  {
-
-  }
 
   public Broker (String brokerName)
   {
@@ -65,12 +54,38 @@ public class Broker
         (new Date()).toString() + Math.random());
   }
 
+  @Column(name = "userId", unique = false, nullable = false)
+  public int getUserId ()
+  {
+    return userId;
+  }
+  public void setUserId (int userId)
+  {
+    this.userId = userId;
+  }
+  public String getUserName()
+  {
+    String userName = "";
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      userName = db.getUserName(userId);
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      e.printStackTrace();
+      db.abortTrans();
+    }
+
+    return userName;
+  }
+
   @Column(name = "brokerName", unique = false, nullable = false)
   public String getBrokerName ()
   {
     return brokerName;
   }
-
   public void setBrokerName (String brokerName)
   {
     this.brokerName = brokerName;
@@ -83,7 +98,6 @@ public class Broker
   {
     return brokerId;
   }
-
   public void setBrokerId (int brokerId)
   {
     this.brokerId = brokerId;
@@ -94,7 +108,6 @@ public class Broker
   {
     return brokerAuthToken;
   }
-
   public void setBrokerAuthToken (String brokerAuthToken)
   {
     this.brokerAuthToken = brokerAuthToken;
@@ -105,7 +118,6 @@ public class Broker
   {
     return brokerQueueName;
   }
-  
   public void setQueueName (String queue)
   {
     brokerQueueName = queue;
@@ -116,7 +128,6 @@ public class Broker
   {
     return brokerInGame;
   }
-  
   public void setBrokerInGame (boolean value)
   {
     brokerInGame = value;
@@ -127,7 +138,6 @@ public class Broker
   {
     return shortDescription;
   }
-
   public void setShortDescription (String shortDescription)
   {
     if (shortDescription != null && shortDescription.length() >= 200) {
@@ -144,7 +154,6 @@ public class Broker
   {
     return edit;
   }
-
   public void setEdit (boolean edit)
   {
     this.edit = edit;
@@ -155,7 +164,6 @@ public class Broker
   {
     return newName;
   }
-
   public void setNewName (String newName)
   {
     this.newName = newName;
@@ -166,7 +174,6 @@ public class Broker
   {
     return newAuth;
   }
-
   public void setNewAuth (String newAuth)
   {
     this.newAuth = newAuth;
@@ -177,18 +184,17 @@ public class Broker
   {
     return newShort;
   }
-
   public void setNewShort (String newShort)
   {
     this.newShort = newShort;
   }
 
+	// TODO Check if needed
   @Transient
   public String getSelectedTourney ()
   {
     return selectedTourney;
   }
-
   public void setSelectedTourney (String selectedTourney)
   {
     this.selectedTourney = selectedTourney;
@@ -199,7 +205,6 @@ public class Broker
   {
     return numberInGame;
   }
-
   public void setNumberInGame (int numberInGame)
   {
     this.numberInGame = numberInGame;

@@ -42,6 +42,9 @@
 				<h:commandButton value="Tournament Manager" action="Tournament"
 					rendered="#{user.permissions le 0}" />
 
+        <h:commandButton value="Overview" action="Overview"
+          rendered="#{user.permissions le 0}" />
+
 				<h:commandButton value="Admin" action="Admin"
 					rendered="#{user.permissions le 0}" />
 

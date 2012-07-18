@@ -14,7 +14,7 @@
 			<h:form rendered="#{user.permissions le 0}">
 				<h2>Tournament Manager</h2>
 
-				<h4>Pending/Running Tournaments</h4>
+        <h3 class="withButton">Pending/Running Tournaments</h3><h:commandButton value="refresh" action="#{actionOverview.refresh}"/>
 				<t:dataTable id="datatourneys" border="1" sortable="false"
 					sortColumn="#{actionTournament.sortColumn}"
 					sortAscending="#{actionTournament.sortAscending}" preserveSort="true"
@@ -31,17 +31,18 @@
 
 					<t:column sortable="true">
 						<f:facet name="header">
-							<h:outputText value="Competition Type" />
-						</f:facet>
-						<h:outputText value="#{t.type}" />
-					</t:column>
-
-					<t:column sortable="true">
-						<f:facet name="header">
-							<h:outputText value="Tournament Name" />
+							<h:outputText value="Tournament" />
 						</f:facet>
 						<h:outputText value="#{t.tournamentName}" />
 					</t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Type" />
+            </f:facet>
+            <h:outputText value="Multi" rendered="#{t.type == 'MULTI_GAME'}"/>
+            <h:outputText value="Single" rendered="#{t.type == 'SINGLE_GAME'}"/>
+          </t:column>
 
 					<t:column sortable="true">
 						<f:facet name="header">
@@ -52,23 +53,25 @@
 
 					<t:column sortable="true">
 						<f:facet name="header">
-							<h:outputText value="Max Brokers" />
+							<h:outputText value="Max Bro" />
 						</f:facet>
 						<h:outputText value="#{t.maxBrokers}" />
 					</t:column>
 
 					<t:column sortable="true">
 						<f:facet name="header">
-							<h:outputText value="Registered Brokers" />
+							<h:outputText value="Reg Bro" />
 						</f:facet>
 						<h:outputText value="#{t.numberRegistered}" />
 					</t:column>
 
 					<t:column>
 						<f:facet name="header">
-							<h:outputText value="Pom Link" />
+							<h:outputText value="Pom" />
 						</f:facet>
-						<a href="pom.jsp?pomId=#{t.pomId}">Pom</a>
+						<a href="pom.jsp?pomId=#{t.pomId}">
+              <h:outputText value="#{t.pomId}" />
+            </a>
 					</t:column>
 				</t:dataTable>
 			</h:form>

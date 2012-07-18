@@ -32,7 +32,6 @@
 				<t:dataTable id="datagames" border="1" sortable="false"
 					sortColumn="#{actionIndex.sortColumn}"
 					sortAscending="#{actionIndex.sortAscending}" preserveSort="true"
-					rowCount="#{actionIndex.rowCount}"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{actionIndex.gameList}" var="g">
 					<t:column defaultSorted="true" sortable="true">
@@ -42,9 +41,9 @@
               <h:outputText value="#{g.gameId}" />
     				</t:column>
     				
-    				<t:column>
+    				<t:column sortable="true">
 						<f:facet name="header">
-							<h:outputText value="Tournament Name" />
+							<h:outputText value="Tournament" />
 						</f:facet>
               <h:outputText value="#{actionIndex.getTournamentNameByGame(g)}" />
     				</t:column>
@@ -63,7 +62,7 @@
               <h:outputText value="#{g.status}" />
     				</t:column>
 
-					<t:column>
+					<t:column sortable="true">
 						<f:facet name="header">
 							<h:outputText value="Start Time" />
 						</f:facet>
@@ -79,9 +78,9 @@
 
 					<t:column>
 						<f:facet name="header">
-							<h:outputText value="Visualizer Link" />
+							<h:outputText value="Visualizer&lt;br/&gt;Link" escape="false"/>
 						</f:facet>
-              <h:outputText value="Not available" rendered="#{g.visualizerUrl == ''}"/>
+              <h:outputText value="Not avail." rendered="#{g.visualizerUrl == ''}"/>
               <h:panelGroup rendered="#{g.visualizerUrl != ''}" >
                 <a href="http://#{g.visualizerUrl}">Visualizer</a>
               </h:panelGroup>
@@ -94,7 +93,6 @@
 				<t:dataTable id="datagames" border="1" sortable="false"
 					sortColumn="#{actionIndex.sortColumn}"
 					sortAscending="#{actionIndex.sortAscending}" preserveSort="true"
-					rowCount="#{actionIndex.rowCount}"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{actionIndex.gameCompleteList}" var="g">
 					<t:column sortable="true" defaultSorted="true">
@@ -106,7 +104,7 @@
     				
     				<t:column>
 						<f:facet name="header">
-							<h:outputText value="Tournament Name" />
+							<h:outputText value="Tournament" />
 						</f:facet>
               <h:outputText value="#{actionIndex.getTournamentNameByGame(g)}" />
     				</t:column>

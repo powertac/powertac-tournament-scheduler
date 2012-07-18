@@ -18,7 +18,7 @@ public class Rest
 {
   public String parseBrokerLogin (Map<String, String[]> params)
   {
-    System.out.println("Broker login request");
+    log("Broker login request");
     String responseType = params.get(Constants.Rest.REQ_PARAM_TYPE)[0];
     String brokerAuthToken = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
     String competitionName = params.get(Constants.Rest.REQ_PARAM_JOIN)[0];
@@ -139,7 +139,7 @@ public class Rest
     for (String key : params.keySet()) {
       sb.append(key).append(":").append(params.get(key)).append(",");
     }
-    System.out.println("parseProperties [" + sb.toString() + "]");
+    log("parseProperties [{0}]", sb.toString());
     String gameId = "0";
     try {
       gameId = params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0];
@@ -200,7 +200,7 @@ public class Rest
     result += remote + "\n";
     result += minTimeslot + "\n";
     result += expectedTimeslot + "\n";
-    System.out.println("Props for game " + g.getGameId() + ":\n" + result);
+    log("Props for game {0}:\n{1}", g.getGameId(), result);
 
     return result;
   }

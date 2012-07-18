@@ -6,10 +6,10 @@ import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.scheduling.MainScheduler;
 import org.powertac.tourney.services.CreateProperties;
 import org.powertac.tourney.services.Database;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import java.sql.SQLException;
@@ -20,8 +20,8 @@ import java.util.List;
 
 import static org.powertac.tourney.services.Utils.log;
 
-@Component("actionTournament")
-@Scope("session")
+@ManagedBean
+@RequestScoped
 public class ActionTournament
 {
   private int selectedPom;
