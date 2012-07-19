@@ -25,20 +25,7 @@ public class ActionIndex
 
   public List<Game> getGameList ()
   {
-    List<Game> games = new ArrayList<Game>();
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      games = db.getGames();
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return games;
+    return Game.getGameList();
   }
   
   public List<Game> getGameCompleteList ()

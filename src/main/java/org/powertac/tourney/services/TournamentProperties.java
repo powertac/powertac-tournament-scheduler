@@ -82,15 +82,15 @@ public class TournamentProperties
     properties.put("tourneyUrl", getTourneyUrl());
     properties.put("jenkinsUrl", getJenkinsUrl());
 
-    String catalinaBase = System.getProperty("catalina.base");
-    if (!catalinaBase.endsWith(File.separator)) {
-      catalinaBase += File.separator;
+    String fallBack = System.getProperty("catalina.base", "") + "/";
+    if (fallBack.equals("/")) {
+      fallBack = "/tmp/"; // Not started via tomcat
     }
 
     // Check if the filelocations exist and are writeable, else replace
-    checkFileLocation("pomLocation", catalinaBase);
-    checkFileLocation("bootLocation", catalinaBase);
-    checkFileLocation("logLocation", catalinaBase);
+    checkFileLocation("pomLocation", fallBack);
+    checkFileLocation("bootLocation", fallBack);
+    checkFileLocation("logLocation", fallBack);
   }
 
   private static String getTourneyUrl ()

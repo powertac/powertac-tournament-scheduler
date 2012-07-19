@@ -26,15 +26,10 @@ public class ActionAdmin
 
   private String sortColumnPom = null;
   private boolean sortAscendingPom = true;
-  private int rowCountPom = 5;
-
   private String sortColumnMachine = null;
   private boolean sortAscendingMachine = true;
-  private int rowCountMachine = 5;
-
   private String sortColumnUsers = null;
   private boolean sortAscendingUsers = true;
-  private int rowCountUsers = 5;
 
   private String newLocationName = "";
   private Date newLocationStartTime = null;
@@ -45,7 +40,6 @@ public class ActionAdmin
   private String newName = "";
   private String newUrl = "";
   private String newViz = "";
-  private String newQueue = "";
 
   private UploadedFile pom;
   private String pomName;
@@ -96,9 +90,7 @@ public class ActionAdmin
       return;
     }
 
-    User currentUser =
-        (User) FacesContext.getCurrentInstance().getExternalContext()
-            .getSessionMap().get(User.getKey());
+    User currentUser = User.getCurrentUser();
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     session.beginTransaction();
@@ -334,7 +326,6 @@ public class ActionAdmin
     newName = "";
     newUrl = "";
     newViz = "";
-    newQueue = "";
   }
 
   //<editor-fold desc="Setters and Getters">
@@ -354,15 +345,6 @@ public class ActionAdmin
   public void setPom (UploadedFile pom)
   {
     this.pom = pom;
-  }
-
-  public int getRowCountPom ()
-  {
-    return rowCountPom;
-  }
-  public void setRowCountPom (int rowCountPom)
-  {
-    this.rowCountPom = rowCountPom;
   }
 
   public boolean isSortAscendingPom ()
@@ -428,15 +410,6 @@ public class ActionAdmin
     this.sortAscendingMachine = sortAscendingMachine;
   }
 
-  public int getRowCountMachine ()
-  {
-    return rowCountMachine;
-  }
-  public void setRowCountMachine (int rowCountMachine)
-  {
-    this.rowCountMachine = rowCountMachine;
-  }
-
   public String getNewName ()
   {
     return newName;
@@ -464,15 +437,6 @@ public class ActionAdmin
     this.newViz = newViz;
   }
 
-  public String getNewQueue ()
-  {
-    return newQueue;
-  }
-  public void setNewQueue (String newQueue)
-  {
-    this.newQueue = newQueue;
-  }
-
   public int getMachineId ()
   {
 	  return machineId;
@@ -497,15 +461,6 @@ public class ActionAdmin
   public void setSortAscendingUsers (boolean sortAscendingUsers)
   {
     this.sortAscendingUsers = sortAscendingUsers;
-  }
-
-  public int getRowCountUsers ()
-  {
-    return rowCountUsers;
-  }
-  public void setRowCountUsers (int rowCountUsers)
-  {
-    this.rowCountUsers = rowCountUsers;
   }
   //</editor-fold>
 }

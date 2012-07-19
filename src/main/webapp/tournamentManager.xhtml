@@ -11,14 +11,13 @@
 <h:body>
 	<ui:composition template="template.xhtml">
 		<ui:define name="content">
-			<h:form rendered="#{user.permissions le 0}">
+			<h:form rendered="#{user.permissions le 0}" id="removeTournament">
 				<h2>Tournament Manager</h2>
 
-        <h3 class="withButton">Pending/Running Tournaments</h3><h:commandButton value="refresh" action="#{actionOverview.refresh}"/>
+        <h3 class="withButton">Pending/Running Tournaments</h3><h:commandButton value="Refresh" action="#{actionTournament.refresh}"/>
 				<t:dataTable id="datatourneys" border="1" sortable="false"
 					sortColumn="#{actionTournament.sortColumn}"
 					sortAscending="#{actionTournament.sortAscending}" preserveSort="true"
-					rowCount="#{actionTournament.rowCount}"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{actionTournament.tournamentList}" var="t">
 
@@ -73,10 +72,18 @@
               <h:outputText value="#{t.pomId}" />
             </a>
 					</t:column>
+
+          <t:column>
+            <h:commandButton value="Delete"
+                action="#{actionTournament.removeTournament(t)}"
+                rendered="#{t.tournamentName.toLowerCase().contains('test')}"/>
+          </t:column>
 				</t:dataTable>
+        <h:message for="removeTournament" />
 			</h:form>
 
-			<h:form enctype="multipart/form-data" rendered="#{user.permissions le 0}" id="saveTournament">
+			<h:form enctype="multipart/form-data" rendered="#{user.permissions le 0}"
+          id="saveTournament">
 				<h3>Create Tournament</h3>
 				<h:panelGrid columns="2">
 
@@ -87,7 +94,8 @@
 
 					<h:outputText value="Tournament Type:" />
 					<h:panelGroup>
-						<h:selectOneMenu value="#{actionTournament.type}" actionListener="#{actionTournament.formType}" >
+						<h:selectOneMenu value="#{actionTournament.type}"
+                actionListener="#{actionTournament.formType}" >
 							<f:selectItems value="#{actionTournament.types}" var="t"
 								itemValues="#{t.ordinal}" itemLabel="#{t.label}" />
 						</h:selectOneMenu>
@@ -174,7 +182,9 @@
 				</h:panelGrid>
 			</h:form>
 
-      <h5>Using 'test' or 'Test' in the tournament name will create short games</h5>
+      <br/>
+      <h4>If the tournament name contains 'test' (any case), short games will be created</h4>
+      <h4>It also allows deletion of the tournament</h4>
 
 			<h:form rendered="#{user.permissions gt 0}">
 				<h2>Insufficient Permissions</h2>

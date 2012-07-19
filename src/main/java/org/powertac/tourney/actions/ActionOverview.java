@@ -11,7 +11,6 @@ import org.powertac.tourney.services.RunGame;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.powertac.tourney.services.Utils.log;
@@ -35,79 +34,20 @@ public class ActionOverview
 
   public List<Broker> getBrokerList ()
   {
-    List<Broker> brokers = new ArrayList<Broker>();
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      brokers = db.getBrokers();
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      e.printStackTrace();
-      db.abortTrans();
-    }
-
-    return brokers;
+    return Broker.getBrokerList();
   }
 
-  public String getTournamentByBrokerId(int brokerId){
-    String result = "";
-
-    List<Tournament> tournaments = new ArrayList<Tournament>();
-    Database db = new Database();
-    try {
-      db.startTrans();
-      tournaments = db.getTournamentsByBrokerId(brokerId);
-      db.commitTrans();
-    }
-    catch(Exception e) {
-      db.abortTrans();
-    }
-
-    for (Tournament t: tournaments) {
-      result += t.getTournamentName() + ", ";
-    }
-    result = result.substring(0, result.length()-2);
-
-    return result;
-  }
-
-  public List<Tournament> getTournamentList(){
-    List<Tournament> ts = new ArrayList<Tournament>();
-    
-    Database db = new Database();
-    try {
-      db.startTrans();
-      ts = db.getTournaments(Tournament.STATE.pending);
-      ts.addAll(db.getTournaments(Tournament.STATE.in_progress));
-      db.commitTrans();
-    }
-    catch(Exception e) {
-      db.abortTrans();
-    }
-
-    return ts;
-  }
-
-  public List<Game> getGameList()
+  public List<Tournament> getTournamentList ()
   {
-    List<Game> games = new ArrayList<Game>();
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      games = db.getGames();
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return games;
+    return Tournament.getTournamentList();
   }
 
+  public List<Game> getGameList ()
+  {
+    return Game.getGameList();
+  }
+
+  // TODO Should be a Game method
   public void restartGame (Game g)
   {
     Database db = new Database();
@@ -122,11 +62,9 @@ public class ActionOverview
       db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
       log("[INFO] Setting machine: {0} to idle", g.getMachineId());
       db.commitTrans();
-
     }
     catch (SQLException e) {
       db.abortTrans();
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -153,6 +91,7 @@ public class ActionOverview
    * But should we be able to abandon running games?
    * @param g : the Game to delete
    */
+  // TODO Should be a Game method
   public void deleteGame (Game g)
   {
     // TODO: ARE YOU SURE?

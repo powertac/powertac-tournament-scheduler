@@ -33,10 +33,9 @@ public class ActionRegister
       }
       else {
         db.abortTrans();
-        FacesContext.getCurrentInstance()
-                .addMessage("registerForm",
-                            new FacesMessage(FacesMessage.SEVERITY_INFO,
-                                             "Passwords do not match", null));
+        String msg = "Passwords do not match";
+        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+        FacesContext.getCurrentInstance().addMessage("registerForm", fm);
         return "Failure";
       }
     }

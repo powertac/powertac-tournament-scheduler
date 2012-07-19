@@ -10,8 +10,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -24,15 +24,16 @@ import static org.powertac.tourney.services.Utils.log;
 		@UniqueConstraint(columnNames = "gameId")})
 public class Game implements Serializable
 {
-  private String competitionName = "";
+  public static final String key = "game";
+
   private Date startTime;
-  private int competitionId = -1;
   private int tourneyId = 0;
   private int gameId = 0;
   private int machineId;
   private String status = STATE.boot_pending.toString();
   private boolean hasBootstrap = false;
   private String brokers = "";
+  private int maxBrokers = 1;
 
   private String gameName = "";
   private String location = "";
@@ -41,15 +42,6 @@ public class Game implements Serializable
   private String visualizerUrl = "";
   private String visualizerQueue = "";
 
-  @Transient
-  private HashMap<String, String> brokersToLogin = null;
-
-  @Transient
-  private String[] brokersLoggedIn = null;
-  private int maxBrokers = 1;
-
-  public static final String key = "game";
-
   public static enum STATE {
     boot_pending, boot_in_progress, boot_complete, boot_failed,
     game_pending, game_ready, game_in_progress, game_complete, game_failed
@@ -57,7 +49,6 @@ public class Game implements Serializable
 
   public Game ()
   {
-    brokersToLogin = new HashMap<String, String>();
   }
 
   public Game (ResultSet rs)
@@ -143,7 +134,7 @@ public class Game implements Serializable
   }
 
   // TODO Make this an object method, combine with Hibernate
-  // TODO Add status machine for Game
+  // TODO Add state machine for Game
   public static String handleStatus(String status, int gameId)
   {
     log("[INFO] Received {0} message from game: {1}", status, gameId);
@@ -162,6 +153,11 @@ public class Game implements Serializable
     try {
       db.startTrans();
       Game g = db.getGame(gameId);
+      if (g == null) {
+        log("[WARN] Trying to set status {0} on non-existing game : {1}",
+            status, gameId);
+        return "error";
+      }
 
       db.updateGameStatusById(gameId, state);
       log("[INFO] Update game: {0} to {1}", gameId, status);
@@ -259,6 +255,23 @@ public class Game implements Serializable
     return this.status.equals(state.toString());
   }
 
+  public static List<Game> getGameList ()
+  {
+    List<Game> games = new ArrayList<Game>();
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      games = db.getGames();
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    return games;
+  }
 
   //<editor-fold desc="Setter and getters">
   @Temporal(TemporalType.DATE)
@@ -276,43 +289,6 @@ public class Game implements Serializable
   public static String getKey ()
   {
     return key;
-  }
-
-  @Transient
-  public String[] getBrokersLoggedIn ()
-  {
-    return brokersLoggedIn;
-  }
-
-  @Transient
-  public HashMap<String, String> getBrokersToLogin ()
-  {
-    return brokersToLogin;
-  }
-
-  public void setBrokersToLogin (HashMap<String, String> brokersToLogin)
-  {
-    this.brokersToLogin = brokersToLogin;
-  }
-
-  public String getCompetitionName ()
-  {
-    return competitionName;
-  }
-
-  public void setCompetitionName (String competitionName)
-  {
-    this.competitionName = competitionName;
-  }
-
-  public int getCompetitionId ()
-  {
-    return competitionId;
-  }
-
-  public void setCompetitionId (int competitionId)
-  {
-    this.competitionId = competitionId;
   }
 
   @Column(name = "status", unique = false, nullable = false)

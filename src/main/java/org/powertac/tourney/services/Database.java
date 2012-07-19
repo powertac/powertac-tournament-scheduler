@@ -49,7 +49,7 @@ public class Database
     List<org.powertac.tourney.beans.User> users = new ArrayList<org.powertac.tourney.beans.User>();
     ResultSet rs = ps.executeQuery();
     while (rs.next()) {
-      org.powertac.tourney.beans.User tmp = new org.powertac.tourney.beans.User();
+      User tmp = new User();
       tmp.setUsername(rs.getString("userName"));
       tmp.setPassword(rs.getString("password"));
       tmp.setUserId(rs.getInt("userId"));
@@ -163,7 +163,6 @@ public class Database
     int count = 0;
     if(rs.next()){
       count = rs.getInt("num");
-      
     }
     rs.close();
     ps.close();
@@ -302,6 +301,21 @@ public class Database
     return result;
   }
 
+  public int deletePropertiesByGameId (int gameId)
+      throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.DELETE_PROPERTIES_BY_GAMEID);
+
+    ps.setInt(1, gameId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
   public int addPom (String uploadingUser, String name)
 		 throws SQLException
   {
@@ -383,6 +397,18 @@ public class Database
     try {
       rs.close();
     } catch (NullPointerException ignored) {}
+    ps.close();
+
+    return result;
+  }
+
+  public int deleteTournament (int tournamentId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.REMOVE_TOURNAMENT);
+    ps.setInt(1, tournamentId);
+
+    int result = ps.executeUpdate();
+
     ps.close();
 
     return result;
@@ -756,6 +782,18 @@ public class Database
     ps.close();
 
     return gameId;
+  }
+
+  public int deleteGame (int gameId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.REMOVE_GAME);
+    ps.setInt(1, gameId);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
   }
 
   public Game getGame (int gameId) throws SQLException

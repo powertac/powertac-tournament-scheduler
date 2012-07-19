@@ -4,6 +4,7 @@ import org.powertac.tourney.services.Database;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,27 @@ public class User
     password = "";
     permissions = Permission.GUEST;
     loggedIn = false;
+  }
+
+  public boolean login ()
+  {
+    // Set loggedIn value
+    loggedIn = true;
+
+    return false;
+  }
+
+  public boolean logout ()
+  {
+    // There is probably a better way to do this
+    brokers = null;
+    userId = -1;
+    username = "Guest";
+    password = "";
+    permissions = Permission.GUEST;
+    loggedIn = false;
+
+    return false;
   }
 
   public void addBroker (String brokerName, String shortDescription)
@@ -81,67 +103,6 @@ public class User
     }
   }
 
-  public static String getKey ()
-  {
-    return key;
-  }
-
-  public String getUsername ()
-  {
-    return username;
-  }
-
-  public void setUsername (String username)
-  {
-    this.username = username;
-  }
-
-  public String getPassword ()
-  {
-    return password;
-  }
-
-  public void setPassword (String password)
-  {
-    this.password = password;
-  }
-
-  public int getPermissions ()
-  {
-    return permissions;
-  }
-
-  public void setPermissions (int permissions)
-  {
-    this.permissions = permissions;
-  }
-
-  public boolean login ()
-  {
-    // Set loggedIn value
-    loggedIn = true;
-
-    return false;
-  }
-
-  public boolean logout ()
-  {
-    // There is probably a better way to do this
-    brokers = null;
-    userId = -1;
-    username = "Guest";
-    password = "";
-    permissions = Permission.GUEST;
-    loggedIn = false;
-
-    return false;
-  }
-
-  public boolean getLoggedIn ()
-  {
-    return loggedIn;
-  }
-
   public List<Broker> getBrokers ()
   {
     if (!isEditing && loggedIn) {
@@ -160,11 +121,60 @@ public class User
     return brokers;
   }
 
+
+  public static String getKey ()
+  {
+    return key;
+  }
+
+  public static User getCurrentUser ()
+  {
+    return (User) FacesContext.getCurrentInstance().getExternalContext()
+        .getSessionMap().get(key);
+  }
+
+  //<editor-fold desc="Setters and Getters">
+  public String getUsername ()
+  {
+    return username;
+  }
+  public void setUsername (String username)
+  {
+    this.username = username;
+  }
+
+  public String getPassword ()
+  {
+    return password;
+  }
+  public void setPassword (String password)
+  {
+    this.password = password;
+  }
+
+  public int getPermissions ()
+  {
+    return permissions;
+  }
+
+  public void setPermissions (int permissions)
+  {
+    this.permissions = permissions;
+  }
+
+  public void setLoggedIn (boolean loggedIn)
+  {
+    this.loggedIn = loggedIn;
+  }
+  public boolean getLoggedIn ()
+  {
+    return loggedIn;
+  }
+
   public int getUserId ()
   {
     return userId;
   }
-
   public void setUserId (int userId)
   {
     this.userId = userId;
@@ -174,10 +184,9 @@ public class User
   {
     return isEditing;
   }
-
   public void setEdit (boolean isEditing)
   {
     this.isEditing = isEditing;
   }
-
+  //</editor-fold>
 }

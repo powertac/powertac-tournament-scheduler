@@ -13,7 +13,7 @@
       <h2>Overview</h2>
 
       <h:form rendered="#{user.permissions le 0}">
-        <h3 class="withButton">Registered Brokers</h3><h:commandButton value="refresh" action="#{actionOverview.refresh}"/>
+        <h3 class="withButton">Registered Brokers</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
         <t:dataTable id="databrokers" border="1" sortable="false"
                      sortColumnPom="#{actionOverview.sortColumnBrokers}"
                      sortAscending="#{actionOverview.sortAscendingBrokers}" preserveSort="true"
@@ -41,17 +41,17 @@
             <h:outputText value="#{b.getUserName()}" />
           </t:column>
 
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Tournaments" />
             </f:facet>
-            <h:outputText value="#{actionOverview.getTournamentByBrokerId(b.brokerId)}" />
+            <h:outputText value="#{b.getRegisteredString()}" />
           </t:column>
         </t:dataTable>
       </h:form>
 
       <h:form rendered="#{user.permissions le 0}">
-        <h3 class="withButton">Pending/Running Tournaments</h3><h:commandButton value="refresh" action="#{actionOverview.refresh}"/>
+        <h3 class="withButton">Pending/Running Tournaments</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
         <t:dataTable id="datatourneys" border="1" sortable="false"
                      sortColumnPom="#{actionOverview.sortColumnTournaments}"
                      sortAscending="#{actionOverview.sortAscendingTournaments}" preserveSort="true"
@@ -120,7 +120,7 @@
       </h:form>
 
       <h:form rendered="#{user.permissions le 0}">
-        <h3 class="withButton">Pending/Running Games</h3><h:commandButton value="refresh" action="#{actionOverview.refresh}"/>
+        <h3 class="withButton">Pending/Running Games</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
         <t:dataTable id="datagames" border="1" sortable="false"
                      sortColumnPom="#{actionOverview.sortColumnGames}"
                      sortAscending="#{actionOverview.sortAscendingGames}" preserveSort="true"

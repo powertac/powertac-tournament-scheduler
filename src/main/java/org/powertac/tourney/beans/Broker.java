@@ -2,11 +2,15 @@ package org.powertac.tourney.beans;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.powertac.tourney.services.Database;
+import org.powertac.tourney.services.TournamentProperties;
 
 import javax.faces.bean.ManagedBean;
 import javax.persistence.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -54,15 +58,6 @@ public class Broker
         (new Date()).toString() + Math.random());
   }
 
-  @Column(name = "userId", unique = false, nullable = false)
-  public int getUserId ()
-  {
-    return userId;
-  }
-  public void setUserId (int userId)
-  {
-    this.userId = userId;
-  }
   public String getUserName()
   {
     String userName = "";
@@ -79,6 +74,98 @@ public class Broker
     }
 
     return userName;
+  }
+
+  public List<Tournament> getAvailableTournaments ()
+  {
+    Vector<Tournament> availableTourneys = new Vector<Tournament>();
+    List<Tournament> allTournaments = Tournament.getTournamentList();
+    TournamentProperties properties = TournamentProperties.getProperties();
+    long loginDeadline =
+        Integer.parseInt(properties.getProperty("loginDeadline", "3600000"));
+    long nowStamp = new Date().getTime();
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      for (Tournament t: allTournaments) {
+        long startStamp = t.getStartTime().getTime();
+
+        if (!db.isRegistered(t.getTournamentId(), brokerId)
+            && t.getNumberRegistered() < t.getMaxBrokers()
+            && (startStamp - nowStamp) > loginDeadline) {
+          availableTourneys.add(t);
+        }
+      }
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    return availableTourneys;
+  }
+
+  public List<Tournament> getRegisteredTournaments ()
+  {
+    List<Tournament> tournaments = new ArrayList<Tournament>();
+
+    Database db = new Database();
+
+    try {
+      db.startTrans();
+      tournaments = db.getTournamentsByBrokerId(brokerId);
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    return tournaments;
+  }
+
+  public String getRegisteredString ()
+  {
+    String result = "";
+    for (Tournament t: getRegisteredTournaments()) {
+      result += t.getTournamentName() + ", ";
+    }
+    if (!result.isEmpty()) {
+      result = result.substring(0, result.length()-2);
+    }
+
+    return result;
+  }
+
+  public static List<Broker> getBrokerList ()
+  {
+    List<Broker> brokers = new ArrayList<Broker>();
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      brokers = db.getBrokers();
+      db.commitTrans();
+    }
+      catch (SQLException e) {
+      e.printStackTrace();
+      db.abortTrans();
+    }
+
+    return brokers;
+  }
+
+  //<editor-fold desc="Setters and Getters">
+  @Column(name = "userId", unique = false, nullable = false)
+  public int getUserId ()
+  {
+    return userId;
+  }
+  public void setUserId (int userId)
+  {
+    this.userId = userId;
   }
 
   @Column(name = "brokerName", unique = false, nullable = false)
@@ -209,5 +296,6 @@ public class Broker
   {
     this.numberInGame = numberInGame;
   }
+  //</editor-fold>
 
 }

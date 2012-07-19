@@ -21,7 +21,7 @@ public class Rest
     log("Broker login request");
     String responseType = params.get(Constants.Rest.REQ_PARAM_TYPE)[0];
     String brokerAuthToken = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
-    String competitionName = params.get(Constants.Rest.REQ_PARAM_JOIN)[0];
+    String tournamentName = params.get(Constants.Rest.REQ_PARAM_JOIN)[0];
 
     String retryResponse = "{\n \"retry\":%d\n}";
     String loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"queueName\":%s\n \"serverQueue\":%s\n}";
@@ -42,7 +42,7 @@ public class Rest
       List<Tournament> allTournaments = db.getTournaments(Tournament.STATE.pending);
       allTournaments.addAll(db.getTournaments(Tournament.STATE.in_progress));
 
-      if (competitionName != null && allGames != null) {
+      if (tournamentName != null && allGames != null) {
         // Find all games that match the competition name and have brokers
         // registered
         for (Game g: allGames) {
@@ -50,7 +50,7 @@ public class Rest
           if (g.stateEquals(Game.STATE.game_ready)) {
             Tournament t = db.getTournamentByGameId(g.getGameId());
 
-            if (competitionName.equalsIgnoreCase(t.getTournamentName())) {
+            if (tournamentName.equalsIgnoreCase(t.getTournamentName())) {
               Broker broker = g.getBrokerRegistration(brokerAuthToken);
               // here we need to add the queue name
               // update ingame gameid, brokerid, true
@@ -77,7 +77,7 @@ public class Rest
 
         boolean competitionExists = false;
         for (Tournament t: allTournaments) {
-          if (competitionName.equals(t.getTournamentName())) {
+          if (tournamentName.equals(t.getTournamentName())) {
             competitionExists = true;
             break;
           }
@@ -85,12 +85,12 @@ public class Rest
 
         if (competitionExists) {
           log("[INFO] Broker: {0} attempted to log into existing tournament"
-              + ": {1} --sending retry", brokerAuthToken, competitionName);
+              + ": {1} --sending retry", brokerAuthToken, tournamentName);
           return String.format(retryResponse, 60);
         }
         else {
           log("[INFO] Broker: {0} attempted to log into non-existing tournament"
-              + ": {1} --sending done", brokerAuthToken, competitionName);
+              + ": {1} --sending done", brokerAuthToken, tournamentName);
           return doneResponse;
         }
       }
@@ -174,7 +174,7 @@ public class Rest
       "server.competitionControlService.loginTimeout = 120000";
 
     // Test settings
-    if (g.getGameName().contains("Test") || g.getGameName().contains("test")) {
+    if (g.getGameName().toLowerCase().contains("test")) {
     	minTimeslot = "common.competition.minimumTimeslotCount = 200";
     	expectedTimeslot = "common.competition.expectedTimeslotCount = 220";
     }

@@ -43,31 +43,27 @@ public class ActionLogin
       int[] perm;// = new int[2] -1;
       database.startTrans();
       if ((perm = database.loginUser(getUsername(), getPassword()))[0] >= 0) {
-        User test =
-          (User) FacesContext.getCurrentInstance().getExternalContext()
-                  .getSessionMap().get(User.getKey());
+        User test = User.getCurrentUser();
         test.setUsername(getUsername());
         test.setUserId(perm[1]);
         test.setPermissions(perm[0]);
         test.login();
       }
       else {
-        FacesContext.getCurrentInstance()
-                .addMessage("loginForm",
-                            new FacesMessage(FacesMessage.SEVERITY_INFO,
-                                             "Login Failure: " + perm, null));
+        // TODO Fix array to string
+        String msg = "Login Failure: ";
+        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg + perm, null);
+        FacesContext.getCurrentInstance().addMessage("loginForm", fm);
         return "Failure";
       }
       database.commitTrans();
     }
     catch (SQLException e) {
       database.abortTrans();
-      FacesContext.getCurrentInstance()
-              .addMessage("loginForm",
-                          new FacesMessage(FacesMessage.SEVERITY_INFO,
-                                           "Login Exception Failure", null));
       e.printStackTrace();
-
+      String msg = "Login Exception Failure";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+      FacesContext.getCurrentInstance().addMessage("loginForm", fm);
       return "Failure";
     }
 
@@ -76,12 +72,8 @@ public class ActionLogin
 
   public String logout ()
   {
-    User test =
-      (User) FacesContext.getCurrentInstance().getExternalContext()
-              .getSessionMap().get(User.getKey());
-
+    User test = User.getCurrentUser();
     test.logout();
-
     return "Login";
   }
 

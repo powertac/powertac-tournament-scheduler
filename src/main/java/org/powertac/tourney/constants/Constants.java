@@ -81,7 +81,8 @@ public class Constants
    * @param brokerName : The name of the broker to check existence
    * 
    */
-  public static final String NUM_BROKER_COPIES = "SELECT COUNT(*) as num FROM brokers WHERE brokerName=?";
+  public static final String NUM_BROKER_COPIES =
+      "SELECT COUNT(*) as num FROM brokers WHERE brokerName=?";
 
   /***
    * Select all brokers by their userId
@@ -149,9 +150,7 @@ public class Constants
    * Selects a tournament from the database by tournamentId
    * 
    * @param tournamentId
-   *          : Specify the unique field to select a particular tournamnet by
-   *          Id.
-   * 
+   *          : Specify the ID to select a particular tournament
    */
   public static final String SELECT_TOURNAMENT_BYID =
     "SELECT * FROM tournaments WHERE tourneyId=?;";
@@ -160,9 +159,7 @@ public class Constants
    * Selects a tournament from the database by gameId
    * 
    * @param gameId
-   *          : Specify the unique field to select a particular tournament by
-   *          gameId.
-   * 
+   *          : Specify the ID of the game to select the tournament
    */
   public static final String SELECT_TOURNAMENT_BYGAMEID =
     "SELECT * FROM tournaments "
@@ -201,7 +198,17 @@ public class Constants
     "(tourneyName, startTime, openRegistration, maxGames, type, " +
      "locations, maxBrokers, status, gameSize1, gameSize2, gameSize3, " +
      "numberGameSize1, numberGameSize2, numberGameSize3, pomId) " +
-    "VALUES (?,?,?,?,?,?,?,'" + Tournament.STATE.pending + "',?,?,?,?,?,?,?);";
+    "VALUES (?,?,?,?,?,?,?,'"
+            + Tournament.STATE.pending.toString() + "',?,?,?,?,?,?,?);";
+
+  /***
+   * Remove a tournament by its Id
+   *
+   * @param tourneyId
+   *          : The Id of the tournament
+   */
+  public static final String REMOVE_TOURNAMENT =
+      "DELETE FROM tournaments WHERE tourneyId=?;";
 
   /***
    * Updates a particular tournament given the id
@@ -215,15 +222,6 @@ public class Constants
   public static final String UPDATE_TOURNAMENT_STATUS_BYID =
     "UPDATE tournaments SET status = ? WHERE tourneyId=?";
 
-  /***
-   * Delete a particular tournament permanently, works only if all the games
-   * associated with it have been deleted
-   * 
-   * @param tournamentId
-   *          : The id of the tournament you wish to delete
-   */
-  public static final String DELETE_TOURNAMENT_BYID =
-    "DELETE FROM tournaments WHERE tourneyId=?;";
 
   /**
    * Select the max tournament id from all the tournaments
@@ -306,7 +304,7 @@ public class Constants
     "INSERT INTO games (gameName, tourneyId, maxBrokers, startTime, status, "
         + "jmsUrl, visualizerUrl, visualizerQueue, serverQueue, location, "
         + "hasBootstrap, brokers) "
-        + "VALUES(?,?,?,?,'" + Game.STATE.boot_pending
+        + "VALUES(?,?,?,?,'" + Game.STATE.boot_pending.toString()
         + "','','','','','',false,'');";
 
   /***
@@ -314,29 +312,29 @@ public class Constants
    */
   public static final String GET_RUNNABLE_GAMES_EXC =
     "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() "
-        + "AND status='" + Game.STATE.boot_complete + "' AND tourneyId!=?;";
+        + "AND status='" + Game.STATE.boot_complete.toString() + "' AND tourneyId!=?;";
   
   /***
    * Returns a list of the runnable games as of now.
    */
   public static final String GET_RUNNABLE_GAMES =
     "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() AND status='" +
-        Game.STATE.boot_complete + "';";
+        Game.STATE.boot_complete.toString() + "';";
 
   /***
    * Returns a list of the runnable SINGLE_GAME games as of now.
    */
   public static final String GET_RUNNABLE_SINGLE_GAMES =
       "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() AND status='" +
-          Game.STATE.boot_complete + "' " +
+          Game.STATE.boot_complete.toString() + "' " +
           "AND tourneyId in (SELECT tourneyId FROM tournaments WHERE type='" +
-          Tournament.TYPE.SINGLE_GAME + "');";
+          Tournament.TYPE.SINGLE_GAME.toString() + "');";
 
   /***
    * Returns a list of the bootable games as of now
    */
   public static final String GET_BOOTABLE_GAMES =
-    "SELECT * FROM games WHERE status='" + Game.STATE.boot_pending + "';";
+    "SELECT * FROM games WHERE status='" + Game.STATE.boot_pending.toString() + "';";
 
   /***
    * Add broker to game in database
@@ -465,18 +463,19 @@ public class Constants
    * @param gameId
    *          : The id of the game to delete
    */
-  public static final String DELETE_GAME =
+  public static final String REMOVE_GAME =
     "DELETE FROM games WHERE gameId=?;";
 
   /***
    * Select all running and pending games
    */
   public static final String SELECT_GAME =
-    "SELECT * FROM games WHERE NOT status = '" + Game.STATE.game_complete + "';";
+    "SELECT * FROM games WHERE NOT status = '"
+        + Game.STATE.game_complete.toString() + "';";
 
   
   public static final String SELECT_COMPLETE_GAMES = "SELECT * FROM games "
-      + "WHERE status='" + Game.STATE.game_complete + "';";
+      + "WHERE status='" + Game.STATE.game_complete.toString() + "';";
   /***
    * Select all games belonging to a tournament
    * 
@@ -513,6 +512,16 @@ public class Constants
   /***
    * Add properties to the database
    * 
+   * @param gameId
+   *          : The gameId from which we want to remove properties
+   */
+  public static final String DELETE_PROPERTIES_BY_GAMEID =
+    "DELETE FROM properties WHERE gameId=?;";
+
+
+  /***
+   * Add properties to the database
+   *
    * @param location
    *          : The location key value pair for the properties file as a string
    *          in the database
@@ -523,8 +532,9 @@ public class Constants
    *          : The gameId that this property file belongs to
    */
   public static final String ADD_PROPERTIES =
-    "INSERT INTO properties (jmsUrl,location,startTime,gameId) "
-        + "VALUES ('',?,?,?);";
+      "INSERT INTO properties (jmsUrl,location,startTime,gameId) "
+          + "VALUES ('',?,?,?);";
+
 
   /***
    * Update the properties with jmsUrl for sims, this is done as soon as you
@@ -618,7 +628,7 @@ public class Constants
   public static final String ADD_MACHINE =
     "INSERT INTO machines (machineName, machineUrl, visualizerUrl, "+
     "status, available) VALUES (?,?,?,'" +
-    Machine.STATE.idle + "',false);";
+    Machine.STATE.idle.toString() + "',false);";
 
   /***
    * Update a machines properties in the database

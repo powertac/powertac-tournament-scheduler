@@ -8,7 +8,6 @@
 package org.powertac.tourney.services;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -18,6 +17,8 @@ import java.util.TimeZone;
 
 
 public class Utils {
+  public static String tmLogFile = logFile();
+
   public static boolean checkClientAllowed (String clientAddress)
   {
     // TODO Only allow access to slave, defined in db.machines
@@ -30,7 +31,6 @@ public class Utils {
 
     return true;
   }
-
 
   //<editor-fold desc="Date format">
   public static String dateFormat (Date date)
@@ -56,12 +56,6 @@ public class Utils {
   public static void log (String base)
   {
     System.out.println(base);
-
-    String catalinaBase = System.getProperty("catalina.base");
-    if (!catalinaBase.endsWith(File.separator)) {
-      catalinaBase += File.separator;
-    }
-    String tmLogFile = catalinaBase + "logs" + File.separator + "tournament.out";
 
     try {
       FileWriter fstream = new FileWriter(tmLogFile, true);
@@ -91,6 +85,16 @@ public class Utils {
   {
     MessageFormat fmt = new MessageFormat(base);
     log(fmt.format(args));
+  }
+
+  private static String logFile()
+  {
+    tmLogFile = System.getProperty("catalina.base", "") + "/logs/";
+    if (tmLogFile.equals("/logs/")) {
+      tmLogFile = "/tmp/"; // Not started via tomcat
+    }
+    tmLogFile += "tournament.out";
+    return tmLogFile;
   }
   //</editor-fold>
 }

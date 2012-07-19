@@ -26,7 +26,7 @@ public class DbConnection
   {
     TournamentProperties tournamentProperties =
         (TournamentProperties) SpringApplicationContext.getBean("tournamentProperties");
-    
+
     // Database Connection related properties
     database = (tournamentProperties.getProperty("db.database"));
     dbms = (tournamentProperties.getProperty("db.dbms"));

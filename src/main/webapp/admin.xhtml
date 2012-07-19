@@ -126,7 +126,6 @@
         <t:dataTable id="datausers" border="1" sortable="true"
                      sortColumnPom="#{actionAdmin.sortColumnPom}"
                      sortAscending="#{actionAdmin.sortAscendingPom}" preserveSort="true"
-                     rowCount="#{actionAdmin.rowCountPom}"
                      styleClass="dataTable"
                      value="#{actionAdmin.pomList}" var="p">
 
@@ -174,7 +173,6 @@
         <t:dataTable id="machines" border="1" sortable="false"
                      sortColumnPom="#{actionAdmin.sortColumnMachine}"
                      sortAscending="#{actionAdmin.sortAscendingMachine}"
-                     preserveSort="true" rowCount="#{actionAdmin.rowCountMachine}"
                      styleClass="dataTable"
                      value="#{actionAdmin.machineList}" var="m">
 
@@ -280,7 +278,6 @@
         <t:dataTable id="datausers" border="1" sortable="true"
                      sortColumnPom="#{actionAdmin.sortColumnUsers}"
                      sortAscending="#{actionAdmin.sortAscendingUsers}" preserveSort="true"
-                     rowCount="#{actionAdmin.rowCountUsers}"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
                      value="#{actionAdmin.userList}" var="u">
 

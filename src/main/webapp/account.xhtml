@@ -22,9 +22,7 @@
 
           <h:column>
             <f:facet name="header">Tournaments</f:facet>
-            <ui:repeat value="#{actionAccount.getRegisteredTournaments(b)}" varStatus="loop" var="t">
-              <h:outputText value="#{t.getTournamentName()}, " />
-            </ui:repeat>
+            <h:outputText value="#{b.getRegisteredString()}" />
           </h:column>
 
           <h:column>
@@ -48,12 +46,6 @@
 				<h:dataTable border="1"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{actionAccount.brokers}" var="b">
-
-          <h:column>
-            <f:facet name="header">Weg</f:facet>
-            <h:outputText value="#{b.edit}" />
-          </h:column>
-
 					<h:column>
 						<f:facet name="header">Broker Name</f:facet>
 						<h:outputText value="#{b.brokerName}" rendered="#{!b.edit}" />
@@ -93,12 +85,12 @@
 					</h:column>
 				</h:dataTable>
 
-				<h5>Add Broker Name/Description</h5>
+        <br/>
+				<h4>Add Broker Name/Description</h4>
 				<h:panelGrid columns="1">
 					<h:inputText value="#{actionAccount.newBrokerName}" />
 					<h:inputTextarea value="#{actionAccount.newBrokerShortDescription}" />
-					<h:commandButton value="Add Broker"
-						action="#{actionAccount.addBroker}" />
+					<h:commandButton value="Add Broker" action="#{actionAccount.addBroker}" />
           <br/>
           <h:message for="accountForm" />
 				</h:panelGrid>

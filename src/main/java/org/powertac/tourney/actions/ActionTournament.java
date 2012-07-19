@@ -1,8 +1,6 @@
 package org.powertac.tourney.actions;
 
-import org.powertac.tourney.beans.Location;
-import org.powertac.tourney.beans.Machine;
-import org.powertac.tourney.beans.Tournament;
+import org.powertac.tourney.beans.*;
 import org.powertac.tourney.scheduling.MainScheduler;
 import org.powertac.tourney.services.CreateProperties;
 import org.powertac.tourney.services.Database;
@@ -36,7 +34,6 @@ public class ActionTournament
   
   private String sortColumn = null;
   private boolean sortAscending = true;
-  private int rowCount = 5;
 
   private List<String> locations;
   private Tournament.TYPE type = Tournament.TYPE.SINGLE_GAME;
@@ -79,32 +76,12 @@ public class ActionTournament
     return items;
   }
 
-  public List<Tournament> getTournamentList(){
-    List<Tournament> ts = new ArrayList<Tournament>();
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      ts = db.getTournaments(Tournament.STATE.pending);
-      ts.addAll(db.getTournaments(Tournament.STATE.in_progress));
-      db.commitTrans();
-    }
-    catch(Exception e){
-      db.abortTrans();
-    }
-
-    return ts;
+  public List<Tournament> getTournamentList() {
+    return Tournament.getTournamentList();
   }
 
   public synchronized String createTournament ()
   {
-    // Create a tournament and insert it into the application context
-    Tournament newTourney = new Tournament();
-    newTourney.setPomId(selectedPom);
-    newTourney.setMaxBrokers(getMaxBrokers());
-    newTourney.setStartTime(getStartTime());
-    newTourney.setTournamentName(getTournamentName());
-
     String allLocations = "";
     for (String s: locations) {
       allLocations += s + ",";
@@ -113,20 +90,26 @@ public class ActionTournament
     int[] mxs = {numberSize1, numberSize2, numberSize3};
 
     if (type == Tournament.TYPE.SINGLE_GAME) {
-      return createSingleGameTournament(newTourney, allLocations, gtypes, mxs);
+      return createSingleGameTournament(allLocations, gtypes, mxs);
     }
     else if (type == Tournament.TYPE.MULTI_GAME) {
-      return createMultiGameTournament(newTourney, allLocations, gtypes, mxs);
+      return createMultiGameTournament(allLocations, gtypes, mxs);
     }
 
     return "Success??";
   }
 
-  private String createSingleGameTournament(Tournament newTourney,
-                                            String allLocations,
+  private String createSingleGameTournament(String allLocations,
                                             int[] gtypes, int[] mxs)
   {
     log("[INFO] Singlegame tournament selected");
+
+    // Create a tournament and insert it into the application context
+    Tournament newTourney = new Tournament();
+    newTourney.setPomId(selectedPom);
+    newTourney.setMaxBrokers(getMaxBrokers());
+    newTourney.setStartTime(getStartTime());
+    newTourney.setTournamentName(getTournamentName());
 
     Database db = new Database();
     try {
@@ -162,8 +145,7 @@ public class ActionTournament
     return "Success";
   }
 
-  private String createMultiGameTournament(Tournament newTourney,
-                                           String allLocations,
+  private String createMultiGameTournament(String allLocations,
                                            int[] gtypes, int[] mxs)
   {
     log("[INFO] Multigame tournament selected");
@@ -251,30 +233,6 @@ public class ActionTournament
     return poms;
   }
 
-  public List<Machine> getAvailableMachineList ()
-  {
-    List<Machine> machines = new ArrayList<Machine>();
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      List<Machine> all = db.getMachines();
-      for (Machine m: all) {
-        if (m.isAvailable()) {
-          machines.add(m);
-        }
-      }
-      db.commitTrans();
-
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return machines;
-  }
-
   public List<Location> getLocationList(){
     List<Location> locations = new ArrayList<Location>();
     
@@ -303,12 +261,38 @@ public class ActionTournament
     }
   }
 
+  public void removeTournament(Tournament t)
+  {
+    if (t == null) {
+      return;
+    }
+
+    if (!t.getTournamentName().toLowerCase().contains("test")) {
+      log("[INFO] Someone tried to remove a non-test Tournament!");
+      String msg = "Nice try, hacker!" ;
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_WARN, msg, null);
+      FacesContext.getCurrentInstance().addMessage("removeTournament", fm);
+      return;
+    }
+
+    String msg = t.remove();
+    if (!msg.isEmpty()) {
+      log("[INFO] Something went wrong with removing tournament {0}\n{1}",
+          t.getTournamentName(), msg);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_WARN, msg, null);
+      FacesContext.getCurrentInstance().addMessage("removeTournament", fm);
+    }
+  }
+
+  public void refresh ()
+  {
+  }
+
   //<editor-fold desc="Setters and getters">
   public List<String> getLocations ()
   {
     return locations;
   }
-
   public void setLocations (List<String> locations)
   {
     this.locations = locations;
@@ -318,7 +302,6 @@ public class ActionTournament
   {
     return selectedPom;
   }
-
   public void setSelectedPom (int selectedPom)
   {
     this.selectedPom = selectedPom;
@@ -328,7 +311,6 @@ public class ActionTournament
   {
     return size1;
   }
-
   public void setSize1 (int size1)
   {
     this.size1 = size1;
@@ -338,7 +320,6 @@ public class ActionTournament
   {
     return numberSize1;
   }
-
   public void setNumberSize1 (int numberSize1)
   {
     this.numberSize1 = numberSize1;
@@ -348,7 +329,6 @@ public class ActionTournament
   {
     return size2;
   }
-
   public void setSize2 (int size2)
   {
     this.size2 = size2;
@@ -358,7 +338,6 @@ public class ActionTournament
   {
     return numberSize2;
   }
-
   public void setNumberSize2 (int numberSize2)
   {
     this.numberSize2 = numberSize2;
@@ -368,7 +347,6 @@ public class ActionTournament
   {
     return size3;
   }
-
   public void setSize3 (int size3)
   {
     this.size3 = size3;
@@ -378,7 +356,6 @@ public class ActionTournament
   {
     return numberSize3;
   }
-
   public void setNumberSize3 (int numberSize3)
   {
     this.numberSize3 = numberSize3;
@@ -388,7 +365,6 @@ public class ActionTournament
   {
     return maxBrokerInstances;
   }
-
   public void setMaxBrokerInstances (int maxBrokerInstances)
   {
     this.maxBrokerInstances = maxBrokerInstances;
@@ -398,7 +374,6 @@ public class ActionTournament
   {
     return sortColumn;
   }
-
   public void setSortColumn (String sortColumn)
   {
     this.sortColumn = sortColumn;
@@ -408,27 +383,15 @@ public class ActionTournament
   {
     return sortAscending;
   }
-
   public void setSortAscending (boolean sortAscending)
   {
     this.sortAscending = sortAscending;
-  }
-
-  public int getRowCount ()
-  {
-    return rowCount;
-  }
-
-  public void setRowCount (int rowCount)
-  {
-    this.rowCount = rowCount;
   }
 
   public Tournament.TYPE getType ()
   {
     return type;
   }
-
   public void setType (Tournament.TYPE type)
   {
     this.type = type;
@@ -438,7 +401,6 @@ public class ActionTournament
   {
     return startTime;
   }
-
   public void setStartTime (Date startTime)
   {
     this.startTime = startTime;
@@ -448,7 +410,6 @@ public class ActionTournament
   {
     return maxBrokers;
   }
-
   public void setMaxBrokers (int maxBrokers)
   {
     this.maxBrokers = maxBrokers;
@@ -458,7 +419,6 @@ public class ActionTournament
   {
     return tournamentName;
   }
-
   public void setTournamentName (String tournamentName)
   {
     this.tournamentName = tournamentName;
@@ -468,7 +428,6 @@ public class ActionTournament
   {
     return fromTime;
   }
-
   public void setFromTime (Date fromTime)
   {
     this.fromTime = fromTime;
@@ -478,7 +437,6 @@ public class ActionTournament
   {
     return toTime;
   }
-
   public void setToTime (Date toTime)
   {
     this.toTime = toTime;

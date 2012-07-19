@@ -168,18 +168,6 @@ CREATE TABLE `tourney`.`ingame` (
 ) ENGINE=InnoDB;
 
 
-DROP TABLE IF EXISTS `tourney`.`competitions`;
-CREATE TABLE `tourney`.`competitions` (
-	`competitionId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`qualifierRoundId` BIGINT(20) UNSIGNED NOT NULL,
-	`finalRoundId` BIGINT(20) UNSIGNED NOT NULL,
-	`status` VARCHAR(256) NOT NULL,
-	CONSTRAINT qualifier_refs FOREIGN KEY (`qualifierRoundId`) REFERENCES `tourney`.`tournaments`(`tourneyId`),
-	CONSTRAINT final_refs FOREIGN KEY (`finalRoundId`) REFERENCES `tourney`.`tournaments`(`tourneyId`),
-	PRIMARY KEY (`competitionId`)
-) ENGINE=InnoDB;
-
-
 /*** SCHEDULING TABLES ****/
 DROP TABLE IF EXISTS `tourney`.`AgentAdmin`;
 CREATE TABLE `tourney`.`AgentAdmin` (

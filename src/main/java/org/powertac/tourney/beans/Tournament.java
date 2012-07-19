@@ -151,22 +151,74 @@ public class Tournament
     return Utils.dateFormatUTC(startTime);
   }
 
-  // TODO Cleanup. Still needed ??
-  /*
-  // Probably Should check name against auth token
-  private HashMap<Integer, String> registeredBrokers;
-
-  public boolean isRegistered (String authToken)
-  {
-    return registeredBrokers.containsValue(authToken);
-  }
-
-  // This goes into the default constructor
-  registeredBrokers = new HashMap<Integer, String>();
-  */
-
   public boolean typeEquals(TYPE type) {
     return this.type.equals(type.toString());
+  }
+
+  public String remove ()
+  {
+    Database db = new Database();
+
+    try {
+      db.startTrans();
+
+      List<Game> games = db.getGamesInTourney(tourneyId);
+      List<Broker> brokers = db.getBrokersInTournament(tourneyId);
+
+      // Disallow removal when games booting or running
+      for (Game g: games) {
+        if (g.stateEquals(Game.STATE.boot_in_progress) ||
+            g.stateEquals(Game.STATE.game_ready) ||
+            g.stateEquals(Game.STATE.game_in_progress)) {
+          db.abortTrans();
+          return String.format("Game %s can not be removed, state = %s",
+                               g.getGameName(), g.getStatus());
+        }
+      }
+
+      // Remove all registrations for this tournament
+      for (Broker broker: brokers) {
+        db.unregisterBroker(tourneyId, broker.getBrokerId());
+      }
+
+      for (Game game: games) {
+        // Remove all ingames
+        db.updateGameFreeBrokers(game.getGameId());
+        // Remove all properties for games for this tournament
+        db.deletePropertiesByGameId(game.getGameId());
+        // Remove all games for a tournament
+        db.deleteGame(game.getGameId());
+      }
+
+      // Remove tournament
+      db.deleteTournament(tourneyId);
+
+      db.commitTrans();
+      return "";
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+      return "Database error :" + e.getMessage();
+    }
+  }
+
+  static public List<Tournament> getTournamentList ()
+  {
+    List<Tournament> ts = new ArrayList<Tournament>();
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      ts = db.getTournaments(STATE.pending);
+      ts.addAll(db.getTournaments(Tournament.STATE.in_progress));
+      db.commitTrans();
+    }
+    catch(Exception e){
+      db.abortTrans();
+    }
+
+    return ts;
   }
 
   //<editor-fold desc="Getters and setters">
@@ -299,9 +351,9 @@ public class Tournament
     return tourneyId;
   }
 
-  public void setTournamentId (int competitionId)
+  public void setTournamentId (int tourneyId)
   {
-    this.tourneyId = competitionId;
+    this.tourneyId = tourneyId;
   }
 
   @Temporal(TemporalType.DATE)

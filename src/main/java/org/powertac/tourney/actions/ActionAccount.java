@@ -5,15 +5,12 @@ import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.beans.User;
 import org.powertac.tourney.services.Database;
-import org.powertac.tourney.services.TournamentProperties;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
@@ -30,81 +27,35 @@ public class ActionAccount
   {
   }
 
-  public String getNewBrokerName ()
+  public void addBroker ()
   {
-    return newBrokerName;
-  }
-
-  public void setNewBrokerName (String newBrokerName)
-  {
-    this.newBrokerName = newBrokerName;
-  }
-
-  public String addBroker ()
-  {
-    User user =
-      (User) FacesContext.getCurrentInstance().getExternalContext()
-              .getSessionMap().get(User.getKey());
-    if (getNewBrokerName().equalsIgnoreCase("")
-        || getNewBrokerShortDescription().equalsIgnoreCase("")) {
-      FacesMessage fm =
-        new FacesMessage(FacesMessage.SEVERITY_INFO,
-                         "Broker requires a Name and an AuthToken", null);
-      FacesContext.getCurrentInstance().addMessage("accountForm", fm);
-      return "Account";
+    // Check if name and description not empty, and if name allowed
+    if (namesEmpty(getNewBrokerName(), getNewBrokerShortDescription())) {
+      return;
     }
-   
-    // Check if broker name already exists
-    Database db = new Database();
-    boolean exists = false;
-    try {
-      db.startTrans();
-      exists = db.brokerNameExists(getNewBrokerName());
-      log("BrokerName: " + getNewBrokerName() + " exists " + exists);
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      log(e.getMessage());
-      db.abortTrans();
-      return "Account";
+    else if (nameExists(getNewBrokerName())) {
+      return;
     }
 
-    if (exists) {
-      FacesMessage fm =
-        new FacesMessage(FacesMessage.SEVERITY_INFO,
-                         "Broker Name taken, please select a new name", null);
-      FacesContext.getCurrentInstance().addMessage("accountForm", fm);
-      return "Account";
-    }
-
-    // Check if user is null?
+    User user = User.getCurrentUser();
     user.addBroker(getNewBrokerName(), getNewBrokerShortDescription());
-
-    return "Account";
   }
 
   public List<Broker> getBrokers ()
   {
-    User user =
-      (User) FacesContext.getCurrentInstance().getExternalContext()
-              .getSessionMap().get(User.getKey());
+    User user = User.getCurrentUser();
     return user.getBrokers();
   }
 
   public void deleteBroker (Broker b)
   {
-    User user =
-      (User) FacesContext.getCurrentInstance().getExternalContext()
-              .getSessionMap().get(User.getKey());
+    User user = User.getCurrentUser();
     user.deleteBroker(b.getBrokerId());
   }
 
   public void editBroker (Broker b)
   {
-    User user =
-      (User) FacesContext.getCurrentInstance().getExternalContext()
-              .getSessionMap().get(User.getKey());
-
+    User user = User.getCurrentUser();
     user.setEdit(true);
     b.setEdit(true);
     b.setNewAuth(b.getBrokerAuthToken());
@@ -114,46 +65,17 @@ public class ActionAccount
 
   public void saveBroker (Broker b)
   {
-    User user =
-      (User) FacesContext.getCurrentInstance().getExternalContext()
-              .getSessionMap().get(User.getKey());
-
-    if (b.getNewName().equalsIgnoreCase("")
-        || b.getBrokerAuthToken().equalsIgnoreCase("")) {
-      FacesContext
-              .getCurrentInstance()
-              .addMessage("accountForm",
-                          new FacesMessage(
-                                           FacesMessage.SEVERITY_INFO,
-                                           "Broker requires a Name and an AuthToken",
-                                           null));
+    // Check if name and description not empty, and if name allowed (if changed)
+    if (namesEmpty(b.getNewName(), b.getNewShort())) {
       return;
     }
-    
-    // Check if broker name already exists
-    Database db2 = new Database();
-    boolean exists = false;
-    try {
-      db2.startTrans();
-      exists = db2.brokerNameExists(b.getNewName());
-      log("BrokerName: " + getNewBrokerName() + " exists " + exists);
-      db2.commitTrans();
-    }
-    catch (SQLException e) {
-      db2.abortTrans();
-
+    else if (!b.getBrokerName().equals(b.getNewName())) {
+      if (nameExists(b.getNewName())) {
+        return;
+      }
     }
 
-    if (exists) {
-      FacesMessage fm =
-        new FacesMessage(FacesMessage.SEVERITY_INFO,
-                         "Broker Name taken, please select a new name", null);
-      FacesContext.getCurrentInstance().addMessage("accountForm", fm);
-      return;
-    }
-    
-    
-
+    User user = User.getCurrentUser();
     user.setEdit(false);
     b.setEdit(false);
     b.setBrokerName(b.getNewName());
@@ -161,7 +83,6 @@ public class ActionAccount
     b.setBrokerAuthToken(b.getNewAuth());
 
     Database db = new Database();
-
     try {
       db.startTrans();
       db.updateBrokerByBrokerId(b.getBrokerId(), b.getBrokerName(),
@@ -170,90 +91,62 @@ public class ActionAccount
     }
     catch (SQLException e) {
       db.abortTrans();
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
 
   public void cancelBroker (Broker b)
   {
-    User user =
-      (User) FacesContext.getCurrentInstance().getExternalContext()
-              .getSessionMap().get(User.getKey());
+    User user = User.getCurrentUser();
     user.setEdit(false);
     b.setEdit(false);
   }
 
-  public List<Tournament> getRegisteredTournaments (Broker b)
+  private boolean namesEmpty (String name, String description)
   {
-    List<Tournament> tournaments = new ArrayList<Tournament>();
+    if (name.trim().isEmpty() || description.trim().isEmpty()) {
+      String msg = "Broker requires a Name and a Description";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+      FacesContext.getCurrentInstance().addMessage("accountForm", fm);
+      return true;
+    }
+    return false;
+  }
 
+  private boolean nameExists (String name)
+  {
+    boolean exists = false;
     Database db = new Database();
-
     try {
       db.startTrans();
-      tournaments = db.getTournamentsByBrokerId(b.getBrokerId());
+      exists = db.brokerNameExists(name);
       db.commitTrans();
     }
     catch (SQLException e) {
       db.abortTrans();
-      e.printStackTrace();
     }
 
-    return tournaments;
+    if (exists) {
+      String msg = "Broker Name taken, please select a new name";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesContext.getCurrentInstance().addMessage("accountForm", fm);
+    }
+
+    return exists;
   }
 
   public List<Tournament> getAvailableTournaments (Broker b)
   {
-    List<Tournament> allTournaments = new ArrayList<Tournament>();
-    Vector<Tournament> availableTourneys = new Vector<Tournament>();
+    List<Tournament> availableTourneys = new Vector<Tournament>();
 
-    if (b == null) {
-      return availableTourneys;
+    if (b != null) {
+      availableTourneys = b.getAvailableTournaments();
     }
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      allTournaments = db.getTournaments(Tournament.STATE.pending);
-      allTournaments.addAll(db.getTournaments(Tournament.STATE.in_progress));
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    TournamentProperties properties = TournamentProperties.getProperties();
-    long loginDeadline =
-      Integer.parseInt(properties.getProperty("loginDeadline", "3600000"));
-    long nowStamp = new Date().getTime();
-
-    for (Tournament t: allTournaments) {
-      try {
-        long startStamp = t.getStartTime().getTime();
-
-        if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())
-            && t.getNumberRegistered() < t.getMaxBrokers()
-            && (startStamp - nowStamp) > loginDeadline) {
-          availableTourneys.add(t);
-        }
-        else if (t.getNumberRegistered() >= t.getMaxBrokers()) {
-          log("Cannot register for {0}: maxBrokers", t.getTournamentName());
-        }
-        else if ((startStamp - nowStamp) <= loginDeadline) {
-          log("Cannot register for {0}: too late", t.getTournamentName());
-        }
-      }
-      catch (SQLException e) {
-        db.abortTrans();
-        e.printStackTrace();
-      }
-    }
-    db.commitTrans();
 
     return availableTourneys;
   }
 
+  // TODO This should be a Broker method
   public String register (Broker b)
   {
     String tournamentName = b.getSelectedTourney();
@@ -261,13 +154,10 @@ public class ActionAccount
       return null;
     }
 
+    List<Tournament> allTournaments = Tournament.getTournamentList();
     Database db = new Database();
-    List<Tournament> allTournaments;
-
     try {
       db.startTrans();
-      allTournaments = db.getTournaments(Tournament.STATE.pending);
-      allTournaments.addAll(db.getTournaments(Tournament.STATE.in_progress));
       for (Tournament t: allTournaments) {
         if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())
             && t.getTournamentName().equalsIgnoreCase(tournamentName)) {
@@ -309,5 +199,15 @@ public class ActionAccount
   public void setNewBrokerShortDescription (String newBrokerShortDescription)
   {
     this.newBrokerShortDescription = newBrokerShortDescription;
+  }
+
+  public String getNewBrokerName ()
+  {
+    return newBrokerName;
+  }
+
+  public void setNewBrokerName (String newBrokerName)
+  {
+    this.newBrokerName = newBrokerName;
   }
 }
