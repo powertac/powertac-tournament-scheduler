@@ -46,13 +46,37 @@ public class ActionAccount
       (User) FacesContext.getCurrentInstance().getExternalContext()
               .getSessionMap().get(User.getKey());
     if (getNewBrokerName().equalsIgnoreCase("")
-          || getNewBrokerShortDescription().equalsIgnoreCase("")) {
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,
-            "Broker requires a Name and an AuthToken", null);
+        || getNewBrokerShortDescription().equalsIgnoreCase("")) {
+      FacesMessage fm =
+        new FacesMessage(FacesMessage.SEVERITY_INFO,
+                         "Broker requires a Name and an AuthToken", null);
       FacesContext.getCurrentInstance().addMessage("accountForm", fm);
       return "Account";
     }
-    
+   
+    // Check if broker name already exists
+    Database db = new Database();
+    boolean exists = false;
+    try {
+      db.startTrans();
+      exists = db.brokerNameExists(getNewBrokerName());
+      log("BrokerName: " + getNewBrokerName() + " exists " + exists);
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      log(e.getMessage());
+      db.abortTrans();
+      return "Account";
+    }
+
+    if (exists) {
+      FacesMessage fm =
+        new FacesMessage(FacesMessage.SEVERITY_INFO,
+                         "Broker Name taken, please select a new name", null);
+      FacesContext.getCurrentInstance().addMessage("accountForm", fm);
+      return "Account";
+    }
+
     // Check if user is null?
     user.addBroker(getNewBrokerName(), getNewBrokerShortDescription());
 
@@ -93,15 +117,43 @@ public class ActionAccount
     User user =
       (User) FacesContext.getCurrentInstance().getExternalContext()
               .getSessionMap().get(User.getKey());
-    
-    if(b.getNewName().equalsIgnoreCase("") || b.getBrokerAuthToken().equalsIgnoreCase("")){
-      FacesContext.getCurrentInstance()
-      .addMessage("accountForm",
-                  new FacesMessage(FacesMessage.SEVERITY_INFO,
-                                   "Broker requires a Name and an AuthToken", null));
+
+    if (b.getNewName().equalsIgnoreCase("")
+        || b.getBrokerAuthToken().equalsIgnoreCase("")) {
+      FacesContext
+              .getCurrentInstance()
+              .addMessage("accountForm",
+                          new FacesMessage(
+                                           FacesMessage.SEVERITY_INFO,
+                                           "Broker requires a Name and an AuthToken",
+                                           null));
       return;
     }
     
+    // Check if broker name already exists
+    Database db2 = new Database();
+    boolean exists = false;
+    try {
+      db2.startTrans();
+      exists = db2.brokerNameExists(b.getNewName());
+      log("BrokerName: " + getNewBrokerName() + " exists " + exists);
+      db2.commitTrans();
+    }
+    catch (SQLException e) {
+      db2.abortTrans();
+
+    }
+
+    if (exists) {
+      FacesMessage fm =
+        new FacesMessage(FacesMessage.SEVERITY_INFO,
+                         "Broker Name taken, please select a new name", null);
+      FacesContext.getCurrentInstance().addMessage("accountForm", fm);
+      return;
+    }
+    
+    
+
     user.setEdit(false);
     b.setEdit(false);
     b.setBrokerName(b.getNewName());
@@ -172,8 +224,8 @@ public class ActionAccount
     }
 
     TournamentProperties properties = TournamentProperties.getProperties();
-    long loginDeadline = Integer.parseInt(
-        properties.getProperty("loginDeadline", "3600000"));
+    long loginDeadline =
+      Integer.parseInt(properties.getProperty("loginDeadline", "3600000"));
     long nowStamp = new Date().getTime();
 
     for (Tournament t: allTournaments) {
@@ -182,13 +234,13 @@ public class ActionAccount
 
         if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())
             && t.getNumberRegistered() < t.getMaxBrokers()
-            && (startStamp-nowStamp) > loginDeadline ) {
+            && (startStamp - nowStamp) > loginDeadline) {
           availableTourneys.add(t);
         }
         else if (t.getNumberRegistered() >= t.getMaxBrokers()) {
           log("Cannot register for {0}: maxBrokers", t.getTournamentName());
         }
-        else if ((startStamp-nowStamp) <= loginDeadline ) {
+        else if ((startStamp - nowStamp) <= loginDeadline) {
           log("Cannot register for {0}: too late", t.getTournamentName());
         }
       }
@@ -225,7 +277,8 @@ public class ActionAccount
                 b.getBrokerId(), t.getTournamentId());
             db.registerBroker(t.getTournamentId(), b.getBrokerId());
 
-            // Only do this for single game, otherwise the scheduler handles multigame tourneys
+            // Only do this for single game, otherwise the scheduler handles
+            // multigame tourneys
             if (t.typeEquals(Tournament.TYPE.SINGLE_GAME)) {
               for (Game g: t.getGames()) {
                 if (g.getNumBrokersRegistered() < g.getMaxBrokers()) {

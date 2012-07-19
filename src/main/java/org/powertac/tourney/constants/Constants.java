@@ -76,6 +76,12 @@ public class Constants
    */
   public static final String ADD_BROKER =
     "INSERT INTO brokers (brokerName,brokerAuth,brokerShort, userId, numberInGame) VALUES (?,?,?,?,0);";
+  
+  /***
+   * @param brokerName : The name of the broker to check existence
+   * 
+   */
+  public static final String NUM_BROKER_COPIES = "SELECT COUNT(*) as num FROM brokers WHERE brokerName=?";
 
   /***
    * Select all brokers by their userId

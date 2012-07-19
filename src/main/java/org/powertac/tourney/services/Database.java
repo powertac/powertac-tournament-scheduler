@@ -153,6 +153,23 @@ public class Database
 
     return result;
   }
+  
+  public boolean brokerNameExists(String brokerName) throws SQLException {
+    PreparedStatement ps = conn.prepareStatement(Constants.NUM_BROKER_COPIES);
+    ps.setString(1, brokerName);
+    
+    ResultSet rs = ps.executeQuery();
+    
+    int count = 0;
+    if(rs.next()){
+      count = rs.getInt("num");
+      
+    }
+    rs.close();
+    ps.close();
+    
+    return count>0;
+  }
 
   public List<Broker> getBrokersByUserId (int userId) throws SQLException
   {
