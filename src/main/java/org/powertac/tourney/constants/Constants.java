@@ -643,7 +643,7 @@ public class Constants
    *          : the machines id in the DB
    */
   public static final String EDIT_MACHINE =
-    "UPDATE machines SET machineName=?, machineUrl=?, visualizerUrl=?, "
+    "UPDATE machines SET machineName=?, machineUrl=?, visualizerUrl=? "
         + "WHERE machineId=?;";
   
   /***
