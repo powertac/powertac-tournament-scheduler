@@ -2,9 +2,14 @@ package org.powertac.tourney.actions;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.hibernate.Session;
-import org.powertac.tourney.beans.*;
-import org.powertac.tourney.services.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.powertac.tourney.beans.Location;
+import org.powertac.tourney.beans.Machine;
+import org.powertac.tourney.beans.Pom;
+import org.powertac.tourney.beans.User;
+import org.powertac.tourney.services.Database;
+import org.powertac.tourney.services.HibernateUtil;
+import org.powertac.tourney.services.TournamentProperties;
+import org.powertac.tourney.services.Upload;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -21,9 +26,6 @@ import static org.powertac.tourney.services.Utils.log;
 @RequestScoped
 public class ActionAdmin
 {
-  @Autowired
-  private Upload upload;
-
   private String sortColumnPom = null;
   private boolean sortAscendingPom = true;
   private String sortColumnMachine = null;
@@ -41,7 +43,8 @@ public class ActionAdmin
   private String newUrl = "";
   private String newViz = "";
 
-  private UploadedFile pom;
+  private Upload upload = new Upload();
+  private UploadedFile uploadedPom;
   private String pomName;
 
   private TournamentProperties properties = TournamentProperties.getProperties();
@@ -83,11 +86,15 @@ public class ActionAdmin
       return;
     }
 
-    if (pom == null) {
+    if (uploadedPom == null) {
       String msg = "Error: You need to choose a pom file";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
       return;
+    }
+
+    if (upload == null) {
+      upload = new Upload();
     }
 
     User currentUser = User.getCurrentUser();
@@ -96,12 +103,12 @@ public class ActionAdmin
     session.beginTransaction();
 
     Pom p = new Pom();
-    p.setName(this.getPomName());
+    p.setName(getPomName());
     p.setUploadingUser(currentUser.getUsername());
 
     session.save(p);
 
-    upload.setUploadedFile(pom);
+    upload.setUploadedFile(uploadedPom);
     upload.setUploadLocation(properties.getProperty("pomLocation"));
     boolean pomStored = upload.submit("pom." + p.getPomId() + ".xml");
 
@@ -223,8 +230,8 @@ public class ActionAdmin
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
   	  return;
-  	}  
-	  
+  	}
+
     // It's a new machine
     if (machineId == -1) {
       addMachine();
@@ -338,13 +345,13 @@ public class ActionAdmin
     this.pomName = pomName.trim();
   }
 
-  public UploadedFile getPom ()
+  public UploadedFile getUploadedPom ()
   {
-    return pom;
+    return uploadedPom;
   }
-  public void setPom (UploadedFile pom)
+  public void setUploadedPom (UploadedFile uploadedPom)
   {
-    this.pom = pom;
+    this.uploadedPom = uploadedPom;
   }
 
   public boolean isSortAscendingPom ()
