@@ -75,7 +75,7 @@ public class Constants
    *          : The userId of the user that owns this broker
    */
   public static final String ADD_BROKER =
-    "INSERT INTO brokers (brokerName,brokerAuth,brokerShort, userId, numberInGame) VALUES (?,?,?,?,0);";
+    "INSERT INTO brokers (brokerName,brokerAuth,brokerShort, userId) VALUES (?,?,?,?);";
   
   /***
    * @param brokerName : The name of the broker to check existence

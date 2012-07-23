@@ -158,6 +158,7 @@ public class Game implements Serializable
             status, gameId);
         return "error";
       }
+      Tournament t;
 
       db.updateGameStatusById(gameId, state);
       log("[INFO] Update game: {0} to {1}", gameId, status);
@@ -189,6 +190,15 @@ public class Game implements Serializable
           Scheduler.bootRunning = false;
           break;
 
+        case game_ready:
+          t = db.getTournamentByGameId(g.gameId);
+          t.setTournametInPogress(db);
+          break;
+        case game_in_progress:
+          t = db.getTournamentByGameId(g.gameId);
+          t.setTournametInPogress(db);
+          break;
+
         case game_complete:
           db.updateGameFreeBrokers(gameId);
           log("[INFO] Freeing Brokers for game: {0}", gameId);
@@ -199,7 +209,7 @@ public class Game implements Serializable
           log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
 
 					// If all games of tournament are complete, set tournament complete
-					Tournament t = db.getTournamentByGameId(g.gameId);
+					t = db.getTournamentByGameId(g.gameId);
           t.processGameFinished(db, g.getGameId());
           break;
 

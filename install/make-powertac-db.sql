@@ -23,7 +23,6 @@ CREATE TABLE `tourney`.`brokers` (
 	`brokerName` VARCHAR(45) UNIQUE NOT NULL,
 	`brokerAuth` VARCHAR(32) NOT NULL,
 	`brokerShort` VARCHAR(200) NOT NULL,
-	`numberInGame` INT NOT NULL,
 	PRIMARY KEY (`brokerId`),
 	CONSTRAINT userId_refs FOREIGN KEY (`userId`) REFERENCES `tourney`.`users` (`userId`)
 ) ENGINE=InnoDB;
@@ -101,7 +100,7 @@ CREATE TABLE `tourney`.`machines` (
 DROP TABLE IF EXISTS `tourney`.`visualizers`;
 CREATE TABLE `tourney`.`visualizers` (
 	`vizId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`hostUrl` VARCHAR(30) NOT NULL, /* Base URL of host servlet container */
+	`hostUrl` VARCHAR(256) NOT NULL, /* Base URL of host servlet container */
 	`machineId` BIGINT(20) UNSIGNED, /* ID of sim machine for this viz */
 	PRIMARY KEY (`vizId`),
 	CONSTRAINT machineId_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` )

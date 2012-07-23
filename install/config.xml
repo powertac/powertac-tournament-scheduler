@@ -128,7 +128,7 @@ function get_properties () {
 function get_pom () {
     wget -O pom.xml $pomUrl
     SIZE=$(stat -c%s &quot;pom.xml&quot;)
-    if [ $size -le 10 ] ; then
+    if [ $SIZE -le 10 ] ; then
         log nl &quot;Error getting pom : $pomUrl&quot;
         log nl &quot;Notify TM we&apos;re game_failed&quot;
         wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_failed&quot;

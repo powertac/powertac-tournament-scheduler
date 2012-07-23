@@ -39,7 +39,6 @@ public class Broker
   private String brokerAuthToken;
   private String brokerQueueName; // per-game value
   private String shortDescription;
-  private int numberInGame = 0;
   private boolean brokerInGame = false;
 
   public Broker (ResultSet rs) throws SQLException
@@ -49,7 +48,6 @@ public class Broker
     setBrokerName(rs.getString("brokerName"));
     setBrokerAuthToken(rs.getString("brokerAuth"));
     setShortDescription(rs.getString("brokerShort"));
-    setNumberInGame(rs.getInt("numberInGame"));
   }
 
   public Broker (String brokerName)
@@ -296,16 +294,6 @@ public class Broker
   public void setSelectedTourney (String selectedTourney)
   {
     this.selectedTourney = selectedTourney;
-  }
-
-  @Column(name = "numberInGame", unique = false, nullable = false)
-  public int getNumberInGame ()
-  {
-    return numberInGame;
-  }
-  public void setNumberInGame (int numberInGame)
-  {
-    this.numberInGame = numberInGame;
   }
   //</editor-fold>
 

@@ -85,6 +85,13 @@ public class Tournament
     }
   }
 
+  public void setTournametInPogress (Database db) throws SQLException
+  {
+    if (!stateEquals(STATE.in_progress)) {
+      db.updateTournamentStatus(tourneyId, STATE.in_progress);
+    }
+  }
+
   /**
    * If a game is complete, check if it was the last one to complete
    * If so, set tournament state to complete
@@ -219,6 +226,11 @@ public class Tournament
     }
 
     return ts;
+  }
+
+  public boolean stateEquals(STATE state)
+  {
+    return this.status.equals(state.toString());
   }
 
   //<editor-fold desc="Getters and setters">
