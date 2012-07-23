@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -104,6 +105,67 @@ public class Rest
     return doneResponse;
   }
 
+  /**
+   * Handles a login GET request from a visualizer of the form<br/>
+   * &nbsp;../visualizerLogin.jsp?machineName<br/>
+   * Response is either retry(n) to tell the viz to wait n seconds and try again,
+   * or queueName(qn) to tell the visualizer to connect to its machine and
+   * listen on the queue named qn.
+   */
+  public String parseVisualizerLogin (HttpServletRequest request,
+                                      Map<String, String[]> params)
+  {
+    log("Visualizer login request");
+    String machineName = params.get("machineName")[0];
+    String head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>";
+    String tail = "</message>";
+    String retryResponse = head + "<retry>%d</retry>" + tail;
+    String loginResponse = head + "<login><queueName>%s</queueName></login>" + tail;
+    String errorResponse = head + "<error>%s</error>" + tail; 
+
+    // Validate source of request
+    if (!validateVizRequest(request)) {
+      return String.format(errorResponse, "invalid login request");
+    }
+
+    // If there is a game in game_ready state on the machine for this viz,
+    // then return a login with the correct queue name; otherwise, return
+    // a retry.
+    List<Game> readyGames;
+    Database db = new Database();
+    try {
+      db.startTrans();
+      readyGames = db.findGamesByStatusAndMachine(Game.STATE.game_ready,
+                                                      machineName);
+      readyGames.addAll(db.findGamesByStatusAndMachine(Game.STATE.game_pending,
+                                                       machineName));
+      if (readyGames.isEmpty()) {
+        db.commitTrans();
+        return String.format(retryResponse, 60);
+      }
+      else {
+        // We'll use the first Game in the list
+        Game candidate = readyGames.get(0);
+        String queue = candidate.getVisualizerQueue();
+        db.commitTrans();
+        return String.format(loginResponse, queue);
+      }
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      log("ERROR: " + e.toString());
+      e.printStackTrace();
+      return String.format(errorResponse, "database error");
+    }
+  }
+  
+  private boolean validateVizRequest (HttpServletRequest rq)
+  {
+    String host = rq.getRemoteHost();
+    System.out.println("Viz request from " + host);
+    return true;
+  }
+
   public String parseServerInterface (Map<String, String[]> params, String clientAddress)
   {
     if (!Utils.checkClientAllowed(clientAddress)) {
@@ -166,6 +228,7 @@ public class Rest
     String startTime = "common.competition.simulationBaseTime = ";
     String jms = "server.jmsManagementService.jmsBrokerUrl = ";
     String remote = "server.visualizerProxyService.remoteVisualizer = true";
+    String vizQ = "server.visualizerProxyService.visualizerQueue = ";
     String minTimeslot = "common.competition.minimumTimeslotCount = 1380";
     String expectedTimeslot = "common.competition.expectedTimeslotCount = 1440";
     String serverFirstTimeout =
@@ -198,6 +261,7 @@ public class Rest
     result += serverFirstTimeout + "\n";
     result += serverTimeout + "\n";
     result += remote + "\n";
+    result += vizQ + g.getVisualizerQueue() + "\n";
     result += minTimeslot + "\n";
     result += expectedTimeslot + "\n";
     log("Props for game {0}:\n{1}", g.getGameId(), result);

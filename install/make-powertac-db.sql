@@ -88,12 +88,23 @@ DROP TABLE IF EXISTS `tourney`.`machines`;
 CREATE TABLE `tourney`.`machines` (
 	`machineId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`machineName` VARCHAR(30) NOT NULL,
-	`machineUrl` VARCHAR(256) NOT NULL, /* Url to the machine */
+	`machineUrl` VARCHAR(256) NOT NULL, /* Hostname of the machine */
 	`visualizerUrl` VARCHAR(256) NOT NULL,
-	/* `visualizerQueue` VARCHAR(256) NOT NULL, */
 	`status` VARCHAR(20) NOT NULL, /* Indicates wether a game is running on this machine or not, either "running" or "idle" */
 	`available` BOOLEAN NOT NULL,
 	PRIMARY KEY (`machineId`)
+) ENGINE=InnoDB;
+
+
+/* Visualizers run on separate machines, identified by hostUrl. These machines are */
+/* not in the machines table, and are not jenkins slave machines. */
+DROP TABLE IF EXISTS `tourney`.`visualizers`;
+CREATE TABLE `tourney`.`visualizers` (
+	`vizId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`hostUrl` VARCHAR(30) NOT NULL, /* Base URL of host servlet container */
+	`machineId` BIGINT(20) UNSIGNED, /* ID of sim machine for this viz */
+	PRIMARY KEY (`vizId`),
+	CONSTRAINT machineId_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` )
 ) ENGINE=InnoDB;
 
 
@@ -129,7 +140,7 @@ CREATE TABLE `tourney`.`games` (
 	`location` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
 	PRIMARY KEY (`gameId`),
 	CONSTRAINT tourneyId2_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),
-	CONSTRAINT machineId_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` )
+	CONSTRAINT machineId2_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` )
 ) ENGINE=InnoDB;
 
 
@@ -146,13 +157,15 @@ DROP TABLE IF EXISTS `tourney`.`locations`;
 CREATE TABLE `tourney`.`locations` (
 	`locationId` integer UNSIGNED NOT NULL AUTO_INCREMENT,
 	`location` VARCHAR(256) NOT NULL,
+	`timezone` integer NOT NULL,
 	`fromDate` DATETIME NOT NULL,
 	`toDate` DATETIME NOT NULL,
 	PRIMARY KEY (`locationId`)
 ) ENGINE=InnoDB;
 
-INSERT INTO `tourney`.`locations` (`locationId`, `location`, `fromDate`, `toDate`) VALUES
-(1, 'minneapolis', '2009-01-01 00:00:00', '2009-06-01 00:00:00');
+INSERT INTO `tourney`.`locations`
+ (`locationId`, `location`, `timezone`, `fromDate`, `toDate`) VALUES
+ (1, 'minneapolis', -6, '2009-01-01 00:00:00', '2009-06-01 00:00:00');
 
 
 DROP TABLE IF EXISTS `tourney`.`ingame`;

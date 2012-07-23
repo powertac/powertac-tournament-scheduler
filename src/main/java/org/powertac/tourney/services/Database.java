@@ -806,11 +806,31 @@ public class Database
     if (rs.next()) {
       tmp = new Game(rs);
     }
-    
+
     ps.close();
     rs.close();
-    
+
     return tmp;
+  }
+
+  public List<Game> findGamesByStatusAndMachine (Game.STATE status,
+                                                 String machineName)
+  throws SQLException
+  {
+    PreparedStatement ps =
+            conn.prepareStatement(Constants.FIND_GAME_BY_STATE_AND_MACHINE);
+    ps.setString(1, status.toString());
+    ps.setString(2,machineName);
+    ArrayList<Game> result = new ArrayList<Game>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      result.add(new Game(rs));
+    }
+
+    ps.close();
+    rs.close();
+
+    return result;
   }
 
   public int addBrokerToGame (int gameId, Broker b) throws SQLException
@@ -1114,7 +1134,7 @@ public class Database
     ps.setString(1, machineName);
     ps.setString(2, machineUrl);
     ps.setString(3, visualizerUrl);
-    ps.setString(4, String.valueOf(machineId));
+    ps.setInt(4, machineId);
 
     int result = ps.executeUpdate();
 

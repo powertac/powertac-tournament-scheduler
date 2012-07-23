@@ -336,6 +336,11 @@ public class Constants
   public static final String GET_BOOTABLE_GAMES =
     "SELECT * FROM games WHERE status='" + Game.STATE.boot_pending.toString() + "';";
 
+  public static final String FIND_GAME_BY_STATE_AND_MACHINE =
+          "SELECT * FROM games g JOIN machines m "
+          + "ON g.machineId = m.machineId "
+          + "WHERE g.status=? AND m.machineName=?";
+  
   /***
    * Add broker to game in database
    * 
