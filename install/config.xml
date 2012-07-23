@@ -139,33 +139,6 @@ function get_pom () {
     fi
 }
 
-function handle_states () {
-    LOGGEDIN=&quot;server.CompetitionControlService: first login observed&quot;
-    FILE=&quot;./log/powertac-sim-$gameId.trace&quot;
-
-    # Wait for the game to get ready
-    sleep 30
-        
-    log nl &quot;Notify TM we&apos;re game_ready&quot;
-    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_ready&quot;
-        
-    while [ 1==1 ]; do
-        COUNT=0
-        if [ -f $FILE ]; then
-            COUNT=$(grep -c &quot;$LOGGEDIN&quot; &quot;$FILE&quot;)
-        fi
-        
-        if [ $COUNT -gt 0 ]; then
-            log nl &quot;$COUNT &gt; 0, breaking&quot;
-            break
-        fi 
-
-        sleep 1
-    done
-
-    log nl &quot;Notify TM we&apos;re game_in_progress&quot;
-    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_in_progress&quot;
-}
 
 ###############################################################################
 # Here we go!
@@ -178,6 +151,12 @@ propUrl=&quot;$tourneyUrl$propPath?gameId=$gameId&quot;
 pomUrl=&quot;$tourneyUrl$pomPath?pomId=$pomId&quot;
 bootName=&quot;game-$gameId-boot&quot;
 simName=&quot;game-$gameId-sim&quot;
+
+# Make sure logdir exists
+DIRECTORY="log"
+if [ ! -d "$DIRECTORY" ]; then
+    mkdir $DIRECTORY
+fi
 
 log &quot;Nodename      : $NODE_NAME&quot;
 log &quot;Account       : ${USER}&quot;
@@ -247,9 +226,6 @@ else
     log &quot;Running in sim mode!&quot;
 
     log nl &quot;Brokers: $brokers&quot;
-
-    log nl &quot;Handle game states&quot;
-    #handle_states &amp;
 
     CMD=&quot;mvn -Pcli -Dexec.args=\&quot;-sim --control $tourneyUrl --game-id $gameId --log-suffix $suffix$gameId --brokers $brokers --input-queue $serverQueue\&quot;&quot;
     log nl &quot;Run maven : $CMD&quot;

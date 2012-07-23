@@ -124,7 +124,7 @@
       <h:form rendered="#{user.permissions le 0}">
         <h3>Available Poms</h3>
         <t:dataTable id="datausers" border="1" sortable="true"
-                     sortColumnPom="#{actionAdmin.sortColumnPom}"
+                     sortColumn="#{actionAdmin.sortColumnPom}"
                      sortAscending="#{actionAdmin.sortAscendingPom}" preserveSort="true"
                      styleClass="dataTable"
                      value="#{actionAdmin.pomList}" var="p">
@@ -171,7 +171,7 @@
       <h:form rendered="#{user.permissions le 0}">
         <h3 class="withButton">Available Machines</h3><h:commandButton value="Refresh" action="#{actionAdmin.refresh}"/>
         <t:dataTable id="machines" border="1" sortable="false"
-                     sortColumnPom="#{actionAdmin.sortColumnMachine}"
+                     sortColumn="#{actionAdmin.sortColumnMachine}"
                      sortAscending="#{actionAdmin.sortAscendingMachine}"
                      styleClass="dataTable"
                      value="#{actionAdmin.machineList}" var="m">
@@ -276,7 +276,7 @@
       <h:form rendered="#{user.permissions le 0}">
         <h3>User Details</h3>
         <t:dataTable id="datausers" border="1" sortable="true"
-                     sortColumnPom="#{actionAdmin.sortColumnUsers}"
+                     sortColumn="#{actionAdmin.sortColumnUsers}"
                      sortAscending="#{actionAdmin.sortAscendingUsers}" preserveSort="true"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
                      value="#{actionAdmin.userList}" var="u">

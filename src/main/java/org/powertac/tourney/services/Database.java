@@ -138,8 +138,7 @@ public class Database
   public int addBroker (int userId, String brokerName, String shortDescription)
     throws SQLException
   {
-    org.powertac.tourney.beans.Broker b =
-      new org.powertac.tourney.beans.Broker(brokerName, shortDescription);
+    Broker b = new Broker(brokerName, shortDescription);
     
     PreparedStatement ps = conn.prepareStatement(Constants.ADD_BROKER);
     ps.setString(1, brokerName);
@@ -179,14 +178,7 @@ public class Database
     List<Broker> brokers = new ArrayList<Broker>();
     ResultSet rs = ps.executeQuery();
     while (rs.next()) {
-      Broker tmp = new Broker("new");
-      tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
-      tmp.setBrokerId(rs.getInt("brokerId"));
-      tmp.setBrokerName(rs.getString("brokerName"));
-      tmp.setShortDescription(rs.getString("brokerShort"));
-      tmp.setNumberInGame(rs.getInt("numberInGame"));
-
-      brokers.add(tmp);
+      brokers.add(new Broker(rs));
     }
 
     rs.close();
@@ -236,12 +228,7 @@ public class Database
     Broker broker = null;
     ResultSet rs = ps.executeQuery();
     if (rs.next()) {
-      broker = new Broker("new");
-      broker.setBrokerAuthToken(rs.getString("brokerAuth"));
-      broker.setBrokerId(rs.getInt("brokerId"));
-      broker.setBrokerName(rs.getString("brokerName"));
-      broker.setShortDescription(rs.getString("brokerShort"));
-      broker.setNumberInGame(rs.getInt("numberInGame"));
+      broker = new Broker(rs);
     }
 
     rs.close();
@@ -505,6 +492,26 @@ public class Database
     return ts;
   }
 
+  public List<Tournament> getTournamentsByName (String name)
+      throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.SELECT_TOURNAMENT_BYNAME);
+    ps.setString(1, name);
+
+    List<Tournament> ts = new ArrayList<Tournament>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      ts.add(new Tournament(rs));
+    }
+
+    ps.close();
+    rs.close();
+
+    return ts;
+  }
+
+
   public List<Game> getGamesInTourney (int tourneyId) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(
@@ -589,13 +596,7 @@ public class Database
 
     ResultSet rs = ps.executeQuery();
     while (rs.next()) {
-      Broker tmp = new Broker(rs.getString("brokerName"));
-      tmp.setShortDescription(rs.getString("brokerShort"));
-      tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
-      tmp.setBrokerId(rs.getInt("brokerId"));
-      tmp.setNumberInGame(rs.getInt("numberInGame"));
-      tmp.setUserId(rs.getInt("userId"));
-      result.add(tmp);
+      result.add(new Broker(rs));
     }
     
     rs.close();
@@ -857,16 +858,7 @@ public class Database
     List<Broker> brokers = new ArrayList<Broker>();
     ResultSet rs = ps.executeQuery();
     while (rs.next()) {
-      Broker tmp = new Broker("new");
-      tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
-      tmp.setBrokerId(rs.getInt("brokerId"));
-      tmp.setBrokerName(rs.getString("brokerName"));
-      tmp.setQueueName(rs.getString("brokerQueue"));
-      tmp.setShortDescription(rs.getString("brokerShort"));
-      tmp.setNumberInGame(rs.getInt("numberInGame"));
-      tmp.setBrokerInGame(rs.getBoolean("brokerInGame"));
-
-      brokers.add(tmp);
+      brokers.add(new Broker(rs));
     }
 
     rs.close();
@@ -897,14 +889,7 @@ public class Database
     List<Broker> brokers = new ArrayList<Broker>();
     ResultSet rs = ps.executeQuery();
     while (rs.next()) {
-      Broker tmp = new Broker("new");
-      tmp.setBrokerAuthToken(rs.getString("brokerAuth"));
-      tmp.setBrokerId(rs.getInt("brokerId"));
-      tmp.setBrokerName(rs.getString("brokerName"));
-      tmp.setShortDescription(rs.getString("brokerShort"));
-      tmp.setNumberInGame(rs.getInt("numberInGame"));
-
-      brokers.add(tmp);
+      brokers.add(new Broker(rs));
     }
     ps.close();
     rs.close();
@@ -1162,7 +1147,6 @@ public class Database
     Machine result = null;
     ResultSet rs = ps.executeQuery();
     if (rs.next()) {
-      log("Claiming {0}", rs.toString());
       result = new Machine(rs);
       setMachineStatus(result.getMachineId(), Machine.STATE.running);
     }

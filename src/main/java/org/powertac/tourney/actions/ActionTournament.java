@@ -31,7 +31,7 @@ public class ActionTournament
   private String tournamentName;
   private int maxBrokers;
   private int maxBrokerInstances = 2;
-  
+
   private String sortColumn = null;
   private boolean sortAscending = true;
 
@@ -53,16 +53,6 @@ public class ActionTournament
     fromTime.setTime(initTime.getTimeInMillis());
     initTime.set(2011, 2, 3);
     toTime.setTime(initTime.getTimeInMillis());
-  }
-
-  public Tournament.TYPE getMulti ()
-  {
-    return Tournament.TYPE.MULTI_GAME;
-  }
-
-  public Tournament.TYPE getSingle ()
-  {
-    return Tournament.TYPE.SINGLE_GAME;
   }
 
   // Method to list the type enumeration in the jsf select Item component
@@ -109,7 +99,7 @@ public class ActionTournament
     newTourney.setPomId(selectedPom);
     newTourney.setMaxBrokers(getMaxBrokers());
     newTourney.setStartTime(getStartTime());
-    newTourney.setTournamentName(getTournamentName());
+    newTourney.setTournamentName(tournamentName);
 
     Database db = new Database();
     try {
@@ -117,15 +107,23 @@ public class ActionTournament
       db.startTrans();
       log("[INFO] Starting transaction");
 
+      // Make sure tournament name is unique (case insensitive)
+      if (db.getTournamentsByName(tournamentName).size() > 0) {
+        String msg = "The tournament name already exists";
+        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+        FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
+        db.abortTrans();
+        return "Error";
+      }
+
       // Adds new tournament to the database
-      int tourneyId = db.addTournament(getTournamentName(), true, size1,
+      int tourneyId = db.addTournament(tournamentName, true, size1,
           startTime, Tournament.TYPE.SINGLE_GAME.toString(), selectedPom,
           allLocations, maxBrokers, gtypes, mxs);
       log("[INFO] Adding new tourney {0}", tourneyId);
 
       // Adds a new game to the database
-      int gameId = db.addGame(
-          newTourney.getTournamentName(), tourneyId, size1, startTime);
+      int gameId = db.addGame(tournamentName, tourneyId, size1, startTime);
       log("[INFO] Adding game {0}", gameId);
 
       // Create game properties
@@ -235,9 +233,9 @@ public class ActionTournament
 
   public List<Location> getLocationList(){
     List<Location> locations = new ArrayList<Location>();
-    
+
     Database db = new Database();
-    
+
     try{
       db.startTrans();
       locations = db.getLocations();

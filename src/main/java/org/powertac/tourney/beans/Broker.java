@@ -6,6 +6,7 @@ import org.powertac.tourney.services.TournamentProperties;
 
 import javax.faces.bean.ManagedBean;
 import javax.persistence.*;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,6 +41,16 @@ public class Broker
   private String shortDescription;
   private int numberInGame = 0;
   private boolean brokerInGame = false;
+
+  public Broker (ResultSet rs) throws SQLException
+  {
+    setBrokerId(rs.getInt("brokerId"));
+    setUserId(rs.getInt("userId"));
+    setBrokerName(rs.getString("brokerName"));
+    setBrokerAuthToken(rs.getString("brokerAuth"));
+    setShortDescription(rs.getString("brokerShort"));
+    setNumberInGame(rs.getInt("numberInGame"));
+  }
 
   public Broker (String brokerName)
   {

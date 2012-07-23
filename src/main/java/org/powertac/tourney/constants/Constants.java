@@ -144,7 +144,8 @@ public class Constants
       "SELECT * FROM tournaments "
           + "JOIN registration ON tournaments.tourneyId = registration.tourneyId "
           + "JOIN brokers ON registration.brokerId = brokers.brokerId "
-          + "WHERE brokers.brokerId = ?;";
+          + "WHERE brokers.brokerId = ? "
+          + "AND not tournaments.status='complete';";
 
   /***
    * Selects a tournament from the database by tournamentId
@@ -172,6 +173,14 @@ public class Constants
    */
   public static final String SELECT_TOURNAMENT_BYTYPE =
     "SELECT * FROM tournaments WHERE type=?";
+
+  /***
+   * Select a tournament by name, case insensitive
+   *
+   * @param tournamentName
+   */
+  public static final String SELECT_TOURNAMENT_BYNAME =
+      "SELECT * FROM tournaments WHERE tourneyName LIKE ?;";
 
   /***
    * Adds a tournament to the database with pending status by default

@@ -2,6 +2,7 @@ package org.powertac.tourney.actions;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.powertac.tourney.beans.Location;
 import org.powertac.tourney.beans.Machine;
 import org.powertac.tourney.beans.Pom;
@@ -81,32 +82,35 @@ public class ActionAdmin
     if (pomName.isEmpty()) {
       // Show succes message.
       String msg = "Error: You need to fill in the pom name";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
       return;
     }
 
     if (uploadedPom == null) {
       String msg = "Error: You need to choose a pom file";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
       return;
     }
 
-    if (upload == null) {
-      upload = new Upload();
-    }
-
     User currentUser = User.getCurrentUser();
-
-    Session session = HibernateUtil.getSessionFactory().openSession();
-    session.beginTransaction();
-
     Pom p = new Pom();
     p.setName(getPomName());
     p.setUploadingUser(currentUser.getUsername());
 
-    session.save(p);
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    session.beginTransaction();
+    try {
+      session.save(p);
+    }
+    catch (ConstraintViolationException e) {
+      session.getTransaction().rollback();
+      String msg = "Error: This name is already used";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
+      return;
+    }
 
     upload.setUploadedFile(uploadedPom);
     upload.setUploadLocation(properties.getProperty("pomLocation"));

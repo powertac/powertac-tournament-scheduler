@@ -35,67 +35,62 @@ public class Rest
       doneResponse = head + "<done></done>" + tail;
     }
 
+    List<Game> allGames = Game.getGameList();
+    // JEC - this could be a REALLY long list after a while.
+    List<Tournament> allTournaments = Tournament.getTournamentList();
+
+    if (tournamentName == null || allGames == null) {
+      return doneResponse;
+    }
+
     Database db = new Database();
     try {
       db.startTrans();
-      // JEC - this could be a REALLY long list after a while.
-      List<Game> allGames = db.getGames();
-      List<Tournament> allTournaments = db.getTournaments(Tournament.STATE.pending);
-      allTournaments.addAll(db.getTournaments(Tournament.STATE.in_progress));
 
-      if (tournamentName != null && allGames != null) {
-        // Find all games that match the competition name and have brokers
-        // registered
-        for (Game g: allGames) {
-          // Only consider games that are ready (started, but waiting for logins)
-          if (g.stateEquals(Game.STATE.game_ready)) {
-            Tournament t = db.getTournamentByGameId(g.getGameId());
-
-            if (tournamentName.equalsIgnoreCase(t.getTournamentName())) {
-              Broker broker = g.getBrokerRegistration(brokerAuthToken);
-              // here we need to add the queue name
-              // update ingame gameid, brokerid, true
-              if (null == broker) {
-                // broker is not in this game
-                continue;
-              }
-              else if (broker.getBrokerInGame()) {
-                // this broker is already in this game
-                continue;
-              }
-              else {
-                broker.setBrokerInGame(true);
-                db.updateBrokerInGame(g.getGameId(), broker);
-                return String.format(loginResponse,
-                                     g.getJmsUrl(),
-                                     broker.getQueueName(),
-                                     g.getServerQueue());
-              }
-            }
-          }
-        }
-        db.commitTrans();
-
-        boolean competitionExists = false;
-        for (Tournament t: allTournaments) {
-          if (tournamentName.equals(t.getTournamentName())) {
-            competitionExists = true;
-            break;
-          }
+      // Find games matching the competition name and have brokers registered
+      for (Game g: allGames) {
+        // Only consider games that are ready (started, but waiting for logins)
+        if (!g.stateEquals(Game.STATE.game_ready)) {
+          continue;
         }
 
-        if (competitionExists) {
-          log("[INFO] Broker: {0} attempted to log into existing tournament"
-              + ": {1} --sending retry", brokerAuthToken, tournamentName);
-          return String.format(retryResponse, 60);
+        // TODO This could be more efficient, refactor with Hibernate
+        Tournament t = db.getTournamentByGameId(g.getGameId());
+        if (!tournamentName.equalsIgnoreCase(t.getTournamentName())) {
+          continue;
         }
-        else {
-          log("[INFO] Broker: {0} attempted to log into non-existing tournament"
-              + ": {1} --sending done", brokerAuthToken, tournamentName);
-          return doneResponse;
+
+        Broker broker = g.getBrokerRegistration(brokerAuthToken);
+
+        if (broker != null && !broker.getBrokerInGame()) {
+          broker.setBrokerInGame(true);
+          db.updateBrokerInGame(g.getGameId(), broker);
+          db.commitTrans();
+          return String.format(loginResponse, g.getJmsUrl(),
+                               broker.getQueueName(), g.getServerQueue());
         }
       }
-      Thread.sleep(30000);
+
+      db.commitTrans();
+
+      boolean competitionExists = false;
+      for (Tournament t: allTournaments) {
+        if (tournamentName.equals(t.getTournamentName())) {
+          competitionExists = true;
+          break;
+        }
+      }
+
+      if (competitionExists) {
+        log("[INFO] Broker: {0} attempted to log into existing tournament"
+            + ": {1} --sending retry", brokerAuthToken, tournamentName);
+        return String.format(retryResponse, 60);
+      }
+      else {
+        log("[INFO] Broker: {0} attempted to log into non-existing tournament"
+            + ": {1} --sending done", brokerAuthToken, tournamentName);
+        return doneResponse;
+      }
     }
     catch (Exception e) {
       db.abortTrans();
