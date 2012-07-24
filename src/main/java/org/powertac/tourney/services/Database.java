@@ -942,6 +942,19 @@ public class Database
     return result;
   }
 
+  public int setGameReadyTime (int gameId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_READYTIME);
+    ps.setInt(2, gameId);
+    ps.setString(1, Utils.dateFormatUTCmilli(new Date()));
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
   public int updateGameMachine (int gameId, int machineId) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_MACHINE);
@@ -1074,7 +1087,6 @@ public class Database
 
     return result;
   }
-
 
   /**
    * Set the status of the machine : 'idle' or 'running'
