@@ -115,7 +115,7 @@ public class Rest
     String head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>";
     String tail = "</message>";
     String retryResponse = head + "<retry>%d</retry>" + tail;
-    String loginResponse = head + "<login><queueName>%s</queueName></login>" + tail;
+    String loginResponse = head + "<login><queueName>%s</queueName><serverQueue>%s</serverQueue></login>" + tail;
     String errorResponse = head + "<error>%s</error>" + tail; 
 
     // Validate source of request
@@ -142,8 +142,9 @@ public class Rest
         // We'll use the first Game in the list
         Game candidate = readyGames.get(0);
         String queue = candidate.getVisualizerQueue();
+        String svrQueue = candidate.getServerQueue();
         db.commitTrans();
-        return String.format(loginResponse, queue);
+        return String.format(loginResponse, queue, svrQueue);
       }
     }
     catch (SQLException e) {
