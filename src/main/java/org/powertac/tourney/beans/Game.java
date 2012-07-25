@@ -27,6 +27,7 @@ public class Game implements Serializable
   public static final String key = "game";
 
   private Date startTime;
+  private Date readyTime;
   private int tourneyId = 0;
   private int gameId = 0;
   private int machineId;
@@ -36,19 +37,36 @@ public class Game implements Serializable
   private int maxBrokers = 1;
 
   private String gameName = "";
-  private String location = "";
   private String jmsUrl = "";
   private String serverQueue = "";
   private String visualizerUrl = "";
   private String visualizerQueue = "";
 
+  /*
+  - Boot
+    Game are initially set to boot_pending.
+    When the jobs is sent to Jenkins, the TM sets it to in_progress.
+    When done the Jenkins script sets it complete or failed when done,
+    depending on the boot file. When the TM isn't able to send the job to
+    Jenkins, the game is set to failed.
+
+  - Game
+    When the job is sent to Jenkins, the TM sets it to game_pending.
+    When the sim is ready, the sim sets the game to game_ready.
+    It also sets readyTime, to give the visualizer some time to log in before
+    the broker slog in. Brokers are allowed to log in when game_ready and
+    readyTime + X minutes.
+    When all the brokers are logged in (or login timeout occurs), the sim sets
+    it to in_progress.
+
+    When the sim stops, the Jenkins script sets the game to complete.
+    game_failed occurs when the script encounters problems downloading the POM-
+    or boot-file, or when RunGame has problems sending the job to jenkins.
+   */
+
   public static enum STATE {
     boot_pending, boot_in_progress, boot_complete, boot_failed,
     game_pending, game_ready, game_in_progress, game_complete, game_failed
-  }
-
-  public Game ()
-  {
   }
 
   public Game (ResultSet rs)
@@ -57,6 +75,7 @@ public class Game implements Serializable
       setStatus(rs.getString("status"));
       setMaxBrokers(rs.getInt("maxBrokers"));
       setStartTime(Utils.dateFormatUTCmilli(rs.getString("startTime")));
+      setReadyTime(rs.getString("readyTime"));
       setBrokers(rs.getString("brokers"));
       setTourneyId(rs.getInt("tourneyId"));
       setMachineId(rs.getInt("machineId"));
@@ -67,7 +86,6 @@ public class Game implements Serializable
       setServerQueue(rs.getString("serverQueue"));
       setVisualizerUrl(rs.getString("visualizerUrl"));
       setVisualizerQueue(rs.getString("visualizerQueue"));
-      setLocation(rs.getString("location"));
     }
     catch (Exception e) {
       log("[ERROR] Error creating game from result set");
@@ -193,6 +211,8 @@ public class Game implements Serializable
         case game_ready:
           t = db.getTournamentByGameId(g.gameId);
           t.setTournametInPogress(db);
+          g.setReadyTime(Utils.dateFormatUTCmilli(new Date()));
+          db.setGameReadyTime(gameId);
           break;
         case game_in_progress:
           t = db.getTournamentByGameId(g.gameId);
@@ -233,6 +253,20 @@ public class Game implements Serializable
       e.printStackTrace();
     }
     return "success";
+  }
+
+  public void setState (STATE state)
+  {
+    Database db = new Database();
+    try {
+      db.startTrans();
+      db.updateGameStatusById(gameId, state);
+      db.commitTrans();
+    }
+    catch (Exception e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
   }
 
   private void removeBootFile()
@@ -402,15 +436,21 @@ public class Game implements Serializable
     this.visualizerUrl = visualizerUrl;
   }
 
-  @Column(name = "location", unique = false, nullable = false)
-  public String getLocation ()
+  @Temporal(TemporalType.DATE)
+  @Column(name = "readyTime", unique = false, nullable = false)
+  public Date getReadyTime ()
   {
-    return location;
+    return readyTime;
   }
 
-  public void setLocation (String location)
+  public void setReadyTime (String readyTime)
   {
-    this.location = location;
+    try {
+      this.readyTime = Utils.dateFormatUTCmilli(readyTime);
+    }
+    catch (Exception ignored) {
+      this.readyTime = null;
+    }
   }
 
   @Column(name = "tourneyId", unique = false, nullable = false)

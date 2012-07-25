@@ -50,6 +50,17 @@ public class Utils {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
     return sdf.parse(date);
   }
+  public static String dateFormatUTCmilli (Date date)
+  {
+    try {
+      TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+      return sdf.format(date);
+    }
+    catch (Exception e) {
+      return "";
+    }
+  }
   //</editor-fold>
 
   //<editor-fold desc="Logging">

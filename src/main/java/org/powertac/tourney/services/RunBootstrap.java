@@ -18,11 +18,14 @@ public class RunBootstrap implements Runnable
   private String machineName = "";
   private int watchDogInterval;
   private TournamentProperties properties = TournamentProperties.getProperties();
+  private Database db;
 
   public RunBootstrap (int gameId, int pomId)
   {
     this.gameId = gameId;
     this.pomId = pomId;
+
+    db = new Database();
 
     watchDogInterval = Integer.parseInt(
         properties.getProperty("scheduler.watchDogInterval")) / 1000;
@@ -31,7 +34,6 @@ public class RunBootstrap implements Runnable
 
   private boolean checkMachineAvailable ()
   {
-    Database db = new Database();
     try {
       db.startTrans();
 
@@ -74,6 +76,19 @@ public class RunBootstrap implements Runnable
       return;
     }
 
+    // TODO Refactor with Hibernate
+    Game game;
+    try {
+      db.startTrans();
+      game = db.getGame(gameId);
+      db.commitTrans();
+    }
+    catch (SQLException e1) {
+      db.abortTrans();
+      e1.printStackTrace();
+      return;
+    }
+
     String finalUrl =
         "http://localhost:8080/jenkins/job/"
         + "start-server-instance/buildWithParameters?"
@@ -92,6 +107,7 @@ public class RunBootstrap implements Runnable
       conn.getInputStream();
       log("[INFO] Jenkins request to bootstrap game: {0}", gameId);
       Scheduler.bootRunning = true;
+      game.setState(Game.STATE.boot_in_progress);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -107,6 +123,7 @@ public class RunBootstrap implements Runnable
       catch (SQLException e1) {
         e1.printStackTrace();
       }
+      game.setState(Game.STATE.boot_failed);
     }
   }
 }

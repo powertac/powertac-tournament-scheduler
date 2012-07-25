@@ -132,11 +132,11 @@ CREATE TABLE `tourney`.`games` (
 	`hasBootstrap` BOOLEAN NOT NULL,
 	`brokers` VARCHAR(256) NOT NULL,
 	`startTime` DATETIME NOT NULL,
+	`readyTime` DATETIME NULL,
 	`jmsUrl` VARCHAR(256) NOT NULL,
 	`visualizerUrl` VARCHAR(256) NOT NULL,
 	`visualizerQueue` VARCHAR(256) NOT NULL, /* name of visualizer output queue */
 	`serverQueue` VARCHAR(256) NOT NULL, /* name of server input queue */
-	`location` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
 	PRIMARY KEY (`gameId`),
 	CONSTRAINT tourneyId2_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),
 	CONSTRAINT machineId2_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` )

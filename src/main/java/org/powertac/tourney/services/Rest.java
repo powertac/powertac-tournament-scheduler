@@ -1,5 +1,6 @@
 package org.powertac.tourney.services;
 
+import org.apache.log4j.Logger;
 import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
@@ -9,17 +10,18 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import static org.powertac.tourney.services.Utils.log;
 
 @Service("rest")
 public class Rest
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   public String parseBrokerLogin (Map<String, String[]> params)
   {
-    log("Broker login request");
+    log.info("Broker login request");
     String responseType = params.get(Constants.Rest.REQ_PARAM_TYPE)[0];
     String brokerAuthToken = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
     String tournamentName = params.get(Constants.Rest.REQ_PARAM_JOIN)[0];
@@ -47,10 +49,17 @@ public class Rest
     try {
       db.startTrans();
 
+      // TODO Should this be a config item?
+      long readyDeadline = 2*60*1000;
+      long nowStamp = new Date().getTime();
+
       // Find games matching the competition name and have brokers registered
       for (Game g: allGames) {
         // Only consider games that are ready (started, but waiting for logins)
-        if (!g.stateEquals(Game.STATE.game_ready)) {
+        // And that are more than X minutes ready, to allow Viz Login
+        long readyStamp = g.getReadyTime().getTime();
+        if (!g.stateEquals(Game.STATE.game_ready) ||
+            nowStamp < (readyStamp + readyDeadline) ) {
           continue;
         }
 
@@ -82,13 +91,13 @@ public class Rest
       }
 
       if (competitionExists) {
-        log("[INFO] Broker: {0} attempted to log into existing tournament"
-            + ": {1} --sending retry", brokerAuthToken, tournamentName);
+        log.info(String.format("Broker: %s attempted to log into existing "
+            + "tournament: %s --sending retry", brokerAuthToken, tournamentName));
         return String.format(retryResponse, 60);
       }
       else {
-        log("[INFO] Broker: {0} attempted to log into non-existing tournament"
-            + ": {1} --sending done", brokerAuthToken, tournamentName);
+        log.info(String.format("Broker: %s attempted to log into non-existing "
+            + "tournament: %s --sending done", brokerAuthToken, tournamentName));
         return doneResponse;
       }
     }
@@ -110,7 +119,7 @@ public class Rest
   public String parseVisualizerLogin (HttpServletRequest request,
                                       Map<String, String[]> params)
   {
-    log("Visualizer login request");
+    log.info("Visualizer login request");
     String machineName = params.get("machineName")[0];
     String head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>";
     String tail = "</message>";
@@ -130,10 +139,11 @@ public class Rest
     Database db = new Database();
     try {
       db.startTrans();
+      // Only allow to log in to 'ready' games
       readyGames = db.findGamesByStatusAndMachine(Game.STATE.game_ready,
                                                       machineName);
-      readyGames.addAll(db.findGamesByStatusAndMachine(Game.STATE.game_pending,
-                                                       machineName));
+      //readyGames.addAll(db.findGamesByStatusAndMachine(Game.STATE.game_pending,
+      //                                                 machineName));
       if (readyGames.isEmpty()) {
         db.commitTrans();
         return String.format(retryResponse, 60);
@@ -149,16 +159,17 @@ public class Rest
     }
     catch (SQLException e) {
       db.abortTrans();
-      log("ERROR: " + e.toString());
+      log.error(e.toString());
       e.printStackTrace();
       return String.format(errorResponse, "database error");
     }
   }
   
-  private boolean validateVizRequest (HttpServletRequest rq)
+  private boolean validateVizRequest (HttpServletRequest request)
   {
-    String host = rq.getRemoteHost();
-    System.out.println("Viz request from " + host);
+    // TODO
+    String host = request.getRemoteHost();
+    log.info("Viz request from " + host);
     return true;
   }
 
@@ -193,11 +204,6 @@ public class Rest
    */
   public String parseProperties (Map<String, String[]> params)
   {
-    StringBuffer sb = new StringBuffer();
-    for (String key : params.keySet()) {
-      sb.append(key).append(":").append(params.get(key)).append(",");
-    }
-    log("parseProperties [{0}]", sb.toString());
     String gameId = "0";
     try {
       gameId = params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0];
@@ -260,7 +266,6 @@ public class Rest
     result += vizQ + g.getVisualizerQueue() + "\n";
     result += minTimeslot + "\n";
     result += expectedTimeslot + "\n";
-    log("Props for game {0}:\n{1}", g.getGameId(), result);
 
     return result;
   }
@@ -278,7 +283,7 @@ public class Rest
       return servePom(pomId);
     }
     catch (Exception e) {
-      log("Error: " + e.getMessage());
+      log.error(e.getMessage());
       return "error";
     }
   }
@@ -307,7 +312,7 @@ public class Rest
       br.close();
     }
     catch (Exception e) {
-      log("Error : " + e.getMessage());
+      log.error(e.getMessage());
       result = "error";
     }
 
@@ -339,7 +344,7 @@ public class Rest
       br.close();
     }
     catch (Exception e) {
-      log("Error : " + e.getMessage());
+      log.error(e.getMessage());
       result = "error";
     }
 

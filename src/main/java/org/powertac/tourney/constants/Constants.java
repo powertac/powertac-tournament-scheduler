@@ -302,19 +302,17 @@ public class Constants
    *          : The name of the running game
    * @param tourneyId
    *          : The id of the tournament the game is running under
-   * @param machineId
-   *          : The id of the machine the game is running on
    * @param maxBrokers
    *          : The maximum number of brokers allowed in this game
    * @param startTime
    *          : The scheduled start time of the sim
    */
   public static final String ADD_GAME =
-    "INSERT INTO games (gameName, tourneyId, maxBrokers, startTime, status, "
-        + "jmsUrl, visualizerUrl, visualizerQueue, serverQueue, location, "
+    "INSERT INTO games (gameName, tourneyId, maxBrokers, startTime, readyTime, "
+        + "status, jmsUrl, visualizerUrl, visualizerQueue, serverQueue, "
         + "hasBootstrap, brokers) "
-        + "VALUES(?,?,?,?,'" + Game.STATE.boot_pending.toString()
-        + "','','','','','',false,'');";
+        + "VALUES(?,?,?,?,NULL,'" + Game.STATE.boot_pending.toString()
+        + "','','','','',false,'');";
 
   /***
    * Returns a list of the runnable games as of now.
@@ -403,6 +401,17 @@ public class Constants
    */
   public static final String UPDATE_GAME_JMSURL =
     "UPDATE games SET jmsUrl=?, serverQueue=? WHERE gameId=?;";
+
+  /***
+   * Update the machine a game is running on
+   *
+   * @param readyTime
+   *          : The dateTime at which the sim says it's ready
+   * @param gameId
+   *          : The id of the game
+   */
+  public static final String UPDATE_GAME_READYTIME =
+      "UPDATE games SET readyTime=? WHERE gameId=?;";
 
   /***
    * Update the machine a game is running on

@@ -153,8 +153,8 @@ bootName=&quot;game-$gameId-boot&quot;
 simName=&quot;game-$gameId-sim&quot;
 
 # Make sure logdir exists
-DIRECTORY="log"
-if [ ! -d "$DIRECTORY" ]; then
+DIRECTORY=&quot;log&quot;
+if [ ! -d &quot;$DIRECTORY&quot; ]; then
     mkdir $DIRECTORY
 fi
 
@@ -187,9 +187,6 @@ get_pom
 
 if [ &quot;$brokers&quot; = &quot;&quot; ] ; then
     log nl &quot;Running in bootstrap mode!&quot;
-
-    log nl &quot;Notify TM we&apos;re boot_in_progress&quot;
-    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_in_progress&quot;
 
     CMD=&quot;$MVN_CMD -Pcli -Dexec.args=\&quot;--boot $bootName.xml --config=$propUrl --log-suffix $suffix$gameId\&quot;&quot;
     log nl &quot;Run maven : $CMD&quot;
@@ -227,7 +224,7 @@ else
 
     log nl &quot;Brokers: $brokers&quot;
 
-    CMD=&quot;mvn -Pcli -Dexec.args=\&quot;-sim --control $tourneyUrl --game-id $gameId --log-suffix $suffix$gameId --brokers $brokers --input-queue $serverQueue\&quot;&quot;
+    CMD=&quot;$MVN_CMD -Pcli -Dexec.args=\&quot;-sim --control $tourneyUrl --game-id $gameId --log-suffix $suffix$gameId --brokers $brokers --input-queue $serverQueue\&quot;&quot;
     log nl &quot;Run maven : $CMD&quot;
     eval $CMD
 

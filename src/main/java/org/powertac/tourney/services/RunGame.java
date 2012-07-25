@@ -182,18 +182,6 @@ public class RunGame implements Runnable
     }
   }
 
-  private void setGameState(Game.STATE state) {
-    try {
-      db.startTrans();
-      db.updateGameStatusById(gameId, state);
-      db.commitTrans();
-    }
-    catch (Exception e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-  }
-
   @Override
   public synchronized void run ()
   {
@@ -217,7 +205,8 @@ public class RunGame implements Runnable
           + " in {1} seconds", gameId, watchDogInterval);
       return;
     }
-    
+
+    // TODO Refactor with Hibernate
     Game game;
     try {
       db.startTrans();
@@ -250,12 +239,12 @@ public class RunGame implements Runnable
       conn.getInputStream();
       log("Jenkins request to start sim game: {0}", gameId);
       running = true;
-      setGameState(Game.STATE.game_pending);
+      game.setState(Game.STATE.game_pending);
     }
     catch (Exception e) {
       e.printStackTrace();
       log("Jenkins failure to start simulation game: {0}", gameId);
-      setGameState(Game.STATE.game_failed);
+      game.setState(Game.STATE.game_failed);
     }
   }
 }
