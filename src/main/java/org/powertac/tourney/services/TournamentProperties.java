@@ -15,18 +15,17 @@
  */
 package org.powertac.tourney.services;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.*;
 
-import static org.powertac.tourney.services.Utils.log;
 
 /**
  * Central source of Properties read from tournament.properties
@@ -35,6 +34,8 @@ import static org.powertac.tourney.services.Utils.log;
 @Service("tournamentProperties")
 public class TournamentProperties
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   private Properties properties = new Properties();
   private boolean loaded = false;
   private List<String> messages = new ArrayList<String>();
@@ -65,7 +66,7 @@ public class TournamentProperties
         checkProperties();
       }
       catch (IOException e) {
-        log("[ERROR] Failed to load {0}" + resourceName);
+        log.error("Failed to load " + resourceName);
       }
     }
   }
@@ -80,7 +81,7 @@ public class TournamentProperties
    */
   private void checkProperties() {
     properties.put("tourneyUrl", getTourneyUrl());
-    properties.put("jenkinsUrl", getJenkinsUrl());
+    checkJenkinsLocation();
 
     String fallBack = System.getProperty("catalina.base", "") + "/";
     if (fallBack.equals("/")) {
@@ -93,7 +94,7 @@ public class TournamentProperties
     checkFileLocation("logLocation", fallBack);
   }
 
-  private static String getTourneyUrl ()
+  private String getTourneyUrl ()
   {
     // TODO Get these from tournament.properties ??
     String tourneyUrl = "http://%s:8080/TournamentScheduler/";
@@ -116,23 +117,40 @@ public class TournamentProperties
         }
       }
     }
-    catch (Exception ignored) {}
+    catch (Exception e) {
+      e.printStackTrace();
+      messages.add("Error getting Tournament Location!");
+    }
 
     return String.format(tourneyUrl, address);
   }
 
-  public static String getJenkinsUrl ()
+  private void checkJenkinsLocation()
   {
-    // TODO Get this from tournament.properties ??
-    String jenkinsUrl = "http://localhost:8080/jenkins/";
+    String jenkinsLocation = properties.getProperty("jenkinsLocation",
+        "http://localhost:8080/jenkins/");
+    if (!jenkinsLocation.endsWith("/")) {
+      properties.put("jenkinsLocation", jenkinsLocation + "/");
+    }
 
-    return jenkinsUrl;
+    try {
+      URL url = new URL(properties.getProperty("jenkinsLocation"));
+      URLConnection conn = url.openConnection();
+      if (conn.getInputStream() == null) {
+        throw new Exception("Couldn't open Jenkins Location");
+      }
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      messages.add("Jenkins Location could not be reached!");
+    }
   }
 
   /**
    * Make sure filelocation exists, fall back to catalina dir, we know that exists
    */
-  private void checkFileLocation(String name, String catalinaBase) {
+  private void checkFileLocation (String name, String catalinaBase)
+  {
     String directory = properties.getProperty(name);
 
     if (!directory.endsWith(File.separator)) {
@@ -144,20 +162,21 @@ public class TournamentProperties
     if (! test.exists()) {
       String msg = String.format("%s '%s' doesn't exist<br/>falling back on : %s",
           name, directory, catalinaBase);
-      log("[ERROR] {0}", msg);
+      log.error(msg);
       messages.add(msg);
       properties.setProperty(name, catalinaBase);
     }
     else if (! test.canWrite()) {
       String msg = String.format("%s '%s' isn't writeable<br/>falling back on : %s",
           name, directory, catalinaBase);
-      log("[ERROR] {0}", msg);
+      log.error(msg);
       messages.add(msg);
       properties.setProperty(name, catalinaBase);
     }
   }
 
-  public static TournamentProperties getProperties() {
+  public static TournamentProperties getProperties ()
+  {
     return (TournamentProperties) SpringApplicationContext
         .getBean("tournamentProperties");
   }

@@ -21,6 +21,7 @@ th {
 }
 td {
     vertical-align: middle;
+    padding: 1px 5px 1px 5px;
     padding-right: 10px;
 }
 

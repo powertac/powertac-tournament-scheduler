@@ -1,6 +1,8 @@
 package org.powertac.tourney.actions;
 
-import org.powertac.tourney.beans.*;
+import org.apache.log4j.Logger;
+import org.powertac.tourney.beans.Location;
+import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.scheduling.MainScheduler;
 import org.powertac.tourney.services.CreateProperties;
 import org.powertac.tourney.services.Database;
@@ -16,12 +18,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static org.powertac.tourney.services.Utils.log;
-
 @ManagedBean
 @RequestScoped
 public class ActionTournament
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   private int selectedPom;
 
   private Date startTime = new Date();
@@ -92,7 +94,7 @@ public class ActionTournament
   private String createSingleGameTournament(String allLocations,
                                             int[] gtypes, int[] mxs)
   {
-    log("[INFO] Singlegame tournament selected");
+    log.info("Singlegame tournament selected");
 
     // Create a tournament and insert it into the application context
     Tournament newTourney = new Tournament();
@@ -105,7 +107,7 @@ public class ActionTournament
     try {
       // Starts new transaction to prevent race conditions
       db.startTrans();
-      log("[INFO] Starting transaction");
+      log.info("Starting transaction");
 
       // Make sure tournament name is unique (case insensitive)
       if (db.getTournamentsByName(tournamentName).size() > 0) {
@@ -120,23 +122,23 @@ public class ActionTournament
       int tourneyId = db.addTournament(tournamentName, true, size1,
           startTime, Tournament.TYPE.SINGLE_GAME.toString(), selectedPom,
           allLocations, maxBrokers, gtypes, mxs);
-      log("[INFO] Adding new tourney {0}", tourneyId);
+      log.info("Adding new tourney " + tourneyId);
 
       // Adds a new game to the database
       int gameId = db.addGame(tournamentName, tourneyId, size1, startTime);
-      log("[INFO] Adding game {0}", gameId);
+      log.info("Adding game " + gameId);
 
       // Create game properties
-      log("[INFO] Creating game: {0} properties", gameId);
+      log.info("Creating game: " + gameId + "properties");
       CreateProperties.genProperties(gameId, db, locations, fromTime, toTime);
 
       db.commitTrans();
-      log("[INFO] Committing transaction");
+      log.info("Committing transaction");
     }
     catch (SQLException sqle) {
       db.abortTrans();
       sqle.printStackTrace();
-      log("[ERROR] Scheduling exception (single game tournament) !");
+      log.error("Scheduling exception (single game tournament) !");
       return "Error";
     }
 
@@ -146,7 +148,7 @@ public class ActionTournament
   private String createMultiGameTournament(String allLocations,
                                            int[] gtypes, int[] mxs)
   {
-    log("[INFO] Multigame tournament selected");
+    log.info("Multigame tournament selected");
 
     truncateScheduler();
 
@@ -154,17 +156,16 @@ public class ActionTournament
     try {
       // Starts new transaction to prevent race conditions
       db.startTrans();
-      log("[INFO] Starting transaction");
+      log.info("Starting transaction");
 
       int noofagents = maxBrokers;
       int noofcopies = maxBrokerInstances;
       int noofservers = db.getMachines().size();
 
-      log("[INFO] Starting MainScheduler..");
-      log("[INFO] Params -- Servers: {0} Agents: {1} Copies: {2} games=[ {3}:"
-          + " {4}, {5}: {6}, {7}: {8} ]",
-          new Object[] {noofservers, noofagents, noofcopies, size1,
-              numberSize1, size2, numberSize2, size3, numberSize3});
+      log.info("Starting MainScheduler..");
+      log.info(String.format("Params -- Servers: %s Agents: %s Copies: %s games"
+          + "=[ %s: %s, %s: %s, %s: %s ]", noofservers, noofagents, noofcopies,
+          size1, numberSize1, size2, numberSize2, size3, numberSize3));
 
       MainScheduler gamescheduler = new MainScheduler(noofagents, noofservers);
       gamescheduler.initServerPanel(noofservers);
@@ -173,27 +174,27 @@ public class ActionTournament
 
       int numberOfGames = gamescheduler.getGamesEstimate();
 
-      log("[INFO] No. of games: {0}", numberOfGames);
+      log.info("No. of games: " + numberOfGames);
       gamescheduler.resetCube();
 
       // Adds new tournament to the database
       int tourneyId = db.addTournament(tournamentName, true, numberOfGames,
           startTime, Tournament.TYPE.MULTI_GAME.toString(), selectedPom,
           allLocations, maxBrokers, gtypes, mxs);
-      log("[INFO] Adding new tourney {0}", tourneyId);
+      log.info("Adding new tourney " + tourneyId);
 
       // Adds new games to the database
       for (int i=0; i<numberOfGames; i++) {
         int gameId = db.addGame(tournamentName + "_" + i,
             tourneyId, getMaxBrokers(), startTime);
-        log("[INFO] Adding game {0}", gameId);
+        log.info("Adding game " + gameId);
 
         CreateProperties.genProperties(gameId, db, locations, fromTime, toTime);
-        log("[INFO] Creating game: {0} properties", gameId);
+        log.info("Creating game: " + gameId + " properties");
       }
 
       db.commitTrans();
-      log("[INFO] Committing transaction");
+      log.info("Committing transaction");
 
       String msg = "Number of games in tournament: " + numberOfGames;
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
@@ -205,7 +206,7 @@ public class ActionTournament
     }
     catch (Exception e) {
       db.abortTrans();
-      log("[ERROR] Scheduling exception (multi game tournament) !");
+      log.error("Scheduling exception (multi game tournament) !");
       e.printStackTrace();
       return "Error";
     }
@@ -266,7 +267,7 @@ public class ActionTournament
     }
 
     if (!t.getTournamentName().toLowerCase().contains("test")) {
-      log("[INFO] Someone tried to remove a non-test Tournament!");
+      log.info("Someone tried to remove a non-test Tournament!");
       String msg = "Nice try, hacker!" ;
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_WARN, msg, null);
       FacesContext.getCurrentInstance().addMessage("removeTournament", fm);
@@ -275,8 +276,8 @@ public class ActionTournament
 
     String msg = t.remove();
     if (!msg.isEmpty()) {
-      log("[INFO] Something went wrong with removing tournament {0}\n{1}",
-          t.getTournamentName(), msg);
+      log.info(String.format("Something went wrong with removing tournament "
+          + "%s\n%s", t.getTournamentName(), msg));
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_WARN, msg, null);
       FacesContext.getCurrentInstance().addMessage("removeTournament", fm);
     }

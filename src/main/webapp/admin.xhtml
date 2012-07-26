@@ -9,7 +9,6 @@
 
 <h:body>
   <ui:composition template="template.xhtml">
-
     <ui:define name="content">
       <h2>Admin</h2>
 
@@ -260,13 +259,13 @@
               <h:panelGroup/>
 
               <h:outputText value="Machine Name:" />
-              <h:inputText value="#{actionAdmin.newName}" />
+              <h:inputText value="#{actionAdmin.machineName}" />
 
               <h:outputText value="Machine Url:" />
-              <h:inputText value="#{actionAdmin.newUrl}" />
+              <h:inputText value="#{actionAdmin.machineUrl}" />
 
               <h:outputText value="Visualizer Url:" />
-              <h:inputText value="#{actionAdmin.newViz}" />
+              <h:inputText value="#{actionAdmin.machineViz}" />
           </h:panelGrid>
           <h:commandButton value="Save" action="#{actionAdmin.saveMachine()}" />
           <h:message for="saveMachine" />
@@ -316,8 +315,6 @@
       </h:form>
 
     </ui:define>
-
   </ui:composition>
-
 </h:body>
 </html>

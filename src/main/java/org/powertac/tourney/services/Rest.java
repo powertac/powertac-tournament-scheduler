@@ -37,8 +37,8 @@ public class Rest
       doneResponse = head + "<done></done>" + tail;
     }
 
+    // JEC - this could be REALLY long lists after a while.
     List<Game> allGames = Game.getGameList();
-    // JEC - this could be a REALLY long list after a while.
     List<Tournament> allTournaments = Tournament.getTournamentList();
 
     if (tournamentName == null || allGames == null) {
@@ -56,10 +56,12 @@ public class Rest
       // Find games matching the competition name and have brokers registered
       for (Game g: allGames) {
         // Only consider games that are ready (started, but waiting for logins)
-        // And that are more than X minutes ready, to allow Viz Login
+        if (!g.stateEquals(Game.STATE.game_ready)) {
+          continue;
+        }
+        // Only consider games that are more than X minutes ready, to allow Viz Login
         long readyStamp = g.getReadyTime().getTime();
-        if (!g.stateEquals(Game.STATE.game_ready) ||
-            nowStamp < (readyStamp + readyDeadline) ) {
+        if (nowStamp < (readyStamp + readyDeadline)) {
           continue;
         }
 
@@ -70,11 +72,13 @@ public class Rest
         }
 
         Broker broker = g.getBrokerRegistration(brokerAuthToken);
-
         if (broker != null && !broker.getBrokerInGame()) {
           broker.setBrokerInGame(true);
           db.updateBrokerInGame(g.getGameId(), broker);
           db.commitTrans();
+          log.info(String.format("Sending login to broker %s : %s, %s, %s",
+              broker.getBrokerName(), g.getJmsUrl(),
+              broker.getQueueName(), g.getServerQueue()));
           return String.format(loginResponse, g.getJmsUrl(),
                                broker.getQueueName(), g.getServerQueue());
         }
@@ -91,22 +95,21 @@ public class Rest
       }
 
       if (competitionExists) {
-        log.info(String.format("Broker: %s attempted to log into existing "
+        log.debug(String.format("Broker: %s attempted to log into existing "
             + "tournament: %s --sending retry", brokerAuthToken, tournamentName));
         return String.format(retryResponse, 60);
       }
       else {
-        log.info(String.format("Broker: %s attempted to log into non-existing "
+        log.debug(String.format("Broker: %s attempted to log into non-existing "
             + "tournament: %s --sending done", brokerAuthToken, tournamentName));
         return doneResponse;
       }
     }
     catch (Exception e) {
       db.abortTrans();
-      e.printStackTrace();
+      log.error(e.getMessage());
+      return doneResponse;
     }
-
-    return doneResponse;
   }
 
   /**
@@ -146,6 +149,7 @@ public class Rest
       //                                                 machineName));
       if (readyGames.isEmpty()) {
         db.commitTrans();
+        log.debug("No games available, retry visualizer");
         return String.format(retryResponse, 60);
       }
       else {
@@ -154,6 +158,7 @@ public class Rest
         String queue = candidate.getVisualizerQueue();
         String svrQueue = candidate.getServerQueue();
         db.commitTrans();
+        log.info("Game available, login visualizer, " + queue +", "+ svrQueue);
         return String.format(loginResponse, queue, svrQueue);
       }
     }

@@ -1,5 +1,6 @@
 package org.powertac.tourney.beans;
 
+import org.apache.log4j.Logger;
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.Utils;
 
@@ -11,7 +12,6 @@ import java.util.Date;
 import java.util.List;
 
 import static javax.persistence.GenerationType.IDENTITY;
-import static org.powertac.tourney.services.Utils.log;
 
 
 // Technically not a managed bean, this is an internal Class to the 
@@ -22,6 +22,8 @@ import static org.powertac.tourney.services.Utils.log;
             @UniqueConstraint(columnNames = "tourneyId")})
 public class Tournament
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   private int tourneyId = 0;
   private Date startTime;
   private String tournamentName;
@@ -80,12 +82,12 @@ public class Tournament
       setTournamentName(rsTs.getString("tourneyName"));
     }
     catch (Exception e) {
-      log("[ERROR] Error creating tournament from result set");
+      log.error("Error creating tournament from result set");
       e.printStackTrace();
     }
   }
 
-  public void setTournametInPogress (Database db) throws SQLException
+  public void setTournametInProgress(Database db) throws SQLException
   {
     if (!stateEquals(STATE.in_progress)) {
       db.updateTournamentStatus(tourneyId, STATE.in_progress);

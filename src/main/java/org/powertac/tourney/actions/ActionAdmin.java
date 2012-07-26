@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.powertac.tourney.services.Utils.log;
-
 @ManagedBean
 @RequestScoped
 public class ActionAdmin
@@ -39,10 +37,9 @@ public class ActionAdmin
   private Date newLocationEndTime = null;
 
   private int machineId = -1;
-
-  private String newName = "";
-  private String newUrl = "";
-  private String newViz = "";
+  private String machineName = "";
+  private String machineUrl = "";
+  private String machineViz = "";
 
   private Upload upload = new Upload();
   private UploadedFile uploadedPom;
@@ -59,22 +56,76 @@ public class ActionAdmin
     return properties.getConfigErrors();
   }
 
-  public List<User> getUserList()
+  //<editor-fold desc="Location stuff">
+  public List<Location> getLocationList ()
   {
-    List<User> users = new ArrayList<User>();
-    
+    List<Location> locations = new ArrayList<Location>();
     Database db = new Database();
+
     try {
       db.startTrans();
-      users = db.getAllUsers();
+      locations = db.getLocations();
       db.commitTrans();
     }
-    catch (SQLException e){
+    catch (SQLException e) {
       db.abortTrans();
       e.printStackTrace();
     }
 
-    return users;
+    return locations;
+  }
+
+  public void addLocation ()
+  {
+    if (newLocationName.isEmpty() || (newLocationStartTime == null) || (newLocationEndTime == null)) {
+      return;
+    }
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      db.addLocation(newLocationName, newLocationStartTime, newLocationEndTime);
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+  }
+
+  public void deleteLocation (Location l)
+  {
+    Database db = new Database();
+    try {
+      db.startTrans();
+      db.deleteLocation(l.getLocationId());
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+  }
+  //</editor-fold>
+
+  //<editor-fold desc="Pom stuff">
+  public List<Database.Pom> getPomList ()
+  {
+    List<Database.Pom> poms = new ArrayList<Database.Pom>();
+
+    Database db = new Database();
+
+    try {
+      db.startTrans();
+      poms = db.getPoms();
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    return poms;
   }
 
   public void submitPom ()
@@ -123,60 +174,12 @@ public class ActionAdmin
       session.getTransaction().rollback();
     }
   }
+  //</editor-fold>
 
-  public List<Database.Pom> getPomList ()
-  {
-    List<Database.Pom> poms = new ArrayList<Database.Pom>();
-
-    Database db = new Database();
-
-    try {
-      db.startTrans();
-      poms = db.getPoms();
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return poms;
-  }
-
-  public List<Location> getLocationList ()
-  {
-    List<Location> locations = new ArrayList<Location>();
-    Database db = new Database();
-
-    try {
-      db.startTrans();
-      locations = db.getLocations();
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return locations;
-  }
-
+  //<editor-fold desc="Machine stuff">
   public List<Machine> getMachineList ()
   {
-    List<Machine> machines = new ArrayList<Machine>();
-    Database db = new Database();
-
-    try {
-      db.startTrans();
-      machines = db.getMachines();
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return machines;
+    return Machine.getMachineList();
   }
 
   public void toggleAvailable (Machine m)
@@ -219,17 +222,17 @@ public class ActionAdmin
   public void editMachine(Machine m)
   {
     machineId = m.getMachineId();
-    newName = m.getName();
-    newUrl = m.getUrl();
-    newViz = m.getVizUrl();
+    machineName = m.getName();
+    machineUrl = m.getUrl();
+    machineUrl = m.getVizUrl();
   }
   
   public void saveMachine()
   {
-    newUrl = newUrl.replace("https://", "").replace("http://", "");
-    newViz = newViz.replace("https://", "").replace("http://", "");
+    machineUrl = machineUrl.replace("https://", "").replace("http://", "");
+    machineViz = machineViz.replace("https://", "").replace("http://", "");
 
-    if (newName.isEmpty() || newUrl.isEmpty() || newViz.isEmpty()) {
+    if (machineName.isEmpty() || machineUrl.isEmpty() || machineViz.isEmpty()) {
       String msg = "Error: machine not saved, some fields were empty!";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
@@ -245,7 +248,7 @@ public class ActionAdmin
     Database db = new Database();
     try {
       db.startTrans();
-      db.editMachine(newName, newUrl, newViz, machineId);
+      db.editMachine(machineName, machineUrl, machineViz, machineId);
       db.commitTrans();
       resetMachineData();
     }
@@ -280,7 +283,7 @@ public class ActionAdmin
     Database db = new Database();
     try {
       db.startTrans();
-      db.addMachine(newName, newUrl, newViz);
+      db.addMachine(machineName, machineUrl, machineViz);
       db.commitTrans();
       
       resetMachineData();
@@ -294,88 +297,38 @@ public class ActionAdmin
     }
   }
 
+  private void resetMachineData() {
+    machineId = -1;
+    machineViz = "";
+    machineName = "";
+    machineUrl = "";
+  }
+  //</editor-fold>
+
+  public List<User> getUserList()
+  {
+    List<User> users = new ArrayList<User>();
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      users = db.getAllUsers();
+      db.commitTrans();
+    }
+    catch (SQLException e){
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    return users;
+  }
+
   public void refresh ()
   {
 
   }
 
-  public void deleteLocation (Location l)
-  {
-    Database db = new Database();
-    try {
-      db.startTrans();
-      db.deleteLocation(l.getLocationId());
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-  }
-
-  public void addLocation ()
-  {
-    if (newLocationName.isEmpty() || (newLocationStartTime == null) || (newLocationEndTime == null)) {
-      log("Some location fields are empty!");
-      return;
-    }
-	  
-    Database db = new Database();
-    try {
-      db.startTrans();
-      db.addLocation(newLocationName, newLocationStartTime, newLocationEndTime);
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-  }
-
-  private void resetMachineData() {
-    machineId = -1;
-    newName = "";
-    newUrl = "";
-    newViz = "";
-  }
-
   //<editor-fold desc="Setters and Getters">
-  public String getPomName ()
-  {
-    return pomName;
-  }
-  public void setPomName (String pomName)
-  {
-    this.pomName = pomName.trim();
-  }
-
-  public UploadedFile getUploadedPom ()
-  {
-    return uploadedPom;
-  }
-  public void setUploadedPom (UploadedFile uploadedPom)
-  {
-    this.uploadedPom = uploadedPom;
-  }
-
-  public boolean isSortAscendingPom ()
-  {
-    return sortAscendingPom;
-  }
-  public void setSortAscendingPom (boolean sortAscendingPom)
-  {
-    this.sortAscendingPom = sortAscendingPom;
-  }
-
-  public String getSortColumnPom()
-  {
-    return sortColumnPom;
-  }
-  public void setSortColumnPom(String sortColumnPom)
-  {
-    this.sortColumnPom = sortColumnPom;
-  }
-
   public String getNewLocationName ()
   {
     return newLocationName;
@@ -403,6 +356,79 @@ public class ActionAdmin
     this.newLocationEndTime = newLocationEndTime;
   }
 
+  public String getPomName ()
+  {
+    return pomName;
+  }
+  public void setPomName (String pomName)
+  {
+    this.pomName = pomName.trim();
+  }
+
+  public UploadedFile getUploadedPom ()
+  {
+    return uploadedPom;
+  }
+  public void setUploadedPom (UploadedFile uploadedPom)
+  {
+    this.uploadedPom = uploadedPom;
+  }
+
+  public int getMachineId ()
+  {
+    return machineId;
+  }
+  public void setMachineId(int machineId) {
+    this.machineId = machineId;
+  }
+
+  public String getMachineName ()
+  {
+    return machineName;
+  }
+  public void setMachineName (String machineName)
+  {
+    this.machineName = machineName;
+  }
+
+  public String getMachineUrl ()
+  {
+    return machineUrl;
+  }
+  public void setMachineUrl (String machineUrl)
+  {
+    this.machineUrl = machineUrl;
+  }
+
+  public String getMachineViz ()
+  {
+    return machineViz;
+  }
+  public void setMachineViz (String machineViz)
+  {
+    this.machineViz = machineViz;
+  }
+  //</editor-fold>
+
+  //<editor-fold desc="Sorting setters and getters">
+  public boolean isSortAscendingPom ()
+  {
+    return sortAscendingPom;
+  }
+  public void setSortAscendingPom (boolean sortAscendingPom)
+  {
+    this.sortAscendingPom = sortAscendingPom;
+  }
+
+  public String getSortColumnPom()
+  {
+    return sortColumnPom;
+  }
+  public void setSortColumnPom(String sortColumnPom)
+  {
+    this.sortColumnPom = sortColumnPom;
+  }
+
   public String getSortColumnMachine ()
   {
     return sortColumnMachine;
@@ -419,41 +445,6 @@ public class ActionAdmin
   public void setSortAscendingMachine (boolean sortAscendingMachine)
   {
     this.sortAscendingMachine = sortAscendingMachine;
-  }
-
-  public String getNewName ()
-  {
-    return newName;
-  }
-  public void setNewName (String newName)
-  {
-    this.newName = newName;
-  }
-
-  public String getNewUrl ()
-  {
-    return newUrl;
-  }
-  public void setNewUrl (String newUrl)
-  {
-    this.newUrl = newUrl;
-  }
-
-  public String getNewViz ()
-  {
-    return newViz;
-  }
-  public void setNewViz (String newViz)
-  {
-    this.newViz = newViz;
-  }
-
-  public int getMachineId ()
-  {
-	  return machineId;
-  }
-  public void setMachineId(int machineId) {
-	  this.machineId = machineId;
   }
 
   public String getSortColumnUsers ()

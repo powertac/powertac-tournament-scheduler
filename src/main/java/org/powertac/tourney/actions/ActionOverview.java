@@ -1,24 +1,24 @@
 package org.powertac.tourney.actions;
 
-import org.powertac.tourney.beans.Broker;
-import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Machine;
-import org.powertac.tourney.beans.Tournament;
-import org.powertac.tourney.services.Database;
-import org.powertac.tourney.services.RunBootstrap;
-import org.powertac.tourney.services.RunGame;
+import org.apache.log4j.Logger;
+import org.powertac.tourney.beans.*;
+import org.powertac.tourney.services.*;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
+import javax.faces.context.FacesContext;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.List;
-
-import static org.powertac.tourney.services.Utils.log;
 
 @ManagedBean
 @RequestScoped
 public class ActionOverview
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   private String sortColumnBrokers = null;
   private boolean sortAscendingBrokers = true;
 
@@ -52,7 +52,7 @@ public class ActionOverview
   {
     Database db = new Database();
     int gameId = g.getGameId();
-    log("[INFO] Restarting Game {0} has status: {1}", gameId, g.getStatus());
+    log.info("Restarting Game " + gameId + " has status: " + g.getStatus());
     Tournament t = new Tournament();
 
     try {
@@ -60,7 +60,7 @@ public class ActionOverview
       t = db.getTournamentByGameId(gameId);
 
       db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-      log("[INFO] Setting machine: {0} to idle", g.getMachineId());
+      log.info("Setting machine: " + g.getMachineId() + " to idle");
       db.commitTrans();
     }
     catch (SQLException e) {
@@ -71,7 +71,7 @@ public class ActionOverview
     if (g.stateEquals(Game.STATE.boot_failed) ||
         g.stateEquals(Game.STATE.boot_pending) ||
         g.stateEquals(Game.STATE.boot_in_progress) ) {
-      log("[INFO] Attempting to restart bootstrap {0}", gameId);
+      log.info("Attempting to restart bootstrap " + gameId);
 
       RunBootstrap runBootstrap = new RunBootstrap(gameId, t.getPomId());
       new Thread(runBootstrap).start();
@@ -79,24 +79,74 @@ public class ActionOverview
     else if (g.stateEquals(Game.STATE.game_failed) ||
         g.stateEquals(Game.STATE.game_in_progress) ||
         g.stateEquals(Game.STATE.boot_failed) ) {
-      log("[INFO] Attempting to restart sim {0}", gameId);
+      log.info("Attempting to restart sim " + gameId);
 
       RunGame runGame = new RunGame(g.getGameId(), t.getPomId());
       new Thread(runGame).start();
     }
   }
 
-  /**
-   * We should be able to delete games
-   * But should we be able to abandon running games?
-   * @param g : the Game to delete
-   */
-  // TODO Should be a Game method
-  public void deleteGame (Game g)
+  // TODO Should be a Game method??
+  public void stopGame (Game g)
   {
-    // TODO: ARE YOU SURE?
-    //scheduler.deleteBootTimer(g.getGameId());
-    //scheduler.deleteSimTimer(g.getGameId());
+    log.info("Trying to stop game: " + g.getGameId());
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+
+      // Get the machineName and stop the job on Jenkins
+      TournamentProperties properties = TournamentProperties.getProperties();
+      String machineName = db.getMachineById(g.getMachineId()).getName();
+      String stopUrl = properties.getProperty("jenkinsLocation")
+          + "computer/" + machineName + "/executors/0/stop";
+      log.info("Stop url: " + stopUrl);
+
+      try {
+        URL url = new URL(stopUrl);
+        URLConnection conn = url.openConnection();
+        conn.getInputStream();
+      }
+      catch (Exception ignored) {}
+      log.info("Stopped job on Jenkins");
+
+      // Reset game and machine on TM
+      if (g.getStatus().equals(Game.STATE.boot_in_progress.toString())) {
+        log.info("Resetting boot game: " + g.getGameId()
+            + " on machine: " + machineName);
+        db.updateGameBootstrapById(g.getGameId(), false);
+        g.removeBootFile();
+        db.updateGameStatusById(g.getGameId(), Game.STATE.boot_pending);
+        Scheduler.bootRunning = false;
+      }
+      else if ((g.getStatus().equals(Game.STATE.game_pending.toString())) ||
+          (g.getStatus().equals(Game.STATE.game_ready.toString())) ||
+          (g.getStatus().equals(Game.STATE.game_in_progress.toString())) ) {
+        log.info("Resetting sim game: " + g.getGameId()
+            + " on machine: " + machineName);
+
+        db.updateGameStatusById(g.getGameId(), Game.STATE.boot_complete);
+        db.clearGameReadyTime(g.getGameId());
+
+        Scheduler scheduler =
+            (Scheduler) SpringApplicationContext.getBean("scheduler");
+        scheduler.resetServer(g.getMachineId());
+      }
+
+      db.updateGameFreeMachine(g.getGameId());
+      db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
+
+      db.commitTrans();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      db.abortTrans();
+
+      log.error("Failed to completely stop game: " + g.getGameId());
+      String msg = "Error stopping game : " + g.getGameId();
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+    }
   }
 
   public void refresh ()

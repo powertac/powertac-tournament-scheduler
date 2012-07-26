@@ -135,7 +135,7 @@ function get_pom () {
         cleanup
         exit 1
     else
-        log &quot;Pom retrieved\n&quot;
+        log &quot;Pom retrieved&quot;
     fi
 }
 
@@ -220,7 +220,7 @@ if [ &quot;$brokers&quot; = &quot;&quot; ] ; then
         wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_complete&quot;
     fi
 else
-    log &quot;Running in sim mode!&quot;
+    log nl &quot;Running in sim mode!&quot;
 
     log nl &quot;Brokers: $brokers&quot;
 

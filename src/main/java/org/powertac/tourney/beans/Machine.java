@@ -1,10 +1,15 @@
 package org.powertac.tourney.beans;
 
+import org.apache.log4j.Logger;
+import org.powertac.tourney.services.Database;
+
 import javax.persistence.*;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static javax.persistence.GenerationType.IDENTITY;
-import static org.powertac.tourney.services.Utils.log;
 
 //Create hibernate mapping with annotations
 @Entity
@@ -12,6 +17,8 @@ import static org.powertac.tourney.services.Utils.log;
             @UniqueConstraint(columnNames = "machineId")})
 public class Machine
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   private String name;
   private String url;
   private boolean available;
@@ -38,7 +45,7 @@ public class Machine
       setAvailable(rsMachines.getBoolean("available"));
     }
     catch (Exception e) {
-      log("[ERROR] Error creating machine from result set");
+      log.error("Error creating machine from result set");
       e.printStackTrace();
     }
   }
@@ -48,6 +55,25 @@ public class Machine
     return this.status.equals(state.toString());
   }
 
+  public static List<Machine> getMachineList ()
+  {
+    List<Machine> machines = new ArrayList<Machine>();
+    Database db = new Database();
+
+    try {
+      db.startTrans();
+      machines = db.getMachines();
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    return machines;
+  }
+
+  //<editor-fold desc="Setters and Getters">
   @Column(name = "machineName", unique = false, nullable = false)
   public String getName ()
   {
@@ -143,5 +169,6 @@ public class Machine
   {
     this.vizUrl = vizUrl;
   }
+  //</editor-fold>
 
 }

@@ -119,7 +119,7 @@
         </t:dataTable>
       </h:form>
 
-      <h:form rendered="#{user.permissions le 0}">
+      <h:form rendered="#{user.permissions le 0}" id="gamesForm">
         <h3 class="withButton">Pending/Running Games</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
         <t:dataTable id="datagames" border="1" sortable="false"
                      sortColumn="#{actionOverview.sortColumnGames}"
@@ -190,20 +190,18 @@
 
           <t:column>
             <f:facet name="header">
-              <h:outputText value="Restart" />
+              <h:outputText value="Actions" />
             </f:facet>
-            <h:commandButton value="restart" action="#{actionOverview.restartGame(g)}" />
+            <h:panelGroup>
+              <h:commandButton value="Restart" action="#{actionOverview.restartGame(g)}"
+                 onclick="return confirmAlert('Are you sure you want to restart this game?');"/>
+              <h:commandButton value="Stop" action="#{actionOverview.stopGame(g)}"
+                 onclick="return confirmAlert('Are you sure you want to stop this game?');"/>
+            </h:panelGroup>
           </t:column>
-
-          <!--
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Delete Game" />
-            </f:facet>
-            <h:commandButton value="delete" action="#{actionOverview.deleteGame(g)}" />
-          </t:column>
-          -->
         </t:dataTable>
+
+        <h:message for="gamesForm" />
       </h:form>
 
       <h:form rendered="#{user.permissions gt 0}">

@@ -1,12 +1,13 @@
 package org.powertac.tourney.scheduling;
 
+import org.apache.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
-import static org.powertac.tourney.services.Utils.log;
-
 class StartHere {
+  private static Logger log = Logger.getLogger("TMLogger");
 
 	public static void main(String args[]) throws Exception {
 
@@ -18,14 +19,14 @@ class StartHere {
 		int[] gtypes = { 2, 4, 8 };
 		int[] mxs = { 12, 12, 12 };
 
-		log("The number of Agents/n(duplicates)/Servers: {0}/{1}/{2}",
-        new Object[] {noofagents, noofcopies, noofservers});
+		log.info(String.format("The number of Agents/n(duplicates)/Servers: "
+        + "%s/%s/%s", noofagents, noofcopies, noofservers));
 
 		mainScheduler = new MainScheduler(noofagents, noofservers);
 		mainScheduler.initServerPanel(noofservers);
 		mainScheduler.initializeAgentsDB(noofagents, noofcopies);
 		mainScheduler.initGameCube(gtypes, mxs);
-		log("No. of games: {0}", mainScheduler.getGamesEstimate());
+		log.info("No. of games: " + mainScheduler.getGamesEstimate());
 		mainScheduler.resetCube();
 
 		/* comment the while loop to prevent simulation */
@@ -36,18 +37,18 @@ class StartHere {
 
 		while (!mainScheduler.equilibrium()) {
 			currScheduler.putAll(mainScheduler.Schedule());
-			log("Currently Running Schedule:");
+			log.info("Currently Running Schedule:");
 
 			for (Server s : currScheduler.keySet()) {
-				log("Running on server: {0}", s.getServerNumber());
+				log.info("Running on server: " + s.getServerNumber());
 				AgentLet[] agentsInGame = currScheduler.get(s);
 				for (AgentLet a : agentsInGame) {
-          log("Agent: {0}", a.getAgentType());
+          log.info("Agent: " + a.getAgentType());
 				}
 			}
 
 			// Read in to clear server
-			log("Enter server to finish:	");
+			log.info("Enter server to finish:	");
 			String serverNumber = "";
 			int server = 0;		
 			if ((serverNumber = in.readLine()) != null) {
@@ -67,6 +68,6 @@ class StartHere {
 			mainScheduler.resetServers(server);
 		}
 
-		log("Final !!");
+		log.info("Final !!");
 	}
 }

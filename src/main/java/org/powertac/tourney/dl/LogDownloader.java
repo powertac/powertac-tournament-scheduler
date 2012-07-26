@@ -16,7 +16,8 @@ import java.io.IOException;
 /**
  * Servlet implementation class LogDownloader
  */
-@WebServlet(description = "Access to download compressed logfiles", urlPatterns = { "/LogDownloader" })
+@WebServlet(description = "Access to download compressed logfiles",
+            urlPatterns = { "/LogDownloader" })
 public class LogDownloader extends HttpServlet 
 {
 	private static final long serialVersionUID = 1L;
@@ -28,7 +29,8 @@ public class LogDownloader extends HttpServlet
 	  super();
 	}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException
 	{
     String gameId = request.getParameter("game");
     String downloadFile = "game-" + gameId + "-sim-logs.tar.gz";

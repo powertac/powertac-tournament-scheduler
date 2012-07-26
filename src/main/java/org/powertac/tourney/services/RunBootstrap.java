@@ -1,5 +1,6 @@
 package org.powertac.tourney.services;
 
+import org.apache.log4j.Logger;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Machine;
 import org.powertac.tourney.beans.Scheduler;
@@ -8,10 +9,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
 
-import static org.powertac.tourney.services.Utils.log;
 
 public class RunBootstrap implements Runnable
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   private String logSuffix = "boot-";
   private int pomId;
   private int gameId;
@@ -39,11 +41,11 @@ public class RunBootstrap implements Runnable
 
       Machine freeMachine;
       if (machineName.isEmpty()) {
-        log("Claiming free machine");
+        log.info("Claiming free machine");
         freeMachine = db.claimFreeMachine();
       }
       else {
-        log("Claiming machine {0}", machineName);
+        log.info("Claiming machine " + machineName);
         freeMachine = db.claimFreeMachine(machineName);
       }
 
@@ -56,7 +58,8 @@ public class RunBootstrap implements Runnable
 
         machineName = freeMachine.getName();
 
-        log("[INFO] Running boot {0} on machine {1}", gameId, machineName);
+        log.info(String.format("Running boot %s on machine %s",
+            gameId, machineName));
         return true;
       }
     }
@@ -71,8 +74,8 @@ public class RunBootstrap implements Runnable
   public void run ()
   {
     if (!checkMachineAvailable()) {
-      log("[INFO] No machines available to run scheduled boot: {0}... will retry"
-          + " in {1} seconds", gameId, watchDogInterval);
+      log.info(String.format("No machines available to run scheduled boot: %s"
+          + "... will retry in %s seconds", gameId, watchDogInterval));
       return;
     }
 
@@ -90,8 +93,8 @@ public class RunBootstrap implements Runnable
     }
 
     String finalUrl =
-        "http://localhost:8080/jenkins/job/"
-        + "start-server-instance/buildWithParameters?"
+        properties.getProperty("jenkinsLocation")
+        + "job/start-server-instance/buildWithParameters?"
         + "token=start-instance"
         + "&tourneyUrl=" + properties.getProperty("tourneyUrl")
         + "&suffix=" + logSuffix
@@ -99,19 +102,19 @@ public class RunBootstrap implements Runnable
         + "&machine=" + machineName
         + "&gameId=" + gameId;
 
-    log("[INFO] Final url: {0}", finalUrl);
+    log.info("Final url: " + finalUrl);
 
     try {
       URL url = new URL(finalUrl);
       URLConnection conn = url.openConnection();
       conn.getInputStream();
-      log("[INFO] Jenkins request to bootstrap game: {0}", gameId);
+      log.info("Jenkins request to bootstrap game: " + gameId);
       Scheduler.bootRunning = true;
       game.setState(Game.STATE.boot_in_progress);
     }
     catch (Exception e) {
       e.printStackTrace();
-      log("[INFO] Jenkins failure to bootstrap game: {0}", gameId);
+      log.info("Jenkins failure to bootstrap game: " + gameId);
 
       Database db = new Database();
       try {

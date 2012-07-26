@@ -372,6 +372,18 @@ public class Constants
     "SELECT * FROM brokers JOIN ingame "
         + "ON brokers.brokerId = ingame.brokerId WHERE gameId=?";
 
+  /***
+   * Get brokers in a completed game by gameid
+   *
+   * @param gameId
+   */
+  public static final String GET_BROKERS_INGAME_COMPLETE =
+      "SELECT * FROM brokers "
+      + "JOIN registration ON registration.brokerId = brokers.brokerId "
+      + "JOIN tournaments ON tournaments.tourneyId = registration.tourneyId "
+      + "JOIN games on games.tourneyId = tournaments.tourneyId "
+      + "WHERE gameId=?;";
+
   public static final String UDATE_BROKER_INGAME =
           "UPDATE ingame SET brokerInGame = ? WHERE gameId=? and brokerId=?";
 
@@ -403,7 +415,16 @@ public class Constants
     "UPDATE games SET jmsUrl=?, serverQueue=? WHERE gameId=?;";
 
   /***
-   * Update the machine a game is running on
+   * Clear the readyTime of a game
+   *
+   * @param gameId
+   *          : The id of the game
+   */
+  public static final String CLEAR_GAME_READYTIME =
+      "UPDATE games SET readyTime=null WHERE gameId=?;";
+
+  /***
+   * Update the readyTime of a game
    *
    * @param readyTime
    *          : The dateTime at which the sim says it's ready

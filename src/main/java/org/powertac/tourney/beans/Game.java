@@ -1,5 +1,6 @@
 package org.powertac.tourney.beans;
 
+import org.apache.log4j.Logger;
 import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.SpringApplicationContext;
 import org.powertac.tourney.services.TournamentProperties;
@@ -15,7 +16,6 @@ import java.util.Date;
 import java.util.List;
 
 import static javax.persistence.GenerationType.IDENTITY;
-import static org.powertac.tourney.services.Utils.log;
 
 
 // Create hibernate mapping with annotations
@@ -24,6 +24,7 @@ import static org.powertac.tourney.services.Utils.log;
 		@UniqueConstraint(columnNames = "gameId")})
 public class Game implements Serializable
 {
+  private static Logger log = Logger.getLogger("TMLogger");
   public static final String key = "game";
 
   private Date startTime;
@@ -54,7 +55,7 @@ public class Game implements Serializable
     When the job is sent to Jenkins, the TM sets it to game_pending.
     When the sim is ready, the sim sets the game to game_ready.
     It also sets readyTime, to give the visualizer some time to log in before
-    the broker slog in. Brokers are allowed to log in when game_ready and
+    the brokers log in. Brokers are allowed to log in when game_ready and
     readyTime + X minutes.
     When all the brokers are logged in (or login timeout occurs), the sim sets
     it to in_progress.
@@ -67,6 +68,10 @@ public class Game implements Serializable
   public static enum STATE {
     boot_pending, boot_in_progress, boot_complete, boot_failed,
     game_pending, game_ready, game_in_progress, game_complete, game_failed
+  }
+
+  public Game ()
+  {
   }
 
   public Game (ResultSet rs)
@@ -88,9 +93,28 @@ public class Game implements Serializable
       setVisualizerQueue(rs.getString("visualizerQueue"));
     }
     catch (Exception e) {
-      log("[ERROR] Error creating game from result set");
+      log.error("Error creating game from result set");
       e.printStackTrace();
     }
+  }
+
+  @Transient
+  public String getTournamentName ()
+  {
+    String result = "";
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      result = db.getTournamentByGameId(gameId).getTournamentName();
+      db.commitTrans();
+    }
+    catch (Exception e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    return result;
   }
 
   @Transient
@@ -130,7 +154,7 @@ public class Game implements Serializable
 
   public Broker getBrokerRegistration (String authToken)
   {
-    log("Broker token: {0}", authToken);
+    log.info("Broker token: " + authToken);
     Database db = new Database();
     Broker result = null;
     try {
@@ -151,11 +175,65 @@ public class Game implements Serializable
     return result;
   }
 
+  @Transient
+  public String getBrokersInGame ()
+  {
+    String result = "";
+    List<Broker> brokersRegistered = new ArrayList<Broker>();
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      brokersRegistered = db.getBrokersInGame(gameId);
+      db.commitTrans();
+    }
+    catch (Exception e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    for (Broker b: brokersRegistered) {
+      result += b.getBrokerName() + ", ";
+    }
+    if (!result.isEmpty()) {
+      result = result.substring(0, result.length()-2);
+    }
+
+    return result;
+  }
+
+  @Transient
+  public String getBrokersInGameComplete ()
+  {
+    String result = "";
+    List<Broker> brokersRegistered = new ArrayList<Broker>();
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      brokersRegistered = db.getBrokersInGameComplete(gameId);
+      db.commitTrans();
+    }
+    catch (Exception e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    for (Broker b: brokersRegistered) {
+      result += b.getBrokerName() + ", ";
+    }
+    if (!result.isEmpty()) {
+      result = result.substring(0, result.length()-2);
+    }
+
+    return result;
+  }
+
   // TODO Make this an object method, combine with Hibernate
   // TODO Add state machine for Game
   public static String handleStatus(String status, int gameId)
   {
-    log("[INFO] Received {0} message from game: {1}", status, gameId);
+    log.info(String.format("Received %s message from game: %s", status, gameId));
 
     STATE state;
     try {
@@ -172,14 +250,14 @@ public class Game implements Serializable
       db.startTrans();
       Game g = db.getGame(gameId);
       if (g == null) {
-        log("[WARN] Trying to set status {0} on non-existing game : {1}",
-            status, gameId);
+        log.warn(String.format("Trying to set status %s on non-existing game : "
+            + "%s", status, gameId));
         return "error";
       }
       Tournament t;
 
       db.updateGameStatusById(gameId, state);
-      log("[INFO] Update game: {0} to {1}", gameId, status);
+      log.info(String.format("Update game: %s to %s", gameId, status));
 
       switch (state) {
         case boot_in_progress:
@@ -189,44 +267,44 @@ public class Game implements Serializable
 
         case boot_complete:
           db.updateGameBootstrapById(gameId, true);
-          log("[INFO] Update game: {0} to hasBootstrap", gameId);
+          log.info(String.format("Update game: %s to hasBootstrap", gameId));
 
           db.updateGameFreeMachine(gameId);
-          log("[INFO] Freeing Machines for game: {0}", gameId);
+          log.info("Freeing Machines for game: " + gameId);
           db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+          log.info("Setting machine " + g.getMachineId() + " to idle");
           Scheduler.bootRunning = false;
           break;
 
         case boot_failed:
-          log("[WARN] BOOT {0} FAILED!", gameId);
+          log.warn("BOOT " + gameId + " FAILED!");
 
           db.updateGameFreeMachine(gameId);
-          log("[INFO] Freeing Machines for game: {0}", gameId);
+          log.info("Freeing Machines for game: " + gameId);
           db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+          log.info("Setting machine {0} to idle " +g.getMachineId());
           Scheduler.bootRunning = false;
           break;
 
         case game_ready:
           t = db.getTournamentByGameId(g.gameId);
-          t.setTournametInPogress(db);
+          t.setTournametInProgress(db);
           g.setReadyTime(Utils.dateFormatUTCmilli(new Date()));
           db.setGameReadyTime(gameId);
           break;
         case game_in_progress:
           t = db.getTournamentByGameId(g.gameId);
-          t.setTournametInPogress(db);
+          t.setTournametInProgress(db);
           break;
 
         case game_complete:
           db.updateGameFreeBrokers(gameId);
-          log("[INFO] Freeing Brokers for game: {0}", gameId);
+          log.info("Freeing Brokers for game: " + gameId);
           db.updateGameFreeMachine(gameId);
-          log("[INFO] Freeing Machines for game: {0}", gameId);
+          log.info("Freeing Machines for game: " + gameId);
           scheduler.resetServer(g.getMachineId());
           db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+          log.info("Setting machine {0} to idle " + g.getMachineId());
 
 					// If all games of tournament are complete, set tournament complete
 					t = db.getTournamentByGameId(g.gameId);
@@ -234,15 +312,15 @@ public class Game implements Serializable
           break;
 
         case game_failed:
-          log("[WARN] GAME {0} FAILED!", gameId);
+          log.warn("GAME " + gameId + " FAILED!");
 
           db.updateGameFreeBrokers(gameId);
-          log("[INFO] Freeing Brokers for game: {0}", gameId);
+          log.info("Freeing Brokers for game: " + gameId);
           db.updateGameFreeMachine(gameId);
-          log("[INFO] Freeing Machines for game: {0}", gameId);
+          log.info("Freeing Machines for game: " + gameId);
           scheduler.resetServer(g.getMachineId());
           db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log("[INFO] Setting machine {0} to idle {0}", g.getMachineId());
+          log.info("Setting machine {0} to idle " + g.getMachineId());
           break;
       }
 
@@ -269,7 +347,7 @@ public class Game implements Serializable
     }
   }
 
-  private void removeBootFile()
+  public void removeBootFile()
   {
     TournamentProperties properties = TournamentProperties.getProperties();
     String bootLocation = properties.getProperty("bootLocation") +
@@ -281,17 +359,21 @@ public class Game implements Serializable
     }
 
     if (!f.canWrite()) {
-      log("[Error] Write protected: {0}", bootLocation);
+      log.error("Write protected: " + bootLocation);
     }
 
     if (!f.delete()) {
-      log("[Error] Failed to delete : {0}", bootLocation);
+      log.error("Failed to delete : " + bootLocation);
     }
   }
 
   public String toUTCStartTime ()
   {
     return Utils.dateFormatUTC(startTime);
+  }
+  public String toUTCReadyTime ()
+  {
+    return Utils.dateFormatUTC(readyTime);
   }
 
   public boolean stateEquals(STATE state)
@@ -307,6 +389,24 @@ public class Game implements Serializable
     try {
       db.startTrans();
       games = db.getGames();
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    return games;
+  }
+
+  public static List<Game> getGameCompleteList ()
+  {
+    List<Game> games = new ArrayList<Game>();
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      games = db.getCompleteGames();
       db.commitTrans();
     }
     catch (SQLException e) {
@@ -442,7 +542,6 @@ public class Game implements Serializable
   {
     return readyTime;
   }
-
   public void setReadyTime (String readyTime)
   {
     try {

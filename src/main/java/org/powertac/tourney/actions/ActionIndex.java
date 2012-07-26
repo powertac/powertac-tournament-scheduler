@@ -5,15 +5,11 @@
 
 package org.powertac.tourney.actions;
 
-import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.services.Database;
 import org.powertac.tourney.services.TournamentProperties;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @ManagedBean
@@ -30,72 +26,7 @@ public class ActionIndex
   
   public List<Game> getGameCompleteList ()
   {
-    List<Game> games = new ArrayList<Game>();
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      games = db.getCompleteGames();
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return games;
-  }
-
-  public String getBrokersInGame (Game g)
-  {
-    String result = "";
-
-    if (g == null) {
-        return result;
-    }
-
-    List<Broker> brokersRegistered = new ArrayList<Broker>();
-
-    Database db = new Database();
-
-    try {
-      db.startTrans();
-      brokersRegistered = db.getBrokersInGame(g.getGameId());
-      db.commitTrans();
-    }
-    catch (Exception e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    for (Broker b: brokersRegistered) {
-      result += b.getBrokerName() + "\n";
-    }
-
-    return result;
-  }
-
-  public String getTournamentNameByGame (Game g)
-  {
-    String result = "";
-
-    if (g == null) {
-      return result;
-    }
-
-    Database db = new Database();
-
-    try {
-      db.startTrans();
-      result = db.getTournamentByGameId(g.getGameId()).getTournamentName();
-      db.commitTrans();
-    }
-    catch (Exception e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return result;
+    return Game.getGameCompleteList();
   }
 
   public String getLogUrl (Game g)

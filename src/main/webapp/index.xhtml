@@ -45,14 +45,14 @@
 						<f:facet name="header">
 							<h:outputText value="Tournament" />
 						</f:facet>
-              <h:outputText value="#{actionIndex.getTournamentNameByGame(g)}" />
+              <h:outputText value="#{g.getTournamentName()}" />
     				</t:column>
     				
     				<t:column>
 						<f:facet name="header">
 							<h:outputText value="Brokers" />
 						</f:facet>
-              <h:outputText value="#{actionIndex.getBrokersInGame(g)}" />
+              <h:outputText value="#{g.getBrokersInGame()}" />
     				</t:column>
 
 					<t:column sortable="true">
@@ -106,16 +106,23 @@
 						<f:facet name="header">
 							<h:outputText value="Tournament" />
 						</f:facet>
-              <h:outputText value="#{actionIndex.getTournamentNameByGame(g)}" />
+              <h:outputText value="#{g.getTournamentName()}" />
     				</t:column>
-    				
-    				<t:column>
-						<f:facet name="header">
-							<h:outputText value="Brokers" />
-						</f:facet>
-              <h:outputText value="#{actionIndex.getBrokersInGame(g)}" />
-    				</t:column>
-    				
+
+            <t:column>
+              <f:facet name="header">
+                <h:outputText value="Brokers" />
+              </f:facet>
+              <h:outputText value="#{g.getBrokersInGameComplete()}" />
+            </t:column>
+
+            <t:column>
+              <f:facet name="header">
+                <h:outputText value="Start Time" />
+              </f:facet>
+              <h:outputText value="#{g.toUTCReadyTime()}" />
+            </t:column>
+
     				<t:column>
 						<f:facet name="header">
 							<h:outputText value="Logs" />

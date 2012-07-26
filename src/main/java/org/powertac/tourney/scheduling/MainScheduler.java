@@ -1,13 +1,15 @@
 package org.powertac.tourney.scheduling;
 
+import org.apache.log4j.Logger;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import static org.powertac.tourney.services.Utils.log;
-
 public class MainScheduler
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   private int noofagents;
   private DbConnection db;
   private ServerPanel serverpanel;
@@ -26,7 +28,7 @@ public class MainScheduler
       db.Setup();
     }
     catch (Exception E) {
-      log("Cannot open connection to DB");
+      log.error("Cannot open connection to DB");
       E.printStackTrace();
       System.exit(1);
     }
@@ -53,7 +55,7 @@ public class MainScheduler
       db.SetQuery(sql_insert, "update");
     }
     catch (Exception e) {
-      log("Cannot create Server Table Entries");
+      log.error("Cannot create Server Table Entries");
       System.exit(1);
     }
   }
@@ -110,7 +112,7 @@ public class MainScheduler
     HashMap<Server,AgentLet[]> gamesToStart = new HashMap<Server,AgentLet[]>();
     while (((gametype = scheduleMatrix.getDisparity()) > 0)
            && (available_server != null)/* server availability */) {
-      //log("Gametype {0}", gametype);
+      //log.debug("Gametype " + gametype);
       /*
        * this queries the game cube to get the next schedule for a
        * particular game type.
@@ -141,7 +143,6 @@ public class MainScheduler
     scheduleMatrix.clearLookAheads();
     slist = serverpanel.getScheduledServers();
     serverpanel.publishDeployedServersToDB(db, slist);
-    //log("-----------{0}", iteration);
     return gamesToStart;
   }
 
@@ -171,7 +172,6 @@ public class MainScheduler
                   + ",'Agent"
                   + i
                   + "_Copy" + j + "','')";
-        // log(sql_insert_into_agents);
         db.SetQuery(sql_insert_into_agents, "update");
       }
     }
@@ -179,14 +179,11 @@ public class MainScheduler
     sql_insert_into_queue =
       "insert into AgentQueue "
               + "select InternalAgentID,AgentType,0,0,0 from	AgentAdmin order by rand()";
-    // log(sql_insert_into_queue);
     db.SetQuery(sql_insert_into_queue, "update");
   }
 
-  private void logGame (AgentLet[] agents, int gamenumber /*
-                                                           * game label ie.
-                                                           * InternalGameID
-                                                           */) throws Exception
+  private void logGame (AgentLet[] agents, int gamenumber) throws Exception
+    /* game label ie.InternalGameID */
   {
     int i, len;
     String valuesstring = "", sql_insert;
@@ -197,7 +194,6 @@ public class MainScheduler
     valuesstring = valuesstring.substring(0, len - 2);
     // TODO Move this to Constants
     sql_insert = "INSERT into GameLog Values " + valuesstring;
-    // log(sql_insert);
     db.SetQuery(sql_insert, "update");
   }
 
@@ -317,7 +313,6 @@ public class MainScheduler
    * "	where IsPlaying = 0" +
    * "	group by AgentType" +
    * ") as AA";
-   * //log(sql_get_agent_count);
    * rs = db.SetQuery(sql_get_agent_count);
    * rs.next();
    * cnt = Integer.parseInt(rs.getString("cnt"));
@@ -338,11 +333,9 @@ public class MainScheduler
     num = rs.getInt("cnt");
     randnum = (int) Math.ceil(Math.random() * num);
     servernumbers = new Server[randnum];
-    // log(randnum.toString());
     sql_select =
       "select ServerNumber from GameServers " + " where IsPlaying = 1 "
               + " limit " + randnum;
-    // log(sql_select);
     rs = db.SetQuery(sql_select);
     while (rs.next()) {
       servernumbers[i] = new Server();
@@ -354,7 +347,6 @@ public class MainScheduler
     len = wherestring.length();
     if (len > 1) {
       wherestring = wherestring.substring(0, len - 3) + ")";
-      log("Releasing {0}", wherestring);
       gameRelease(servernumbers);*/
 
 	  Server[] server = new Server[1];
@@ -412,22 +404,15 @@ public class MainScheduler
               + "set c.IsPlaying = 0, a.TimeCompleted = now(), a.IsPlaying = 0 "
               + "where " + wherestring + " and a.IsPlaying = 1";
     db.SetQuery(sql_release, "update");
-    /*
-     * rs =
-     * db.SetQuery("select count(*) cnt from GameArchive a where "+wherestring
-     * +" and IsPlaying = 1");
-     * rs.next();
-     * log("Change2: {0}", rs.getInt("cnt"));
-     */
   }
 
   private void printAgents (AgentLet[] agents)
   {
     /*int i = 0;
-    log("Agents");
+    log.debug("Agents");
     for (i = 0; i < agents.length; i++) {
-      log("Agent ID {0} Agent Type {1}",
-          agents[i].getAgentId(), agents[i].getAgentType());
+      log.debug(String.format("Agent ID %s Agent Type %s",
+          agents[i].getAgentId(), agents[i].getAgentType()));
     }*/
   }
 

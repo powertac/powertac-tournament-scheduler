@@ -1,5 +1,6 @@
 package org.powertac.tourney.actions;
 
+import org.apache.log4j.Logger;
 import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
@@ -14,12 +15,12 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
 
-import static org.powertac.tourney.services.Utils.log;
-
 @ManagedBean
 @RequestScoped
 public class ActionAccount
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   private String newBrokerName;
   private String newBrokerShortDescription;
 
@@ -39,6 +40,8 @@ public class ActionAccount
 
     User user = User.getCurrentUser();
     user.addBroker(getNewBrokerName(), getNewBrokerShortDescription());
+    newBrokerName = "";
+    newBrokerShortDescription = "";
   }
 
   public List<Broker> getBrokers ()
@@ -163,8 +166,8 @@ public class ActionAccount
             && t.getTournamentName().equalsIgnoreCase(tournamentName)) {
 
           if (t.getNumberRegistered() < t.getMaxBrokers()) {
-            log("Registering broker: {0} with tournament: {1}",
-                b.getBrokerId(), t.getTournamentId());
+            log.info(String.format("Registering broker: %s with tournament: %s",
+                b.getBrokerId(), t.getTournamentId()));
             db.registerBroker(t.getTournamentId(), b.getBrokerId());
 
             // Only do this for single game, otherwise the scheduler handles
@@ -173,8 +176,8 @@ public class ActionAccount
               for (Game g: t.getGames()) {
                 if (g.getNumBrokersRegistered() < g.getMaxBrokers()) {
                   g.addBroker(b.getBrokerId());
-                  log("Number registered: {0} of {1}",
-                      g.getNumBrokersRegistered(), t.getMaxBrokers());
+                  log.info(String.format("Number registered: %s of %s",
+                      g.getNumBrokersRegistered(), t.getMaxBrokers()));
                 }
               }
             }

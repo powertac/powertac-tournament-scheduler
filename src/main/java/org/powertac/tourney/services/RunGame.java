@@ -1,5 +1,6 @@
 package org.powertac.tourney.services;
 
+import org.apache.log4j.Logger;
 import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Machine;
@@ -9,11 +10,11 @@ import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.List;
 
-import static org.powertac.tourney.services.Utils.log;
-
 
 public class RunGame implements Runnable
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   private Machine machine = null;
 
   private boolean running = false;
@@ -64,14 +65,14 @@ public class RunGame implements Runnable
             return true;
           }
           else {
-            log("Game: {0} reports that bootstrap is not ready!", gameId);
+            log.info("Game: " + gameId + " reports that boot is not ready!");
           }
         }
         catch (NumberFormatException e) {
           e.printStackTrace();
         }
         catch (SQLException e) {
-          log("Bootstrap Database error while scheduling sim!!");
+          log.info("Bootstrap Database error while scheduling sim!!");
           e.printStackTrace();
         }
 
@@ -104,19 +105,19 @@ public class RunGame implements Runnable
       int numRegistered = db.getNumberBrokersRegistered(g.getTourneyId());
       if (numRegistered < 1) {
         db.commitTrans();
-        log("Game: {0} reports no brokers registered, waiting to start, "
-            + "tourneyId: {1}", gameId, g.getTourneyId());
+        log.info(String.format("Game: %s reports no brokers registered, waiting"
+            + " to start, tourneyId: %s", gameId, g.getTourneyId()));
         return false;
       }
       else {
-        log("There are {0} brokers registered for tournament... starting sim",
-            numRegistered);
+        log.info(String.format("There are %s brokers registered for tournament"
+            + "... starting sim", numRegistered));
 
         List<Broker> brokerList = db.getBrokersInGame(gameId);
 
         if (brokerList.size() < 1) {
           db.commitTrans();
-          log("Game: {0} reports no brokers listed in database, ", gameId);
+          log.info("Game: " + gameId+ " reports no brokers listed in database");
           return false;
         }
         for (Broker b: brokerList) {
@@ -130,7 +131,7 @@ public class RunGame implements Runnable
     }
     catch (SQLException e) {
       db.abortTrans();
-      log("Broker Database error while scheduling sim!!");
+      log.info("Broker Database error while scheduling sim!!");
       e.printStackTrace();
       return false;
     }
@@ -171,7 +172,8 @@ public class RunGame implements Runnable
       db.updateGameViz(gameId, machine.getVizUrl());
       db.setMachineStatus(machine.getMachineId(), Machine.STATE.running);
       db.commitTrans();
-      log("Game: {0} running on machine: {1}", gameId, machineName);
+      log.info(String.format("Game: %s running on machine: %s",
+          gameId, machineName));
 
       return true;
     }
@@ -187,7 +189,7 @@ public class RunGame implements Runnable
   {
     if (running) {
       // Should not get here
-      log("[ERROR] Game {0} is already running!", gameId);
+      log.error("Game " + gameId + " is already running!");
     }
 
     // Check if a boot exists
@@ -201,8 +203,8 @@ public class RunGame implements Runnable
     }
     // Check if there is a machine available to run the sim and set it
     if (!checkMachineAvailable()) {
-      log("[INFO] No machines available to run scheduled game: {0}... will retry"
-          + " in {1} seconds", gameId, watchDogInterval);
+      log.info(String.format("No machines available to run scheduled game: %s"
+          + "... will retry in %s seconds", gameId, watchDogInterval));
       return;
     }
 
@@ -220,8 +222,8 @@ public class RunGame implements Runnable
     }
 
     String finalUrl =
-        "http://localhost:8080/jenkins/job/"
-        + "start-server-instance/buildWithParameters?"
+        properties.getProperty("jenkinsLocation")
+        + "job/start-server-instance/buildWithParameters?"
         + "token=start-instance"
         + "&tourneyUrl=" + properties.getProperty("tourneyUrl")
         + "&suffix=" + logSuffix
@@ -231,19 +233,19 @@ public class RunGame implements Runnable
         + "&brokers=" + brokers
         + "&serverQueue=" + game.getServerQueue();
 
-    log("[INFO] Final url: {0}", finalUrl);
+    log.info("Final url: {0}" + finalUrl);
 
     try {
       URL url = new URL(finalUrl);
       URLConnection conn = url.openConnection();
       conn.getInputStream();
-      log("Jenkins request to start sim game: {0}", gameId);
+      log.info("Jenkins request to start sim game: " + gameId);
       running = true;
       game.setState(Game.STATE.game_pending);
     }
     catch (Exception e) {
       e.printStackTrace();
-      log("Jenkins failure to start simulation game: {0}", gameId);
+      log.error("Jenkins failure to start simulation game: " + gameId);
       game.setState(Game.STATE.game_failed);
     }
   }

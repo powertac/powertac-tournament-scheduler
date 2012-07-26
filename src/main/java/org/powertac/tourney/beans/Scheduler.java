@@ -23,10 +23,10 @@ import java.util.*;
 public class Scheduler
 {
   private static Logger log = Logger.getLogger("TMLogger");
+  public static final String key = "scheduler";
 
   private TournamentProperties tournamentProperties;
 
-  public static final String key = "scheduler";
   public static boolean bootRunning = false;
 
   private Timer watchDogTimer = null;
@@ -40,10 +40,12 @@ public class Scheduler
   /* TODO
      We need to keep score of the startTime of boot,
      If the boot takes to long, cancel + reschedule it
+     We could the readyTime field for this (needs a rename though)
     */
 
   public Scheduler ()
   {
+    tournamentProperties = TournamentProperties.getProperties();
     lazyStart();
   }
 
@@ -268,7 +270,6 @@ public class Scheduler
       @Override
       public void run ()
       {
-        tournamentProperties = TournamentProperties.getProperties();
         startWatchDog();
       }
     };
@@ -310,8 +311,6 @@ public class Scheduler
 
   private void stopWatchDog ()
   {
-    String date = Utils.dateFormatUTC(new Date());
-
     if (watchDogTimer != null) {
       watchDogTimer.cancel();
       watchDogTimer = null;
@@ -336,7 +335,8 @@ public class Scheduler
       db.startTrans();
 
       // TODO Get Jenkins URL from config
-      String url = "http://localhost:8080/jenkins/computer/api/xml";
+      String url = tournamentProperties.getProperty("jenkinsLocation")
+          + "computer/api/xml";
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
       DocumentBuilder docB = dbf.newDocumentBuilder();
       Document doc = docB.parse(new URL(url).openStream());

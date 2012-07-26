@@ -5,14 +5,11 @@ import org.powertac.tourney.services.TournamentProperties;
 
 import java.sql.*;
 
-import static org.powertac.tourney.services.Utils.log;
-
 public class DbConnection
 {
   /*
    * configuration parameters
    */
-  private boolean debug = true;
   private String serverip = "";
   private String database = "tourney";
   private String username = "";
@@ -58,9 +55,6 @@ public class DbConnection
     // TODO Actually use dbms + port
     String setupstring = "jdbc:mysql://" + serverip + "/" + database
                          + "?user=" + username + "&password=" + passwd;
-    if (debug) {
-      log(setupstring);
-    }
     myconnection = DriverManager.getConnection(setupstring);
     statement = myconnection.createStatement();
   }
@@ -68,20 +62,6 @@ public class DbConnection
   public void Close () throws Exception
   {
     myconnection.close();
-  }
-
-  public void PrintResultSet (ResultSet rs, String[] input) throws Exception
-  {
-    for (String token: input) {
-      log(token + ": ");
-    }
-    log("");
-    while (rs.next()) {
-      for (String token: input) {
-        log(rs.getString(token) + ", ");
-      }
-      log("");
-    }
   }
 
   public ResultSet SetQuery (String sql, String flag) throws SQLException

@@ -1,6 +1,7 @@
 package org.powertac.tourney.services;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.log4j.Logger;
 import org.powertac.tourney.beans.*;
 import org.powertac.tourney.constants.Constants;
 import org.springframework.context.annotation.Scope;
@@ -10,13 +11,13 @@ import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
-import static org.powertac.tourney.services.Utils.log;
-
 
 @Component("database")
 @Scope("request")
 public class Database
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   // Connection Related
   private String dbUrl = "";
   private String database = "";
@@ -866,7 +867,25 @@ public class Database
 
     return brokers;
   }
-  
+
+  public List<Broker> getBrokersInGameComplete (int gameId) throws SQLException
+  {
+    PreparedStatement ps =
+        conn.prepareStatement(Constants.GET_BROKERS_INGAME_COMPLETE);
+    ps.setInt(1, gameId);
+
+    List<Broker> brokers = new ArrayList<Broker>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      brokers.add(new Broker(rs));
+    }
+
+    rs.close();
+    ps.close();
+
+    return brokers;
+  }
+
   public void updateBrokerInGame (int gameId, Broker broker)
           throws SQLException
   {
@@ -934,6 +953,19 @@ public class Database
     PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_BOOTSTRAP);
     ps.setInt(2, gameId);
     ps.setBoolean(1, hasBootstrap);
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int clearGameReadyTime (int gameId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.CLEAR_GAME_READYTIME);
+    ps.setInt(2, gameId);
+    ps.setString(1, Utils.dateFormatUTCmilli(new Date()));
 
     int result = ps.executeUpdate();
 
@@ -1163,7 +1195,7 @@ public class Database
       setMachineStatus(result.getMachineId(), Machine.STATE.running);
     }
     else {
-      log("No free machines found.");
+      log.info("No free machines found.");
     }
 
     rs.close();
@@ -1266,12 +1298,12 @@ public class Database
                     connectionProps);
           }
           catch (Exception e) {
-            log("Connection Error");
+            log.error("Connection Error");
             e.printStackTrace();
           }
         }
         else {
-          log("DBMS: {0} is not supported", dbms);
+          log.error("DBMS: " + dbms + " is not supported");
         }
       }
     }
@@ -1396,7 +1428,7 @@ public class Database
         isPlaying = rs.getBoolean("IsPlaying");
       }
       catch(Exception e) {
-        log("Error making server from result set");
+        log.error("Error making server from result set");
         e.printStackTrace();
       }
     }
@@ -1432,7 +1464,7 @@ public class Database
         InternalAgentID = rs.getInt("AgentType");
       }
       catch(Exception e) {
-        log("Error making agent from result set");
+        log.error("Error making agent from result set");
         e.printStackTrace();
       }
     }
