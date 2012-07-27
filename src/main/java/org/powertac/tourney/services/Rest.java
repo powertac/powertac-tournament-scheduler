@@ -67,7 +67,6 @@ public class Rest
           if (broker != null && !broker.getBrokerInGame()) {
             broker.setBrokerInGame(true);
             db.updateBrokerInGame(g.getGameId(), broker);
-            db.commitTrans();
             log.info(String.format("Sending login to broker %s : %s, %s, %s",
                 broker.getBrokerName(), g.getJmsUrl(),
                 broker.getQueueName(), g.getServerQueue()));
