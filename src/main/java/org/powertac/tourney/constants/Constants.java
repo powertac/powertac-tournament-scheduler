@@ -520,14 +520,27 @@ public class Constants
   
   public static final String SELECT_COMPLETE_GAMES = "SELECT * FROM games "
       + "WHERE status='" + Game.STATE.game_complete.toString() + "';";
+
   /***
    * Select all games belonging to a tournament
    * 
    * @param tourneyId
    *          :
    */
-  public static final String SELECT_GAMES_IN_TOURNEY =
+  public static final String SELECT_GAMES_IN_TOURNEY_BYID =
     "SELECT * FROM games WHERE tourneyId=?;";
+
+  /***
+   * Select all games belonging to a tournament, by tournament name
+   *
+   * @param tourneyName
+   *          :
+   */
+  public static final String SELECT_GAMES_IN_TOURNEY_BYNAME =
+      "SELECT * FROM games, tournaments "
+          + "WHERE games.tourneyId = tournaments.tourneyId "
+          + "AND games.status='" + Game.STATE.game_ready.toString() + "' "
+          + "AND tournaments.tourneyName=?;";
 
   /***
    * Get max gameid of all games

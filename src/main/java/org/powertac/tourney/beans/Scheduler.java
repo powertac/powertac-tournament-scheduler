@@ -460,6 +460,10 @@ public class Scheduler
 
         RunGame runGame = new RunGame(g.getGameId(), t.getPomId());
         new Thread(runGame).start();
+
+        try {
+          Thread.sleep(5000);
+        } catch (Exception ignored) {}
       }
       db.commitTrans();
     }

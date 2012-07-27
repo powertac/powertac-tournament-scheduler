@@ -399,6 +399,24 @@ public class Game implements Serializable
     return games;
   }
 
+  public static List<Game> getGamesInTourney (String tourneyName)
+  {
+    List<Game> games = new ArrayList<Game>();
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      games = db.getGamesInTourney(tourneyName);
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    return games;
+  }
+
   public static List<Game> getGameCompleteList ()
   {
     List<Game> games = new ArrayList<Game>();

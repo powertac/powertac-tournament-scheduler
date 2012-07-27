@@ -21,10 +21,11 @@ public class Rest
 
   public String parseBrokerLogin (Map<String, String[]> params)
   {
-    log.info("Broker login request");
     String responseType = params.get(Constants.Rest.REQ_PARAM_TYPE)[0];
     String brokerAuthToken = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
     String tournamentName = params.get(Constants.Rest.REQ_PARAM_JOIN)[0];
+    log.info(String.format("Broker %s login request : %s",
+        brokerAuthToken, tournamentName));
 
     String retryResponse = "{\n \"retry\":%d\n}";
     String loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"queueName\":%s\n \"serverQueue\":%s\n}";
@@ -37,79 +38,67 @@ public class Rest
       doneResponse = head + "<done></done>" + tail;
     }
 
-    // JEC - this could be REALLY long lists after a while.
-    List<Game> allGames = Game.getGameList();
-    List<Tournament> allTournaments = Tournament.getTournamentList();
-
-    if (tournamentName == null || allGames == null) {
+    if (tournamentName == null) {
+      log.info("Tournament name is empty, sending done response");
       return doneResponse;
     }
 
-    Database db = new Database();
-    try {
-      db.startTrans();
+    // TODO Get only GameList for this tournament.
+    List<Game> allGames = Game.getGamesInTourney(tournamentName);
+    if (!allGames.isEmpty()) {
+      Database db = new Database();
+      try {
+        db.startTrans();
 
-      // TODO Should this be a config item?
-      long readyDeadline = 2*60*1000;
-      long nowStamp = new Date().getTime();
+        // TODO Should this be a config item?
+        // TODO Move this to sql?
+        long readyDeadline = 2*60*1000;
+        long nowStamp = new Date().getTime();
 
-      // Find games matching the competition name and have brokers registered
-      for (Game g: allGames) {
-        // Only consider games that are ready (started, but waiting for logins)
-        if (!g.stateEquals(Game.STATE.game_ready)) {
-          continue;
-        }
-        // Only consider games that are more than X minutes ready, to allow Viz Login
-        long readyStamp = g.getReadyTime().getTime();
-        if (nowStamp < (readyStamp + readyDeadline)) {
-          continue;
-        }
+        // Find games matching the competition name and have brokers registered
+        for (Game g: allGames) {
+          // Only consider games that are more than X minutes ready, to allow Viz Login
+          long readyStamp = g.getReadyTime().getTime();
+          if (nowStamp < (readyStamp + readyDeadline)) {
+            continue;
+          }
 
-        // TODO This could be more efficient, refactor with Hibernate
-        Tournament t = db.getTournamentByGameId(g.getGameId());
-        if (!tournamentName.equalsIgnoreCase(t.getTournamentName())) {
-          continue;
-        }
-
-        Broker broker = g.getBrokerRegistration(brokerAuthToken);
-        if (broker != null && !broker.getBrokerInGame()) {
-          broker.setBrokerInGame(true);
-          db.updateBrokerInGame(g.getGameId(), broker);
-          db.commitTrans();
-          log.info(String.format("Sending login to broker %s : %s, %s, %s",
-              broker.getBrokerName(), g.getJmsUrl(),
-              broker.getQueueName(), g.getServerQueue()));
-          return String.format(loginResponse, g.getJmsUrl(),
-                               broker.getQueueName(), g.getServerQueue());
+          Broker broker = g.getBrokerRegistration(brokerAuthToken);
+          if (broker != null && !broker.getBrokerInGame()) {
+            broker.setBrokerInGame(true);
+            db.updateBrokerInGame(g.getGameId(), broker);
+            db.commitTrans();
+            log.info(String.format("Sending login to broker %s : %s, %s, %s",
+                broker.getBrokerName(), g.getJmsUrl(),
+                broker.getQueueName(), g.getServerQueue()));
+            return String.format(loginResponse, g.getJmsUrl(),
+                                 broker.getQueueName(), g.getServerQueue());
+          }
         }
       }
-
-      db.commitTrans();
-
-      boolean competitionExists = false;
-      for (Tournament t: allTournaments) {
-        if (tournamentName.equals(t.getTournamentName())) {
-          competitionExists = true;
-          break;
-        }
+      catch (Exception e) {
+        log.error(e.getMessage());
+        log.error("Error, sending done response");
+        return doneResponse;
       }
+      finally {
+        db.abortTrans();
+      }
+    }
 
-      if (competitionExists) {
+    // TODO Do sql check
+    // JEC - this could be REALLY long lists after a while.
+    for (Tournament t: Tournament.getTournamentList()) {
+      if (tournamentName.equals(t.getTournamentName())) {
         log.debug(String.format("Broker: %s attempted to log into existing "
             + "tournament: %s --sending retry", brokerAuthToken, tournamentName));
         return String.format(retryResponse, 60);
       }
-      else {
-        log.debug(String.format("Broker: %s attempted to log into non-existing "
-            + "tournament: %s --sending done", brokerAuthToken, tournamentName));
-        return doneResponse;
-      }
     }
-    catch (Exception e) {
-      db.abortTrans();
-      log.error(e.getMessage());
-      return doneResponse;
-    }
+
+    log.debug(String.format("Broker: %s attempted to log into non-existing "
+        + "tournament: %s --sending done", brokerAuthToken, tournamentName));
+    return doneResponse;
   }
 
   /**

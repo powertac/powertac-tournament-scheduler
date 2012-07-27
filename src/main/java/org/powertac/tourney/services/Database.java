@@ -512,11 +512,10 @@ public class Database
     return ts;
   }
 
-
   public List<Game> getGamesInTourney (int tourneyId) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(
-        Constants.SELECT_GAMES_IN_TOURNEY);
+        Constants.SELECT_GAMES_IN_TOURNEY_BYID);
     ps.setInt(1, tourneyId);
 
     List<Game> gs = new ArrayList<Game>();
@@ -526,6 +525,25 @@ public class Database
       gs.add(tmp);
     }
     
+    rs.close();
+    ps.close();
+
+    return gs;
+  }
+
+  public List<Game> getGamesInTourney (String tourneyName) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.SELECT_GAMES_IN_TOURNEY_BYNAME);
+    ps.setString(1, tourneyName);
+
+    List<Game> gs = new ArrayList<Game>();
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      Game tmp = new Game(rs);
+      gs.add(tmp);
+    }
+
     rs.close();
     ps.close();
 

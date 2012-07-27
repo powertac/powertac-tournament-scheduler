@@ -78,11 +78,11 @@
 
 					<t:column>
 						<f:facet name="header">
-							<h:outputText value="Visualizer&lt;br/&gt;Link" escape="false"/>
+							<h:outputText value="Viz&lt;br/&gt;Link" escape="false"/>
 						</f:facet>
               <h:outputText value="Not avail." rendered="#{g.visualizerUrl == ''}"/>
               <h:panelGroup rendered="#{g.visualizerUrl != ''}" >
-                <a href="http://#{g.visualizerUrl}">Visualizer</a>
+                <a href="http://#{g.visualizerUrl}" target="_blank">Visualizer</a>
               </h:panelGroup>
 					</t:column>
 				</t:dataTable>

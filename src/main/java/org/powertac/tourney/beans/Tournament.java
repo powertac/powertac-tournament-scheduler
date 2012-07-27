@@ -212,7 +212,7 @@ public class Tournament
     }
   }
 
-  static public List<Tournament> getTournamentList ()
+  public static List<Tournament> getTournamentList ()
   {
     List<Tournament> ts = new ArrayList<Tournament>();
 
