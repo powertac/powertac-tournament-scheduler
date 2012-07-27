@@ -224,7 +224,7 @@ public class ActionAdmin
     machineId = m.getMachineId();
     machineName = m.getName();
     machineUrl = m.getUrl();
-    machineUrl = m.getVizUrl();
+    machineViz = m.getVizUrl();
   }
   
   public void saveMachine()
