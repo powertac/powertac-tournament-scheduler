@@ -24,7 +24,10 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Properties;
 
 
 /**
@@ -61,9 +64,8 @@ public class TournamentProperties
       try {
         properties.load(TournamentProperties.class.getClassLoader()
                    .getResourceAsStream(resourceName));
-        loaded = true;
-
         checkProperties();
+        loaded = true;
       }
       catch (IOException e) {
         log.error("Failed to load " + resourceName);
@@ -73,6 +75,9 @@ public class TournamentProperties
 
   public List<String> getConfigErrors ()
   {
+    // We can't do this during startup, it fails due to race conditions
+    checkJenkinsLocation();
+
     return messages;
   }
 
@@ -81,7 +86,12 @@ public class TournamentProperties
    */
   private void checkProperties() {
     properties.put("tourneyUrl", getTourneyUrl());
-    checkJenkinsLocation();
+
+    String jenkinsLocation = properties.getProperty("jenkinsLocation",
+        "http://localhost:8080/jenkins/");
+    if (!jenkinsLocation.endsWith("/")) {
+      properties.put("jenkinsLocation", jenkinsLocation + "/");
+    }
 
     String fallBack = System.getProperty("catalina.base", "") + "/";
     if (fallBack.equals("/")) {
@@ -127,12 +137,6 @@ public class TournamentProperties
 
   private void checkJenkinsLocation()
   {
-    String jenkinsLocation = properties.getProperty("jenkinsLocation",
-        "http://localhost:8080/jenkins/");
-    if (!jenkinsLocation.endsWith("/")) {
-      properties.put("jenkinsLocation", jenkinsLocation + "/");
-    }
-
     try {
       URL url = new URL(properties.getProperty("jenkinsLocation"));
       URLConnection conn = url.openConnection();
