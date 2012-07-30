@@ -223,7 +223,7 @@ public class Rest
     String startTime = "common.competition.simulationBaseTime = ";
     String jms = "server.jmsManagementService.jmsBrokerUrl = ";
     String remote = "server.visualizerProxyService.remoteVisualizer = true";
-    String vizQ = "server.visualizerProxyService.visualizerQueue = ";
+    String vizQ = "server.visualizerProxyService.visualizerQueueName = ";
     String minTimeslot = "common.competition.minimumTimeslotCount = 1380";
     String expectedTimeslot = "common.competition.expectedTimeslotCount = 1440";
     String serverFirstTimeout =
