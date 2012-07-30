@@ -5,6 +5,8 @@ import org.powertac.tourney.scheduling.AgentLet;
 import org.powertac.tourney.scheduling.MainScheduler;
 import org.powertac.tourney.scheduling.Server;
 import org.powertac.tourney.services.*;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,11 +22,12 @@ import java.util.*;
 
 
 @Service("scheduler")
-public class Scheduler
+public class Scheduler implements InitializingBean
 {
   private static Logger log = Logger.getLogger("TMLogger");
   public static final String key = "scheduler";
 
+  @Autowired
   private TournamentProperties tournamentProperties;
 
   public static boolean bootRunning = false;
@@ -45,7 +48,12 @@ public class Scheduler
 
   public Scheduler ()
   {
-    tournamentProperties = TournamentProperties.getProperties();
+    super();
+  }
+
+  @Override
+  public void afterPropertiesSet () throws Exception
+  {
     lazyStart();
   }
 
