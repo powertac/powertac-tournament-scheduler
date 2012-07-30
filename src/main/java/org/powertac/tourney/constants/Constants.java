@@ -91,7 +91,9 @@ public class Constants
    *          : The userId of the brokers to return
    */
   public static final String SELECT_BROKERS_BY_USERID =
-    "SELECT * FROM brokers WHERE userID = ?;";
+    "SELECT * FROM brokers " +
+        "LEFT JOIN ingame ON brokers.brokerId = ingame.brokerId " +
+        "WHERE brokers.userID = ?;";
 
   /***
    * Select broker by their brokerId
@@ -100,7 +102,9 @@ public class Constants
    *          : The brokerId of the broker you wish to return
    */
   public static final String SELECT_BROKER_BY_BROKERID =
-    "SELECT * FROM brokers WHERE brokerId = ? LIMIT 1;";
+    "SELECT * FROM brokers " +
+        "LEFT JOIN ingame ON brokers.brokerId = ingame.brokerId " +
+        "WHERE brokers.brokerId = ? LIMIT 1;";
 
   /**
    * Delete a broker by their brokerId
@@ -245,20 +249,15 @@ public class Constants
    *          : The id of the tournament you wish to query
    */
   public static final String GET_NUMBER_REGISTERED_BYTOURNAMENTID =
-    "SELECT COUNT(brokerId) as numRegistered FROM registration "
-        + "WHERE registration.tourneyId=?;";
+    "SELECT COUNT(brokerId) as numRegistered FROM registration " +
+        "WHERE registration.tourneyId=?;";
 
   /***
    * Get a list of all brokers
    */
   public static final String GET_BROKERS =
-     "SELECT * FROM brokers;";
-
-    /*
-    "SELECT * FROM brokers JOIN registration "
-        + "ON registration.brokerId = brokers.brokerId "
-        + "WHERE registration.tourneyId=?;";
-    */
+    "SELECT * FROM brokers " +
+        "LEFT JOIN ingame ON brokers.brokerId = ingame.brokerId;";
 
   /***
    * Register for a tournament by tourneyId and brokerId
@@ -322,13 +321,6 @@ public class Constants
         + "AND status='" + Game.STATE.boot_complete.toString() + "' AND tourneyId!=?;";
   
   /***
-   * Returns a list of the runnable games as of now.
-   */
-  public static final String GET_RUNNABLE_GAMES =
-    "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() AND status='" +
-        Game.STATE.boot_complete.toString() + "';";
-
-  /***
    * Returns a list of the runnable SINGLE_GAME games as of now.
    */
   public static final String GET_RUNNABLE_SINGLE_GAMES =
@@ -368,21 +360,23 @@ public class Constants
    * 
    * @param gameId
    */
-  public static final String GET_BROKERS_INGAME =
-    "SELECT * FROM brokers JOIN ingame "
-        + "ON brokers.brokerId = ingame.brokerId WHERE gameId=?";
+  public static final String GET_BROKERS_IN_GAME =
+    "SELECT * FROM brokers "
+        + "JOIN ingame ON brokers.brokerId = ingame.brokerId "
+        + " WHERE gameId=?";
 
   /***
    * Get brokers in a completed game by gameid
    *
    * @param gameId
    */
-  public static final String GET_BROKERS_INGAME_COMPLETE =
+  public static final String GET_BROKERS_IN_GAME_COMPLETE =
       "SELECT * FROM brokers "
       + "JOIN registration ON registration.brokerId = brokers.brokerId "
       + "JOIN tournaments ON tournaments.tourneyId = registration.tourneyId "
       + "JOIN games on games.tourneyId = tournaments.tourneyId "
-      + "WHERE gameId=?;";
+      + "LEFT JOIN ingame ON brokers.brokerId = ingame.brokerId "
+      + "WHERE games.gameId=?;";
 
   public static final String UDATE_BROKER_INGAME =
           "UPDATE ingame SET brokerInGame = ? WHERE gameId=? and brokerId=?";
@@ -393,8 +387,10 @@ public class Constants
    * @param tourneyId
    */
   public static final String GET_BROKERS_INTOURNAMENT =
-    "SELECT * FROM brokers JOIN registration "
-        + "ON registration.brokerId = brokers.brokerId WHERE tourneyId=?";
+    "SELECT * FROM brokers "
+        + "JOIN registration ON registration.brokerId = brokers.brokerId "
+        + "LEFT JOIN ingame ON brokers.brokerId = ingame.brokerId "
+        + "WHERE registration.tourneyId=?";
 
   /***
    * Select game by id

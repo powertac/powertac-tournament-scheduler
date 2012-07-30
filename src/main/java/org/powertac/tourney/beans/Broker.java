@@ -48,6 +48,7 @@ public class Broker
     setBrokerName(rs.getString("brokerName"));
     setBrokerAuthToken(rs.getString("brokerAuth"));
     setShortDescription(rs.getString("brokerShort"));
+    setQueueName(rs.getString("brokerQueue"));
   }
 
   public Broker (String brokerName)

@@ -4,9 +4,12 @@ import org.apache.log4j.Logger;
 import org.powertac.tourney.scheduling.AgentLet;
 import org.powertac.tourney.scheduling.MainScheduler;
 import org.powertac.tourney.scheduling.Server;
-import org.powertac.tourney.services.*;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.powertac.tourney.services.Database;
+import org.powertac.tourney.services.RunBootstrap;
+import org.powertac.tourney.services.RunGame;
+import org.powertac.tourney.services.TournamentProperties;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -69,7 +72,6 @@ public class Scheduler implements InitializingBean
         db.commitTrans();
         return;
       }
-
       log.info("Reloading Tournament: " + t.getTournamentName());
 
       runningTournament = t;
@@ -448,15 +450,11 @@ public class Scheduler implements InitializingBean
       List<Game> games;
 
       if (runningTournament == null) {
-        log.info("WatchDog CheckForSims ignoring multi-game tournament games");
-        games = db.getRunnableGames();
-
-				//log.info("WatchDog CheckForSims for SINGLE_GAME tournament games");
-				//games = db.getRunnableSingleGames();
+				log.info("WatchDog CheckForSims for SINGLE_GAME tournament games");
+				games = db.getRunnableSingleGames();
       }
       else {
-				//log.info("WatchDog CheckForSims for MULTI_GAME tournament games");
-        log.info("WatchDog CheckForSims ignoring single-game tournament games");
+				log.info("WatchDog CheckForSims for MULTI_GAME tournament games");
         games = db.getRunnableGames(runningTournament.getTournamentId());
       }
       log.info(String.format("WatchDogTimer reports %s game(s) are ready to "

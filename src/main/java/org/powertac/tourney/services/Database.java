@@ -695,23 +695,6 @@ public class Database
     return games;
   }
 
-  public List<Game> getRunnableGames() throws SQLException
-  {
-    PreparedStatement ps = conn.prepareStatement(Constants.GET_RUNNABLE_GAMES);
-
-    List<Game> games = new ArrayList<Game>();
-    ResultSet rs = ps.executeQuery();
-    while (rs.next()) {
-      Game tmp = new Game(rs);
-      games.add(tmp);
-    }
-    
-    rs.close();
-    ps.close();
-
-    return games;
-  }
-
   public List<Game> getRunnableSingleGames() throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(
@@ -871,7 +854,7 @@ public class Database
   public List<Broker> getBrokersInGame (int gameId) throws SQLException
   {
     PreparedStatement ps = 
-            conn.prepareStatement(Constants.GET_BROKERS_INGAME);
+            conn.prepareStatement(Constants.GET_BROKERS_IN_GAME);
     ps.setInt(1, gameId);
 
     List<Broker> brokers = new ArrayList<Broker>();
@@ -889,7 +872,7 @@ public class Database
   public List<Broker> getBrokersInGameComplete (int gameId) throws SQLException
   {
     PreparedStatement ps =
-        conn.prepareStatement(Constants.GET_BROKERS_INGAME_COMPLETE);
+        conn.prepareStatement(Constants.GET_BROKERS_IN_GAME_COMPLETE);
     ps.setInt(1, gameId);
 
     List<Broker> brokers = new ArrayList<Broker>();
