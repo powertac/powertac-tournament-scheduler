@@ -219,7 +219,6 @@ public class ActionTournament
     List<Database.Pom> poms = new ArrayList<Database.Pom>();
 
     Database db = new Database();
-
     try {
       db.startTrans();
       poms = db.getPoms();
@@ -236,12 +235,13 @@ public class ActionTournament
     List<Location> locations = new ArrayList<Location>();
 
     Database db = new Database();
-
-    try{
+    try {
       db.startTrans();
       locations = db.getLocations();
       db.commitTrans();
-    }catch(Exception e){
+    }
+    catch(Exception e) {
+      db.abortTrans();
       e.printStackTrace();
     }
     return locations;

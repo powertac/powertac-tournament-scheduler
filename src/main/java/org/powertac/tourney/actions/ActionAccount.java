@@ -170,8 +170,7 @@ public class ActionAccount
                 b.getBrokerId(), t.getTournamentId()));
             db.registerBroker(t.getTournamentId(), b.getBrokerId());
 
-            // Only do this for single game, otherwise the scheduler handles
-            // multigame tourneys
+            // Only for single game, the scheduler handles multigame tourneys
             if (t.typeEquals(Tournament.TYPE.SINGLE_GAME)) {
               for (Game g: t.getGames()) {
                 if (g.getNumBrokersRegistered() < g.getMaxBrokers()) {
