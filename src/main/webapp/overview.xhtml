@@ -151,7 +151,7 @@
             <f:facet name="header">
               <h:outputText value="Start Time" />
             </f:facet>
-            <h:outputText value="#{g.toUTCStartTime()}" />
+            <h:outputText value="#{g.startTimeUTC()}" />
           </t:column>
 
           <t:column sortable="true">
@@ -193,6 +193,8 @@
               <h:outputText value="Actions" />
             </f:facet>
             <h:panelGroup>
+              <h:commandButton value="Now" action="#{actionOverview.startNow(g)}"
+                 onclick="return confirmAlert('This will start the complete tournament now. Proceed?');"/>
               <h:commandButton value="Restart" action="#{actionOverview.restartGame(g)}"
                  onclick="return confirmAlert('Are you sure you want to restart this game?');"/>
               <h:commandButton value="Stop" action="#{actionOverview.stopGame(g)}"
@@ -201,7 +203,7 @@
           </t:column>
         </t:dataTable>
 
-        <h:message for="gamesForm" />
+        <h:messages for="gamesForm" />
       </h:form>
 
       <h:form rendered="#{user.permissions gt 0}">

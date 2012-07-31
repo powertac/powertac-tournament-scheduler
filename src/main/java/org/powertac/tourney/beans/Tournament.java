@@ -280,7 +280,7 @@ public class Tournament
     this.size1 = size1;
   }
 
-  @Column(name = "maxGames", unique = false, nullable = false)
+  @Column(name = "numberGameSize1", unique = false, nullable = false)
   public int getNumberSize1 ()
   {
     return numberSize1;
@@ -335,7 +335,7 @@ public class Tournament
     this.numberSize3 = numberSize3;
   }
 
-  @Column(name = "maxGames", unique = false, nullable = false)
+  @Column(name = "maxBrokerInstances", unique = false, nullable = false)
   public int getMaxBrokerInstances ()
   {
     return maxBrokerInstances;

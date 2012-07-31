@@ -11,6 +11,7 @@ import javax.faces.context.FacesContext;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 @ManagedBean
@@ -47,17 +48,54 @@ public class ActionOverview
     return Game.getGameList();
   }
 
+  public void startNow (Game g)
+  {
+    // Set startTime of game to now
+    Database db = new Database();
+    try {
+      db.startTrans();
+
+      // Set startTime of game to now
+      if (g.getStartTime().after(new Date())) {
+        db.setGameStartTime(g.getGameId());
+        String msg = "Setting game: " + g.getGameId() + " to start now";
+        log.info(msg);
+        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+        FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+      }
+
+      // Set startTime of the tournament to now
+      Tournament t = db.getTournamentByGameId(g.getGameId());
+      if (t.getStartTime().after(new Date())) {
+        db.setTournamentStartTime(t.getTournamentId());
+        String msg = "Setting tournament: " + t.getTournamentId() + " to start now";
+        log.info(msg);
+        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+        FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+      }
+
+      db.commitTrans();
+    }
+    catch (Exception e) {
+      db.abortTrans();
+      e.printStackTrace();
+      String msg = "Failed to set startTime to now";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+    }
+  }
+
   // TODO Should be a Game method
   public void restartGame (Game g)
   {
     Database db = new Database();
     int gameId = g.getGameId();
     log.info("Restarting Game " + gameId + " has status: " + g.getStatus());
-    Tournament t = new Tournament();
+    int pomId = -1;
 
     try {
       db.startTrans();
-      t = db.getTournamentByGameId(gameId);
+      pomId = db.getTournamentByGameId(gameId).getPomId();
 
       db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
       log.info("Setting machine: " + g.getMachineId() + " to idle");
@@ -73,7 +111,7 @@ public class ActionOverview
         g.stateEquals(Game.STATE.boot_in_progress) ) {
       log.info("Attempting to restart bootstrap " + gameId);
 
-      RunBootstrap runBootstrap = new RunBootstrap(gameId, t.getPomId());
+      RunBootstrap runBootstrap = new RunBootstrap(gameId, pomId);
       new Thread(runBootstrap).start();
     }
     else if (g.stateEquals(Game.STATE.game_failed) ||
@@ -81,7 +119,7 @@ public class ActionOverview
         g.stateEquals(Game.STATE.boot_failed) ) {
       log.info("Attempting to restart sim " + gameId);
 
-      RunGame runGame = new RunGame(g.getGameId(), t.getPomId());
+      RunGame runGame = new RunGame(g.getGameId(), pomId);
       new Thread(runGame).start();
     }
   }

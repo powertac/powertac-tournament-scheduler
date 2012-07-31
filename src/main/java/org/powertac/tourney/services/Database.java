@@ -512,6 +512,20 @@ public class Database
     return ts;
   }
 
+  public int setTournamentStartTime (int tournamentId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.UPDATE_TOURNAMENT_STARTTIME_BYID);
+    ps.setInt(2, tournamentId);
+    ps.setString(1, Utils.dateFormatUTCmilli(new Date()));
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
   public List<Game> getGamesInTourney (int tourneyId) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(
@@ -965,8 +979,7 @@ public class Database
   public int clearGameReadyTime (int gameId) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.CLEAR_GAME_READYTIME);
-    ps.setInt(2, gameId);
-    ps.setString(1, Utils.dateFormatUTCmilli(new Date()));
+    ps.setInt(1, gameId);
 
     int result = ps.executeUpdate();
 
@@ -978,6 +991,19 @@ public class Database
   public int setGameReadyTime (int gameId) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_READYTIME);
+    ps.setInt(2, gameId);
+    ps.setString(1, Utils.dateFormatUTCmilli(new Date()));
+
+    int result = ps.executeUpdate();
+
+    ps.close();
+
+    return result;
+  }
+
+  public int setGameStartTime (int gameId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_STARTTIME);
     ps.setInt(2, gameId);
     ps.setString(1, Utils.dateFormatUTCmilli(new Date()));
 

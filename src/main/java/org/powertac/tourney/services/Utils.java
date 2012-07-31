@@ -7,7 +7,6 @@
 
 package org.powertac.tourney.services;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -49,11 +48,16 @@ public class Utils {
       return "";
     }
   }
-  public static Date dateFormatUTCmilli (String date) throws ParseException
+  public static Date dateFormatUTCmilli (String date)
   {
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-    return sdf.parse(date);
+    try {
+      TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+      return sdf.parse(date);
+    }
+    catch (Exception e) {
+      return null;
+    }
   }
   public static String dateFormatUTCmilli (Date date)
   {

@@ -80,7 +80,7 @@ public class Game implements Serializable
       setStatus(rs.getString("status"));
       setMaxBrokers(rs.getInt("maxBrokers"));
       setStartTime(Utils.dateFormatUTCmilli(rs.getString("startTime")));
-      setReadyTime(rs.getString("readyTime"));
+      setReadyTime(Utils.dateFormatUTCmilli(rs.getString("readyTime")));
       setBrokers(rs.getString("brokers"));
       setTourneyId(rs.getInt("tourneyId"));
       setMachineId(rs.getInt("machineId"));
@@ -289,7 +289,7 @@ public class Game implements Serializable
         case game_ready:
           t = db.getTournamentByGameId(g.gameId);
           t.setTournametInProgress(db);
-          g.setReadyTime(Utils.dateFormatUTCmilli(new Date()));
+          g.setReadyTime(new Date());
           db.setGameReadyTime(gameId);
           break;
         case game_in_progress:
@@ -367,11 +367,11 @@ public class Game implements Serializable
     }
   }
 
-  public String toUTCStartTime ()
+  public String startTimeUTC ()
   {
     return Utils.dateFormatUTC(startTime);
   }
-  public String toUTCReadyTime ()
+  public String readyTimeUTC()
   {
     return Utils.dateFormatUTC(readyTime);
   }
@@ -436,21 +436,20 @@ public class Game implements Serializable
   }
 
   //<editor-fold desc="Setter and getters">
+  public static String getKey ()
+  {
+    return key;
+  }
+
   @Temporal(TemporalType.DATE)
   @Column(name = "startTime", unique = false, nullable = false, length = 10)
   public Date getStartTime ()
   {
     return startTime;
   }
-
   public void setStartTime (Date startTime)
   {
     this.startTime = startTime;
-  }
-
-  public static String getKey ()
-  {
-    return key;
   }
 
   @Column(name = "status", unique = false, nullable = false)
@@ -458,7 +457,6 @@ public class Game implements Serializable
   {
     return status;
   }
-
   public void setStatus (String status)
   {
     this.status = status;
@@ -469,7 +467,6 @@ public class Game implements Serializable
   {
     return jmsUrl;
   }
-
   public void setJmsUrl (String jmsUrl)
   {
     this.jmsUrl = jmsUrl;
@@ -480,7 +477,6 @@ public class Game implements Serializable
   {
     return serverQueue;
   }
-  
   public void setServerQueue (String name)
   {
     this.serverQueue = name;
@@ -491,7 +487,6 @@ public class Game implements Serializable
   {
     return visualizerQueue;
   }
-  
   public void setVisualizerQueue (String name)
   {
     this.visualizerQueue = name;
@@ -502,7 +497,6 @@ public class Game implements Serializable
   {
     return maxBrokers;
   }
-
   public void setMaxBrokers (int maxBrokers)
   {
     this.maxBrokers = maxBrokers;
@@ -515,7 +509,6 @@ public class Game implements Serializable
   {
     return gameId;
   }
-
   public void setGameId (int gameId)
   {
     this.gameId = gameId;
@@ -526,7 +519,6 @@ public class Game implements Serializable
   {
     return hasBootstrap;
   }
-
   public void setHasBootstrap (boolean hasBootstrap)
   {
     this.hasBootstrap = hasBootstrap;
@@ -537,7 +529,6 @@ public class Game implements Serializable
   {
     return gameName;
   }
-
   public void setGameName (String gameName)
   {
     this.gameName = gameName;
@@ -548,26 +539,20 @@ public class Game implements Serializable
   {
     return visualizerUrl;
   }
-
   public void setVisualizerUrl (String visualizerUrl)
   {
     this.visualizerUrl = visualizerUrl;
   }
 
   @Temporal(TemporalType.DATE)
-  @Column(name = "readyTime", unique = false, nullable = false)
+  @Column(name = "readyTime", unique = false, nullable = true)
   public Date getReadyTime ()
   {
     return readyTime;
   }
-  public void setReadyTime (String readyTime)
+  public void setReadyTime (Date readyTime)
   {
-    try {
-      this.readyTime = Utils.dateFormatUTCmilli(readyTime);
-    }
-    catch (Exception ignored) {
-      this.readyTime = null;
-    }
+    this.readyTime = readyTime;
   }
 
   @Column(name = "tourneyId", unique = false, nullable = false)
@@ -598,7 +583,6 @@ public class Game implements Serializable
   {
     return machineId;
   }
-
   public void setMachineId (int machineId)
   {
     this.machineId = machineId;

@@ -233,7 +233,7 @@ public class RunGame implements Runnable
         + "&brokers=" + brokers
         + "&serverQueue=" + game.getServerQueue();
 
-    log.info("Final url: {0}" + finalUrl);
+    log.info("Final url: " + finalUrl);
 
     try {
       URL url = new URL(finalUrl);

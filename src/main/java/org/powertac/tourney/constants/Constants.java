@@ -227,14 +227,23 @@ public class Constants
    * Updates a particular tournament given the id
    * 
    * @param status
-   *          : The new status of the server either "pending", "in-progress", or
-   *          "complete"
+   *          : The new status : "pending", "in-progress", or "complete"
    * @param tournamentId
    *          : The id of the tournament you wish to change
    */
   public static final String UPDATE_TOURNAMENT_STATUS_BYID =
     "UPDATE tournaments SET status = ? WHERE tourneyId=?";
 
+  /***
+   * Updates a particular tournament given the id
+   *
+   * @param startTime
+   *          : The new startTime
+   * @param tournamentId
+   *          : The id of the tournament you wish to change
+   */
+  public static final String UPDATE_TOURNAMENT_STARTTIME_BYID =
+      "UPDATE tournaments SET startTime = ? WHERE tourneyId=?";
 
   /**
    * Select the max tournament id from all the tournaments
@@ -429,6 +438,17 @@ public class Constants
    */
   public static final String UPDATE_GAME_READYTIME =
       "UPDATE games SET readyTime=? WHERE gameId=?;";
+
+  /***
+   * Update the startTime of a game
+   *
+   * @param readyTime
+   *          : The dateTime at which the sim says it's ready
+   * @param gameId
+   *          : The id of the game
+   */
+  public static final String UPDATE_GAME_STARTTIME =
+      "UPDATE games SET startTime=? WHERE gameId=?;";
 
   /***
    * Update the machine a game is running on
