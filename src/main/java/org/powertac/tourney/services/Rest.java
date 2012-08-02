@@ -67,11 +67,13 @@ public class Rest
           if (broker != null && !broker.getBrokerInGame()) {
             broker.setBrokerInGame(true);
             db.updateBrokerInGame(g.getGameId(), broker);
+            String queueName = db.getBrokerQueueName(g.getGameId(),
+                broker.getBrokerId());
             log.info(String.format("Sending login to broker %s : %s, %s, %s",
                 broker.getBrokerName(), g.getJmsUrl(),
-                broker.getQueueName(), g.getServerQueue()));
+                queueName, g.getServerQueue()));
             return String.format(loginResponse, g.getJmsUrl(),
-                                 broker.getQueueName(), g.getServerQueue());
+                queueName, g.getServerQueue());
           }
         }
       }

@@ -121,7 +121,8 @@ public class RunGame implements Runnable
           return false;
         }
         for (Broker b: brokerList) {
-          brokers += b.getBrokerName() + "/" + b.getQueueName() +",";
+          brokers += b.getBrokerName() + "/";
+          brokers += db.getBrokerQueueName(gameId, b.getBrokerId()) +",";
         }
         brokers = brokers.substring(0, brokers.length()-1);
       }

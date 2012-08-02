@@ -150,11 +150,11 @@ public class ActionAccount
   }
 
   // TODO This should be a Broker method
-  public String register (Broker b)
+  public void register (Broker b)
   {
     String tournamentName = b.getSelectedTourney();
     if (tournamentName == null || tournamentName.equals("")) {
-      return null;
+      return;
     }
 
     List<Tournament> allTournaments = Tournament.getTournamentList();
@@ -189,8 +189,6 @@ public class ActionAccount
       db.abortTrans();
       e.printStackTrace();
     }
-
-    return null;
   }
 
   public String getNewBrokerShortDescription ()

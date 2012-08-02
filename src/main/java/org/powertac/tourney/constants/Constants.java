@@ -91,9 +91,7 @@ public class Constants
    *          : The userId of the brokers to return
    */
   public static final String SELECT_BROKERS_BY_USERID =
-    "SELECT * FROM brokers " +
-        "LEFT JOIN ingame ON brokers.brokerId = ingame.brokerId " +
-        "WHERE brokers.userID = ?;";
+    "SELECT * FROM brokers WHERE userID = ?;";
 
   /***
    * Select broker by their brokerId
@@ -102,9 +100,7 @@ public class Constants
    *          : The brokerId of the broker you wish to return
    */
   public static final String SELECT_BROKER_BY_BROKERID =
-    "SELECT * FROM brokers " +
-        "LEFT JOIN ingame ON brokers.brokerId = ingame.brokerId " +
-        "WHERE brokers.brokerId = ? LIMIT 1;";
+    "SELECT * FROM brokers WHERE brokerId = ? LIMIT 1;";
 
   /**
    * Delete a broker by their brokerId
@@ -265,8 +261,7 @@ public class Constants
    * Get a list of all brokers
    */
   public static final String GET_BROKERS =
-    "SELECT * FROM brokers " +
-        "LEFT JOIN ingame ON brokers.brokerId = ingame.brokerId;";
+    "SELECT * FROM brokers ;";
 
   /***
    * Register for a tournament by tourneyId and brokerId
@@ -384,11 +379,10 @@ public class Constants
       + "JOIN registration ON registration.brokerId = brokers.brokerId "
       + "JOIN tournaments ON tournaments.tourneyId = registration.tourneyId "
       + "JOIN games on games.tourneyId = tournaments.tourneyId "
-      + "LEFT JOIN ingame ON brokers.brokerId = ingame.brokerId "
       + "WHERE games.gameId=?;";
 
   public static final String UDATE_BROKER_INGAME =
-          "UPDATE ingame SET brokerInGame = ? WHERE gameId=? and brokerId=?";
+      "UPDATE ingame SET brokerInGame = ? WHERE gameId=? and brokerId=?";
 
   /***
    * Get brokers in a tournament
@@ -396,10 +390,16 @@ public class Constants
    * @param tourneyId
    */
   public static final String GET_BROKERS_INTOURNAMENT =
-    "SELECT * FROM brokers "
-        + "JOIN registration ON registration.brokerId = brokers.brokerId "
-        + "LEFT JOIN ingame ON brokers.brokerId = ingame.brokerId "
-        + "WHERE registration.tourneyId=?";
+    "SELECT * FROM brokers JOIN registration "
+				+ "ON registration.brokerId = brokers.brokerId WHERE registration.tourneyId=?";
+
+  /**
+   * Get brokerQueue for game+broker combo
+   * @param gameId
+   * @param brokerId
+   */
+  public static final String GET_BROKER_QUEUE =
+      "SELECT * FROM ingame WHERE gameId=? AND brokerId=?;";
 
   /***
    * Select game by id

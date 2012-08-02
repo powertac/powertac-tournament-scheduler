@@ -37,7 +37,6 @@ public class Broker
   private int brokerId = 0;
   private int userId = 0;
   private String brokerAuthToken;
-  private String brokerQueueName; // per-game value
   private String shortDescription;
   private boolean brokerInGame = false;
 
@@ -48,7 +47,6 @@ public class Broker
     setBrokerName(rs.getString("brokerName"));
     setBrokerAuthToken(rs.getString("brokerAuth"));
     setShortDescription(rs.getString("brokerShort"));
-    setQueueName(rs.getString("brokerQueue"));
   }
 
   public Broker (String brokerName)
@@ -209,17 +207,7 @@ public class Broker
   {
     this.brokerAuthToken = brokerAuthToken;
   }
-  
-  @Transient
-  public String getQueueName ()
-  {
-    return brokerQueueName;
-  }
-  public void setQueueName (String queue)
-  {
-    brokerQueueName = queue;
-  }
-  
+
   @Transient
   public boolean getBrokerInGame ()
   {

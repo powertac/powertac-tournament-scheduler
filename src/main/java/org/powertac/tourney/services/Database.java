@@ -931,6 +931,24 @@ public class Database
     return brokers;
   }
 
+  public String getBrokerQueueName(int gameId, int brokerId)
+      throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(Constants.GET_BROKER_QUEUE);
+    ps.setInt(1, gameId);
+    ps.setInt(2, brokerId);
+
+    String result = "";
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+      result = rs.getString("brokerQueue");
+    }
+    ps.close();
+    rs.close();
+
+    return result;
+  }
+
   public boolean isGameReady (int gameId) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.GAME_READY);
