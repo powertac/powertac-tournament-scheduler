@@ -48,30 +48,36 @@ public class ActionOverview
     return Game.getGameList();
   }
 
-  public void startNow (Game g)
+  public void startNow (Tournament t)
   {
     // Set startTime of game to now
     Database db = new Database();
     try {
       db.startTrans();
 
-      // Set startTime of game to now
-      if (g.getStartTime().after(new Date())) {
-        db.setGameStartTime(g.getGameId());
-        String msg = "Setting game: " + g.getGameId() + " to start now";
-        log.info(msg);
-        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-        FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
-      }
-
       // Set startTime of the tournament to now
-      Tournament t = db.getTournamentByGameId(g.getGameId());
       if (t.getStartTime().after(new Date())) {
         db.setTournamentStartTime(t.getTournamentId());
         String msg = "Setting tournament: " + t.getTournamentId() + " to start now";
         log.info(msg);
         FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
         FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+      }
+
+      // We only need to reset the startTime on single games.
+      // Multi will be picked up by the scheduler
+      if (t.getType().equals(Tournament.TYPE.SINGLE_GAME.toString())) {
+        // Set startTime of all games to now
+        List<Game> games = db.getGamesInTourney(t.getTournamentId());
+        for (Game g: games) {
+          if (g.getStartTime().after(new Date())) {
+            db.setGameStartTime(g.getGameId());
+            String msg = "Setting game: " + g.getGameId() + " to start now";
+            log.info(msg);
+            FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+            FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+          }
+        }
       }
 
       db.commitTrans();

@@ -116,6 +116,14 @@
               <h:outputText value="#{t.pomId}" />
             </a>
           </t:column>
+
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Actions" />
+            </f:facet>
+            <h:commandButton value="Now" action="#{actionOverview.startNow(t)}"
+                             onclick="return confirmAlert('This will start all the games in this tournament now. Proceed?');"/>
+          </t:column>
         </t:dataTable>
       </h:form>
 
@@ -193,8 +201,6 @@
               <h:outputText value="Actions" />
             </f:facet>
             <h:panelGroup>
-              <h:commandButton value="Now" action="#{actionOverview.startNow(g)}"
-                 onclick="return confirmAlert('This will start the complete tournament now. Proceed?');"/>
               <h:commandButton value="Restart" action="#{actionOverview.restartGame(g)}"
                  onclick="return confirmAlert('Are you sure you want to restart this game?');"/>
               <h:commandButton value="Stop" action="#{actionOverview.stopGame(g)}"
