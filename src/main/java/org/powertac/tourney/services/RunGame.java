@@ -15,36 +15,19 @@ public class RunGame implements Runnable
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private Machine machine = null;
-
-  private boolean running = false;
-  private boolean tourney = false;
-  private int watchDogInterval;
-
   private String logSuffix = "sim-";
   private int pomId;
   private int gameId;
   private String brokers = "";
-  private String machineName = "";
-  private Database db;
-
+  private Machine machine = null;
+  private int watchDogInterval;
+  private Database db = new Database();
   private TournamentProperties properties = TournamentProperties.getProperties();
 
   public RunGame (int gameId, int pomId)
   {
-    this(gameId, pomId, null, "");
-    tourney = false;
-  }
-
-  public RunGame (int gameId, int pomId, Machine machine, String brokers)
-  {
     this.gameId = gameId;
     this.pomId = pomId;
-    this.brokers = brokers;
-    this.machine = machine;
-    db = new Database();
-
-    tourney = true;
 
     watchDogInterval = Integer.parseInt(
         properties.getProperty("scheduler.watchDogInterval")) / 1000;
@@ -53,34 +36,30 @@ public class RunGame implements Runnable
   /***
    * Make sure a bootstrap has been run for the sim
    */
+  // TODO Should be a Game method
   private boolean checkBootstrap ()
   {
-    if (!tourney) {
-      if (!running) {
-
-        try {
-          db.startTrans();
-          if (db.isGameReady(gameId)) {
-            db.commitTrans();
-            return true;
-          }
-          else {
-            log.info("Game: " + gameId + " reports that boot is not ready!");
-          }
-        }
-        catch (NumberFormatException e) {
-          e.printStackTrace();
-        }
-        catch (SQLException e) {
-          log.info("Bootstrap Database error while scheduling sim!!");
-          e.printStackTrace();
-        }
-
-        db.abortTrans();
-        return false;
+    try {
+      db.startTrans();
+      if (db.isGameReady(gameId)) {
+        db.commitTrans();
+        return true;
+      }
+      else {
+        log.info("Game: " + gameId + " reports that boot is not ready!");
+        db.updateGameStatusById(gameId, Game.STATE.boot_pending);
       }
     }
-    return true;
+    catch (NumberFormatException e) {
+      e.printStackTrace();
+    }
+    catch (SQLException e) {
+      log.info("Bootstrap Database error while scheduling sim!!");
+      e.printStackTrace();
+    }
+
+    db.abortTrans();
+    return false;
   }
 
   /***
@@ -88,53 +67,43 @@ public class RunGame implements Runnable
    */
   private boolean checkBrokers ()
   {
-    // We already got the brokers
-    if (!brokers.isEmpty()) {
-      return true;
-    }
-
-    // TODO Why is this??
-    if ((!tourney) && (running)) {
-      return true;
-    }
-
     try {
       db.startTrans();
       Game g = db.getGame(gameId);
 
-      int numRegistered = db.getNumberBrokersRegistered(g.getTourneyId());
-      if (numRegistered < 1) {
-        db.commitTrans();
-        log.info(String.format("Game: %s reports no brokers registered, waiting"
-            + " to start, tourneyId: %s", gameId, g.getTourneyId()));
+      List<Broker> brokerList = db.getBrokersInGame(gameId);
+      if (brokerList.size() < 1) {
+        log.info(String.format("Game: %s (tournament %s) reports no brokers "
+            + "registered", gameId, g.getTourneyId()));
         return false;
       }
       else {
-        log.info(String.format("There are %s brokers registered for tournament"
-            + "... starting sim", numRegistered));
-
-        List<Broker> brokerList = db.getBrokersInGame(gameId);
-
-        if (brokerList.size() < 1) {
-          db.commitTrans();
-          log.info("Game: " + gameId+ " reports no brokers listed in database");
-          return false;
-        }
         for (Broker b: brokerList) {
+          if (!b.isAvailable(db)) {
+            log.info(String.format("Not starting sim : broker %s doesn't have "
+                + "enough available agents", b.getBrokerId()));
+            return false;
+          }
+
           brokers += b.getBrokerName() + "/";
           brokers += db.getBrokerQueueName(gameId, b.getBrokerId()) +",";
         }
         brokers = brokers.substring(0, brokers.length()-1);
-      }
 
-      db.commitTrans();
-      return true;
+        log.info(String.format("There are %s brokers registered for tournament"
+            + "... starting sim", brokerList.size()));
+        log.info("Broker Ids : " + brokers);
+
+        return true;
+      }
     }
     catch (SQLException e) {
-      db.abortTrans();
       log.info("Broker Database error while scheduling sim!!");
       e.printStackTrace();
       return false;
+    }
+    finally {
+      db.abortTrans();
     }
   }
 
@@ -143,26 +112,15 @@ public class RunGame implements Runnable
    */
   private boolean checkMachineAvailable ()
   {
-    if ((!tourney) && (running)) {
-      return false;
-    }
-
     try {
       db.startTrans();
 
+      machine = db.claimFreeMachine();
       if (machine == null) {
-        if (machineName.isEmpty()) {
-          machine = db.claimFreeMachine();
-        }
-        else {
-          machine = db.claimFreeMachine(machineName);
-        }
-        if (machine == null) {
-          db.abortTrans();
-          return false;
-        } else {
-          machineName = machine.getName();
-        }
+        db.abortTrans();
+        log.info(String.format("No machines available to run scheduled game: %s"
+            + "... will retry in %s seconds", gameId, watchDogInterval));
+        return false;
       }
 
       String jmsUrl = "tcp://" + machine.getUrl() + ":61616";
@@ -174,13 +132,14 @@ public class RunGame implements Runnable
       db.setMachineStatus(machine.getMachineId(), Machine.STATE.running);
       db.commitTrans();
       log.info(String.format("Game: %s running on machine: %s",
-          gameId, machineName));
+          gameId, machine.getName()));
 
       return true;
     }
     catch (Exception e) {
       db.abortTrans();
       e.printStackTrace();
+      log.error("Error claiming free machines");
       return false;
     }
   }
@@ -188,24 +147,15 @@ public class RunGame implements Runnable
   @Override
   public synchronized void run ()
   {
-    if (running) {
-      // Should not get here
-      log.error("Game " + gameId + " is already running!");
-    }
-
-    // Check if a boot exists
     if (!checkBootstrap()) {
       return;
     }
 
-    // Check if brokers are registered
     if (!checkBrokers()) {
       return;
     }
-    // Check if there is a machine available to run the sim and set it
+
     if (!checkMachineAvailable()) {
-      log.info(String.format("No machines available to run scheduled game: %s"
-          + "... will retry in %s seconds", gameId, watchDogInterval));
       return;
     }
 
@@ -229,7 +179,7 @@ public class RunGame implements Runnable
         + "&tourneyUrl=" + properties.getProperty("tourneyUrl")
         + "&suffix=" + logSuffix
         + "&pomId=" + pomId
-        + "&machine=" + machineName
+        + "&machine=" + machine.getName()
         + "&gameId=" + gameId
         + "&brokers=" + brokers
         + "&serverQueue=" + game.getServerQueue();
@@ -241,8 +191,9 @@ public class RunGame implements Runnable
       URLConnection conn = url.openConnection();
       conn.getInputStream();
       log.info("Jenkins request to start sim game: " + gameId);
-      running = true;
       game.setState(Game.STATE.game_pending);
+      log.info(String.format("Update game: %s to %s", gameId,
+          Game.STATE.game_pending.toString()));
     }
     catch (Exception e) {
       e.printStackTrace();

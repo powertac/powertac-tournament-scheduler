@@ -11,7 +11,8 @@ import java.util.List;
 public class CreateProperties
 {
 
-  public static int genProperties (int gameId, Database db, List<String> locations,
+  public static int genProperties (Database db, int gameId,
+                                   List<String> locations,
                                    Date fromTime, Date toTime)
   {
     Date starting = new Date();
@@ -37,15 +38,12 @@ public class CreateProperties
       starting.setTime(startTime);
     }
 
-    
     java.sql.Date newDate = new java.sql.Date(starting.getTime());
 
     try {
-      
       db.addProperties(gameId, selectedLocation, newDate.toString());
     }
     catch (SQLException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -64,7 +62,6 @@ public class CreateProperties
     }
     catch (SQLException e) {
       db.abortTrans();
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 

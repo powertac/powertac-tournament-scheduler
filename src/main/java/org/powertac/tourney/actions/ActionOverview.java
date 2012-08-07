@@ -64,10 +64,14 @@ public class ActionOverview
         FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
       }
 
-      // We only need to reset the startTime on single games.
-      // Multi will be picked up by the scheduler
-      if (t.getType().equals(Tournament.TYPE.SINGLE_GAME.toString())) {
-        // Set startTime of all games to now
+      if (t.getType().equals(Tournament.TYPE.MULTI_GAME.toString())) {
+        // Reload tourney, just to be sure
+        Scheduler scheduler =
+            (Scheduler) SpringApplicationContext.getBean("scheduler");
+        scheduler.reloadTournament();
+      }
+      else  {
+        // Set all single games to now, multi will be handled by scheduler
         List<Game> games = db.getGamesInTourney(t.getTournamentId());
         for (Game g: games) {
           if (g.getStartTime().after(new Date())) {
@@ -139,6 +143,8 @@ public class ActionOverview
     try {
       db.startTrans();
 
+      // TODO This doesn't actually kill the bash script
+      // We need a separate Jenkins job for that
       // Get the machineName and stop the job on Jenkins
       TournamentProperties properties = TournamentProperties.getProperties();
       String machineName = db.getMachineById(g.getMachineId()).getName();
@@ -161,6 +167,7 @@ public class ActionOverview
         db.updateGameBootstrapById(g.getGameId(), false);
         g.removeBootFile();
         db.updateGameStatusById(g.getGameId(), Game.STATE.boot_pending);
+        db.updateGameBootstrapById(g.getGameId(), false);
         Scheduler.bootRunning = false;
       }
       else if ((g.getStatus().equals(Game.STATE.game_pending.toString())) ||
@@ -171,12 +178,11 @@ public class ActionOverview
 
         db.updateGameStatusById(g.getGameId(), Game.STATE.boot_complete);
         db.clearGameReadyTime(g.getGameId());
-
-        Scheduler scheduler =
-            (Scheduler) SpringApplicationContext.getBean("scheduler");
-        scheduler.resetServer(g.getMachineId());
+        db.updateGameViz(g.getGameId(), "");
       }
 
+      // TODO       //private long maxMsgInterval = 120000l; // 2 min
+      // It takes the visualizer a while to recover
       db.updateGameFreeMachine(g.getGameId());
       db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
 

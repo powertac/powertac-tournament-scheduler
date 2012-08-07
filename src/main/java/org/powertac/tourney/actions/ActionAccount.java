@@ -165,20 +165,21 @@ public class ActionAccount
         if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())
             && t.getTournamentName().equalsIgnoreCase(tournamentName)) {
 
-          if (t.getNumberRegistered() < t.getMaxBrokers()) {
+          if (t.getMaxBrokers() == -1 ||
+              t.getNumberRegistered() < t.getMaxBrokers()) {
             log.info(String.format("Registering broker: %s with tournament: %s",
                 b.getBrokerId(), t.getTournamentId()));
             db.registerBroker(t.getTournamentId(), b.getBrokerId());
 
+            if (t.typeEquals(Tournament.TYPE.MULTI_GAME)) {
+              continue;
+            }
+
             // Only for single game, the scheduler handles multigame tourneys
-            if (t.typeEquals(Tournament.TYPE.SINGLE_GAME)) {
-              for (Game g: t.getGames()) {
-                if (g.getNumBrokersRegistered() < g.getMaxBrokers()) {
-                  g.addBroker(b.getBrokerId());
-                  log.info(String.format("Number registered: %s of %s",
-                      g.getNumBrokersRegistered(), t.getMaxBrokers()));
-                }
-              }
+            for (Game g: t.getGames()) {
+              db.addBrokerToGame(g.getGameId(), b.getBrokerId());
+              log.info(String.format("Registering broker: %s with game: %s",
+                  b.getBrokerId(), g.getGameId()));
             }
           }
         }

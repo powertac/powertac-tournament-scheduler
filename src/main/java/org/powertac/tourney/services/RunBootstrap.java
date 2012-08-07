@@ -20,14 +20,12 @@ public class RunBootstrap implements Runnable
   private String machineName = "";
   private int watchDogInterval;
   private TournamentProperties properties = TournamentProperties.getProperties();
-  private Database db;
+  private Database db = new Database();
 
   public RunBootstrap (int gameId, int pomId)
   {
     this.gameId = gameId;
     this.pomId = pomId;
-
-    db = new Database();
 
     watchDogInterval = Integer.parseInt(
         properties.getProperty("scheduler.watchDogInterval")) / 1000;

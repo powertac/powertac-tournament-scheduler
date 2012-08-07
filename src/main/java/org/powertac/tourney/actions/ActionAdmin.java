@@ -32,9 +32,9 @@ public class ActionAdmin
   private String sortColumnUsers = null;
   private boolean sortAscendingUsers = true;
 
-  private String newLocationName = "";
-  private Date newLocationStartTime = null;
-  private Date newLocationEndTime = null;
+  private String locationName = "";
+  private Date locationStartTime = null;
+  private Date locationEndTime = null;
 
   private int machineId = -1;
   private String machineName = "";
@@ -77,14 +77,14 @@ public class ActionAdmin
 
   public void addLocation ()
   {
-    if (newLocationName.isEmpty() || (newLocationStartTime == null) || (newLocationEndTime == null)) {
+    if (locationName.isEmpty() || (locationStartTime == null) || (locationEndTime == null)) {
       return;
     }
 
     Database db = new Database();
     try {
       db.startTrans();
-      db.addLocation(newLocationName, newLocationStartTime, newLocationEndTime);
+      db.addLocation(locationName, locationStartTime, locationEndTime);
       db.commitTrans();
     }
     catch (SQLException e) {
@@ -109,12 +109,11 @@ public class ActionAdmin
   //</editor-fold>
 
   //<editor-fold desc="Pom stuff">
-  public List<Database.Pom> getPomList ()
+  public List<Pom> getPomList ()
   {
-    List<Database.Pom> poms = new ArrayList<Database.Pom>();
+    List<Pom> poms = new ArrayList<Pom>();
 
     Database db = new Database();
-
     try {
       db.startTrans();
       poms = db.getPoms();
@@ -329,31 +328,31 @@ public class ActionAdmin
   }
 
   //<editor-fold desc="Setters and Getters">
-  public String getNewLocationName ()
+  public String getLocationName()
   {
-    return newLocationName;
+    return locationName;
   }
-  public void setNewLocationName (String newLocationName)
+  public void setLocationName(String locationName)
   {
-    this.newLocationName = newLocationName;
-  }
-
-  public Date getNewLocationStartTime ()
-  {
-    return newLocationStartTime;
-  }
-  public void setNewLocationStartTime (Date newLocationStartTime)
-  {
-    this.newLocationStartTime = newLocationStartTime;
+    this.locationName = locationName;
   }
 
-  public Date getNewLocationEndTime ()
+  public Date getLocationStartTime ()
   {
-    return newLocationEndTime;
+    return locationStartTime;
   }
-  public void setNewLocationEndTime (Date newLocationEndTime)
+  public void setLocationStartTime (Date locationStartTime)
   {
-    this.newLocationEndTime = newLocationEndTime;
+    this.locationStartTime = locationStartTime;
+  }
+
+  public Date getLocationEndTime ()
+  {
+    return locationEndTime;
+  }
+  public void setLocationEndTime (Date locationEndTime)
+  {
+    this.locationEndTime = locationEndTime;
   }
 
   public String getPomName ()

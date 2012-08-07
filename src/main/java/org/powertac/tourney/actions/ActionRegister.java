@@ -13,13 +13,13 @@ import java.sql.SQLException;
 @Scope("request")
 public class ActionRegister
 {
-  private String name;
-  private String group;
-  private String email;
-  private String phone;
   private String username;
   private String password1;
   private String password2;
+  private String institution;
+  private String contactName;
+  private String contactEmail;
+  private String contactPhone;
 
   public String register ()
   {
@@ -27,7 +27,7 @@ public class ActionRegister
     try {
       db.startTrans();
       if (password1.equals(password2)) {
-        db.addUser(this.getUsername(), this.getPassword1());
+        db.addUser(username, password1, institution, contactName, contactEmail, contactPhone);
         db.commitTrans();
         return "Success";
       }
@@ -47,41 +47,37 @@ public class ActionRegister
   }
 
   //<editor-fold desc="Setters and Getters">
-  public String getName ()
+  public String getContactName ()
   {
-    return name;
+    return contactName;
+  }
+  public void setContactName (String contactName)
+  {
+    this.contactName = contactName;
   }
 
-  public void setName (String name)
+  public String getInstitution ()
   {
-    this.name = name;
+    return institution;
+  }
+  public void setInstitution (String institution)
+  {
+    this.institution = institution;
   }
 
-  public String getGroup ()
+  public String getContactEmail ()
   {
-    return group;
+    return contactEmail;
   }
-
-  public void setGroup (String group)
+  public void setContactEmail (String contactEmail)
   {
-    this.group = group;
-  }
-
-  public String getEmail ()
-  {
-    return email;
-  }
-
-  public void setEmail (String email)
-  {
-    this.email = email;
+    this.contactEmail = contactEmail;
   }
 
   public String getUsername ()
   {
     return username;
   }
-
   public void setUsername (String username)
   {
     this.username = username;
@@ -91,7 +87,6 @@ public class ActionRegister
   {
     return password1;
   }
-
   public void setPassword1 (String password1)
   {
     this.password1 = password1;
@@ -101,20 +96,18 @@ public class ActionRegister
   {
     return password2;
   }
-
   public void setPassword2 (String password2)
   {
     this.password2 = password2;
   }
 
-  public String getPhone ()
+  public String getContactPhone ()
   {
-    return phone;
+    return contactPhone;
   }
-
-  public void setPhone (String phone)
+  public void setContactPhone (String contactPhone)
   {
-    this.phone = phone;
+    this.contactPhone = contactPhone;
   }
   //</editor-fold>
 }

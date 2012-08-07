@@ -26,23 +26,20 @@ public class Tournament
 
   private int tourneyId = 0;
   private Date startTime;
+  private Date dateFrom;
+  private Date dateTo;
   private String tournamentName;
   private String status = STATE.pending.toString();
-  private int maxBrokers; // -1 means inf, otherwise integer specific
-  private boolean openRegistration = false;
-  private int maxGames;
-  private String locations = "";
 
-  private int size1 = 2;
-  private int numberSize1 = 2;
-  private int size2 = 4;
-  private int numberSize2 = 4;
-  private int size3 = 8;
-  private int numberSize3 = 4;
-  
+  private int maxBrokers; // -1 means inf, otherwise integer specific
+  private int maxAgents = 2;
+
+  private String locations = "";
   private String type = TYPE.SINGLE_GAME.toString();
 
-  private int maxBrokerInstances = 2;
+  private int size1 = 2;
+  private int size2 = 4;
+  private int size3 = 8;
 
   private int pomId;
   private String pomName;
@@ -60,26 +57,24 @@ public class Tournament
   {
   }
 
-  public Tournament (ResultSet rsTs)
+  public Tournament (ResultSet rs)
   {
     try {
-      setStatus(rsTs.getString("status"));
-      setTournamentId(rsTs.getInt("tourneyId"));
-      setTournamentName(rsTs.getString("tourneyName"));
-      setOpenRegistration(rsTs.getBoolean("openRegistration"));
-      setType(rsTs.getString("type"));
-      setMaxGames(rsTs.getInt("maxGames"));
-      setPomId(rsTs.getInt("pomId"));
-      setMaxBrokers(rsTs.getInt("maxBrokers"));
-      setStartTime(Utils.dateFormatUTCmilli((rsTs.getString("startTime"))));
-      setSize1(rsTs.getInt("gameSize1"));
-      setSize2(rsTs.getInt("gameSize2"));
-      setSize3(rsTs.getInt("gameSize3"));
-      setNumberSize1(rsTs.getInt("numberGameSize1"));
-      setNumberSize2(rsTs.getInt("numberGameSize2"));
-      setNumberSize3(rsTs.getInt("numberGameSize3"));
-      setMaxBrokerInstances(rsTs.getInt("maxBrokerInstances"));
-      setTournamentName(rsTs.getString("tourneyName"));
+      setStatus(rs.getString("status"));
+      setTournamentId(rs.getInt("tourneyId"));
+      setTournamentName(rs.getString("tourneyName"));
+      setType(rs.getString("type"));
+      setPomId(rs.getInt("pomId"));
+      setMaxBrokers(rs.getInt("maxBrokers"));
+      setStartTime(Utils.dateFormatUTCmilli(rs.getString("startTime")));
+      setDateFrom(Utils.dateFormatUTCmilli(rs.getString("dateFrom")));
+      setDateTo(Utils.dateFormatUTCmilli(rs.getString("dateTo")));
+      setSize1(rs.getInt("gameSize1"));
+      setSize2(rs.getInt("gameSize2"));
+      setSize3(rs.getInt("gameSize3"));
+      setMaxAgents(rs.getInt("maxAgents"));
+      setTournamentName(rs.getString("tourneyName"));
+      setLocations(rs.getString("locations"));
     }
     catch (Exception e) {
       log.error("Error creating tournament from result set");
@@ -147,7 +142,6 @@ public class Tournament
     }
     catch (SQLException e) {
       db.abortTrans();
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -177,6 +171,7 @@ public class Tournament
       // Disallow removal when games booting or running
       for (Game g: games) {
         if (g.stateEquals(Game.STATE.boot_in_progress) ||
+            g.stateEquals(Game.STATE.game_pending) ||
             g.stateEquals(Game.STATE.game_ready) ||
             g.stateEquals(Game.STATE.game_in_progress)) {
           db.abortTrans();
@@ -191,8 +186,8 @@ public class Tournament
       }
 
       for (Game game: games) {
-        // Remove all ingames
-        db.updateGameFreeBrokers(game.getGameId());
+        // Remove all agents
+        db.deleteAgentsByGameId(game.getGameId());
         // Remove all properties for games for this tournament
         db.deletePropertiesByGameId(game.getGameId());
         // Remove all games for a tournament
@@ -220,7 +215,7 @@ public class Tournament
     try {
       db.startTrans();
       ts = db.getTournaments(STATE.pending);
-      ts.addAll(db.getTournaments(Tournament.STATE.in_progress));
+      ts.addAll(db.getTournaments(STATE.in_progress));
       db.commitTrans();
     }
     catch(Exception e){
@@ -235,38 +230,24 @@ public class Tournament
     return this.status.equals(state.toString());
   }
 
+  public List<String> getLocationsList ()
+  {
+    List<String> locationList = new ArrayList<String>();
+    for (String location: locations.split(",")) {
+      locationList.add(location.trim());
+    }
+    return locationList;
+  }
+
   //<editor-fold desc="Getters and setters">
   @Column(name = "pomName", unique = false, nullable = false)
   public String getPomName ()
   {
     return pomName;
   }
-
   public void setPomName (String pomName)
   {
     this.pomName = pomName;
-  }
-
-  @Column(name = "openRegistration", unique = false, nullable = false)
-  public boolean getOpenRegistration ()
-  {
-    return openRegistration;
-  }
-
-  public void setOpenRegistration (boolean openRegistration)
-  {
-    this.openRegistration = openRegistration;
-  }
-
-  @Column(name = "maxGames", unique = false, nullable = false)
-  public int getMaxGames ()
-  {
-    return maxGames;
-  }
-
-  public void setMaxGames (int maxGames)
-  {
-    this.maxGames = maxGames;
   }
 
   @Column(name = "gameSize1", unique = false, nullable = false)
@@ -274,21 +255,9 @@ public class Tournament
   {
     return size1;
   }
-
   public void setSize1 (int size1)
   {
     this.size1 = size1;
-  }
-
-  @Column(name = "numberGameSize1", unique = false, nullable = false)
-  public int getNumberSize1 ()
-  {
-    return numberSize1;
-  }
-
-  public void setNumberSize1 (int numberSize1)
-  {
-    this.numberSize1 = numberSize1;
   }
 
   @Column(name = "gameSize2", unique = false, nullable = false)
@@ -296,21 +265,9 @@ public class Tournament
   {
     return size2;
   }
-
   public void setSize2 (int size2)
   {
     this.size2 = size2;
-  }
-
-  @Column(name = "numberGameSize2", unique = false, nullable = false)
-  public int getNumberSize2 ()
-  {
-    return numberSize2;
-  }
-
-  public void setNumberSize2 (int numberSize2)
-  {
-    this.numberSize2 = numberSize2;
   }
 
   @Column(name = "gameSize3", unique = false, nullable = false)
@@ -318,32 +275,20 @@ public class Tournament
   {
     return size3;
   }
-
   public void setSize3 (int size3)
   {
     this.size3 = size3;
   }
 
-  @Column(name = "numberGameSize3", unique = false, nullable = false)
-  public int getNumberSize3 ()
-  {
-    return numberSize3;
-  }
 
-  public void setNumberSize3 (int numberSize3)
+  @Column(name = "maxAgents", unique = false, nullable = false)
+  public int getMaxAgents()
   {
-    this.numberSize3 = numberSize3;
+    return maxAgents;
   }
-
-  @Column(name = "maxBrokerInstances", unique = false, nullable = false)
-  public int getMaxBrokerInstances ()
+  public void setMaxAgents(int maxAgents)
   {
-    return maxBrokerInstances;
-  }
-
-  public void setMaxBrokerInstances (int maxBrokerInstances)
-  {
-    this.maxBrokerInstances = maxBrokerInstances;
+    this.maxAgents = maxAgents;
   }
 
   @Column(name = "type", unique = false, nullable = false)
@@ -351,7 +296,6 @@ public class Tournament
   {
     return type;
   }
-
   public void setType (String type)
   {
     this.type = type;
@@ -364,7 +308,6 @@ public class Tournament
   {
     return tourneyId;
   }
-
   public void setTournamentId (int tourneyId)
   {
     this.tourneyId = tourneyId;
@@ -376,7 +319,6 @@ public class Tournament
   {
     return startTime;
   }
-
   public void setStartTime (Date startTime)
   {
     this.startTime = startTime;
@@ -387,7 +329,6 @@ public class Tournament
   {
     return tournamentName;
   }
-
   public void setTournamentName (String tournamentName)
   {
     this.tournamentName = tournamentName;
@@ -398,7 +339,6 @@ public class Tournament
   {
     return maxBrokers;
   }
-
   public void setMaxBrokers (int maxBrokers)
   {
     this.maxBrokers = maxBrokers;
@@ -409,7 +349,6 @@ public class Tournament
   {
     return pomId;
   }
-
   public void setPomId (int pomId)
   {
     this.pomId = pomId;
@@ -430,10 +369,25 @@ public class Tournament
   {
     return locations;
   }
-
   public void setLocations (String locations)
   {
     this.locations = locations;
+  }
+
+  @Column(name = "dateFrom", unique = false, nullable = false)
+  public Date getDateFrom() {
+    return dateFrom;
+  }
+  public void setDateFrom(Date dateFrom) {
+    this.dateFrom = dateFrom;
+  }
+
+  @Column(name = "dateTo", unique = false, nullable = false)
+  public Date getDateTo() {
+    return dateTo;
+  }
+  public void setDateTo(Date dateTo) {
+    this.dateTo = dateTo;
   }
   //</editor-fold>
 }

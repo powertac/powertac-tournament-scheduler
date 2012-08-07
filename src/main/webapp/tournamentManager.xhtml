@@ -9,8 +9,10 @@
 	xmlns:t="http://myfaces.apache.org/tomahawk">
 
 <h:body>
-	<ui:composition template="template.xhtml">
+  <ui:composition template="template.xhtml">
 		<ui:define name="content">
+      <script type="text/javascript" src="tournamentManager.js"></script>
+
 			<h:form rendered="#{user.permissions le 0}" id="removeTournament">
 				<h2>Tournament Manager</h2>
 
@@ -76,7 +78,8 @@
           <t:column>
             <h:commandButton value="Delete"
                 action="#{actionTournament.removeTournament(t)}"
-                rendered="#{t.tournamentName.toLowerCase().contains('test')}"/>
+                rendered="#{t.tournamentName.toLowerCase().contains('test')}"
+                onclick="return confirmAlert('Are you sure you want to delete this tournament?');"/>
           </t:column>
 				</t:dataTable>
         <h:message for="removeTournament" />
@@ -87,7 +90,7 @@
 				<h3>Create Tournament</h3>
         <h:message for="saveTournament" />
 
-				<h:panelGrid columns="2">
+				<h:panelGrid columns="2" id="tournamentTable">
 					<h:outputText value="Tournament Name:" />
 					<h:panelGroup>
 						<h:inputText value="#{actionTournament.tournamentName}" />
@@ -101,68 +104,64 @@
 								itemValues="#{t.ordinal}" itemLabel="#{t.label}" />
 						</h:selectOneMenu>
 					</h:panelGroup>
-					
-					<h:outputText value="Max Broker Instances:" />
-					<h:panelGroup>
-						<h:inputText value="#{actionTournament.maxBrokerInstances}" />
-					</h:panelGroup>
-					
+
+          <h:outputText value="Max Brokers" />
+          <h:panelGroup>
+            <h:inputText id="maxBrokers" value="#{actionTournament.maxBrokers}"
+                         onchange="showGamesCount()" onkeyup="showGamesCount()" />
+            <span id="totalGames"/>
+          </h:panelGroup>
+
+          <h:outputText value="Max Agents" />
+          <h:panelGroup>
+            <h:inputText value="#{actionTournament.maxAgents}"/>
+          </h:panelGroup>
+
 					<h:outputText value="Game 1 Size:" />
 					<h:panelGroup>
-						<h:inputText value="#{actionTournament.size1}" />
-					</h:panelGroup>
-					<h:outputText value="Number of Game 1 Size:" />
-					<h:panelGroup>
-						<h:inputText value="#{actionTournament.numberSize1}" />
-					</h:panelGroup>
-					
-					<h:outputText value="Game 2 Size:" />
-					<h:panelGroup>
-						<h:inputText value="#{actionTournament.size2}" />
-					</h:panelGroup>
-					<h:outputText value="Number of Game 2 Size:" />
-					<h:panelGroup>
-						<h:inputText value="#{actionTournament.numberSize2}" />
-					</h:panelGroup>
-					
-					<h:outputText value="Game 3 Size:" />
-					<h:panelGroup>
-						<h:inputText value="#{actionTournament.size3}" />
-					</h:panelGroup>
-					<h:outputText value="Number of Game 3 Size:" />
-					<h:panelGroup>
-						<h:inputText value="#{actionTournament.numberSize3}" />
+						<h:inputText id="gameSize1" value="#{actionTournament.size1}"
+                         onchange="showGamesCount()" onkeyup="showGamesCount()"/>
+            <span id="total1"/>
 					</h:panelGroup>
 
-					<h:outputText value="Starting Date/Time in UTC(dd/month/yyyy/hh/mm):" />
+					<h:outputText value="Game 2 Size:" />
+					<h:panelGroup>
+						<h:inputText id="gameSize2" value="#{actionTournament.size2}"
+                         onchange="showGamesCount()" onkeyup="showGamesCount()"/>
+            <span id="total2"/>
+					</h:panelGroup>
+
+					<h:outputText value="Game 3 Size:" />
+					<h:panelGroup>
+						<h:inputText id="gameSize3" value="#{actionTournament.size3}"
+                         onchange="showGamesCount()" onkeyup="showGamesCount()"/>
+            <span id="total3"/>
+					</h:panelGroup>
+
+					<h:outputText value="StartTime UTC" />
 					<h:panelGroup>
 						<t:inputDate value="#{actionTournament.startTime}" timeZone="UTC" type="both"
 							ampm="false" renderAsPopup="true" forceId="true" />
 					</h:panelGroup>
 
-					<h:outputText value="Maximum Number of Brokers to Participate" />
-					<h:panelGroup>
-						<h:inputText value="#{actionTournament.maxBrokers}"/>
-					</h:panelGroup>
-
-          <h:outputText value="Select Pom File:" />
-					<h:panelGroup>
-						<h:selectOneMenu id="poms" value="#{actionTournament.selectedPom}" required="true">
-							<f:selectItems value="#{actionTournament.pomList}" var="p"
-								itemValue="#{p.pomId}" itemLabel="#{p.name}" />
-						</h:selectOneMenu>
-					</h:panelGroup>
-
-					<h:outputText value="Date Range from (random selection from interval): " />
+					<h:outputText value="Date from: " />
 					<h:panelGroup>
 						<t:inputDate value="#{actionTournament.fromTime}" type="both"
 							ampm="false" renderAsPopup="true" forceId="true" /><br/>
 					</h:panelGroup>
 
-          <h:outputText value="Date Range to:" />
+          <h:outputText value="Date to:" />
           <h:panelGroup>
             <t:inputDate value="#{actionTournament.toTime}" type="both"
               ampm="false" renderAsPopup="true" forceId="true" />
+          </h:panelGroup>
+
+          <h:outputText value="Select Pom File:" />
+          <h:panelGroup>
+            <h:selectOneMenu id="poms" value="#{actionTournament.selectedPom}" required="true">
+              <f:selectItems value="#{actionTournament.pomList}" var="p"
+                             itemValue="#{p.pomId}" itemLabel="#{p.name}" />
+            </h:selectOneMenu>
           </h:panelGroup>
 
 					<h:outputText value="Locations:" />
@@ -173,7 +172,7 @@
 						</h:selectManyCheckbox>
 					</h:panelGroup>
 
-					<h:outputText value="Submit Tournament (opens for registration):" />
+					<h:outputText value="Add Tournament" />
 					<h:panelGroup>
 						<h:commandButton value="Submit"
 							action="#{actionTournament.createTournament}" />

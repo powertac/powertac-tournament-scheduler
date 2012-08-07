@@ -7,19 +7,34 @@
 
 package org.powertac.tourney.services;
 
+import org.apache.log4j.Logger;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
 
 public class Utils {
-  public static boolean checkClientAllowed (String clientAddress)
+  private static Logger log = Logger.getLogger("TMLogger");
+
+  public static boolean checkSlaveAllowed(String slaveAddress)
   {
     // TODO Only allow access to slave, defined in db.machines
-    System.out.println("[DEBUG] Testing checkClientAllowed");
-    System.out.println(clientAddress);
+    log.debug("TODO Testing checkSlaveAllowed : " + slaveAddress);
 
-    if (clientAddress.equals("127.0.0.1")) {
+    if (slaveAddress.equals("127.0.0.1")) {
+      return true;
+    }
+
+    return true;
+  }
+
+  public static boolean checkVizAllowed(String vizAddress)
+  {
+    // TODO Only allow access to slave, defined in db.machines
+    log.debug("TODO Testing checkVizAllowed : " + vizAddress);
+
+    if (vizAddress.equals("127.0.0.1")) {
       return true;
     }
 

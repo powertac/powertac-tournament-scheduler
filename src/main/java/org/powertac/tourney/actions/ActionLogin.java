@@ -38,11 +38,11 @@ public class ActionLogin
 
   public String login ()
   {
-    Database database = new Database();
+    Database db = new Database();
     try {
       int[] perm;// = new int[2] -1;
-      database.startTrans();
-      if ((perm = database.loginUser(getUsername(), getPassword()))[0] >= 0) {
+      db.startTrans();
+      if ((perm = db.loginUser(getUsername(), getPassword()))[0] >= 0) {
         User test = User.getCurrentUser();
         test.setUsername(getUsername());
         test.setUserId(perm[1]);
@@ -50,16 +50,16 @@ public class ActionLogin
         test.login();
       }
       else {
-        // TODO Fix array to string
-        String msg = "Login Failure: ";
-        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg + perm, null);
+        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,
+            "Login Failure", null);
         FacesContext.getCurrentInstance().addMessage("loginForm", fm);
+        db.abortTrans();
         return "Failure";
       }
-      database.commitTrans();
+      db.commitTrans();
     }
     catch (SQLException e) {
-      database.abortTrans();
+      db.abortTrans();
       e.printStackTrace();
       String msg = "Login Exception Failure";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
@@ -76,5 +76,4 @@ public class ActionLogin
     test.logout();
     return "Login";
   }
-
 }

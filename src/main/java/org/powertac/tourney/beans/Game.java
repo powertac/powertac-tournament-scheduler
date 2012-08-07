@@ -2,7 +2,6 @@ package org.powertac.tourney.beans;
 
 import org.apache.log4j.Logger;
 import org.powertac.tourney.services.Database;
-import org.powertac.tourney.services.SpringApplicationContext;
 import org.powertac.tourney.services.TournamentProperties;
 import org.powertac.tourney.services.Utils;
 
@@ -34,7 +33,6 @@ public class Game implements Serializable
   private int machineId;
   private String status = STATE.boot_pending.toString();
   private boolean hasBootstrap = false;
-  private String brokers = "";
   private int maxBrokers = 1;
 
   private String gameName = "";
@@ -81,7 +79,6 @@ public class Game implements Serializable
       setMaxBrokers(rs.getInt("maxBrokers"));
       setStartTime(Utils.dateFormatUTCmilli(rs.getString("startTime")));
       setReadyTime(Utils.dateFormatUTCmilli(rs.getString("readyTime")));
-      setBrokers(rs.getString("brokers"));
       setTourneyId(rs.getInt("tourneyId"));
       setMachineId(rs.getInt("machineId"));
       setHasBootstrap(rs.getBoolean("hasBootstrap"));
@@ -114,64 +111,6 @@ public class Game implements Serializable
       e.printStackTrace();
     }
 
-    return result;
-  }
-
-  @Transient
-  public int getNumBrokersRegistered ()
-  {
-    Database db = new Database();
-    int result = 0;
-
-    try {
-      db.startTrans();
-      result = db.getBrokersInGame(gameId).size();
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-    return result;
-  }
-
-  public void addBroker (int brokerId)
-  {
-    Database db = new Database();
-    Broker b = new Broker("new");
-    try {
-      db.startTrans();
-      b = db.getBroker(brokerId);
-      db.addBrokerToGame(gameId, b);
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-    brokers += b.getBrokerName() + ", ";
-  }
-
-  public Broker getBrokerRegistration (String authToken)
-  {
-    log.info("Broker token: " + authToken);
-    Database db = new Database();
-    Broker result = null;
-    try {
-      db.startTrans();
-      List<Broker> allBrokers = db.getBrokersInGame(gameId);
-      for (Broker b: allBrokers) {
-        if (b.getBrokerAuthToken().equalsIgnoreCase(authToken)) {
-          result = b;
-          break;
-        }
-      }
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
     return result;
   }
 
@@ -243,15 +182,14 @@ public class Game implements Serializable
       return "error";
     }
 
-    Scheduler scheduler = (Scheduler) SpringApplicationContext.getBean("scheduler");
     Database db = new Database();
-
     try {
       db.startTrans();
       Game g = db.getGame(gameId);
       if (g == null) {
         log.warn(String.format("Trying to set status %s on non-existing game : "
             + "%s", status, gameId));
+        db.commitTrans();
         return "error";
       }
       Tournament t;
@@ -298,11 +236,10 @@ public class Game implements Serializable
           break;
 
         case game_complete:
-          db.updateGameFreeBrokers(gameId);
+          db.updateAgentStatuses(gameId);
           log.info("Freeing Brokers for game: " + gameId);
           db.updateGameFreeMachine(gameId);
           log.info("Freeing Machines for game: " + gameId);
-          scheduler.resetServer(g.getMachineId());
           db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
           log.info("Setting machine {0} to idle " + g.getMachineId());
 
@@ -314,11 +251,10 @@ public class Game implements Serializable
         case game_failed:
           log.warn("GAME " + gameId + " FAILED!");
 
-          db.updateGameFreeBrokers(gameId);
-          log.info("Freeing Brokers for game: " + gameId);
+          db.updateAgentStatuses(gameId);
+          log.info("Freeing Agents for game: " + gameId);
           db.updateGameFreeMachine(gameId);
           log.info("Freeing Machines for game: " + gameId);
-          scheduler.resetServer(g.getMachineId());
           db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
           log.info("Setting machine {0} to idle " + g.getMachineId());
           break;
@@ -389,24 +325,6 @@ public class Game implements Serializable
     try {
       db.startTrans();
       games = db.getGames();
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return games;
-  }
-
-  public static List<Game> getGamesInTourney (String tourneyName)
-  {
-    List<Game> games = new ArrayList<Game>();
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      games = db.getGamesInTourney(tourneyName);
       db.commitTrans();
     }
     catch (SQLException e) {
@@ -564,18 +482,6 @@ public class Game implements Serializable
   public void setTourneyId (int tourneyId)
   {
     this.tourneyId = tourneyId;
-  }
-
-  // Comma delimited list of brokers to be sent to the server command line
-  @Column(name = "brokers", unique = false, nullable = false)
-  public String getBrokers ()
-  {
-    return brokers;
-  }
-
-  public void setBrokers (String brokers)
-  {
-    this.brokers = brokers;
   }
 
   @Column(name = "machineId", unique = false, nullable = true)

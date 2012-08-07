@@ -1,7 +1,7 @@
 package org.powertac.tourney.beans;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.powertac.tourney.services.Database;
+import org.powertac.tourney.services.SpringApplicationContext;
 import org.powertac.tourney.services.TournamentProperties;
 
 import javax.faces.bean.ManagedBean;
@@ -22,23 +22,24 @@ import static javax.persistence.GenerationType.IDENTITY;
 public class Broker
 {
   private static final String key = "broker";
-  private static int maxBrokerId = 0;
-
-  // For edit mode
-  private boolean edit = false;
-  private String newName;
-  private String newAuth;
-  private String newShort;
-
-  // For registration
-  private String selectedTourney;
 
   private String brokerName;
   private int brokerId = 0;
   private int userId = 0;
   private String brokerAuthToken;
   private String shortDescription;
-  private boolean brokerInGame = false;
+
+  // For edit mode, web interface
+  private boolean edit = false;
+  private String newName;
+  private String newAuth;
+  private String newShort;
+  // For registration, web interface
+  private String selectedTourney;
+
+  public Broker ()
+  {
+  }
 
   public Broker (ResultSet rs) throws SQLException
   {
@@ -47,23 +48,6 @@ public class Broker
     setBrokerName(rs.getString("brokerName"));
     setBrokerAuthToken(rs.getString("brokerAuth"));
     setShortDescription(rs.getString("brokerShort"));
-  }
-
-  public Broker (String brokerName)
-  {
-    this(brokerName, "");
-  }
-
-  public Broker (String brokerName, String shortDescription)
-  {
-    this.brokerName = brokerName;
-    this.shortDescription = shortDescription;
-    brokerId = maxBrokerId;
-    maxBrokerId++;
-
-    // Generate MD5 hash
-    brokerAuthToken = DigestUtils.md5Hex(brokerName + brokerId +
-        (new Date()).toString() + Math.random());
   }
 
   public String getUserName()
@@ -84,6 +68,27 @@ public class Broker
     return userName;
   }
 
+  /**
+   * Checks if not more than maxBrokers are running (only multi_game tourneys)
+   */
+  public boolean isAvailable (Database db) throws SQLException
+  {
+    Scheduler scheduler =
+        (Scheduler) SpringApplicationContext.getBean("scheduler");
+    Tournament runningTournament = scheduler.getRunningTournament();
+
+    // When no tournament loaded (thus only SINGLE_GAMES will be run),
+    // assume enough agents ready
+    if (runningTournament == null ||
+        runningTournament.getMaxAgents() == -1) {
+      return true;
+    }
+
+    // Check if we have less than the max allowed # of instances running
+    List<Broker> brokers = db.getBrokersRunning(getBrokerId());
+    return brokers.size() < runningTournament.getMaxAgents();
+  }
+
   public List<Tournament> getAvailableTournaments ()
   {
     Vector<Tournament> availableTourneys = new Vector<Tournament>();
@@ -96,13 +101,16 @@ public class Broker
     Database db = new Database();
     try {
       db.startTrans();
+
       for (Tournament t: allTournaments) {
         long startStamp = t.getStartTime().getTime();
 
         if (!db.isRegistered(t.getTournamentId(), brokerId)
-            && t.getNumberRegistered() < t.getMaxBrokers()
             && (startStamp - nowStamp) > loginDeadline) {
-          availableTourneys.add(t);
+          if (t.getMaxBrokers() == -1 ||
+              t.getNumberRegistered() < t.getMaxBrokers()){
+            availableTourneys.add(t);
+          }
         }
       }
       db.commitTrans();
@@ -208,16 +216,6 @@ public class Broker
     this.brokerAuthToken = brokerAuthToken;
   }
 
-  @Transient
-  public boolean getBrokerInGame ()
-  {
-    return brokerInGame;
-  }
-  public void setBrokerInGame (boolean value)
-  {
-    brokerInGame = value;
-  }
-
   @Column(name = "brokerShort", unique = false, nullable = false)
   public String getShortDescription ()
   {
@@ -274,7 +272,6 @@ public class Broker
     this.newShort = newShort;
   }
 
-	// TODO Check if needed
   @Transient
   public String getSelectedTourney ()
   {
@@ -285,5 +282,4 @@ public class Broker
     this.selectedTourney = selectedTourney;
   }
   //</editor-fold>
-
 }

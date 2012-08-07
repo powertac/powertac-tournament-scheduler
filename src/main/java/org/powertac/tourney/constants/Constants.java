@@ -1,5 +1,6 @@
 package org.powertac.tourney.constants;
 
+import org.powertac.tourney.beans.Agent;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Machine;
 import org.powertac.tourney.beans.Tournament;
@@ -49,7 +50,8 @@ public class Constants
    *          : The desired permission level 0=Admin 4=Guest (Recommend Guest)
    */
   public static final String ADD_USER =
-    "INSERT INTO users (userName, salt, password, permissionId) VALUES (?,?,?,?); ";
+    "INSERT INTO users (userName, institution, contactName, contactEmail, "
+      + "contactPhone, salt, password, permissionId) VALUES (?,?,?,?,?,?,?,?);";
 
   /***
    * Select all users
@@ -102,6 +104,15 @@ public class Constants
   public static final String SELECT_BROKER_BY_BROKERID =
     "SELECT * FROM brokers WHERE brokerId = ? LIMIT 1;";
 
+  /***
+   * Select broker by their brokerAuth
+   *
+   * @param brokerAuth
+   *          : The brokerId of the broker you wish to return
+   */
+  public static final String SELECT_BROKER_BY_BROKERAUTH =
+      "SELECT * FROM brokers WHERE brokers.brokerAuth = ? LIMIT 1;";
+
   /**
    * Delete a broker by their brokerId
    * 
@@ -126,7 +137,7 @@ public class Constants
 
   /***
    * Returns the list of all tournaments in the database of a particular status
-   * (pending, in-progress, complete) possible
+   * ( pending, in-progress, complete) possible
    * 
    * @param status
    *          : either "pending", "in-progress", or "complete"
@@ -172,7 +183,8 @@ public class Constants
    * @param type
    */
   public static final String SELECT_TOURNAMENT_BYTYPE =
-    "SELECT * FROM tournaments WHERE type=?";
+    "SELECT * FROM tournaments WHERE type=? AND NOT status = '"
+        + Tournament.STATE.complete + "';";
 
   /***
    * Select a tournament by name, case insensitive
@@ -190,8 +202,6 @@ public class Constants
    * @param startTime
    *          : The timestamp when the tournament scheduler will issue a request
    *          to start the powertac simulation server
-   * @param openRegistration
-   *          : Whether or not brokers may register for this tournament
    * @param type
    *          : This is either "MULTI_GAME" or "SINGLE_GAME"
    * @param locations
@@ -204,11 +214,9 @@ public class Constants
    */
   public static final String ADD_TOURNAMENT =
     "INSERT INTO tournaments " +
-    "(tourneyName, startTime, openRegistration, maxGames, type, " +
-     "locations, maxBrokers, status, gameSize1, gameSize2, gameSize3, " +
-     "numberGameSize1, numberGameSize2, numberGameSize3, pomId) " +
-    "VALUES (?,?,?,?,?,?,?,'"
-            + Tournament.STATE.pending.toString() + "',?,?,?,?,?,?,?);";
+    "(tourneyName, startTime, dateFrom, dateTo, type, locations, maxBrokers, " +
+    "status, gameSize1, gameSize2, gameSize3, pomId) VALUES " +
+    "(?,?,?,?,?,?,?,'" + Tournament.STATE.pending.toString() + "',?,?,?,?);";
 
   /***
    * Remove a tournament by its Id
@@ -313,16 +321,17 @@ public class Constants
   public static final String ADD_GAME =
     "INSERT INTO games (gameName, tourneyId, maxBrokers, startTime, readyTime, "
         + "status, jmsUrl, visualizerUrl, visualizerQueue, serverQueue, "
-        + "hasBootstrap, brokers) "
+        + "hasBootstrap) "
         + "VALUES(?,?,?,?,NULL,'" + Game.STATE.boot_pending.toString()
-        + "','','','','',false,'');";
+        + "','','','','',false);";
 
   /***
-   * Returns a list of the runnable games as of now.
+   * Returns a list of the runnable MULTI_GAME games as of now.
    */
-  public static final String GET_RUNNABLE_GAMES_EXC =
+  public static final String GET_RUNNABLE_MULTI_GAMES =
     "SELECT * FROM games WHERE startTime<=UTC_TIMESTAMP() "
-        + "AND status='" + Game.STATE.boot_complete.toString() + "' AND tourneyId!=?;";
+        + "AND status='" + Game.STATE.boot_complete.toString() + "' "
+        + "AND tourneyId=?;";
   
   /***
    * Returns a list of the runnable SINGLE_GAME games as of now.
@@ -357,7 +366,8 @@ public class Constants
    *          : The name of the broker
    */
   public static final String ADD_BROKER_TO_GAME =
-    "INSERT INTO ingame (gameId,brokerId,brokerQueue,brokerInGame) VALUES (?,?,?,?)";
+    "INSERT INTO agents (gameId, brokerId, brokerQueue, status) "
+        + "VALUES (?,?,?,'"+ Agent.STATE.pending.toString() +"')";
 
   /***
    * Get brokers in a game by gameid
@@ -366,8 +376,25 @@ public class Constants
    */
   public static final String GET_BROKERS_IN_GAME =
     "SELECT * FROM brokers "
-        + "JOIN ingame ON brokers.brokerId = ingame.brokerId "
+        + "JOIN agents ON brokers.brokerId = agents.brokerId "
         + " WHERE gameId=?";
+
+  /***
+   * Get status of a broker in a game
+   *
+   * @param gameId
+   */
+  public static final String GET_BROKER_STATUS_IN_GAME =
+      "SELECT * FROM agents WHERE gameId=? AND brokerId=?";
+
+  /***
+   * Get total list of rinning broker instances
+   *
+   * @param brokerId
+   */
+  public static final String GET_RUNNING_AGENTS =
+      "SELECT * FROM agents WHERE brokerId=? "
+          + "AND status='"+ Agent.STATE.in_progress.toString() +"'";
 
   /***
    * Get brokers in a completed game by gameid
@@ -376,13 +403,14 @@ public class Constants
    */
   public static final String GET_BROKERS_IN_GAME_COMPLETE =
       "SELECT * FROM brokers "
-      + "JOIN registration ON registration.brokerId = brokers.brokerId "
-      + "JOIN tournaments ON tournaments.tourneyId = registration.tourneyId "
-      + "JOIN games on games.tourneyId = tournaments.tourneyId "
-      + "WHERE games.gameId=?;";
+          + "JOIN agents ON agents.brokerId = brokers.brokerId "
+          + "JOIN games ON games.gameId = agents.gameId "
+          + "WHERE games.gameId=? "
+          + "AND agents.status='"+ Agent.STATE.complete.toString() +"' "
+          + "ORDER BY brokers.brokerName;";
 
   public static final String UDATE_BROKER_INGAME =
-      "UPDATE ingame SET brokerInGame = ? WHERE gameId=? and brokerId=?";
+      "UPDATE agents SET status = ? WHERE gameId=? and brokerId=?;";
 
   /***
    * Get brokers in a tournament
@@ -399,7 +427,7 @@ public class Constants
    * @param brokerId
    */
   public static final String GET_BROKER_QUEUE =
-      "SELECT * FROM ingame WHERE gameId=? AND brokerId=?;";
+      "SELECT * FROM agents WHERE gameId=? AND brokerId=?;";
 
   /***
    * Select game by id
@@ -479,8 +507,18 @@ public class Constants
    * @param gameId
    *          : the id of the game
    */
-  public static final String UPDATE_GAME_FREE_BROKERS =
-    "DELETE FROM ingame WHERE gameId=?;";
+  public static final String UPDATE_AGENT_STATUS =
+    "UPDATE agents SET status = ? WHERE gameId=?;";
+
+  /***
+   * Update the game to free the brokers
+   *
+   * @param gameId
+   *          : the id of the game
+   */
+  public static final String DELETE_AGENTS_BY_GAMEID =
+      "DELETE FROM agents WHERE gameId=?;";
+
 
   /***
    * Update the visualizerUrl for a game that is running

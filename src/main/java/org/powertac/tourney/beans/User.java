@@ -87,22 +87,6 @@ public class User
     }
   }
 
-  public Broker getBroker (int brokerId)
-  {
-    Database db = new Database();
-    try {
-      db.startTrans();
-      Broker b = db.getBroker(brokerId);
-      db.commitTrans();
-      return b;
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-      return null;
-    }
-  }
-
   public List<Broker> getBrokers ()
   {
     if (!isEditing && loggedIn) {

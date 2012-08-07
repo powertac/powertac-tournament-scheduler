@@ -7,11 +7,14 @@ DROP TABLE IF EXISTS `tourney`.`users`;
 CREATE TABLE `tourney`.`users` (
 	`userId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`userName` VARCHAR(45) UNIQUE NOT NULL,
+	`institution` VARCHAR(256) NULL,
+	`contactName` VARCHAR(256) NULL,
+	`contactEmail` VARCHAR(256) NULL,
+	`contactPhone` VARCHAR(256) NULL,
 	`salt` VARCHAR(45) NOT NULL,
 	`password` VARCHAR(45) NOT NULL, 
 	`permissionId` BIGINT(20) UNSIGNED NOT NULL,
-	PRIMARY KEY (`userId`),
-	UNIQUE KEY (`userName`)
+	PRIMARY KEY (`userId`)
 ) ENGINE=InnoDB;
 
 
@@ -44,19 +47,16 @@ CREATE TABLE `tourney`.`poms` (
 DROP TABLE IF EXISTS `tourney`.`tournaments`;
 CREATE TABLE `tourney`.`tournaments` (
 	`tourneyId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`tourneyName` VARCHAR(256) UNIQUE NOT NULL,	
-	`openRegistration` BOOLEAN NOT NULL,
-	`maxGames` int NOT NULL,
+	`tourneyName` VARCHAR(256) UNIQUE NOT NULL,
 	`startTime` DATETIME NOT NULL,
-	`maxBrokers` integer UNSIGNED NOT NULL,
+    `dateFrom` DATETIME NOT NULL,
+    `dateTo` DATETIME NOT NULL,
+	`maxBrokers` integer NOT NULL,
+	`maxAgents` integer NOT NULL DEFAULT 2,
 	`status` VARCHAR(32) NOT NULL,
 	`gameSize1` integer NOT NULL,
-	`numberGameSize1` integer NOT NULL,
 	`gameSize2` integer NOT NULL,
-	`numberGameSize2` integer NOT NULL,
 	`gameSize3` integer NOT NULL,
-	`numberGameSize3` integer NOT NULL,
-	`maxBrokerInstances` integer NOT NULL DEFAULT 2,
 	`type` VARCHAR(32) NOT NULL, /* Type is either multi-game or single game if single game ignore the gameSize params */
 	`pomId` INT(10) UNSIGNED NOT NULL, /* This will be a foreign key to poms.pomId */
 	`locations` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
@@ -64,22 +64,13 @@ CREATE TABLE `tourney`.`tournaments` (
 	CONSTRAINT tourney_refs FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`)
 ) ENGINE=InnoDB;
 
+
 DROP TABLE IF EXISTS `tourney`.`registration`;
 CREATE TABLE `tourney`.`registration` (
 	`tourneyId` BIGINT(20) UNSIGNED NOT NULL,
 	`brokerId` BIGINT(20) UNSIGNED NOT NULL,
 	CONSTRAINT tourneyId_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),
 	CONSTRAINT brokerId_refs FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` ( `brokerId` )
-) ENGINE=InnoDB;
-
-
-
-DROP TABLE IF EXISTS `tourney`.`logs`;
-CREATE TABLE `tourney`.`logs` (
-	`logId` integer UNSIGNED NOT NULL AUTO_INCREMENT,
-	`status` VARCHAR(20) NOT NULL,
-	`logUrl` VARCHAR(256) NOT NULL, /* when status is packaged, this points to the permanent url of logs */
-	PRIMARY KEY (`logId`)
 ) ENGINE=InnoDB;
 
 
@@ -92,18 +83,6 @@ CREATE TABLE `tourney`.`machines` (
 	`status` VARCHAR(20) NOT NULL, /* Indicates wether a game is running on this machine or not, either "running" or "idle" */
 	`available` BOOLEAN NOT NULL,
 	PRIMARY KEY (`machineId`)
-) ENGINE=InnoDB;
-
-
-/* Visualizers run on separate machines, identified by hostUrl. These machines are */
-/* not in the machines table, and are not jenkins slave machines. */
-DROP TABLE IF EXISTS `tourney`.`visualizers`;
-CREATE TABLE `tourney`.`visualizers` (
-	`vizId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`hostUrl` VARCHAR(256) NOT NULL, /* Base URL of host servlet container */
-	`machineId` BIGINT(20) UNSIGNED, /* ID of sim machine for this viz */
-	PRIMARY KEY (`vizId`),
-	CONSTRAINT machineId_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` )
 ) ENGINE=InnoDB;
 
 
@@ -130,7 +109,6 @@ CREATE TABLE `tourney`.`games` (
 	`status` VARCHAR(20) NOT NULL,
 	`maxBrokers` integer NOT NULL,
 	`hasBootstrap` BOOLEAN NOT NULL,
-	`brokers` VARCHAR(256) NOT NULL,
 	`startTime` DATETIME NOT NULL,
 	`readyTime` DATETIME NULL,
 	`jmsUrl` VARCHAR(256) NOT NULL,
@@ -140,15 +118,6 @@ CREATE TABLE `tourney`.`games` (
 	PRIMARY KEY (`gameId`),
 	CONSTRAINT tourneyId2_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),
 	CONSTRAINT machineId2_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` )
-) ENGINE=InnoDB;
-
-
-/* Create permissions list */
-DROP TABLE IF EXISTS `tourney`.`permissions`;
-CREATE TABLE `tourney`.`permissions` (
-	`permissionId` integer UNSIGNED NOT NULL AUTO_INCREMENT,
-	`permissionName` VARCHAR(20) NOT NULL,
-	PRIMARY KEY (`permissionId`)
 ) ENGINE=InnoDB;
 
 
@@ -167,63 +136,15 @@ INSERT INTO `tourney`.`locations`
  (1, 'minneapolis', -6, '2009-01-01 00:00:00', '2009-06-01 00:00:00');
 
 
-DROP TABLE IF EXISTS `tourney`.`ingame`;
-CREATE TABLE `tourney`.`ingame` (
-	`ingameId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `tourney`.`agents`;
+CREATE TABLE `tourney`.`agents` (
+	`agentId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`gameId` BIGINT(20) UNSIGNED NOT NULL,
 	`brokerId` BIGINT(20) UNSIGNED NOT NULL,
 	`brokerQueue` VARCHAR(64),
-	`brokerInGame` BOOLEAN NOT NULL,
+    `status` VARCHAR(32) NOT NULL,
 	CONSTRAINT brokerId_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`),
 	CONSTRAINT gameId_refs2 FOREIGN KEY (`gameId`) REFERENCES `tourney`.`games` ( `gameId` ),
-	PRIMARY KEY (`ingameId`)
+	PRIMARY KEY (`agentId`)
 ) ENGINE=InnoDB;
-
-
-/*** SCHEDULING TABLES ****/
-DROP TABLE IF EXISTS `tourney`.`AgentAdmin`;
-CREATE TABLE `tourney`.`AgentAdmin` (
-  `InternalAgentID` int(18) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Internal Game ID',
-  `AgentType` int(18) unsigned NOT NULL,
-  `AgentCopy` int(5) unsigned NOT NULL,
-  `AgentName` varchar(250) DEFAULT NULL,
-  `AgentDescription` text,
-  PRIMARY KEY (`InternalAgentID`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
-
-DROP TABLE IF EXISTS `tourney`.`AgentQueue`;
-CREATE TABLE `tourney`.`AgentQueue` (
-  `InternalAgentID` int(18) unsigned NOT NULL,
-  `AgentType` int(10) DEFAULT NULL,
-  `Prev_Age` int(18) unsigned NOT NULL,
-  `Age` int(18) unsigned NOT NULL DEFAULT '0',
-  `IsPlaying` tinyint(1) DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-DROP TABLE IF EXISTS `tourney`.`GameArchive`;
-CREATE TABLE `tourney`.`GameArchive` (
-  `InternalGameID` int(18) unsigned NOT NULL AUTO_INCREMENT,
-  `GameType` int(5) unsigned NOT NULL,
-  `TimePlayed` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `TimeCompleted` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `ServerNumber` int(11) unsigned NOT NULL,
-  `IsPlaying` tinyint(1) unsigned NOT NULL,
-  PRIMARY KEY (`InternalGameID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
-
-DROP TABLE IF EXISTS `tourney`.`GameLog`;
-CREATE TABLE `tourney`.`GameLog` (
-  `InternalAgentID` int(18) unsigned NOT NULL,
-  `InternalGameID` int(18) unsigned NOT NULL,
-  PRIMARY KEY (`InternalAgentID`,`InternalGameID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-DROP TABLE IF EXISTS `tourney`.`GameServers`;
-CREATE TABLE `tourney`.`GameServers` (
-  `ServerID` int(11) NOT NULL,
-  `ServerName` varchar(175) NOT NULL,
-  `ServerNumber` int(18) unsigned NOT NULL AUTO_INCREMENT,
-  `IsPlaying` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ServerNumber`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 

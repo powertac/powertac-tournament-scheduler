@@ -1,6 +1,7 @@
 package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
+import org.powertac.tourney.beans.Agent;
 import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
@@ -19,7 +20,7 @@ public class Rest
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  public String parseBrokerLogin (Map<String, String[]> params)
+  public synchronized String parseBrokerLogin (Map<String, String[]> params)
   {
     String responseType = params.get(Constants.Rest.REQ_PARAM_TYPE)[0];
     String brokerAuthToken = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
@@ -38,60 +39,70 @@ public class Rest
       doneResponse = head + "<done></done>" + tail;
     }
 
-    if (tournamentName == null) {
-      log.info("Tournament name is empty, sending done response");
+    Database db = new Database();
+    try {
+      db.startTrans();
+
+      // Check if tournament exists
+      Tournament t = db.getTournamentByName(tournamentName);
+      if (t == null ) {
+        log.info("Tournament doesn't exists : " + tournamentName);
+        db.commitTrans();
+        return doneResponse;
+      }
+      // Check if broker is registered
+      Broker broker = db.getBroker(brokerAuthToken);
+      if (broker == null) {
+        log.info("Broker doesn't exists : " + brokerAuthToken);
+        db.commitTrans();
+        return doneResponse;
+      }
+      if (!db.isRegistered(t.getTournamentId(), broker.getBrokerId())) {
+        log.info(String.format("Broker %s is not registered for tournament %s",
+            brokerAuthToken, t.getTournamentName()));
+        db.commitTrans();
+        return doneResponse;
+      }
+
+      // TODO Should this be a config item? Move this to sql?
+      long readyDeadline = 2*60*1000;
+      long nowStamp = new Date().getTime();
+
+      // Check if any games are more than X minutes ready (to allow Viz Login)
+      for (Game game: db.getGamesInTourney(tournamentName)) {
+        long readyStamp = game.getReadyTime().getTime();
+        if (nowStamp < (readyStamp + readyDeadline)) {
+          continue;
+        }
+
+        Agent.STATE state = db.getAgentStatus(
+            game.getGameId(), broker.getBrokerId());
+        if (state.equals(Agent.STATE.pending)) {
+          db.updateAgentStatus(game.getGameId(), broker.getBrokerId(),
+              Agent.STATE.in_progress);
+          String queueName = db.getBrokerQueueName(
+              game.getGameId(), broker.getBrokerId());
+          log.info(String.format("Sending login to broker %s : %s, %s, %s",
+              broker.getBrokerName(), game.getJmsUrl(),
+              queueName, game.getServerQueue()));
+          db.commitTrans();
+          return String.format(loginResponse, game.getJmsUrl(),
+              queueName, game.getServerQueue());
+        }
+      }
+    }
+    catch (Exception e) {
+      db.abortTrans();
+      log.error(e.getMessage());
+      log.error("Error, sending done response");
       return doneResponse;
     }
 
-    // TODO Get only GameList for this tournament.
-    List<Game> allGames = Game.getGamesInTourney(tournamentName);
-    if (!allGames.isEmpty()) {
-      Database db = new Database();
-      try {
-        db.startTrans();
-
-        // TODO Should this be a config item?
-        // TODO Move this to sql?
-        long readyDeadline = 2*60*1000;
-        long nowStamp = new Date().getTime();
-
-        // Find games matching the competition name and have brokers registered
-        for (Game g: allGames) {
-          // Only consider games that are more than X minutes ready, to allow Viz Login
-          long readyStamp = g.getReadyTime().getTime();
-          if (nowStamp < (readyStamp + readyDeadline)) {
-            continue;
-          }
-
-          Broker broker = g.getBrokerRegistration(brokerAuthToken);
-          if (broker != null && !broker.getBrokerInGame()) {
-            broker.setBrokerInGame(true);
-            db.updateBrokerInGame(g.getGameId(), broker);
-            String queueName = db.getBrokerQueueName(g.getGameId(),
-                broker.getBrokerId());
-            log.info(String.format("Sending login to broker %s : %s, %s, %s",
-                broker.getBrokerName(), g.getJmsUrl(),
-                queueName, g.getServerQueue()));
-            return String.format(loginResponse, g.getJmsUrl(),
-                queueName, g.getServerQueue());
-          }
-        }
-      }
-      catch (Exception e) {
-        log.error(e.getMessage());
-        log.error("Error, sending done response");
-        return doneResponse;
-      }
-      finally {
-        db.abortTrans();
-      }
-    }
-
-    // TODO Do sql check
+    // TODO Make sql check
     // JEC - this could be REALLY long lists after a while.
     for (Tournament t: Tournament.getTournamentList()) {
       if (tournamentName.equals(t.getTournamentName())) {
-        log.debug(String.format("Broker: %s attempted to log into existing "
+        log.info(String.format("Broker: %s attempted to log into existing "
             + "tournament: %s --sending retry", brokerAuthToken, tournamentName));
         return String.format(retryResponse, 60);
       }
@@ -109,25 +120,25 @@ public class Rest
    * or queueName(qn) to tell the visualizer to connect to its machine and
    * listen on the queue named qn.
    */
-  public String parseVisualizerLogin (HttpServletRequest request,
+  public synchronized String parseVisualizerLogin (HttpServletRequest request,
                                       Map<String, String[]> params)
   {
-    log.info("Visualizer login request");
     String machineName = params.get("machineName")[0];
     String head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>";
     String tail = "</message>";
     String retryResponse = head + "<retry>%d</retry>" + tail;
     String loginResponse = head + "<login><queueName>%s</queueName><serverQueue>%s</serverQueue></login>" + tail;
-    String errorResponse = head + "<error>%s</error>" + tail; 
+    String errorResponse = head + "<error>%s</error>" + tail;
 
     // Validate source of request
     if (!validateVizRequest(request)) {
       return String.format(errorResponse, "invalid login request");
     }
 
-    // If there is a game in game_ready state on the machine for this viz,
-    // then return a login with the correct queue name; otherwise, return
-    // a retry.
+    log.info("Visualizer login request : " + machineName);
+
+    // If there is a game in game_ready state on the machine for this viz,then
+    // return a login with the correct queue name; otherwise, return a retry.
     List<Game> readyGames;
     Database db = new Database();
     try {
@@ -135,8 +146,6 @@ public class Rest
       // Only allow to log in to 'ready' games
       readyGames = db.findGamesByStatusAndMachine(Game.STATE.game_ready,
                                                       machineName);
-      //readyGames.addAll(db.findGamesByStatusAndMachine(Game.STATE.game_pending,
-      //                                                 machineName));
       if (readyGames.isEmpty()) {
         db.commitTrans();
         log.debug("No games available, retry visualizer");
@@ -170,7 +179,7 @@ public class Rest
 
   public String parseServerInterface (Map<String, String[]> params, String clientAddress)
   {
-    if (!Utils.checkClientAllowed(clientAddress)) {
+    if (!Utils.checkSlaveAllowed(clientAddress)) {
       return "error";
     }
 
@@ -351,7 +360,7 @@ public class Rest
    */
   public String handleServerInterfacePUT (Map<String, String[]> params, HttpServletRequest request)
   {
-    if (!Utils.checkClientAllowed(request.getRemoteAddr())) {
+    if (!Utils.checkSlaveAllowed(request.getRemoteAddr())) {
       return "error";
     }
 
