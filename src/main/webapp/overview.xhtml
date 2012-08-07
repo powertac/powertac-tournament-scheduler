@@ -98,7 +98,8 @@
             <f:facet name="header">
               <h:outputText value="Max Bro" />
             </f:facet>
-            <h:outputText value="#{t.maxBrokers}" />
+            <h:outputText value="#{t.maxBrokers}" rendered="#{t.maxBrokers != -1}" />
+            <h:outputText value="n.a." rendered="#{t.maxBrokers == -1}" />
           </t:column>
 
           <t:column sortable="true">

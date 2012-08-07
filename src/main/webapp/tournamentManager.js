@@ -23,15 +23,15 @@ function showGamesCount() {
     var total3 = 0;
     if ((maxBrokers > 0) && (gameType1 > 0)) {
         if (gameType1 > maxBrokers) {
-            elems[2].value = maxBrokers;
+            elems[4].value = maxBrokers;
             gameType1 = maxBrokers;
         }
-        total1 = calculateGames(maxBrokers, gameType1.value);
+        total1 = calculateGames(maxBrokers, gameType1);
         setText("total1", "Games for this type : " + total1);
     }
     if ((maxBrokers > 0) && (gameType2 > 0)) {
         if (gameType2 > maxBrokers) {
-            elems[3].value = maxBrokers;
+            elems[5].value = maxBrokers;
             gameType2 = maxBrokers;
         }
         total2 = calculateGames(maxBrokers, gameType2);
@@ -39,7 +39,7 @@ function showGamesCount() {
     }
     if ((maxBrokers > 0) && (gameType3 > 0)) {
         if (gameType3 > maxBrokers) {
-            elems[4].value = maxBrokers;
+            elems[6].value = maxBrokers;
             gameType3 = maxBrokers;
         }
         total3 = calculateGames(maxBrokers, gameType3);

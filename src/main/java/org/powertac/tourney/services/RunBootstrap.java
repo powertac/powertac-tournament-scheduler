@@ -62,6 +62,7 @@ public class RunBootstrap implements Runnable
       }
     }
     catch (Exception e) {
+      log.warn("Error claiming free machines for boot " + gameId);
       e.printStackTrace();
     }
 

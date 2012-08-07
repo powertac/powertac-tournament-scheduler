@@ -222,7 +222,7 @@ public class Game implements Serializable
           db.updateGameFreeMachine(gameId);
           log.info("Freeing Machines for game: " + gameId);
           db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log.info("Setting machine {0} to idle " +g.getMachineId());
+          log.info("Setting machine "+ g.getMachineId() +" to idle");
           Scheduler.bootRunning = false;
           break;
 
@@ -243,7 +243,7 @@ public class Game implements Serializable
           db.updateGameFreeMachine(gameId);
           log.info("Freeing Machines for game: " + gameId);
           db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log.info("Setting machine {0} to idle " + g.getMachineId());
+          log.info("Setting machine "+ g.getMachineId() +" to idle");
 
 					// If all games of tournament are complete, set tournament complete
 					t = db.getTournamentByGameId(g.gameId);
@@ -258,7 +258,7 @@ public class Game implements Serializable
           db.updateGameFreeMachine(gameId);
           log.info("Freeing Machines for game: " + gameId);
           db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log.info("Setting machine {0} to idle " + g.getMachineId());
+          log.info("Setting machine "+ g.getMachineId() +" to idle");
           break;
       }
 

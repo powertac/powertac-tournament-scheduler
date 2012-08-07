@@ -54,7 +54,7 @@ public class RunGame implements Runnable
       e.printStackTrace();
     }
     catch (SQLException e) {
-      log.info("Bootstrap Database error while scheduling sim!!");
+      log.warn("Bootstrap DB error while scheduling game " + gameId);
       e.printStackTrace();
     }
 
@@ -98,7 +98,7 @@ public class RunGame implements Runnable
       }
     }
     catch (SQLException e) {
-      log.info("Broker Database error while scheduling sim!!");
+      log.warn("Broker DB error while scheduling game " + gameId);
       e.printStackTrace();
       return false;
     }
@@ -139,7 +139,7 @@ public class RunGame implements Runnable
     catch (Exception e) {
       db.abortTrans();
       e.printStackTrace();
-      log.error("Error claiming free machines");
+      log.warn("Error claiming free machines for game " + gameId);
       return false;
     }
   }

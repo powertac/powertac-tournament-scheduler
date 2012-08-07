@@ -41,13 +41,9 @@ public class ActionTournament
   private List<String> locations;
   private Tournament.TYPE type = Tournament.TYPE.SINGLE_GAME;
 
-  // TODO Remove numberSizes (from the db as well)
   private int size1 = 2;
-  private int numberSize1 = 2;
   private int size2 = 4;
-  private int numberSize2 = 4;
   private int size3 = 8;
-  private int numberSize3 = 4;
 
   public ActionTournament ()
   {
@@ -87,6 +83,14 @@ public class ActionTournament
     else if (type == Tournament.TYPE.MULTI_GAME) {
       createMultiGameTournament(allLocations);
     }
+
+    tournamentName = "";
+    maxBrokers = 0;
+    maxAgents = 2;
+    type = Tournament.TYPE.SINGLE_GAME;
+    size1 = 2;
+    size2 = 4;
+    size3 = 8;
   }
 
   private void createSingleGameTournament(String allLocations)
@@ -106,7 +110,7 @@ public class ActionTournament
       log.info("Created tournament " + tourneyId);
 
       // Add a new game to the database
-      int gameId = db.addGame(tournamentName, tourneyId, size1, startTime);
+      int gameId = db.addGame(tournamentName, tourneyId, maxBrokers, startTime);
       log.info("Created game " + gameId);
 
       // Create game properties
@@ -132,16 +136,12 @@ public class ActionTournament
   {
     log.info("Multigame tournament selected");
 
-    int[] gtypes = {size1, size2, size3};
-
-    // TODO Add input validation
-
     Database db = new Database();
     try {
       db.startTrans();
       int tourneyId = db.addTournament(tournamentName, startTime, fromTime,
           toTime, Tournament.TYPE.MULTI_GAME, selectedPom,
-          allLocations, maxBrokers, gtypes);
+          allLocations, maxBrokers, new int[] {size1, size2, size3});
       db.commitTrans();
       log.info("Created tournament " + tourneyId);
     }
@@ -246,15 +246,6 @@ public class ActionTournament
     this.size1 = size1;
   }
 
-  public int getNumberSize1 ()
-  {
-    return numberSize1;
-  }
-  public void setNumberSize1 (int numberSize1)
-  {
-    this.numberSize1 = numberSize1;
-  }
-
   public int getSize2 ()
   {
     return size2;
@@ -264,15 +255,6 @@ public class ActionTournament
     this.size2 = size2;
   }
 
-  public int getNumberSize2 ()
-  {
-    return numberSize2;
-  }
-  public void setNumberSize2 (int numberSize2)
-  {
-    this.numberSize2 = numberSize2;
-  }
-
   public int getSize3 ()
   {
     return size3;
@@ -280,15 +262,6 @@ public class ActionTournament
   public void setSize3 (int size3)
   {
     this.size3 = size3;
-  }
-
-  public int getNumberSize3 ()
-  {
-    return numberSize3;
-  }
-  public void setNumberSize3 (int numberSize3)
-  {
-    this.numberSize3 = numberSize3;
   }
 
   public int getMaxAgents()
