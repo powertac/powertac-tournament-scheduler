@@ -395,7 +395,7 @@ public class Constants
   public static final String GET_RUNNING_AGENTS =
       "SELECT * FROM agents "
           + "JOIN brokers ON brokers.brokerId=agents.brokerId "
-          + "WHERE agents.brokerId=1 "
+          + "WHERE agents.brokerId=? "
           + "AND agents.status='"+ Agent.STATE.in_progress.toString() +"'";
 
   /***

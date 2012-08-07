@@ -198,6 +198,16 @@
 
           <t:column>
             <f:facet name="header">
+              <h:outputText value="Jenkins" />
+            </f:facet>
+            <h:outputText value="Not avail." rendered="#{g.machineId == 0}"/>
+            <h:panelGroup rendered="#{g.machineId != 0}" >
+              <a href="#{g.jenkinsMachineUrl()}" target="_blank">Jenkins</a>
+            </h:panelGroup>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">
               <h:outputText value="Actions" />
             </f:facet>
             <h:panelGroup>

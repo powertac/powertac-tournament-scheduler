@@ -41,6 +41,8 @@ public class Game implements Serializable
   private String visualizerUrl = "";
   private String visualizerQueue = "";
 
+  private TournamentProperties properties = new TournamentProperties();
+
   /*
   - Boot
     Game are initially set to boot_pending.
@@ -315,6 +317,27 @@ public class Game implements Serializable
   public boolean stateEquals(STATE state)
   {
     return this.status.equals(state.toString());
+  }
+
+  public String jenkinsMachineUrl ()
+  {
+    Database db = new Database();
+    try {
+      db.startTrans();
+      Machine m = db.getMachineById(machineId);
+      if (m != null) {
+        return String.format("%scomputer/%s/",
+            properties.getProperty("jenkinsLocation"),
+            m.getName());
+      }
+    }
+    catch (SQLException sqle){
+      sqle.printStackTrace();
+    }
+    finally {
+      db.abortTrans();
+    }
+    return "";
   }
 
   public static List<Game> getGameList ()
