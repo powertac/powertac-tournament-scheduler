@@ -90,10 +90,11 @@ public class Rest
               queueName, game.getServerQueue());
         }
       }
+      db.commitTrans();
     }
     catch (Exception e) {
       db.abortTrans();
-      log.error(e.getMessage());
+      e.printStackTrace();
       log.error("Error, sending done response");
       return doneResponse;
     }

@@ -17,7 +17,7 @@ public class RestoreViewPhaseListener implements PhaseListener {
 
   // Intercepts REST calls (get requests) and passes them to the Rest service
   // for parsing and returns the proper response
-  public void beforePhase (PhaseEvent pe) {
+  public synchronized void beforePhase (PhaseEvent pe) {
     HttpServletRequest request = (HttpServletRequest) pe.getFacesContext().
         getExternalContext().getRequest();
     Map<String, String[]> params = getParams(request);
