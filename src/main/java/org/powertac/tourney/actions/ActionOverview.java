@@ -163,7 +163,7 @@ public class ActionOverview
       // Reset game and machine on TM
       if (g.getStatus().equals(Game.STATE.boot_in_progress.toString())) {
         log.info("Resetting boot game: " + g.getGameId()
-            + " on machine: " + machineName);
+            + " on machine: " + g.getMachineId());
         db.updateGameBootstrapById(g.getGameId(), false);
         g.removeBootFile();
         db.updateGameStatusById(g.getGameId(), Game.STATE.boot_pending);
@@ -174,7 +174,7 @@ public class ActionOverview
           (g.getStatus().equals(Game.STATE.game_ready.toString())) ||
           (g.getStatus().equals(Game.STATE.game_in_progress.toString())) ) {
         log.info("Resetting sim game: " + g.getGameId()
-            + " on machine: " + machineName);
+            + " on machine: " + g.getMachineId());
 
         db.updateGameStatusById(g.getGameId(), Game.STATE.boot_complete);
         db.clearGameReadyTime(g.getGameId());

@@ -58,8 +58,12 @@ public class RunBootstrap implements Runnable
 
         log.info(String.format("Running boot %s on machine %s",
             gameId, machineName));
+
         return true;
       }
+
+      log.info(String.format("No machines available to run scheduled boot: %s"
+          + "... will retry in %s seconds", gameId, watchDogInterval));
     }
     catch (Exception e) {
       log.warn("Error claiming free machines for boot " + gameId);
@@ -73,8 +77,6 @@ public class RunBootstrap implements Runnable
   public void run ()
   {
     if (!checkMachineAvailable()) {
-      log.info(String.format("No machines available to run scheduled boot: %s"
-          + "... will retry in %s seconds", gameId, watchDogInterval));
       return;
     }
 

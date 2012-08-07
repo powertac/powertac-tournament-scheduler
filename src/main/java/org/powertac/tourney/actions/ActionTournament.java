@@ -77,23 +77,26 @@ public class ActionTournament
       allLocations += s + ",";
     }
 
+    boolean created = false;
     if (type == Tournament.TYPE.SINGLE_GAME) {
-      createSingleGameTournament(allLocations);
+      created = createSingleGameTournament(allLocations);
     }
     else if (type == Tournament.TYPE.MULTI_GAME) {
-      createMultiGameTournament(allLocations);
+      created = createMultiGameTournament(allLocations);
     }
 
-    tournamentName = "";
-    maxBrokers = 0;
-    maxAgents = 2;
-    type = Tournament.TYPE.SINGLE_GAME;
-    size1 = 2;
-    size2 = 4;
-    size3 = 8;
+    if (created) {
+      tournamentName = "";
+      maxBrokers = 0;
+      maxAgents = 2;
+      type = Tournament.TYPE.SINGLE_GAME;
+      size1 = 2;
+      size2 = 4;
+      size3 = 8;
+    }
   }
 
-  private void createSingleGameTournament(String allLocations)
+  private boolean createSingleGameTournament(String allLocations)
   {
     log.info("Singlegame tournament selected");
 
@@ -118,6 +121,7 @@ public class ActionTournament
       log.info("Created game: " + gameId + "properties");
 
       db.commitTrans();
+      return true;
     }
     catch (MySQLIntegrityConstraintViolationException me) {
       db.abortTrans();
@@ -130,9 +134,10 @@ public class ActionTournament
       e.printStackTrace();
       log.error("Scheduling exception (single game tournament) !");
     }
+    return false;
   }
 
-  private void createMultiGameTournament(String allLocations)
+  private boolean createMultiGameTournament(String allLocations)
   {
     log.info("Multigame tournament selected");
 
@@ -144,6 +149,7 @@ public class ActionTournament
           allLocations, maxBrokers, new int[] {size1, size2, size3});
       db.commitTrans();
       log.info("Created tournament " + tourneyId);
+      return true;
     }
     catch (MySQLIntegrityConstraintViolationException me) {
       db.abortTrans();
@@ -156,6 +162,7 @@ public class ActionTournament
       log.error("Scheduling exception (multi game tournament) !");
       e.printStackTrace();
     }
+    return false;
   }
 
   public List<Pom> getPomList ()

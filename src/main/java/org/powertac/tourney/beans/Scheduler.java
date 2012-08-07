@@ -103,7 +103,6 @@ public class Scheduler implements InitializingBean
           checkMachines();
           checkTournament();
           checkForBoots();
-          // TODO Check if there are machines available before checking all games
           checkForSims();
         }
         catch (Exception e) {
@@ -385,19 +384,19 @@ public class Scheduler implements InitializingBean
       db.startTrans();
 
       if (db.checkFreeMachine() == null) {
-        log.info("WatchDog No free machines, useless to look for Runnable Games");
+        log.info("WatchDog No free machines, not looking for Runnable Games");
         db.commitTrans();
         return;
       }
 
       List<Game> games;
       if (runningTournament == null) {
-				log.info("WatchDog CheckForSims for SINGLE_GAME tournament games");
 				games = db.getRunnableSingleGames();
+        log.info("WatchDog CheckForSims for SINGLE_GAME tournament games");
       }
       else {
-				log.info("WatchDog CheckForSims for MULTI_GAME tournament games");
         games = db.getRunnableMultiGames(runningTournament.getTournamentId());
+        log.info("WatchDog CheckForSims for MULTI_GAME tournament games");
       }
       log.info(String.format("WatchDogTimer reports %s game(s) are ready to "
           + "start", games.size()));
