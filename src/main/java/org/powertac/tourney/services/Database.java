@@ -886,22 +886,22 @@ public class Database
     return brokers;
   }
 
-  public List<Broker> getBrokersRunning (int brokerId) throws SQLException
+  public List<Agent> getRunningAgents(int brokerId) throws SQLException
   {
     PreparedStatement ps =
         conn.prepareStatement(Constants.GET_RUNNING_AGENTS);
     ps.setInt(1, brokerId);
 
-    List<Broker> brokers = new ArrayList<Broker>();
+    List<Agent> agents = new ArrayList<Agent>();
     ResultSet rs = ps.executeQuery();
     while (rs.next()) {
-      brokers.add(new Broker(rs));
+      agents.add(new Agent(rs));
     }
 
     rs.close();
     ps.close();
 
-    return brokers;
+    return agents;
   }
 
   public void updateAgentStatus(int gameId, int brokerId, Agent.STATE state)

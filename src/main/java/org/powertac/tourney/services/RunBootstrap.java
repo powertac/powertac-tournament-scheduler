@@ -96,7 +96,7 @@ public class RunBootstrap implements Runnable
     String finalUrl =
         properties.getProperty("jenkinsLocation")
         + "job/start-server-instance/buildWithParameters?"
-        + "token=start-instance"
+        //+ "token=start-instance"
         + "&tourneyUrl=" + properties.getProperty("tourneyUrl")
         + "&suffix=" + logSuffix
         + "&pomId=" + pomId

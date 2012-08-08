@@ -8,10 +8,10 @@
 
 function showGamesCount() {
     var elems = saveTournament.elements;
-    var maxBrokers = elems[2].value;
-    var gameType1 = elems[4].value;
-    var gameType2 = elems[5].value;
-    var gameType3 = elems[6].value;
+    var maxBrokers = parseInt(elems[2].value);
+    var gameType1 = parseInt(elems[4].value);
+    var gameType2 = parseInt(elems[5].value);
+    var gameType3 = parseInt(elems[6].value);
 
     setText("totalGames", "");
     setText("total1", "");
@@ -68,4 +68,27 @@ function calculateGames(players, gametype) {
         return players;
     }
     return calculateGames(players-1, gametype) + calculateGames(players-1, gametype-1);
+}
+
+function typeSelected() {
+    var elems = saveTournament.elements;
+    var type = elems[1].value;
+    var table = document.getElementById("saveTournament:tournamentTable");
+
+    if (type == 'MULTI_GAME') {
+        table.rows[3].style.display = "";
+        table.rows[4].style.display = "";
+        table.rows[5].style.display = "";
+        table.rows[6].style.display = "";
+    } else if (type == 'SINGLE_GAME') {
+        table.rows[3].style.display = "none";
+        table.rows[4].style.display = "none";
+        table.rows[5].style.display = "none";
+        table.rows[6].style.display = "none";
+    }
+}
+
+window.onload = function ()
+{
+    typeSelected();
 }

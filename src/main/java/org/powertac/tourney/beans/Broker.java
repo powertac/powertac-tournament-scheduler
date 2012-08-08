@@ -71,7 +71,7 @@ public class Broker
   /**
    * Checks if not more than maxBrokers are running (only multi_game tourneys)
    */
-  public boolean isAvailable (Database db) throws SQLException
+  public boolean agentsAvailable(Database db) throws SQLException
   {
     Scheduler scheduler =
         (Scheduler) SpringApplicationContext.getBean("scheduler");
@@ -85,8 +85,8 @@ public class Broker
     }
 
     // Check if we have less than the max allowed # of instances running
-    List<Broker> brokers = db.getBrokersRunning(getBrokerId());
-    return brokers.size() < runningTournament.getMaxAgents();
+    List<Agent> agents = db.getRunningAgents(getBrokerId());
+    return agents.size() < runningTournament.getMaxAgents();
   }
 
   public List<Tournament> getAvailableTournaments ()

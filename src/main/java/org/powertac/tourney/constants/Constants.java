@@ -394,9 +394,10 @@ public class Constants
    */
   public static final String GET_RUNNING_AGENTS =
       "SELECT * FROM agents "
-          + "JOIN brokers ON brokers.brokerId=agents.brokerId "
-          + "WHERE agents.brokerId=? "
-          + "AND agents.status='"+ Agent.STATE.in_progress.toString() +"'";
+          + "JOIN games ON games.gameId=agents.gameId "
+          + "WHERE agents.brokerId = ? "
+          + "AND games.machineId IS NOT NULL "
+          + "AND hasBootstrap = 1;";
 
   /***
    * Get brokers in a completed game by gameid

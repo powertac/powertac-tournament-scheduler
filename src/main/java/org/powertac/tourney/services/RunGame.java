@@ -79,7 +79,7 @@ public class RunGame implements Runnable
       }
       else {
         for (Broker b: brokerList) {
-          if (!b.isAvailable(db)) {
+          if (!b.agentsAvailable(db)) {
             log.info(String.format("Not starting sim : broker %s doesn't have "
                 + "enough available agents", b.getBrokerId()));
             return false;
@@ -175,7 +175,7 @@ public class RunGame implements Runnable
     String finalUrl =
         properties.getProperty("jenkinsLocation")
         + "job/start-server-instance/buildWithParameters?"
-        + "token=start-instance"
+        //+ "token=start-instance"
         + "&tourneyUrl=" + properties.getProperty("tourneyUrl")
         + "&suffix=" + logSuffix
         + "&pomId=" + pomId

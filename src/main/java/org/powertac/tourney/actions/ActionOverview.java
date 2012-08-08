@@ -143,8 +143,6 @@ public class ActionOverview
     try {
       db.startTrans();
 
-      // TODO This doesn't actually kill the bash script
-      // We need a separate Jenkins job for that
       // Get the machineName and stop the job on Jenkins
       TournamentProperties properties = TournamentProperties.getProperties();
       String machineName = db.getMachineById(g.getMachineId()).getName();
@@ -159,6 +157,20 @@ public class ActionOverview
       }
       catch (Exception ignored) {}
       log.info("Stopped job on Jenkins");
+
+      // Actually kill the job on the slave, it doesn't always get done
+      String killUrl = properties.getProperty("jenkinsLocation")
+          + "job/kill-server-instance/buildWithParameters?"
+          + "machine=" + machineName;
+      log.info("Kill url: " + killUrl);
+
+      try {
+        URL url = new URL(killUrl);
+        URLConnection conn = url.openConnection();
+        conn.getInputStream();
+      }
+      catch (Exception ignored) {}
+      log.info("Killed job on slave " + machineName);
 
       // Reset game and machine on TM
       if (g.getStatus().equals(Game.STATE.boot_in_progress.toString())) {
@@ -175,16 +187,13 @@ public class ActionOverview
           (g.getStatus().equals(Game.STATE.game_in_progress.toString())) ) {
         log.info("Resetting sim game: " + g.getGameId()
             + " on machine: " + g.getMachineId());
-
         db.updateGameStatusById(g.getGameId(), Game.STATE.boot_complete);
         db.clearGameReadyTime(g.getGameId());
         db.updateGameViz(g.getGameId(), "");
       }
 
-      // TODO       //private long maxMsgInterval = 120000l; // 2 min
-      // It takes the visualizer a while to recover
       db.updateGameFreeMachine(g.getGameId());
-      db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
+      delayMachineUpdate(g.getMachineId());
 
       db.commitTrans();
     }
@@ -197,6 +206,45 @@ public class ActionOverview
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
     }
+  }
+
+  public void delayMachineUpdate (int machineId)
+  {
+    // We're delaying setting the machine to idle, because after a job kill,
+    // the viz doesn't get an end-of-sim message. It takes a viz 2 mins to
+    // recover from this. To be on the safe side, we delay for 5 mins.
+    class updateThread implements Runnable {
+      private int machineId;
+
+      public updateThread(int machineId) {
+        this.machineId = machineId;
+      }
+
+      public void run() {
+        System.out.println("Sleeping");
+        try {
+          Thread.sleep(300000l);
+        }
+        catch(Exception ignored){}
+
+        System.out.println("Done sleeping");
+        Database db = new Database();
+        try {
+          db.startTrans();
+          db.setMachineStatus(machineId, Machine.STATE.idle);
+          db.commitTrans();
+          log.info("Settig machine " + machineId + " to idle");
+        }
+        catch (SQLException e) {
+          db.abortTrans();
+          e.printStackTrace();
+          log.error("Error updating machine status after job kill");
+        }
+      }
+    }
+    System.out.println("Starting the delay thread");
+    Runnable r = new updateThread(machineId);
+    new Thread(r).start();
   }
 
   public void refresh ()

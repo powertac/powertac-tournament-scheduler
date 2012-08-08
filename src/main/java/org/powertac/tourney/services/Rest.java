@@ -77,7 +77,7 @@ public class Rest
 
         Agent.STATE state = db.getAgentStatus(
             game.getGameId(), broker.getBrokerId());
-        if (state.equals(Agent.STATE.pending)) {
+        if (state != null && state.equals(Agent.STATE.pending)) {
           db.updateAgentStatus(game.getGameId(), broker.getBrokerId(),
               Agent.STATE.in_progress);
           String queueName = db.getBrokerQueueName(
