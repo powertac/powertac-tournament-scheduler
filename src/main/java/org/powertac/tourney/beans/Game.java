@@ -327,7 +327,7 @@ public class Game implements Serializable
       Machine m = db.getMachineById(machineId);
       if (m != null) {
         return String.format("%scomputer/%s/",
-            properties.getProperty("jenkinsLocation"),
+            properties.getProperty("jenkins.location"),
             m.getName());
       }
     }

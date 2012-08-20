@@ -70,8 +70,11 @@ public class Rest
 
       // Check if any games are more than X minutes ready (to allow Viz Login)
       for (Game game: db.getGamesInTourney(tournamentName)) {
+        log.debug("Game " + game.getGameId() + " is ready");
+
         long readyStamp = game.getReadyTime().getTime();
         if (nowStamp < (readyStamp + readyDeadline)) {
+          log.debug("Broker " + broker.getBrokerId() + " needs to wait for the viz");
           continue;
         }
 
@@ -88,6 +91,10 @@ public class Rest
           db.commitTrans();
           return String.format(loginResponse, game.getJmsUrl(),
               queueName, game.getServerQueue());
+        }
+        else if (state != null && !state.equals(Agent.STATE.pending)) {
+          // This should never happen!
+          log.debug("Broker " + broker.getBrokerId() + " agent isn't pending");
         }
       }
       db.commitTrans();

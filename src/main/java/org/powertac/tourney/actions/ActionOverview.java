@@ -64,11 +64,11 @@ public class ActionOverview
         FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
       }
 
-      if (t.getType().equals(Tournament.TYPE.MULTI_GAME.toString())) {
-        // Reload tourney, just to be sure
-        Scheduler scheduler =
-            (Scheduler) SpringApplicationContext.getBean("scheduler");
-        scheduler.reloadTournament();
+      // Reload a loaded tourney, just to be sure
+      Scheduler scheduler =
+          (Scheduler) SpringApplicationContext.getBean("scheduler");
+      if (!scheduler.isNullTourney()) {
+          scheduler.reloadTournament();
       }
       else  {
         // Set all single games to now, multi will be handled by scheduler
@@ -146,7 +146,7 @@ public class ActionOverview
       // Get the machineName and stop the job on Jenkins
       TournamentProperties properties = TournamentProperties.getProperties();
       String machineName = db.getMachineById(g.getMachineId()).getName();
-      String stopUrl = properties.getProperty("jenkinsLocation")
+      String stopUrl = properties.getProperty("jenkins.location")
           + "computer/" + machineName + "/executors/0/stop";
       log.info("Stop url: " + stopUrl);
 
@@ -159,7 +159,7 @@ public class ActionOverview
       log.info("Stopped job on Jenkins");
 
       // Actually kill the job on the slave, it doesn't always get done
-      String killUrl = properties.getProperty("jenkinsLocation")
+      String killUrl = properties.getProperty("jenkins.location")
           + "job/kill-server-instance/buildWithParameters?"
           + "machine=" + machineName;
       log.info("Kill url: " + killUrl);
@@ -221,13 +221,11 @@ public class ActionOverview
       }
 
       public void run() {
-        System.out.println("Sleeping");
         try {
           Thread.sleep(300000l);
         }
         catch(Exception ignored){}
 
-        System.out.println("Done sleeping");
         Database db = new Database();
         try {
           db.startTrans();
@@ -242,7 +240,6 @@ public class ActionOverview
         }
       }
     }
-    System.out.println("Starting the delay thread");
     Runnable r = new updateThread(machineId);
     new Thread(r).start();
   }

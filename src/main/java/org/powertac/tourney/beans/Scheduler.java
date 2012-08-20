@@ -25,7 +25,7 @@ public class Scheduler implements InitializingBean
   public static final String key = "scheduler";
 
   @Autowired
-  private TournamentProperties tournamentProperties;
+  private TournamentProperties properties;
 
   public static boolean bootRunning = false;
 
@@ -113,8 +113,8 @@ public class Scheduler implements InitializingBean
     };
 
     long watchDogInt =
-      Integer.parseInt(tournamentProperties
-              .getProperty("scheduler.watchDogInterval", "120000"));
+      Integer.parseInt(properties
+          .getProperty("scheduler.watchDogInterval", "120000"));
 
     watchDogTimer = new Timer();
     watchDogTimer.schedule(watchDog, new Date(), watchDogInt);
@@ -149,8 +149,7 @@ public class Scheduler implements InitializingBean
     try {
       db.startTrans();
 
-      // TODO Get Jenkins URL from config
-      String url = tournamentProperties.getProperty("jenkinsLocation")
+      String url = properties.getProperty("jenkins.location")
           + "computer/api/xml";
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
       DocumentBuilder docB = dbf.newDocumentBuilder();

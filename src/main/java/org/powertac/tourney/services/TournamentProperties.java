@@ -87,10 +87,10 @@ public class TournamentProperties
   private void checkProperties() {
     properties.put("tourneyUrl", getTourneyUrl());
 
-    String jenkinsLocation = properties.getProperty("jenkinsLocation",
+    String jenkinsLocation = properties.getProperty("jenkins.location",
         "http://localhost:8080/jenkins/");
     if (!jenkinsLocation.endsWith("/")) {
-      properties.put("jenkinsLocation", jenkinsLocation + "/");
+      properties.put("jenkins.location", jenkinsLocation + "/");
     }
 
     String fallBack = System.getProperty("catalina.base", "") + "/";
@@ -138,7 +138,7 @@ public class TournamentProperties
   private void checkJenkinsLocation()
   {
     try {
-      URL url = new URL(properties.getProperty("jenkinsLocation"));
+      URL url = new URL(properties.getProperty("jenkins.location"));
       URLConnection conn = url.openConnection();
       if (conn.getInputStream() == null) {
         throw new Exception("Couldn't open Jenkins Location");

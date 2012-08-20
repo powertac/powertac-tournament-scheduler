@@ -1,5 +1,6 @@
 package org.powertac.tourney.services;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Machine;
@@ -94,10 +95,9 @@ public class RunBootstrap implements Runnable
     }
 
     String finalUrl =
-        properties.getProperty("jenkinsLocation")
+        properties.getProperty("jenkins.location")
         + "job/start-server-instance/buildWithParameters?"
-        //+ "token=start-instance"
-        + "&tourneyUrl=" + properties.getProperty("tourneyUrl")
+        + "tourneyUrl=" + properties.getProperty("tourneyUrl")
         + "&suffix=" + logSuffix
         + "&pomId=" + pomId
         + "&machine=" + machineName
@@ -108,6 +108,16 @@ public class RunBootstrap implements Runnable
     try {
       URL url = new URL(finalUrl);
       URLConnection conn = url.openConnection();
+
+      String user = properties.getProperty("jenkins.username", "");
+      String pass = properties.getProperty("jenkins.password", "");
+      if (!user.isEmpty() && !pass.isEmpty()) {
+        String userpass = String.format("%s:%s", user, pass);
+        String basicAuth = "Basic " +
+            new String(new Base64().encode(userpass.getBytes()));
+        conn.setRequestProperty("Authorization", basicAuth);
+      }
+
       conn.getInputStream();
       log.info("Jenkins request to bootstrap game: " + gameId);
       Scheduler.bootRunning = true;

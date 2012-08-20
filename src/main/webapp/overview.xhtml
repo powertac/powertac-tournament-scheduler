@@ -214,7 +214,7 @@
             <h:panelGroup>
               <h:commandButton value="Stop" action="#{actionOverview.stopGame(g)}"
                 onclick="return confirmAlert('Are you sure you want to stop this game?');"
-                  />
+                rendered="#{g.machineId != 0}" />
             </h:panelGroup>
           </t:column>
         </t:dataTable>

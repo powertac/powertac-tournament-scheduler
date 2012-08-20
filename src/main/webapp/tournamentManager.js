@@ -8,6 +8,7 @@
 
 function showGamesCount() {
     var elems = saveTournament.elements;
+    var type = elems[1].value;
     var maxBrokers = parseInt(elems[2].value);
     var gameType1 = parseInt(elems[4].value);
     var gameType2 = parseInt(elems[5].value);
@@ -17,6 +18,10 @@ function showGamesCount() {
     setText("total1", "");
     setText("total2", "");
     setText("total3", "");
+
+    if (type == 'SINGLE_GAME') {
+        return;
+    }
 
     var total1 = 0;
     var total2 = 0;
