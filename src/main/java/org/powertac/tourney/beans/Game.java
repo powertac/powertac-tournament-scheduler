@@ -213,7 +213,6 @@ public class Game implements Serializable
           log.info("Freeing Machines for game: " + gameId);
           db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
           log.info("Setting machine " + g.getMachineId() + " to idle");
-          Scheduler.bootRunning = false;
           break;
 
         case boot_failed:
@@ -223,7 +222,6 @@ public class Game implements Serializable
           log.info("Freeing Machines for game: " + gameId);
           db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
           log.info("Setting machine "+ g.getMachineId() +" to idle");
-          Scheduler.bootRunning = false;
           break;
 
         case game_ready:

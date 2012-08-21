@@ -7,10 +7,7 @@ import org.powertac.tourney.beans.Location;
 import org.powertac.tourney.beans.Machine;
 import org.powertac.tourney.beans.Pom;
 import org.powertac.tourney.beans.User;
-import org.powertac.tourney.services.Database;
-import org.powertac.tourney.services.HibernateUtil;
-import org.powertac.tourney.services.TournamentProperties;
-import org.powertac.tourney.services.Upload;
+import org.powertac.tourney.services.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -238,6 +235,10 @@ public class ActionAdmin
   	  return;
   	}
 
+    // Make sure we get a new list of IPs
+    Utils.machineIPs = null;
+    Utils.vizIPs = null;
+
     // It's a new machine
     if (machineId == -1) {
       addMachine();
@@ -324,7 +325,6 @@ public class ActionAdmin
 
   public void refresh ()
   {
-
   }
 
   //<editor-fold desc="Setters and Getters">

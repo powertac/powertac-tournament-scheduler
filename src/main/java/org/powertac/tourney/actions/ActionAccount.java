@@ -39,7 +39,8 @@ public class ActionAccount
     }
 
     User user = User.getCurrentUser();
-    user.addBroker(getNewBrokerName(), getNewBrokerShortDescription());
+    user.addBroker(getNewBrokerName().trim(),
+        getNewBrokerShortDescription().trim());
     newBrokerName = "";
     newBrokerShortDescription = "";
   }

@@ -143,6 +143,7 @@ CREATE TABLE `tourney`.`agents` (
 	`brokerId` BIGINT(20) UNSIGNED NOT NULL,
 	`brokerQueue` VARCHAR(64),
     `status` VARCHAR(32) NOT NULL,
+    `balance` double NOT NULL DEFAULT '-1',
 	CONSTRAINT brokerId_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`),
 	CONSTRAINT gameId_refs2 FOREIGN KEY (`gameId`) REFERENCES `tourney`.`games` ( `gameId` ),
 	PRIMARY KEY (`agentId`)

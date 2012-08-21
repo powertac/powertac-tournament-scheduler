@@ -158,7 +158,7 @@ public class ActionOverview
       catch (Exception ignored) {}
       log.info("Stopped job on Jenkins");
 
-      // Actually kill the job on the slave, it doesn't always get done
+      // Actually kill the job on the slave, it doesn't always get done above
       String killUrl = properties.getProperty("jenkins.location")
           + "job/kill-server-instance/buildWithParameters?"
           + "machine=" + machineName;
@@ -180,7 +180,8 @@ public class ActionOverview
         g.removeBootFile();
         db.updateGameStatusById(g.getGameId(), Game.STATE.boot_pending);
         db.updateGameBootstrapById(g.getGameId(), false);
-        Scheduler.bootRunning = false;
+        db.clearGameReadyTime(g.getGameId());
+        db.updateGameJmsUrlById(g.getGameId(), "");
       }
       else if ((g.getStatus().equals(Game.STATE.game_pending.toString())) ||
           (g.getStatus().equals(Game.STATE.game_ready.toString())) ||
@@ -190,6 +191,10 @@ public class ActionOverview
         db.updateGameStatusById(g.getGameId(), Game.STATE.boot_complete);
         db.clearGameReadyTime(g.getGameId());
         db.updateGameViz(g.getGameId(), "");
+        for (Broker b: db.getBrokersInGame(g.getGameId())) {
+          db.updateAgentStatus(g.getGameId(), b.getBrokerId(),
+              Agent.STATE.pending);
+        }
       }
 
       db.updateGameFreeMachine(g.getGameId());

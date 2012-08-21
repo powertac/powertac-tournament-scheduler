@@ -64,7 +64,7 @@ public class TournamentProperties
       try {
         properties.load(TournamentProperties.class.getClassLoader()
                    .getResourceAsStream(resourceName));
-        checkProperties();
+        appendExtraProperties();
         loaded = true;
       }
       catch (IOException e) {
@@ -84,13 +84,13 @@ public class TournamentProperties
   /**
    * Check if given properties are correct (file locations) and add some more
    */
-  private void checkProperties() {
-    properties.put("tourneyUrl", getTourneyUrl());
+  private void appendExtraProperties() {
+    properties.setProperty("tourneyUrl", getTourneyUrl());
 
     String jenkinsLocation = properties.getProperty("jenkins.location",
         "http://localhost:8080/jenkins/");
     if (!jenkinsLocation.endsWith("/")) {
-      properties.put("jenkins.location", jenkinsLocation + "/");
+      properties.setProperty("jenkins.location", jenkinsLocation + "/");
     }
 
     String fallBack = System.getProperty("catalina.base", "") + "/";

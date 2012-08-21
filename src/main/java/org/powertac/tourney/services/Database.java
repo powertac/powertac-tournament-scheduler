@@ -116,8 +116,8 @@ public class Database
     boolean userExist = false;
     ResultSet rs = ps.executeQuery();
     // salt and hash password
-    String salt = "";
-    String digest = "";
+    String salt;
+    String digest;
     int userId = -1;
     int permission = 99; // Lowest permission level
     if (rs.next()) {
@@ -230,24 +230,6 @@ public class Database
     return result;
   }
 
-  public Broker getBroker (int brokerId) throws SQLException
-  {
-    PreparedStatement ps = conn.prepareStatement(
-        Constants.SELECT_BROKER_BY_BROKERID);
-    ps.setInt(1, brokerId);
-
-    Broker broker = null;
-    ResultSet rs = ps.executeQuery();
-    if (rs.next()) {
-      broker = new Broker(rs);
-    }
-
-    rs.close();
-    ps.close();
-
-    return broker;
-  }
-
   public Broker getBroker (String brokerAuth) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(
@@ -327,31 +309,6 @@ public class Database
 
     int result = ps.executeUpdate();
 
-    ps.close();
-
-    return result;
-  }
-
-  public int addPom (String uploadingUser, String name)
-		 throws SQLException
-  {
-    PreparedStatement ps = conn.prepareStatement(Constants.ADD_POM,
-        Statement.RETURN_GENERATED_KEYS);
-
-    ps.setString(1, uploadingUser);
-    ps.setString(2, name);
-    ps.executeUpdate();
-
-    // Return id of inserted pom
-    int result = -1;
-    ResultSet rs = ps.getGeneratedKeys();
-    if (rs != null && rs.next()) {
-      result = rs.getInt(1);
-    }
-
-    try {
-      rs.close();
-    } catch (NullPointerException ignored) {}
     ps.close();
 
     return result;
@@ -445,24 +402,6 @@ public class Database
     ResultSet rs = ps.executeQuery();
     while (rs.next()) {
       ts.add(new Tournament(rs));
-    }
-    
-    ps.close();
-    rs.close();
-    
-    return ts;
-  }
-
-  public Tournament getTournamentById (int tourneyId) throws SQLException
-  {
-    PreparedStatement ps = conn.prepareStatement(
-        Constants.SELECT_TOURNAMENT_BYID);
-    ps.setInt(1, tourneyId);
-
-    Tournament ts = null;
-    ResultSet rs = ps.executeQuery();
-    if (rs.next()) {
-      ts = new Tournament(rs);
     }
     
     ps.close();
@@ -578,11 +517,11 @@ public class Database
     return gs;
   }
 
-  public List<Game> getGamesInTourney (String tourneyName) throws SQLException
+  public List<Game> getReadyGamesInTourney (int tourneyId) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(
-        Constants.SELECT_GAMES_IN_TOURNEY_BYNAME);
-    ps.setString(1, tourneyName);
+        Constants.SELECT_READY_GAMES_BY_TOURNEYID);
+    ps.setInt(1, tourneyId);
 
     List<Game> gs = new ArrayList<Game>();
     ResultSet rs = ps.executeQuery();
@@ -912,6 +851,19 @@ public class Database
     ps.setString(1, state.toString());
     ps.setInt(2, gameId);
     ps.setInt(3, brokerId);
+
+    ps.executeUpdate();
+    ps.close();
+  }
+
+  public void updateAgentBalance(int gameId, String brokerName, Double balance)
+      throws SQLException
+  {
+    PreparedStatement ps =
+        conn.prepareStatement(Constants.UPDATE_AGENT_BALANCE);
+    ps.setDouble(1, balance);
+    ps.setInt(2, gameId);
+    ps.setString(3, brokerName);
 
     ps.executeUpdate();
     ps.close();
@@ -1352,26 +1304,6 @@ public class Database
     ps.close();
 
     return result;
-  }
-
-  public int truncateScheduler() throws SQLException
-  {
-    PreparedStatement trunc = conn.prepareStatement("DELETE FROM AgentAdmin;");
-    trunc.executeUpdate();
-    trunc.close();
-    trunc = conn.prepareStatement("DELETE FROM AgentQueue;");
-    trunc.executeUpdate();
-    trunc.close();
-    trunc = conn.prepareStatement("DELETE FROM GameArchive;");
-    trunc.executeUpdate();
-    trunc.close();
-    trunc = conn.prepareStatement("DELETE FROM GameLog;");
-    trunc.executeUpdate();
-    trunc.close();
-    trunc = conn.prepareStatement("DELETE FROM GameServers;");
-    trunc.executeUpdate();
-    trunc.close();
-    return 0;
   }
 
   private Random queueGenerator = new Random(new Date().getTime());

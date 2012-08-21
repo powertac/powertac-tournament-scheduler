@@ -25,9 +25,6 @@ public class Rest
     String responseType = params.get(Constants.Rest.REQ_PARAM_TYPE)[0];
     String brokerAuthToken = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
     String tournamentName = params.get(Constants.Rest.REQ_PARAM_JOIN)[0];
-    log.info(String.format("Broker %s login request : %s",
-        brokerAuthToken, tournamentName));
-
     String retryResponse = "{\n \"retry\":%d\n}";
     String loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"queueName\":%s\n \"serverQueue\":%s\n}";
     String doneResponse = "{\n \"done\":\"true\"\n}";
@@ -39,27 +36,36 @@ public class Rest
       doneResponse = head + "<done></done>" + tail;
     }
 
+    // TODO Remove below
+    log.info("");
+    log.info(String.format("Broker %s login request : %s",
+        brokerAuthToken, tournamentName));
+
     Database db = new Database();
     try {
       db.startTrans();
 
-      // Check if tournament exists
-      Tournament t = db.getTournamentByName(tournamentName);
-      if (t == null ) {
-        log.info("Tournament doesn't exists : " + tournamentName);
-        db.commitTrans();
-        return doneResponse;
-      }
-      // Check if broker is registered
+      // Check if broker exists
       Broker broker = db.getBroker(brokerAuthToken);
       if (broker == null) {
         log.info("Broker doesn't exists : " + brokerAuthToken);
         db.commitTrans();
         return doneResponse;
       }
+      log.debug("Broker id is : " + broker.getBrokerId());
+
+      // Check if tournament exists
+      Tournament t = db.getTournamentByName(tournamentName);
+      if (t == null) {
+        log.info("Tournament doesn't exists : " + tournamentName);
+        db.commitTrans();
+        return doneResponse;
+      }
+
+      // Check if broker is registered for this tournament
       if (!db.isRegistered(t.getTournamentId(), broker.getBrokerId())) {
-        log.info(String.format("Broker %s is not registered for tournament %s",
-            brokerAuthToken, t.getTournamentName()));
+        log.info(String.format("Broker not registered for tournament " +
+            t.getTournamentName()));
         db.commitTrans();
         return doneResponse;
       }
@@ -69,35 +75,44 @@ public class Rest
       long nowStamp = new Date().getTime();
 
       // Check if any games are more than X minutes ready (to allow Viz Login)
-      for (Game game: db.getGamesInTourney(tournamentName)) {
+      for (Game game: db.getReadyGamesInTourney(t.getTournamentId())) {
+        Agent.STATE state = db.getAgentStatus(
+            game.getGameId(), broker.getBrokerId());
+
+        if (state == null) {
+          // The broker isn't in this game
+          continue;
+        }
+        else if (!state.equals(Agent.STATE.pending)) {
+          // Another agent of this broker already logged into this game
+          continue;
+        }
+
         log.debug("Game " + game.getGameId() + " is ready");
 
         long readyStamp = game.getReadyTime().getTime();
         if (nowStamp < (readyStamp + readyDeadline)) {
-          log.debug("Broker " + broker.getBrokerId() + " needs to wait for the viz");
+          log.debug("Broker needs to wait for the viz timeout : " +
+            (nowStamp - readyStamp + readyDeadline));
           continue;
         }
 
-        Agent.STATE state = db.getAgentStatus(
+        db.updateAgentStatus(game.getGameId(), broker.getBrokerId(),
+            Agent.STATE.in_progress);
+        String queueName = db.getBrokerQueueName(
             game.getGameId(), broker.getBrokerId());
-        if (state != null && state.equals(Agent.STATE.pending)) {
-          db.updateAgentStatus(game.getGameId(), broker.getBrokerId(),
-              Agent.STATE.in_progress);
-          String queueName = db.getBrokerQueueName(
-              game.getGameId(), broker.getBrokerId());
-          log.info(String.format("Sending login to broker %s : %s, %s, %s",
-              broker.getBrokerName(), game.getJmsUrl(),
-              queueName, game.getServerQueue()));
-          db.commitTrans();
-          return String.format(loginResponse, game.getJmsUrl(),
-              queueName, game.getServerQueue());
-        }
-        else if (state != null && !state.equals(Agent.STATE.pending)) {
-          // This should never happen!
-          log.debug("Broker " + broker.getBrokerId() + " agent isn't pending");
-        }
+        log.info(String.format("Sending login to broker %s : %s, %s, %s",
+            broker.getBrokerName(), game.getJmsUrl(),
+            queueName, game.getServerQueue()));
+        db.commitTrans();
+        return String.format(loginResponse, game.getJmsUrl(),
+            queueName, game.getServerQueue());
       }
+
       db.commitTrans();
+      log.info(String.format("No games ready to start for tournament %s",
+          tournamentName));
+      return String.format(retryResponse, 60);
     }
     catch (Exception e) {
       db.abortTrans();
@@ -105,20 +120,6 @@ public class Rest
       log.error("Error, sending done response");
       return doneResponse;
     }
-
-    // TODO Make sql check
-    // JEC - this could be REALLY long lists after a while.
-    for (Tournament t: Tournament.getTournamentList()) {
-      if (tournamentName.equals(t.getTournamentName())) {
-        log.info(String.format("Broker: %s attempted to log into existing "
-            + "tournament: %s --sending retry", brokerAuthToken, tournamentName));
-        return String.format(retryResponse, 60);
-      }
-    }
-
-    log.debug(String.format("Broker: %s attempted to log into non-existing "
-        + "tournament: %s --sending done", brokerAuthToken, tournamentName));
-    return doneResponse;
   }
 
   /**
@@ -138,12 +139,14 @@ public class Rest
     String loginResponse = head + "<login><queueName>%s</queueName><serverQueue>%s</serverQueue></login>" + tail;
     String errorResponse = head + "<error>%s</error>" + tail;
 
+    // TODO Remove below
+    log.debug("");
+    log.info("Visualizer login request : " + machineName);
+
     // Validate source of request
-    if (!validateVizRequest(request)) {
+    if (!Utils.checkVizAllowed(request.getRemoteHost())) {
       return String.format(errorResponse, "invalid login request");
     }
-
-    log.info("Visualizer login request : " + machineName);
 
     // If there is a game in game_ready state on the machine for this viz,then
     // return a login with the correct queue name; otherwise, return a retry.
@@ -176,18 +179,10 @@ public class Rest
       return String.format(errorResponse, "database error");
     }
   }
-  
-  private boolean validateVizRequest (HttpServletRequest request)
-  {
-    // TODO
-    String host = request.getRemoteHost();
-    log.info("Viz request from " + host);
-    return true;
-  }
 
   public String parseServerInterface (Map<String, String[]> params, String clientAddress)
   {
-    if (!Utils.checkSlaveAllowed(clientAddress)) {
+    if (!Utils.checkMachineAllowed(clientAddress)) {
       return "error";
     }
 
@@ -368,7 +363,7 @@ public class Rest
    */
   public String handleServerInterfacePUT (Map<String, String[]> params, HttpServletRequest request)
   {
-    if (!Utils.checkSlaveAllowed(request.getRemoteAddr())) {
+    if (!Utils.checkMachineAllowed(request.getRemoteAddr())) {
       return "error";
     }
 
@@ -392,9 +387,18 @@ public class Rest
         fos.write(buf, 0, letti);
       }
       fos.close();
+
+      if (fileName.contains("sim-logs")) {
+        try {
+          new LogParser(properties.getProperty("logLocation"), fileName);
+        }
+        catch (Exception e) {
+          log.error("Error parsing log " + fileName);
+        }
+      }
     } catch (Exception e) {
-      return "error";
+      return "error\n";
     }
-    return "success";
+    return "success\n";
   }
 }

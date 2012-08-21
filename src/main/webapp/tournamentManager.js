@@ -91,9 +91,11 @@ function typeSelected() {
         table.rows[5].style.display = "none";
         table.rows[6].style.display = "none";
     }
+
+    showGamesCount();
 }
 
 window.onload = function ()
 {
     typeSelected();
-}
+};

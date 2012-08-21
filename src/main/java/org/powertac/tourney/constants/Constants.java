@@ -159,15 +159,6 @@ public class Constants
           + "AND not tournaments.status='complete';";
 
   /***
-   * Selects a tournament from the database by tournamentId
-   * 
-   * @param tournamentId
-   *          : Specify the ID to select a particular tournament
-   */
-  public static final String SELECT_TOURNAMENT_BYID =
-    "SELECT * FROM tournaments WHERE tourneyId=?;";
-
-  /***
    * Selects a tournament from the database by gameId
    * 
    * @param gameId
@@ -249,21 +240,6 @@ public class Constants
   public static final String UPDATE_TOURNAMENT_STARTTIME_BYID =
       "UPDATE tournaments SET startTime = ? WHERE tourneyId=?";
 
-  /**
-   * Select the max tournament id from all the tournaments
-   */
-  public static final String SELECT_MAX_TOURNAMENTID =
-    "SELECT MAX(tourneyId) as maxId FROM tournaments;";
-
-  /***
-   * Get the number of brokers registered for a tournament
-   * 
-   * @param tourneyId
-   *          : The id of the tournament you wish to query
-   */
-  public static final String GET_NUMBER_REGISTERED_BYTOURNAMENTID =
-    "SELECT COUNT(brokerId) as numRegistered FROM registration " +
-        "WHERE registration.tourneyId=?;";
 
   /***
    * Get a list of all brokers
@@ -366,8 +342,8 @@ public class Constants
    *          : The name of the broker
    */
   public static final String ADD_BROKER_TO_GAME =
-    "INSERT INTO agents (gameId, brokerId, brokerQueue, status) "
-        + "VALUES (?,?,?,'"+ Agent.STATE.pending.toString() +"')";
+    "INSERT INTO agents (gameId, brokerId, brokerQueue, status, balance) "
+        + "VALUES (?,?,?,'"+ Agent.STATE.pending.toString() +"',-1)";
 
   /***
    * Get brokers in a game by gameid
@@ -413,7 +389,13 @@ public class Constants
           + "ORDER BY brokers.brokerName;";
 
   public static final String UDATE_BROKER_INGAME =
-      "UPDATE agents SET status = ? WHERE gameId=? and brokerId=?;";
+      "UPDATE agents SET status = ? WHERE gameId=? AND brokerId=?;";
+
+  public static final String UPDATE_AGENT_BALANCE =
+      "UPDATE agents "
+          + "SET balance = ? "
+          + "WHERE gameId=? "
+          + "AND brokerId=(SELECT brokerId from brokers WHERE brokerName=?);";
 
   /***
    * Get brokers in a tournament
@@ -491,9 +473,6 @@ public class Constants
    */
   public static final String UPDATE_GAME_MACHINE =
     "UPDATE games SET machineId=? WHERE gameId=?;";
-  
-  public static final String UPDATE_SERVER = "UPDATE GameServers "
-      + "SET IsPlaying = 0 WHERE ServerNumber=?;";
 
   /***
    * Update the game to free the machine
@@ -593,17 +572,11 @@ public class Constants
    * @param tourneyName
    *          :
    */
-  public static final String SELECT_GAMES_IN_TOURNEY_BYNAME =
-      "SELECT * FROM games, tournaments "
-          + "WHERE games.tourneyId = tournaments.tourneyId "
-          + "AND games.status='" + Game.STATE.game_ready.toString() + "' "
-          + "AND tournaments.tourneyName=?;";
+  public static final String SELECT_READY_GAMES_BY_TOURNEYID =
+      "SELECT * FROM games "
+          + "WHERE games.tourneyId = ? "
+          + "AND games.status='" + Game.STATE.game_ready.toString() + "';";
 
-  /***
-   * Get max gameid of all games
-   */
-  public static final String SELECT_MAX_GAMEID =
-    "SELECT MAX(gameId) as maxId FROM games;";
 
   /***
    * Check to see if a gameid has a bootstrap
@@ -663,15 +636,6 @@ public class Constants
     "UPDATE properties SET jmsUrl=? WHERE gameId=?;";
 
   /***
-   * Add pom names and locations
-   * 
-   * @param uploadingUser
-   * @param name
-   */
-  public static final String ADD_POM =
-    "INSERT INTO poms (uploadingUser, name) VALUES (?,?);";
-
-  /***
    * Select all poms
    */
   public static final String SELECT_POMS = "SELECT * FROM poms;";
@@ -698,15 +662,6 @@ public class Constants
   public static final String SELECT_MACHINES_BY_NAME =
       "SELECT * FROM machines WHERE machineName=?;";
   
-  
-  /***
-   * Select servers
-   * @param machineId
-   *          : the id of the machine
-   */
-  public static final String SELECT_SERVERS =
-    "SELECT * FROM GameServers;";
-  
   /***
    * Change a machine's status based on id
    * 
@@ -717,18 +672,6 @@ public class Constants
    */
   public static final String UPDATE_MACHINE_STATUS_BY_ID =
     "UPDATE machines SET status=? WHERE machineId=?;";
-
-  /***
-   * Change a machine's status based on name
-   * 
-   * @param status
-   *          : The new status to change to either "running" or "idle"
-   * @param machineName
-   *          : The name of the machine to change
-   * 
-   */
-  public static final String UPDATE_MACHINE_STATUS_BY_NAME =
-    "UPDATE machines SET status=? WHERE machineName=?;";
 
   /***
    * Add a machine into the database, default status is "idle"
@@ -786,49 +729,7 @@ public class Constants
   public static final String FIRST_FREE_MACHINE =
       "SELECT * FROM machines WHERE status='"
           + Machine.STATE.idle.toString()
-          + "' and available=1 ORDER BY machineId LIMIT 1;";
-
-  /***
-   * Get the games scheduled for a particular agentType
-   * 
-   * @param AgentType
-   *          :
-   */
-  public static final String GET_GAMES_FOR_AGENT =
-    "SELECT AgentName, AgentType, a.InternalAgentID,b.InternalGameID, GameType,"
-        + " ServerNumber"
-        + "FROM AgentAdmin a "
-        + "JOIN GameLog b ON a.InternalAgentID = b.InternalAgentID"
-        + "JOIN GameArchive c ON b.InternalGameID= c.InternalGameID"
-        + "WHERE AgentType = ?";
-
-  public static final String GET_AGENT_TYPE =
-    "SELECT DISTINCT AgentType FROM AgentAdmin;";
-
-  
-  /**
-   * Free the Agent ids that are playing on a server that finished
-   * 
-   * @param ServerNumber
-   */
-  public static final String FREE_AGENTS_ON_SERVER = 
-     "UPDATE AgentQueue SET IsPlaying=0 WHERE InternalAgentId IN (SELECT * FROM"
-         + " (SELECT DISTINCT AgentQueue.InternalAgentId FROM GameLog JOIN"
-         + " GameArchive ON GameArchive.InternalGameID = GameLog.InternalGameId"
-         + " JOIN AgentQueue ON"
-         + " GameLog.InternalAgentID = AgentQueue.InternalAgentId"
-         + " WHERE AgentQueue.IsPlaying=1 and GameArchive.ServerNumber=?) AS x)";
-
-  
-  /***
-   * Clear scheduling database to schedule something else
-   */
-  public static final String CLEAR_SCHEDULE =
-    "DELETE FROM AgentAdmin;"
-        + " DELETE FROM AgentQueue;"
-        + " DELETE FROM GameArchive;"
-        + " DELETE FROM GameLog;"
-        + " DELETE FROM GameServers;";
+          + "' AND available=1 ORDER BY machineId LIMIT 1;";
 
   /***
    * Select all available locations in the database
@@ -858,23 +759,5 @@ public class Constants
    */
   public static final String DELETE_LOCATION =
     "DELETE FROM locations WHERE locationId=?;";
-
-  /***
-   * Select the minimum date available for a location
-   * 
-   * @param location
-   *          : The location you wish to query
-   */
-  public static final String SELECT_MIN_DATE =
-    "SELECT MIN(fromDate) as minDate WHERE location=?;";
-
-  /***
-   * Select the maximum date available for a location
-   * 
-   * @param location
-   *          : The location you wish to query
-   */
-  public static final String SELECT_MAX_DATE =
-    "SELECT MAX(toDate) as maxDate WHERE location=?;";
 
 }

@@ -27,10 +27,8 @@ public class Scheduler implements InitializingBean
   @Autowired
   private TournamentProperties properties;
 
-  public static boolean bootRunning = false;
-
   private Timer watchDogTimer = null;
-  private Tournament runningTournament;
+  private Tournament runningTournament = null;
 
   /* TODO
      We need to keep score of the startTime of boot,
@@ -73,6 +71,11 @@ public class Scheduler implements InitializingBean
     }
   }
 
+  public void unloadTournament ()
+  {
+    runningTournament = null;
+  }
+
   private void lazyStart ()
   {
     Timer t = new Timer();
@@ -102,8 +105,8 @@ public class Scheduler implements InitializingBean
         try {
           checkMachines();
           checkTournament();
-          checkForBoots();
           checkForSims();
+          checkForBoots();
         }
         catch (Exception e) {
           log.error("Severe error in WatchDogTimer!");
@@ -206,7 +209,7 @@ public class Scheduler implements InitializingBean
   }
 
   /**
-   * Check if we need to schedule the
+   * Check if it's time to schedule the tournament
    */
   private void checkTournament ()
   {
@@ -341,13 +344,7 @@ public class Scheduler implements InitializingBean
    */
   private void checkForBoots ()
   {
-    if (bootRunning) {
-      log.info("WatchDogTimer Reports a boot is running");
-      return;
-    }
-    else {
-      log.info("WatchDogTimer Looking for Bootstraps To Start..");
-    }
+    log.info("WatchDogTimer Looking for Bootstraps To Start..");
 
     Database db = new Database();
     try {
@@ -406,10 +403,6 @@ public class Scheduler implements InitializingBean
 
         RunGame runGame = new RunGame(g.getGameId(), t.getPomId());
         new Thread(runGame).start();
-
-        try {
-          Thread.sleep(5000);
-        } catch (Exception ignored) {}
       }
       db.commitTrans();
     }

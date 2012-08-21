@@ -4,7 +4,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Machine;
-import org.powertac.tourney.beans.Scheduler;
 
 import java.net.URL;
 import java.net.URLConnection;
@@ -86,6 +85,7 @@ public class RunBootstrap implements Runnable
     try {
       db.startTrans();
       game = db.getGame(gameId);
+      db.setGameReadyTime(gameId);
       db.commitTrans();
     }
     catch (SQLException e1) {
@@ -120,7 +120,6 @@ public class RunBootstrap implements Runnable
 
       conn.getInputStream();
       log.info("Jenkins request to bootstrap game: " + gameId);
-      Scheduler.bootRunning = true;
       game.setState(Game.STATE.boot_in_progress);
     }
     catch (Exception e) {

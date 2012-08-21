@@ -25,17 +25,24 @@
 
 					<t:column defaultSorted="true" sortable="true">
 						<f:facet name="header">
-							<h:outputText value="Tournament ID" />
+							<h:outputText value="ID" />
 						</f:facet>
 						<h:outputText value="#{t.tournamentId}" />
 					</t:column>
 
 					<t:column sortable="true">
 						<f:facet name="header">
-							<h:outputText value="Tournament" />
+							<h:outputText value="Name" />
 						</f:facet>
 						<h:outputText value="#{t.tournamentName}" />
 					</t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Status" />
+            </f:facet>
+            <h:outputText value="#{t.status}" />
+          </t:column>
 
           <t:column>
             <f:facet name="header">
@@ -143,19 +150,19 @@
 					<h:outputText value="StartTime UTC" />
 					<h:panelGroup>
 						<t:inputDate value="#{actionTournament.startTime}" timeZone="UTC" type="both"
-							ampm="false" renderAsPopup="true" forceId="true" />
+							ampm="false" forceId="true" />
 					</h:panelGroup>
 
 					<h:outputText value="Date from: " />
 					<h:panelGroup>
 						<t:inputDate value="#{actionTournament.fromTime}" type="both"
-							ampm="false" renderAsPopup="true" forceId="true" /><br/>
+							ampm="false" forceId="true" /><br/>
 					</h:panelGroup>
 
           <h:outputText value="Date to:" />
           <h:panelGroup>
             <t:inputDate value="#{actionTournament.toTime}" type="both"
-              ampm="false" renderAsPopup="true" forceId="true" />
+              ampm="false" forceId="true" />
           </h:panelGroup>
 
           <h:outputText value="Select Pom File:" />

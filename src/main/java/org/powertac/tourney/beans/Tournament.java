@@ -2,6 +2,7 @@ package org.powertac.tourney.beans;
 
 import org.apache.log4j.Logger;
 import org.powertac.tourney.services.Database;
+import org.powertac.tourney.services.SpringApplicationContext;
 import org.powertac.tourney.services.Utils;
 
 import javax.persistence.*;
@@ -31,7 +32,7 @@ public class Tournament
   private String tournamentName;
   private String status = STATE.pending.toString();
 
-  private int maxBrokers; // -1 means inf, otherwise integer specific
+  private int maxBrokers;
   private int maxAgents = 2;
 
   private String locations = "";
@@ -110,6 +111,10 @@ public class Tournament
 
     if (allDone) {
       db.updateTournamentStatus(tourneyId, STATE.complete);
+
+      Scheduler scheduler =
+          (Scheduler) SpringApplicationContext.getBean("scheduler");
+      scheduler.unloadTournament();
     }
   }
 
