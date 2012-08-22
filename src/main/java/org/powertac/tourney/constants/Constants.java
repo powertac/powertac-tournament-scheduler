@@ -353,7 +353,8 @@ public class Constants
   public static final String GET_BROKERS_IN_GAME =
     "SELECT * FROM brokers "
         + "JOIN agents ON brokers.brokerId = agents.brokerId "
-        + " WHERE gameId=?";
+        + "WHERE gameId=? "
+        + "ORDER BY brokers.brokerName;";
 
   /***
    * Get status of a broker in a game
@@ -411,7 +412,7 @@ public class Constants
    * @param gameId
    * @param brokerId
    */
-  public static final String GET_BROKER_QUEUE =
+  public static final String GET_AGENT_BY_GAMEID_BROKERID =
       "SELECT * FROM agents WHERE gameId=? AND brokerId=?;";
 
   /***

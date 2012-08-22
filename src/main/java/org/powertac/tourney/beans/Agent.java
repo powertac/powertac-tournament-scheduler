@@ -31,6 +31,7 @@ public class Agent {
   private int brokerId;
   private String brokerQueue;
   private String status;
+  private double balance;
 
   public Agent ()
   {
@@ -43,6 +44,7 @@ public class Agent {
     setBrokerId(rs.getInt("brokerId"));
     setBrokerQueue(rs.getString("brokerQueue"));
     setStatus(rs.getString("status"));
+    setBalance(rs.getDouble("balance"));
   }
 
   //<editor-fold desc="Getters and Setters">
@@ -79,6 +81,13 @@ public class Agent {
   }
   public void setStatus(String status) {
     this.status = status;
+  }
+
+  public double getBalance() {
+    return balance;
+  }
+  public void setBalance(double balance) {
+    this.balance = balance;
   }
   //</editor-fold>
 }

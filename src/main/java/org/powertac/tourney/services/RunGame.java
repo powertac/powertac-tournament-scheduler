@@ -81,8 +81,8 @@ public class RunGame implements Runnable
       else {
         for (Broker b: brokerList) {
           if (!b.agentsAvailable(db)) {
-            log.info(String.format("Not starting sim : broker %s doesn't have "
-                + "enough available agents", b.getBrokerId()));
+            log.info(String.format("Not starting game %s : broker %s doesn't "
+                + "have enough available agents", gameId, b.getBrokerId()));
             return false;
           }
 

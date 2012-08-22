@@ -62,6 +62,13 @@ public class Rest
         return doneResponse;
       }
 
+      // Check if tournament is finished
+      if (t.stateEquals(Tournament.STATE.complete)) {
+        log.info("Tournament is finished, we're done : " + tournamentName);
+        db.commitTrans();
+        return doneResponse;
+      }
+
       // Check if broker is registered for this tournament
       if (!db.isRegistered(t.getTournamentId(), broker.getBrokerId())) {
         log.info(String.format("Broker not registered for tournament " +

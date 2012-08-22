@@ -869,6 +869,26 @@ public class Database
     ps.close();
   }
 
+  public Agent getAgentByGameIdBrokerId (int gameId, int brokerId)
+      throws SQLException
+  {
+    PreparedStatement ps =
+        conn.prepareStatement(Constants.GET_AGENT_BY_GAMEID_BROKERID);
+    ps.setInt(1, gameId);
+    ps.setInt(2, brokerId);
+
+    Agent agent = null;
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      agent = new Agent(rs);
+    }
+
+    ps.close();
+    rs.close();
+
+    return agent;
+  }
+
   public Agent.STATE getAgentStatus(int gameId, int brokerId)
       throws SQLException
   {
@@ -909,7 +929,7 @@ public class Database
   public String getBrokerQueueName(int gameId, int brokerId)
       throws SQLException
   {
-    PreparedStatement ps = conn.prepareStatement(Constants.GET_BROKER_QUEUE);
+    PreparedStatement ps = conn.prepareStatement(Constants.GET_AGENT_BY_GAMEID_BROKERID);
     ps.setInt(1, gameId);
     ps.setInt(2, brokerId);
 

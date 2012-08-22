@@ -155,6 +155,35 @@ public class Broker
     return result;
   }
 
+  public Agent getAgent (int gameId)
+  {
+    Agent agent = null;
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      agent = db.getAgentByGameIdBrokerId(gameId, brokerId);
+      db.commitTrans();
+    }
+    catch (SQLException e) {
+      e.printStackTrace();
+      db.abortTrans();
+    }
+
+    return agent;
+  }
+
+  public double getBalance (int gameId)
+  {
+    Agent agent = getAgent(gameId);
+
+    if (agent != null) {
+      return agent.getBalance();
+    }
+
+    return -2;
+  }
+
   public static List<Broker> getBrokerList ()
   {
     List<Broker> brokers = new ArrayList<Broker>();

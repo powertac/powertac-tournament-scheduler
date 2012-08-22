@@ -82,7 +82,7 @@ public class Utils {
         }
       }
     } catch (SocketException e) {
-      System.out.println(" (error retrieving network interface list)");
+      log.error(" (error retrieving network interface list)");
     }
   }
 

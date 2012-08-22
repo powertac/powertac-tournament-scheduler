@@ -116,16 +116,16 @@ public class Game implements Serializable
     return result;
   }
 
+
   @Transient
-  public String getBrokersInGame ()
+  public List<Broker> getBrokersInGame ()
   {
-    String result = "";
-    List<Broker> brokersRegistered = new ArrayList<Broker>();
+    List<Broker> brokers = new ArrayList<Broker>();
 
     Database db = new Database();
     try {
       db.startTrans();
-      brokersRegistered = db.getBrokersInGame(gameId);
+      brokers = db.getBrokersInGame(gameId);
       db.commitTrans();
     }
     catch (Exception e) {
@@ -133,7 +133,34 @@ public class Game implements Serializable
       e.printStackTrace();
     }
 
-    for (Broker b: brokersRegistered) {
+    return brokers;
+  }
+
+  @Transient
+  public List<Broker> getBrokersInGameComplete()
+  {
+    List<Broker> brokers = new ArrayList<Broker>();
+
+    Database db = new Database();
+    try {
+      db.startTrans();
+      brokers = db.getBrokersInGameComplete(gameId);
+      db.commitTrans();
+    }
+    catch (Exception e) {
+      db.abortTrans();
+      e.printStackTrace();
+    }
+
+    return brokers;
+  }
+
+  @Transient
+  public String getBrokersInGameString()
+  {
+    String result = "";
+
+    for (Broker b: getBrokersInGame()) {
       result += b.getBrokerName() + ", ";
     }
     if (!result.isEmpty()) {
@@ -144,23 +171,11 @@ public class Game implements Serializable
   }
 
   @Transient
-  public String getBrokersInGameComplete ()
+  public String getBrokersInGameCompleteString()
   {
     String result = "";
-    List<Broker> brokersRegistered = new ArrayList<Broker>();
 
-    Database db = new Database();
-    try {
-      db.startTrans();
-      brokersRegistered = db.getBrokersInGameComplete(gameId);
-      db.commitTrans();
-    }
-    catch (Exception e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    for (Broker b: brokersRegistered) {
+    for (Broker b: getBrokersInGameComplete()) {
       result += b.getBrokerName() + ", ";
     }
     if (!result.isEmpty()) {

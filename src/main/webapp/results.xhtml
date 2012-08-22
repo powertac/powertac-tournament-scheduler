@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:t="http://myfaces.apache.org/tomahawk">
+
+<h:body>
+  <ui:composition template="template.xhtml">
+    <ui:define name="content">
+      <h2>Results for tournament #{param['tournamentId']}</h2>
+
+      <h3>Totals</h3>
+      <t:dataTable id="dataresults" border="1" sortable="false"
+                   style="border:1px solid black;border-collapse:collapse;"
+                   value="#{actionResults.getResultMap( param['tournamentId'] )}" var="r">
+        <t:column>
+          <f:facet name="header">
+            <h:outputText value="Broker" />
+          </f:facet>
+          <h:outputText value="#{r.key}" />
+        </t:column>
+
+        <t:column>
+          <f:facet name="header">
+            <h:outputText value="Total" />
+          </f:facet>
+          <h:outputText value="#{r.value}" />
+        </t:column>
+      </t:dataTable>
+
+      <h3>Games</h3>
+      <t:dataTable id="datagames" border="1" sortable="false"
+                   sortColumn="#{actionResults.sortColumn}"
+                   sortAscending="#{actionResults.sortAscending}" preserveSort="true"
+                   style="border:1px solid black;border-collapse:collapse;"
+                   value="#{actionResults.getGameList( param['tournamentId'] )}" var="g">
+        <t:column defaultSorted="true" sortable="true">
+          <f:facet name="header">
+            <h:outputText value="ID" />
+          </f:facet>
+          <h:outputText value="#{g.gameId}" />
+        </t:column>
+
+        <t:column>
+          <f:facet name="header">
+            <h:outputText value="Name" />
+          </f:facet>
+          <h:outputText value="#{g.gameName}" />
+        </t:column>
+
+        <t:column sortable="true">
+          <f:facet name="header">
+            <h:outputText value="Status" />
+          </f:facet>
+          <h:outputText value="#{g.status}" />
+        </t:column>
+
+        <t:column>
+          <f:facet name="header">
+            <h:outputText value="Brokers" />
+          </f:facet>
+          <h:panelGroup>
+            <ui:repeat value="#{g.getBrokersInGame()}" var="b">
+              <b>#{b.brokerName}</b><br/>
+            </ui:repeat>
+          </h:panelGroup>
+        </t:column>
+
+        <t:column>
+          <f:facet name="header">
+            <h:outputText value="Balance" />
+          </f:facet>
+          <h:panelGroup>
+            <ui:repeat value="#{g.getBrokersInGame()}" var="b">
+              <h:outputText value="#{b.getBalance(g.gameId)}" /><br/>
+            </ui:repeat>
+          </h:panelGroup>
+        </t:column>
+      </t:dataTable>
+
+    </ui:define>
+  </ui:composition>
+</h:body>
+</html>

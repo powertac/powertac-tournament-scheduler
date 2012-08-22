@@ -357,7 +357,7 @@ public class Scheduler implements InitializingBean
         Game g = games.get(0);
         Tournament t = db.getTournamentByGameId(g.getGameId());
 
-        log.info(String.format("Boot: %s will be started...", g.getGameId()));
+        log.info(String.format("Boot %s will be started ...", g.getGameId()));
 
         RunBootstrap runBootstrap = new RunBootstrap(g.getGameId(), t.getPomId());
         new Thread(runBootstrap).start();
@@ -399,7 +399,7 @@ public class Scheduler implements InitializingBean
 
       for (Game g: games) {
         Tournament t = db.getTournamentByGameId(g.getGameId());
-        log.info(String.format("Game: %s will be started...", g.getGameId()));
+        log.info(String.format("Game %s will be started ...", g.getGameId()));
 
         RunGame runGame = new RunGame(g.getGameId(), t.getPomId());
         new Thread(runGame).start();

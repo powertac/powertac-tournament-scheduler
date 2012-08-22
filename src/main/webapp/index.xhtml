@@ -27,7 +27,7 @@
 			<a href="https://github.com/powertac/powertac-server/wiki/Broker-Tournament-Login">
 			Github wiki instruction page</a>. </p>
 
-			<h3> Running Games and their Visualizers</h3>
+			<h3>Running Games and their Visualizers</h3>
 			<h:form>
 				<t:dataTable id="datagames" border="1" sortable="false"
 					sortColumn="#{actionIndex.sortColumn}"
@@ -36,7 +36,7 @@
 					value="#{actionIndex.gameList}" var="g">
 					<t:column defaultSorted="true" sortable="true">
 						<f:facet name="header">
-							<h:outputText value="Game ID" />
+							<h:outputText value="ID" />
 						</f:facet>
               <h:outputText value="#{g.gameId}" />
     				</t:column>
@@ -52,7 +52,7 @@
 						<f:facet name="header">
 							<h:outputText value="Brokers" />
 						</f:facet>
-              <h:outputText value="#{g.getBrokersInGame()}" />
+              <h:outputText value="#{g.brokersInGameString()}" />
     				</t:column>
 
 					<t:column sortable="true">
@@ -88,7 +88,7 @@
 				</t:dataTable>
 			</h:form>
 
-			<h3> Complete Games and Logs</h3>
+			<h3>Complete Games and Logs</h3>
 			<h:form>
 				<t:dataTable id="datagames" border="1" sortable="false"
 					sortColumn="#{actionIndex.sortColumn}"
@@ -97,7 +97,7 @@
 					value="#{actionIndex.gameCompleteList}" var="g">
 					<t:column sortable="true" defaultSorted="true">
 						<f:facet name="header">
-							<h:outputText value="Game ID" />
+							<h:outputText value="ID" />
 						</f:facet>
               <h:outputText value="#{g.gameId}" />
     				</t:column>
@@ -106,14 +106,16 @@
 						<f:facet name="header">
 							<h:outputText value="Tournament" />
 						</f:facet>
-              <h:outputText value="#{g.getTournamentName()}" />
+              <a href="results.xhtml?tournamentId=#{g.tourneyId}">
+                <h:outputText value="#{g.getTournamentName()}" />
+              </a>
     				</t:column>
 
             <t:column>
               <f:facet name="header">
                 <h:outputText value="Brokers" />
               </f:facet>
-              <h:outputText value="#{g.getBrokersInGameComplete()}" />
+              <h:outputText value="#{g.getBrokersInGameCompleteString()}" />
             </t:column>
 
             <t:column>
