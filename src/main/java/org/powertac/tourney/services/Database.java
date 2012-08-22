@@ -113,7 +113,7 @@ public class Database
     PreparedStatement ps = conn.prepareStatement(Constants.LOGIN_SALT);
     ps.setString(1, username);
 
-    boolean userExist = false;
+    boolean userExist;
     ResultSet rs = ps.executeQuery();
     // salt and hash password
     String salt;
@@ -612,7 +612,7 @@ public class Database
 
   public List<Game> getGames () throws SQLException
   {
-    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_GAME);
+    PreparedStatement ps = conn.prepareStatement(Constants.SELECT_NOT_COMPLETE_GAMES);
 
     List<Game> gs = new ArrayList<Game>();
     ResultSet rs = ps.executeQuery();
@@ -1348,7 +1348,7 @@ public class Database
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             conn =
                 DriverManager.getConnection("jdbc:" + dbms + "://"
-                    + dbUrl + "/"
+                    + dbUrl + ":" + port + "/"
                     + database,
                     connectionProps);
           }

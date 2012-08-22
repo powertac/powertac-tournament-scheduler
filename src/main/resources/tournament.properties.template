@@ -21,6 +21,13 @@ jenkins.location = http://localhost:8080/jenkins
 jenkins.username =
 jenkins.password =
 
+# We send an email if bootstraps seem wedged (running for more than bootstrapWedged msecs)
+scheduler.bootstrapWedged = 900000
+# Leave empty if not used
+scheduler.mailRecipient =
+gmail.username =
+gmail.password =
+
 # This is the directory where the uploaded POMs are stored
 pomLocation = /tmp/
 # This is the directory where the boot files are stored

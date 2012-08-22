@@ -95,46 +95,6 @@ public class ActionOverview
     }
   }
 
-  // TODO Should be a Game method
-  public void restartGame (Game g)
-  {
-    Database db = new Database();
-    int gameId = g.getGameId();
-    log.info("Restarting Game " + gameId + " has status: " + g.getStatus());
-    int pomId = -1;
-
-    try {
-      db.startTrans();
-      pomId = db.getTournamentByGameId(gameId).getPomId();
-
-      db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-      log.info("Setting machine: " + g.getMachineId() + " to idle");
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    if (g.stateEquals(Game.STATE.boot_failed) ||
-        g.stateEquals(Game.STATE.boot_pending) ||
-        g.stateEquals(Game.STATE.boot_in_progress) ) {
-      log.info("Attempting to restart bootstrap " + gameId);
-
-      RunBootstrap runBootstrap = new RunBootstrap(gameId, pomId);
-      new Thread(runBootstrap).start();
-    }
-    else if (g.stateEquals(Game.STATE.game_failed) ||
-        g.stateEquals(Game.STATE.game_in_progress) ||
-        g.stateEquals(Game.STATE.boot_failed) ) {
-      log.info("Attempting to restart sim " + gameId);
-
-      RunGame runGame = new RunGame(g.getGameId(), pomId);
-      new Thread(runGame).start();
-    }
-  }
-
-  // TODO Should be a Game method??
   public void stopGame (Game g)
   {
     log.info("Trying to stop game: " + g.getGameId());
@@ -226,10 +186,7 @@ public class ActionOverview
       }
 
       public void run() {
-        try {
-          Thread.sleep(300000l);
-        }
-        catch(Exception ignored){}
+        Utils.secondsSleep(300);
 
         Database db = new Database();
         try {

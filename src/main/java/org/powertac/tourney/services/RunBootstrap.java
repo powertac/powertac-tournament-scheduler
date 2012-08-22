@@ -121,6 +121,8 @@ public class RunBootstrap implements Runnable
       conn.getInputStream();
       log.info("Jenkins request to bootstrap game: " + gameId);
       game.setState(Game.STATE.boot_in_progress);
+
+      Utils.secondsSleep(1);
     }
     catch (Exception e) {
       e.printStackTrace();

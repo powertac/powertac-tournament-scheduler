@@ -10,14 +10,17 @@ package org.powertac.tourney.services;
 import org.apache.log4j.Logger;
 import org.powertac.tourney.beans.Machine;
 
+import javax.mail.Message;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.TimeZone;
+import java.util.*;
 
 
 public class Utils {
@@ -132,6 +135,53 @@ public class Utils {
 
     log.debug(vizAddress + " is not allowed");
     return true;
+  }
+
+  public static void secondsSleep (int seconds)
+  {
+    try {
+      Thread.sleep(seconds * 1000);
+    }
+    catch(Exception ignored){}
+  }
+
+  public static void sendMail (String sub, String msg, String recipient)
+  {
+    TournamentProperties properties = TournamentProperties.getProperties();
+    final String username = properties.getProperty("gmail.username");
+    final String password = properties.getProperty("gmail.password");
+
+    if (username.isEmpty() || password.isEmpty() || recipient.isEmpty()) {
+      return;
+    }
+
+    Properties props = new Properties();
+    props.put("mail.smtp.auth", "true");
+    props.put("mail.smtp.starttls.enable", "true");
+    props.put("mail.smtp.host", "smtp.gmail.com");
+    props.put("mail.smtp.port", "587");
+
+    Session session = Session.getInstance(props,
+        new javax.mail.Authenticator() {
+          protected PasswordAuthentication getPasswordAuthentication() {
+            return new PasswordAuthentication(username, password);
+          }
+        });
+
+    try {
+      Message message = new MimeMessage(session);
+      message.setFrom(new InternetAddress(username));
+      message.setRecipients(Message.RecipientType.TO,
+          InternetAddress.parse(recipient));
+      message.setSubject(sub);
+      message.setText(msg);
+
+      Transport.send(message);
+
+      log.info("Done sending mail to : " + recipient);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   //<editor-fold desc="Date format">

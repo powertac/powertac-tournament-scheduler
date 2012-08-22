@@ -34,7 +34,9 @@
 						<f:facet name="header">
 							<h:outputText value="Name" />
 						</f:facet>
-						<h:outputText value="#{t.tournamentName}" />
+            <a href="results.xhtml?tournamentId=#{t.tournamentId}">
+              <h:outputText value="#{t.tournamentName}" />
+            </a>
 					</t:column>
 
           <t:column sortable="true">

@@ -100,7 +100,7 @@ public class Rest
         long readyStamp = game.getReadyTime().getTime();
         if (nowStamp < (readyStamp + readyDeadline)) {
           log.debug("Broker needs to wait for the viz timeout : " +
-            (nowStamp - readyStamp + readyDeadline));
+            (nowStamp - readyStamp + readyDeadline) / 1000);
           continue;
         }
 
@@ -213,7 +213,7 @@ public class Rest
   /***
    * Returns a properties file string
    *
-   * @param params
+   * @param params :
    * @return String representing a properties file
    */
   public String parseProperties (Map<String, String[]> params)
@@ -287,7 +287,7 @@ public class Rest
   /***
    * Returns a pom file string
    *
-   * @param params
+   * @param params :
    * @return String representing a pom file
    */
   public String parsePom (Map<String, String[]> params)

@@ -96,15 +96,6 @@ public class Constants
     "SELECT * FROM brokers WHERE userID = ?;";
 
   /***
-   * Select broker by their brokerId
-   * 
-   * @param brokerId
-   *          : The brokerId of the broker you wish to return
-   */
-  public static final String SELECT_BROKER_BY_BROKERID =
-    "SELECT * FROM brokers WHERE brokerId = ? LIMIT 1;";
-
-  /***
    * Select broker by their brokerAuth
    *
    * @param brokerAuth
@@ -174,8 +165,10 @@ public class Constants
    * @param type
    */
   public static final String SELECT_TOURNAMENT_BYTYPE =
-    "SELECT * FROM tournaments WHERE type=? AND NOT status = '"
-        + Tournament.STATE.complete + "';";
+    "SELECT * FROM tournaments "
+        + "WHERE type=? "
+        + "AND NOT status='" + Tournament.STATE.complete + "' "
+        + "ORDER BY startTime;";
 
   /***
    * Select a tournament by name, case insensitive
@@ -550,16 +543,17 @@ public class Constants
   /***
    * Select all running and pending games
    */
-  public static final String SELECT_GAME =
+  public static final String SELECT_NOT_COMPLETE_GAMES =
     "SELECT * FROM games WHERE NOT status = '"
         + Game.STATE.game_complete.toString() + "';";
 
   
-  public static final String SELECT_COMPLETE_GAMES = "SELECT * FROM games "
+  public static final String SELECT_COMPLETE_GAMES =
+    "SELECT * FROM games "
       + "WHERE status='" + Game.STATE.game_complete.toString() + "';";
 
   /***
-   * Select all games belonging to a tournament
+   * Select all ready games belonging to a tournamentId
    * 
    * @param tourneyId
    *          :
@@ -568,7 +562,7 @@ public class Constants
     "SELECT * FROM games WHERE tourneyId=?;";
 
   /***
-   * Select all games belonging to a tournament, by tournament name
+   * Select all games belonging to a tournamentId
    *
    * @param tourneyName
    *          :

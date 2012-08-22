@@ -49,9 +49,9 @@ public class ActionTournament
   {
     Calendar initTime = Calendar.getInstance();
 
-    initTime.set(2009, 2, 3);
+    initTime.set(2009, Calendar.MARCH, 3);
     fromTime.setTime(initTime.getTimeInMillis());
-    initTime.set(2011, 2, 3);
+    initTime.set(2011, Calendar.MARCH, 3);
     toTime.setTime(initTime.getTimeInMillis());
   }
 
@@ -118,7 +118,7 @@ public class ActionTournament
 
       // Create game properties
       CreateProperties.genProperties(db, gameId, locations, fromTime, toTime);
-      log.info("Created game: " + gameId + "properties");
+      log.info("Created game: " + gameId + " properties");
 
       db.commitTrans();
       return true;

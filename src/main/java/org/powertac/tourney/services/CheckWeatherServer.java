@@ -2,12 +2,13 @@ package org.powertac.tourney.services;
 
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
+import javax.faces.bean.ManagedBean;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
 
+@ManagedBean
 @Service("checkWeatherServer")
 public class CheckWeatherServer
 {

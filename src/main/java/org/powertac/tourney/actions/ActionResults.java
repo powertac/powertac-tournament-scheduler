@@ -51,8 +51,12 @@ public class ActionResults
       for (Broker b: g.getBrokersInGame()) {
         Agent a = b.getAgent(g.getGameId());
 
+        if (a.getBalance() < 0) {
+          continue;
+        }
+
         if (temp.get(b.getBrokerName()) != null) {
-          temp.put(b.getBrokerName(), temp.get(b.getBrokerName() + a.getBalance()));
+          temp.put(b.getBrokerName(), (temp.get(b.getBrokerName()) + a.getBalance()));
         } else {
           temp.put(b.getBrokerName(), a.getBalance());
         }

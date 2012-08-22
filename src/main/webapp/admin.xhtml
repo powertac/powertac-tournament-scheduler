@@ -35,8 +35,8 @@
 
           <h4>Tournament Status:</h4>
           <h:panelGroup>
-            <h:outputText value="Tourney Loaded"
-                          style="color:green;"
+            <h:outputText value="Tourney &lt;b&gt;#{scheduler.getRunningTournament().tournamentName}&lt;/b&gt; Loaded"
+                          style="color:green;" escape="false"
                           rendered="#{!scheduler.nullTourney}" />
             <h:outputText value="Tourney not Loaded"
                           style="color:red;"
@@ -292,13 +292,6 @@
               <h:outputText value="Username" />
             </f:facet>
             <h:outputText value="#{u.username}" />
-          </t:column>
-
-          <t:column defaultSorted="true">
-            <f:facet name="header">
-              <h:outputText value="Change Password" />
-            </f:facet>
-            <h:outputText value="#{u.password}" />
           </t:column>
 
           <t:column defaultSorted="true">

@@ -11,6 +11,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.annotation.PreDestroy;
+import javax.faces.bean.ManagedBean;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.net.URL;
@@ -18,6 +19,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 
+@ManagedBean
 @Service("scheduler")
 public class Scheduler implements InitializingBean
 {
@@ -30,11 +32,7 @@ public class Scheduler implements InitializingBean
   private Timer watchDogTimer = null;
   private Tournament runningTournament = null;
 
-  /* TODO
-     We need to keep score of the startTime of boot,
-     If the boot takes to long, cancel + reschedule it
-     We could the readyTime field for this (needs a rename though)
-    */
+  private List<Integer> checkedBootstraps = new ArrayList<Integer>();
 
   public Scheduler ()
   {
@@ -104,9 +102,10 @@ public class Scheduler implements InitializingBean
       {
         try {
           checkMachines();
-          checkTournament();
-          checkForSims();
-          checkForBoots();
+          scheduleLoadedTournament();
+          startRunnableGames();
+          startBootableGames();
+          checkWedgedBoots();
         }
         catch (Exception e) {
           log.error("Severe error in WatchDogTimer!");
@@ -211,7 +210,7 @@ public class Scheduler implements InitializingBean
   /**
    * Check if it's time to schedule the tournament
    */
-  private void checkTournament ()
+  private void scheduleLoadedTournament()
   {
     if (isNullTourney()) {
       log.info("No multigame tournament available");
@@ -342,13 +341,21 @@ public class Scheduler implements InitializingBean
    * Check if games need to be booted, only pick the first one
    * bootRunning is set to true if by RunBootstrap, if it actually runs
    */
-  private void checkForBoots ()
+  private void startBootableGames()
   {
     log.info("WatchDogTimer Looking for Bootstraps To Start..");
 
+    // Check Database for bootable games
     Database db = new Database();
     try {
       db.startTrans();
+
+      if (db.checkFreeMachine() == null) {
+        log.info("WatchDog No free machines, not looking for Bootable Games");
+        db.commitTrans();
+        return;
+      }
+
       List<Game> games = db.getBootableGames();
       log.info(String.format("WatchDogTimer reports %s boots are ready to "
           + "start", games.size()));
@@ -370,7 +377,7 @@ public class Scheduler implements InitializingBean
     }
   }
 
-  private void checkForSims ()
+  private void startRunnableGames()
   {
     log.info("WatchDogTimer Looking for Runnable Games");
 
@@ -401,8 +408,9 @@ public class Scheduler implements InitializingBean
         Tournament t = db.getTournamentByGameId(g.getGameId());
         log.info(String.format("Game %s will be started ...", g.getGameId()));
 
-        RunGame runGame = new RunGame(g.getGameId(), t.getPomId());
-        new Thread(runGame).start();
+        new RunGame(g.getGameId(), t.getPomId());
+        //RunGame runGame = new RunGame(g.getGameId(), t.getPomId());
+        //new Thread(runGame).start();
       }
       db.commitTrans();
     }
@@ -412,14 +420,55 @@ public class Scheduler implements InitializingBean
     }
   }
 
+  private void checkWedgedBoots ()
+  {
+    log.info("WatchDogTimer Looking for Wedged Bootstraps");
+
+    long wedgedDeadline =
+        Integer.parseInt(properties.getProperty("scheduler.bootstrapWedged"));
+    long nowStamp = new Date().getTime();
+
+    List<Game> games = new ArrayList<Game>();
+    Database db = new Database();
+    try {
+      db.startTrans();
+      games = db.getGames();
+      db.commitTrans();
+    }
+    catch (SQLException sqle) {
+      sqle.printStackTrace();
+      db.abortTrans();
+    }
+
+    for (Game g: games) {
+      if (!g.stateEquals(Game.STATE.boot_in_progress)) {
+        continue;
+      }
+
+      // Make sure no more than 1 email per wedged boot
+      if (checkedBootstraps.contains(g.getGameId())) {
+        continue;
+      } else {
+        checkedBootstraps.add(g.getGameId());
+      }
+
+      long diff = nowStamp - g.getReadyTime().getTime();
+      if (diff > wedgedDeadline) {
+        String msg = String.format(
+            "Bootstrapping of game %s seems to take too long : %s seconds",
+            g.getGameId(), (diff/1000));
+        log.error(msg);
+        Utils.sendMail("Bootstrap seems stuck", msg,
+            properties.getProperty("scheduler.mailRecipient"));
+        return;
+      }
+    }
+    log.debug("WatchDogTimer No Bootstraps seems Wedged");
+  }
+
   public boolean isNullTourney ()
   {
     return runningTournament == null;
-  }
-
-  public static String getKey ()
-  {
-    return key;
   }
 
   public boolean isRunning ()

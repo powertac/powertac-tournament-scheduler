@@ -12,7 +12,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 
-public class RunGame implements Runnable
+//public class RunGame implements Runnable
+public class RunGame
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
@@ -32,6 +33,8 @@ public class RunGame implements Runnable
 
     watchDogInterval = Integer.parseInt(
         properties.getProperty("scheduler.watchDogInterval")) / 1000;
+
+    run();
   }
 
   /***
@@ -145,8 +148,8 @@ public class RunGame implements Runnable
     }
   }
 
-  @Override
-  public synchronized void run ()
+  //@Override
+  public void run ()
   {
     if (!checkBootstrap()) {
       return;
@@ -204,6 +207,8 @@ public class RunGame implements Runnable
       game.setState(Game.STATE.game_pending);
       log.info(String.format("Update game: %s to %s", gameId,
           Game.STATE.game_pending.toString()));
+
+      Utils.secondsSleep(1);
     }
     catch (Exception e) {
       e.printStackTrace();
