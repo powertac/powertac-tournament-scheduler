@@ -180,7 +180,7 @@
 	  <username>admin</username>
 	  <password>admin</password>
 	  <path>/TournamentScheduler</path>
-          <update>true</update>
+    <update>true</update>
 	</configuration>
       </plugin>
       <plugin>

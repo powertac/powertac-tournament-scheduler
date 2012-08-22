@@ -37,7 +37,7 @@ public class Rest
     }
 
     // TODO Remove below
-    log.info("");
+    log.debug("");
     log.info(String.format("Broker %s login request : %s",
         brokerAuthToken, tournamentName));
 
@@ -117,7 +117,7 @@ public class Rest
       }
 
       db.commitTrans();
-      log.info(String.format("No games ready to start for tournament %s",
+      log.debug(String.format("No games ready to start for tournament %s",
           tournamentName));
       return String.format(retryResponse, 60);
     }
@@ -194,6 +194,8 @@ public class Rest
     }
 
     try {
+      // TODO Make these constants as well
+
       String actionString = params.get(Constants.Rest.REQ_PARAM_ACTION)[0];
       if (actionString.equalsIgnoreCase("status")) {
         String statusString = params.get(Constants.Rest.REQ_PARAM_STATUS)[0];
@@ -205,7 +207,13 @@ public class Rest
         String gameId = params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0];
         return serveBoot(gameId);
       }
+
+      else if (actionString.equalsIgnoreCase("heartbeat")) {
+        String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
+        return handleHeartBeat(message);
+      }
     }
+
     catch (Exception ignored) {}
     return "error";
   }
@@ -365,6 +373,14 @@ public class Rest
     return result;
   }
 
+  public String handleHeartBeat (String message)
+  {
+    log.info("We received this heartBeat message from the server :");
+    log.info(message);
+
+    return "success";
+  }
+
   /***
    * Handle 'PUT' to serverInterface.jsp, either boot.xml or (Boot|Sim) log
    */
@@ -404,8 +420,36 @@ public class Rest
         }
       }
     } catch (Exception e) {
-      return "error\n";
+      return "error";
     }
-    return "success\n";
+    return "success";
+  }
+
+  /***
+   * Handle 'POST' to serverInterface.jsp, this is a end-of-game message
+   */
+  public String handlePostServerInterfacePOST(Map<String, String[]> params, HttpServletRequest request)
+  {
+    if (!Utils.checkMachineAllowed(request.getRemoteAddr())) {
+      return "error";
+    }
+
+    try {
+      String actionString = params.get(Constants.Rest.REQ_PARAM_ACTION)[0];
+      if (!actionString.equalsIgnoreCase("gameresults")) {
+        log.debug("The message didn't have the right action-string!");
+        return "error";
+      }
+
+      String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
+      log.info("We received this gameResult message from the server :");
+      log.info(message);
+
+      return "success";
+    } catch (Exception e) {
+      log.error("Something went wrong with receiving the POST message!");
+      log.error(e.getMessage());
+      return "error";
+    }
   }
 }

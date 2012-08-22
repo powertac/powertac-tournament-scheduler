@@ -19,6 +19,7 @@ public class Constants
     public static final String REQ_PARAM_GAME_ID = "gameId";
     public static final String REQ_PARAM_ACTION = "action";
     public static final String REQ_PARAM_FILENAME = "fileName";
+    public static final String REQ_PARAM_MESSAGE = "message";
 
     // Possible Rest Parameters for pom service
     public static final String REQ_PARAM_POM_ID = "pomId";
