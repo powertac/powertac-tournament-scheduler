@@ -944,43 +944,12 @@ public class Database
     return result;
   }
 
-  public boolean isGameReady (int gameId) throws SQLException
-  {
-    PreparedStatement ps = conn.prepareStatement(Constants.GAME_READY);
-    ps.setInt(1, gameId);
-
-    boolean result = false;
-    ResultSet rs = ps.executeQuery();
-    if (rs.next()) {
-      result = rs.getBoolean("ready");
-    }
-
-    rs.close();
-    ps.close();
-
-    return result;
-  }
-
   public int updateGameStatusById (int gameId, Game.STATE status)
     throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME);
     ps.setInt(2, gameId);
     ps.setString(1, status.toString());
-
-    int result = ps.executeUpdate();
-
-    ps.close();
-
-    return result;
-  }
-
-  public int updateGameBootstrapById (int gameId, boolean hasBootstrap)
-      throws SQLException
-  {
-    PreparedStatement ps = conn.prepareStatement(Constants.UPDATE_GAME_BOOTSTRAP);
-    ps.setInt(2, gameId);
-    ps.setBoolean(1, hasBootstrap);
 
     int result = ps.executeUpdate();
 

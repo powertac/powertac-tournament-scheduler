@@ -86,12 +86,8 @@ public class Rest
         Agent.STATE state = db.getAgentStatus(
             game.getGameId(), broker.getBrokerId());
 
-        if (state == null) {
-          // The broker isn't in this game
-          continue;
-        }
-        else if (!state.equals(Agent.STATE.pending)) {
-          // Another agent of this broker already logged into this game
+        if (state == null || !state.equals(Agent.STATE.pending)) {
+          // Broker not in this game or another agent of this broker already logged into this game
           continue;
         }
 

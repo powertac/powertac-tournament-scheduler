@@ -183,8 +183,8 @@
             <f:facet name="header">
               <h:outputText value="Boot Link" />
             </f:facet>
-            <h:outputText value="Not avail." rendered="#{!g.hasBootstrap}"/>
-            <h:panelGroup rendered="#{g.hasBootstrap}" >
+            <h:outputText value="Not avail." rendered="#{!g.hasBootstrap()}"/>
+            <h:panelGroup rendered="#{g.hasBootstrap()}" >
               <a href="serverInterface.jsp?action=boot&amp;gameId=#{g.gameId}">Boot</a>
             </h:panelGroup>
           </t:column>

@@ -32,7 +32,6 @@ public class Game implements Serializable
   private int gameId = 0;
   private int machineId;
   private String status = STATE.boot_pending.toString();
-  private boolean hasBootstrap = false;
   private int maxBrokers = 1;
 
   private String gameName = "";
@@ -83,7 +82,6 @@ public class Game implements Serializable
       setReadyTime(Utils.dateFormatUTCmilli(rs.getString("readyTime")));
       setTourneyId(rs.getInt("tourneyId"));
       setMachineId(rs.getInt("machineId"));
-      setHasBootstrap(rs.getBoolean("hasBootstrap"));
       setGameName(rs.getString("gameName"));
       setGameId(rs.getInt("gameId"));
       setJmsUrl(rs.getString("jmsUrl"));
@@ -220,9 +218,6 @@ public class Game implements Serializable
           break;
 
         case boot_complete:
-          db.updateGameBootstrapById(gameId, true);
-          log.info(String.format("Update game: %s to hasBootstrap", gameId));
-
           db.updateGameFreeMachine(gameId);
           log.info("Freeing Machines for game: " + gameId);
           db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
@@ -309,6 +304,17 @@ public class Game implements Serializable
       db.abortTrans();
       e.printStackTrace();
     }
+  }
+
+  public boolean hasBootstrap () {
+    List<String> hasBootStrapStates = Arrays.asList(
+        STATE.boot_complete.toString(),
+        STATE.game_pending.toString(),
+        STATE.game_ready.toString(),
+        STATE.game_in_progress.toString(),
+        STATE.game_complete.toString());
+
+    return hasBootStrapStates.contains(status);
   }
 
   public void removeBootFile()
@@ -474,16 +480,6 @@ public class Game implements Serializable
   public void setGameId (int gameId)
   {
     this.gameId = gameId;
-  }
-
-  @Column(name = "hasBootstrap", unique = false, nullable = false)
-  public boolean getHasBootstrap()
-  {
-    return hasBootstrap;
-  }
-  public void setHasBootstrap (boolean hasBootstrap)
-  {
-    this.hasBootstrap = hasBootstrap;
   }
 
   @Column(name = "gameName", unique = false, nullable = false)

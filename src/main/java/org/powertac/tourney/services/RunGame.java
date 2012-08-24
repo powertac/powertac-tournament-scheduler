@@ -45,8 +45,10 @@ public class RunGame
   {
     try {
       db.startTrans();
-      if (db.isGameReady(gameId)) {
-        db.commitTrans();
+
+      Game game = db.getGame(gameId);
+      if (game.hasBootstrap()) {
+				db.commitTrans();
         return true;
       }
       else {

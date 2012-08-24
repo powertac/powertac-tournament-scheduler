@@ -290,10 +290,9 @@ public class Constants
    */
   public static final String ADD_GAME =
     "INSERT INTO games (gameName, tourneyId, maxBrokers, startTime, readyTime, "
-        + "status, jmsUrl, visualizerUrl, visualizerQueue, serverQueue, "
-        + "hasBootstrap) "
+        + "status, jmsUrl, visualizerUrl, visualizerQueue, serverQueue) "
         + "VALUES(?,?,?,?,NULL,'" + Game.STATE.boot_pending.toString()
-        + "','','','','',false);";
+        + "','','','','');";
 
   /***
    * Returns a list of the runnable MULTI_GAME games as of now.
@@ -368,7 +367,9 @@ public class Constants
           + "JOIN games ON games.gameId=agents.gameId "
           + "WHERE agents.brokerId = ? "
           + "AND games.machineId IS NOT NULL "
-          + "AND hasBootstrap = 1;";
+          + "AND games.status in ('"+ Game.STATE.boot_complete + "', '"
+          + Game.STATE.game_pending + "', '" + Game.STATE.game_ready + "', '"
+          + Game.STATE.game_in_progress + "', '" + Game.STATE.game_complete + "')";
 
   /***
    * Get brokers in a completed game by gameid
@@ -509,17 +510,6 @@ public class Constants
     "UPDATE games SET visualizerUrl=?, visualizerQueue=? WHERE gameId=?;";
 
   /***
-   * Update Game hasBootstrap
-   *
-   * @param hasBootstrap
-   *          : Does the game has a bootstrap
-   * @param gameId
-   *          : The id of the game you wish to change
-   */
-  public static final String UPDATE_GAME_BOOTSTRAP =
-    "UPDATE games SET hasBootstrap=? WHERE gameId=?;";
-
-  /***
    * Update Game status by gameId
    *
    * @param status
@@ -572,16 +562,6 @@ public class Constants
       "SELECT * FROM games "
           + "WHERE games.tourneyId = ? "
           + "AND games.status='" + Game.STATE.game_ready.toString() + "';";
-
-
-  /***
-   * Check to see if a gameid has a bootstrap
-   * 
-   * @param gameId
-   *          : The id of the game to check
-   */
-  public static final String GAME_READY =
-    "SELECT hasBootstrap as ready FROM games WHERE gameId=?;";
 
   /***
    * Select the properties given a certain property id

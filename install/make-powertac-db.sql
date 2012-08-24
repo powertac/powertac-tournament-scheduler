@@ -108,7 +108,6 @@ CREATE TABLE `tourney`.`games` (
 	`machineId` BIGINT(20) UNSIGNED,
 	`status` VARCHAR(20) NOT NULL,
 	`maxBrokers` integer NOT NULL,
-	`hasBootstrap` BOOLEAN NOT NULL,
 	`startTime` DATETIME NOT NULL,
 	`readyTime` DATETIME NULL,
 	`jmsUrl` VARCHAR(256) NOT NULL,

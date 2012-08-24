@@ -107,7 +107,6 @@ public class ActionOverview
       // Reset game and machine on TM
       if (game.isBooting()) {
         log.info("Resetting boot game: " + gameId +" on machine: "+ machineId);
-        db.updateGameBootstrapById(gameId, false);
         game.removeBootFile();
         db.updateGameStatusById(gameId, Game.STATE.boot_pending);
         db.clearGameReadyTime(gameId);
