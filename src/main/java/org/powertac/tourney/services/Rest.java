@@ -181,15 +181,15 @@ public class Rest
 
   public String parseServerInterface (Map<String, String[]> params, String clientAddress)
   {
-    if (!Utils.checkMachineAllowed(clientAddress)) {
-      return "error";
-    }
-
     try {
       // TODO Make these constants as well
 
       String actionString = params.get(Constants.Rest.REQ_PARAM_ACTION)[0];
       if (actionString.equalsIgnoreCase("status")) {
+        if (!Utils.checkMachineAllowed(clientAddress)) {
+          return "error";
+        }
+
         String statusString = params.get(Constants.Rest.REQ_PARAM_STATUS)[0];
         int gameId = Integer.parseInt(
             params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0]);
@@ -199,8 +199,11 @@ public class Rest
         String gameId = params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0];
         return serveBoot(gameId);
       }
-
       else if (actionString.equalsIgnoreCase("heartbeat")) {
+        if (!Utils.checkMachineAllowed(clientAddress)) {
+          return "error";
+        }
+
         String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
         return handleHeartBeat(message);
       }
@@ -231,7 +234,7 @@ public class Rest
     Database db = new Database();
     try {
     	db.startTrans();
-    	g = db.getGame(Integer.parseInt(gameId));
+    	g = db.getGameById(Integer.parseInt(gameId));
     	db.commitTrans();
     }
     catch(Exception e) {

@@ -30,7 +30,7 @@ public class Game implements Serializable
   private Date readyTime;
   private int tourneyId = 0;
   private int gameId = 0;
-  private int machineId;
+  private Integer machineId;
   private String status = STATE.boot_pending.toString();
   private int maxBrokers = 1;
 
@@ -199,7 +199,7 @@ public class Game implements Serializable
     Database db = new Database();
     try {
       db.startTrans();
-      Game g = db.getGame(gameId);
+      Game g = db.getGameById(gameId);
       if (g == null) {
         log.warn(String.format("Trying to set status %s on non-existing game : "
             + "%s", status, gameId));
@@ -292,20 +292,6 @@ public class Game implements Serializable
     return running.contains(status);
   }
 
-  public void setState (STATE state)
-  {
-    Database db = new Database();
-    try {
-      db.startTrans();
-      db.updateGameStatusById(gameId, state);
-      db.commitTrans();
-    }
-    catch (Exception e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-  }
-
   public boolean hasBootstrap () {
     List<String> hasBootStrapStates = Arrays.asList(
         STATE.boot_complete.toString(),
@@ -349,6 +335,11 @@ public class Game implements Serializable
   public boolean stateEquals(STATE state)
   {
     return this.status.equals(state.toString());
+  }
+
+  public boolean gameFailed ()
+  {
+    return stateEquals(STATE.boot_failed) || stateEquals(STATE.game_failed);
   }
 
   public String jenkinsMachineUrl ()
@@ -409,8 +400,8 @@ public class Game implements Serializable
   }
 
   //<editor-fold desc="Setter and getters">
-  @Temporal(TemporalType.DATE)
-  @Column(name = "startTime", unique = false, nullable = false, length = 10)
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "startTime", unique = false, nullable = false)
   public Date getStartTime ()
   {
     return startTime;
@@ -502,7 +493,7 @@ public class Game implements Serializable
     this.visualizerUrl = visualizerUrl;
   }
 
-  @Temporal(TemporalType.DATE)
+  @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "readyTime", unique = false, nullable = true)
   public Date getReadyTime ()
   {
@@ -525,11 +516,11 @@ public class Game implements Serializable
   }
 
   @Column(name = "machineId", unique = false, nullable = true)
-  public int getMachineId ()
+  public Integer getMachineId ()
   {
     return machineId;
   }
-  public void setMachineId (int machineId)
+  public void setMachineId (Integer machineId)
   {
     this.machineId = machineId;
   }

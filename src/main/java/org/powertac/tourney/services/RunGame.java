@@ -163,7 +163,7 @@ public class RunGame
   private boolean startJob (Database db) throws Exception
   {
     // We have to reload the game, as it is changed by checkMachineAvailable
-    game = db.getGame(gameId);
+    game = db.getGameById(gameId);
     int pomId = db.getTournamentByGameId(gameId).getPomId();
 
     String finalUrl =

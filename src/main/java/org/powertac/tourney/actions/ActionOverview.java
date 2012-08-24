@@ -109,8 +109,6 @@ public class ActionOverview
         log.info("Resetting boot game: " + gameId +" on machine: "+ machineId);
         game.removeBootFile();
         db.updateGameStatusById(gameId, Game.STATE.boot_pending);
-        db.clearGameReadyTime(gameId);
-        db.updateGameJmsUrlById(gameId, "");
         Scheduler scheduler =
             (Scheduler) SpringApplicationContext.getBean("scheduler");
         if (scheduler.checkedBootstraps.contains(gameId)) {
@@ -121,13 +119,13 @@ public class ActionOverview
       else if (game.isRunning()) {
         log.info("Resetting sim game: " + gameId + " on machine: " + machineId);
         db.updateGameStatusById(gameId, Game.STATE.boot_complete);
-        db.clearGameReadyTime(gameId);
-        db.updateGameViz(gameId, "");
         for (Broker broker: db.getBrokersInGame(gameId)) {
           db.updateAgentStatus(gameId, broker.getBrokerId(), Agent.STATE.pending);
         }
       }
 
+      db.clearGameReadyTime(gameId);
+      db.updateGameJmsUrlById(gameId, "");
       db.updateGameFreeMachine(gameId);
       delayMachineUpdate(machineId);
 
@@ -140,6 +138,47 @@ public class ActionOverview
       log.error("Failed to completely stop game: " + gameId);
       String msg = "Error stopping game : " + gameId;
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+    }
+  }
+
+  public void restartGame (Game game)
+  {
+    log.info("Trying to restart game: " + game.getGameId());
+
+    int gameId = game.getGameId();
+    Database db = new Database();
+    try {
+      db.startTrans();
+
+      // Reset game and machine on TM
+      if (game.stateEquals(Game.STATE.boot_failed)) {
+        log.info("Resetting boot game: " + gameId);
+        game.removeBootFile();
+        db.updateGameStatusById(gameId, Game.STATE.boot_pending);
+        Scheduler scheduler =
+            (Scheduler) SpringApplicationContext.getBean("scheduler");
+        if (scheduler.checkedBootstraps.contains(gameId)) {
+          scheduler.checkedBootstraps.remove(
+              scheduler.checkedBootstraps.indexOf(gameId));
+        }
+      }
+      if (game.stateEquals(Game.STATE.game_failed)) {
+        log.info("Resetting sim game: " + gameId);
+        db.updateGameStatusById(gameId, Game.STATE.boot_complete);
+      }
+
+      db.clearGameReadyTime(gameId);
+      db.updateGameJmsUrlById(gameId, "");
+      db.commitTrans();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      db.abortTrans();
+
+      log.error("Failed to restart game: " + gameId);
+      String msg = "Error restarting game : " + gameId;
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg,null);
       FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
     }
   }

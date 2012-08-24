@@ -410,6 +410,24 @@ public class Database
     return ts;
   }
 
+  public Tournament getTournamentById (int tourneyId) throws SQLException
+  {
+    PreparedStatement ps = conn.prepareStatement(
+        Constants.SELECT_TOURNAMENT_BYID);
+    ps.setInt(1, tourneyId);
+
+    Tournament ts = null;
+    ResultSet rs = ps.executeQuery();
+    if (rs.next()) {
+      ts = new Tournament(rs);
+    }
+
+    ps.close();
+    rs.close();
+
+    return ts;
+  }
+
   public Tournament getTournamentByType (Tournament.TYPE type) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(
@@ -738,7 +756,7 @@ public class Database
     return result;
   }
 
-  public Game getGame (int gameId) throws SQLException
+  public Game getGameById(int gameId) throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.SELECT_GAMEBYID);
     ps.setInt(1, gameId);

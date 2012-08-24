@@ -138,6 +138,15 @@ public class Constants
     "SELECT * FROM tournaments WHERE status=?;";
 
   /***
+   * Selects a tournament from the database by tournamentId
+   *
+   * @param tournamentId
+   * : Specify the ID to select a particular tournament
+   */
+  public static final String SELECT_TOURNAMENT_BYID =
+      "SELECT * FROM tournaments WHERE tourneyId=?;";
+
+  /***
    * Returns the list of all tournaments a broker is registered in
    *
    * @param brokerId

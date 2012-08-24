@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:t="http://myfaces.apache.org/tomahawk">
+
+<h:body>
+  <ui:composition template="template.xhtml">
+    <ui:define name="content">
+      <h2>Overview for game #{actionGame.getGameName(param['gameId'])}</h2>
+
+      <t:dataList var="message" value="#{actionGame.getGameInfo( param['gameId'] )}" layout="unorderedList">
+        <t:outputText value="#{message}" escape="false" id="message"/>
+      </t:dataList>
+
+      <h3>Participating brokers</h3>
+      <t:dataTable id="datagames" border="1" sortable="false"
+                   style="border:1px solid black;border-collapse:collapse;"
+                   value="#{actionGame.getBrokerMap( param['gameId'] )}" var="b">
+        <t:column>
+          <f:facet name="header">
+            <h:outputText value="Broker" />
+          </f:facet>
+          <h:outputText value="#{b.key}" />
+        </t:column>
+
+        <t:column>
+          <f:facet name="header">
+            <h:outputText value="Balance" />
+          </f:facet>
+          <h:outputText value="#{b.value}" style="text-align:right;"/>
+        </t:column>
+      </t:dataTable>
+
+    </ui:define>
+  </ui:composition>
+</h:body>
+</html>

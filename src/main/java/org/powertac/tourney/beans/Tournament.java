@@ -234,6 +234,7 @@ public class Tournament
     return this.status.equals(state.toString());
   }
 
+  @Transient
   public List<String> getLocationsList ()
   {
     List<String> locationList = new ArrayList<String>();
@@ -244,7 +245,7 @@ public class Tournament
   }
 
   //<editor-fold desc="Getters and setters">
-  @Column(name = "pomName", unique = false, nullable = false)
+  @Transient
   public String getPomName ()
   {
     return pomName;

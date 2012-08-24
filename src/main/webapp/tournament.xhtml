@@ -10,12 +10,12 @@
 <h:body>
   <ui:composition template="template.xhtml">
     <ui:define name="content">
-      <h2>Results for tournament #{param['tournamentId']}</h2>
+      <h2>Overview for tournament #{actionTournament.getTournamentName(param['tournamentId'])}</h2>
 
       <h3>Totals</h3>
       <t:dataTable id="dataresults" border="1" sortable="false"
                    style="border:1px solid black;border-collapse:collapse;"
-                   value="#{actionResults.getResultMap( param['tournamentId'] )}" var="r">
+                   value="#{actionTournament.getResultMap( param['tournamentId'] )}" var="r">
         <t:column>
           <f:facet name="header">
             <h:outputText value="Broker" />
@@ -27,21 +27,25 @@
           <f:facet name="header">
             <h:outputText value="Total" />
           </f:facet>
-          <h:outputText value="#{r.value}" />
+          <h:outputText value="#{r.value}" >
+            <f:convertNumber minFractionDigits="4" />
+          </h:outputText><br/>
         </t:column>
       </t:dataTable>
 
       <h3>Games</h3>
       <t:dataTable id="datagames" border="1" sortable="false"
-                   sortColumn="#{actionResults.sortColumn}"
-                   sortAscending="#{actionResults.sortAscending}" preserveSort="true"
+                   sortColumn="#{actionTournament.sortColumn}"
+                   sortAscending="#{actionTournament.sortAscending}" preserveSort="true"
                    style="border:1px solid black;border-collapse:collapse;"
-                   value="#{actionResults.getGameList( param['tournamentId'] )}" var="g">
+                   value="#{actionTournament.getGameList( param['tournamentId'] )}" var="g">
         <t:column defaultSorted="true" sortable="true">
           <f:facet name="header">
             <h:outputText value="ID" />
           </f:facet>
-          <h:outputText value="#{g.gameId}" />
+          <h:outputText >
+            <a href="game.xhtml?gameId=#{g.gameId}">#{g.gameId}</a>
+          </h:outputText>
         </t:column>
 
         <t:column>
@@ -75,7 +79,9 @@
           </f:facet>
           <h:panelGroup>
             <ui:repeat value="#{g.getBrokersInGame()}" var="b">
-              <h:outputText value="#{b.getBalance(g.gameId)}" /><br/>
+              <h:outputText value="#{b.getBalance(g.gameId)}" >
+                <f:convertNumber minFractionDigits="6" />
+              </h:outputText><br/>
             </ui:repeat>
           </h:panelGroup>
         </t:column>

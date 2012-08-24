@@ -11,7 +11,6 @@ import java.util.List;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
-//Create hibernate mapping with annotations
 @Entity
 @Table(name = "machines", catalog = "tourney", uniqueConstraints = {
             @UniqueConstraint(columnNames = "machineId")})
@@ -25,7 +24,6 @@ public class Machine
   private boolean inProgress;
   private String status;
   private int machineId;
-  private int gameId;
   private String vizUrl;
 
   public static enum STATE { idle, running }
@@ -105,17 +103,6 @@ public class Machine
   public void setInProgress (boolean inProgress)
   {
     this.inProgress = inProgress;
-  }
-
-  @Column(name = "gameId", unique = false, nullable = false)
-  public int getGameId ()
-  {
-    return gameId;
-  }
-
-  public void setGameId (int gameId)
-  {
-    this.gameId = gameId;
   }
 
   @Id

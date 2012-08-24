@@ -69,7 +69,7 @@
             <f:facet name="header">
               <h:outputText value="Name" />
             </f:facet>
-            <a href="results.xhtml?tournamentId=#{t.tournamentId}">
+            <a href="tournament.xhtml?tournamentId=#{t.tournamentId}">
               <h:outputText value="#{t.tournamentName}" />
             </a>
           </t:column>
@@ -216,6 +216,8 @@
               <h:commandButton value="Stop" action="#{actionOverview.stopGame(g)}"
                 onclick="return confirmAlert('Are you sure you want to stop this game?');"
                 rendered="#{g.machineId != 0}" />
+              <h:commandButton value="Restart" action="#{actionOverview.restartGame(g)}"
+                               rendered="#{g.gameFailed()}" />
             </h:panelGroup>
           </t:column>
         </t:dataTable>

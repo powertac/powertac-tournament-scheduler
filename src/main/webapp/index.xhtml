@@ -32,7 +32,7 @@
 				<t:dataTable id="datagames" border="1" sortable="false"
 					sortColumn="#{actionIndex.sortColumn}"
 					sortAscending="#{actionIndex.sortAscending}" preserveSort="true"
-					style="border:1px solid black;border-collapse:collapse;text-align:center"
+					style="border:1px solid black;border-collapse:collapse;text-align:center;"
 					value="#{actionIndex.gameList}" var="g">
 					<t:column defaultSorted="true" sortable="true">
 						<f:facet name="header">
@@ -106,7 +106,7 @@
 						<f:facet name="header">
 							<h:outputText value="Tournament" />
 						</f:facet>
-              <a href="results.xhtml?tournamentId=#{g.tourneyId}">
+              <a href="tournament.xhtml?tournamentId=#{g.tourneyId}">
                 <h:outputText value="#{g.getTournamentName()}" />
               </a>
     				</t:column>

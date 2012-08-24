@@ -14,7 +14,7 @@
       <parameterDefinitions>
         <org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition>
           <name>machine</name>
-          <description></description>
+          <description/>
           <allowedSlaves/>
           <defaultValue>master</defaultValue>
           <triggerIfResult>multiSelectionDisallowed</triggerIfResult>
@@ -37,6 +37,26 @@
       <command>#!/bin/bash
 
 PIDS=`ps ax | grep start-server-instance | grep -v grep | awk &apos;{print $1}&apos;`
+if [ -x &quot;$PIDS&quot; ]; then
+    echo &quot;PIDS : $PIDS&quot;
+for PID in $PIDS
+    do
+        echo &quot;killing $PID&quot;
+        kill -9 &quot;$PID&quot;
+    done
+fi
+
+PIDS=`ps ax | grep start-boot-server | grep -v grep | awk &apos;{print $1}&apos;`
+if [ -x &quot;$PIDS&quot; ]; then
+    echo &quot;PIDS : $PIDS&quot;
+for PID in $PIDS
+    do
+        echo &quot;killing $PID&quot;
+        kill -9 &quot;$PID&quot;
+    done
+fi
+
+PIDS=`ps ax | grep start-sim-server | grep -v grep | awk &apos;{print $1}&apos;`
 if [ -x &quot;$PIDS&quot; ]; then
     echo &quot;PIDS : $PIDS&quot;
 for PID in $PIDS
