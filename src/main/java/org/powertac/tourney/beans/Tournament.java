@@ -45,7 +45,6 @@ public class Tournament
   private int pomId;
   private String pomName;
 
-  // TODO Set completed Tournaments to 'complete'. Combine with Hibernate?
   public static enum STATE {
     pending, in_progress, complete
   }

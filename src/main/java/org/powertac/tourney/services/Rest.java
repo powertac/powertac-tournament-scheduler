@@ -36,8 +36,6 @@ public class Rest
       doneResponse = head + "<done></done>" + tail;
     }
 
-    // TODO Remove below
-    log.debug("");
     log.info(String.format("Broker %s login request : %s",
         brokerAuthToken, tournamentName));
 
@@ -86,8 +84,8 @@ public class Rest
         Agent.STATE state = db.getAgentStatus(
             game.getGameId(), broker.getBrokerId());
 
+        // Broker not in game or already logged in
         if (state == null || !state.equals(Agent.STATE.pending)) {
-          // Broker not in this game or another agent of this broker already logged into this game
           continue;
         }
 
@@ -142,8 +140,6 @@ public class Rest
     String loginResponse = head + "<login><queueName>%s</queueName><serverQueue>%s</serverQueue></login>" + tail;
     String errorResponse = head + "<error>%s</error>" + tail;
 
-    // TODO Remove below
-    log.debug("");
     log.info("Visualizer login request : " + machineName);
 
     // Validate source of request

@@ -4,104 +4,105 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Machine;
+import org.powertac.tourney.beans.Tournament;
 
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
 
 
-public class RunBootstrap implements Runnable
+public class RunBootstrap
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
   private String logSuffix = "boot-";
-  private int pomId;
   private int gameId;
   private String machineName = "";
   private int watchDogInterval;
   private TournamentProperties properties = TournamentProperties.getProperties();
-  private Database db = new Database();
 
-  public RunBootstrap (int gameId, int pomId)
+  public RunBootstrap (int gameId)
   {
     this.gameId = gameId;
-    this.pomId = pomId;
 
     watchDogInterval = Integer.parseInt(
         properties.getProperty("scheduler.watchDogInterval")) / 1000;
     machineName = properties.getProperty("bootserverName", "");
+
+    run();
   }
 
-  private boolean checkMachineAvailable ()
+  private void run ()
   {
+    Database db = new Database();
     try {
       db.startTrans();
 
-      Machine freeMachine;
+      if (!checkMachineAvailable(db)) {
+        db.abortTrans();
+        return;
+      }
+
+      if (!startJob(db)) {
+        db.abortTrans();
+        return;
+      }
+
+      db.commitTrans();
+    }
+    catch (Exception e) {
+      db.abortTrans();
+      e.printStackTrace();
+      log.info("Failed to bootstrap game: " + gameId);
+    }
+  }
+
+  private boolean checkMachineAvailable (Database db) throws SQLException
+  {
+    try {
+      Machine machine;
       if (machineName.isEmpty()) {
         log.info("Claiming free machine");
-        freeMachine = db.claimFreeMachine();
+        machine = db.claimFreeMachine();
       }
       else {
         log.info("Claiming machine " + machineName);
-        freeMachine = db.claimFreeMachine(machineName);
+        machine = db.claimFreeMachine(machineName);
       }
 
-      if (freeMachine != null) {
-        String jmsUrl = "tcp://" + freeMachine.getUrl() + ":61616";
-
+      if (machine != null) {
+        String jmsUrl = "tcp://" + machine.getUrl() + ":61616";
         db.updateGameJmsUrlById(gameId, jmsUrl);
-        db.updateGameMachine(gameId, freeMachine.getMachineId());
-        db.commitTrans();
-
-        machineName = freeMachine.getName();
-
+        db.updateGameMachine(gameId, machine.getMachineId());
+        machineName = machine.getName();
         log.info(String.format("Running boot %s on machine %s",
             gameId, machineName));
-
         return true;
       }
 
       log.info(String.format("No machines available to run scheduled boot: %s"
           + "... will retry in %s seconds", gameId, watchDogInterval));
+      return false;
     }
-    catch (Exception e) {
+    catch (SQLException sqle) {
       log.warn("Error claiming free machines for boot " + gameId);
-      e.printStackTrace();
+      throw sqle;
     }
+  }
 
-    db.abortTrans();
-    return false;
- }
-
-  public void run ()
+  private boolean startJob (Database db) throws Exception
   {
-    if (!checkMachineAvailable()) {
-      return;
-    }
-
-    // TODO Refactor with Hibernate
-    Game game;
-    try {
-      db.startTrans();
-      game = db.getGame(gameId);
-      db.setGameReadyTime(gameId);
-      db.commitTrans();
-    }
-    catch (SQLException e1) {
-      db.abortTrans();
-      e1.printStackTrace();
-      return;
-    }
+    Tournament t = db.getTournamentByGameId(gameId);
+    int pomId = t.getPomId();
 
     String finalUrl =
         properties.getProperty("jenkins.location")
-        + "job/start-boot-server/buildWithParameters?"
-        + "tourneyUrl=" + properties.getProperty("tourneyUrl")
-        + "&suffix=" + logSuffix
-        + "&pomId=" + pomId
-        + "&machine=" + machineName
-        + "&gameId=" + gameId;
+            + "job/start-boot-server/buildWithParameters?"
+            + "tourneyUrl=" + properties.getProperty("tourneyUrl")
+            + "&suffix=" + logSuffix
+            + "&pomId=" + pomId
+            + "&machine=" + machineName
+            + "&gameId=" + gameId;
 
     log.info("Final url: " + finalUrl);
 
@@ -120,25 +121,17 @@ public class RunBootstrap implements Runnable
 
       conn.getInputStream();
       log.info("Jenkins request to bootstrap game: " + gameId);
-      game.setState(Game.STATE.boot_in_progress);
+      db.updateGameStatusById(gameId, Game.STATE.boot_in_progress);
+      db.setGameReadyTime(gameId);
+      log.debug(String.format("Update game: %s to %s", gameId,
+          Game.STATE.boot_in_progress.toString()));
 
-      Utils.secondsSleep(1);
+      return true;
     }
     catch (Exception e) {
-      e.printStackTrace();
       log.info("Jenkins failure to bootstrap game: " + gameId);
-
-      Database db = new Database();
-      try {
-        db.updateGameStatusById(gameId, Game.STATE.boot_failed);
-      }
-      catch (NumberFormatException e1) {
-        e1.printStackTrace();
-      }
-      catch (SQLException e1) {
-        e1.printStackTrace();
-      }
-      game.setState(Game.STATE.boot_failed);
+      db.updateGameStatusById(gameId, Game.STATE.boot_failed);
+      throw e;
     }
   }
 }

@@ -120,7 +120,6 @@ public class TournamentProperties
 
   private String getTourneyUrl ()
   {
-    // TODO Get these from tournament.properties ??
     String tourneyUrl = "http://%s:8080/TournamentScheduler/";
     String address = "127.0.0.1";
 

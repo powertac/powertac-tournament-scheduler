@@ -12,24 +12,22 @@ import java.sql.SQLException;
 import java.util.List;
 
 
-//public class RunGame implements Runnable
 public class RunGame
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
   private String logSuffix = "sim-";
-  private int pomId;
+  private Game game;
   private int gameId;
   private String brokers = "";
-  private Machine machine = null;
+  private String machineName = "";
   private int watchDogInterval;
-  private Database db = new Database();
   private TournamentProperties properties = TournamentProperties.getProperties();
 
-  public RunGame (int gameId, int pomId)
+  public RunGame (Game game)
   {
-    this.gameId = gameId;
-    this.pomId = pomId;
+    this.game = game;
+    gameId = game.getGameId();
 
     watchDogInterval = Integer.parseInt(
         properties.getProperty("scheduler.watchDogInterval")) / 1000;
@@ -37,62 +35,84 @@ public class RunGame
     run();
   }
 
-  /***
-   * Make sure a bootstrap has been run for the sim
-   */
-  // TODO Should be a Game method
-  private boolean checkBootstrap ()
+  private void run ()
   {
+    Database db = new Database();
     try {
       db.startTrans();
 
-      Game game = db.getGame(gameId);
+      if (!checkBootstrap(db)) {
+        db.abortTrans();
+        return;
+      }
+
+      if (!checkBrokers(db)) {
+        db.abortTrans();
+        return;
+      }
+
+      if (!checkMachineAvailable(db)) {
+        db.abortTrans();
+        return;
+      }
+
+      if (!startJob(db)) {
+        db.abortTrans();
+        return;
+      }
+
+      db.commitTrans();
+    }
+    catch (Exception e) {
+      db.abortTrans();
+      e.printStackTrace();
+      log.error("Failed to start simulation game: " + gameId);
+    }
+  }
+
+  /***
+   * Make sure a bootstrap has been run for the sim
+   */
+  private boolean checkBootstrap (Database db) throws SQLException
+  {
+    try {
       if (game.hasBootstrap()) {
-				db.commitTrans();
         return true;
       }
       else {
         log.info("Game: " + gameId + " reports that boot is not ready!");
         db.updateGameStatusById(gameId, Game.STATE.boot_pending);
+        return false;
       }
     }
-    catch (NumberFormatException e) {
-      e.printStackTrace();
-    }
-    catch (SQLException e) {
+    catch (SQLException sqle) {
       log.warn("Bootstrap DB error while scheduling game " + gameId);
-      e.printStackTrace();
+      throw sqle;
     }
-
-    db.abortTrans();
-    return false;
   }
 
   /***
    * Make sure brokers are registered for the tournament
    */
-  private boolean checkBrokers ()
+  private boolean checkBrokers (Database db) throws SQLException
   {
     try {
-      db.startTrans();
-      Game g = db.getGame(gameId);
-
       List<Broker> brokerList = db.getBrokersInGame(gameId);
       if (brokerList.size() < 1) {
         log.info(String.format("Game: %s (tournament %s) reports no brokers "
-            + "registered", gameId, g.getTourneyId()));
+            + "registered", gameId, game.getTourneyId()));
         return false;
       }
       else {
-        for (Broker b: brokerList) {
-          if (!b.agentsAvailable(db)) {
+        for (Broker broker: brokerList) {
+          if (!broker.agentsAvailable(db)) {
             log.info(String.format("Not starting game %s : broker %s doesn't "
-                + "have enough available agents", gameId, b.getBrokerId()));
+                + "have enough available agents", gameId, broker.getBrokerId()));
             return false;
           }
 
-          brokers += b.getBrokerName() + "/";
-          brokers += db.getBrokerQueueName(gameId, b.getBrokerId()) +",";
+          brokers += broker.getBrokerName() + "/";
+          brokers += db.getBrokerQueueName(gameId, broker.getBrokerId()) +",";
         }
         brokers = brokers.substring(0, brokers.length()-1);
 
@@ -103,27 +123,20 @@ public class RunGame
         return true;
       }
     }
-    catch (SQLException e) {
+    catch (SQLException sqle) {
       log.warn("Broker DB error while scheduling game " + gameId);
-      e.printStackTrace();
-      return false;
-    }
-    finally {
-      db.abortTrans();
+      throw sqle;
     }
   }
 
   /***
    * Make sure there is a machine available for the game
    */
-  private boolean checkMachineAvailable ()
+  private boolean checkMachineAvailable (Database db) throws SQLException
   {
     try {
-      db.startTrans();
-
-      machine = db.claimFreeMachine();
+      Machine machine = db.claimFreeMachine();
       if (machine == null) {
-        db.abortTrans();
         log.info(String.format("No machines available to run scheduled game: %s"
             + "... will retry in %s seconds", gameId, watchDogInterval));
         return false;
@@ -136,58 +149,33 @@ public class RunGame
       db.updateGameMachine(gameId, machine.getMachineId());
       db.updateGameViz(gameId, machine.getVizUrl());
       db.setMachineStatus(machine.getMachineId(), Machine.STATE.running);
-      db.commitTrans();
+      machineName = machine.getName();
       log.info(String.format("Game: %s running on machine: %s",
           gameId, machine.getName()));
-
       return true;
     }
-    catch (Exception e) {
-      db.abortTrans();
-      e.printStackTrace();
+    catch (SQLException sqle) {
       log.warn("Error claiming free machines for game " + gameId);
-      return false;
+      throw sqle;
     }
   }
 
-  //@Override
-  public void run ()
+  private boolean startJob (Database db) throws Exception
   {
-    if (!checkBootstrap()) {
-      return;
-    }
-
-    if (!checkBrokers()) {
-      return;
-    }
-
-    if (!checkMachineAvailable()) {
-      return;
-    }
-
-    // TODO Refactor with Hibernate
-    Game game;
-    try {
-      db.startTrans();
-      game = db.getGame(gameId);
-      db.commitTrans();
-    }
-    catch (SQLException e1) {
-      db.abortTrans();
-      e1.printStackTrace();
-      return;
-    }
+    // We have to reload the game, as it is changed by checkMachineAvailable
+    game = db.getGame(gameId);
+    int pomId = db.getTournamentByGameId(gameId).getPomId();
 
     String finalUrl =
         properties.getProperty("jenkins.location")
-        + "job/start-sim-server/buildWithParameters?"
-        + "tourneyUrl=" + properties.getProperty("tourneyUrl")
-        + "&suffix=" + logSuffix
-        + "&pomId=" + pomId
-        + "&machine=" + machine.getName()
-        + "&gameId=" + gameId
-        + "&brokers=" + brokers
-        + "&serverQueue=" + game.getServerQueue();
+            + "job/start-sim-server/buildWithParameters?"
+            + "tourneyUrl=" + properties.getProperty("tourneyUrl")
+            + "&suffix=" + logSuffix
+            + "&pomId=" + pomId
+            + "&machine=" + machineName
+            + "&gameId=" + gameId
+            + "&brokers=" + brokers
+            + "&serverQueue=" + game.getServerQueue();
 
     log.info("Final url: " + finalUrl);
 
@@ -206,16 +194,16 @@ public class RunGame
 
       conn.getInputStream();
       log.info("Jenkins request to start sim game: " + gameId);
-      game.setState(Game.STATE.game_pending);
-      log.info(String.format("Update game: %s to %s", gameId,
+      db.updateGameStatusById(gameId, Game.STATE.game_pending);
+      log.debug(String.format("Update game: %s to %s", gameId,
           Game.STATE.game_pending.toString()));
 
-      Utils.secondsSleep(1);
+      return true;
     }
     catch (Exception e) {
-      e.printStackTrace();
       log.error("Jenkins failure to start simulation game: " + gameId);
-      game.setState(Game.STATE.game_failed);
+      db.updateGameStatusById(gameId, Game.STATE.game_failed);
+      throw e;
     }
   }
 }

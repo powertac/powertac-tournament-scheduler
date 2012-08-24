@@ -345,6 +345,7 @@ public class Scheduler implements InitializingBean
     log.info("WatchDogTimer Looking for Bootstraps To Start..");
 
     // Check Database for bootable games
+    List<Game> games = new ArrayList<Game>();
     Database db = new Database();
     try {
       db.startTrans();
@@ -355,24 +356,19 @@ public class Scheduler implements InitializingBean
         return;
       }
 
-      List<Game> games = db.getBootableGames();
-      log.info(String.format("WatchDogTimer reports %s boots are ready to "
-          + "start", games.size()));
-
-      if (games.size() > 0) {
-        Game g = games.get(0);
-        Tournament t = db.getTournamentByGameId(g.getGameId());
-
-        log.info(String.format("Boot %s will be started ...", g.getGameId()));
-
-        RunBootstrap runBootstrap = new RunBootstrap(g.getGameId(), t.getPomId());
-        new Thread(runBootstrap).start();
-      }
+      games = db.getBootableGames();
       db.commitTrans();
     }
     catch (SQLException e) {
       db.abortTrans();
       e.printStackTrace();
+    }
+
+    log.info(String.format("WatchDogTimer reports %s boots are ready to "
+        + "start", games.size()));
+    for (Game game: games) {
+      log.info(String.format("Boot %s will be started ...", game.getGameId()));
+      new RunBootstrap(game.getGameId());
     }
   }
 
@@ -381,6 +377,7 @@ public class Scheduler implements InitializingBean
     log.info("WatchDogTimer Looking for Runnable Games");
 
     // Check Database for startable games
+    List<Game> games = new ArrayList<Game>();
     Database db = new Database();
     try {
       db.startTrans();
@@ -391,7 +388,6 @@ public class Scheduler implements InitializingBean
         return;
       }
 
-      List<Game> games;
       if (runningTournament == null) {
 				games = db.getRunnableSingleGames();
         log.info("WatchDog CheckForSims for SINGLE_GAME tournament games");
@@ -400,22 +396,19 @@ public class Scheduler implements InitializingBean
         games = db.getRunnableMultiGames(runningTournament.getTournamentId());
         log.info("WatchDog CheckForSims for MULTI_GAME tournament games");
       }
-      log.info(String.format("WatchDogTimer reports %s game(s) are ready to "
-          + "start", games.size()));
-
-      for (Game g: games) {
-        Tournament t = db.getTournamentByGameId(g.getGameId());
-        log.info(String.format("Game %s will be started ...", g.getGameId()));
-
-        new RunGame(g.getGameId(), t.getPomId());
-        //RunGame runGame = new RunGame(g.getGameId(), t.getPomId());
-        //new Thread(runGame).start();
-      }
       db.commitTrans();
     }
     catch (SQLException e) {
       db.abortTrans();
       e.printStackTrace();
+    }
+
+    log.info(String.format("WatchDogTimer reports %s game(s) are ready to "
+        + "start", games.size()));
+
+    for (Game game: games) {
+      log.info(String.format("Game %s will be started ...", game.getGameId()));
+      new RunGame(game);
     }
   }
 
