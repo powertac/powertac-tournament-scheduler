@@ -8,8 +8,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.net.URL;
-import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -22,10 +20,8 @@ public class ActionOverview
 
   private String sortColumnBrokers = null;
   private boolean sortAscendingBrokers = true;
-
   private String sortColumnTournaments = null;
   private boolean sortAscendingTournaments = true;
-
   private String sortColumnGames = null;
   private boolean sortAscendingGames = true;
 
@@ -95,70 +91,46 @@ public class ActionOverview
     }
   }
 
-  public void stopGame (Game g)
+  public void stopGame (Game game)
   {
-    log.info("Trying to stop game: " + g.getGameId());
+    log.info("Trying to stop game: " + game.getGameId());
 
+    int gameId = game.getGameId();
+    int machineId = game.getMachineId();
     Database db = new Database();
     try {
       db.startTrans();
 
-      // Get the machineName and stop the job on Jenkins
-      TournamentProperties properties = TournamentProperties.getProperties();
-      String machineName = db.getMachineById(g.getMachineId()).getName();
-      String stopUrl = properties.getProperty("jenkins.location")
-          + "computer/" + machineName + "/executors/0/stop";
-      log.info("Stop url: " + stopUrl);
-
-      try {
-        URL url = new URL(stopUrl);
-        URLConnection conn = url.openConnection();
-        conn.getInputStream();
-      }
-      catch (Exception ignored) {}
-      log.info("Stopped job on Jenkins");
-
-      // Actually kill the job on the slave, it doesn't always get done above
-      String killUrl = properties.getProperty("jenkins.location")
-          + "job/kill-server-instance/buildWithParameters?"
-          + "machine=" + machineName;
-      log.info("Kill url: " + killUrl);
-
-      try {
-        URL url = new URL(killUrl);
-        URLConnection conn = url.openConnection();
-        conn.getInputStream();
-      }
-      catch (Exception ignored) {}
-      log.info("Killed job on slave " + machineName);
+      // Kill the job on Jenkins and the slave
+      new KillJob(db, game);
 
       // Reset game and machine on TM
-      if (g.getStatus().equals(Game.STATE.boot_in_progress.toString())) {
-        log.info("Resetting boot game: " + g.getGameId()
-            + " on machine: " + g.getMachineId());
-        db.updateGameBootstrapById(g.getGameId(), false);
-        g.removeBootFile();
-        db.updateGameStatusById(g.getGameId(), Game.STATE.boot_pending);
-        db.updateGameBootstrapById(g.getGameId(), false);
-        db.clearGameReadyTime(g.getGameId());
-        db.updateGameJmsUrlById(g.getGameId(), "");
+      if (game.isBooting()) {
+        log.info("Resetting boot game: " + gameId +" on machine: "+ machineId);
+        db.updateGameBootstrapById(gameId, false);
+        game.removeBootFile();
+        db.updateGameStatusById(gameId, Game.STATE.boot_pending);
+        db.clearGameReadyTime(gameId);
+        db.updateGameJmsUrlById(gameId, "");
+        Scheduler scheduler =
+            (Scheduler) SpringApplicationContext.getBean("scheduler");
+        if (scheduler.checkedBootstraps.contains(gameId)) {
+          scheduler.checkedBootstraps.remove(
+              scheduler.checkedBootstraps.indexOf(gameId));
+        }
       }
-      else if ((g.getStatus().equals(Game.STATE.game_pending.toString())) ||
-          (g.getStatus().equals(Game.STATE.game_ready.toString())) ||
-          (g.getStatus().equals(Game.STATE.game_in_progress.toString())) ) {
-        log.info("Resetting sim game: " + g.getGameId()
-            + " on machine: " + g.getMachineId());
-        db.updateGameStatusById(g.getGameId(), Game.STATE.boot_complete);
-        db.clearGameReadyTime(g.getGameId());
-        db.updateGameViz(g.getGameId(), "");
-        for (Broker b: db.getBrokersInGame(g.getGameId())) {
-          db.updateAgentStatus(g.getGameId(), b.getBrokerId(),
-              Agent.STATE.pending);
+      else if (game.isRunning()) {
+        log.info("Resetting sim game: " + gameId + " on machine: " + machineId);
+        db.updateGameStatusById(gameId, Game.STATE.boot_complete);
+        db.clearGameReadyTime(gameId);
+        db.updateGameViz(gameId, "");
+        for (Broker broker: db.getBrokersInGame(gameId)) {
+          db.updateAgentStatus(gameId, broker.getBrokerId(), Agent.STATE.pending);
         }
       }
 
-      db.updateGameFreeMachine(g.getGameId());
-      delayMachineUpdate(g.getMachineId());
+      db.updateGameFreeMachine(gameId);
+      delayMachineUpdate(machineId);
 
       db.commitTrans();
     }
@@ -166,8 +138,8 @@ public class ActionOverview
       e.printStackTrace();
       db.abortTrans();
 
-      log.error("Failed to completely stop game: " + g.getGameId());
-      String msg = "Error stopping game : " + g.getGameId();
+      log.error("Failed to completely stop game: " + gameId);
+      String msg = "Error stopping game : " + gameId;
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
     }

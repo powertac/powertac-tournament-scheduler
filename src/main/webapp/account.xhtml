@@ -40,7 +40,7 @@
         </h:dataTable>
       </h:form>
 
-			<h:form id="accountForm" rendered="#{user.permissions le 3}">
+			<h:form id="accountForm1" rendered="#{user.permissions le 3}">
         <br/>
 				<h4>Manage Brokers</h4>
 				<h:dataTable border="1"
@@ -92,7 +92,7 @@
 					<h:inputTextarea value="#{actionAccount.newBrokerShortDescription}" />
 					<h:commandButton value="Add Broker" action="#{actionAccount.addBroker}" />
           <br/>
-          <h:message for="accountForm" />
+          <h:message for="accountForm1" />
 				</h:panelGrid>
 			</h:form>
 

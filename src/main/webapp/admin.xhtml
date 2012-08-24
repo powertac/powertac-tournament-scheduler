@@ -12,13 +12,16 @@
     <ui:define name="content">
       <h2>Admin</h2>
 
-      <h:panelGroup rendered="#{!actionAdmin.getConfigErrors().isEmpty()}">
-        <h:outputText value="There are config errors!" style="color: red;" />
-        <t:dataList var="message" value="#{actionAdmin.getConfigErrors()}" layout="unorderedList">
-          <t:outputText value="#{message}" escape="false"/>
-        </t:dataList>
-        <br/>
-      </h:panelGroup>
+      <h:form >
+        <h:panelGroup rendered="#{!actionAdmin.getConfigErrors().isEmpty()}">
+          <h:outputText value="There are config errors!" style="color: red;" />
+          <t:dataList var="message" value="#{actionAdmin.getConfigErrors()}" layout="unorderedList">
+            <h:commandButton value="Hide" action="#{actionAdmin.removeMessage(message)}"/>
+            <t:outputText value="#{message}" escape="false" id="message"/>
+          </t:dataList>
+          <br/>
+        </h:panelGroup>
+      </h:form>
 
       <h:form rendered="#{user.permissions le 0}">
         <h:panelGrid columns="3">
@@ -96,7 +99,8 @@
 
           <h:column>
             <f:facet name="header">Action</f:facet>
-            <h:commandButton value="Delete" action="#{actionAdmin.deleteLocation(l)}" />
+            <h:commandButton value="Delete" action="#{actionAdmin.deleteLocation(l)}"
+                             onclick="return confirmAlert('Are you sure you want to delete this location?');"/>
           </h:column>
         </h:dataTable>
 
@@ -236,7 +240,8 @@
             <f:facet name="header">
               <h:outputText value="Delete" />
             </f:facet>
-            <h:commandButton value="Delete" action="#{actionAdmin.deleteMachine(m)}" />
+            <h:commandButton value="Delete" action="#{actionAdmin.deleteMachine(m)}"
+                             onclick="return confirmAlert('Are you sure you want to delete this machine?');"/>
           </t:column>
           <t:column>
             <f:facet name="header">

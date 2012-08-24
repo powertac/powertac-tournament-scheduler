@@ -39,10 +39,10 @@ public class TournamentProperties
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
+  private String resourceName = "/tournament.properties";
   private Properties properties = new Properties();
   private boolean loaded = false;
   private List<String> messages = new ArrayList<String>();
-  private String resourceName = "/tournament.properties";
 
   // delegate to props
   public String getProperty (String key)
@@ -73,7 +73,21 @@ public class TournamentProperties
     }
   }
 
-  public List<String> getConfigErrors ()
+  public void addErrorMessage (String message)
+  {
+    if (!messages.contains(message)) {
+      messages.add(message);
+    }
+  }
+
+  public void removeErrorMessage (String message)
+  {
+    if (messages.contains(message)) {
+      messages.remove(message.indexOf(message));
+    }
+  }
+
+  public List<String> getErrorMessages()
   {
     // We can't do this during startup, it fails due to race conditions
     checkJenkinsLocation();
@@ -146,7 +160,10 @@ public class TournamentProperties
     }
     catch (Exception e) {
       e.printStackTrace();
-      messages.add("Jenkins Location could not be reached!");
+      String msg = "Jenkins Location could not be reached!";
+      if (!messages.contains(msg)) {
+        messages.add(msg);
+      }
     }
   }
 

@@ -1,0 +1,198 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>The purpose of this job is to start a sim server instance on a particular machine. This job is meant to be started via a rest call with certain commandline arguments&#xd;
+</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>tourneyUrl</name>
+          <description/>
+          <defaultValue>http://127.0.0.1:8080/TournamentScheduler</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>suffix</name>
+          <description/>
+          <defaultValue>sim-</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>pomId</name>
+          <description/>
+          <defaultValue/>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>brokers</name>
+          <description>list of brokers/queues</description>
+          <defaultValue/>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>gameId</name>
+          <description/>
+          <defaultValue/>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>serverQueue</name>
+          <description>name of server input queue</description>
+          <defaultValue/>
+        </hudson.model.StringParameterDefinition>
+        <org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition>
+          <name>machine</name>
+          <description/>
+          <allowedSlaves>
+            <string>ALL (no restriction)</string>
+          </allowedSlaves>
+          <defaultValue>master</defaultValue>
+          <triggerIfResult>multiSelectionDisallowed</triggerIfResult>
+          <allowMultiNodeSelection>false</allowMultiNodeSelection>
+          <triggerConcurrentBuilds>false</triggerConcurrentBuilds>
+        </org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>machine</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+###############################################################################
+# You might want or need to change these 
+###############################################################################
+LOGFILE=&quot;./log/$(date +%y%m%d_%H%M).log&quot;
+MVN_CMD=&quot;mvn&quot;
+#COMP_CMD=&quot;7za a -mx=9&quot; COMP_EXT=&quot;7z&quot;
+#COMP_CMD=&quot;tar -cjvf&quot; #COMP_EXT=&quot;bz2&quot;
+#COMP_CMD=&quot;zip -9&quot;    #COMP_EXT=&quot;9.zip&quot;
+#COMP_CMD=&quot;zip&quot;       #COMP_EXT=&quot;zip&quot;
+COMP_CMD=&quot;tar -czvf&quot;
+COMP_EXT=&quot;tar.gz&quot;
+
+interfacePath=&quot;faces/serverInterface.jsp&quot;
+propPath=&quot;faces/properties.jsp&quot;
+pomPath=&quot;faces/pom.jsp&quot;
+LOGFILE=&quot;./log/sim.$(date +%y%m%d_%H%M).log&quot;
+
+
+###############################################################################
+# No need to change anything below this line
+###############################################################################
+
+function log () {
+    if [ &quot;$1&quot; == &apos;nl&apos; ]; then
+        echo -e &quot;\n$2&quot;  | tee -a $LOGFILE
+    else
+        echo &quot;$1&quot;       | tee -a $LOGFILE
+    fi
+}
+
+function cleanup () {
+    # TODO Enable below
+    #log nl &quot;Cleaning up&quot;
+    #rm -fr ./log/init*
+    #rm -fr ./log/powertac*
+    #rm -fr ./game*
+    #rm -f ./pom.xml
+    #rm -f ./properties
+
+    log nl &quot;Not cleaning up, need to enable this&quot;
+}
+
+function get_properties () {
+    wget -O properties $propUrl
+    COUNT=$(grep -c &apos;server.weatherService.weatherLocation&apos; properties)
+    if [ $COUNT -le 0 ] ; then
+        log nl &quot;Error getting game properties : $propUrl&quot;
+        log nl &quot;Notify TM we&apos;re game_failed&quot;
+        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_failed&quot;
+        cleanup
+        exit 1
+    else
+        cat properties &gt;&gt; $LOGFILE
+    fi
+}
+
+function get_pom () {
+    wget -O pom.xml $pomUrl
+    SIZE=$(stat -c%s &quot;pom.xml&quot;)
+    if [ $SIZE -le 10 ] ; then
+        log nl &quot;Error getting pom : $pomUrl&quot;
+        log nl &quot;Notify TM we&apos;re game_failed&quot;
+        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_failed&quot;
+        cleanup
+        exit 1
+    else
+        log &quot;Pom retrieved&quot;
+    fi
+}
+
+
+###############################################################################
+# Here we go!
+###############################################################################
+
+# Some intermediate variables
+interfaceUrl=&quot;$tourneyUrl$interfacePath&quot;
+bootUrl=&quot;$interfaceUrl?action=boot&amp;gameId=$gameId&quot;
+propUrl=&quot;$tourneyUrl$propPath?gameId=$gameId&quot;
+pomUrl=&quot;$tourneyUrl$pomPath?pomId=$pomId&quot;
+simName=&quot;game-$gameId-sim&quot;
+
+# Make sure logdir exists
+DIRECTORY=&quot;log&quot;
+if [ ! -d &quot;$DIRECTORY&quot; ]; then
+    mkdir $DIRECTORY
+fi
+
+log &quot;Nodename      : $NODE_NAME&quot;
+log &quot;Account       : ${USER}&quot;
+log &quot;GameId        : $gameId&quot;
+log &quot;PomId         : $pomId&quot;
+log &quot;TourneyUrl    : $tourneyUrl&quot;
+log &quot;Suffix        : $suffix&quot;
+log &quot;Brokers       : $brokers&quot;
+log &quot;MVN_CMD       : $MVN_CMD&quot;
+log &quot;COMP_CMD      : $COMP_CMD&quot;
+log &quot;COMP_EXT      : $COMP_EXT&quot;
+log &quot;interfacePath : $interfacePath&quot;
+log &quot;propPath      : $propPath&quot;
+log &quot;pomPath       : $pomPath&quot;
+log &quot;interfaceUrl  : $interfaceUrl&quot;
+log &quot;bootUrl       : $bootUrl&quot;
+log &quot;propUrl       : $propUrl&quot;
+log &quot;pomUrl        : $pomUrl&quot;
+log &quot;simName       : $simName&quot;
+
+log nl &quot;Get the game properties from $propUrl&quot;
+get_properties
+
+log nl &quot;Get the pom file from $pomUrl&quot;
+get_pom
+
+CMD=&quot;$MVN_CMD -Pcli -Dexec.args=\&quot;-sim --control $tourneyUrl --game-id $gameId --log-suffix $suffix$gameId --brokers $brokers --input-queue $serverQueue\&quot;&quot;
+log nl &quot;Run maven : $CMD&quot;
+eval $CMD
+
+log nl &quot;Compressing log files&quot;
+$COMP_CMD &quot;$simName-logs.$COMP_EXT&quot; log/powertac-$suffix$gameId.* log/init.*
+
+log nl &quot;Sending log file&quot;
+curl --upload-file &quot;$simName-logs.$COMP_EXT&quot; &quot;$interfaceUrl?fileName=$simName-logs.$COMP_EXT&quot;
+
+log nl &quot;Notify TM we&apos;re game_complete&quot;
+wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_complete&quot;
+
+cleanup
+exit 0</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

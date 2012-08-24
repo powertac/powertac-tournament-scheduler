@@ -50,7 +50,12 @@ public class ActionAdmin
 
   public List<String> getConfigErrors()
   {
-    return properties.getConfigErrors();
+    return properties.getErrorMessages();
+  }
+
+  public void removeMessage (String message)
+  {
+    properties.removeErrorMessage(message);
   }
 
   //<editor-fold desc="Location stuff">

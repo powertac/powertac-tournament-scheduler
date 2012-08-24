@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -24,7 +25,6 @@ import static javax.persistence.GenerationType.IDENTITY;
 public class Game implements Serializable
 {
   private static Logger log = Logger.getLogger("TMLogger");
-  public static final String key = "game";
 
   private Date startTime;
   private Date readyTime;
@@ -115,7 +115,6 @@ public class Game implements Serializable
 
     return result;
   }
-
 
   @Transient
   public List<Broker> getBrokersInGame ()
@@ -284,6 +283,20 @@ public class Game implements Serializable
     return "success";
   }
 
+  @Transient
+  public boolean isBooting () {
+    return status.equals(STATE.boot_in_progress.toString());
+  }
+
+  @Transient
+  public boolean isRunning () {
+    List<String> running = Arrays.asList(
+        Game.STATE.game_pending.toString(),
+        Game.STATE.game_ready.toString(),
+        Game.STATE.game_in_progress.toString());
+    return running.contains(status);
+  }
+
   public void setState (STATE state)
   {
     Database db = new Database();
@@ -390,11 +403,6 @@ public class Game implements Serializable
   }
 
   //<editor-fold desc="Setter and getters">
-  public static String getKey ()
-  {
-    return key;
-  }
-
   @Temporal(TemporalType.DATE)
   @Column(name = "startTime", unique = false, nullable = false, length = 10)
   public Date getStartTime ()

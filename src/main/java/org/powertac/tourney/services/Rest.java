@@ -97,10 +97,10 @@ public class Rest
 
         log.debug("Game " + game.getGameId() + " is ready");
 
-        long readyStamp = game.getReadyTime().getTime();
-        if (nowStamp < (readyStamp + readyDeadline)) {
+        long diff = nowStamp - game.getReadyTime().getTime();
+        if (diff < readyDeadline) {
           log.debug("Broker needs to wait for the viz timeout : " +
-            (nowStamp - readyStamp + readyDeadline) / 1000);
+            (readyDeadline - diff) / 1000);
           continue;
         }
 

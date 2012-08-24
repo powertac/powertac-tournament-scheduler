@@ -109,7 +109,7 @@ public class ActionTournament
       // Add new tournament to the database
       int tourneyId = db.addTournament(tournamentName, startTime, fromTime,
           toTime, Tournament.TYPE.SINGLE_GAME, selectedPom,
-          allLocations, -1, new int[] {0, 0, 0});
+          allLocations, maxBrokers, new int[] {0, 0, 0});
       log.info("Created tournament " + tourneyId);
 
       // Add a new game to the database

@@ -24,7 +24,6 @@ import java.util.*;
 public class Scheduler implements InitializingBean
 {
   private static Logger log = Logger.getLogger("TMLogger");
-  public static final String key = "scheduler";
 
   @Autowired
   private TournamentProperties properties;
@@ -32,7 +31,7 @@ public class Scheduler implements InitializingBean
   private Timer watchDogTimer = null;
   private Tournament runningTournament = null;
 
-  private List<Integer> checkedBootstraps = new ArrayList<Integer>();
+  public List<Integer> checkedBootstraps = new ArrayList<Integer>();
 
   public Scheduler ()
   {
@@ -424,11 +423,7 @@ public class Scheduler implements InitializingBean
   {
     log.info("WatchDogTimer Looking for Wedged Bootstraps");
 
-    long wedgedDeadline =
-        Integer.parseInt(properties.getProperty("scheduler.bootstrapWedged"));
-    long nowStamp = new Date().getTime();
-
-    List<Game> games = new ArrayList<Game>();
+    List<Game> games;
     Database db = new Database();
     try {
       db.startTrans();
@@ -438,25 +433,34 @@ public class Scheduler implements InitializingBean
     catch (SQLException sqle) {
       sqle.printStackTrace();
       db.abortTrans();
+      log.error("WatchDogTimer Error checking Wedged Bootstraps");
+      return;
     }
 
-    for (Game g: games) {
-      if (!g.stateEquals(Game.STATE.boot_in_progress)) {
+    long wedgedDeadline =
+        Integer.parseInt(properties.getProperty("scheduler.bootstrapWedged"));
+    long nowStamp = new Date().getTime();
+
+    for (Game game: games) {
+      if (!game.isBooting()) {
         continue;
       }
 
       // Make sure no more than 1 email per wedged boot
-      if (checkedBootstraps.contains(g.getGameId())) {
+      if (checkedBootstraps.contains(game.getGameId())) {
         continue;
-      } else {
-        checkedBootstraps.add(g.getGameId());
       }
 
-      long diff = nowStamp - g.getReadyTime().getTime();
+      if (game.getReadyTime() == null) {
+        continue;
+      }
+      long diff = nowStamp - game.getReadyTime().getTime();
       if (diff > wedgedDeadline) {
+        checkedBootstraps.add(game.getGameId());
+
         String msg = String.format(
             "Bootstrapping of game %s seems to take too long : %s seconds",
-            g.getGameId(), (diff/1000));
+            game.getGameId(), (diff / 1000));
         log.error(msg);
         Utils.sendMail("Bootstrap seems stuck", msg,
             properties.getProperty("scheduler.mailRecipient"));

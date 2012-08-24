@@ -178,7 +178,7 @@ public class RunGame
 
     String finalUrl =
         properties.getProperty("jenkins.location")
-        + "job/start-server-instance/buildWithParameters?"
+        + "job/start-sim-server/buildWithParameters?"
         + "tourneyUrl=" + properties.getProperty("tourneyUrl")
         + "&suffix=" + logSuffix
         + "&pomId=" + pomId
