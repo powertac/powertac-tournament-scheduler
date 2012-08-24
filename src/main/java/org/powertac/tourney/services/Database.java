@@ -1228,20 +1228,6 @@ public class Database
     return result;
   }
 
-  public Machine claimFreeMachine (String machineName) throws SQLException
-  {
-    Machine result = getMachineByName(machineName);
-
-    if ((result != null) &&
-        (result.isAvailable()) &&
-        (result.stateEquals(Machine.STATE.idle))) {
-      setMachineStatus(result.getMachineId(), Machine.STATE.running);
-      return result;
-    }
-
-    return null;
-  }
-
   public List<Location> getLocations () throws SQLException
   {
     PreparedStatement ps = conn.prepareStatement(Constants.SELECT_LOCATIONS);

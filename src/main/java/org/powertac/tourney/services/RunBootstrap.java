@@ -27,7 +27,6 @@ public class RunBootstrap
 
     watchDogInterval = Integer.parseInt(
         properties.getProperty("scheduler.watchDogInterval")) / 1000;
-    machineName = properties.getProperty("bootserverName", "");
 
     run();
   }
@@ -60,16 +59,9 @@ public class RunBootstrap
   private boolean checkMachineAvailable (Database db) throws SQLException
   {
     try {
-      Machine machine;
-      if (machineName.isEmpty()) {
-        log.info("Claiming free machine");
-        machine = db.claimFreeMachine();
-      }
-      else {
-        log.info("Claiming machine " + machineName);
-        machine = db.claimFreeMachine(machineName);
-      }
+      log.info("Claiming free machine");
 
+      Machine machine = db.claimFreeMachine();
       if (machine != null) {
         String jmsUrl = "tcp://" + machine.getUrl() + ":61616";
         db.updateGameJmsUrlById(gameId, jmsUrl);

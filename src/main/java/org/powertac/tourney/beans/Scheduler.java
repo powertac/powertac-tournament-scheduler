@@ -457,6 +457,7 @@ public class Scheduler implements InitializingBean
         log.error(msg);
         Utils.sendMail("Bootstrap seems stuck", msg,
             properties.getProperty("scheduler.mailRecipient"));
+        properties.addErrorMessage(msg);
         return;
       }
     }

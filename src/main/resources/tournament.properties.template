@@ -46,8 +46,3 @@ scheduler.watchDogInterval = 60000
 
 # Deadline (ms) for registering brokers before tournament-starttime
 loginDeadline = 3600000
-
-# The name of a dedicated slave to run the bootstraps
-# Leave empty if any slave can run bootstraps
-bootserverName = 
-
