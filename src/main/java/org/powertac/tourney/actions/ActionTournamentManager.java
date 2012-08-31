@@ -109,7 +109,7 @@ public class ActionTournamentManager
       // Add new tournament to the database
       int tourneyId = db.addTournament(tournamentName, startTime, fromTime,
           toTime, Tournament.TYPE.SINGLE_GAME, selectedPom,
-          allLocations, maxBrokers, new int[] {0, 0, 0});
+          allLocations, maxBrokers, maxAgents, new int[] {0, 0, 0});
       log.info("Created tournament " + tourneyId);
 
       // Add a new game to the database
@@ -146,7 +146,7 @@ public class ActionTournamentManager
       db.startTrans();
       int tourneyId = db.addTournament(tournamentName, startTime, fromTime,
           toTime, Tournament.TYPE.MULTI_GAME, selectedPom,
-          allLocations, maxBrokers, new int[] {size1, size2, size3});
+          allLocations, maxBrokers, maxAgents, new int[] {size1, size2, size3});
       db.commitTrans();
       log.info("Created tournament " + tourneyId);
       return true;

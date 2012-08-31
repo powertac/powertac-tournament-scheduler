@@ -332,7 +332,8 @@ public class Database
 
   public int addTournament (String tourneyName, Date startTime, Date dateFrom,
                             Date dateTo, Tournament.TYPE type, int pomId,
-                            String locations, int maxBrokers, int[] gameSizes)
+                            String locations, int maxBrokers, int maxAgents,
+                            int[] gameSizes)
     throws SQLException
   {
     PreparedStatement ps =conn.prepareStatement(
@@ -345,10 +346,11 @@ public class Database
     ps.setString(5, type.toString());
     ps.setString(6, locations);
     ps.setInt(7, maxBrokers);
-    ps.setInt(8, gameSizes[0]);
-    ps.setInt(9, gameSizes[1]);
-    ps.setInt(10, gameSizes[2]);
-    ps.setInt(11, pomId);
+    ps.setInt(8, maxAgents);
+    ps.setInt(9, gameSizes[0]);
+    ps.setInt(10, gameSizes[1]);
+    ps.setInt(11, gameSizes[2]);
+    ps.setInt(12, pomId);
 
     ps.executeUpdate();
 
@@ -407,24 +409,6 @@ public class Database
     ps.close();
     rs.close();
     
-    return ts;
-  }
-
-  public Tournament getTournamentById (int tourneyId) throws SQLException
-  {
-    PreparedStatement ps = conn.prepareStatement(
-        Constants.SELECT_TOURNAMENT_BYID);
-    ps.setInt(1, tourneyId);
-
-    Tournament ts = null;
-    ResultSet rs = ps.executeQuery();
-    if (rs.next()) {
-      ts = new Tournament(rs);
-    }
-
-    ps.close();
-    rs.close();
-
     return ts;
   }
 

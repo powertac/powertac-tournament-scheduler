@@ -209,8 +209,8 @@ public class Constants
   public static final String ADD_TOURNAMENT =
     "INSERT INTO tournaments " +
     "(tourneyName, startTime, dateFrom, dateTo, type, locations, maxBrokers, " +
-    "status, gameSize1, gameSize2, gameSize3, pomId) VALUES " +
-    "(?,?,?,?,?,?,?,'" + Tournament.STATE.pending.toString() + "',?,?,?,?);";
+    "maxAgents, status, gameSize1, gameSize2, gameSize3, pomId) VALUES " +
+    "(?,?,?,?,?,?,?,?,'" + Tournament.STATE.pending.toString() + "',?,?,?,?);";
 
   /***
    * Remove a tournament by its Id
