@@ -233,12 +233,6 @@ public class Scheduler implements InitializingBean
 
     // Sort and remove duplicates
     Arrays.sort(gameTypes);
-    if (gameTypes[2] == gameTypes[1]) {
-      gameTypes[2] = 0;
-    }
-    if (gameTypes[1] == gameTypes[0]) {
-      gameTypes[1] = 0;
-    }
 
     Database db = new Database();
     try {
