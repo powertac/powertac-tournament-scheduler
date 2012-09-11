@@ -2,6 +2,7 @@ package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
@@ -20,10 +21,12 @@ public class CheckWeatherServer implements InitializingBean
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
+  @Autowired
+  private TournamentProperties properties;
+
   private String weatherServerLocation = "";
   private static String status = "";
   private Timer weatherServerCheckerTimer = null;
-  private TournamentProperties properties;
   private boolean mailed;
 
   public CheckWeatherServer ()
@@ -38,8 +41,6 @@ public class CheckWeatherServer implements InitializingBean
 
   private void lazyStart ()
   {
-    properties = TournamentProperties.getProperties();
-
     TimerTask weatherServerChecker = new TimerTask() {
       @Override
       public void run ()

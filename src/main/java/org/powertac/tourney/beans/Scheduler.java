@@ -279,8 +279,8 @@ public class Scheduler implements InitializingBean
 
     List<Game> games = Game.getNotCompleteGamesList();
 
-    long wedgedDeadline =
-        Integer.parseInt(properties.getProperty("scheduler.bootstrapWedged"));
+    long wedgedDeadline = Integer.parseInt(
+        properties.getProperty("scheduler.bootstrapWedged", "900000"));
     long nowStamp = Utils.offsetDate().getTime();
 
     for (Game game: games) {
@@ -315,10 +315,10 @@ public class Scheduler implements InitializingBean
 
     List<Game> games = Game.getNotCompleteGamesList();
 
-    long wedgedSimDeadline =
-        Integer.parseInt(properties.getProperty("scheduler.simWedged"));
-    long wedgedTestDeadline =
-        Integer.parseInt(properties.getProperty("scheduler.simTestWedged"));
+    long wedgedSimDeadline = Integer.parseInt(
+        properties.getProperty("scheduler.simWedged", "10800000"));
+    long wedgedTestDeadline = Integer.parseInt(
+        properties.getProperty("scheduler.simTestWedged", "2700000"));
     long nowStamp = Utils.offsetDate().getTime();
 
     for (Game game: games) {
