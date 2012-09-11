@@ -2,6 +2,9 @@ package org.powertac.tourney.listeners;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.util.Enumeration;
 
 public class Initializer implements ServletContextListener
 {
@@ -10,11 +13,18 @@ public class Initializer implements ServletContextListener
     // e.getServletContext().getAttribute(Games.getKey());
     // e.getServletContext().getAttribute(Tournaments.getKey());
     // e.getServletContext().getAttribute(Machines.getKey());
+
+    Enumeration<Driver> drivers = DriverManager.getDrivers();
+    while (drivers.hasMoreElements()) {
+      Driver driver = drivers.nextElement();
+      try {
+        DriverManager.deregisterDriver(driver);
+      }
+      catch (Exception ignored) {}
+    }
   }
 
   public void contextInitialized (ServletContextEvent e)
   {
-    // TODO Check database and load in pending and inprogress games
-    // Load games, tournaments and machines into the application context
   }
 }

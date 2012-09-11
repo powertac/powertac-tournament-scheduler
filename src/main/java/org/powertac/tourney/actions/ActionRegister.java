@@ -1,18 +1,25 @@
 package org.powertac.tourney.actions;
 
-import org.powertac.tourney.services.Database;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.powertac.tourney.beans.User;
+import org.powertac.tourney.services.HibernateUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import java.sql.SQLException;
+import java.util.Date;
 
 
 @Component("actionRegister")
 @Scope("request")
 public class ActionRegister
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   private String username;
   private String password1;
   private String password2;
@@ -23,26 +30,40 @@ public class ActionRegister
 
   public String register ()
   {
-    Database db = new Database();
-    try {
-      db.startTrans();
-      if (password1.equals(password2)) {
-        db.addUser(username, password1, institution, contactName, contactEmail, contactPhone);
-        db.commitTrans();
-        return "Success";
-      }
-      else {
-        db.abortTrans();
-        String msg = "Passwords do not match";
-        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-        FacesContext.getCurrentInstance().addMessage("registerForm", fm);
-        return "Failure";
-      }
+    if (!password1.equals(password2)) {
+      String msg = "Passwords do not match";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+      FacesContext.getCurrentInstance().addMessage("registerForm", fm);
+      return "Failure";
     }
-    catch (SQLException e) {
-      db.abortTrans();
+
+    String genSalt = DigestUtils.md5Hex(Math.random() + (new Date()).toString());
+
+    User user = new User();
+    user.setUserName(username);
+    user.setContactName(contactName);
+    user.setContactEmail(contactEmail);
+    user.setContactPhone(contactPhone);
+    user.setInstitution(institution);
+    user.setPermissionId(User.Permission.BROKER);
+    user.setPassword(DigestUtils.md5Hex(password1 + genSalt));
+    user.setSalt(genSalt);
+
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      session.save(user);
+      transaction.commit();
+      log.info("Registring user " + username);
+      return "Success";
+    }
+    catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
       return "Failure";
+    }
+    finally {
+      session.close();
     }
   }
 

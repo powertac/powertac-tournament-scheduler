@@ -1,26 +1,22 @@
 package org.powertac.tourney.beans;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.*;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.net.URL;
-import java.sql.SQLException;
 import java.util.*;
 
 
-@ManagedBean
 @Service("scheduler")
+@ManagedBean
 public class Scheduler implements InitializingBean
 {
   private static Logger log = Logger.getLogger("TMLogger");
@@ -29,52 +25,28 @@ public class Scheduler implements InitializingBean
   private TournamentProperties properties;
 
   private Timer watchDogTimer = null;
+  private long watchDogInterval;
+
   private Tournament runningTournament = null;
 
-  public List<Integer> checkedBootstraps = new ArrayList<Integer>();
+  private List<Integer> checkedBootstraps = new ArrayList<Integer>();
+  private List<Integer> checkedSims = new ArrayList<Integer>();
 
   public Scheduler ()
   {
     super();
   }
 
-  @Override
   public void afterPropertiesSet () throws Exception
   {
     lazyStart();
   }
 
-  public void reloadTournament ()
-  {
-    Database db = new Database();
-    try {
-      db.startTrans();
-
-      Tournament t = db.getTournamentByType(Tournament.TYPE.MULTI_GAME);
-      if (t == null) {
-        log.info("No tournament to reload");
-        return;
-      }
-      log.info("Reloading Tournament: " + t.getTournamentName());
-
-      runningTournament = t;
-    }
-    catch (Exception e) {
-      log.error("Error retrieving tourney");
-      e.printStackTrace();
-    }
-    finally {
-      db.abortTrans();
-    }
-  }
-
-  public void unloadTournament ()
-  {
-    runningTournament = null;
-  }
-
   private void lazyStart ()
   {
+    watchDogInterval = Integer.parseInt(properties
+        .getProperty("scheduler.watchDogInterval", "120000"));
+
     Timer t = new Timer();
     TimerTask tt = new TimerTask() {
       @Override
@@ -100,11 +72,12 @@ public class Scheduler implements InitializingBean
       public void run ()
       {
         try {
-          checkMachines();
+          Machine.checkMachines();
           scheduleLoadedTournament();
-          startRunnableGames();
-          startBootableGames();
+          RunGame.startRunnableGames(runningTournament);
+          RunBoot.startBootableGames(runningTournament);
           checkWedgedBoots();
+          checkWedgedSims();
         }
         catch (Exception e) {
           log.error("Severe error in WatchDogTimer!");
@@ -113,12 +86,8 @@ public class Scheduler implements InitializingBean
       }
     };
 
-    long watchDogInt =
-      Integer.parseInt(properties
-          .getProperty("scheduler.watchDogInterval", "120000"));
-
     watchDogTimer = new Timer();
-    watchDogTimer.schedule(watchDog, new Date(), watchDogInt);
+    watchDogTimer.schedule(watchDog, new Date(), watchDogInterval);
   }
 
   private void stopWatchDog ()
@@ -139,134 +108,105 @@ public class Scheduler implements InitializingBean
     startWatchDog();
   }
 
-  /**
-   * Check the status of the Jenkins slaves against the local status
-   */
-  private void checkMachines ()
+  public void loadTournament (int tourneyId)
   {
-    log.info("WatchDogTimer Checking Machine States..");
+    log.info("Loading Tournament " + tourneyId);
 
-    Database db = new Database();
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
-
-      String url = properties.getProperty("jenkins.location")
-          + "computer/api/xml";
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      DocumentBuilder docB = dbf.newDocumentBuilder();
-      Document doc = docB.parse(new URL(url).openStream());
-      NodeList nList = doc.getElementsByTagName("computer");
-
-      for (int temp = 0; temp < nList.getLength(); temp++) {
-        try{
-          Node nNode = nList.item(temp);
-          if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-            Element eElement = (Element) nNode;
-
-            String displayName = eElement.getElementsByTagName("displayName")
-                .item(0).getChildNodes().item(0).getNodeValue();
-            String offline = eElement.getElementsByTagName("offline")
-                .item(0).getChildNodes().item(0).getNodeValue();
-            String idle = eElement.getElementsByTagName("idle")
-                .item(0).getChildNodes().item(0).getNodeValue();
-
-            // We don't check the status of the master
-            log.debug("Checking machine " + displayName);
-            if (displayName.equals("master")) {
-              continue;
-            }
-
-            Machine machine = db.getMachineByName(displayName);
-            if (machine == null) {
-              log.warn("Machine " + displayName + " doesn't exist in the TM");
-              continue;
-            }
-
-            if (machine.isAvailable() && offline.equals("true")) {
-              db.setMachineAvailable(machine.getMachineId(), false);
-              log.warn(String.format("Machine %s is set available, but "
-                  + "Jenkins reports offline", displayName));
-            }
-
-            if (machine.stateEquals(Machine.STATE.idle) && idle.equals("false")) {
-              db.setMachineStatus(machine.getMachineId(), Machine.STATE.running);
-              log.warn(String.format("Machine %s has status 'idle', but "
-                  + "Jenkins reports 'not idle'", displayName));
-            }
-          }
-        }
-        catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-      db.commitTrans();
+      Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID);
+      query.setInteger("tournamentId", tourneyId);
+      runningTournament = (Tournament) query.uniqueResult();
+      transaction.commit();
     }
-    catch (Exception ignored) {
-      db.abortTrans();
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
     }
+    session.close();
+  }
+
+  public void unloadTournament ()
+  {
+    log.info("Unloading Tournament");
+    runningTournament = null;
+  }
+
+  public void reloadTournament ()
+  {
+    if (runningTournament == null) {
+      return;
+    }
+    int runningId = runningTournament.getTournamentId();
+    unloadTournament();
+    loadTournament(runningId);
   }
 
   /**
    * Check if it's time to schedule the tournament
    */
-  private void scheduleLoadedTournament()
+  private void scheduleLoadedTournament ()
   {
     if (isNullTourney()) {
       log.info("No multigame tournament available");
       return;
     }
 
-    if (runningTournament.getStartTime().after(new Date())) {
+    log.info("Multigame tournament available "
+        + runningTournament.getTournamentName());
+
+    if (runningTournament.getGameMap().size() > 0) {
+      log.info("Tournament already scheduled");
+      return;
+    }
+    else if (runningTournament.getStartTime().after(new Date())) {
       log.info("Too early to start tournament: " +
           runningTournament.getTournamentName());
       return;
     }
 
-    log.info("Multigame tournament available "
-        + runningTournament.getTournamentName());
-
     // Get array of gametypes, and number of participants
-    int tourneyId = runningTournament.getTournamentId();
     int[] gameTypes = {runningTournament.getSize1(),
-                       runningTournament.getSize2(),
-                       runningTournament.getSize3() };
+        runningTournament.getSize2(),
+        runningTournament.getSize3() };
 
-    // Sort and remove duplicates
-    Arrays.sort(gameTypes);
-
-    Database db = new Database();
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
-
-      List<Game> games = db.getGamesInTourney(tourneyId);
-      if (games.size() > 0) {
-        db.abortTrans();
-        log.info("Tournament already scheduled");
-        return;
+      List<Broker> brokers = new ArrayList<Broker>();
+      for (Broker broker: runningTournament.getBrokerMap().values()) {
+        brokers.add(broker);
       }
 
-      List<Broker> brokers = db.getBrokersInTournament(tourneyId);
       if (brokers.size() == 0) {
-        db.updateTournamentStatus(tourneyId, Tournament.STATE.complete);
-        db.abortTrans();
-        log.error("Tournament has no brokers registered, setting to complete");
+        runningTournament.setStatus(Tournament.STATE.complete.toString());
+        session.update(runningTournament);
+        transaction.commit();
+        log.info("Tournament has no brokers registered, setting to complete");
+        unloadTournament();
         return;
       }
 
+      // Sort and do the largest first, smaller ones are easier to schedule
+      Arrays.sort(gameTypes);
       for (int i=gameTypes.length-1; i > -1; i--) {
-        doTheKailash(db, gameTypes[i], brokers);
+        doTheKailash(session, gameTypes[i], brokers);
       }
 
-      db.commitTrans();
+      transaction.commit();
     }
     catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
-      db.abortTrans();
     }
+    session.close();
+
+    reloadTournament();
   }
 
-  private void doTheKailash (Database db, int gameType, List<Broker> brokers)
-      throws SQLException
+  //private void doTheKailash (Session session, int gameType, List<Broker> brokers)
+  private void doTheKailash (Session session, int gameType, List<Broker> brokers)
   {
     log.info(String.format("Doing the Kailash with gameType = %s ; "
         + "maxBrokers = %s", gameType, brokers.size()));
@@ -311,98 +251,25 @@ public class Scheduler implements InitializingBean
 
       String gameName = String.format("%s_%s_%s",
           runningTournament.getTournamentName(), gameType, j);
-      int gameId = db.addGame(gameName, runningTournament.getTournamentId(),
-          gameType, new Date());
-      CreateProperties.genProperties(db, gameId,
-          runningTournament.getLocationsList(),
-          runningTournament.getDateFrom(), runningTournament.getDateTo());
+      Game game = Game.createGame(runningTournament, gameName);
+      session.save(game);
 
-      log.info("Added game " + gameId);
-      log.info("Added properties for game " + gameId);
+      log.info("Created game " + game.getGameId());
 
       for (int i=0; i<gameString.length(); i++) {
         if (gameString.charAt(i) == '1') {
-          db.addBrokerToGame(gameId, brokers.get(i).getBrokerId());
-          log.info(String.format("Added broker %s to game %s",
-              brokers.get(i).getBrokerId(), gameId));
+          Broker broker = brokers.get(i);
+          Agent agent = new Agent();
+          agent.setGame(game);
+          agent.setBroker(broker);
+          agent.setBrokerQueue(Utils.createQueueName());
+          agent.setStatus(Agent.STATE.pending.toString());
+          agent.setBalance(-1);
+          session.save(agent);
+          log.info(String.format("Registering broker: %s with game: %s",
+              broker.getBrokerId(), game.getGameId()));
         }
       }
-    }
-  }
-
-  /***
-   * Check if games need to be booted, only pick the first one
-   * bootRunning is set to true if by RunBootstrap, if it actually runs
-   */
-  private void startBootableGames()
-  {
-    log.info("WatchDogTimer Looking for Bootstraps To Start..");
-
-    // Check Database for bootable games
-    List<Game> games = new ArrayList<Game>();
-    Database db = new Database();
-    try {
-      db.startTrans();
-
-      if (db.checkFreeMachine() == null) {
-        log.info("WatchDog No free machines, not looking for Bootable Games");
-        db.commitTrans();
-        return;
-      }
-
-      games = db.getBootableGames();
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    log.info(String.format("WatchDogTimer reports %s boots are ready to "
-        + "start", games.size()));
-    for (Game game: games) {
-      log.info(String.format("Boot %s will be started ...", game.getGameId()));
-      new RunBootstrap(game.getGameId());
-    }
-  }
-
-  private void startRunnableGames()
-  {
-    log.info("WatchDogTimer Looking for Runnable Games");
-
-    // Check Database for startable games
-    List<Game> games = new ArrayList<Game>();
-    Database db = new Database();
-    try {
-      db.startTrans();
-
-      if (db.checkFreeMachine() == null) {
-        log.info("WatchDog No free machines, not looking for Runnable Games");
-        db.commitTrans();
-        return;
-      }
-
-      if (runningTournament == null) {
-				games = db.getRunnableSingleGames();
-        log.info("WatchDog CheckForSims for SINGLE_GAME tournament games");
-      }
-      else {
-        games = db.getRunnableMultiGames(runningTournament.getTournamentId());
-        log.info("WatchDog CheckForSims for MULTI_GAME tournament games");
-      }
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    log.info(String.format("WatchDogTimer reports %s game(s) are ready to "
-        + "start", games.size()));
-
-    for (Game game: games) {
-      log.info(String.format("Game %s will be started ...", game.getGameId()));
-      new RunGame(game);
     }
   }
 
@@ -410,26 +277,14 @@ public class Scheduler implements InitializingBean
   {
     log.info("WatchDogTimer Looking for Wedged Bootstraps");
 
-    List<Game> games;
-    Database db = new Database();
-    try {
-      db.startTrans();
-      games = db.getGames();
-      db.commitTrans();
-    }
-    catch (SQLException sqle) {
-      sqle.printStackTrace();
-      db.abortTrans();
-      log.error("WatchDogTimer Error checking Wedged Bootstraps");
-      return;
-    }
+    List<Game> games = Game.getNotCompleteGamesList();
 
     long wedgedDeadline =
         Integer.parseInt(properties.getProperty("scheduler.bootstrapWedged"));
-    long nowStamp = new Date().getTime();
+    long nowStamp = Utils.offsetDate().getTime();
 
     for (Game game: games) {
-      if (!game.isBooting()) {
+      if (!game.isBooting() || game.getReadyTime() == null) {
         continue;
       }
 
@@ -438,9 +293,6 @@ public class Scheduler implements InitializingBean
         continue;
       }
 
-      if (game.getReadyTime() == null) {
-        continue;
-      }
       long diff = nowStamp - game.getReadyTime().getTime();
       if (diff > wedgedDeadline) {
         checkedBootstraps.add(game.getGameId());
@@ -452,10 +304,55 @@ public class Scheduler implements InitializingBean
         Utils.sendMail("Bootstrap seems stuck", msg,
             properties.getProperty("scheduler.mailRecipient"));
         properties.addErrorMessage(msg);
-        return;
       }
     }
     log.debug("WatchDogTimer No Bootstraps seems Wedged");
+  }
+
+  private void checkWedgedSims ()
+  {
+    log.info("WatchDogTimer Looking for Wedged Sims");
+
+    List<Game> games = Game.getNotCompleteGamesList();
+
+    long wedgedSimDeadline =
+        Integer.parseInt(properties.getProperty("scheduler.simWedged"));
+    long wedgedTestDeadline =
+        Integer.parseInt(properties.getProperty("scheduler.simTestWedged"));
+    long nowStamp = Utils.offsetDate().getTime();
+
+    for (Game game: games) {
+      if (!game.isRunning() || game.getReadyTime() == null) {
+        continue;
+      }
+
+      // Make sure no more than 1 email per wedged sim
+      if (checkedSims.contains(game.getGameId())) {
+        continue;
+      }
+
+      long wedgedDeadline;
+      if (game.getTournament().getTournamentName()
+            .toLowerCase().contains("test")) {
+        wedgedDeadline = wedgedTestDeadline;
+      } else {
+        wedgedDeadline = wedgedSimDeadline;
+      }
+
+      long diff = nowStamp - game.getReadyTime().getTime();
+      if (diff > wedgedDeadline) {
+        checkedSims.add(game.getGameId());
+
+        String msg = String.format(
+            "Sim of game %s seems to take too long : %s seconds",
+            game.getGameId(), (diff / 1000));
+        log.error(msg);
+        Utils.sendMail("Sim seems stuck", msg,
+            properties.getProperty("scheduler.mailRecipient"));
+        properties.addErrorMessage(msg);
+      }
+    }
+    log.debug("WatchDogTimer No Sim seems Wedged");
   }
 
   public boolean isNullTourney ()
@@ -473,6 +370,11 @@ public class Scheduler implements InitializingBean
     return runningTournament;
   }
 
+  public static Scheduler getScheduler ()
+  {
+    return (Scheduler) SpringApplicationContext.getBean("scheduler");
+  }
+
   @PreDestroy
   private void cleanUp () throws Exception
   {
@@ -480,4 +382,27 @@ public class Scheduler implements InitializingBean
 
     stopWatchDog();
   }
+
+  //<editor-fold desc="Setters and Getters">
+  public long getWatchDogInterval() {
+    return watchDogInterval;
+  }
+  public void setWatchDogInterval(long watchDogInterval) {
+    this.watchDogInterval = watchDogInterval;
+  }
+
+  public List<Integer> getCheckedBootstraps() {
+    return checkedBootstraps;
+  }
+  public void setCheckedBootstraps(List<Integer> checkedBootstraps) {
+    this.checkedBootstraps = checkedBootstraps;
+  }
+
+  public List<Integer> getCheckedSims() {
+    return checkedSims;
+  }
+  public void setCheckedSims(List<Integer> checkedSims) {
+    this.checkedSims = checkedSims;
+  }
+  //</editor-fold>
 }

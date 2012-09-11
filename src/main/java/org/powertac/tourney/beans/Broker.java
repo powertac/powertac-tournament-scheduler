@@ -1,152 +1,222 @@
 package org.powertac.tourney.beans;
 
-import org.powertac.tourney.services.Database;
-import org.powertac.tourney.services.SpringApplicationContext;
+import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Restrictions;
+import org.powertac.tourney.constants.Constants;
+import org.powertac.tourney.services.HibernateUtil;
 import org.powertac.tourney.services.TournamentProperties;
+import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import javax.persistence.*;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
 @ManagedBean
 @Entity
-@Table(name = "brokers", catalog = "tourney", uniqueConstraints = {
-            @UniqueConstraint(columnNames = "brokerId")})
+@Table(name="brokers", catalog="tourney", uniqueConstraints={
+    @UniqueConstraint(columnNames="brokerId")})
 public class Broker
 {
-  private static final String key = "broker";
+  private static Logger log = Logger.getLogger("TMLogger");
 
+  private Integer brokerId;
   private String brokerName;
-  private int brokerId = 0;
-  private int userId = 0;
-  private String brokerAuthToken;
+  private User user;
+  private String brokerAuth;
   private String shortDescription;
 
+  private Map<Integer, Agent> agentMap = new HashMap<Integer, Agent>();
+  private Map<Integer, Tournament> tournamentMap = new HashMap<Integer, Tournament>();
+
   // For edit mode, web interface
-  private boolean edit = false;
+  private boolean edit;
   private String newName;
   private String newAuth;
   private String newShort;
   // For registration, web interface
-  private String selectedTourney;
+  private int selectedTourney;
 
   public Broker ()
   {
   }
 
-  public Broker (ResultSet rs) throws SQLException
+  public boolean save ()
   {
-    setBrokerId(rs.getInt("brokerId"));
-    setUserId(rs.getInt("userId"));
-    setBrokerName(rs.getString("brokerName"));
-    setBrokerAuthToken(rs.getString("brokerAuth"));
-    setShortDescription(rs.getString("brokerShort"));
-  }
-
-  public String getUserName()
-  {
-    String userName = "";
-
-    Database db = new Database();
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
-      userName = db.getUserName(userId);
-      db.commitTrans();
+      session.save(this);
+      transaction.commit();
+      return true;
     }
-    catch (SQLException e) {
+    catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
-      db.abortTrans();
+      return false;
     }
-
-    return userName;
+    finally {
+      session.close();
+    }
   }
 
-  /**
-   * Checks if not more than maxBrokers are running (only multi_game tourneys)
-   */
-  public boolean agentsAvailable(Database db) throws SQLException
+  public boolean update ()
   {
-    Scheduler scheduler =
-        (Scheduler) SpringApplicationContext.getBean("scheduler");
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      session.update(this);
+      transaction.commit();
+      return true;
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+      return false;
+    }
+    finally {
+      session.close();
+    }
+  }
+
+  public boolean delete ()
+  {
+    // TODO Check if allowed to delete broker? Running games etc?
+
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      Broker broker = (Broker) session
+          .createQuery(Constants.HQL.GET_BROKER_BY_ID)
+          .setInteger("brokerId", brokerId).uniqueResult();
+
+      // Delete all agent belonging to this broker
+      for (Agent agent: broker.agentMap.values()) {
+        session.delete(agent);
+        session.flush();
+      }
+
+      // Delete all registrations to this broker
+      for (Tournament tournament: broker.getTournamentMap().values()) {
+        Registration registration = (Registration) session
+            .createCriteria(Registration.class)
+            .add(Restrictions.eq("tournament", tournament))
+            .add(Restrictions.eq("broker", broker)).uniqueResult();
+        session.delete(registration);
+        session.flush();
+      }
+
+      session.delete(broker);
+      transaction.commit();
+      return true;
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+      return false;
+    }
+    finally {
+      session.close();
+    }
+  }
+
+  public boolean register (int tourneyId)
+  {
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      Tournament tournament =
+          (Tournament) session.get(Tournament.class, tourneyId);
+      Registration registration = new Registration();
+      registration.setBroker(this);
+      registration.setTournament(tournament);
+      session.save(registration);
+      log.info(String.format("Registering broker: %s with tournament: %s",
+          brokerId, tournament.getTournamentId()));
+
+      // Only for single game, the scheduler handles multigame tourneys
+      if (tournament.typeEquals(Tournament.TYPE.SINGLE_GAME)) {
+        for (Game game: tournament.getGameMap().values()) {
+          Agent agent = new Agent();
+          agent.setGame(game);
+          agent.setBroker(this);
+          agent.setBrokerQueue(Utils.createQueueName());
+          agent.setStatus(Agent.STATE.pending.toString());
+          agent.setBalance(-1);
+          session.save(agent);
+          log.info(String.format("Registering broker: %s with game: %s",
+              brokerId, game.getGameId()));
+        }
+      }
+
+      transaction.commit();
+      return true;
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+      return false;
+    }
+    finally {
+      session.close();
+    }
+  }
+
+  // Check if not more than maxBrokers are running (only multi_game tourneys)
+  public boolean agentsAvailable()
+  {
+    Scheduler scheduler = Scheduler.getScheduler();
     Tournament runningTournament = scheduler.getRunningTournament();
 
     // When no tournament loaded (thus only SINGLE_GAMES will be run),
     // assume enough agents ready
-    if (runningTournament == null ||
-        runningTournament.getMaxAgents() == -1) {
+    if (runningTournament == null) {
       return true;
     }
 
-    // Check if we have less than the max allowed # of instances running
-    List<Agent> agents = db.getRunningAgents(getBrokerId());
-    return agents.size() < runningTournament.getMaxAgents();
-  }
-
-  public List<Tournament> getAvailableTournaments ()
-  {
-    Vector<Tournament> availableTourneys = new Vector<Tournament>();
-    List<Tournament> allTournaments = Tournament.getTournamentList();
-    TournamentProperties properties = TournamentProperties.getProperties();
-    long loginDeadline =
-        Integer.parseInt(properties.getProperty("loginDeadline", "3600000"));
-    long nowStamp = new Date().getTime();
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-
-      for (Tournament t: allTournaments) {
-        long startStamp = t.getStartTime().getTime();
-
-        if (!db.isRegistered(t.getTournamentId(), brokerId)
-            && (startStamp - nowStamp) > loginDeadline) {
-          if (t.getMaxBrokers() == -1 ||
-              t.getNumberRegistered() < t.getMaxBrokers()){
-            availableTourneys.add(t);
-          }
-        }
+    int count = 0;
+    for (Agent agent: agentMap.values()) {
+      if (agent.getGame().isBooting() || agent.getGame().isRunning()) {
+        count ++;
       }
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
     }
 
-    return availableTourneys;
+    return count < runningTournament.getMaxAgents();
+
+
+    /*
+    org.hibernate.LazyInitializationException: failed to lazily initialize a collection of role: org.powertac.tourney.beans.Broker.agentMap, no session or session was closed
+    at org.hibernate.collection.AbstractPersistentCollection.throwLazyInitializationException(AbstractPersistentCollection.java:383)
+    at org.hibernate.collection.AbstractPersistentCollection.throwLazyInitializationExceptionIfNotConnected(AbstractPersistentCollection.java:375)
+    at org.hibernate.collection.AbstractPersistentCollection.initialize(AbstractPersistentCollection.java:368)
+    at org.hibernate.collection.AbstractPersistentCollection.read(AbstractPersistentCollection.java:111)
+    at org.hibernate.collection.PersistentMap.values(PersistentMap.java:257)
+    at org.powertac.tourney.beans.Broker.agentsAvailable(Broker.java:184)
+    at org.powertac.tourney.services.RunGame.checkBrokers(RunGame.java:99)
+    at org.powertac.tourney.services.RunGame.run(RunGame.java:49)
+    at org.powertac.tourney.services.RunGame.<init>(RunGame.java:30)
+    at org.powertac.tourney.services.RunGame.startRunnableGames(RunGame.java:219)
+    at org.powertac.tourney.beans.Scheduler$2.run(Scheduler.java:77)
+    at java.util.TimerThread.mainLoop(Timer.java:512)
+    at java.util.TimerThread.run(Timer.java:462)
+    */
   }
 
-  public List<Tournament> getRegisteredTournaments ()
-  {
-    List<Tournament> tournaments = new ArrayList<Tournament>();
-
-    Database db = new Database();
-
-    try {
-      db.startTrans();
-      tournaments = db.getTournamentsByBrokerId(brokerId);
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return tournaments;
-  }
-
+  @Transient
   public String getRegisteredString ()
   {
     String result = "";
-    for (Tournament t: getRegisteredTournaments()) {
-      result += t.getTournamentName() + ", ";
+
+    for (Tournament tournament: tournamentMap.values()) {
+      if (tournament.stateEquals(Tournament.STATE.complete)) {
+        continue;
+      }
+      result += tournament.getTournamentName() + ", ";
     }
     if (!result.isEmpty()) {
       result = result.substring(0, result.length()-2);
@@ -155,159 +225,190 @@ public class Broker
     return result;
   }
 
-  public Agent getAgent (int gameId)
-  {
-    Agent agent = null;
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      agent = db.getAgentByGameIdBrokerId(gameId, brokerId);
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      e.printStackTrace();
-      db.abortTrans();
-    }
-
-    return agent;
-  }
-
-  public double getBalance (int gameId)
-  {
-    Agent agent = getAgent(gameId);
-
-    if (agent != null) {
-      return agent.getBalance();
-    }
-
-    return -2;
-  }
-
+  @SuppressWarnings("unchecked")
   public static List<Broker> getBrokerList ()
   {
     List<Broker> brokers = new ArrayList<Broker>();
 
-    Database db = new Database();
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
-      brokers = db.getBrokers();
-      db.commitTrans();
+      Query query = session.createQuery(Constants.HQL.GET_BROKERS);
+      brokers = (List<Broker>) query.
+          setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+      transaction.commit();
     }
-      catch (SQLException e) {
+    catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
-      db.abortTrans();
     }
+    session.close();
 
     return brokers;
   }
 
-  //<editor-fold desc="Setters and Getters">
-  @Column(name = "userId", unique = false, nullable = false)
-  public int getUserId ()
+  @Transient
+  public List<Tournament> getAvailableTournaments ()
   {
-    return userId;
-  }
-  public void setUserId (int userId)
-  {
-    this.userId = userId;
+    List<Tournament> registrableTournaments = new ArrayList<Tournament>();
+
+    TournamentProperties properties = TournamentProperties.getProperties();
+    long loginDeadline =
+        Integer.parseInt(properties.getProperty("loginDeadline", "3600000"));
+    long nowStamp = new Date().getTime();
+
+    Outer: for (Tournament tourney: Tournament.getNotCompleteTournamentList()) {
+      // Check if maxNofBrokers reached
+      if (tourney.getBrokerMap().size() >= tourney.getMaxBrokers()) {
+        continue;
+      }
+      // Check if after deadline
+      long startStamp = tourney.getStartTime().getTime();
+      if ((startStamp - nowStamp) < loginDeadline) {
+        continue;
+      }
+      // Check if already registered
+      for (Tournament t : tournamentMap.values()) {
+        // Check if already registered
+        if (t.getTournamentId() == tourney.getTournamentId()) {
+          continue Outer;
+        }
+      }
+
+      // No reason not to be able to register
+      registrableTournaments.add(tourney);
+    }
+
+    return registrableTournaments;
   }
 
-  @Column(name = "brokerName", unique = false, nullable = false)
-  public String getBrokerName ()
+  public static Broker getBrokerByName (String brokerName)
   {
-    return brokerName;
-  }
-  public void setBrokerName (String brokerName)
-  {
-    this.brokerName = brokerName;
+    Broker broker = null;
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      Query query = session.createQuery(Constants.HQL.GET_BROKER_BY_NAME);
+      query.setString("brokerName", brokerName);
+      broker = (Broker) query.uniqueResult();
+      transaction.commit();
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+    }
+    session.close();
+    return broker;
   }
 
+  @OneToMany
+  @JoinColumn(name="brokerId")
+  @MapKey(name="gameId")
+  public Map<Integer, Agent> getAgentMap() {
+    return agentMap;
+  }
+  public void setAgentMap(Map<Integer, Agent> agentMap) {
+    this.agentMap = agentMap;
+  }
+
+  @ManyToMany
+  @JoinTable(name="registrations",
+      joinColumns=
+      @JoinColumn(name="brokerId", referencedColumnName="brokerId"),
+      inverseJoinColumns=
+      @JoinColumn(name="tourneyId", referencedColumnName="tourneyId")
+  )
+  @MapKey(name="tournamentId")
+  public Map<Integer, Tournament> getTournamentMap() {
+    return tournamentMap;
+  }
+  public void setTournamentMap(Map<Integer, Tournament> tournamentMap) {
+    this.tournamentMap = tournamentMap;
+  }
+
+  //<editor-fold desc="Bean Setters and Getters">
   @Id
-  @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "brokerId", unique = true, nullable = false)
-  public int getBrokerId ()
-  {
+  @GeneratedValue(strategy=IDENTITY)
+  @Column(name="brokerId", unique=true, nullable=false)
+  public Integer getBrokerId () {
     return brokerId;
   }
-  public void setBrokerId (int brokerId)
-  {
+  public void setBrokerId (Integer brokerId) {
     this.brokerId = brokerId;
   }
 
-  @Column(name = "brokerAuth", unique = true, nullable = false)
-  public String getBrokerAuthToken ()
-  {
-    return brokerAuthToken;
+  @ManyToOne
+  @JoinColumn(name="userId")
+  public User getUser() {
+    return user;
   }
-  public void setBrokerAuthToken (String brokerAuthToken)
-  {
-    this.brokerAuthToken = brokerAuthToken;
+  public void setUser(User user) {
+    this.user = user;
   }
 
-  @Column(name = "brokerShort", unique = false, nullable = false)
-  public String getShortDescription ()
-  {
+  @Column(name="brokerName", nullable=false)
+  public String getBrokerName (){
+    return brokerName;
+  }
+  public void setBrokerName (String brokerName) {
+    this.brokerName = brokerName;
+  }
+
+  @Column(name="brokerAuth", unique=true, nullable=false)
+  public String getBrokerAuth () {
+    return brokerAuth;
+  }
+  public void setBrokerAuth (String brokerAuth) {
+    this.brokerAuth = brokerAuth;
+  }
+
+  @Column(name="brokerShort", nullable=false)
+  public String getShortDescription () {
     return shortDescription;
   }
-  public void setShortDescription (String shortDescription)
-  {
-    if (shortDescription != null && shortDescription.length() >= 200) {
-      this.shortDescription = shortDescription.substring(0, 199);
-    }
-    else {
-
-      this.shortDescription = shortDescription;
-    }
+  public void setShortDescription (String shortDescription) {
+    this.shortDescription = shortDescription;
   }
+  //</editor-fold>
 
+  //<editor-fold desc="Web Setters and Getters">
   @Transient
-  public boolean isEdit ()
-  {
+  public boolean isEdit () {
     return edit;
   }
-  public void setEdit (boolean edit)
-  {
+  public void setEdit (boolean edit) {
     this.edit = edit;
   }
 
   @Transient
-  public String getNewName ()
-  {
+  public String getNewName () {
     return newName;
   }
-  public void setNewName (String newName)
-  {
+  public void setNewName (String newName) {
     this.newName = newName;
   }
 
   @Transient
-  public String getNewAuth ()
-  {
+  public String getNewAuth () {
     return newAuth;
   }
-  public void setNewAuth (String newAuth)
-  {
+  public void setNewAuth (String newAuth) {
     this.newAuth = newAuth;
   }
 
   @Transient
-  public String getNewShort ()
-  {
+  public String getNewShort () {
     return newShort;
   }
-  public void setNewShort (String newShort)
-  {
+  public void setNewShort (String newShort) {
     this.newShort = newShort;
   }
 
   @Transient
-  public String getSelectedTourney ()
-  {
+  public int getSelectedTourney () {
     return selectedTourney;
   }
-  public void setSelectedTourney (String selectedTourney)
-  {
+  public void setSelectedTourney (int selectedTourney) {
     this.selectedTourney = selectedTourney;
   }
   //</editor-fold>

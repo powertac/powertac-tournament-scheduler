@@ -1,17 +1,19 @@
 package org.powertac.tourney.actions;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.exception.ConstraintViolationException;
-import org.powertac.tourney.beans.*;
+import org.hibernate.Transaction;
+import org.powertac.tourney.beans.Agent;
+import org.powertac.tourney.beans.Game;
+import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.HibernateUtil;
 import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,129 +21,96 @@ import java.util.Map;
 @RequestScoped
 public class ActionGame
 {
-  private Game game = null;
+  private Game game;
+  private List<String> gameInfo = new ArrayList<String>();
+  private List<Map.Entry<String, Double>> resultMap = new ArrayList<Map.Entry<String, Double>>();
 
   public ActionGame()
   {
+    loadData();
   }
 
-  private void getGame (int gameId)
+  private void loadData ()
   {
+    int gameId = getGameId();
+    if (gameId == -1) {
+      return;
+    }
+
     Session session = HibernateUtil.getSessionFactory().openSession();
-    session.beginTransaction();
+    Transaction transaction = session.beginTransaction();
     try {
-      game = (Game) session.get(Game.class, gameId);
-      session.getTransaction().commit();
-    }
-    catch (ConstraintViolationException e) {
-      e.printStackTrace();
-      session.getTransaction().rollback();
-    }
-  }
+      Query query = session.createQuery(Constants.HQL.GET_GAME_BY_ID);
+      query.setInteger("gameId", gameId);
+      game = (Game) query.uniqueResult();
 
-  public String getGameName (int gameId)
-  {
-    if (game == null) {
-      getGame(gameId);
-    }
-
-    try {
-      return game.getGameName();
-    }
-    catch (Exception ignored) {
-      redirect();
-      return "";
-    }
-  }
-
-  public List<String> getGameInfo(int gameId)
-  {
-    List<String> results = new ArrayList<String>();
-
-    if (game == null) {
-      getGame(gameId);
-    }
-
-    if (game == null) {
-      redirect();
-      return results;
-    }
-
-    Tournament tournament = null;
-    Machine machine = null;
-    Session session = HibernateUtil.getSessionFactory().openSession();
-    session.beginTransaction();
-    try {
-      tournament = (Tournament)
-          session.get(Tournament.class, game.getTourneyId());
-      if (game.getMachineId() != null) {
-        machine = (Machine) session.get(Machine.class, game.getMachineId());
-      }
-      session.getTransaction().commit();
+      loadGameInfo();
+      loadResultMap();
+      transaction.commit();
     }
     catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
-      session.getTransaction().rollback();
     }
-
-    results.add("Status : " + game.getStatus());
-    if (tournament != null) {
-      results.add("Tournament : <a href=\"tournament.xhtml?tournamentId=" +
-          + tournament.getTournamentId() + "\">"
-          + tournament.getTournamentName() + "</a>");
-    }
-    if (machine != null) {
-      results.add("Running on : " + machine.getName());
-    }
-    results.add("StartTime : " + Utils.dateFormat(game.getStartTime()));
-    results.add("Real StartTime : " + Utils.dateFormat(game.getReadyTime()));
-
-    return results;
+    session.close();
   }
 
-  public List<Map.Entry<String, Double>> getBrokerMap(int gameId)
+  private int getGameId ()
   {
-    List<Map.Entry<String, Double>> results =
-        new ArrayList<Map.Entry<String, Double>>();
-
-    if (game == null) {
-      getGame(gameId);
-    }
-
-    if (game == null) {
-      redirect();
-      return results;
-    }
-
-    Map<String, Double> temp = new HashMap<String, Double>();
-    for (Broker b: game.getBrokersInGame()) {
-      Agent a = b.getAgent(game.getGameId());
-
-      if (a.getBalance() < 0) {
-        continue;
-      }
-
-      if (temp.get(b.getBrokerName()) != null) {
-        temp.put(b.getBrokerName(), (temp.get(b.getBrokerName()) + a.getBalance()));
-      } else {
-        temp.put(b.getBrokerName(), a.getBalance());
-      }
-    }
-
-    for (Map.Entry<String, Double> entry: temp.entrySet()) {
-      entry.setValue(Math.floor(entry.getValue() * 10000)/10000);
-      results.add(entry);
-    }
-
-    return results;
-  }
-
-  public void redirect ()
-  {
+    FacesContext facesContext = FacesContext.getCurrentInstance();
     try {
-      ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-      externalContext.redirect("index.xhtml");
+      return Integer.parseInt(facesContext.getExternalContext().
+          getRequestParameterMap().get("gameId"));
     }
-    catch (Exception ignored) {}
+    catch (NumberFormatException ignored) {
+      Utils.redirect();
+      return -1;
+    }
   }
+
+  private void loadGameInfo ()
+  {
+    gameInfo.add("Status : " + game.getStatus());
+
+    gameInfo.add("Tournament : <a href=\"tournament.xhtml?tournamentId=" +
+        + game.getTournament().getTournamentId() + "\">"
+        + game.getTournament().getTournamentName() + "</a>");
+
+    if (game.getMachine() != null) {
+      gameInfo.add("Running on : " + game.getMachine().getMachineName());
+      gameInfo.add("Viz Url : " + game.getMachine().getVizUrl());
+    }
+
+    gameInfo.add("StartTime : " + game.startTimeUTC());
+    gameInfo.add("Real StartTime : " + game.readyTimeUTC());
+    gameInfo.add("Location : " + game.getLocation());
+    gameInfo.add("SimStartTime : " + game.getSimStartTime());
+  }
+
+  private void loadResultMap ()
+  {
+    for (Agent agent: game.getAgentMap().values()) {
+      Double balance = Math.max(0, agent.getBalance());
+      Map.Entry<String, Double> entry2 =
+          new AbstractMap.SimpleEntry<String, Double>(
+          agent.getBroker().getBrokerName(), balance);
+      resultMap.add(entry2);
+    }
+  }
+
+  //<editor-fold desc="Setters and Getters">
+  public Game getGame() {
+    return game;
+  }
+  public void setGame(Game game) {
+    this.game = game;
+  }
+
+  public List<String> getGameInfo() {
+    return gameInfo;
+  }
+  public List<Map.Entry<String, Double>> getResultMap() {
+    return resultMap;
+  }
+  //</editor-fold>
 }

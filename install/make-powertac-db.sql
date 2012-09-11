@@ -25,7 +25,7 @@ CREATE TABLE `tourney`.`brokers` (
 	`userId` BIGINT(20) UNSIGNED NOT NULL,
 	`brokerName` VARCHAR(45) UNIQUE NOT NULL,
 	`brokerAuth` VARCHAR(32) NOT NULL,
-	`brokerShort` VARCHAR(200) NOT NULL,
+	`brokerShort` VARCHAR(256) NOT NULL,
 	PRIMARY KEY (`brokerId`),
 	CONSTRAINT userId_refs FOREIGN KEY (`userId`) REFERENCES `tourney`.`users` (`userId`)
 ) ENGINE=InnoDB;
@@ -35,11 +35,10 @@ CREATE TABLE `tourney`.`brokers` (
 DROP TABLE IF EXISTS `tourney`.`poms`;
 CREATE TABLE `tourney`.`poms` (
   `pomId` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  /* `location` VARCHAR(256) NOT NULL, */
-  `name` VARCHAR(45) NOT NULL,
-  `uploadingUser` VARCHAR(45) NOT NULL,
-	PRIMARY KEY (`pomId`),
-  UNIQUE KEY `name` (`name`)
+  `pomName` VARCHAR(45) NOT NULL,
+  `userId` BIGINT(20) UNSIGNED NOT NULL,
+  PRIMARY KEY (`pomId`),
+  CONSTRAINT pom_refs FOREIGN KEY (`userId`) REFERENCES `tourney`.`users` (`userId`)
 ) ENGINE=InnoDB;
 
 
@@ -65,12 +64,14 @@ CREATE TABLE `tourney`.`tournaments` (
 ) ENGINE=InnoDB;
 
 
-DROP TABLE IF EXISTS `tourney`.`registration`;
-CREATE TABLE `tourney`.`registration` (
+DROP TABLE IF EXISTS `tourney`.`registrations`;
+CREATE TABLE `tourney`.`registrations` (
+    `registrationId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`tourneyId` BIGINT(20) UNSIGNED NOT NULL,
 	`brokerId` BIGINT(20) UNSIGNED NOT NULL,
 	CONSTRAINT tourneyId_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),
-	CONSTRAINT brokerId_refs FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` ( `brokerId` )
+	CONSTRAINT brokerId_refs FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` ( `brokerId` ),
+	PRIMARY KEY (`registrationId`)
 ) ENGINE=InnoDB;
 
 
@@ -107,13 +108,12 @@ CREATE TABLE `tourney`.`games` (
 	`tourneyId` BIGINT(20) UNSIGNED NOT NULL,
 	`machineId` BIGINT(20) UNSIGNED,
 	`status` VARCHAR(20) NOT NULL,
-	`maxBrokers` integer NOT NULL,
 	`startTime` DATETIME NOT NULL,
 	`readyTime` DATETIME NULL,
-	`jmsUrl` VARCHAR(256) NOT NULL,
-	`visualizerUrl` VARCHAR(256) NOT NULL,
 	`visualizerQueue` VARCHAR(256) NOT NULL, /* name of visualizer output queue */
 	`serverQueue` VARCHAR(256) NOT NULL, /* name of server input queue */
+	`location` VARCHAR(256) NOT NULL,
+	`simStartDate` VARCHAR(256) NOT NULL,
 	PRIMARY KEY (`gameId`),
 	CONSTRAINT tourneyId2_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),
 	CONSTRAINT machineId2_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` )
@@ -144,7 +144,7 @@ CREATE TABLE `tourney`.`agents` (
     `status` VARCHAR(32) NOT NULL,
     `balance` double NOT NULL DEFAULT '-1',
 	CONSTRAINT brokerId_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`),
-	CONSTRAINT gameId_refs2 FOREIGN KEY (`gameId`) REFERENCES `tourney`.`games` ( `gameId` ),
+	CONSTRAINT gameId_refs2 FOREIGN KEY (`gameId`) REFERENCES `tourney`.`games` (`gameId`),
 	PRIMARY KEY (`agentId`)
 ) ENGINE=InnoDB;
 

@@ -1,215 +1,213 @@
 package org.powertac.tourney.actions;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.powertac.tourney.beans.Broker;
-import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.beans.User;
-import org.powertac.tourney.services.Database;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 @ManagedBean
 @RequestScoped
 public class ActionAccount
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private String brokerName;
+  private String brokerShort;
 
-  private String newBrokerName;
-  private String newBrokerShortDescription;
+  private List<Broker> brokers = new ArrayList<Broker>();
 
   public ActionAccount ()
   {
   }
 
+  public List<Broker> getBrokers ()
+  {
+    if (brokers.size() == 0) {
+      User user = User.getCurrentUser();
+
+      for (Broker broker: user.getBrokerMap().values()) {
+        brokers.add(broker);
+      }
+
+      // TODO Improve this : http://www.davekoelle.com/alphanum.html
+
+      Collections.sort(brokers, new Comparator<Broker>() {
+        public int compare(Broker b1, Broker b2) {
+          return b1.getBrokerName().compareTo(b2.getBrokerName());
+        }
+      });
+    }
+
+    return brokers;
+  }
+
   public void addBroker ()
   {
     // Check if name and description not empty, and if name allowed
-    if (namesEmpty(getNewBrokerName(), getNewBrokerShortDescription())) {
+    if (namesEmpty(brokerName, brokerShort, "accountForm2") ||
+        nameExists(brokerName, "accountForm2")) {
       return;
     }
-    else if (nameExists(getNewBrokerName())) {
+
+    User user = User.getCurrentUser();
+    if (user.isEditing() || !user.isLoggedIn()) {
       return;
     }
 
-    User user = User.getCurrentUser();
-    user.addBroker(getNewBrokerName().trim(),
-        getNewBrokerShortDescription().trim());
-    newBrokerName = "";
-    newBrokerShortDescription = "";
+    String brokerAuth = DigestUtils.md5Hex(brokerName +
+        (new Date()).toString() + Math.random());
+
+    Broker broker = new Broker();
+    broker.setBrokerAuth(brokerAuth);
+    broker.setBrokerName(brokerName);
+    broker.setShortDescription(brokerShort);
+    broker.setUser(user);
+
+    boolean added = broker.save();
+    if (added) {
+      brokerName = "";
+      brokerShort = "";
+      brokers = new ArrayList<Broker>();
+      User.reloadUser(user);
+    } else {
+      String msg = "Error adding broker";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesContext.getCurrentInstance().addMessage("accountForm2", fm);
+    }
   }
 
-  public List<Broker> getBrokers ()
+  public void deleteBroker (Broker broker)
   {
     User user = User.getCurrentUser();
-    return user.getBrokers();
+    if (user.isEditing() || !user.isLoggedIn()) {
+      return;
+    }
+
+    brokers = new ArrayList<Broker>();
+    boolean deleted = broker.delete();
+
+    if (deleted) {
+      User.reloadUser(user);
+    } else {
+      String msg = "Error deleting broker";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesContext.getCurrentInstance().addMessage("accountForm1", fm);
+    }
   }
 
-  public void deleteBroker (Broker b)
-  {
-    User user = User.getCurrentUser();
-    user.deleteBroker(b.getBrokerId());
-  }
-
-  public void editBroker (Broker b)
-  {
-    User user = User.getCurrentUser();
-    user.setEdit(true);
-    b.setEdit(true);
-    b.setNewAuth(b.getBrokerAuthToken());
-    b.setNewName(b.getBrokerName());
-    b.setNewShort(b.getShortDescription());
-  }
-
-  public void saveBroker (Broker b)
+  public void updateBroker(Broker broker)
   {
     // Check if name and description not empty, and if name allowed (if changed)
-    if (namesEmpty(b.getNewName(), b.getNewShort())) {
+    if (namesEmpty(broker.getNewName(), broker.getNewShort(), "accountForm1")) {
       return;
     }
-    else if (!b.getBrokerName().equals(b.getNewName())) {
-      if (nameExists(b.getNewName())) {
+    else if (!broker.getBrokerName().equals(broker.getNewName())) {
+      if (nameExists(broker.getNewName(), "accountForm1")) {
         return;
       }
     }
 
     User user = User.getCurrentUser();
-    user.setEdit(false);
-    b.setEdit(false);
-    b.setBrokerName(b.getNewName());
-    b.setShortDescription(b.getNewShort());
-    b.setBrokerAuthToken(b.getNewAuth());
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      db.updateBrokerByBrokerId(b.getBrokerId(), b.getBrokerName(),
-                                b.getBrokerAuthToken(), b.getShortDescription());
-      db.commitTrans();
+    if (!user.isLoggedIn()) {
+      return;
     }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
+    user.setEditing(false);
+
+    broker.setEdit(false);
+    broker.setBrokerName(broker.getNewName());
+    broker.setShortDescription(broker.getNewShort());
+    broker.setBrokerAuth(broker.getNewAuth());
+
+    boolean saved = broker.update();
+    if (!saved) {
+      String msg = "Error saving broker";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesContext.getCurrentInstance().addMessage("accountForm1", fm);
     }
   }
 
-  public void cancelBroker (Broker b)
+  public void editBroker (Broker broker)
   {
     User user = User.getCurrentUser();
-    user.setEdit(false);
-    b.setEdit(false);
+    user.setEditing(true);
+
+    broker.setEdit(true);
+    broker.setNewAuth(broker.getBrokerAuth());
+    broker.setNewName(broker.getBrokerName());
+    broker.setNewShort(broker.getShortDescription());
   }
 
-  private boolean namesEmpty (String name, String description)
+  public void cancelBroker (Broker broker)
   {
-    if (name.trim().isEmpty() || description.trim().isEmpty()) {
+    User user = User.getCurrentUser();
+    user.setEditing(false);
+    broker.setEdit(false);
+  }
+
+  private boolean namesEmpty (String name, String description, String form)
+  {
+    if (name == null || description == null ||
+        name.trim().isEmpty() || description.trim().isEmpty()) {
       String msg = "Broker requires a Name and a Description";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("accountForm", fm);
+      FacesContext.getCurrentInstance().addMessage(form, fm);
       return true;
     }
     return false;
   }
 
-  private boolean nameExists (String name)
+  private boolean nameExists (String brokerName, String form)
   {
-    boolean exists = false;
-    Database db = new Database();
-    try {
-      db.startTrans();
-      exists = db.brokerNameExists(name);
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-    }
-
-    if (exists) {
+    Broker broker = Broker.getBrokerByName(brokerName);
+    if (broker != null) {
       String msg = "Broker Name taken, please select a new name";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
-      FacesContext.getCurrentInstance().addMessage("accountForm", fm);
+      FacesContext.getCurrentInstance().addMessage(form, fm);
+      return true;
     }
-
-    return exists;
+    return false;
   }
 
   public List<Tournament> getAvailableTournaments (Broker b)
   {
-    List<Tournament> availableTourneys = new Vector<Tournament>();
-
-    if (b != null) {
-      availableTourneys = b.getAvailableTournaments();
-    }
-
-    return availableTourneys;
+    return b.getAvailableTournaments();
   }
 
-  // TODO This should be a Broker method
   public void register (Broker b)
   {
-    String tournamentName = b.getSelectedTourney();
-    if (tournamentName == null || tournamentName.equals("")) {
+    if (!(b.getSelectedTourney() > 0)) {
       return;
     }
 
-    List<Tournament> allTournaments = Tournament.getTournamentList();
-    Database db = new Database();
-    try {
-      db.startTrans();
-      for (Tournament t: allTournaments) {
-        if (!db.isRegistered(t.getTournamentId(), b.getBrokerId())
-            && t.getTournamentName().equalsIgnoreCase(tournamentName)) {
-
-          if (t.getMaxBrokers() == -1 ||
-              t.getNumberRegistered() < t.getMaxBrokers()) {
-            log.info(String.format("Registering broker: %s with tournament: %s",
-                b.getBrokerId(), t.getTournamentId()));
-            db.registerBroker(t.getTournamentId(), b.getBrokerId());
-
-            if (t.typeEquals(Tournament.TYPE.MULTI_GAME)) {
-              continue;
-            }
-
-            // Only for single game, the scheduler handles multigame tourneys
-            for (Game g: t.getGames()) {
-              db.addBrokerToGame(g.getGameId(), b.getBrokerId());
-              log.info(String.format("Registering broker: %s with game: %s",
-                  b.getBrokerId(), g.getGameId()));
-            }
-          }
-        }
-      }
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
+    boolean registered = b.register(b.getSelectedTourney());
+    if (!registered) {
+      String msg = "Error registering broker";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesContext.getCurrentInstance().addMessage("accountForm0", fm);
+    } else {
+      brokers = new ArrayList<Broker>();
+      User user = User.getCurrentUser();
+      User.reloadUser(user);
     }
   }
 
-  public String getNewBrokerShortDescription ()
-  {
-    return newBrokerShortDescription;
+  //<editor-fold desc="Setters and Getters">
+  public String getBrokerShort () {
+    return brokerShort;
+  }
+  public void setBrokerShort (String brokerShort) {
+    this.brokerShort = brokerShort;
   }
 
-  public void setNewBrokerShortDescription (String newBrokerShortDescription)
-  {
-    this.newBrokerShortDescription = newBrokerShortDescription;
+  public String getBrokerName () {
+    return brokerName;
   }
-
-  public String getNewBrokerName ()
-  {
-    return newBrokerName;
+  public void setBrokerName (String brokerName) {
+    this.brokerName = brokerName;
   }
-
-  public void setNewBrokerName (String newBrokerName)
-  {
-    this.newBrokerName = newBrokerName;
-  }
+  //</editor-fold>
 }

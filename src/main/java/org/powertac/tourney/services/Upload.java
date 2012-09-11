@@ -2,14 +2,12 @@ package org.powertac.tourney.services;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-import org.springframework.stereotype.Service;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import java.io.File;
 import java.io.FileOutputStream;
 
-@Service("upload")
+
 public class Upload
 {
   private UploadedFile uploadedFile;
@@ -43,14 +41,12 @@ public class Upload
     return true;
   }
 
-  public void setUploadedFile (UploadedFile uploadedFile)
-  {
+  //<editor-fold desc="Setters and Getters">
+  public void setUploadedFile (UploadedFile uploadedFile) {
     this.uploadedFile = uploadedFile;
   }
-
-  public void setUploadLocation (String uploadLocation)
-  {
+  public void setUploadLocation (String uploadLocation) {
     this.uploadLocation = uploadLocation;
   }
-
+  //</editor-fold>
 }

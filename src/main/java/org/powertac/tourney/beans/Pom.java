@@ -1,46 +1,56 @@
 package org.powertac.tourney.beans;
 
-import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.Query;
+import org.powertac.tourney.constants.Constants;
+import org.powertac.tourney.services.HibernateUtil;
 
+import javax.faces.bean.ManagedBean;
 import javax.persistence.*;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
 
-//Create hibernate mapping with annotations
+@ManagedBean
 @Entity
-@Table(name = "poms", catalog = "tourney", uniqueConstraints = {
-		@UniqueConstraint(columnNames = "pomId")})
+@Table(name="poms", catalog="tourney", uniqueConstraints={
+		@UniqueConstraint(columnNames="pomId")})
 public class Pom {
-  private static Logger log = Logger.getLogger("TMLogger");
-
 	private int pomId;
-	private String name;
-	private String uploadingUser;
+	private String pomName;
+  private User user;
 
   public Pom ()
   {
   }
 
-  public Pom (ResultSet rs)
+  @SuppressWarnings("unchecked")
+  public static List<Pom> getPomList ()
   {
+    List<Pom> poms = new ArrayList<Pom>();
+
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      setName(rs.getString("name"));
-      setUploadingUser(rs.getString("uploadingUser"));
-      setPomId(rs.getInt("pomId"));
+      Query query = session.createQuery(Constants.HQL.GET_POMS);
+      poms = (List<Pom>) query.list();
+      transaction.commit();
     }
-    catch (SQLException sqle) {
-      sqle.printStackTrace();
-      log.error("Unable to create Pom from result set");
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
     }
+    session.close();
+
+    return poms;
   }
 
 	@Id
-	@GeneratedValue(strategy = IDENTITY)
-	@Column(name = "pomId", unique = true, nullable = false)
+	@GeneratedValue(strategy=IDENTITY)
+	@Column(name="pomId", unique=true, nullable=false)
 	public int getPomId() {
 		return pomId;
 	}
@@ -48,19 +58,20 @@ public class Pom {
 		this.pomId = pomId;
 	}
 	
-	@Column(name = "name", unique = true, nullable = false)
-	public String getName() {
-		return name;
+	@Column(name="pomName", unique=true, nullable=false)
+	public String getPomName() {
+		return pomName;
 	}
-	public void setName(String name) {
-		this.name = name;
+	public void setPomName(String pomName) {
+		this.pomName = pomName;
 	}
-	
-	@Column(name = "uploadingUser", unique = true, nullable = false)
-	public String getUploadingUser() {
-		return uploadingUser;
-	}
-	public void setUploadingUser(String uploadingUser) {
-		this.uploadingUser = uploadingUser;
-	}
+
+  @ManyToOne
+  @JoinColumn(name="userId")
+  public User getUser () {
+    return user;
+  }
+  public void setUser (User user) {
+    this.user = user;
+  }
 }

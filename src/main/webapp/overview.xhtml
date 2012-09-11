@@ -12,51 +12,51 @@
     <ui:define name="content">
       <h2>Overview</h2>
 
-      <h:form rendered="#{user.permissions le 0}">
+      <h:form rendered="#{user.permissionId le 0}">
         <h3 class="withButton">Registered Brokers</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
         <t:dataTable id="databrokers" border="1" sortable="false"
                      sortColumn="#{actionOverview.sortColumnBrokers}"
                      sortAscending="#{actionOverview.sortAscendingBrokers}" preserveSort="true"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
-                     value="#{actionOverview.brokerList}" var="b">
+                     value="#{actionOverview.brokerList}" var="broker">
 
           <t:column defaultSorted="true" sortable="true">
             <f:facet name="header">
               <h:outputText value="ID" />
             </f:facet>
-            <h:outputText value="#{b.brokerId}" />
+            <h:outputText value="#{broker.brokerId}" />
           </t:column>
 
           <t:column sortable="true">
             <f:facet name="header">
               <h:outputText value="Name" />
             </f:facet>
-            <h:outputText value="#{b.brokerName}" />
+            <h:outputText value="#{broker.brokerName}" />
           </t:column>
 
           <t:column>
             <f:facet name="header">
               <h:outputText value="User" />
             </f:facet>
-            <h:outputText value="#{b.getUserName()}" />
+            <h:outputText value="#{broker.user.userName}" />
           </t:column>
 
           <t:column>
             <f:facet name="header">
               <h:outputText value="Tournaments" />
             </f:facet>
-            <h:outputText value="#{b.getRegisteredString()}" />
+            <h:outputText value="#{broker.getRegisteredString()}" />
           </t:column>
         </t:dataTable>
       </h:form>
 
-      <h:form rendered="#{user.permissions le 0}">
+      <h:form rendered="#{user.permissionId le 0}">
         <h3 class="withButton">Pending/Running Tournaments</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
         <t:dataTable id="datatourneys" border="1" sortable="false"
                      sortColumn="#{actionOverview.sortColumnTournaments}"
                      sortAscending="#{actionOverview.sortAscendingTournaments}" preserveSort="true"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
-                     value="#{actionOverview.tournamentList}" var="t">
+                     value="#{actionOverview.notCompleteTournamentList}" var="t">
 
           <t:column defaultSorted="true" sortable="true">
             <f:facet name="header">
@@ -93,7 +93,7 @@
             <f:facet name="header">
               <h:outputText value="Start Time" />
             </f:facet>
-            <h:outputText value="#{t.toUTCStartTime()}" />
+            <h:outputText value="#{t.startTimeUTC()}" />
           </t:column>
 
           <t:column sortable="true">
@@ -107,7 +107,7 @@
             <f:facet name="header">
               <h:outputText value="Reg Bro" />
             </f:facet>
-            <h:outputText value="#{t.numberRegistered}" />
+            <h:outputText value="#{t.brokerMap.size()}" />
           </t:column>
 
           <t:column>
@@ -124,18 +124,19 @@
               <h:outputText value="Actions" />
             </f:facet>
             <h:commandButton value="Now" action="#{actionOverview.startNow(t)}"
-                             onclick="return confirmAlert('This will start all the games in this tournament now. Proceed?');"/>
+                             onclick="return confirmAlert('This will start all the games in this tournament now. Proceed?');"
+                             rendered="#{!t.isStarted()}"/>
           </t:column>
         </t:dataTable>
       </h:form>
 
-      <h:form rendered="#{user.permissions le 0}" id="gamesForm">
+      <h:form rendered="#{user.permissionId le 0}" id="gamesForm">
         <h3 class="withButton">Pending/Running Games</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
         <t:dataTable id="datagames" border="1" sortable="false"
                      sortColumn="#{actionOverview.sortColumnGames}"
                      sortAscending="#{actionOverview.sortAscendingGames}" preserveSort="true"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
-                     value="#{actionOverview.gameList}" var="g">
+                     value="#{actionOverview.notCompleteGamesList}" var="g">
           <t:column defaultSorted="true" sortable="true">
             <f:facet name="header">
               <h:outputText value="ID" />
@@ -147,7 +148,9 @@
             <f:facet name="header">
               <h:outputText value="Name" />
             </f:facet>
-            <h:outputText value="#{g.gameName}" />
+            <a href="game.xhtml?gameId=#{g.gameId}">
+              <h:outputText value="#{g.gameName}" />
+            </a>
           </t:column>
 
           <t:column sortable="true">
@@ -164,23 +167,16 @@
             <h:outputText value="#{g.startTimeUTC()}" />
           </t:column>
 
-          <t:column sortable="true">
-            <f:facet name="header">
-              <h:outputText value="Max Bro" />
-            </f:facet>
-            <h:outputText value="#{g.maxBrokers}" />
-          </t:column>
-
           <t:column>
             <f:facet name="header">
-              <h:outputText value="Prop Link" />
+              <h:outputText value="Props" />
             </f:facet>
             <a href="properties.jsp?gameId=#{g.gameId}">Props</a>
           </t:column>
 
           <t:column>
             <f:facet name="header">
-              <h:outputText value="Boot Link" />
+              <h:outputText value="Boot" />
             </f:facet>
             <h:outputText value="Not avail." rendered="#{!g.hasBootstrap()}"/>
             <h:panelGroup rendered="#{g.hasBootstrap()}" >
@@ -190,11 +186,11 @@
 
           <t:column>
             <f:facet name="header">
-              <h:outputText value="Viz Link" />
+              <h:outputText value="Viz" />
             </f:facet>
-            <h:outputText value="Not avail." rendered="#{g.visualizerUrl == ''}"/>
-            <h:panelGroup rendered="#{g.visualizerUrl != ''}" >
-              <a href="http://#{g.visualizerUrl}" target="_blank">Viz</a>
+            <h:outputText value="Not avail." rendered="#{!g.isRunning()}"/>
+            <h:panelGroup rendered="#{g.isRunning()}" >
+              <a href="http://#{g.machine.vizUrl}" target="_blank">Viz</a>
             </h:panelGroup>
           </t:column>
 
@@ -202,8 +198,8 @@
             <f:facet name="header">
               <h:outputText value="Jenkins" />
             </f:facet>
-            <h:outputText value="Not avail." rendered="#{g.machineId == 0}"/>
-            <h:panelGroup rendered="#{g.machineId != 0}" >
+            <h:outputText value="Not avail." rendered="#{g.machine == null}"/>
+            <h:panelGroup rendered="#{g.machine != null}" >
               <a href="#{g.jenkinsMachineUrl()}" target="_blank">Jenkins</a>
             </h:panelGroup>
           </t:column>
@@ -215,7 +211,7 @@
             <h:panelGroup>
               <h:commandButton value="Stop" action="#{actionOverview.stopGame(g)}"
                 onclick="return confirmAlert('Are you sure you want to stop this game?');"
-                rendered="#{g.machineId != 0}" />
+                rendered="#{g.machine != null}" />
               <h:commandButton value="Restart" action="#{actionOverview.restartGame(g)}"
                                rendered="#{g.gameFailed()}" />
             </h:panelGroup>
@@ -225,7 +221,7 @@
         <h:messages for="gamesForm" />
       </h:form>
 
-      <h:form rendered="#{user.permissions gt 0}">
+      <h:form rendered="#{user.permissionId gt 0}">
         <h2>Insufficient Permissions</h2>
       </h:form>
 

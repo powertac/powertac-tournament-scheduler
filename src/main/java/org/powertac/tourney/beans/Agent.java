@@ -7,47 +7,39 @@
 
 package org.powertac.tourney.beans;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.persistence.*;
+
+import static javax.persistence.GenerationType.IDENTITY;
 
 /**
  * An Agent is an instance of a broker, competing in one game, and one game only
- *
  */
 
 @Entity
-@Table(name = "agents", catalog = "tourney", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "agentId")})
+@Table(name="agents", catalog="tourney", uniqueConstraints={
+    @UniqueConstraint(columnNames="agentId")})
 public class Agent {
-  public static enum STATE {
-    pending, in_progress, complete
-  }
-
   private int agentId;
+  private Game game;
   private int gameId;
+  private Broker broker;
   private int brokerId;
   private String brokerQueue;
   private String status;
   private double balance;
 
+  public static enum STATE {
+    pending, in_progress, complete
+  }
+
   public Agent ()
   {
   }
 
-  public Agent (ResultSet rs) throws SQLException
-  {
-    setAgentId(rs.getInt("agentId"));
-    setGameId(rs.getInt("gameId"));
-    setBrokerId(rs.getInt("brokerId"));
-    setBrokerQueue(rs.getString("brokerQueue"));
-    setStatus(rs.getString("status"));
-    setBalance(rs.getDouble("balance"));
-  }
-
   //<editor-fold desc="Getters and Setters">
+  @Id
+  @GeneratedValue(strategy=IDENTITY)
+  @Column(name="agentId", unique=true, nullable=false)
   public int getAgentId() {
     return agentId;
   }
@@ -55,6 +47,16 @@ public class Agent {
     this.agentId = agentId;
   }
 
+  @ManyToOne
+  @JoinColumn(name="gameId")
+  public Game getGame() {
+    return game;
+  }
+  public void setGame(Game game) {
+    this.game = game;
+  }
+
+  @Column(name="gameId", updatable=false, insertable=false)
   public int getGameId() {
     return gameId;
   }
@@ -62,6 +64,16 @@ public class Agent {
     this.gameId = gameId;
   }
 
+  @ManyToOne
+  @JoinColumn(name="brokerId")
+  public Broker getBroker() {
+    return broker;
+  }
+  public void setBroker(Broker broker) {
+    this.broker = broker;
+  }
+
+  @Column(name="brokerId", updatable=false, insertable=false)
   public int getBrokerId() {
     return brokerId;
   }
@@ -69,6 +81,7 @@ public class Agent {
     this.brokerId = brokerId;
   }
 
+  @Column(name="brokerQueue")
   public String getBrokerQueue() {
     return brokerQueue;
   }
@@ -76,6 +89,7 @@ public class Agent {
     this.brokerQueue = brokerQueue;
   }
 
+  @Column(name="status", nullable=false)
   public String getStatus() {
     return status;
   }
@@ -83,6 +97,7 @@ public class Agent {
     this.status = status;
   }
 
+  @Column(name="balance", nullable=false)
   public double getBalance() {
     return balance;
   }

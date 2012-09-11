@@ -1,46 +1,53 @@
 package org.powertac.tourney.beans;
 
 import org.apache.log4j.Logger;
-import org.powertac.tourney.services.Database;
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.powertac.tourney.constants.Constants;
+import org.powertac.tourney.services.HibernateUtil;
 import org.powertac.tourney.services.TournamentProperties;
 import org.powertac.tourney.services.Utils;
 
 import javax.persistence.*;
 import java.io.File;
 import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
 
-// Create hibernate mapping with annotations
 @Entity
-@Table(name = "games", catalog = "tourney", uniqueConstraints = {
-		@UniqueConstraint(columnNames = "gameId")})
+@Table(name="games", catalog="tourney", uniqueConstraints={
+		@UniqueConstraint(columnNames="gameId")})
 public class Game implements Serializable
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
+  private Integer gameId = 0;
+  private String gameName;
+  private Tournament tournament;
+  private Machine machine = null;
+  private String status = STATE.boot_pending.toString();
   private Date startTime;
   private Date readyTime;
-  private int tourneyId = 0;
-  private int gameId = 0;
-  private Integer machineId;
-  private String status = STATE.boot_pending.toString();
-  private int maxBrokers = 1;
-
-  private String gameName = "";
-  private String jmsUrl = "";
   private String serverQueue = "";
-  private String visualizerUrl = "";
   private String visualizerQueue = "";
+  private String location = "";
+  private String simStartTime;
 
-  private TournamentProperties properties = new TournamentProperties();
+  TournamentProperties properties = TournamentProperties.getProperties();
+
+  private Map<Integer, Agent> agentMap = new HashMap<Integer, Agent>();
+
+  public static enum STATE {
+    boot_pending, boot_in_progress, boot_complete, boot_failed,
+    game_pending, game_ready, game_in_progress, game_complete, game_failed
+  }
 
   /*
   - Boot
@@ -64,92 +71,18 @@ public class Game implements Serializable
     or boot-file, or when RunGame has problems sending the job to jenkins.
    */
 
-  public static enum STATE {
-    boot_pending, boot_in_progress, boot_complete, boot_failed,
-    game_pending, game_ready, game_in_progress, game_complete, game_failed
-  }
-
   public Game ()
   {
   }
 
-  public Game (ResultSet rs)
+  public void delete (Session session)
   {
-    try {
-      setStatus(rs.getString("status"));
-      setMaxBrokers(rs.getInt("maxBrokers"));
-      setStartTime(Utils.dateFormatUTCmilli(rs.getString("startTime")));
-      setReadyTime(Utils.dateFormatUTCmilli(rs.getString("readyTime")));
-      setTourneyId(rs.getInt("tourneyId"));
-      setMachineId(rs.getInt("machineId"));
-      setGameName(rs.getString("gameName"));
-      setGameId(rs.getInt("gameId"));
-      setJmsUrl(rs.getString("jmsUrl"));
-      setServerQueue(rs.getString("serverQueue"));
-      setVisualizerUrl(rs.getString("visualizerUrl"));
-      setVisualizerQueue(rs.getString("visualizerQueue"));
+    // Delete all agent belonging to this broker
+    for (Agent agent: agentMap.values()) {
+      session.delete(agent);
+      session.flush();
     }
-    catch (Exception e) {
-      log.error("Error creating game from result set");
-      e.printStackTrace();
-    }
-  }
-
-  @Transient
-  public String getTournamentName ()
-  {
-    String result = "";
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      result = db.getTournamentByGameId(gameId).getTournamentName();
-      db.commitTrans();
-    }
-    catch (Exception e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return result;
-  }
-
-  @Transient
-  public List<Broker> getBrokersInGame ()
-  {
-    List<Broker> brokers = new ArrayList<Broker>();
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      brokers = db.getBrokersInGame(gameId);
-      db.commitTrans();
-    }
-    catch (Exception e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return brokers;
-  }
-
-  @Transient
-  public List<Broker> getBrokersInGameComplete()
-  {
-    List<Broker> brokers = new ArrayList<Broker>();
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      brokers = db.getBrokersInGameComplete(gameId);
-      db.commitTrans();
-    }
-    catch (Exception e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return brokers;
+    session.delete(this);
   }
 
   @Transient
@@ -157,9 +90,10 @@ public class Game implements Serializable
   {
     String result = "";
 
-    for (Broker b: getBrokersInGame()) {
-      result += b.getBrokerName() + ", ";
+    for (Agent agent: agentMap.values()) {
+      result += agent.getBroker().getBrokerName() + ", ";
     }
+
     if (!result.isEmpty()) {
       result = result.substring(0, result.length()-2);
     }
@@ -167,27 +101,8 @@ public class Game implements Serializable
     return result;
   }
 
-  @Transient
-  public String getBrokersInGameCompleteString()
+  public String handleStatus (Session session, String status)
   {
-    String result = "";
-
-    for (Broker b: getBrokersInGameComplete()) {
-      result += b.getBrokerName() + ", ";
-    }
-    if (!result.isEmpty()) {
-      result = result.substring(0, result.length()-2);
-    }
-
-    return result;
-  }
-
-  // TODO Make this an object method, combine with Hibernate
-  // TODO Add state machine for Game
-  public static String handleStatus(String status, int gameId)
-  {
-    log.info(String.format("Received %s message from game: %s", status, gameId));
-
     STATE state;
     try {
       state = STATE.valueOf(status);
@@ -196,85 +111,75 @@ public class Game implements Serializable
       return "error";
     }
 
-    Database db = new Database();
     try {
-      db.startTrans();
-      Game g = db.getGameById(gameId);
-      if (g == null) {
-        log.warn(String.format("Trying to set status %s on non-existing game : "
-            + "%s", status, gameId));
-        db.commitTrans();
-        return "error";
-      }
-      Tournament t;
-
-      db.updateGameStatusById(gameId, state);
+      this.status = status;
       log.info(String.format("Update game: %s to %s", gameId, status));
 
       switch (state) {
         case boot_in_progress:
           // Remove bootfile, it shouldn't exist anyway
-          g.removeBootFile();
+          removeBootFile();
           break;
 
         case boot_complete:
-          db.updateGameFreeMachine(gameId);
+          machine.setStatus(Machine.STATE.idle.toString());
+          log.info("Setting machine " + machine.getMachineId() + " to idle");
+          machine = null;
           log.info("Freeing Machines for game: " + gameId);
-          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log.info("Setting machine " + g.getMachineId() + " to idle");
           break;
 
         case boot_failed:
           log.warn("BOOT " + gameId + " FAILED!");
-
-          db.updateGameFreeMachine(gameId);
+          machine.setStatus(Machine.STATE.idle.toString());
+          log.info("Setting machine " + machine.getMachineId() + " to idle");
+          machine = null;
           log.info("Freeing Machines for game: " + gameId);
-          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log.info("Setting machine "+ g.getMachineId() +" to idle");
           break;
 
         case game_ready:
-          t = db.getTournamentByGameId(g.gameId);
-          t.setTournametInProgress(db);
-          g.setReadyTime(new Date());
-          db.setGameReadyTime(gameId);
+          tournament.setStatus(Tournament.STATE.in_progress.toString());
+          readyTime = new Date();
           break;
         case game_in_progress:
-          t = db.getTournamentByGameId(g.gameId);
-          t.setTournametInProgress(db);
+          tournament.setStatus(Tournament.STATE.in_progress.toString());
           break;
 
         case game_complete:
-          db.updateAgentStatuses(gameId);
-          log.info("Freeing Brokers for game: " + gameId);
-          db.updateGameFreeMachine(gameId);
+          for (Agent agent: agentMap.values()) {
+            agent.setStatus(Agent.STATE.complete.toString());
+            session.update(agent);
+          }
+          log.info("Setting Agents to Complete for game: " + gameId);
+          machine.setStatus(Machine.STATE.idle.toString());
+          log.info("Setting machine " + machine.getMachineId() + " to idle");
+          machine = null;
           log.info("Freeing Machines for game: " + gameId);
-          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log.info("Setting machine "+ g.getMachineId() +" to idle");
-
-					// If all games of tournament are complete, set tournament complete
-					t = db.getTournamentByGameId(g.gameId);
-          t.processGameFinished(db, g.getGameId());
+          // If all games of tournament are complete, set tournament complete
+          tournament.processGameFinished(gameId);
           break;
 
         case game_failed:
           log.warn("GAME " + gameId + " FAILED!");
-
-          db.updateAgentStatuses(gameId);
-          log.info("Freeing Agents for game: " + gameId);
-          db.updateGameFreeMachine(gameId);
+          for (Agent agent: agentMap.values()) {
+            agent.setStatus(Agent.STATE.complete.toString());
+            session.update(agent);
+          }
+          log.info("Setting Agents to Complete for game: " + gameId);
+          machine.setStatus(Machine.STATE.idle.toString());
+          log.info("Setting machine " + machine.getMachineId() + " to idle");
+          machine = null;
           log.info("Freeing Machines for game: " + gameId);
-          db.setMachineStatus(g.getMachineId(), Machine.STATE.idle);
-          log.info("Setting machine "+ g.getMachineId() +" to idle");
           break;
       }
 
-      db.commitTrans();
+      session.update(this);
+      session.getTransaction().commit();
     }
     catch (Exception e) {
-      db.abortTrans();
+      session.getTransaction().rollback();
       e.printStackTrace();
     }
+
     return "success";
   }
 
@@ -305,7 +210,6 @@ public class Game implements Serializable
 
   public void removeBootFile()
   {
-    TournamentProperties properties = TournamentProperties.getProperties();
     String bootLocation = properties.getProperty("bootLocation") +
         gameId + "-boot.xml";
     File f = new File(bootLocation);
@@ -325,11 +229,11 @@ public class Game implements Serializable
 
   public String startTimeUTC ()
   {
-    return Utils.dateFormatUTC(startTime);
+    return Utils.dateFormat(startTime);
   }
   public String readyTimeUTC()
   {
-    return Utils.dateFormatUTC(readyTime);
+    return Utils.dateFormat(readyTime);
   }
 
   public boolean stateEquals(STATE state)
@@ -344,185 +248,245 @@ public class Game implements Serializable
 
   public String jenkinsMachineUrl ()
   {
-    Database db = new Database();
-    try {
-      db.startTrans();
-      Machine m = db.getMachineById(machineId);
-      if (m != null) {
-        return String.format("%scomputer/%s/",
-            properties.getProperty("jenkins.location"),
-            m.getName());
-      }
+    if (machine == null) {
+      return "";
     }
-    catch (SQLException sqle){
-      sqle.printStackTrace();
-    }
-    finally {
-      db.abortTrans();
-    }
-    return "";
+
+    return String.format("%scomputer/%s/",
+        properties.getProperty("jenkins.location"),
+        machine.getMachineName());
   }
 
-  public static List<Game> getGameList ()
+  public static Game createGame (Tournament tournament, String gameName)
+  {
+    Game game = new Game();
+    game.setGameName(gameName);
+    game.setTournament(tournament);
+    game.setStatus(STATE.boot_pending.toString());
+    game.setStartTime(tournament.getStartTime());
+    game.setSimStartTime(randomSimStartTime(tournament));
+    game.setLocation(randomLocation(tournament));
+    game.setServerQueue(Utils.createQueueName());
+    game.setVisualizerQueue(Utils.createQueueName());
+
+    return game;
+  }
+
+  private static String randomLocation (Tournament tournament) {
+    double randLocation = Math.random() * tournament.getLocationsList().size();
+    return tournament.getLocationsList().get((int) Math.floor(randLocation));
+  }
+
+  private static String randomSimStartTime (Tournament tournament) {
+    Date starting = new Date();
+
+    // Number of msecs in a year divided by 4
+    double gameLength = (3.1556926 * Math.pow(10, 10)) / 4;
+
+    // Max amount of time between the fromTime to the toTime to start a game
+    long msLength = (long) gameLength;
+
+    if (tournament.getDateTo().getTime() - tournament.getDateFrom().getTime() < msLength) {
+      // Use fromTime in all games in the tournament as the start time
+      starting = tournament.getDateFrom();
+    }
+    else {
+      long start = tournament.getDateFrom().getTime();
+      long end = tournament.getDateFrom().getTime() - msLength;
+      long startTime = (long) (Math.random() * (end - start) + start);
+
+      starting.setTime(startTime);
+    }
+
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    return format.format(starting);
+  }
+
+  //<editor-fold desc="Collections">
+  @SuppressWarnings("unchecked")
+  public static List<Game> getBootableSingleGames(Session session)
+  {
+    return (List<Game>) session
+        .createQuery(Constants.HQL.GET_GAMES_SINGLE_BOOT_PENDING)
+        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+  }
+
+  @SuppressWarnings("unchecked")
+  public static List<Game> getBootableMultiGames (Session session, Tournament tournament)
+  {
+    return (List<Game>) session
+        .createQuery(Constants.HQL.GET_GAMES_MULTI_BOOT_PENDING)
+        .setInteger("tournamentId", tournament.getTournamentId())
+        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+  }
+
+  @SuppressWarnings("unchecked")
+  public static List<Game> getStartableSingleGames (Session session)
+  {
+    return (List<Game>) session
+        .createQuery(Constants.HQL.GET_GAMES_SINGLE_BOOT_COMPLETE)
+        .setTimestamp("startTime", Utils.offsetDate())
+        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+  }
+
+  @SuppressWarnings("unchecked")
+  public static List<Game> getStartableMultiGames (Session session, Tournament tournament)
+  {
+    return (List<Game>) session
+        .createQuery(Constants.HQL.GET_GAMES_MULTI_BOOT_COMPLETE)
+        .setInteger("tournamentId", tournament.getTournamentId())
+        .setTimestamp("startTime", Utils.offsetDate())
+        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+  }
+
+  @SuppressWarnings("unchecked")
+  public static List<Game> getNotCompleteGamesList ()
   {
     List<Game> games = new ArrayList<Game>();
 
-    Database db = new Database();
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
-      games = db.getGames();
-      db.commitTrans();
+      Query query = session.createQuery(Constants.HQL.GET_GAMES_NOT_COMPLETE);
+      games = (List<Game>) query.
+          setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+      transaction.commit();
     }
-    catch (SQLException e) {
-      db.abortTrans();
+    catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
     }
+    session.close();
 
     return games;
   }
 
-  public static List<Game> getGameCompleteList ()
+  @SuppressWarnings("unchecked")
+  public static List<Game> getCompleteGamesList ()
   {
     List<Game> games = new ArrayList<Game>();
 
-    Database db = new Database();
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
-      games = db.getCompleteGames();
-      db.commitTrans();
+      Query query = session.createQuery(Constants.HQL.GET_GAMES_COMPLETE);
+      games = (List<Game>) query.
+          setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+      transaction.commit();
     }
-    catch (SQLException e) {
-      db.abortTrans();
+    catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
     }
+    session.close();
 
     return games;
   }
+
+  @OneToMany
+  @JoinColumn(name="gameId")
+  @MapKey(name="brokerId")
+  public Map<Integer, Agent> getAgentMap() {
+    return agentMap;
+  }
+  public void setAgentMap(Map<Integer, Agent> agentMap) {
+    this.agentMap = agentMap;
+  }
+  //</editor-fold>
 
   //<editor-fold desc="Setter and getters">
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "startTime", unique = false, nullable = false)
-  public Date getStartTime ()
-  {
-    return startTime;
-  }
-  public void setStartTime (Date startTime)
-  {
-    this.startTime = startTime;
-  }
-
-  @Column(name = "status", unique = false, nullable = false)
-  public String getStatus ()
-  {
-    return status;
-  }
-  public void setStatus (String status)
-  {
-    this.status = status;
-  }
-
-  @Column(name = "jmsUrl", unique = false, nullable = true)
-  public String getJmsUrl ()
-  {
-    return jmsUrl;
-  }
-  public void setJmsUrl (String jmsUrl)
-  {
-    this.jmsUrl = jmsUrl;
-  }
-  
-  @Column(name = "serverQueue", unique = false, nullable = true)
-  public String getServerQueue ()
-  {
-    return serverQueue;
-  }
-  public void setServerQueue (String name)
-  {
-    this.serverQueue = name;
-  }
-  
-  @Column(name="visualizerQueue", unique = false, nullable = true)
-  public String getVisualizerQueue ()
-  {
-    return visualizerQueue;
-  }
-  public void setVisualizerQueue (String name)
-  {
-    this.visualizerQueue = name;
-  }
-
-  @Column(name = "maxBrokers", unique = false, nullable = true)
-  public int getMaxBrokers ()
-  {
-    return maxBrokers;
-  }
-  public void setMaxBrokers (int maxBrokers)
-  {
-    this.maxBrokers = maxBrokers;
-  }
-
   @Id
-  @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "gameId", unique = true, nullable = false)
-  public int getGameId ()
-  {
+  @GeneratedValue(strategy=IDENTITY)
+  @Column(name="gameId", unique=true, nullable=false)
+  public Integer getGameId () {
     return gameId;
   }
-  public void setGameId (int gameId)
-  {
+  public void setGameId (Integer gameId) {
     this.gameId = gameId;
   }
 
-  @Column(name = "gameName", unique = false, nullable = false)
-  public String getGameName ()
-  {
+  @Column(name="gameName")
+  public String getGameName () {
     return gameName;
   }
-  public void setGameName (String gameName)
-  {
+  public void setGameName (String gameName) {
     this.gameName = gameName;
   }
 
-  @Column(name = "visualizerUrl", unique = false, nullable = false)
-  public String getVisualizerUrl ()
-  {
-    return visualizerUrl;
+  @ManyToOne
+  @JoinColumn(name="tourneyId")
+  public Tournament getTournament () {
+    return tournament;
   }
-  public void setVisualizerUrl (String visualizerUrl)
-  {
-    this.visualizerUrl = visualizerUrl;
+  public void setTournament (Tournament tournament) {
+    this.tournament = tournament;
+  }
+
+  @ManyToOne
+  @JoinColumn(name="machineId")
+  public Machine getMachine() {
+    return machine;
+  }
+  public void setMachine(Machine machine) {
+    this.machine = machine;
+  }
+
+  @Column(name="status", nullable=false)
+  public String getStatus () {
+    return status;
+  }
+  public void setStatus (String status) {
+    this.status = status;
   }
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "readyTime", unique = false, nullable = true)
-  public Date getReadyTime ()
-  {
+  @Column(name="startTime")
+  public Date getStartTime () {
+    return startTime;
+  }
+  public void setStartTime (Date startTime) {
+    this.startTime = startTime;
+  }
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name="readyTime")
+  public Date getReadyTime () {
     return readyTime;
   }
-  public void setReadyTime (Date readyTime)
-  {
+  public void setReadyTime (Date readyTime) {
     this.readyTime = readyTime;
   }
 
-  @Column(name = "tourneyId", unique = false, nullable = false)
-  public int getTourneyId ()
-  {
-    return tourneyId;
+  @Column(name="visualizerQueue")
+  public String getVisualizerQueue () {
+    return visualizerQueue;
+  }
+  public void setVisualizerQueue (String name) {
+    this.visualizerQueue = name;
   }
 
-  public void setTourneyId (int tourneyId)
-  {
-    this.tourneyId = tourneyId;
+  @Column(name="serverQueue")
+  public String getServerQueue () {
+    return serverQueue;
+  }
+  public void setServerQueue (String name) {
+    this.serverQueue = name;
   }
 
-  @Column(name = "machineId", unique = false, nullable = true)
-  public Integer getMachineId ()
-  {
-    return machineId;
+  @Column(name="location")
+  public String getLocation () {
+    return location;
   }
-  public void setMachineId (Integer machineId)
-  {
-    this.machineId = machineId;
+  public void setLocation (String location) {
+    this.location = location;
+  }
+
+  @Column(name="simStartDate")
+  public String getSimStartTime () {
+    return simStartTime;
+  }
+  public void setSimStartTime (String simStartTime) {
+    this.simStartTime = simStartTime;
   }
   //</editor-fold>
 }

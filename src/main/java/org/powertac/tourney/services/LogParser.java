@@ -6,13 +6,18 @@
  */
 package org.powertac.tourney.services;
 
-
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Restrictions;
+import org.powertac.tourney.beans.Agent;
+import org.powertac.tourney.beans.Broker;
+import org.powertac.tourney.beans.Game;
 
 import java.io.*;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+
 
 public class LogParser
 {
@@ -108,22 +113,31 @@ public class LogParser
     return results;
   }
 
+  @SuppressWarnings("unchecked")
   public void storeResults (HashMap<String, Double> results)
   {
-    Database db = new Database();
-
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
-
       for (Map.Entry<String, Double> entry: results.entrySet()) {
-        db.updateAgentBalance(gameId, entry.getKey(), entry.getValue());
-      }
+        Broker broker = (Broker) session
+            .createCriteria(Broker.class)
+            .add(Restrictions.eq("brokerName", entry.getKey())).uniqueResult();
 
-      db.commitTrans();
+        Game game = (Game) session.get(Game.class, gameId);
+
+        Agent agent = (Agent) session.createCriteria(Agent.class)
+            .add(Restrictions.eq("broker", broker))
+            .add(Restrictions.eq("game", game)).uniqueResult();
+        agent.setBalance(entry.getValue());
+        session.update(agent);
+      }
+      transaction.commit();
     }
-    catch (SQLException sqle) {
-      db.abortTrans();
-      sqle.printStackTrace();
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
     }
+    session.close();
   }
 }

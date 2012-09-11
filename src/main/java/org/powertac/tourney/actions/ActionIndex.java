@@ -12,6 +12,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import java.util.List;
 
+
 @ManagedBean
 @RequestScoped
 public class ActionIndex
@@ -19,14 +20,14 @@ public class ActionIndex
   private String sortColumn = null;
   private boolean sortAscending = true;
 
-  public List<Game> getGameList ()
+  public List<Game> getNotCompleteGamesList()
   {
-    return Game.getGameList();
+    return Game.getNotCompleteGamesList();
   }
   
-  public List<Game> getGameCompleteList ()
+  public List<Game> getCompleteGamesList()
   {
-    return Game.getGameCompleteList();
+    return Game.getCompleteGamesList();
   }
 
   public String getLogUrl (Game g)

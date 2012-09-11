@@ -10,6 +10,8 @@ package org.powertac.tourney.services;
 import org.apache.log4j.Logger;
 import org.powertac.tourney.beans.Machine;
 
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.mail.Message;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
@@ -19,6 +21,7 @@ import javax.mail.internet.MimeMessage;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -36,30 +39,25 @@ public class Utils {
     vizIPs = new HashMap<String, String>();
     localIPs = new HashMap<String, String>();
 
-    Database db = new Database();
-    try {
-      db.startTrans();
-
-      for (Machine m: db.getMachines()) {
-        String machineIP = InetAddress.getByName(m.getUrl()).toString();
-        String vizIP = InetAddress.getByName(
-            m.getVizUrl().split(":")[0].split("/")[0]).toString();
+    for (Machine m: Machine.getMachineList()) {
+      try {
+        String machineIP = InetAddress.getByName(m.getMachineUrl()).toString();
         if (machineIP.contains("/")) {
           machineIP = machineIP.split("/")[1];
         }
+        machineIPs.put(machineIP, m.getMachineName());
+      }
+      catch (UnknownHostException ignored) {}
+
+      try {
+        String vizIP = InetAddress.getByName(
+            m.getVizUrl().split(":")[0].split("/")[0]).toString();
         if (vizIP.contains("/")) {
           vizIP = vizIP.split("/")[1];
         }
-
-        machineIPs.put(machineIP, m.getName());
-        vizIPs.put(vizIP, m.getName());
+        vizIPs.put(vizIP, m.getMachineName());
       }
-
-      db.commitTrans();
-    }
-    catch (Exception e) {
-      db.abortTrans();
-      e.printStackTrace();
+      catch (UnknownHostException ignored) {}
     }
 
     localIPs.put("127.0.0.1", "loopback");
@@ -184,6 +182,21 @@ public class Utils {
     }
   }
 
+  public static void redirect ()
+  {
+    try {
+      ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+      externalContext.redirect("index.xhtml");
+    }
+    catch (Exception ignored) {}
+  }
+
+  private static Random queueGenerator = new Random(new Date().getTime());
+  public static String createQueueName ()
+  {
+    return Long.toString(queueGenerator.nextLong(), 31);
+  }
+
   //<editor-fold desc="Date format">
   public static String dateFormat (Date date)
   {
@@ -195,38 +208,23 @@ public class Utils {
       return "";
     }
   }
-  public static String dateFormatUTC (Date date)
+
+  public static Date offsetDate ()
   {
-    try {
-      TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-      return sdf.format(date);
-    }
-    catch (Exception e) {
-      return "";
-    }
+    return offsetDate(new Date());
   }
-  public static Date dateFormatUTCmilli (String date)
+
+  public static Date offsetDate (Date date)
   {
-    try {
-      TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-      return sdf.parse(date);
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    if (TimeZone.getDefault().inDaylightTime( date )) {
+      calendar.add(Calendar.HOUR, -1);
     }
-    catch (Exception e) {
-      return null;
-    }
-  }
-  public static String dateFormatUTCmilli (Date date)
-  {
-    try {
-      TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-      return sdf.format(date);
-    }
-    catch (Exception e) {
-      return "";
-    }
+    TimeZone tz = Calendar.getInstance().getTimeZone();
+    calendar.add(Calendar.MILLISECOND, -1 * tz.getRawOffset());
+
+    return calendar.getTime();
   }
   //</editor-fold>
 }

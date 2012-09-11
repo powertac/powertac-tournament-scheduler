@@ -10,12 +10,16 @@
 <h:body>
   <ui:composition template="template.xhtml">
     <ui:define name="content">
-      <h2>Overview for tournament #{actionTournament.getTournamentName(param['tournamentId'])}</h2>
+      <h2>Overview for tournament #{actionTournament.tournament.getTournamentName()}</h2>
+
+      <t:dataList var="infoEntry" value="#{actionTournament.tournamentInfo}" layout="unorderedList">
+        <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
+      </t:dataList>
 
       <h3>Totals</h3>
       <t:dataTable id="dataresults" border="1" sortable="false"
                    style="border:1px solid black;border-collapse:collapse;"
-                   value="#{actionTournament.getResultMap( param['tournamentId'] )}" var="r">
+                   value="#{actionTournament.getResultMap()}" var="r">
         <t:column>
           <f:facet name="header">
             <h:outputText value="Broker" />
@@ -38,13 +42,13 @@
                    sortColumn="#{actionTournament.sortColumn}"
                    sortAscending="#{actionTournament.sortAscending}" preserveSort="true"
                    style="border:1px solid black;border-collapse:collapse;"
-                   value="#{actionTournament.getGameList( param['tournamentId'] )}" var="g">
+                   value="#{actionTournament.tournament.gameMap.values()}" var="entry">
         <t:column defaultSorted="true" sortable="true">
           <f:facet name="header">
             <h:outputText value="ID" />
           </f:facet>
           <h:outputText >
-            <a href="game.xhtml?gameId=#{g.gameId}">#{g.gameId}</a>
+            <a href="game.xhtml?gameId=#{entry.gameId}">#{entry.gameId}</a>
           </h:outputText>
         </t:column>
 
@@ -52,14 +56,14 @@
           <f:facet name="header">
             <h:outputText value="Name" />
           </f:facet>
-          <h:outputText value="#{g.gameName}" />
+          <h:outputText value="#{entry.gameName}" />
         </t:column>
 
         <t:column sortable="true">
           <f:facet name="header">
             <h:outputText value="Status" />
           </f:facet>
-          <h:outputText value="#{g.status}" />
+          <h:outputText value="#{entry.status}" />
         </t:column>
 
         <t:column>
@@ -67,8 +71,8 @@
             <h:outputText value="Brokers" />
           </f:facet>
           <h:panelGroup>
-            <ui:repeat value="#{g.getBrokersInGame()}" var="b">
-              <b>#{b.brokerName}</b><br/>
+            <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}" var="a">
+              <b>#{a.broker.getBrokerName()}</b><br/>
             </ui:repeat>
           </h:panelGroup>
         </t:column>
@@ -78,15 +82,14 @@
             <h:outputText value="Balance" />
           </f:facet>
           <h:panelGroup>
-            <ui:repeat value="#{g.getBrokersInGame()}" var="b">
-              <h:outputText value="#{b.getBalance(g.gameId)}" >
+            <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}" var="a">
+              <h:outputText value="#{a.balance}" >
                 <f:convertNumber minFractionDigits="6" />
               </h:outputText><br/>
             </ui:repeat>
           </h:panelGroup>
         </t:column>
       </t:dataTable>
-
     </ui:define>
   </ui:composition>
 </h:body>

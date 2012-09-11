@@ -15,16 +15,16 @@
       <h:form >
         <h:panelGroup rendered="#{!actionAdmin.getConfigErrors().isEmpty()}">
           <h:outputText value="There are config errors!" style="color: red;" />
-          <t:dataList var="message" value="#{actionAdmin.getConfigErrors()}" layout="unorderedList">
-            <h:commandButton value="Hide" action="#{actionAdmin.removeMessage(message)}"/>
-            <t:outputText value="#{message}" escape="false" id="message"/>
+          <t:dataList var="infoEntry" value="#{actionAdmin.getConfigErrors()}" layout="unorderedList">
+            <h:commandButton value="Hide" action="#{actionAdmin.removeMessage(infoEntry)}"/>
+            <t:outputText value="#{infoEntry}" escape="false" id="message"/>
           </t:dataList>
           <br/>
         </h:panelGroup>
       </h:form>
 
-      <h:form rendered="#{user.permissions le 0}">
-        <h:panelGrid columns="3">
+      <h:form id="adminControls" rendered="#{user.permissionId le 0}">
+        <t:panelGrid columns="3">
           <h4>WatchDog Status:</h4>
           <h:panelGroup>
             <h:outputText value="WatchDog running"
@@ -34,7 +34,7 @@
                           style="color:red;"
                           rendered="#{!scheduler.running}" />
           </h:panelGroup>
-          <h:commandButton value="Restart WatchDog" action="#{scheduler.restartWatchDog}"/>
+          <h:commandButton value="Restart" action="#{actionAdmin.restartWatchDog}"/>
 
           <h4>Tournament Status:</h4>
           <h:panelGroup>
@@ -46,16 +46,24 @@
                           rendered="#{scheduler.nullTourney}" />
           </h:panelGroup>
           <h:panelGroup>
-            <h:commandButton value="Reload Tourney"
-                             action="#{scheduler.reloadTournament}"
+            <h:commandButton value="Unload"
+                             action="#{actionAdmin.unloadTournament()}"
                              rendered="#{!scheduler.nullTourney}" />
-            <h:commandButton value="Load Tourney"
-                             action="#{scheduler.reloadTournament}"
-                             rendered="#{scheduler.nullTourney}" />
+            <h:selectOneMenu value="#{actionAdmin.selectedTournament}"
+                             rendered="#{scheduler.nullTourney}"
+                             style="border:1px solid grey;height:22px;padding:1px;margin:2px;"
+                >
+              <f:selectItems value="#{actionAdmin.availableTournaments}" var="t"
+                             itemValue="#{t.tournamentId}"
+                             itemLabel="#{t.tournamentName}" />
+            </h:selectOneMenu>
+            <h:commandButton value="Load"
+                             action="#{actionAdmin.loadTournament()}"
+                             rendered="#{scheduler.nullTourney}"/>
           </h:panelGroup>
 
           <h4>Weather Server Status:</h4>
-          <h:panelGroup>
+          <t:panelGroup colspan="2">
             <h:outputText value="#{checkWeatherServer.status}"
                           style="color:green;"
                           rendered="#{checkWeatherServer.status == 'Server Alive and Well'}" />
@@ -65,26 +73,26 @@
             <h:outputText value="#{checkWeatherServer.status}"
                           style="color:orange;"
                           rendered="#{checkWeatherServer.status == 'Server Timeout or Network Error'}" />
-            <h:outputText value="Ping for info"
-                          style="color:green;"
-                          rendered="#{checkWeatherServer.status == ''}" />
-          </h:panelGroup>
-          <h:commandButton value="Ping Server" action="#{checkWeatherServer.ping}" />
-        </h:panelGrid>
+          </t:panelGroup>
 
-        <br/>
-        <h:panelGrid columns="2">
-          <h:outputText value="Weather Server Location: " />
-          <h:outputText value="#{checkWeatherServer.weatherServerLocation}" />
-        </h:panelGrid>
+          <h4>Weather Server Location:</h4>
+          <t:panelGroup colspan="2">
+            <h:outputText value="#{checkWeatherServer.weatherServerLocation}" />
+          </t:panelGroup>
+        </t:panelGrid>
       </h:form>
 
-      <h:form rendered="#{user.permissions le 0}">
+      <h:form rendered="#{user.permissionId le 0}">
         <h3>Weather Server Locations and Dates:</h3>
         <h:dataTable border="1" styleClass="dataTable" value="#{actionAdmin.locationList}" var="l">
           <h:column>
             <f:facet name="header">Location Name</f:facet>
-            <h:outputText value="#{l.name}" />
+            <h:outputText value="#{l.location}" />
+          </h:column>
+
+          <h:column>
+            <f:facet name="header">Timezone</f:facet>
+            <h:outputText value="#{l.timezone}" />
           </h:column>
 
           <h:column>
@@ -112,6 +120,9 @@
           <h:outputText value="Name:" />
           <h:inputText value="#{actionAdmin.locationName}" />
 
+          <h:outputText value="Timezone:" />
+          <h:inputText value="#{actionAdmin.locationTimezone}" />
+
           <h:outputText value="Start Date:" />
           <t:inputDate value="#{actionAdmin.locationStartTime}" />
 
@@ -124,7 +135,7 @@
         </h:panelGrid>
       </h:form>
 
-      <h:form rendered="#{user.permissions le 0}">
+      <h:form rendered="#{user.permissionId le 0}">
         <h3>Available Poms</h3>
         <t:dataTable id="datausers" border="1" sortable="true"
                      sortColumn="#{actionAdmin.sortColumnPom}"
@@ -137,7 +148,7 @@
               <h:outputText value="Pom Name" />
             </f:facet>
             <a href="pom.jsp?pomId=#{p.pomId}">
-                <h:outputText value="#{p.name}" />
+                <h:outputText value="#{p.pomName}" />
             </a>
           </t:column>
 
@@ -152,12 +163,12 @@
             <f:facet name="header">
               <h:outputText value="Uploading User" />
             </f:facet>
-            <h:outputText value="#{p.uploadingUser}" />
+            <h:outputText value="#{p.user.getUserName()}" />
           </t:column>
         </t:dataTable>
       </h:form>
 
-      <h:form rendered="#{user.permissions le 0}" enctype="multipart/form-data" id="pomUploadForm" >
+      <h:form rendered="#{user.permissionId le 0}" enctype="multipart/form-data" id="pomUploadForm" >
         <br/>
         <h4>Upload Pom File</h4>
         <h:outputText value="Pom Name(X.X.X): " />
@@ -171,7 +182,7 @@
         <h:message for="pomUploadForm" />
       </h:form>
 
-      <h:form rendered="#{user.permissions le 0}">
+      <h:form rendered="#{user.permissionId le 0}">
         <h3 class="withButton">Available Machines</h3><h:commandButton value="Refresh" action="#{actionAdmin.refresh}"/>
         <t:dataTable id="machines" border="1" sortable="false"
                      sortColumn="#{actionAdmin.sortColumnMachine}"
@@ -183,13 +194,13 @@
             <f:facet name="header">
               <h:outputText value="Machine Name" />
             </f:facet>
-            <h:outputText value="#{m.name}" />
+            <h:outputText value="#{m.machineName}" />
           </t:column>
           <t:column sortable="true">
             <f:facet name="header">
               <h:outputText value="Machine Hostname" />
             </f:facet>
-            <h:outputText value="#{m.url}" />
+            <h:outputText value="#{m.machineUrl}" />
           </t:column>
           <t:column sortable="true">
             <f:facet name="header">
@@ -204,7 +215,7 @@
             <f:facet name="header">
               <h:outputText value="Idle" />
             </f:facet>
-            <h:outputText value="#{!m.inProgress}" />
+            <h:outputText value="#{!m.isInProgress()}" />
           </t:column>
           <t:column>
             <f:facet name="header">
@@ -212,10 +223,10 @@
             </f:facet>
             <h:commandButton value="Set Running"
                              action="#{actionAdmin.toggleStatus(m)}"
-                             rendered="#{!m.inProgress}" />
+                             rendered="#{!m.isInProgress()}" />
             <h:commandButton value="Set Idle"
                              action="#{actionAdmin.toggleStatus(m)}"
-                             rendered="#{m.inProgress}"  />
+                             rendered="#{m.isInProgress()}"  />
           </t:column>
 
           <t:column sortable="true">
@@ -252,7 +263,7 @@
         </t:dataTable>
       </h:form>
 
-      <h:form rendered="#{user.permissions le 0}" id="saveMachine">
+      <h:form rendered="#{user.permissionId le 0}" id="saveMachine">
           <br/>
           <h:panelGrid columns="2">
               <h:panelGroup rendered="#{actionAdmin.machineId != -1}">
@@ -277,7 +288,7 @@
           <h:inputHidden id="machineId" value="#{actionAdmin.machineId}"/>
       </h:form>
 
-      <h:form rendered="#{user.permissions le 0}">
+      <h:form rendered="#{user.permissionId le 0}">
         <h3>User Details</h3>
         <t:dataTable id="datausers" border="1" sortable="true"
                      sortColumn="#{actionAdmin.sortColumnUsers}"
@@ -296,19 +307,19 @@
             <f:facet name="header">
               <h:outputText value="Username" />
             </f:facet>
-            <h:outputText value="#{u.username}" />
+            <h:outputText value="#{u.userName}" />
           </t:column>
 
           <t:column defaultSorted="true">
             <f:facet name="header">
               <h:outputText value="Permission" />
             </f:facet>
-            <h:outputText value="#{u.permissions}" />
+            <h:outputText value="#{u.permissionId}" />
           </t:column>
         </t:dataTable>
       </h:form>
 
-      <h:form rendered="#{user.permissions gt 0}">
+      <h:form rendered="#{user.permissionId gt 0}">
         <h2>Insufficient Permissions</h2>
       </h:form>
 

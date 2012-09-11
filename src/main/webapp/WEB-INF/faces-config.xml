@@ -91,7 +91,7 @@
 
 		<navigation-case>
 			<from-outcome>Failure</from-outcome>
-			<to-view-id>Cannot Register Error</to-view-id>
+			<to-view-id>/account.xhtml</to-view-id>
 		</navigation-case>
 	</navigation-rule>
 	

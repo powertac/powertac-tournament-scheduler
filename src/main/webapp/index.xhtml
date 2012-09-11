@@ -2,18 +2,19 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:t="http://myfaces.apache.org/tomahawk">
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:t="http://myfaces.apache.org/tomahawk"
+      xmlns:p="http://myfaces.apache.org/tomahawk">
 
 <h:body>
 	<ui:composition template="template.xhtml">
 
 		<ui:define name="content">
-            <h2>Welcome to the PowerTac 2012 Tournament Scheduler</h2>
+      <h2>Welcome to the PowerTac 2012 Tournament Scheduler</h2>
 
-            <p>More information on PowerTac can be found on the <a href="http://powertac.org">website</a></p>
+      <p>More information on PowerTac can be found on the <a href="http://powertac.org">website</a></p>
 
 			<p>If you have not already done so, create an account and register and configure
 			your broker as shown at the
@@ -26,57 +27,50 @@
 					sortColumn="#{actionIndex.sortColumn}"
 					sortAscending="#{actionIndex.sortAscending}" preserveSort="true"
 					style="border:1px solid black;border-collapse:collapse;text-align:center;"
-					value="#{actionIndex.gameList}" var="g">
+					value="#{actionIndex.notCompleteGamesList}" var="g" >
 					<t:column defaultSorted="true" sortable="true">
 						<f:facet name="header">
 							<h:outputText value="ID" />
 						</f:facet>
-              <h:outputText value="#{g.gameId}" />
-    				</t:column>
+            <h:outputText value="#{g.gameId}" />
+    			</t:column>
     				
-    				<t:column>
+          <t:column>
 						<f:facet name="header">
 							<h:outputText value="Tournament" />
 						</f:facet>
-              <h:outputText value="#{g.getTournamentName()}" />
-    				</t:column>
+            <h:outputText value="#{g.tournament.tournamentName}" />
+          </t:column>
     				
-    				<t:column>
+          <t:column>
 						<f:facet name="header">
 							<h:outputText value="Brokers" />
 						</f:facet>
-              <h:outputText value="#{g.getBrokersInGameString()}" />
-    				</t:column>
+            <h:outputText value="#{g.getBrokersInGameString()}" />
+          </t:column>
 
 					<t:column sortable="true">
 						<f:facet name="header">
 							<h:outputText value="Status" />
 						</f:facet>
-              <h:outputText value="#{g.status}" />
+            <h:outputText value="#{g.status}" />
     				</t:column>
 
 					<t:column>
 						<f:facet name="header">
 							<h:outputText value="Start Time" />
 						</f:facet>
-              <h:outputText value="#{g.startTimeUTC()}" />
-    				</t:column>
-
-					<t:column sortable="true">
-						<f:facet name="header">
-							<h:outputText value="Max Brokers" />
-						</f:facet>
-              <h:outputText value="#{g.maxBrokers}" />
-    				</t:column>
+            <h:outputText value="#{g.startTimeUTC()}" />
+          </t:column>
 
 					<t:column>
 						<f:facet name="header">
 							<h:outputText value="Viz&lt;br/&gt;Link" escape="false"/>
 						</f:facet>
-              <h:outputText value="Not avail." rendered="#{g.visualizerUrl == ''}"/>
-              <h:panelGroup rendered="#{g.visualizerUrl != ''}" >
-                <a href="http://#{g.visualizerUrl}" target="_blank">Visualizer</a>
-              </h:panelGroup>
+            <h:outputText value="Not avail." rendered="#{!g.isRunning()}"/>
+            <h:panelGroup rendered="#{g.isRunning()}" >
+              <a href="http://#{g.machine.vizUrl}" target="_blank">Visualizer</a>
+            </h:panelGroup>
 					</t:column>
 				</t:dataTable>
 			</h:form>
@@ -87,20 +81,22 @@
 					sortColumn="#{actionIndex.sortColumn}"
 					sortAscending="#{actionIndex.sortAscending}" preserveSort="true"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{actionIndex.gameCompleteList}" var="g">
+					value="#{actionIndex.completeGamesList}" var="g">
 					<t:column sortable="true" defaultSorted="true">
 						<f:facet name="header">
 							<h:outputText value="ID" />
 						</f:facet>
-              <h:outputText value="#{g.gameId}" />
+              <a href="game.xhtml?gameId=#{g.gameId}">
+                <h:outputText value="#{g.gameId}" />
+              </a>
     				</t:column>
     				
     				<t:column>
-						<f:facet name="header">
-							<h:outputText value="Tournament" />
-						</f:facet>
-              <a href="tournament.xhtml?tournamentId=#{g.tourneyId}">
-                <h:outputText value="#{g.getTournamentName()}" />
+              <f:facet name="header">
+                <h:outputText value="Tournament" />
+              </f:facet>
+              <a href="tournament.xhtml?tournamentId=#{g.tournament.tournamentId}">
+                <h:outputText value="#{g.tournament.tournamentName}" />
               </a>
     				</t:column>
 
@@ -108,7 +104,7 @@
               <f:facet name="header">
                 <h:outputText value="Brokers" />
               </f:facet>
-              <h:outputText value="#{g.getBrokersInGameCompleteString()}" />
+              <h:outputText value="#{g.getBrokersInGameString()}" />
             </t:column>
 
             <t:column>

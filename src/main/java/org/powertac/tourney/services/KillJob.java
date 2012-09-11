@@ -1,22 +1,25 @@
 package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
-import org.powertac.tourney.beans.Game;
+import org.powertac.tourney.beans.Machine;
 
 import java.net.URL;
 import java.net.URLConnection;
-import java.sql.SQLException;
 
 
 public class KillJob
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  public KillJob (Database db, Game game) throws SQLException
+
+  public KillJob (Machine machine)
   {
+    if (machine == null) {
+      return;
+    }
     // Get the machineName and stop the job on Jenkins
     TournamentProperties properties = TournamentProperties.getProperties();
-    String machineName = db.getMachineById(game.getMachineId()).getName();
+    String machineName = machine.getMachineName();
     String stopUrl = properties.getProperty("jenkins.location")
         + "computer/" + machineName + "/executors/0/stop";
     log.info("Stop url: " + stopUrl);

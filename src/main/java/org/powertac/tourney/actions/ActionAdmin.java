@@ -1,27 +1,28 @@
 package org.powertac.tourney.actions;
 
+import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
-import org.powertac.tourney.beans.Location;
-import org.powertac.tourney.beans.Machine;
-import org.powertac.tourney.beans.Pom;
-import org.powertac.tourney.beans.User;
-import org.powertac.tourney.services.*;
+import org.powertac.tourney.beans.*;
+import org.powertac.tourney.services.HibernateUtil;
+import org.powertac.tourney.services.TournamentProperties;
+import org.powertac.tourney.services.Upload;
+import org.powertac.tourney.services.Utils;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @ManagedBean
 @RequestScoped
 public class ActionAdmin
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   private String sortColumnPom = null;
   private boolean sortAscendingPom = true;
   private String sortColumnMachine = null;
@@ -30,6 +31,7 @@ public class ActionAdmin
   private boolean sortAscendingUsers = true;
 
   private String locationName = "";
+  private int locationTimezone = 0;
   private Date locationStartTime = null;
   private Date locationEndTime = null;
 
@@ -42,10 +44,53 @@ public class ActionAdmin
   private UploadedFile uploadedPom;
   private String pomName;
 
+  private Integer selectedTournament;
+
   private TournamentProperties properties = TournamentProperties.getProperties();
 
   public ActionAdmin ()
   {
+  }
+
+  public void restartWatchDog ()
+  {
+    log.info("Restarting WatchDog");
+    Scheduler scheduler = Scheduler.getScheduler();
+    scheduler.restartWatchDog();
+  }
+
+  public void loadTournament ()
+  {
+    log.info("Loading Tournament " + selectedTournament);
+
+    Scheduler scheduler = Scheduler.getScheduler();
+    scheduler.loadTournament(selectedTournament);
+  }
+
+  public void unloadTournament ()
+  {
+    log.info("Unloading Tournament");
+
+    Scheduler scheduler = Scheduler.getScheduler();
+    scheduler.unloadTournament();
+  }
+
+  public List<Tournament> getAvailableTournaments ()
+  {
+    List<Tournament> availableTournaments = new ArrayList<Tournament>();
+    for (Tournament tournament: Tournament.getNotCompleteTournamentList()) {
+      if (tournament.typeEquals(Tournament.TYPE.MULTI_GAME)) {
+        availableTournaments.add(tournament);
+      }
+    }
+
+    Collections.sort(availableTournaments, new Comparator<Tournament>() {
+      public int compare(Tournament t1, Tournament t2) {
+        return t1.getTournamentName().compareTo(t2.getTournamentName());
+      }
+    });
+
+    return availableTournaments;
   }
 
   public List<String> getConfigErrors()
@@ -61,20 +106,7 @@ public class ActionAdmin
   //<editor-fold desc="Location stuff">
   public List<Location> getLocationList ()
   {
-    List<Location> locations = new ArrayList<Location>();
-    Database db = new Database();
-
-    try {
-      db.startTrans();
-      locations = db.getLocations();
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return locations;
+    return Location.getLocationList();
   }
 
   public void addLocation ()
@@ -83,50 +115,49 @@ public class ActionAdmin
       return;
     }
 
-    Database db = new Database();
+    Location location = new Location();
+    location.setLocation(locationName);
+    location.setFromDate(locationStartTime);
+    location.setToDate(locationEndTime);
+
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
-      db.addLocation(locationName, locationStartTime, locationEndTime);
-      db.commitTrans();
+      session.save(location);
+      transaction.commit();
+
+      locationName = "";
+      locationTimezone = 0;
+      locationStartTime = null;
+      locationEndTime = null;
     }
-    catch (SQLException e) {
-      db.abortTrans();
+    catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
     }
+    session.close();
   }
 
-  public void deleteLocation (Location l)
+  public void deleteLocation (Location location)
   {
-    Database db = new Database();
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
-      db.deleteLocation(l.getLocationId());
-      db.commitTrans();
+      session.delete(location);
+      transaction.commit();
     }
-    catch (SQLException e) {
-      db.abortTrans();
+    catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
     }
+    session.close();
   }
   //</editor-fold>
 
   //<editor-fold desc="Pom stuff">
   public List<Pom> getPomList ()
   {
-    List<Pom> poms = new ArrayList<Pom>();
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      poms = db.getPoms();
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return poms;
+    return Pom.getPomList();
   }
 
   public void submitPom ()
@@ -147,14 +178,14 @@ public class ActionAdmin
     }
 
     User currentUser = User.getCurrentUser();
-    Pom p = new Pom();
-    p.setName(getPomName());
-    p.setUploadingUser(currentUser.getUsername());
+    Pom pom = new Pom();
+    pom.setPomName(getPomName());
+    pom.setUser(currentUser);
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     session.beginTransaction();
     try {
-      session.save(p);
+      session.save(pom);
     }
     catch (ConstraintViolationException e) {
       session.getTransaction().rollback();
@@ -166,7 +197,7 @@ public class ActionAdmin
 
     upload.setUploadedFile(uploadedPom);
     upload.setUploadLocation(properties.getProperty("pomLocation"));
-    boolean pomStored = upload.submit("pom." + p.getPomId() + ".xml");
+    boolean pomStored = upload.submit("pom." + pom.getPomId() + ".xml");
 
     if (pomStored) {
       session.getTransaction().commit();
@@ -174,6 +205,7 @@ public class ActionAdmin
     else {
       session.getTransaction().rollback();
     }
+    session.close();
   }
   //</editor-fold>
 
@@ -183,48 +215,47 @@ public class ActionAdmin
     return Machine.getMachineList();
   }
 
-  public void toggleAvailable (Machine m)
+  public void toggleAvailable (Machine machine)
   {
-    Database db = new Database();
-
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
-      if (m.isAvailable()) {
-        db.setMachineAvailable(m.getMachineId(), false);
-      }
-      else {
-        db.setMachineAvailable(m.getMachineId(), true);
-      }
-      db.commitTrans();
+      machine.setAvailable(!machine.isAvailable());
+      session.update(machine);
+      transaction.commit();
     }
-    catch (SQLException e) {
-      db.abortTrans();
+    catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
     }
+    session.close();
   }
-  public void toggleStatus(Machine m){
-    Database db = new Database();
-    
+
+  public void toggleStatus (Machine machine)
+  {
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
-      if(m.isInProgress()){
-        db.setMachineStatus(m.getMachineId(), Machine.STATE.idle);
-      }else{
-        db.setMachineStatus(m.getMachineId(), Machine.STATE.running);
+      if (machine.isInProgress()) {
+        machine.setStatus(Machine.STATE.idle.toString());
+      } else {
+        machine.setStatus(Machine.STATE.running.toString());
       }
-      db.commitTrans();
+      session.update(machine);
+      transaction.commit();
     }
-    catch(Exception e) {
-      db.abortTrans();
+    catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
     }
+    session.close();
   }
   
-  public void editMachine(Machine m)
+  public void editMachine (Machine m)
   {
     machineId = m.getMachineId();
-    machineName = m.getName();
-    machineUrl = m.getUrl();
+    machineName = m.getMachineName();
+    machineUrl = m.getMachineUrl();
     machineViz = m.getVizUrl();
   }
   
@@ -247,59 +278,85 @@ public class ActionAdmin
     // It's a new machine
     if (machineId == -1) {
       addMachine();
-      return;
-    }
-	  
-    Database db = new Database();
-    try {
-      db.startTrans();
-      db.editMachine(machineName, machineUrl, machineViz, machineId);
-      db.commitTrans();
-      resetMachineData();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-      String msg = "Error : machine not edited " + e.getMessage();
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
-    }
-  }
-
-  public void deleteMachine (Machine m)
-  {
-    Database db = new Database();
-    try {
-      db.startTrans();
-      db.deleteMachine(m.getMachineId());
-      db.commitTrans();
-    }
-    catch (SQLException e) {
-      db.abortTrans();
-      e.printStackTrace();
-      String msg = "Error : machine not added " + e.getMessage();
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
+    } else {
+      editMachine();
     }
   }
 
   public void addMachine ()
   {
-    Database db = new Database();
+    Machine machine = new Machine();
+    machine.setMachineName(machineName);
+    machine.setMachineUrl(machineUrl);
+    machine.setVizUrl(machineViz);
+    machine.setStatus(Machine.STATE.idle.toString());
+    machine.setAvailable(false);
+
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
-      db.addMachine(machineName, machineUrl, machineViz);
-      db.commitTrans();
-      
+      session.save(machine);
+      transaction.commit();
       resetMachineData();
+      log.info("Added new machine " + machine.getMachineId());
     }
-    catch (SQLException e) {
-      db.abortTrans();
+    catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
+
       String msg = "Error : machine not added " + e.getMessage();
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
     }
+    session.close();
+  }
+
+  public void editMachine ()
+  {
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      Machine machine = (Machine) session.get(Machine.class, machineId);
+      machine.setMachineName(machineName);
+      machine.setMachineUrl(machineUrl);
+      machine.setVizUrl(machineViz);
+
+      session.update(machine);
+      transaction.commit();
+      resetMachineData();
+      log.info("Edited machine " + machine.getMachineId());
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+
+      String msg = "Error : machine not edited " + e.getMessage();
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
+    }
+    session.close();
+  }
+
+  public void deleteMachine (Machine machine)
+  {
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      session.delete(machine);
+      transaction.commit();
+      log.info("Added new machine " + machine.getMachineId());
+
+      resetMachineData();
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+
+      String msg = "Error : machine not deleted " + e.getMessage();
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
+    }
+    session.close();
   }
 
   private void resetMachineData() {
@@ -312,20 +369,7 @@ public class ActionAdmin
 
   public List<User> getUserList()
   {
-    List<User> users = new ArrayList<User>();
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      users = db.getAllUsers();
-      db.commitTrans();
-    }
-    catch (SQLException e){
-      db.abortTrans();
-      e.printStackTrace();
-    }
-
-    return users;
+    return User.getUserList();
   }
 
   public void refresh ()
@@ -340,6 +384,13 @@ public class ActionAdmin
   public void setLocationName(String locationName)
   {
     this.locationName = locationName;
+  }
+
+  public int getLocationTimezone() {
+    return locationTimezone;
+  }
+  public void setLocationTimezone(int locationTimezone) {
+    this.locationTimezone = locationTimezone;
   }
 
   public Date getLocationStartTime ()
@@ -467,6 +518,13 @@ public class ActionAdmin
   public void setSortAscendingUsers (boolean sortAscendingUsers)
   {
     this.sortAscendingUsers = sortAscendingUsers;
+  }
+
+  public Integer getSelectedTournament() {
+    return selectedTournament;
+  }
+  public void setSelectedTournament(Integer selectedTournament) {
+    this.selectedTournament = selectedTournament;
   }
   //</editor-fold>
 }

@@ -4,7 +4,10 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.powertac.tourney.beans.*;
+import org.powertac.tourney.beans.Game;
+import org.powertac.tourney.beans.Machine;
+import org.powertac.tourney.beans.Scheduler;
+import org.powertac.tourney.beans.Tournament;
 
 import java.net.URL;
 import java.net.URLConnection;
@@ -13,19 +16,18 @@ import java.util.Date;
 import java.util.List;
 
 
-public class RunGame
+public class RunBoot
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private String logSuffix = "sim-";
+  private String logSuffix = "boot-";
   private Game game;
-  private String brokers = "";
   private TournamentProperties properties = TournamentProperties.getProperties();
   private Session session;
 
   private static boolean machinesAvailable = true;
 
-  public RunGame (Session session, Game game)
+  public RunBoot (Session session, Game game)
   {
     this.game = game;
     this.session = session;
@@ -43,16 +45,6 @@ public class RunGame
         return;
       }
 
-      if (!checkBootstrap()) {
-        transaction.rollback();
-        return;
-      }
-
-      if (!checkBrokers()) {
-        transaction.rollback();
-        return;
-      }
-
       if (!startJob()) {
         transaction.rollback();
         return;
@@ -64,51 +56,8 @@ public class RunGame
     catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      log.info("Failed to start simulation game: " + game.getGameId());
+      log.info("Failed to bootstrap game: " + game.getGameId());
     }
-  }
-
-  /***
-   * Make sure a bootstrap has been run for the sim
-   */
-  private boolean checkBootstrap ()
-  {
-    if (game.hasBootstrap()) {
-      return true;
-    }
-    else {
-      log.info("Game: " + game.getGameId() + " reports that boot is not ready!");
-      game.setStatus(Game.STATE.boot_pending.toString());
-      return false;
-    }
-  }
-
-  /***
-   * Make sure brokers are registered for the tournament
-   * Also check if participating brokers have an agent available
-   */
-  private boolean checkBrokers ()
-  {
-    if (game.getAgentMap().size() < 1) {
-      log.info(String.format("Game: %s (tournament %s) reports no brokers "
-          + "registered",
-          game.getGameId(), game.getTournament().getTournamentId()));
-      return false;
-    }
-
-    for (Agent agent: game.getAgentMap().values()) {
-      if (!agent.getBroker().agentsAvailable()) {
-        log.info(String.format("Not starting game %s : broker %s doesn't have "
-            + "enough available agents",
-            game.getGameId(), agent.getBroker().getBrokerId()));
-        return false;
-      }
-
-      brokers += agent.getBroker().getBrokerName() + "/";
-      brokers += agent.getBrokerQueue() +",";
-    }
-    brokers = brokers.substring(0, brokers.length()-1);
-    return true;
   }
 
   /***
@@ -124,7 +73,7 @@ public class RunGame
       Machine freeMachine = Machine.getFreeMachine(session);
       if (freeMachine == null) {
         Scheduler scheduler = Scheduler.getScheduler();
-        log.info(String.format("No machines available to run scheduled sim %s"
+        log.info(String.format("No machines available to run scheduled boot %s"
             + "... will retry in %s seconds",
             game.getGameId(), scheduler.getWatchDogInterval()/1000));
         return false;
@@ -133,12 +82,12 @@ public class RunGame
       game.setMachine(freeMachine);
       freeMachine.setStatus(Machine.STATE.running.toString());
       session.update(freeMachine);
-      log.info(String.format("Game: %s running on machine: %s",
+      log.info(String.format("Game: %s booting on machine: %s",
           game.getGameId(), game.getMachine().getMachineName()));
       return true;
     }
     catch (Exception e) {
-      log.warn("Error claiming free machine for game " + game.getGameId());
+      log.warn("Error claiming free machine for boot " + game.getGameId());
       throw e;
     }
   }
@@ -147,14 +96,14 @@ public class RunGame
   {
     String finalUrl =
         properties.getProperty("jenkins.location")
-            + "job/start-sim-server/buildWithParameters?"
+            + "job/start-boot-server/buildWithParameters?"
             + "tourneyUrl=" + properties.getProperty("tourneyUrl")
             + "&suffix=" + logSuffix
             + "&pomId=" + game.getTournament().getPomId()
             + "&machine=" + game.getMachine().getMachineName()
-            + "&gameId=" + game.getGameId()
-            + "&brokers=" + brokers
-            + "&serverQueue=" + game.getServerQueue();
+            + "&gameId=" + game.getGameId();
+
+
 
     log.info("Final url: " + finalUrl);
 
@@ -172,24 +121,24 @@ public class RunGame
       }
 
       conn.getInputStream();
-      log.info("Jenkins request to start sim game: " + game.getGameId());
-      game.setStatus(Game.STATE.game_pending.toString());
+      log.info("Jenkins request to bootstrap game: " + game.getGameId());
+      game.setStatus(Game.STATE.boot_in_progress.toString());
       game.setReadyTime(new Date());
       log.debug(String.format("Update game: %s to %s", game.getGameId(),
-          Game.STATE.game_pending.toString()));
+          Game.STATE.boot_in_progress.toString()));
 
       return true;
     }
     catch (Exception e) {
-      log.error("Jenkins failure to start simulation game: " + game.getGameId());
-      game.setStatus(Game.STATE.game_failed.toString());
+      log.error("Jenkins failure to bootstrap game: " + game.getGameId());
+      game.setStatus(Game.STATE.boot_failed.toString());
       throw e;
     }
   }
 
-  public static void startRunnableGames(Tournament runningTournament)
+  public static void startBootableGames (Tournament runningTournament)
   {
-    log.info("WatchDogTimer Looking for Runnable Games");
+    log.info("WatchDogTimer Looking for Bootstraps To Start..");
 
     List<Game> games = new ArrayList<Game>();
 
@@ -197,12 +146,12 @@ public class RunGame
     Transaction transaction = session.beginTransaction();
     try {
       if (runningTournament == null) {
-        games = Game.getStartableSingleGames(session);
-        log.info("WatchDog CheckForSims for SINGLE_GAME tournament games");
+        games = Game.getBootableSingleGames(session);
+        log.info("WatchDog CheckForBoots for SINGLE_GAME tournament boots");
       }
       else {
-        games = Game.getStartableMultiGames(session, runningTournament);
-        log.info("WatchDog CheckForSims for MULTI_GAME tournament games");
+        games = Game.getBootableMultiGames(session, runningTournament);
+        log.info("WatchDog CheckForBoots for MULTI_GAME tournament boots");
       }
       transaction.commit();
     }
@@ -211,14 +160,14 @@ public class RunGame
       e.printStackTrace();
     }
 
-    log.info(String.format("WatchDogTimer reports %s game(s) are ready to "
+    log.info(String.format("WatchDogTimer reports %s boots are ready to "
         + "start", games.size()));
     for (Game game: games) {
-      log.info(String.format("Game %s will be started ...", game.getGameId()));
-      new RunGame(session, game);
+      log.info(String.format("Boot %s will be started ...", game.getGameId()));
+      new RunBoot(session, game);
 
       if (!machinesAvailable) {
-        log.info("WatchDog No free machines, stop looking for Startable Games");
+        log.info("WatchDog No free machines, stop looking for Bootable Games");
         break;
       }
     }

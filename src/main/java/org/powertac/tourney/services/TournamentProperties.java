@@ -39,7 +39,7 @@ public class TournamentProperties
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private String resourceName = "/tournament.properties";
+  private String resourceName = "tournament.properties";
   private Properties properties = new Properties();
   private boolean loaded = false;
   private List<String> messages = new ArrayList<String>();

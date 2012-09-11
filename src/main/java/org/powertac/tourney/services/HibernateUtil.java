@@ -16,7 +16,7 @@ public class HibernateUtil {
 			return new Configuration().configure().buildSessionFactory();
 		} catch (Throwable ex) {
 			// Make sure you log the exception, as it might be swallowed
-			log.error("Initial SessionFactory creation failed. {0}", ex);
+			log.error("Initial SessionFactory creation failed.\n" + ex);
 			throw new ExceptionInInitializerError(ex);
 		}
 	}
@@ -29,5 +29,4 @@ public class HibernateUtil {
 		// Close caches and connection pools
 		getSessionFactory().close();
 	}
- 
 }

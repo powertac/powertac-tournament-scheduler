@@ -1,15 +1,17 @@
 package org.powertac.tourney.actions;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.powertac.tourney.beans.*;
-import org.powertac.tourney.services.*;
+import org.powertac.tourney.services.HibernateUtil;
+import org.powertac.tourney.services.KillJob;
+import org.powertac.tourney.services.Utils;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
 @ManagedBean
@@ -34,61 +36,64 @@ public class ActionOverview
     return Broker.getBrokerList();
   }
 
-  public List<Tournament> getTournamentList ()
+  public List<Tournament> getNotCompleteTournamentList ()
   {
-    return Tournament.getTournamentList();
+    return Tournament.getNotCompleteTournamentList();
   }
 
-  public List<Game> getGameList ()
+  public List<Game> getNotCompleteGamesList ()
   {
-    return Game.getGameList();
+    return Game.getNotCompleteGamesList();
   }
 
-  public void startNow (Tournament t)
+  public void startNow (Tournament tournament)
   {
-    // Set startTime of game to now
-    Database db = new Database();
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
+      //tournament.setStartTime(new Date());
+      tournament.setStartTime(Utils.offsetDate());
+      session.update(tournament);
+      session.flush();
 
-      // Set startTime of the tournament to now
-      if (t.getStartTime().after(new Date())) {
-        db.setTournamentStartTime(t.getTournamentId());
-        String msg = "Setting tournament: " + t.getTournamentId() + " to start now";
-        log.info(msg);
-        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-        FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+      // If a (MULTI_GAME) tournament is already loaded, just reload
+      Scheduler scheduler = Scheduler.getScheduler();
+      if (!scheduler.isNullTourney() &&
+          tournament.getTournamentId() == scheduler.getRunningTournament().getTournamentId()) {
+        scheduler.reloadTournament();
       }
+      // Reschedule all games of a SINGLE_GAME tournament
+      else if (tournament.typeEquals(Tournament.TYPE.SINGLE_GAME)) {
+        for (Game game: tournament.getGameMap().values()) {
+          game.setStartTime(Utils.offsetDate());
+          session.update(game);
+          session.flush();
 
-      // Reload a loaded tourney, just to be sure
-      Scheduler scheduler =
-          (Scheduler) SpringApplicationContext.getBean("scheduler");
-      if (!scheduler.isNullTourney()) {
-          scheduler.reloadTournament();
-      }
-      else  {
-        // Set all single games to now, multi will be handled by scheduler
-        List<Game> games = db.getGamesInTourney(t.getTournamentId());
-        for (Game g: games) {
-          if (g.getStartTime().after(new Date())) {
-            db.setGameStartTime(g.getGameId());
-            String msg = "Setting game: " + g.getGameId() + " to start now";
-            log.info(msg);
-            FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-            FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
-          }
+          String msg = "Setting game: " + game.getGameId() + " to start now";
+          log.info(msg);
+          FacesMessage fm =
+              new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+          FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
         }
       }
 
-      db.commitTrans();
+      String msg =
+          "Setting tournament: "+ tournament.getTournamentId() +" to start now";
+      log.info(msg);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+
+      transaction.commit();
     }
     catch (Exception e) {
-      db.abortTrans();
+      transaction.rollback();
       e.printStackTrace();
-      String msg = "Failed to set startTime to now";
+      String msg =
+          "Failed to start tournament "+ tournament.getTournamentId() +" to now";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
     }
+    session.close();
   }
 
   public void stopGame (Game game)
@@ -96,50 +101,64 @@ public class ActionOverview
     log.info("Trying to stop game: " + game.getGameId());
 
     int gameId = game.getGameId();
-    int machineId = game.getMachineId();
-    Database db = new Database();
-    try {
-      db.startTrans();
+    int machineId = game.getMachine().getMachineId();
+    Scheduler scheduler = Scheduler.getScheduler();
 
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
       // Kill the job on Jenkins and the slave
-      new KillJob(db, game);
+      new KillJob(game.getMachine());
 
       // Reset game and machine on TM
       if (game.isBooting()) {
-        log.info("Resetting boot game: " + gameId +" on machine: "+ machineId);
+        log.info("Resetting boot game: " + gameId + " on machine: " + machineId);
+
         game.removeBootFile();
-        db.updateGameStatusById(gameId, Game.STATE.boot_pending);
-        Scheduler scheduler =
-            (Scheduler) SpringApplicationContext.getBean("scheduler");
-        if (scheduler.checkedBootstraps.contains(gameId)) {
-          scheduler.checkedBootstraps.remove(
-              scheduler.checkedBootstraps.indexOf(gameId));
+        game.setStatus(Game.STATE.boot_pending.toString());
+
+        List<Integer> checkedBoots = scheduler.getCheckedBootstraps();
+        if (checkedBoots.contains(gameId)) {
+          int index = checkedBoots.indexOf(gameId);
+          checkedBoots.remove(index);
+          scheduler.setCheckedBootstraps(checkedBoots);
         }
       }
       else if (game.isRunning()) {
         log.info("Resetting sim game: " + gameId + " on machine: " + machineId);
-        db.updateGameStatusById(gameId, Game.STATE.boot_complete);
-        for (Broker broker: db.getBrokersInGame(gameId)) {
-          db.updateAgentStatus(gameId, broker.getBrokerId(), Agent.STATE.pending);
+
+        game.setStatus(Game.STATE.boot_complete.toString());
+
+        for (Agent agent: game.getAgentMap().values()) {
+          agent.setStatus(Agent.STATE.pending.toString());
+          session.update(agent);
+        }
+
+        List<Integer> checkedSims = scheduler.getCheckedSims();
+        if (checkedSims.contains(gameId)) {
+          int index = checkedSims.indexOf(gameId);
+          checkedSims.remove(index);
+          scheduler.setCheckedSims(checkedSims);
         }
       }
 
-      db.clearGameReadyTime(gameId);
-      db.updateGameJmsUrlById(gameId, "");
-      db.updateGameFreeMachine(gameId);
-      delayMachineUpdate(machineId);
+      game.setReadyTime(null);
+      game.setMachine(null);
+      session.update(game);
+      transaction.commit();
 
-      db.commitTrans();
+      Machine.delayedMachineUpdate(machineId);
     }
     catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
-      db.abortTrans();
 
       log.error("Failed to completely stop game: " + gameId);
       String msg = "Error stopping game : " + gameId;
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
     }
+    session.close();
   }
 
   public void restartGame (Game game)
@@ -147,73 +166,56 @@ public class ActionOverview
     log.info("Trying to restart game: " + game.getGameId());
 
     int gameId = game.getGameId();
-    Database db = new Database();
-    try {
-      db.startTrans();
 
-      // Reset game and machine on TM
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
       if (game.stateEquals(Game.STATE.boot_failed)) {
         log.info("Resetting boot game: " + gameId);
         game.removeBootFile();
-        db.updateGameStatusById(gameId, Game.STATE.boot_pending);
-        Scheduler scheduler =
-            (Scheduler) SpringApplicationContext.getBean("scheduler");
-        if (scheduler.checkedBootstraps.contains(gameId)) {
-          scheduler.checkedBootstraps.remove(
-              scheduler.checkedBootstraps.indexOf(gameId));
+        game.setStatus(Game.STATE.boot_pending.toString());
+
+        Scheduler scheduler = Scheduler.getScheduler();
+        List<Integer> checkedBoots = scheduler.getCheckedBootstraps();
+        if (checkedBoots.contains(gameId)) {
+          int index = checkedBoots.indexOf(gameId);
+          checkedBoots.remove(index);
+          scheduler.setCheckedBootstraps(checkedBoots);
         }
       }
       if (game.stateEquals(Game.STATE.game_failed)) {
         log.info("Resetting sim game: " + gameId);
-        db.updateGameStatusById(gameId, Game.STATE.boot_complete);
+        game.setStatus(Game.STATE.boot_complete.toString());
+
+        Scheduler scheduler = Scheduler.getScheduler();
+        List<Integer> checkedSims = scheduler.getCheckedSims();
+        if (checkedSims.contains(gameId)) {
+          int index = checkedSims.indexOf(gameId);
+          checkedSims.remove(index);
+          scheduler.setCheckedSims(checkedSims);
+        }
+
+        for (Agent agent: game.getAgentMap().values()) {
+          agent.setStatus(Agent.STATE.pending.toString());
+          session.update(agent);
+        }
+        session.flush();
       }
 
-      db.clearGameReadyTime(gameId);
-      db.updateGameJmsUrlById(gameId, "");
-      db.commitTrans();
+      game.setMachine(null);
+      session.update(game);
+      transaction.commit();
     }
     catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
-      db.abortTrans();
 
       log.error("Failed to restart game: " + gameId);
       String msg = "Error restarting game : " + gameId;
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg,null);
       FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
     }
-  }
-
-  public void delayMachineUpdate (int machineId)
-  {
-    // We're delaying setting the machine to idle, because after a job kill,
-    // the viz doesn't get an end-of-sim message. It takes a viz 2 mins to
-    // recover from this. To be on the safe side, we delay for 5 mins.
-    class updateThread implements Runnable {
-      private int machineId;
-
-      public updateThread(int machineId) {
-        this.machineId = machineId;
-      }
-
-      public void run() {
-        Utils.secondsSleep(300);
-
-        Database db = new Database();
-        try {
-          db.startTrans();
-          db.setMachineStatus(machineId, Machine.STATE.idle);
-          db.commitTrans();
-          log.info("Settig machine " + machineId + " to idle");
-        }
-        catch (SQLException e) {
-          db.abortTrans();
-          e.printStackTrace();
-          log.error("Error updating machine status after job kill");
-        }
-      }
-    }
-    Runnable r = new updateThread(machineId);
-    new Thread(r).start();
+    session.close();
   }
 
   public void refresh ()

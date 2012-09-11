@@ -1,119 +1,127 @@
 package org.powertac.tourney.actions;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.Transaction;
 import org.powertac.tourney.beans.Agent;
-import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
-import org.powertac.tourney.services.Database;
+import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.HibernateUtil;
+import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 @ManagedBean
 @RequestScoped
 public class ActionTournament
 {
-  private Tournament tournament = null;
+  private Tournament tournament;
+  private List<String> tournamentInfo = new ArrayList<String>();
+  private Map<Integer, List> agentsMap = new HashMap<Integer, List>();
+  private List<Map.Entry<String, Double>> resultMap = new ArrayList<Map.Entry<String, Double>>();
+
   private String sortColumn = null;
   private boolean sortAscending = true;
 
   public ActionTournament()
   {
+    loadData();
   }
 
-  private void getTournament (int tourneyId)
+  private void loadData ()
   {
+    int tournamentId = getTournamentId();
+    if (tournamentId == -1) {
+      return;
+    }
+
     Session session = HibernateUtil.getSessionFactory().openSession();
-    session.beginTransaction();
+    Transaction transaction = session.beginTransaction();
     try {
-      tournament = (Tournament) session.get(Tournament.class, tourneyId);
-      session.getTransaction().commit();
-    }
-    catch (ConstraintViolationException e) {
-      e.printStackTrace();
-      session.getTransaction().rollback();
-    }
-  }
+      Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID);
+      query.setInteger("tournamentId", tournamentId);
+      tournament = (Tournament) query.uniqueResult();
 
-  public String getTournamentName (int tourneyId)
-  {
-    if (tournament == null) {
-      getTournament(tourneyId);
-    }
-
-    try {
-      return tournament.getTournamentName();
-    }
-    catch (Exception ignored) {
-      redirect();
-      return "";
-    }
-  }
-
-  public List<Game> getGameList (int tourneyId)
-  {
-    List<Game> games = new ArrayList<Game>();
-
-    Database db = new Database();
-    try {
-      db.startTrans();
-      games = db.getGamesInTourney(tourneyId);
-      db.commitTrans();
+      loadTournamentInfo();
+      loadMaps();
+      transaction.commit();
     }
     catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
-      db.abortTrans();
     }
-
-    return games;
+    session.close();
   }
 
-  public List<Map.Entry<String, Double>> getResultMap(int tourneyId)
+  private int getTournamentId ()
+  {
+    FacesContext facesContext = FacesContext.getCurrentInstance();
+    try {
+      return Integer.parseInt(facesContext.getExternalContext().
+          getRequestParameterMap().get("tournamentId"));
+    }
+    catch (NumberFormatException ignored) {
+      Utils.redirect();
+      return -1;
+    }
+  }
+
+  private void loadTournamentInfo ()
+  {
+    tournamentInfo.add("Status : " + tournament.getStatus());
+    tournamentInfo.add("StartTime : " + tournament.startTimeUTC());
+    tournamentInfo.add("Date from : " + tournament.dateFromUTC());
+    tournamentInfo.add("Date to : " + tournament.dateToUTC());
+
+    tournamentInfo.add("MaxBrokers : " + tournament.getMaxBrokers());
+    tournamentInfo.add("Registered Brokers : " + tournament.getBrokerMap().size());
+    tournamentInfo.add("MaxAgents : " + tournament.getMaxAgents());
+
+    tournamentInfo.add("Type : " + tournament.getType());
+    if (tournament.typeEquals(Tournament.TYPE.MULTI_GAME)) {
+      tournamentInfo.add("GameSize 1 : " + tournament.getSize1());
+      tournamentInfo.add("GameSize 2 : " + tournament.getSize2());
+      tournamentInfo.add("GameSize 3 : " + tournament.getSize3());
+    }
+
+    tournamentInfo.add("Pom Id : " + tournament.getPomId());
+    tournamentInfo.add("Locations : " + tournament.getLocations());
+  }
+
+  private void loadMaps ()
   {
     Map<String, Double> temp = new HashMap<String, Double>();
 
-    for (Game g: getGameList(tourneyId)) {
-      for (Broker b: g.getBrokersInGame()) {
-        Agent a = b.getAgent(g.getGameId());
+    for (Game game: tournament.getGameMap().values()) {
+      List<Agent> agents = new ArrayList<Agent>();
 
-        if (a.getBalance() < 0) {
-          continue;
-        }
+      for (Agent agent: game.getAgentMap().values()) {
+        agents.add(agent);
 
-        if (temp.get(b.getBrokerName()) != null) {
-          temp.put(b.getBrokerName(), (temp.get(b.getBrokerName()) + a.getBalance()));
+        String brokerName = agent.getBroker().getBrokerName();
+        Double balance = Math.max(0, agent.getBalance());
+
+        if (temp.get(brokerName) != null) {
+          temp.put(brokerName, (temp.get(brokerName) + balance));
         } else {
-          temp.put(b.getBrokerName(), a.getBalance());
+          temp.put(brokerName, balance);
         }
       }
-    }
 
-    List<Map.Entry<String, Double>> results =
-      new ArrayList<Map.Entry<String, Double>>();
+      agentsMap.put(game.getGameId(), agents);
+    }
 
     for (Map.Entry<String, Double> entry: temp.entrySet()) {
-      results.add(entry);
+      resultMap.add(entry);
     }
-
-    return results;
-  }
-
-  public void redirect ()
-  {
-    try {
-      ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-      externalContext.redirect("index.xhtml");
-    }
-    catch (Exception ignored) {}
   }
 
   //<editor-fold desc="Setters and Getters">
@@ -133,6 +141,19 @@ public class ActionTournament
   public void setSortAscending (boolean sortAscending)
   {
     this.sortAscending = sortAscending;
+  }
+
+  public Tournament getTournament() {
+    return tournament;
+  }
+  public List<String> getTournamentInfo() {
+    return tournamentInfo;
+  }
+  public Map<Integer, List> getAgentsMap () {
+    return agentsMap;
+  }
+  public List<Map.Entry<String, Double>> getResultMap () {
+    return resultMap;
   }
   //</editor-fold>
 }

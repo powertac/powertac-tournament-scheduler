@@ -1,29 +1,31 @@
 package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.powertac.tourney.beans.Agent;
 import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.constants.Constants;
-import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-import java.sql.SQLException;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
-@Service("rest")
+
 public class Rest
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
+  private TournamentProperties properties = TournamentProperties.getProperties();
+
   public synchronized String parseBrokerLogin (Map<String, String[]> params)
   {
     String responseType = params.get(Constants.Rest.REQ_PARAM_TYPE)[0];
-    String brokerAuthToken = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
+    String brokerAuth = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
     String tournamentName = params.get(Constants.Rest.REQ_PARAM_JOIN)[0];
     String retryResponse = "{\n \"retry\":%d\n}";
     String loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"queueName\":%s\n \"serverQueue\":%s\n}";
@@ -37,54 +39,60 @@ public class Rest
     }
 
     log.info(String.format("Broker %s login request : %s",
-        brokerAuthToken, tournamentName));
+        brokerAuth, tournamentName));
 
-    Database db = new Database();
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
+      Query query = session.createQuery(Constants.HQL.GET_BROKER_BY_BROKERAUTH);
+      query.setString("brokerAuth", brokerAuth);
+      Broker broker = (Broker) query.uniqueResult();
 
-      // Check if broker exists
-      Broker broker = db.getBroker(brokerAuthToken);
       if (broker == null) {
-        log.info("Broker doesn't exists : " + brokerAuthToken);
-        db.commitTrans();
+        log.info("Broker doesn't exists : " + brokerAuth);
+        transaction.commit();
         return doneResponse;
       }
       log.debug("Broker id is : " + broker.getBrokerId());
 
       // Check if tournament exists
-      Tournament t = db.getTournamentByName(tournamentName);
-      if (t == null) {
+      query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_NAME);
+      query.setString("tournamentName", tournamentName);
+      Tournament tournament = (Tournament) query.uniqueResult();
+      if (tournament == null) {
         log.info("Tournament doesn't exists : " + tournamentName);
-        db.commitTrans();
+        transaction.commit();
         return doneResponse;
       }
 
       // Check if tournament is finished
-      if (t.stateEquals(Tournament.STATE.complete)) {
+      if (tournament.stateEquals(Tournament.STATE.complete)) {
         log.info("Tournament is finished, we're done : " + tournamentName);
-        db.commitTrans();
+        transaction.commit();
         return doneResponse;
       }
 
       // Check if broker is registered for this tournament
-      if (!db.isRegistered(t.getTournamentId(), broker.getBrokerId())) {
+      if (!broker.getTournamentMap().keySet().contains(tournament.getTournamentId())) {
         log.info(String.format("Broker not registered for tournament " +
-            t.getTournamentName()));
-        db.commitTrans();
+            tournament.getTournamentName()));
+        transaction.commit();
         return doneResponse;
       }
 
-      // TODO Should this be a config item? Move this to sql?
       long readyDeadline = 2*60*1000;
       long nowStamp = new Date().getTime();
 
-      // Check if any games are more than X minutes ready (to allow Viz Login)
-      for (Game game: db.getReadyGamesInTourney(t.getTournamentId())) {
-        Agent.STATE state = db.getAgentStatus(
-            game.getGameId(), broker.getBrokerId());
-
-        // Broker not in game or already logged in
+      // Check if any ready games that are more than X minutes ready (to allow Viz Login)
+      for (Game game: tournament.getGameMap().values()) {
+        if (!game.stateEquals(Game.STATE.game_ready)) {
+          continue;
+        }
+        Agent agent = game.getAgentMap().get(broker.getBrokerId());
+        if (agent == null) {
+          continue;
+        }
+        Agent.STATE state = Agent.STATE.valueOf(agent.getStatus());
         if (state == null || !state.equals(Agent.STATE.pending)) {
           continue;
         }
@@ -94,32 +102,34 @@ public class Rest
         long diff = nowStamp - game.getReadyTime().getTime();
         if (diff < readyDeadline) {
           log.debug("Broker needs to wait for the viz timeout : " +
-            (readyDeadline - diff) / 1000);
+              (readyDeadline - diff) / 1000);
           continue;
         }
 
-        db.updateAgentStatus(game.getGameId(), broker.getBrokerId(),
-            Agent.STATE.in_progress);
-        String queueName = db.getBrokerQueueName(
-            game.getGameId(), broker.getBrokerId());
+        agent.setStatus(Agent.STATE.in_progress.toString());
+        session.update(agent);
+        transaction.commit();
+
         log.info(String.format("Sending login to broker %s : %s, %s, %s",
-            broker.getBrokerName(), game.getJmsUrl(),
-            queueName, game.getServerQueue()));
-        db.commitTrans();
-        return String.format(loginResponse, game.getJmsUrl(),
-            queueName, game.getServerQueue());
+            broker.getBrokerName(),
+            game.getMachine().getJmsUrl(), agent.getBrokerQueue(), game.getServerQueue()));
+        return String.format(loginResponse,
+            game.getMachine().getJmsUrl(), agent.getBrokerQueue(), game.getServerQueue());
       }
 
-      db.commitTrans();
+      transaction.commit();
       log.debug(String.format("No games ready to start for tournament %s",
           tournamentName));
       return String.format(retryResponse, 60);
     }
     catch (Exception e) {
-      db.abortTrans();
+      transaction.rollback();
       e.printStackTrace();
       log.error("Error, sending done response");
       return doneResponse;
+    }
+    finally {
+      session.close();
     }
   }
 
@@ -147,35 +157,39 @@ public class Rest
       return String.format(errorResponse, "invalid login request");
     }
 
-    // If there is a game in game_ready state on the machine for this viz,then
-    // return a login with the correct queue name; otherwise, return a retry.
-    List<Game> readyGames;
-    Database db = new Database();
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
     try {
-      db.startTrans();
-      // Only allow to log in to 'ready' games
-      readyGames = db.findGamesByStatusAndMachine(Game.STATE.game_ready,
-                                                      machineName);
-      if (readyGames.isEmpty()) {
-        db.commitTrans();
-        log.debug("No games available, retry visualizer");
-        return String.format(retryResponse, 60);
-      }
-      else {
-        // We'll use the first Game in the list
-        Game candidate = readyGames.get(0);
-        String queue = candidate.getVisualizerQueue();
-        String svrQueue = candidate.getServerQueue();
-        db.commitTrans();
+      for (Game game: Game.getNotCompleteGamesList()) {
+        if (game.getMachine() == null) {
+          continue;
+        }
+        if (!game.getMachine().getMachineName().equals(machineName)) {
+          continue;
+        }
+        if (!game.stateEquals(Game.STATE.game_ready)) {
+          continue;
+        }
+
+        String queue = game.getVisualizerQueue();
+        String svrQueue = game.getServerQueue();
+        transaction.commit();
         log.info("Game available, login visualizer, " + queue +", "+ svrQueue);
         return String.format(loginResponse, queue, svrQueue);
       }
+
+      log.debug("No games available, retry visualizer");
+      transaction.commit();
+      return String.format(retryResponse, 60);
     }
-    catch (SQLException e) {
-      db.abortTrans();
-      log.error(e.toString());
+    catch (Exception e) {
+      transaction.rollback();
       e.printStackTrace();
+      log.error(e.toString());
       return String.format(errorResponse, "database error");
+    }
+    finally {
+      session.close();
     }
   }
 
@@ -193,7 +207,33 @@ public class Rest
         String statusString = params.get(Constants.Rest.REQ_PARAM_STATUS)[0];
         int gameId = Integer.parseInt(
             params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0]);
-        return Game.handleStatus(statusString, gameId);
+
+        log.info(String.format("Received %s message from game: %s",
+            statusString, gameId));
+
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+        try {
+          Query query = session.createQuery(Constants.HQL.GET_GAME_BY_ID);
+          query.setInteger("gameId", gameId);
+          Game game = (Game) query.uniqueResult();
+
+          if (game == null) {
+            log.warn(String.format("Trying to set status %s on non-existing "
+                + "game : %s", statusString, gameId));
+            return "error";
+          }
+
+          return game.handleStatus(session, statusString);
+        }
+        catch (Exception e) {
+          transaction.rollback();
+          e.printStackTrace();
+          return "error";
+        }
+        finally {
+          session.close();
+        }
       }
       else if (actionString.equalsIgnoreCase("boot")) {
         String gameId = params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0];
@@ -221,68 +261,52 @@ public class Rest
    */
   public String parseProperties (Map<String, String[]> params)
   {
-    String gameId = "0";
+    int gameId;
     try {
-      gameId = params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0];
+      gameId = Integer.parseInt(params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0]);
     }
-    catch (Exception ignored) {}
-
-    List<String> props;
-    props = CreateProperties.getPropertiesForGameId(Integer.parseInt(gameId));
-
-    Game g;
-    Database db = new Database();
-    try {
-    	db.startTrans();
-    	g = db.getGameById(Integer.parseInt(gameId));
-    	db.commitTrans();
-    }
-    catch(Exception e) {
-    	db.abortTrans();
-    	e.printStackTrace();
+    catch (Exception ignored) {
       return "";
     }
 
-    String weatherLocation = "server.weatherService.weatherLocation = ";
-    String startTime = "common.competition.simulationBaseTime = ";
-    String jms = "server.jmsManagementService.jmsBrokerUrl = ";
-    String remote = "server.visualizerProxyService.remoteVisualizer = true";
-    String vizQ = "server.visualizerProxyService.visualizerQueueName = ";
-    String minTimeslot = "common.competition.minimumTimeslotCount = 1380";
-    String expectedTimeslot = "common.competition.expectedTimeslotCount = 1440";
-    String serverFirstTimeout =
-      "server.competitionControlService.firstLoginTimeout = 600000";
-    String serverTimeout =
-      "server.competitionControlService.loginTimeout = 120000";
-
-    // Test settings
-    if (g.getGameName().toLowerCase().contains("test")) {
-    	minTimeslot = "common.competition.minimumTimeslotCount = 200";
-    	expectedTimeslot = "common.competition.expectedTimeslotCount = 220";
+    Game game;
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      game = (Game) session.get(Game.class, gameId);
+      transaction.commit();
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+      return "";
+    }
+    finally {
+      session.close();
     }
 
     String result = "";
-    // JEC - replaced a HORRIBLE magic number.
-    if (props.size() > 0) {
-      result += weatherLocation + props.get(0) + "\n";
+    result += String.format(Constants.Props.weatherLocation, game.getLocation());
+    result += String.format(Constants.Props.startTime, game.getSimStartTime());
+    if (game.getMachine() != null) {
+      result += String.format(Constants.Props.jms, game.getMachine().getJmsUrl());
+    } else {
+      result += String.format(Constants.Props.jms, "tcp://localhost:61616");
     }
-    if (props.size() > 1) {
-      result += startTime + props.get(1) + "\n";
+    result += String.format(Constants.Props.serverFirstTimeout, 600000);
+    result += String.format(Constants.Props.serverTimeout, 120000);
+    result += String.format(Constants.Props.remote, true);
+    result += String.format(Constants.Props.vizQ, game.getVisualizerQueue());
+
+    if (game.getGameName().toLowerCase().contains("test")) {
+      result += String.format(Constants.Props.minTimeslot,
+          properties.getProperty("test.minTimeslot", "200"));
+      result += String.format(Constants.Props.expectedTimeslot,
+          properties.getProperty("test.expectedTimeslot", "220"));
+    } else {
+      result += String.format(Constants.Props.minTimeslot, 1380);
+      result += String.format(Constants.Props.expectedTimeslot, 1440);
     }
-    if (props.size() > 2) {
-      if (props.get(2).isEmpty()) {
-    	  result += jms + "tcp://localhost:61616" + "\n";
-      }
-      else {
-    	  result += jms + props.get(2) + "\n";
-      }
-    }
-    result += serverFirstTimeout + "\n";
-    result += serverTimeout + "\n";
-    result += remote + "\n";
-    result += vizQ + g.getVisualizerQueue() + "\n";
-    result += minTimeslot + "\n";
-    result += expectedTimeslot + "\n";
 
     return result;
   }
@@ -310,7 +334,6 @@ public class Rest
     String result = "";
     try {
       // Determine pom-file location
-      TournamentProperties properties = TournamentProperties.getProperties();
       String pomLocation = properties.getProperty("pomLocation") +
           "pom."+ pomId +".xml";
 
@@ -342,7 +365,6 @@ public class Rest
 
     try {
       // Determine boot-file location
-      TournamentProperties properties = TournamentProperties.getProperties();
       String bootLocation = properties.getProperty("bootLocation") +
                             "game-" + gameId + "-boot.xml";
 
@@ -387,7 +409,8 @@ public class Rest
 
     try {
       String fileName = params.get(Constants.Rest.REQ_PARAM_FILENAME)[0];
-      TournamentProperties properties = TournamentProperties.getProperties();
+
+      log.info("Received a file " + fileName);
 
       String path;
       if (fileName.endsWith("boot.xml")) {
@@ -411,7 +434,7 @@ public class Rest
           new LogParser(properties.getProperty("logLocation"), fileName);
         }
         catch (Exception e) {
-          log.error("Error parsing log " + fileName);
+          log.error("Error creating LogParser for " + fileName);
         }
       }
     } catch (Exception e) {

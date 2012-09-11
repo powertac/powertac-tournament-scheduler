@@ -1,17 +1,4 @@
-# This is the tournament scheduler properites file
-
-# Database type, only tested with mysql
-db.dbms = mysql
-# Database url, usually localhost or 127.0.0.1
-db.dbUrl = localhost
-# Database port, default is 3306 for mysql
-db.port = 3306
-# Database name, tourney is used in make-powertac-db.sql
-db.database = tourney
-# Username for accessing db
-db.username = powertac
-# Password for accessing db
-db.password = powertac
+# This is the tournament scheduler properties file
 
 # Configuration information for the weather server, for now this is the only one
 weatherServerLocation = http://tac05.cs.umn.edu:8080/WeatherServer/faces/index.xhtml
@@ -23,6 +10,8 @@ jenkins.password =
 
 # We send an email if bootstraps seem wedged (running for more than bootstrapWedged msecs)
 scheduler.bootstrapWedged = 900000
+scheduler.simWedged = 10800000
+scheduler.simTestWedged = 2700000
 # Leave empty if not used
 scheduler.mailRecipient =
 gmail.username =

@@ -1,23 +1,60 @@
 package org.powertac.tourney.services;
 
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 @ManagedBean
 @Service("checkWeatherServer")
-public class CheckWeatherServer
+public class CheckWeatherServer implements InitializingBean
 {
-  private String weatherServerLocation = "";
-  private String status = "";
+  private static Logger log = Logger.getLogger("TMLogger");
 
-  // TODO Make this run every 5 minutes
+  private String weatherServerLocation = "";
+  private static String status = "";
+  private Timer weatherServerCheckerTimer = null;
+  private TournamentProperties properties;
+  private boolean mailed;
+
+  public CheckWeatherServer ()
+  {
+    super();
+  }
+
+  public void afterPropertiesSet () throws Exception
+  {
+    lazyStart();
+  }
+
+  private void lazyStart ()
+  {
+    properties = TournamentProperties.getProperties();
+
+    TimerTask weatherServerChecker = new TimerTask() {
+      @Override
+      public void run ()
+      {
+        ping();
+      }
+    };
+
+    weatherServerCheckerTimer = new Timer();
+    weatherServerCheckerTimer.schedule(weatherServerChecker, new Date(), 900000);
+  }
+
   public void ping ()
   {
+    log.info("Checking WeatherService");
     try {
       URL url = new URL( getWeatherServerLocation() );
       URLConnection conn = url.openConnection();
@@ -25,40 +62,65 @@ public class CheckWeatherServer
 
       int status = ((HttpURLConnection) conn).getResponseCode();
       if (status == 200) {
-        this.setStatus("Server Alive and Well");
+        setStatus("Server Alive and Well");
+        log.info("Server Alive and Well");
+        mailed = true;
       }
       else {
-        this.setStatus("Server is Down");
+        setStatus("Server is Down");
+        log.info("Server is Down");
+
+        if (!mailed) {
+          String msg = "It seems the WeatherServer is down";
+          Utils.sendMail("WeatherServer is Down", msg,
+              properties.getProperty("scheduler.mailRecipient"));
+          mailed = true;
+        }
       }
     }
     catch (Exception e) {
       e.printStackTrace();
-      this.setStatus("Server Timeout or Network Error");
+      setStatus("Server Timeout or Network Error");
+      log.info("Server Timeout or Network Error");
+
+      if (!mailed) {
+        String msg = "Server Timeour or Network Error during Weather Server ping";
+        Utils.sendMail("WeatherServer Timeout or Network Error", msg,
+            properties.getProperty("scheduler.mailRecipient"));
+        mailed = true;
+      }
     }
   }
 
-  public String getWeatherServerLocation ()
+  @PreDestroy
+  private void cleanUp () throws Exception
   {
+    log.info("Spring Container is destroyed! CheckWeatherServer clean up");
+
+    if (weatherServerCheckerTimer != null) {
+      weatherServerCheckerTimer.cancel();
+      weatherServerCheckerTimer = null;
+      log.info("Stopping weatherServerCheckerTimer ...");
+    }
+  }
+
+  //<editor-fold desc="Setters and Getters">
+  public String getWeatherServerLocation () {
     if (weatherServerLocation.equals("")) {
-      TournamentProperties properties = TournamentProperties.getProperties();
       setWeatherServerLocation(properties.getProperty("weatherServerLocation"));
     }
 
     return weatherServerLocation;
   }
-
-  public void setWeatherServerLocation (String weatherServerLocation)
-  {
+  public void setWeatherServerLocation (String weatherServerLocation) {
     this.weatherServerLocation = weatherServerLocation;
   }
 
-  public String getStatus ()
-  {
+  public String getStatus () {
     return status;
   }
-
-  public void setStatus (String status)
-  {
-    this.status = status;
+  public void setStatus (String newStatus) {
+    status = newStatus;
   }
+  //</editor-fold>
 }
