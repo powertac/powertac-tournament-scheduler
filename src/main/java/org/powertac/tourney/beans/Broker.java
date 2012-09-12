@@ -255,16 +255,17 @@ public class Broker
     TournamentProperties properties = TournamentProperties.getProperties();
     long loginDeadline =
         Integer.parseInt(properties.getProperty("loginDeadline", "3600000"));
-    long nowStamp = new Date().getTime();
+    long nowStamp = Utils.offsetDate().getTime();
 
     Outer: for (Tournament tourney: Tournament.getNotCompleteTournamentList()) {
       // Check if maxNofBrokers reached
       if (tourney.getBrokerMap().size() >= tourney.getMaxBrokers()) {
         continue;
       }
+
       // Check if after deadline
-      long startStamp = tourney.getStartTime().getTime();
-      if ((startStamp - nowStamp) < loginDeadline) {
+      long diff = tourney.getStartTime().getTime() - nowStamp;
+      if (diff < loginDeadline) {
         continue;
       }
       // Check if already registered

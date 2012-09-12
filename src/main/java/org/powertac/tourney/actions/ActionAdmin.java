@@ -79,7 +79,7 @@ public class ActionAdmin
   {
     List<Tournament> availableTournaments = new ArrayList<Tournament>();
     for (Tournament tournament: Tournament.getNotCompleteTournamentList()) {
-      if (tournament.getStartTime().after(new Date())) {
+      if (tournament.getStartTime().after(Utils.offsetDate())) {
         continue;
       }
 
