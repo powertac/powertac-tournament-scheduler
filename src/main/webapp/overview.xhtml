@@ -51,7 +51,7 @@
 
       <h2>Overview</h2>
 
-      <h:form rendered="#{user.permissionId le 0}">
+      <h:form rendered="#{(user.permissionId le 0) and (actionOverview.brokerList.size() > 0)}">
         <h3 class="withButton">Registered Brokers</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
         <t:dataTable id="databrokers" border="1"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
@@ -87,7 +87,7 @@
         </t:dataTable>
       </h:form>
 
-      <h:form rendered="#{user.permissionId le 0}">
+      <h:form rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteTournamentList.size() > 0)}">
         <h3 class="withButton">Pending/Running Tournaments</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
         <t:dataTable id="datatourneys" border="1"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
@@ -165,7 +165,7 @@
         </t:dataTable>
       </h:form>
 
-      <h:form rendered="#{user.permissionId le 0}" id="gamesForm">
+      <h:form rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteGamesList.size() > 0)}" id="gamesForm">
         <h3 class="withButton">Pending/Running Games</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
         <t:dataTable id="datagames" border="1"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"

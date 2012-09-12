@@ -52,8 +52,8 @@
 			<a href="https://github.com/powertac/powertac-server/wiki/Broker-Tournament-Login">
 			Github wiki instruction page</a>. </p>
 
-			<h3>Running Games and their Visualizers</h3>
-			<h:form>
+			<h:form rendered="#{actionIndex.notCompleteGamesList.size() != 0}">
+        <h3>Running Games and their Visualizers</h3>
 				<t:dataTable id="runnning_games" border="1"
 					style="border:1px solid black;border-collapse:collapse;text-align:center;"
 					value="#{actionIndex.notCompleteGamesList}" var="g"
