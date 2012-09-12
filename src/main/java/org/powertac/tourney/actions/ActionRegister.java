@@ -30,10 +30,10 @@ public class ActionRegister
 
   public String register ()
   {
-    if (!password1.equals(password2)) {
-      String msg = "Passwords do not match";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("registerForm", fm);
+    if (nameExists(username)) {
+      return "Failure";
+    }
+    if (passwordMismatch(password1, password2)) {
       return "Failure";
     }
 
@@ -65,6 +65,29 @@ public class ActionRegister
     finally {
       session.close();
     }
+  }
+
+  private boolean nameExists (String username)
+  {
+    User user = User.getUserByName(username);
+    if (user != null) {
+      String msg = "User Name taken, please select a new name";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesContext.getCurrentInstance().addMessage("registerForm", fm);
+      return true;
+    }
+    return false;
+  }
+
+  private boolean passwordMismatch (String password1, String password2)
+  {
+    if (!password1.equals(password2)) {
+      String msg = "Passwords do not match";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+      FacesContext.getCurrentInstance().addMessage("registerForm", fm);
+      return true;
+    }
+    return false;
   }
 
   //<editor-fold desc="Setters and Getters">

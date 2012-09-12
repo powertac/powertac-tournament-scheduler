@@ -5,8 +5,6 @@ import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.HibernateUtil;
 import org.powertac.tourney.services.TournamentProperties;
@@ -138,7 +136,7 @@ public class Game implements Serializable
 
         case game_ready:
           tournament.setStatus(Tournament.STATE.in_progress.toString());
-          readyTime = new Date();
+          readyTime = Utils.offsetDate();
           break;
         case game_in_progress:
           tournament.setStatus(Tournament.STATE.in_progress.toString());

@@ -16,10 +16,6 @@
   limitations under the License.
 -->
 <tomcat-users>
-<role rolename="admin-gui"/>
-<role rolename="manager-gui"/>
-<role rolename="manager-script"/>
-<user username="tomcat" password="tomcat" roles="admin-gui,manager-gui,manager-script"/>
 <!--
   NOTE:  By default, no user is included in the "manager-gui" role required
   to operate the "/manager/html" web application.  If you wish to use this app,
@@ -37,4 +33,11 @@
   <user username="both" password="tomcat" roles="tomcat,role1"/>
   <user username="role1" password="tomcat" roles="role1"/>
 -->
+
+  <role rolename="admin"/>
+  <role rolename="manager-gui"/>
+  <role rolename="admin-gui"/>
+  <role rolename="manager-script"/>
+  <role rolename="admin-script"/>
+  <user username="admin" password="localpassword" roles="admin-gui,manager-gui,admin-script,manager-script,admin"/>
 </tomcat-users>

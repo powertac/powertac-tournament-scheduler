@@ -9,7 +9,6 @@ import org.powertac.tourney.beans.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
@@ -37,7 +36,7 @@ public class RunGame
   {
     Transaction transaction = session.beginTransaction();
     try {
-      if (!checkMachineAvailable(session)) {
+      if (!checkMachineAvailable()) {
         transaction.rollback();
         machinesAvailable = false;
         return;
@@ -115,7 +114,7 @@ public class RunGame
    * Make sure there is a machine available for the game
    */
   @SuppressWarnings("unchecked")
-  private boolean checkMachineAvailable (Session session)
+  private boolean checkMachineAvailable ()
       throws Exception
   {
     try {
@@ -174,7 +173,7 @@ public class RunGame
       conn.getInputStream();
       log.info("Jenkins request to start sim game: " + game.getGameId());
       game.setStatus(Game.STATE.game_pending.toString());
-      game.setReadyTime(new Date());
+      game.setReadyTime(Utils.offsetDate());
       log.debug(String.format("Update game: %s to %s", game.getGameId(),
           Game.STATE.game_pending.toString()));
 

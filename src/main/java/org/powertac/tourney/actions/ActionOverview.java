@@ -56,14 +56,8 @@ public class ActionOverview
       session.update(tournament);
       session.flush();
 
-      // If a (MULTI_GAME) tournament is already loaded, just reload
-      Scheduler scheduler = Scheduler.getScheduler();
-      if (!scheduler.isNullTourney() &&
-          tournament.getTournamentId() == scheduler.getRunningTournament().getTournamentId()) {
-        scheduler.reloadTournament();
-      }
       // Reschedule all games of a SINGLE_GAME tournament
-      else if (tournament.typeEquals(Tournament.TYPE.SINGLE_GAME)) {
+      if (tournament.typeEquals(Tournament.TYPE.SINGLE_GAME)) {
         for (Game game: tournament.getGameMap().values()) {
           game.setStartTime(Utils.offsetDate());
           session.update(game);
@@ -94,6 +88,13 @@ public class ActionOverview
       FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
     }
     session.close();
+
+    // If a MULTI_GAME tournament is loaded, just reload
+    Scheduler scheduler = Scheduler.getScheduler();
+    if (!scheduler.isNullTourney() &&
+        tournament.getTournamentId() == scheduler.getRunningTournament().getTournamentId()) {
+      scheduler.reloadTournament();
+    }
   }
 
   public void stopGame (Game game)
