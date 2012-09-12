@@ -12,7 +12,6 @@ import org.powertac.tourney.constants.Constants;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-import java.util.Date;
 import java.util.Map;
 
 
@@ -81,7 +80,7 @@ public class Rest
       }
 
       long readyDeadline = 2*60*1000;
-      long nowStamp = new Date().getTime();
+      long nowStamp = Utils.offsetDate().getTime();
 
       // Check if any ready games that are more than X minutes ready (to allow Viz Login)
       for (Game game: tournament.getGameMap().values()) {
@@ -111,10 +110,10 @@ public class Rest
         transaction.commit();
 
         log.info(String.format("Sending login to broker %s : %s, %s, %s",
-            broker.getBrokerName(),
-            game.getMachine().getJmsUrl(), agent.getBrokerQueue(), game.getServerQueue()));
-        return String.format(loginResponse,
-            game.getMachine().getJmsUrl(), agent.getBrokerQueue(), game.getServerQueue());
+            broker.getBrokerName(), game.getMachine().getJmsUrl(),
+            agent.getBrokerQueue(), game.getServerQueue()));
+        return String.format(loginResponse, game.getMachine().getJmsUrl(),
+            agent.getBrokerQueue(), game.getServerQueue());
       }
 
       transaction.commit();
