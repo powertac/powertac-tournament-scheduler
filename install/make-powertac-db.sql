@@ -6,7 +6,7 @@ CREATE DATABASE `tourney`;
 DROP TABLE IF EXISTS `tourney`.`users`;
 CREATE TABLE `tourney`.`users` (
 	`userId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`userName` VARCHAR(45) UNIQUE NOT NULL,
+	`userName` VARCHAR(45) UNIQUE COLLATE latin1_bin NOT NULL,
 	`institution` VARCHAR(256) NULL,
 	`contactName` VARCHAR(256) NULL,
 	`contactEmail` VARCHAR(256) NULL,

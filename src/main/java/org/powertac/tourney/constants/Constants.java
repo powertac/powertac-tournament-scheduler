@@ -137,6 +137,7 @@ public class Constants
             + "LEFT JOIN FETCH game.agentMap AS agentMap "
             + "LEFT JOIN FETCH agentMap.broker AS broker "
             + "LEFT JOIN FETCH broker.user "
+            + "LEFT JOIN FETCH broker.agentMap "
 
             + "WHERE game.status='"+ Game.STATE.boot_complete.toString() +"' "
             + "AND game.startTime < :startTime "
@@ -149,6 +150,7 @@ public class Constants
             + "LEFT JOIN FETCH game.agentMap AS agentMap "
             + "LEFT JOIN FETCH agentMap.broker AS broker "
             + "LEFT JOIN FETCH broker.user "
+            + "LEFT JOIN FETCH broker.agentMap "
 
             + "WHERE game.status='"+ Game.STATE.boot_complete.toString() + "' "
             + "AND game.startTime < :startTime "

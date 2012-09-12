@@ -22,18 +22,18 @@ public class RunGame
   private TournamentProperties properties = TournamentProperties.getProperties();
   private Session session;
 
-  private static boolean machinesAvailable = true;
+  private static boolean machinesAvailable;
 
-  public RunGame (Session session, Game game)
+  public RunGame (Game game)
   {
     this.game = game;
-    this.session = session;
 
     run();
   }
 
   private void run ()
   {
+    session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
       if (!checkMachineAvailable()) {
@@ -64,6 +64,9 @@ public class RunGame
       transaction.rollback();
       e.printStackTrace();
       log.info("Failed to start simulation game: " + game.getGameId());
+    }
+    finally {
+      session.close();
     }
   }
 
@@ -209,19 +212,20 @@ public class RunGame
       transaction.rollback();
       e.printStackTrace();
     }
+    session.close();
 
     log.info(String.format("WatchDogTimer reports %s game(s) are ready to "
         + "start", games.size()));
     for (Game game: games) {
+      machinesAvailable = true;
+
       log.info(String.format("Game %s will be started ...", game.getGameId()));
-      new RunGame(session, game);
+      new RunGame(game);
 
       if (!machinesAvailable) {
         log.info("WatchDog No free machines, stop looking for Startable Games");
         break;
       }
     }
-
-    session.close();
   }
 }

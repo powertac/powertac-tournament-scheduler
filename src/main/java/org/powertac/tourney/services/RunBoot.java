@@ -24,18 +24,18 @@ public class RunBoot
   private TournamentProperties properties = TournamentProperties.getProperties();
   private Session session;
 
-  private static boolean machinesAvailable = true;
+  private static boolean machinesAvailable;
 
-  public RunBoot (Session session, Game game)
+  public RunBoot (Game game)
   {
     this.game = game;
-    this.session = session;
 
     run();
   }
 
   private void run ()
   {
+    session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
       if (!checkMachineAvailable()) {
@@ -56,6 +56,9 @@ public class RunBoot
       transaction.rollback();
       e.printStackTrace();
       log.info("Failed to bootstrap game: " + game.getGameId());
+    }
+    finally {
+      session.close();
     }
   }
 
@@ -158,19 +161,20 @@ public class RunBoot
       transaction.rollback();
       e.printStackTrace();
     }
+    session.close();
 
     log.info(String.format("WatchDogTimer reports %s boots are ready to "
         + "start", games.size()));
     for (Game game: games) {
+      machinesAvailable = true;
+
       log.info(String.format("Boot %s will be started ...", game.getGameId()));
-      new RunBoot(session, game);
+      new RunBoot(game);
 
       if (!machinesAvailable) {
         log.info("WatchDog No free machines, stop looking for Bootable Games");
         break;
       }
     }
-
-    session.close();
   }
 }
