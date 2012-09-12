@@ -20,13 +20,6 @@ public class ActionOverview
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private String sortColumnBrokers = null;
-  private boolean sortAscendingBrokers = true;
-  private String sortColumnTournaments = null;
-  private boolean sortAscendingTournaments = true;
-  private String sortColumnGames = null;
-  private boolean sortAscendingGames = true;
-
   public ActionOverview()
   {
   }
@@ -222,60 +215,4 @@ public class ActionOverview
   public void refresh ()
   {
   }
-
-  //<editor-fold desc="Setters and Getters">
-  public boolean isSortAscendingBrokers()
-  {
-    return sortAscendingBrokers;
-  }
-  public void setSortAscendingBrokers(boolean sortAscendingBrokers)
-  {
-    this.sortAscendingBrokers = sortAscendingBrokers;
-  }
-
-  public String getSortColumnBrokers()
-  {
-    return sortColumnBrokers;
-  }
-  public void setSortColumnBrokers(String sortColumnBrokers)
-  {
-    this.sortColumnBrokers = sortColumnBrokers;
-  }
-
-  public String getSortColumnTournaments ()
-  {
-    return sortColumnTournaments;
-  }
-  public void setSortColumnTournaments (String sortColumnTournaments)
-  {
-    this.sortColumnTournaments = sortColumnTournaments;
-  }
-
-  public boolean isSortAscendingTournaments ()
-  {
-    return sortAscendingTournaments;
-  }
-  public void setSortAscendingTournaments (boolean sortAscendingTournaments)
-  {
-    this.sortAscendingTournaments = sortAscendingTournaments;
-  }
-
-  public String getSortColumnGames ()
-  {
-    return sortColumnGames;
-  }
-  public void setSortColumnGames (String sortColumnGames)
-  {
-    this.sortColumnGames = sortColumnGames;
-  }
-
-  public boolean isSortAscendingGames ()
-  {
-    return sortAscendingGames;
-  }
-  public void setSortAscendingGames (boolean sortAscendingGames)
-  {
-    this.sortAscendingGames = sortAscendingGames;
-  }
-  //</editor-fold>
 }

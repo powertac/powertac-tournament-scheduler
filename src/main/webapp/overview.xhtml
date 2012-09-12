@@ -10,24 +10,61 @@
 <h:body>
   <ui:composition template="template.xhtml">
     <ui:define name="content">
+      <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/css/jquery.dataTables.css"/>
+      <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
+      <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/jquery.dataTables.min.js"></script>
+
+      <script type="text/javascript" charset="utf8" >
+        $(document).ready(function() {
+          $("[id$=databrokers]").dataTable({
+            "bFilter": false,
+            "bInfo": false,
+            "sScrollY": Math.min(400, $("[id$=databrokers]").height()) + "px",
+            "bPaginate": false
+          });
+          $("[id$=datatourneys]").dataTable({
+            "bFilter": false,
+            "bInfo": false,
+            "sScrollY": Math.min(400, $("[id$=datatourneys]").height()) + "px",
+            "bPaginate": false
+          });
+          $("[id$=datagames]").dataTable({
+            "bFilter": false,
+            "bInfo": false,
+            "sScrollY": Math.min(400, $("[id$=datagames]").height()) + "px",
+            "bPaginate": false
+          });
+        });
+      </script>
+
+      <style type="text/css">
+        table.dataTable tr.odd {
+          background-color: #FFFFFF;
+        }
+        table.dataTable tr.odd td.sorting_1 {
+          background-color: #FFFFFF;
+        }
+        table.dataTable tr.even td.sorting_1 {
+          background-color: #FFFFFF;
+        }
+      </style>
+
       <h2>Overview</h2>
 
       <h:form rendered="#{user.permissionId le 0}">
         <h3 class="withButton">Registered Brokers</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
-        <t:dataTable id="databrokers" border="1" sortable="false"
-                     sortColumn="#{actionOverview.sortColumnBrokers}"
-                     sortAscending="#{actionOverview.sortAscendingBrokers}" preserveSort="true"
+        <t:dataTable id="databrokers" border="1"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
                      value="#{actionOverview.brokerList}" var="broker">
 
-          <t:column defaultSorted="true" sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="ID" />
             </f:facet>
             <h:outputText value="#{broker.brokerId}" />
           </t:column>
 
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Name" />
             </f:facet>
@@ -52,20 +89,18 @@
 
       <h:form rendered="#{user.permissionId le 0}">
         <h3 class="withButton">Pending/Running Tournaments</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
-        <t:dataTable id="datatourneys" border="1" sortable="false"
-                     sortColumn="#{actionOverview.sortColumnTournaments}"
-                     sortAscending="#{actionOverview.sortAscendingTournaments}" preserveSort="true"
+        <t:dataTable id="datatourneys" border="1"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
                      value="#{actionOverview.notCompleteTournamentList}" var="t">
 
-          <t:column defaultSorted="true" sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="ID" />
             </f:facet>
             <h:outputText value="#{t.tournamentId}" />
           </t:column>
 
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Name" />
             </f:facet>
@@ -74,7 +109,7 @@
             </a>
           </t:column>
 
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Status" />
             </f:facet>
@@ -96,14 +131,14 @@
             <h:outputText value="#{t.startTimeUTC()}" />
           </t:column>
 
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Max Bro" />
             </f:facet>
             <h:outputText value="#{t.maxBrokers}" />
           </t:column>
 
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Reg Bro" />
             </f:facet>
@@ -132,19 +167,17 @@
 
       <h:form rendered="#{user.permissionId le 0}" id="gamesForm">
         <h3 class="withButton">Pending/Running Games</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
-        <t:dataTable id="datagames" border="1" sortable="false"
-                     sortColumn="#{actionOverview.sortColumnGames}"
-                     sortAscending="#{actionOverview.sortAscendingGames}" preserveSort="true"
+        <t:dataTable id="datagames" border="1"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
                      value="#{actionOverview.notCompleteGamesList}" var="g">
-          <t:column defaultSorted="true" sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="ID" />
             </f:facet>
             <h:outputText value="#{g.gameId}" />
           </t:column>
 
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Name" />
             </f:facet>
@@ -153,7 +186,7 @@
             </a>
           </t:column>
 
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Status" />
             </f:facet>
@@ -219,6 +252,7 @@
         </t:dataTable>
 
         <h:messages for="gamesForm" />
+        <br/>
       </h:form>
 
       <h:form rendered="#{user.permissionId gt 0}">

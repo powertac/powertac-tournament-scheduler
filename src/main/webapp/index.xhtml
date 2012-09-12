@@ -9,8 +9,40 @@
 
 <h:body>
 	<ui:composition template="template.xhtml">
-
 		<ui:define name="content">
+      <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/css/jquery.dataTables.css"/>
+      <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
+      <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/jquery.dataTables.min.js"></script>
+
+      <script type="text/javascript" charset="utf8" >
+        $(document).ready(function() {
+          $("[id$=runnning_games]").dataTable({
+            "bFilter": false,
+            "bInfo": false,
+            "sScrollY": Math.min(400, $("[id$=runnning_games]").height()) + "px",
+            "bPaginate": false
+          });
+          $("[id$=completed_games]").dataTable({
+            "bFilter": false,
+            "bInfo": false,
+            "sScrollY": Math.min(400, $("[id$=completed_games]").height()) + "px",
+            "bPaginate": false
+          });
+        });
+      </script>
+
+      <style type="text/css">
+        table.dataTable tr.odd {
+          background-color: #FFFFFF;
+        }
+        table.dataTable tr.odd td.sorting_1 {
+          background-color: #FFFFFF;
+        }
+        table.dataTable tr.even td.sorting_1 {
+          background-color: #FFFFFF;
+        }
+      </style>
+
       <h2>Welcome to the PowerTac 2012 Tournament Scheduler</h2>
 
       <p>More information on PowerTac can be found on the <a href="http://powertac.org">website</a></p>
@@ -22,12 +54,11 @@
 
 			<h3>Running Games and their Visualizers</h3>
 			<h:form>
-				<t:dataTable id="datagames" border="1" sortable="false"
-					sortColumn="#{actionIndex.sortColumn}"
-					sortAscending="#{actionIndex.sortAscending}" preserveSort="true"
+				<t:dataTable id="runnning_games" border="1"
 					style="border:1px solid black;border-collapse:collapse;text-align:center;"
-					value="#{actionIndex.notCompleteGamesList}" var="g" >
-					<t:column defaultSorted="true" sortable="true">
+					value="#{actionIndex.notCompleteGamesList}" var="g"
+          styleClass="display dataTable" >
+					<t:column>
 						<f:facet name="header">
 							<h:outputText value="ID" />
 						</f:facet>
@@ -48,7 +79,7 @@
             <h:outputText value="#{g.getBrokersInGameString()}" />
           </t:column>
 
-					<t:column sortable="true">
+					<t:column>
 						<f:facet name="header">
 							<h:outputText value="Status" />
 						</f:facet>
@@ -74,14 +105,13 @@
 				</t:dataTable>
 			</h:form>
 
-			<h3>Complete Games and Logs</h3>
-			<h:form>
-				<t:dataTable id="datagames" border="1" sortable="false"
-					sortColumn="#{actionIndex.sortColumn}"
-					sortAscending="#{actionIndex.sortAscending}" preserveSort="true"
+			<h:form rendered="#{actionIndex.completeGamesList.size() != 0}" >
+        <h3>Complete Games and Logs</h3>
+				<t:dataTable id="completed_games" border="1"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{actionIndex.completeGamesList}" var="g">
-					<t:column sortable="true" defaultSorted="true">
+					value="#{actionIndex.completeGamesList}" var="g"
+          styleClass="display dataTable" >
+					<t:column>
 						<f:facet name="header">
 							<h:outputText value="ID" />
 						</f:facet>

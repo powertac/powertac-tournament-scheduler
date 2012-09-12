@@ -17,9 +17,6 @@ import java.util.List;
 @RequestScoped
 public class ActionIndex
 {
-  private String sortColumn = null;
-  private boolean sortAscending = true;
-
   public List<Game> getNotCompleteGamesList()
   {
     return Game.getNotCompleteGamesList();
@@ -37,26 +34,4 @@ public class ActionIndex
                                             "download?game=%d");
     return String.format(baseUrl, g.getGameId());
   }
-
-  //<editor-fold desc="Setters and Getters">
-  public String getSortColumn ()
-  {
-    return sortColumn;
-  }
-
-  public void setSortColumn (String sortColumn)
-  {
-    this.sortColumn = sortColumn;
-  }
-
-  public boolean isSortAscending ()
-  {
-    return sortAscending;
-  }
-
-  public void setSortAscending (boolean sortAscending)
-  {
-    this.sortAscending = sortAscending;
-  }
-  //</editor-fold>
 }
