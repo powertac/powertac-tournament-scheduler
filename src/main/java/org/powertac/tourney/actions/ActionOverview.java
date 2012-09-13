@@ -44,7 +44,6 @@ public class ActionOverview
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      //tournament.setStartTime(new Date());
       tournament.setStartTime(Utils.offsetDate());
       session.update(tournament);
       session.flush();

@@ -1,6 +1,6 @@
 /**
  * Created by IntelliJ IDEA.
- * User: govert
+ * User: Govert Buijs
  * Date: 8/21/12
  * Time: 12:04 PM
  */

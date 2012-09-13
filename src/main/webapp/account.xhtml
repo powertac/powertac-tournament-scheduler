@@ -6,8 +6,12 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 <h:body>
 	<ui:composition template="template.xhtml">
-
 		<ui:define name="content">
+
+      <h:panelGroup rendered="#{user.permissionId == 4}">
+        <meta http-equiv="REFRESH" content="0;url=login.xhtml" />
+      </h:panelGroup>
+
 			<h2>Account for user: #{user.userName}</h2>
 
       <h:form id="accountForm0" rendered="#{user.permissionId le 3}">

@@ -1,6 +1,6 @@
 /**
  * Created by IntelliJ IDEA.
- * User: govert
+ * User: Govert Buijs
  * Date: 6/29/12
  * Time: 1:07 PM
  */
@@ -197,7 +197,6 @@ public class Utils {
     return Long.toString(queueGenerator.nextLong(), 31);
   }
 
-  //<editor-fold desc="Date format">
   public static String dateFormat (Date date)
   {
     try {
@@ -226,5 +225,4 @@ public class Utils {
 
     return calendar.getTime();
   }
-  //</editor-fold>
 }

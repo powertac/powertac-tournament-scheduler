@@ -1,6 +1,6 @@
 /**
  * Created with IntelliJ IDEA.
- * User: govert
+ * User: Govert Buijs
  * Date: 8/3/12
  * Time: 4:10 PM
  * To change this template use File | Settings | File Templates.
