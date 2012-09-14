@@ -1,5 +1,6 @@
 package org.powertac.tourney.services;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.powertac.tourney.beans.Machine;
 
@@ -27,6 +28,16 @@ public class KillJob
     try {
       URL url = new URL(stopUrl);
       URLConnection conn = url.openConnection();
+
+      String user = properties.getProperty("jenkins.username", "");
+      String pass = properties.getProperty("jenkins.password", "");
+      if (!user.isEmpty() && !pass.isEmpty()) {
+        String userpass = String.format("%s:%s", user, pass);
+        String basicAuth = "Basic " +
+            new String(new Base64().encode(userpass.getBytes()));
+        conn.setRequestProperty("Authorization", basicAuth);
+      }
+
       conn.getInputStream();
     }
     catch (Exception ignored) {}
@@ -41,6 +52,16 @@ public class KillJob
     try {
       URL url = new URL(killUrl);
       URLConnection conn = url.openConnection();
+
+      String user = properties.getProperty("jenkins.username", "");
+      String pass = properties.getProperty("jenkins.password", "");
+      if (!user.isEmpty() && !pass.isEmpty()) {
+        String userpass = String.format("%s:%s", user, pass);
+        String basicAuth = "Basic " +
+            new String(new Base64().encode(userpass.getBytes()));
+        conn.setRequestProperty("Authorization", basicAuth);
+      }
+
       conn.getInputStream();
     }
     catch (Exception ignored) {}
