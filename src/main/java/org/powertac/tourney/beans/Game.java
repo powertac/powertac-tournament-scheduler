@@ -99,86 +99,70 @@ public class Game implements Serializable
     return result;
   }
 
-  public String handleStatus (Session session, String status)
+  public void handleStatus (Session session, String status) throws Exception
   {
     STATE state;
-    try {
-      state = STATE.valueOf(status);
+    state = STATE.valueOf(status);
+
+    this.status = status;
+    log.info(String.format("Update game: %s to %s", gameId, status));
+
+    switch (state) {
+      case boot_in_progress:
+        // Remove bootfile, it shouldn't exist anyway
+        removeBootFile();
+        break;
+
+      case boot_complete:
+        machine.setStatus(Machine.STATE.idle.toString());
+        log.info("Setting machine " + machine.getMachineId() + " to idle");
+        machine = null;
+        log.info("Freeing Machines for game: " + gameId);
+        break;
+
+      case boot_failed:
+        log.warn("BOOT " + gameId + " FAILED!");
+        machine.setStatus(Machine.STATE.idle.toString());
+        log.info("Setting machine " + machine.getMachineId() + " to idle");
+        machine = null;
+        log.info("Freeing Machines for game: " + gameId);
+        break;
+
+      case game_ready:
+        tournament.setStatus(Tournament.STATE.in_progress.toString());
+        readyTime = Utils.offsetDate();
+        break;
+      case game_in_progress:
+        tournament.setStatus(Tournament.STATE.in_progress.toString());
+        break;
+
+      case game_complete:
+        for (Agent agent: agentMap.values()) {
+          agent.setStatus(Agent.STATE.complete.toString());
+          session.update(agent);
+        }
+        log.info("Setting Agents to Complete for game: " + gameId);
+        machine.setStatus(Machine.STATE.idle.toString());
+        machine = null;
+        log.info("Freeing Machines for game: " + gameId);
+        // If all games of tournament are complete, set tournament complete
+        tournament.processGameFinished(gameId);
+        break;
+
+      case game_failed:
+        log.warn("GAME " + gameId + " FAILED!");
+        for (Agent agent: agentMap.values()) {
+          agent.setStatus(Agent.STATE.complete.toString());
+          session.update(agent);
+        }
+        log.info("Setting Agents to Complete for game: " + gameId);
+        machine.setStatus(Machine.STATE.idle.toString());
+        log.info("Setting machine " + machine.getMachineId() + " to idle");
+        machine = null;
+        log.info("Freeing Machines for game: " + gameId);
+        break;
     }
-    catch (Exception e) {
-      return "error";
-    }
-
-    try {
-      this.status = status;
-      log.info(String.format("Update game: %s to %s", gameId, status));
-
-      switch (state) {
-        case boot_in_progress:
-          // Remove bootfile, it shouldn't exist anyway
-          removeBootFile();
-          break;
-
-        case boot_complete:
-          machine.setStatus(Machine.STATE.idle.toString());
-          log.info("Setting machine " + machine.getMachineId() + " to idle");
-          machine = null;
-          log.info("Freeing Machines for game: " + gameId);
-          break;
-
-        case boot_failed:
-          log.warn("BOOT " + gameId + " FAILED!");
-          machine.setStatus(Machine.STATE.idle.toString());
-          log.info("Setting machine " + machine.getMachineId() + " to idle");
-          machine = null;
-          log.info("Freeing Machines for game: " + gameId);
-          break;
-
-        case game_ready:
-          tournament.setStatus(Tournament.STATE.in_progress.toString());
-          readyTime = Utils.offsetDate();
-          break;
-        case game_in_progress:
-          tournament.setStatus(Tournament.STATE.in_progress.toString());
-          break;
-
-        case game_complete:
-          for (Agent agent: agentMap.values()) {
-            agent.setStatus(Agent.STATE.complete.toString());
-            session.update(agent);
-          }
-          log.info("Setting Agents to Complete for game: " + gameId);
-          machine.setStatus(Machine.STATE.idle.toString());
-          log.info("Setting machine " + machine.getMachineId() + " to idle");
-          machine = null;
-          log.info("Freeing Machines for game: " + gameId);
-          // If all games of tournament are complete, set tournament complete
-          tournament.processGameFinished(gameId);
-          break;
-
-        case game_failed:
-          log.warn("GAME " + gameId + " FAILED!");
-          for (Agent agent: agentMap.values()) {
-            agent.setStatus(Agent.STATE.complete.toString());
-            session.update(agent);
-          }
-          log.info("Setting Agents to Complete for game: " + gameId);
-          machine.setStatus(Machine.STATE.idle.toString());
-          log.info("Setting machine " + machine.getMachineId() + " to idle");
-          machine = null;
-          log.info("Freeing Machines for game: " + gameId);
-          break;
-      }
-
-      session.update(this);
-      session.getTransaction().commit();
-    }
-    catch (Exception e) {
-      session.getTransaction().rollback();
-      e.printStackTrace();
-    }
-
-    return "success";
+    session.update(this);
   }
 
   @Transient

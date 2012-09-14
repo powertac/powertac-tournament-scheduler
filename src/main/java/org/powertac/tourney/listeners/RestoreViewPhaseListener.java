@@ -26,20 +26,22 @@ public class RestoreViewPhaseListener implements PhaseListener {
       Rest rest = new Rest();
       String url = request.getRequestURL().toString();
 
-      if (request.getMethod().equals("PUT") && url.contains("serverInterface.jsp")) {
-        respond(pe, rest.handleServerInterfacePUT(params, request));
-      }
-      else if (request.getMethod().equals("POST") && url.contains("serverInterface.jsp")) {
-        respond(pe, rest.handlePostServerInterfacePOST(params, request));
+      if (url.contains("serverInterface.jsp")) {
+        if (request.getMethod().equals("PUT")) {
+          respond(pe, rest.handleServerInterfacePUT(params, request));
+        }
+        else if (request.getMethod().equals("POST")) {
+          respond(pe, rest.handleServerInterfacePOST(params, request));
+        }
+        else {
+          respond(pe, rest.handleServerInterface(params, request));
+        }
       }
       else if (url.contains("brokerLogin.jsp")) {
         respond(pe, rest.parseBrokerLogin(params));
       }
       else if (url.contains("visualizerLogin.jsp")) {
         respond(pe, rest.parseVisualizerLogin(request, params));
-      }
-      else if (url.contains("serverInterface.jsp")) {
-        respond(pe, rest.parseServerInterface(params, request.getRemoteAddr()));
       }
       else if (url.contains("properties.jsp")) {
         respond(pe, rest.parseProperties(params));

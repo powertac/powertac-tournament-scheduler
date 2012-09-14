@@ -19,15 +19,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class LogParser
+public class LogParser implements Runnable
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
   private int gameId;
+  String logLocation;
+  String fileName;
 
   public LogParser (String logLocation, String fileName)
   {
     gameId = Integer.parseInt(fileName.split("-")[1]);
+    this.logLocation = logLocation;
+    this.fileName = fileName;
+  }
+
+  public void run() {
     String copyCmd = String.format("cp %s%s /tmp/%s",
         logLocation, fileName, fileName);
     String untarCmd = "tar -C /tmp/ -xzvf /tmp/" + fileName;
@@ -119,16 +126,23 @@ public class LogParser
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
+      Game game = (Game) session.get(Game.class, gameId);
+
       for (Map.Entry<String, Double> entry: results.entrySet()) {
         Broker broker = (Broker) session
             .createCriteria(Broker.class)
             .add(Restrictions.eq("brokerName", entry.getKey())).uniqueResult();
 
-        Game game = (Game) session.get(Game.class, gameId);
-
         Agent agent = (Agent) session.createCriteria(Agent.class)
             .add(Restrictions.eq("broker", broker))
             .add(Restrictions.eq("game", game)).uniqueResult();
+
+        // Apperantly the end-of-game message has already been recieved
+        if (agent.getBalance() != -1) {
+          transaction.rollback();
+          return;
+        }
+
         agent.setBalance(entry.getValue());
         session.update(agent);
       }
@@ -138,6 +152,8 @@ public class LogParser
       transaction.rollback();
       e.printStackTrace();
     }
-    session.close();
+    finally {
+      session.close();
+    }
   }
 }

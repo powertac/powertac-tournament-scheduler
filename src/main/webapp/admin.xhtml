@@ -49,17 +49,21 @@
             <h:commandButton value="Unload"
                              action="#{actionAdmin.unloadTournament()}"
                              rendered="#{!scheduler.nullTourney}" />
-            <h:selectOneMenu value="#{actionAdmin.selectedTournament}"
-                             rendered="#{scheduler.nullTourney}"
-                             style="border:1px solid grey;height:22px;padding:1px;margin:2px;"
-                >
-              <f:selectItems value="#{actionAdmin.availableTournaments}" var="t"
-                             itemValue="#{t.tournamentId}"
-                             itemLabel="#{t.tournamentName}" />
-            </h:selectOneMenu>
-            <h:commandButton value="Load"
-                             action="#{actionAdmin.loadTournament()}"
-                             rendered="#{scheduler.nullTourney}"/>
+            <h:panelGroup rendered="#{actionAdmin.availableTournaments.size() > 0}">
+              <h:selectOneMenu value="#{actionAdmin.selectedTournament}"
+                               rendered="#{scheduler.nullTourney}"
+                               style="border:1px solid grey;height:22px;padding:1px;margin:2px;">
+                <f:selectItems value="#{actionAdmin.availableTournaments}" var="t"
+                               itemValue="#{t.tournamentId}"
+                               itemLabel="#{t.tournamentName}" />
+              </h:selectOneMenu>
+              <h:commandButton value="Load"
+                               action="#{actionAdmin.loadTournament()}"
+                               rendered="#{scheduler.nullTourney}"/>
+            </h:panelGroup>
+            <h:outputText rendered="#{actionAdmin.availableTournaments.size() == 0}">
+              No tournaments availble for loading
+            </h:outputText>
           </h:panelGroup>
 
           <h4>Weather Server Status:</h4>

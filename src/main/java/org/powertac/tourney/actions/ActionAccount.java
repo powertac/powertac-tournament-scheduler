@@ -10,6 +10,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @ManagedBean
 @RequestScoped
@@ -49,7 +51,8 @@ public class ActionAccount
   {
     // Check if name and description not empty, and if name allowed
     if (namesEmpty(brokerName, brokerShort, "accountForm2") ||
-        nameExists(brokerName, "accountForm2")) {
+        nameExists(brokerName, "accountForm2") ||
+        nameAllowed(brokerName, "accountForm2")) {
       return;
     }
 
@@ -103,6 +106,9 @@ public class ActionAccount
   {
     // Check if name and description not empty, and if name allowed (if changed)
     if (namesEmpty(broker.getNewName(), broker.getNewShort(), "accountForm1")) {
+      return;
+    }
+    if (nameAllowed(broker.getNewName(), "accountForm1")) {
       return;
     }
     else if (!broker.getBrokerName().equals(broker.getNewName())) {
@@ -164,7 +170,24 @@ public class ActionAccount
   {
     Broker broker = Broker.getBrokerByName(brokerName);
     if (broker != null) {
-      String msg = "Broker Name taken, please select a new name";
+      String msg = "Brokername taken, please select a new name";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesContext.getCurrentInstance().addMessage(form, fm);
+      return true;
+    }
+    return false;
+  }
+
+  // We can't allow commas, used in end-of-game message from server
+  private boolean nameAllowed (String brokerName, String form)
+  {
+    Pattern ALPHANUMERIC = Pattern.compile("[A-Za-z0-9\\-\\_]+");
+    Matcher m = ALPHANUMERIC.matcher(brokerName);
+    System.out.println(m.matches());
+
+    if (!m.matches()) {
+      String msg = "Brokername contains illegal characters, please select a "
+          + "new name (only alphanumeric, '-' and '_' allowed)";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
       FacesContext.getCurrentInstance().addMessage(form, fm);
       return true;

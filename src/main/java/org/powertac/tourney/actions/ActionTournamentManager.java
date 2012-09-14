@@ -9,6 +9,7 @@ import org.powertac.tourney.beans.Location;
 import org.powertac.tourney.beans.Pom;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.services.HibernateUtil;
+import org.powertac.tourney.services.Utils;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -90,7 +91,7 @@ public class ActionTournamentManager
     Transaction transaction = session.beginTransaction();
     try {
       Tournament tournament = new Tournament();
-      setValues (tournament);
+      setValues(tournament);
       session.save(tournament);
 
       log.info(String.format("Created %s tournament %s",
@@ -161,7 +162,7 @@ public class ActionTournamentManager
     Transaction transaction = session.beginTransaction();
     try {
       Tournament tournament = (Tournament) session.get(Tournament.class, tourneyId);
-      setValues (tournament);
+      setValues(tournament);
       session.saveOrUpdate(tournament);
       transaction.commit();
       resetValues();
@@ -218,10 +219,10 @@ public class ActionTournamentManager
     tournament.setPomId(selectedPom);
     tournament.setLocations(allLocations);
     tournament.setMaxBrokers(maxBrokers);
-    tournament.setMaxAgents(maxAgents);
-    tournament.setSize1((type == Tournament.TYPE.MULTI_GAME) ? size1 : 0);
-    tournament.setSize2((type == Tournament.TYPE.MULTI_GAME) ? size2 : 0);
-    tournament.setSize3((type == Tournament.TYPE.MULTI_GAME) ? size3 : 0);
+    tournament.setMaxAgents((type==Tournament.TYPE.MULTI_GAME) ? maxAgents : 0);
+    tournament.setSize1((type==Tournament.TYPE.MULTI_GAME) ? size1 : 0);
+    tournament.setSize2((type==Tournament.TYPE.MULTI_GAME) ? size2 : 0);
+    tournament.setSize3((type==Tournament.TYPE.MULTI_GAME) ? size3 : 0);
   }
 
   public void resetValues ()
@@ -237,7 +238,7 @@ public class ActionTournamentManager
     startTime = new Date();
     Calendar initTime = Calendar.getInstance();
     initTime.set(2009, Calendar.MARCH, 3, 0, 0, 0);
-    dateFrom = new Date();
+    dateFrom = Utils.offsetDate();
     dateFrom.setTime(initTime.getTimeInMillis());
     initTime.set(2011, Calendar.MARCH, 3, 0, 0, 0);
     dateTo = new Date();

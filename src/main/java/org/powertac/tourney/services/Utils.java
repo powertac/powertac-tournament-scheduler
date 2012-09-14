@@ -29,13 +29,13 @@ import java.util.*;
 public class Utils {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  public static HashMap<String, String> machineIPs = null;
+  public static HashMap<String, List<String>> machineIPs = null;
   public static HashMap<String, String> vizIPs = null;
   public static HashMap<String, String> localIPs = null;
 
   public static void getIpAddresses ()
   {
-    machineIPs = new HashMap<String, String>();
+    machineIPs = new HashMap<String, List<String>>();
     vizIPs = new HashMap<String, String>();
     localIPs = new HashMap<String, String>();
 
@@ -45,7 +45,10 @@ public class Utils {
         if (machineIP.contains("/")) {
           machineIP = machineIP.split("/")[1];
         }
-        machineIPs.put(machineIP, m.getMachineName());
+
+        List<String> machine =
+            Arrays.asList(m.getMachineName(), m.getMachineId().toString());
+        machineIPs.put(machineIP, machine);
       }
       catch (UnknownHostException ignored) {}
 
@@ -133,6 +136,18 @@ public class Utils {
 
     log.debug(vizAddress + " is not allowed");
     return true;
+  }
+
+  public static int getMachineId(String machineAddress)
+  {
+    log.debug("Getting machineName for : " + machineAddress);
+
+    if (machineIPs == null) {
+      getIpAddresses();
+    }
+
+    assert machineIPs != null;
+    return Integer.parseInt(machineIPs.get(machineAddress).get(1));
   }
 
   public static void secondsSleep (int seconds)

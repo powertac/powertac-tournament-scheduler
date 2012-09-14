@@ -2,16 +2,16 @@ package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.QueryException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.powertac.tourney.beans.Agent;
-import org.powertac.tourney.beans.Broker;
-import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Tournament;
+import org.hibernate.criterion.Restrictions;
+import org.powertac.tourney.beans.*;
 import org.powertac.tourney.constants.Constants;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -21,7 +21,7 @@ public class Rest
 
   private TournamentProperties properties = TournamentProperties.getProperties();
 
-  public synchronized String parseBrokerLogin (Map<String, String[]> params)
+  public String parseBrokerLogin (Map<String, String[]> params)
   {
     String responseType = params.get(Constants.Rest.REQ_PARAM_TYPE)[0];
     String brokerAuth = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
@@ -139,7 +139,7 @@ public class Rest
    * or queueName(qn) to tell the visualizer to connect to its machine and
    * listen on the queue named qn.
    */
-  public synchronized String parseVisualizerLogin (HttpServletRequest request,
+  public String parseVisualizerLogin (HttpServletRequest request,
                                       Map<String, String[]> params)
   {
     String machineName = params.get("machineName")[0];
@@ -192,53 +192,24 @@ public class Rest
     }
   }
 
-  public String parseServerInterface (Map<String, String[]> params, String clientAddress)
+  public String handleServerInterface (Map<String, String[]> params,
+                                       HttpServletRequest request)
   {
+    String clientAddress = request.getRemoteAddr();
     try {
-      // TODO Make these constants as well
-
       String actionString = params.get(Constants.Rest.REQ_PARAM_ACTION)[0];
-      if (actionString.equalsIgnoreCase("status")) {
+      if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_STATUS)) {
         if (!Utils.checkMachineAllowed(clientAddress)) {
           return "error";
         }
 
-        String statusString = params.get(Constants.Rest.REQ_PARAM_STATUS)[0];
-        int gameId = Integer.parseInt(
-            params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0]);
-
-        log.info(String.format("Received %s message from game: %s",
-            statusString, gameId));
-
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
-        try {
-          Query query = session.createQuery(Constants.HQL.GET_GAME_BY_ID);
-          query.setInteger("gameId", gameId);
-          Game game = (Game) query.uniqueResult();
-
-          if (game == null) {
-            log.warn(String.format("Trying to set status %s on non-existing "
-                + "game : %s", statusString, gameId));
-            return "error";
-          }
-
-          return game.handleStatus(session, statusString);
-        }
-        catch (Exception e) {
-          transaction.rollback();
-          e.printStackTrace();
-          return "error";
-        }
-        finally {
-          session.close();
-        }
+        return handleStatus(params);
       }
-      else if (actionString.equalsIgnoreCase("boot")) {
+      else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_BOOT)) {
         String gameId = params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0];
         return serveBoot(gameId);
       }
-      else if (actionString.equalsIgnoreCase("heartbeat")) {
+      else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_HEARTBEAT)) {
         if (!Utils.checkMachineAllowed(clientAddress)) {
           return "error";
         }
@@ -328,7 +299,7 @@ public class Rest
     }
   }
 
-  public String servePom(String pomId)
+  private String servePom(String pomId)
   {
     String result = "";
     try {
@@ -358,7 +329,7 @@ public class Rest
     return result;
   }
 
-  public String serveBoot(String gameId)
+  private String serveBoot(String gameId)
   {
     String result = "";
 
@@ -389,10 +360,46 @@ public class Rest
     return result;
   }
 
+  private String handleStatus (Map<String, String[]> params)
+  {
+    String statusString = params.get(Constants.Rest.REQ_PARAM_STATUS)[0];
+    int gameId = Integer.parseInt(
+        params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0]);
+
+    log.info(String.format("Received %s message from game: %s",
+        statusString, gameId));
+
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      Query query = session.createQuery(Constants.HQL.GET_GAME_BY_ID);
+      query.setInteger("gameId", gameId);
+      Game game = (Game) query.uniqueResult();
+
+      if (game == null) {
+        log.warn(String.format("Trying to set status %s on non-existing "
+            + "game : %s", statusString, gameId));
+        return "error";
+      }
+
+      game.handleStatus(session, statusString);
+      transaction.commit();
+      return "success";
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+      return "error";
+    }
+    finally {
+      session.close();
+    }
+  }
+
   public String handleHeartBeat (String message)
   {
-    log.info("We received this heartBeat message from the server :");
-    log.info(message);
+    log.debug("We received this heartBeat message from the server :");
+    log.debug(message);
 
     return "success";
   }
@@ -400,7 +407,8 @@ public class Rest
   /***
    * Handle 'PUT' to serverInterface.jsp, either boot.xml or (Boot|Sim) log
    */
-  public String handleServerInterfacePUT (Map<String, String[]> params, HttpServletRequest request)
+  public String handleServerInterfacePUT (Map<String, String[]> params,
+                                          HttpServletRequest request)
   {
     if (!Utils.checkMachineAllowed(request.getRemoteAddr())) {
       return "error";
@@ -430,7 +438,11 @@ public class Rest
 
       if (fileName.contains("sim-logs")) {
         try {
-          new LogParser(properties.getProperty("logLocation"), fileName);
+          // new LogParser(properties.getProperty("logLocation"), fileName);
+
+          Runnable r = new LogParser(
+              properties.getProperty("logLocation"), fileName);
+          new Thread(r).start();
         }
         catch (Exception e) {
           log.error("Error creating LogParser for " + fileName);
@@ -445,25 +457,82 @@ public class Rest
   /***
    * Handle 'POST' to serverInterface.jsp, this is a end-of-game message
    */
-  public String handlePostServerInterfacePOST(Map<String, String[]> params, HttpServletRequest request)
+  public String handleServerInterfacePOST (Map<String, String[]> params,
+                                           HttpServletRequest request)
   {
-    if (!Utils.checkMachineAllowed(request.getRemoteAddr())) {
+    String remoteAddress = request.getRemoteAddr();
+
+    if (!Utils.checkMachineAllowed(remoteAddress)) {
       return "error";
     }
 
     try {
       String actionString = params.get(Constants.Rest.REQ_PARAM_ACTION)[0];
-      if (!actionString.equalsIgnoreCase("gameresults")) {
+      if (!actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_GAMERESULTS)){
         log.debug("The message didn't have the right action-string!");
         return "error";
       }
 
       String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
-      log.info("We received this gameResult message from the server :");
-      log.info(message);
+      log.debug("We received this gameResult message from the server : \n"
+          + message);
 
-      return "success";
-    } catch (Exception e) {
+      HashMap<String, Double> results = new HashMap<String, Double>();
+      for (String result: message.split(",")) {
+        Double balance = Double.parseDouble(result.split(":")[1]);
+        String name = result.split(":")[0];
+        if (name.equals("default broker")) {
+          continue;
+        }
+        results.put(name, balance);
+      }
+
+      int machineId = Utils.getMachineId(remoteAddress);
+      Session session = HibernateUtil.getSessionFactory().openSession();
+      Transaction transaction = session.beginTransaction();
+      try {
+        Game game;
+        try {
+          Machine machine = (Machine) session.get(Machine.class, machineId);
+          game = (Game) session.createCriteria(Game.class)
+              .add(Restrictions.eq("machine", machine)).uniqueResult();
+          if (game == null) {
+            log.error("No game running on machine : " + machineId);
+            transaction.rollback();
+            return "error";
+          }
+        }
+        catch (QueryException qe) {
+          transaction.rollback();
+          qe.printStackTrace();
+          return "error";
+        }
+
+        for (Map.Entry<String, Double> entry: results.entrySet()) {
+          Broker broker = (Broker) session
+              .createCriteria(Broker.class)
+              .add(Restrictions.eq("brokerName", entry.getKey())).uniqueResult();
+          Agent agent = (Agent) session.createCriteria(Agent.class)
+              .add(Restrictions.eq("broker", broker))
+              .add(Restrictions.eq("game", game)).uniqueResult();
+          agent.setBalance(entry.getValue());
+          session.update(agent);
+        }
+
+        game.handleStatus(session, Game.STATE.game_complete.toString());
+        transaction.commit();
+        return "success";
+      }
+      catch (Exception e) {
+        transaction.rollback();
+        e.printStackTrace();
+        return "error";
+      }
+      finally {
+        session.close();
+      }
+    }
+    catch (Exception e) {
       log.error("Something went wrong with receiving the POST message!");
       log.error(e.getMessage());
       return "error";

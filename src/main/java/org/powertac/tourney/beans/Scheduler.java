@@ -191,7 +191,7 @@ public class Scheduler implements InitializingBean
       // Sort and do the largest first, smaller ones are easier to schedule
       Arrays.sort(gameTypes);
       for (int i=gameTypes.length-1; i > -1; i--) {
-        doTheKailash(session, gameTypes[i], brokers);
+        doTheKailash(session, gameTypes[i], i, brokers);
       }
 
       transaction.commit();
@@ -206,7 +206,7 @@ public class Scheduler implements InitializingBean
   }
 
   //private void doTheKailash (Session session, int gameType, List<Broker> brokers)
-  private void doTheKailash (Session session, int gameType, List<Broker> brokers)
+  private void doTheKailash (Session session, int gameType, int gameNumber, List<Broker> brokers)
   {
     log.info(String.format("Doing the Kailash with gameType = %s ; "
         + "maxBrokers = %s", gameType, brokers.size()));
@@ -249,8 +249,8 @@ public class Scheduler implements InitializingBean
     for (int j=0; j<games.size(); j++) {
       String gameString = games.get(j);
 
-      String gameName = String.format("%s_%s_%s",
-          runningTournament.getTournamentName(), gameType, j);
+      String gameName = String.format("%s_%s_%s_%s",
+          runningTournament.getTournamentName(), gameNumber, gameType, j);
       Game game = Game.createGame(runningTournament, gameName);
       session.save(game);
 
