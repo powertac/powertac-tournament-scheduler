@@ -183,7 +183,6 @@ public class ActionAccount
   {
     Pattern ALPHANUMERIC = Pattern.compile("[A-Za-z0-9\\-\\_]+");
     Matcher m = ALPHANUMERIC.matcher(brokerName);
-    System.out.println(m.matches());
 
     if (!m.matches()) {
       String msg = "Brokername contains illegal characters, please select a "

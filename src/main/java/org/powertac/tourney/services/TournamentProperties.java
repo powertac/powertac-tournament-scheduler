@@ -120,9 +120,12 @@ public class TournamentProperties
 
   private String getTourneyUrl ()
   {
+    if (!properties.getProperty("tourney.location", "").isEmpty()) {
+      return properties.getProperty("tourney.location");
+    }
+
     String tourneyUrl = "http://%s:8080/TournamentScheduler/";
     String address = "127.0.0.1";
-
     try {
       Enumeration<NetworkInterface> n = NetworkInterface.getNetworkInterfaces();
       while (n.hasMoreElements()) {

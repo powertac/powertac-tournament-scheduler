@@ -8,6 +8,9 @@ jenkins.location = http://localhost:8080/jenkins
 jenkins.username =
 jenkins.password =
 
+# URL of the Tournament Scheduler. Leave empty for automatic detection
+tourney.location =
+
 # We send an email if bootstraps seem wedged (running for more than bootstrapWedged msecs)
 scheduler.bootstrapWedged = 900000
 scheduler.simWedged = 10800000
