@@ -59,6 +59,7 @@ CREATE TABLE `tourney`.`tournaments` (
 	`type` VARCHAR(32) NOT NULL, /* Type is either multi-game or single game if single game ignore the gameSize params */
 	`pomId` INT(10) UNSIGNED NOT NULL, /* This will be a foreign key to poms.pomId */
 	`locations` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
+	`closed` tinyint(1) NOT NULL,
 	PRIMARY KEY (`tourneyId`),
 	CONSTRAINT tourney_refs FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`)
 ) ENGINE=InnoDB;

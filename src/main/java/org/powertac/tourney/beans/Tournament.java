@@ -27,14 +27,17 @@ public class Tournament
   private Date dateFrom;
   private Date dateTo;
   private int maxBrokers;
-  private int maxAgents = 2;
-  private String status = STATE.pending.toString();
-  private int size1 = 2;
-  private int size2 = 4;
-  private int size3 = 8;
-  private String type = TYPE.SINGLE_GAME.toString();
+  private int maxAgents;
+  private String status;
+  private int size1;
+  private int size2;
+  private int size3;
+  private String type;
   private int pomId;
-  private String locations = "";
+  private String locations;
+  private boolean closed;
+
+  // ALTER TABLE  `tournaments` ADD  `closed` BOOLEAN NOT NULL
 
   private Map<Integer, Game> gameMap = new HashMap<Integer, Game>();
   private Map<Integer, Broker> brokerMap = new HashMap<Integer, Broker>();
@@ -360,6 +363,14 @@ public class Tournament
   public void setLocations (String locations)
   {
     this.locations = locations;
+  }
+
+  @Column(name="closed", nullable=false)
+  public boolean isClosed() {
+    return closed;
+  }
+  public void setClosed(boolean closed) {
+    this.closed = closed;
   }
   //</editor-fold>
 }

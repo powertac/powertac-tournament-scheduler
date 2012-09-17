@@ -26,7 +26,7 @@ public class ActionTournamentManager
 
   private String sortColumn = null;
   private boolean sortAscending = true;
-  private boolean[] disabled;
+  private boolean[] disabled = new boolean[13];
 
   private int tourneyId = -1;
   private String tournamentName;
@@ -41,6 +41,7 @@ public class ActionTournamentManager
   private Date dateTo;
   private int selectedPom;
   private List<String> locations;
+  private boolean closed;
 
   public ActionTournamentManager()
   {
@@ -76,6 +77,20 @@ public class ActionTournamentManager
       return;
     }
 
+    if (locations.size() < 1) {
+      String msg = "Choose at least one location";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+      FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
+      return;
+    }
+
+    if (selectedPom == 0) {
+      String msg = "Select a POM";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+      FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
+      return;
+    }
+
     if (tourneyId != -1) {
       saveEditedTournament();
     } else {
@@ -92,6 +107,7 @@ public class ActionTournamentManager
     try {
       Tournament tournament = new Tournament();
       setValues(tournament);
+      tournament.setStatus(Tournament.STATE.pending.toString());
       session.save(tournament);
 
       log.info(String.format("Created %s tournament %s",
@@ -137,10 +153,12 @@ public class ActionTournamentManager
     dateTo = tournament.getDateTo();
     selectedPom = tournament.getPomId();
     locations = tournament.getLocationsList();
+    closed = tournament.isClosed();
 
-    disabled[1] = true; // type
     // Once scheduled, these params can't change
     if (tournament.getGameMap().size() > 0) {
+      disabled[0] = true; // name
+      disabled[1] = true; // type
       disabled[2] = true; // maxBrokers
       disabled[3] = true; // maxAgents
       disabled[4] = true; // size1
@@ -150,8 +168,9 @@ public class ActionTournamentManager
       disabled[8] = true; // date from
       disabled[9] = true; // date to
       disabled[10] = true; // pom
+      disabled[11] = true; // locations
     }
-    disabled[11] = true; // locations
+    disabled[12] = true; // closed
   }
 
   public void saveEditedTournament()
@@ -160,12 +179,13 @@ public class ActionTournamentManager
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
+    boolean saved = false;
     try {
       Tournament tournament = (Tournament) session.get(Tournament.class, tourneyId);
       setValues(tournament);
       session.saveOrUpdate(tournament);
       transaction.commit();
-      resetValues();
+      saved = true;
     }
     catch (ConstraintViolationException ignored) {
       transaction.rollback();
@@ -180,6 +200,10 @@ public class ActionTournamentManager
     }
     finally {
       session.close();
+    }
+
+    if (saved) {
+      resetValues();
     }
   }
 
@@ -209,20 +233,23 @@ public class ActionTournamentManager
       allLocations += s + ",";
     }
 
-    tournament.setTournamentName(tournamentName);
-    tournament.setStartTime(startTime);
-    tournament.setDateFrom(dateFrom);
-    tournament.setDateTo(dateTo);
-    if (type != null) {
-      tournament.setType(type.toString());
+    if (tournament.getGameMap().size() < 1) {
+      tournament.setTournamentName(tournamentName);
+      if (type != null) {
+        tournament.setType(type.toString());
+      }
+      tournament.setMaxBrokers(maxBrokers);
+      tournament.setMaxAgents((type==Tournament.TYPE.MULTI_GAME) ? maxAgents : 0);
+      tournament.setSize1((type==Tournament.TYPE.MULTI_GAME) ? size1 : 0);
+      tournament.setSize2((type==Tournament.TYPE.MULTI_GAME) ? size2 : 0);
+      tournament.setSize3((type==Tournament.TYPE.MULTI_GAME) ? size3 : 0);
+      tournament.setStartTime(startTime);
+      tournament.setDateFrom(dateFrom);
+      tournament.setDateTo(dateTo);
+      tournament.setPomId(selectedPom);
+      tournament.setLocations(allLocations);
     }
-    tournament.setPomId(selectedPom);
-    tournament.setLocations(allLocations);
-    tournament.setMaxBrokers(maxBrokers);
-    tournament.setMaxAgents((type==Tournament.TYPE.MULTI_GAME) ? maxAgents : 0);
-    tournament.setSize1((type==Tournament.TYPE.MULTI_GAME) ? size1 : 0);
-    tournament.setSize2((type==Tournament.TYPE.MULTI_GAME) ? size2 : 0);
-    tournament.setSize3((type==Tournament.TYPE.MULTI_GAME) ? size3 : 0);
+    tournament.setClosed(closed);
   }
 
   public void resetValues ()
@@ -238,15 +265,16 @@ public class ActionTournamentManager
     startTime = Utils.offsetDate();
     Calendar initTime = Calendar.getInstance();
     initTime.set(2009, Calendar.MARCH, 3, 0, 0, 0);
-    dateFrom = Utils.offsetDate();
+    dateFrom = new Date();
     dateFrom.setTime(initTime.getTimeInMillis());
     initTime.set(2011, Calendar.MARCH, 3, 0, 0, 0);
     dateTo = new Date();
     dateTo.setTime(initTime.getTimeInMillis());
     selectedPom = 0;
     locations = new ArrayList<String>();
+    closed = false;
 
-    disabled = new boolean[12];
+    disabled = new boolean[13];
     Arrays.fill(disabled, Boolean.FALSE);
   }
 
@@ -350,6 +378,7 @@ public class ActionTournamentManager
     return sortColumn;
   }
   public void setSortColumn (String sortColumn) {
+
     this.sortColumn = sortColumn;
   }
 
@@ -365,6 +394,13 @@ public class ActionTournamentManager
   }
   public void setDisabled(boolean[] disabled) {
     this.disabled = disabled;
+  }
+
+  public boolean isClosed() {
+    return closed;
+  }
+  public void setClosed(boolean closed) {
+    this.closed = closed;
   }
   //</editor-fold>
 }

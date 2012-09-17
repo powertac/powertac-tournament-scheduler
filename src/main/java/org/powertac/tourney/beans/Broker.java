@@ -244,7 +244,6 @@ public class Broker
       if (tourney.getBrokerMap().size() >= tourney.getMaxBrokers()) {
         continue;
       }
-
       // Check if after deadline
       long diff = tourney.getStartTime().getTime() - nowStamp;
       if (diff < loginDeadline) {
@@ -256,6 +255,10 @@ public class Broker
         if (t.getTournamentId() == tourney.getTournamentId()) {
           continue Outer;
         }
+      }
+      // Check if not closed
+      if (tourney.isClosed()) {
+        continue;
       }
 
       // No reason not to be able to register
