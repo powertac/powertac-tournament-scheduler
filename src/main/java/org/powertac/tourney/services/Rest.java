@@ -383,6 +383,7 @@ public class Rest
         return "error";
       }
 
+      game.handleStatus(session, statusString);
       transaction.commit();
       return "success";
     }
@@ -519,7 +520,6 @@ public class Rest
           session.update(agent);
         }
 
-        game.handleStatus(session, Game.STATE.game_complete.toString());
         transaction.commit();
         return "success";
       }

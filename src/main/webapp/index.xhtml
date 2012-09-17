@@ -119,18 +119,18 @@
 						<f:facet name="header">
 							<h:outputText value="ID" />
 						</f:facet>
-              <h:commandLink value="#{g.gameId}" action="Game">
-                <f:setPropertyActionListener target="#{actionGame.gameId}" value="#{g.gameId}" />
-              </h:commandLink>
+              <h:link value="#{g.gameId}" outcome="Game">
+                <f:param name="gameId" value="#{g.gameId}" />
+              </h:link>
     				</t:column>
     				
     				<t:column>
               <f:facet name="header">
                 <h:outputText value="Tournament" />
               </f:facet>
-              <h:commandLink value="#{g.tournament.tournamentName}" action="Tournament">
-                <f:setPropertyActionListener target="#{actionTournament.tourneyId}" value="#{g.tournament.tournamentId}" />
-              </h:commandLink>
+              <h:link value="#{g.tournament.tournamentName}" outcome="Tournament">
+                <f:param name="tournamentId" value="#{g.tournament.tournamentId}" />
+              </h:link>
     				</t:column>
 
             <t:column>

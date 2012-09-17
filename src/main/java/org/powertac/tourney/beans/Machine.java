@@ -172,20 +172,26 @@ public class Machine
     return machines;
   }
 
-  public static void delayedMachineUpdate (int machineId)
+  public static void delayedMachineUpdate (int machineId, int delay)
   {
-    // We're delaying setting the machine to idle, because after a job kill,
-    // the viz doesn't get an end-of-sim message. It takes a viz 2 mins to
-    // recover from this. To be on the safe side, we delay for 5 mins.
+    // There are 2 scenarios where we want to delay the setting to idle.
+    // 1 After we kill a job. The viz doesn't receive an end-of-sim message.
+    // It takes the viz 2 minutes to recover from this, so we delay for 5 min.
+    // 2 When the jenkins-script sends an we're-done message, it still takes
+    // some time to end the jenkins job. If the check-machines method runs
+    // before the jobs end, the machine gets set to not-idle.
+
     class updateThread implements Runnable {
       private int machineId;
+      private int delay;
 
-      public updateThread(int machineId) {
+      public updateThread(int machineId, int delay) {
         this.machineId = machineId;
+        this.delay = delay;
       }
 
       public void run() {
-        Utils.secondsSleep(300);
+        Utils.secondsSleep(delay);
 
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction transaction = session.beginTransaction();
@@ -203,7 +209,7 @@ public class Machine
         session.close();
       }
     }
-    Runnable r = new updateThread(machineId);
+    Runnable r = new updateThread(machineId, delay);
     new Thread(r).start();
   }
 

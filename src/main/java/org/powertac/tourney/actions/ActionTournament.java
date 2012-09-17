@@ -12,6 +12,7 @@ import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
+import javax.faces.context.FacesContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,23 +28,15 @@ public class ActionTournament
   private Map<Integer, List> agentsMap = new HashMap<Integer, List>();
   private List<Map.Entry<String, Double>> resultMap = new ArrayList<Map.Entry<String, Double>>();
 
-  private String sortColumn = null;
-  private boolean sortAscending = true;
-
   public ActionTournament()
   {
-  }
-
-  private int tourneyId = -1;
-  public void setTourneyId (int tourneyId) {
-    this.tourneyId = tourneyId;
     loadData();
   }
 
   private void loadData ()
   {
-    if (tourneyId < 1) {
-      Utils.redirect();
+    int tournamentId = getTournamentId();
+    if (tournamentId < 1) {
       return;
     }
 
@@ -51,7 +44,7 @@ public class ActionTournament
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID);
-      query.setInteger("tournamentId", tourneyId);
+      query.setInteger("tournamentId", tournamentId);
       tournament = (Tournament) query.uniqueResult();
 
       loadTournamentInfo();
@@ -63,6 +56,19 @@ public class ActionTournament
       e.printStackTrace();
     }
     session.close();
+  }
+
+  private int getTournamentId ()
+  {
+    FacesContext facesContext = FacesContext.getCurrentInstance();
+    try {
+      return Integer.parseInt(facesContext.getExternalContext().
+          getRequestParameterMap().get("tournamentId"));
+    }
+    catch (NumberFormatException ignored) {
+      Utils.redirect();
+      return -1;
+    }
   }
 
   private void loadTournamentInfo ()
@@ -116,24 +122,6 @@ public class ActionTournament
   }
 
   //<editor-fold desc="Setters and Getters">
-  public String getSortColumn ()
-  {
-    return sortColumn;
-  }
-  public void setSortColumn (String sortColumn)
-  {
-    this.sortColumn = sortColumn;
-  }
-
-  public boolean isSortAscending ()
-  {
-    return sortAscending;
-  }
-  public void setSortAscending (boolean sortAscending)
-  {
-    this.sortAscending = sortAscending;
-  }
-
   public Tournament getTournament() {
     return tournament;
   }

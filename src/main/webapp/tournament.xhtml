@@ -10,6 +10,33 @@
 <h:body>
   <ui:composition template="template.xhtml">
     <ui:define name="content">
+      <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/css/jquery.dataTables.css"/>
+      <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
+      <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/jquery.dataTables.min.js"></script>
+
+      <script type="text/javascript" charset="utf8" >
+        $(document).ready(function() {
+          $("[id$=runnning_games]").dataTable({
+            "bFilter": false,
+            "bInfo": false,
+            "sScrollY": Math.min(400, $("[id$=games]").height()) + "px",
+            "bPaginate": false
+          });
+        });
+      </script>
+
+      <style type="text/css">
+        table.dataTable tr.odd {
+          background-color: #FFFFFF;
+        }
+        table.dataTable tr.odd td.sorting_1 {
+          background-color: #FFFFFF;
+        }
+        table.dataTable tr.even td.sorting_1 {
+          background-color: #FFFFFF;
+        }
+      </style>
+
       <h2>Overview for tournament #{actionTournament.tournament.getTournamentName()}</h2>
 
       <t:dataList var="infoEntry" value="#{actionTournament.tournamentInfo}" layout="unorderedList">
@@ -17,7 +44,7 @@
       </t:dataList>
 
       <h3>Totals</h3>
-      <t:dataTable id="dataresults" border="1" sortable="false"
+      <t:dataTable id="dataresults" border="1"
                    style="border:1px solid black;border-collapse:collapse;"
                    value="#{actionTournament.getResultMap()}" var="r">
         <t:column>
@@ -39,19 +66,18 @@
 
       <h:form>
         <h3>Games</h3>
-        <t:dataTable id="datagames" border="1" sortable="false"
-                     sortColumn="#{actionTournament.sortColumn}"
-                     sortAscending="#{actionTournament.sortAscending}" preserveSort="true"
+        <t:dataTable id="games" border="1"
                      style="border:1px solid black;border-collapse:collapse;"
-                     value="#{actionTournament.tournament.gameMap.values()}" var="entry">
-          <t:column defaultSorted="true" sortable="true">
+                     value="#{actionTournament.tournament.gameMap.values()}"
+                     var="entry">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="ID" />
             </f:facet>
             <h:outputText >
-              <h:commandLink value="#{entry.gameId}" action="Game">
-                <f:setPropertyActionListener target="#{actionGame.gameId}" value="#{entry.gameId}" />
-              </h:commandLink>
+              <h:link value="#{entry.gameId}" outcome="Game">
+                <f:param name="gameId" value="#{entry.gameId}" />
+              </h:link>
             </h:outputText>
           </t:column>
 
@@ -62,7 +88,7 @@
             <h:outputText value="#{entry.gameName}" />
           </t:column>
 
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Status" />
             </f:facet>

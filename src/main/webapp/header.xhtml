@@ -8,7 +8,7 @@
 <body>
 	<ui:composition>
 		<div id="header"
-			style="background-color: #e4ffe3; border: 3px solid #009E18; border-radius: 15px; height: 120px; width: 700px;">
+			style="background-color: #e4ffe3; border: 3px solid #009E18; border-radius: 15px; height: 120px; width: 1000px;">
 			<img id="logo" src="garland_logo.png" style="float: left" alt="Garland Logo"/>
 			<div id="logo_text"
 				style="position: relative; bottom: -60px; left: -130px; white-space: nowrap;">
@@ -17,32 +17,32 @@
 		</div>
 
 		<div id="nav_ribbon"
-			style="border-radius: 15px; width: 700px; vertical-align: middle">
+			style="border-radius: 15px; width: 1000px; vertical-align: middle">
 			<h:form>
         <!-- Every User permission buttons -->
-				<h:commandButton value="Home" action="Home"
+				<h:button value="Home" outcome="Home"
 					               rendered="#{user.permissionId le 4}" />
-        <h:commandButton value="About" action="About"
-                         rendered="#{user.permissionId le 4}" />
+        <h:button value="About" outcome="about.xhtml"
+                  rendered="#{user.permissionId le 4}" />
 
         <!-- Login/logout/register  buttons -->
-				<h:commandButton value="Login" action="Login"
+				<h:button value="Login" outcome="Login"
 					               rendered="#{user.permissionId == 4 }" />
         <h:commandButton value="Logout" action="#{actionLogin.logout}"
                          rendered="#{user.permissionId le 3}" />
-				<h:commandButton value="Register" action="Register"
+				<h:button value="Register" outcome="Register"
                          rendered="#{user.permissionId eq 4}" />
 
 				<!-- Normal User permission buttons -->
-				<h:commandButton value="Account" action="Account"
+				<h:button value="Account" outcome="Account"
                          rendered="#{user.permissionId le 3}" />
 
 				<!-- Admin Level permission buttons -->
-				<h:commandButton value="Tournament Manager" action="TournamentManager"
+				<h:button value="Tournament Manager" outcome="TournamentManager"
                          rendered="#{user.permissionId le 0}" />
-        <h:commandButton value="Overview" action="Overview"
+        <h:button value="Overview" outcome="Overview"
                          rendered="#{user.permissionId le 0}" />
-				<h:commandButton value="Admin" action="Admin"
+				<h:button value="Admin" outcome="Admin"
                          rendered="#{user.permissionId le 0}" />
 
 			</h:form>

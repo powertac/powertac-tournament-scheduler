@@ -35,9 +35,9 @@
 						<f:facet name="header">
 							<h:outputText value="Name" />
 						</f:facet>
-            <h:commandLink value="#{t.tournamentName}" action="Tournament">
-              <f:setPropertyActionListener target="#{actionTournament.tourneyId}" value="#{t.tournamentId}" />
-            </h:commandLink>
+            <h:link value="#{t.tournamentName}" outcome="Tournament">
+              <f:param name="tournamentId" value="#{t.tournamentId}" />
+            </h:link>
 					</t:column>
 
           <t:column sortable="true">

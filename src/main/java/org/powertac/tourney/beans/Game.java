@@ -118,18 +118,16 @@ public class Game implements Serializable
         break;
 
       case boot_complete:
-        machine.setStatus(Machine.STATE.idle.toString());
-        log.info("Setting machine " + machine.getMachineId() + " to idle");
+        Machine.delayedMachineUpdate(machine.getMachineId(), 10);
         machine = null;
-        log.info("Freeing Machines for game: " + gameId);
+        log.debug("Freeing Machines for game: " + gameId);
         break;
 
       case boot_failed:
         log.warn("BOOT " + gameId + " FAILED!");
-        machine.setStatus(Machine.STATE.idle.toString());
-        log.info("Setting machine " + machine.getMachineId() + " to idle");
+        Machine.delayedMachineUpdate(machine.getMachineId(), 10);
         machine = null;
-        log.info("Freeing Machines for game: " + gameId);
+        log.debug("Freeing Machines for game: " + gameId);
         break;
 
       case game_ready:
@@ -146,9 +144,9 @@ public class Game implements Serializable
           session.update(agent);
         }
         log.info("Setting Agents to Complete for game: " + gameId);
-        machine.setStatus(Machine.STATE.idle.toString());
+        Machine.delayedMachineUpdate(machine.getMachineId(), 10);
         machine = null;
-        log.info("Freeing Machines for game: " + gameId);
+        log.debug("Freeing Machines for game: " + gameId);
         // If all games of tournament are complete, set tournament complete
         tournament.processGameFinished(gameId);
         break;
@@ -160,10 +158,9 @@ public class Game implements Serializable
           session.update(agent);
         }
         log.info("Setting Agents to Complete for game: " + gameId);
-        machine.setStatus(Machine.STATE.idle.toString());
-        log.info("Setting machine " + machine.getMachineId() + " to idle");
+        Machine.delayedMachineUpdate(machine.getMachineId(), 10);
         machine = null;
-        log.info("Freeing Machines for game: " + gameId);
+        log.debug("Freeing Machines for game: " + gameId);
         break;
     }
     session.update(this);

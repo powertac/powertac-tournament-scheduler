@@ -140,7 +140,7 @@ public class ActionOverview
       session.update(game);
       transaction.commit();
 
-      Machine.delayedMachineUpdate(machineId);
+      Machine.delayedMachineUpdate(machineId, 300);
     }
     catch (Exception e) {
       transaction.rollback();
