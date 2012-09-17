@@ -33,41 +33,48 @@
 
 	<!-- Navigation rules -->
 	<navigation-rule>
-    <!-- Nav Bar Navigation Only!!! -->
-        <from-view-id>/*</from-view-id>
-        <navigation-case>
-            <from-outcome>Register</from-outcome>
-            <to-view-id>/register.xhtml</to-view-id>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>Account</from-outcome>
-            <to-view-id>/account.xhtml</to-view-id>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>Login</from-outcome>
-            <to-view-id>/login.xhtml</to-view-id>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>Home</from-outcome>
-            <to-view-id>/index.xhtml</to-view-id>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>About</from-outcome>
-            <to-view-id>/about.xhtml</to-view-id>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>Tournament</from-outcome>
-            <to-view-id>/tournamentManager.xhtml</to-view-id>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>Overview</from-outcome>
-            <to-view-id>/overview.xhtml</to-view-id>
-        </navigation-case>
-        <navigation-case>
-            <from-outcome>Admin</from-outcome>
-            <to-view-id>/admin.xhtml</to-view-id>
-        </navigation-case>
-    </navigation-rule>
+    <from-view-id>/*</from-view-id>
+    <navigation-case>
+        <from-outcome>Register</from-outcome>
+        <to-view-id>/register.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+        <from-outcome>Account</from-outcome>
+        <to-view-id>/account.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+        <from-outcome>Login</from-outcome>
+        <to-view-id>/login.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+        <from-outcome>Home</from-outcome>
+        <to-view-id>/index.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+        <from-outcome>About</from-outcome>
+        <to-view-id>/about.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+        <from-outcome>TournamentManager</from-outcome>
+        <to-view-id>/tournamentManager.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+        <from-outcome>Overview</from-outcome>
+        <to-view-id>/overview.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+        <from-outcome>Admin</from-outcome>
+        <to-view-id>/admin.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>Game</from-outcome>
+      <to-view-id>/game.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>Tournament</from-outcome>
+      <to-view-id>/tournament.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
 
     <!-- Specific Navigation rules -->
 	<navigation-rule>

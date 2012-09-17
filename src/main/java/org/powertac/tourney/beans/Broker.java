@@ -181,30 +181,12 @@ public class Broker
 
     int count = 0;
     for (Agent agent: agentMap.values()) {
-      if (agent.getGame().isBooting() || agent.getGame().isRunning()) {
+      if (agent.getGame().isRunning()) {
         count ++;
       }
     }
 
     return count < runningTournament.getMaxAgents();
-
-
-    /*
-    org.hibernate.LazyInitializationException: failed to lazily initialize a collection of role: org.powertac.tourney.beans.Broker.agentMap, no session or session was closed
-    at org.hibernate.collection.AbstractPersistentCollection.throwLazyInitializationException(AbstractPersistentCollection.java:383)
-    at org.hibernate.collection.AbstractPersistentCollection.throwLazyInitializationExceptionIfNotConnected(AbstractPersistentCollection.java:375)
-    at org.hibernate.collection.AbstractPersistentCollection.initialize(AbstractPersistentCollection.java:368)
-    at org.hibernate.collection.AbstractPersistentCollection.read(AbstractPersistentCollection.java:111)
-    at org.hibernate.collection.PersistentMap.values(PersistentMap.java:257)
-    at org.powertac.tourney.beans.Broker.agentsAvailable(Broker.java:184)
-    at org.powertac.tourney.services.RunGame.checkBrokers(RunGame.java:99)
-    at org.powertac.tourney.services.RunGame.run(RunGame.java:49)
-    at org.powertac.tourney.services.RunGame.<init>(RunGame.java:30)
-    at org.powertac.tourney.services.RunGame.startRunnableGames(RunGame.java:219)
-    at org.powertac.tourney.beans.Scheduler$2.run(Scheduler.java:77)
-    at java.util.TimerThread.mainLoop(Timer.java:512)
-    at java.util.TimerThread.run(Timer.java:462)
-    */
   }
 
   @Transient

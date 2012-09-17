@@ -186,11 +186,11 @@ $COMP_CMD &quot;$simName-logs.$COMP_EXT&quot; log/powertac-$suffix$gameId.* log/
 log nl &quot;Sending log file&quot;
 curl --upload-file &quot;$simName-logs.$COMP_EXT&quot; &quot;$interfaceUrl?fileName=$simName-logs.$COMP_EXT&quot;
 
-# TODO Remove this when end-of-game messages work
+cleanup
+
 log nl &quot;Notify TM we&apos;re game_complete&quot;
 wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_complete&quot;
 
-cleanup
 exit 0</command>
     </hudson.tasks.Shell>
   </builders>

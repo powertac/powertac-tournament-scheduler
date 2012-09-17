@@ -12,7 +12,6 @@ import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
-import javax.faces.context.FacesContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,13 +32,18 @@ public class ActionTournament
 
   public ActionTournament()
   {
+  }
+
+  private int tourneyId = -1;
+  public void setTourneyId (int tourneyId) {
+    this.tourneyId = tourneyId;
     loadData();
   }
 
   private void loadData ()
   {
-    int tournamentId = getTournamentId();
-    if (tournamentId == -1) {
+    if (tourneyId < 1) {
+      Utils.redirect();
       return;
     }
 
@@ -47,7 +51,7 @@ public class ActionTournament
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID);
-      query.setInteger("tournamentId", tournamentId);
+      query.setInteger("tournamentId", tourneyId);
       tournament = (Tournament) query.uniqueResult();
 
       loadTournamentInfo();
@@ -59,19 +63,6 @@ public class ActionTournament
       e.printStackTrace();
     }
     session.close();
-  }
-
-  private int getTournamentId ()
-  {
-    FacesContext facesContext = FacesContext.getCurrentInstance();
-    try {
-      return Integer.parseInt(facesContext.getExternalContext().
-          getRequestParameterMap().get("tournamentId"));
-    }
-    catch (NumberFormatException ignored) {
-      Utils.redirect();
-      return -1;
-    }
   }
 
   private void loadTournamentInfo ()

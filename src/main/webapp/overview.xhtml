@@ -104,9 +104,9 @@
             <f:facet name="header">
               <h:outputText value="Name" />
             </f:facet>
-            <a href="tournament.xhtml?tournamentId=#{t.tournamentId}">
-              <h:outputText value="#{t.tournamentName}" />
-            </a>
+            <h:commandLink value="#{t.tournamentName}" action="Tournament">
+              <f:setPropertyActionListener target="#{actionTournament.tourneyId}" value="#{t.tournamentId}" />
+            </h:commandLink>
           </t:column>
 
           <t:column>
@@ -181,9 +181,9 @@
             <f:facet name="header">
               <h:outputText value="Name" />
             </f:facet>
-            <a href="game.xhtml?gameId=#{g.gameId}">
-              <h:outputText value="#{g.gameName}" />
-            </a>
+            <h:commandLink value="#{g.gameName}" action="Game">
+              <f:setPropertyActionListener target="#{actionGame.gameId}" value="#{g.gameId}" />
+            </h:commandLink>
           </t:column>
 
           <t:column>

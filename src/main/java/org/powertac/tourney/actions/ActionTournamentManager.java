@@ -235,7 +235,7 @@ public class ActionTournamentManager
     size1 = 2;
     size2 = 4;
     size3 = 8;
-    startTime = new Date();
+    startTime = Utils.offsetDate();
     Calendar initTime = Calendar.getInstance();
     initTime.set(2009, Calendar.MARCH, 3, 0, 0, 0);
     dateFrom = Utils.offsetDate();

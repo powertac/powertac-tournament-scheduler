@@ -210,12 +210,13 @@ public class Rest
         return serveBoot(gameId);
       }
       else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_HEARTBEAT)) {
-        if (!Utils.checkMachineAllowed(clientAddress)) {
+        return "success";
+        /*if (!Utils.checkMachineAllowed(clientAddress)) {
           return "error";
         }
 
         String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
-        return handleHeartBeat(message);
+        return handleHeartBeat(message);*/
       }
     }
 
@@ -382,7 +383,6 @@ public class Rest
         return "error";
       }
 
-      game.handleStatus(session, statusString);
       transaction.commit();
       return "success";
     }

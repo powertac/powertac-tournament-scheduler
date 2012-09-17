@@ -37,59 +37,63 @@
         </t:column>
       </t:dataTable>
 
-      <h3>Games</h3>
-      <t:dataTable id="datagames" border="1" sortable="false"
-                   sortColumn="#{actionTournament.sortColumn}"
-                   sortAscending="#{actionTournament.sortAscending}" preserveSort="true"
-                   style="border:1px solid black;border-collapse:collapse;"
-                   value="#{actionTournament.tournament.gameMap.values()}" var="entry">
-        <t:column defaultSorted="true" sortable="true">
-          <f:facet name="header">
-            <h:outputText value="ID" />
-          </f:facet>
-          <h:outputText >
-            <a href="game.xhtml?gameId=#{entry.gameId}">#{entry.gameId}</a>
-          </h:outputText>
-        </t:column>
+      <h:form>
+        <h3>Games</h3>
+        <t:dataTable id="datagames" border="1" sortable="false"
+                     sortColumn="#{actionTournament.sortColumn}"
+                     sortAscending="#{actionTournament.sortAscending}" preserveSort="true"
+                     style="border:1px solid black;border-collapse:collapse;"
+                     value="#{actionTournament.tournament.gameMap.values()}" var="entry">
+          <t:column defaultSorted="true" sortable="true">
+            <f:facet name="header">
+              <h:outputText value="ID" />
+            </f:facet>
+            <h:outputText >
+              <h:commandLink value="#{entry.gameId}" action="Game">
+                <f:setPropertyActionListener target="#{actionGame.gameId}" value="#{entry.gameId}" />
+              </h:commandLink>
+            </h:outputText>
+          </t:column>
 
-        <t:column>
-          <f:facet name="header">
-            <h:outputText value="Name" />
-          </f:facet>
-          <h:outputText value="#{entry.gameName}" />
-        </t:column>
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Name" />
+            </f:facet>
+            <h:outputText value="#{entry.gameName}" />
+          </t:column>
 
-        <t:column sortable="true">
-          <f:facet name="header">
-            <h:outputText value="Status" />
-          </f:facet>
-          <h:outputText value="#{entry.status}" />
-        </t:column>
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Status" />
+            </f:facet>
+            <h:outputText value="#{entry.status}" />
+          </t:column>
 
-        <t:column>
-          <f:facet name="header">
-            <h:outputText value="Brokers" />
-          </f:facet>
-          <h:panelGroup>
-            <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}" var="a">
-              <b>#{a.broker.getBrokerName()}</b><br/>
-            </ui:repeat>
-          </h:panelGroup>
-        </t:column>
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Brokers" />
+            </f:facet>
+            <h:panelGroup>
+              <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}" var="a">
+                <b>#{a.broker.getBrokerName()}</b><br/>
+              </ui:repeat>
+            </h:panelGroup>
+          </t:column>
 
-        <t:column>
-          <f:facet name="header">
-            <h:outputText value="Balance" />
-          </f:facet>
-          <h:panelGroup>
-            <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}" var="a">
-              <h:outputText value="#{a.balance}" >
-                <f:convertNumber minFractionDigits="6" />
-              </h:outputText><br/>
-            </ui:repeat>
-          </h:panelGroup>
-        </t:column>
-      </t:dataTable>
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Balance" />
+            </f:facet>
+            <h:panelGroup>
+              <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}" var="a">
+                <h:outputText value="#{a.balance}" >
+                  <f:convertNumber minFractionDigits="6" />
+                </h:outputText><br/>
+              </ui:repeat>
+            </h:panelGroup>
+          </t:column>
+        </t:dataTable>
+      </h:form>
     </ui:define>
   </ui:composition>
 </h:body>

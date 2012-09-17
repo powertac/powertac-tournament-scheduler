@@ -2,7 +2,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
@@ -18,7 +17,7 @@
 		</div>
 
 		<div id="nav_ribbon"
-			style="border-radius: 15px; width: 700; vertical-align: middle">
+			style="border-radius: 15px; width: 700px; vertical-align: middle">
 			<h:form>
         <!-- Every User permission buttons -->
 				<h:commandButton value="Home" action="Home"
@@ -39,7 +38,7 @@
                          rendered="#{user.permissionId le 3}" />
 
 				<!-- Admin Level permission buttons -->
-				<h:commandButton value="Tournament Manager" action="Tournament"
+				<h:commandButton value="Tournament Manager" action="TournamentManager"
                          rendered="#{user.permissionId le 0}" />
         <h:commandButton value="Overview" action="Overview"
                          rendered="#{user.permissionId le 0}" />

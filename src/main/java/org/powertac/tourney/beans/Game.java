@@ -104,6 +104,10 @@ public class Game implements Serializable
     STATE state;
     state = STATE.valueOf(status);
 
+    if (stateEquals(state)) {
+      return;
+    }
+
     this.status = status;
     log.info(String.format("Update game: %s to %s", gameId, status));
 

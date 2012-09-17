@@ -11,7 +11,6 @@ import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
-import javax.faces.context.FacesContext;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,13 +26,20 @@ public class ActionGame
 
   public ActionGame()
   {
+  }
+
+  // http://balusc.blogspot.nl/2006/06/communication-in-jsf.html
+
+  private int gameId = -1;
+  public void setGameId (int gameId) {
+    this.gameId = gameId;
     loadData();
   }
 
   private void loadData ()
   {
-    int gameId = getGameId();
-    if (gameId == -1) {
+    if (gameId < 1) {
+      Utils.redirect();
       return;
     }
 
@@ -53,19 +59,6 @@ public class ActionGame
       e.printStackTrace();
     }
     session.close();
-  }
-
-  private int getGameId ()
-  {
-    FacesContext facesContext = FacesContext.getCurrentInstance();
-    try {
-      return Integer.parseInt(facesContext.getExternalContext().
-          getRequestParameterMap().get("gameId"));
-    }
-    catch (NumberFormatException ignored) {
-      Utils.redirect();
-      return -1;
-    }
   }
 
   private void loadGameInfo ()
