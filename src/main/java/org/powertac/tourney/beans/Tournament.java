@@ -37,8 +37,6 @@ public class Tournament
   private String locations;
   private boolean closed;
 
-  // ALTER TABLE  `tournaments` ADD  `closed` BOOLEAN NOT NULL
-
   private Map<Integer, Game> gameMap = new HashMap<Integer, Game>();
   private Map<Integer, Broker> brokerMap = new HashMap<Integer, Broker>();
 

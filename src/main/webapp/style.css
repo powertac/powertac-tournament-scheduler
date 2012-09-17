@@ -25,6 +25,10 @@ td {
     padding-right: 10px;
 }
 
+td.right {
+    text-align: right;
+}
+
 #page {
     margin-left: auto;
     margin-right: auto;

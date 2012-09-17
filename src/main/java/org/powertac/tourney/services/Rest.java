@@ -2,11 +2,13 @@ package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
-import org.hibernate.QueryException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
-import org.powertac.tourney.beans.*;
+import org.powertac.tourney.beans.Agent;
+import org.powertac.tourney.beans.Broker;
+import org.powertac.tourney.beans.Game;
+import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.constants.Constants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -215,8 +217,7 @@ public class Rest
           return "error";
         }
 
-        String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
-        return handleHeartBeat(message);*/
+        return handleHeartBeat(params);*/
       }
     }
 
@@ -397,10 +398,14 @@ public class Rest
     }
   }
 
-  public String handleHeartBeat (String message)
+  public String handleHeartBeat (Map<String, String[]> params)
   {
-    log.debug("We received this heartBeat message from the server :");
-    log.debug(message);
+    String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
+    int gameId = Integer.parseInt(
+        params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0]);
+
+    log.debug(String.format("We received heartBeat message for game %s : %s",
+        message,gameId));
 
     return "success";
   }
@@ -474,9 +479,16 @@ public class Rest
         return "error";
       }
 
+      int gameId = Integer.parseInt(
+          params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0]);
+      if (!(gameId>0)) {
+        log.debug("The message didn't have a gameId!");
+        return "error";
+      }
+
       String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
-      log.debug("We received this gameResult message from the server : \n"
-          + message);
+      log.debug(String.format("We received this gameResult for game %s : \n%s",
+          message, gameId));
 
       HashMap<String, Double> results = new HashMap<String, Double>();
       for (String result: message.split(",")) {
@@ -488,26 +500,10 @@ public class Rest
         results.put(name, balance);
       }
 
-      int machineId = Utils.getMachineId(remoteAddress);
       Session session = HibernateUtil.getSessionFactory().openSession();
       Transaction transaction = session.beginTransaction();
       try {
-        Game game;
-        try {
-          Machine machine = (Machine) session.get(Machine.class, machineId);
-          game = (Game) session.createCriteria(Game.class)
-              .add(Restrictions.eq("machine", machine)).uniqueResult();
-          if (game == null) {
-            log.error("No game running on machine : " + machineId);
-            transaction.rollback();
-            return "error";
-          }
-        }
-        catch (QueryException qe) {
-          transaction.rollback();
-          qe.printStackTrace();
-          return "error";
-        }
+        Game game = (Game) session.get(Game.class, gameId);
 
         for (Map.Entry<String, Double> entry: results.entrySet()) {
           Broker broker = (Broker) session

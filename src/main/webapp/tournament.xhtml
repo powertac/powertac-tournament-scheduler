@@ -46,6 +46,7 @@
       <h3>Totals</h3>
       <t:dataTable id="dataresults" border="1"
                    style="border:1px solid black;border-collapse:collapse;"
+                   columnClasses=",right"
                    value="#{actionTournament.getResultMap()}" var="r">
         <t:column>
           <f:facet name="header">
@@ -68,6 +69,7 @@
         <h3>Games</h3>
         <t:dataTable id="games" border="1"
                      style="border:1px solid black;border-collapse:collapse;"
+                     columnClasses=",,,,right"
                      value="#{actionTournament.tournament.gameMap.values()}"
                      var="entry">
           <t:column>
@@ -111,7 +113,7 @@
               <h:outputText value="Balance" />
             </f:facet>
             <h:panelGroup>
-              <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}" var="a">
+              <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}" var="a" >
                 <h:outputText value="#{a.balance}" >
                   <f:convertNumber minFractionDigits="6" />
                 </h:outputText><br/>

@@ -19,6 +19,7 @@
       <h3>Participating brokers</h3>
       <t:dataTable id="datagames" border="1" sortable="false"
                    style="border:1px solid black;border-collapse:collapse;"
+                   columnClasses=",right"
                    value="#{actionGame.resultMap}" var="entry">
         <t:column>
           <f:facet name="header">
@@ -31,7 +32,7 @@
           <f:facet name="header">
             <h:outputText value="Balance" />
           </f:facet>
-          <h:outputText value="#{entry.value}" style="text-align:right;">
+          <h:outputText value="#{entry.value}">
             <f:convertNumber minFractionDigits="4" />
           </h:outputText><br/>
         </t:column>
