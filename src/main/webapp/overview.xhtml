@@ -13,6 +13,7 @@
       <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/css/jquery.dataTables.css"/>
       <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
       <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/jquery.dataTables.min.js"></script>
+      <script type="text/javascript" src="datatable.sort.js"></script>
 
       <script type="text/javascript" charset="utf8" >
         $(document).ready(function() {
@@ -20,19 +21,30 @@
             "bFilter": false,
             "bInfo": false,
             "sScrollY": Math.min(400, $("[id$=databrokers]").height()) + "px",
-            "bPaginate": false
+            "bPaginate": false,
+            "aoColumnDefs": [
+              { "sType": "natural", "aTargets": [0] }
+            ]
           });
           $("[id$=datatourneys]").dataTable({
             "bFilter": false,
             "bInfo": false,
             "sScrollY": Math.min(400, $("[id$=datatourneys]").height()) + "px",
-            "bPaginate": false
+            "bPaginate": false,
+            "aoColumnDefs": [
+              { 'bSortable': false, 'aTargets': [8] },
+              { "sType": "natural", "aTargets": [0] }
+            ]
           });
           $("[id$=datagames]").dataTable({
             "bFilter": false,
             "bInfo": false,
             "sScrollY": Math.min(400, $("[id$=datagames]").height()) + "px",
-            "bPaginate": false
+            "bPaginate": false,
+            "aoColumnDefs": [
+              { 'bSortable': false, 'aTargets': [4, 5, 6, 7, 8] },
+              { "sType": "natural", "aTargets": [0, 1] }
+            ]
           });
         });
       </script>

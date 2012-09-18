@@ -13,14 +13,19 @@
       <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/css/jquery.dataTables.css"/>
       <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
       <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/jquery.dataTables.min.js"></script>
+      <script type="text/javascript" src="datatable.sort.js"></script>
 
       <script type="text/javascript" charset="utf8" >
         $(document).ready(function() {
-          $("[id$=runnning_games]").dataTable({
+          $("[id$=games]").dataTable({
             "bFilter": false,
             "bInfo": false,
-            "sScrollY": Math.min(400, $("[id$=games]").height()) + "px",
-            "bPaginate": false
+            "sScrollY": Math.min(500, $("[id$=games]").height()) + "px",
+            "bPaginate": false,
+            "aoColumnDefs": [
+              { 'bSortable': false, 'aTargets': [3, 4] },
+              { "sType": "natural", "aTargets": [0, 1] }
+            ]
           });
         });
       </script>

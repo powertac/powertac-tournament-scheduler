@@ -266,7 +266,7 @@ public class Scheduler implements InitializingBean
           agent.setStatus(Agent.STATE.pending.toString());
           agent.setBalance(-1);
           session.save(agent);
-          log.info(String.format("Registering broker: %s with game: %s",
+          log.debug(String.format("Registering broker: %s with game: %s",
               broker.getBrokerId(), game.getGameId()));
         }
       }
