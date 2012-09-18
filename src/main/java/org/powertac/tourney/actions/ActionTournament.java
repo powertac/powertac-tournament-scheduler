@@ -104,12 +104,13 @@ public class ActionTournament
         agents.add(agent);
 
         String brokerName = agent.getBroker().getBrokerName();
-        Double balance = Math.max(0, agent.getBalance());
-
+        if (agent.getBalance() == -1) {
+          continue;
+        }
         if (temp.get(brokerName) != null) {
-          temp.put(brokerName, (temp.get(brokerName) + balance));
+          temp.put(brokerName, (temp.get(brokerName) + agent.getBalance()));
         } else {
-          temp.put(brokerName, balance);
+          temp.put(brokerName, agent.getBalance());
         }
       }
 
