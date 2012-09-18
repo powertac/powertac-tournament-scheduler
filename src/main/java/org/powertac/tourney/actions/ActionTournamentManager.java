@@ -238,7 +238,7 @@ public class ActionTournamentManager
       if (type != null) {
         tournament.setType(type.toString());
       }
-      tournament.setMaxBrokers(maxBrokers);
+      tournament.setMaxBrokers(Math.max(maxBrokers, tournament.getBrokerMap().size()));
       tournament.setMaxAgents((type==Tournament.TYPE.MULTI_GAME) ? maxAgents : 0);
       tournament.setSize1((type==Tournament.TYPE.MULTI_GAME) ? size1 : 0);
       tournament.setSize2((type==Tournament.TYPE.MULTI_GAME) ? size2 : 0);

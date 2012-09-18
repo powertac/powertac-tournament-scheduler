@@ -138,18 +138,6 @@ public class Utils {
     return true;
   }
 
-  public static int getMachineId(String machineAddress)
-  {
-    log.debug("Getting machineName for : " + machineAddress);
-
-    if (machineIPs == null) {
-      getIpAddresses();
-    }
-
-    assert machineIPs != null;
-    return Integer.parseInt(machineIPs.get(machineAddress).get(1));
-  }
-
   public static void secondsSleep (int seconds)
   {
     try {

@@ -115,7 +115,9 @@ public class LogParser implements Runnable
         }
       }
     }
+    fstream.close();
     in.close();
+    br.close();
 
     return results;
   }

@@ -318,7 +318,7 @@ public class Rest
         result += strLine + "\n";
       }
 
-      // Close the input stream
+      // Close the streams
       fstream.close();
       in.close();
       br.close();
@@ -349,7 +349,7 @@ public class Rest
         result += strLine + "\n";
       }
 
-      // Close the input stream
+      // Close the streams
       fstream.close();
       in.close();
       br.close();
@@ -440,6 +440,7 @@ public class Rest
       while ((letti = is.read(buf)) > 0) {
         fos.write(buf, 0, letti);
       }
+      is.close();
       fos.close();
 
       if (fileName.contains("sim-logs")) {
