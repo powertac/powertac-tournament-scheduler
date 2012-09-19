@@ -45,13 +45,7 @@
               <h:outputText value="Status" />
             </f:facet>
             <h:outputText value="#{t.status}" />
-          </t:column>
-
-          <t:column sortable="true">
-            <f:facet name="header">
-              <h:outputText value="Closed" />
-            </f:facet>
-            <h:outputText value="#{t.closed}" />
+            <h:outputText value=" / closed" rendered="#{t.closed}"/>
           </t:column>
 
           <t:column>
@@ -71,24 +65,10 @@
 
 					<t:column sortable="true">
 						<f:facet name="header">
-							<h:outputText value="Max Bro" />
+							<h:outputText value="Reg / Max : Agents" />
 						</f:facet>
-						<h:outputText value="#{t.maxBrokers}"/>
+						<h:outputText value="#{t.brokerMap.size()} / #{t.maxBrokers} : #{t.maxAgents}"/>
 					</t:column>
-
-					<t:column sortable="true">
-						<f:facet name="header">
-							<h:outputText value="Reg Bro" />
-						</f:facet>
-						<h:outputText value="#{t.brokerMap.size()}" />
-					</t:column>
-
-          <t:column sortable="true">
-            <f:facet name="header">
-              <h:outputText value="Max Agents" />
-            </f:facet>
-            <h:outputText value="#{t.maxAgents}" />
-          </t:column>
 
 					<t:column>
 						<f:facet name="header">
@@ -126,7 +106,6 @@
         <h:panelGroup rendered="#{actionTournamentManager.tourneyId != -1}">
           <h3>Edit Tournament</h3>
         </h:panelGroup>
-        <h:message for="saveTournament" />
 
 				<h:panelGrid columns="2" id="tournamentTable">
 					<h:outputText value="Tournament Name" />
@@ -237,9 +216,11 @@
                            action="#{actionTournamentManager.saveTournament()}" />
 				</h:panelGrid>
         <h:inputHidden id="tourneyId" value="#{actionTournamentManager.tourneyId}"/>
+        <br/>
+        <h:message for="saveTournament" />
 			</h:form>
 
-      <h:form rendered="#{user.permissionId gt 0}">
+      <h:form rendered="#{user.permissionId le 0}">
         <br/>
         <h4>If the tournament name contains 'test' (any case), short games will be created</h4>
         <h4>It also allows deletion of the tournament</h4>

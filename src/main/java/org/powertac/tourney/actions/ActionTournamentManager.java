@@ -74,20 +74,19 @@ public class ActionTournamentManager
       String msg = "The tournament name cannot be empty";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
+      if (tourneyId != -1) {
+        resetValues();
+      }
       return;
     }
 
-    if (locations.size() < 1) {
+    if ((locations.size() < 1) && (tourneyId == -1 || selectedPom != 0)) {
       String msg = "Choose at least one location";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
-      return;
-    }
-
-    if (selectedPom == 0) {
-      String msg = "Select a POM";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
+      if (tourneyId != -1) {
+        resetValues();
+      }
       return;
     }
 

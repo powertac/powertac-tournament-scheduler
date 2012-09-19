@@ -48,29 +48,31 @@
         <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
       </t:dataList>
 
-      <h3>Totals</h3>
-      <t:dataTable id="dataresults" border="1"
-                   style="border:1px solid black;border-collapse:collapse;"
-                   columnClasses=",right"
-                   value="#{actionTournament.getResultMap()}" var="r">
-        <t:column>
-          <f:facet name="header">
-            <h:outputText value="Broker" />
-          </f:facet>
-          <h:outputText value="#{r.key}" />
-        </t:column>
+      <h:form rendered="#{actionTournament.getResultMap().size() > 0}">
+        <h3>Totals</h3>
+        <t:dataTable id="dataresults" border="1"
+                     style="border:1px solid black;border-collapse:collapse;"
+                     columnClasses=",right"
+                     value="#{actionTournament.getResultMap()}" var="r">
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Broker" />
+            </f:facet>
+            <h:outputText value="#{r.key}" />
+          </t:column>
 
-        <t:column>
-          <f:facet name="header">
-            <h:outputText value="Total" />
-          </f:facet>
-          <h:outputText value="#{r.value}" >
-            <f:convertNumber minFractionDigits="4" />
-          </h:outputText><br/>
-        </t:column>
-      </t:dataTable>
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Total" />
+            </f:facet>
+            <h:outputText value="#{r.value}" >
+              <f:convertNumber minFractionDigits="4" />
+            </h:outputText><br/>
+          </t:column>
+        </t:dataTable>
+      </h:form>
 
-      <h:form>
+      <h:form rendered="#{actionTournament.tournament.gameMap.size() > 0}">
         <h3>Games</h3>
         <t:dataTable id="games" border="1"
                      style="border:1px solid black;border-collapse:collapse;"

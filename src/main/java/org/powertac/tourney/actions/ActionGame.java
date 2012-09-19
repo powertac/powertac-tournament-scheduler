@@ -44,6 +44,12 @@ public class ActionGame
       query.setInteger("gameId", gameId);
       game = (Game) query.uniqueResult();
 
+      if (game == null) {
+        transaction.rollback();
+        Utils.redirect();
+        return;
+      }
+
       loadGameInfo();
       loadResultMap();
       transaction.commit();
@@ -52,7 +58,9 @@ public class ActionGame
       transaction.rollback();
       e.printStackTrace();
     }
-    session.close();
+    finally {
+      session.close();
+    }
   }
 
   private int getGameId ()

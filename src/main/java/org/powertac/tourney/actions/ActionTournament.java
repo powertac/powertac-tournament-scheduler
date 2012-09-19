@@ -47,6 +47,12 @@ public class ActionTournament
       query.setInteger("tournamentId", tournamentId);
       tournament = (Tournament) query.uniqueResult();
 
+      if (tournament == null) {
+        transaction.rollback();
+        Utils.redirect();
+        return;
+      }
+
       loadTournamentInfo();
       loadMaps();
       transaction.commit();
@@ -55,7 +61,9 @@ public class ActionTournament
       transaction.rollback();
       e.printStackTrace();
     }
-    session.close();
+    finally {
+      session.close();
+    }
   }
 
   private int getTournamentId ()

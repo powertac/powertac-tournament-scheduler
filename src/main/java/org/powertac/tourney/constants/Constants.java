@@ -56,14 +56,7 @@ public class Constants
     public static final String GET_USER_BY_NAME =
         "FROM User AS user "
             + "LEFT JOIN FETCH user.brokerMap AS brokerMap "
-            + "LEFT JOIN FETCH brokerMap.user "
-            + "LEFT JOIN FETCH brokerMap.agentMap AS agentMap "
-            + "LEFT JOIN FETCH agentMap.broker "
-            + "LEFT JOIN FETCH agentMap.game "
             + "LEFT JOIN FETCH brokerMap.tournamentMap AS tournamentMap "
-            + "LEFT JOIN FETCH tournamentMap.gameMap AS gameMap "
-            + "LEFT JOIN FETCH gameMap.tournament "
-            + "LEFT JOIN FETCH gameMap.machine "
             + "WHERE user.userName =:userName ";
 
     public static final String GET_POMS =
