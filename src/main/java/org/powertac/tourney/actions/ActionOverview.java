@@ -12,6 +12,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
+import java.util.ArrayList;
 import java.util.List;
 
 @ManagedBean
@@ -20,23 +21,35 @@ public class ActionOverview
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
+  private List<Broker> brokerList = new ArrayList<Broker>();
+  private List<Game> notCompleteGamesList = new ArrayList<Game>();
+  private List<Tournament> notCompleteTournamentList = new ArrayList<Tournament>();
+
   public ActionOverview()
   {
+    loadData();
+  }
+
+  private void loadData ()
+  {
+    brokerList = Broker.getBrokerList();
+    notCompleteGamesList = Game.getNotCompleteGamesList();
+    notCompleteTournamentList = Tournament.getNotCompleteTournamentList();
   }
 
   public List<Broker> getBrokerList ()
   {
-    return Broker.getBrokerList();
+    return brokerList;
   }
 
   public List<Tournament> getNotCompleteTournamentList ()
   {
-    return Tournament.getNotCompleteTournamentList();
+    return notCompleteTournamentList;
   }
 
   public List<Game> getNotCompleteGamesList ()
   {
-    return Game.getNotCompleteGamesList();
+    return notCompleteGamesList;
   }
 
   public void startNow (Tournament tournament)

@@ -48,8 +48,30 @@ public class ActionAdmin
 
   private TournamentProperties properties = TournamentProperties.getProperties();
 
+  public List<Tournament> availableTournaments = new ArrayList<Tournament>();
+
   public ActionAdmin ()
   {
+    loadData();
+  }
+
+  private void loadData ()
+  {
+    for (Tournament tournament: Tournament.getNotCompleteTournamentList()) {
+      if (tournament.getStartTime().after(Utils.offsetDate())) {
+        continue;
+      }
+
+      if (tournament.typeEquals(Tournament.TYPE.MULTI_GAME)) {
+        availableTournaments.add(tournament);
+      }
+    }
+
+    Collections.sort(availableTournaments, new Comparator<Tournament>() {
+      public int compare(Tournament t1, Tournament t2) {
+        return t1.getTournamentName().compareTo(t2.getTournamentName());
+      }
+    });
   }
 
   public void restartWatchDog ()
@@ -77,23 +99,6 @@ public class ActionAdmin
 
   public List<Tournament> getAvailableTournaments ()
   {
-    List<Tournament> availableTournaments = new ArrayList<Tournament>();
-    for (Tournament tournament: Tournament.getNotCompleteTournamentList()) {
-      if (tournament.getStartTime().after(Utils.offsetDate())) {
-        continue;
-      }
-
-      if (tournament.typeEquals(Tournament.TYPE.MULTI_GAME)) {
-        availableTournaments.add(tournament);
-      }
-    }
-
-    Collections.sort(availableTournaments, new Comparator<Tournament>() {
-      public int compare(Tournament t1, Tournament t2) {
-        return t1.getTournamentName().compareTo(t2.getTournamentName());
-      }
-    });
-
     return availableTournaments;
   }
 

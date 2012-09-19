@@ -196,13 +196,13 @@
 
           <t:column defaultSorted="true" sortable="true">
             <f:facet name="header">
-              <h:outputText value="Machine Name" />
+              <h:outputText value="Name" />
             </f:facet>
             <h:outputText value="#{m.machineName}" />
           </t:column>
           <t:column sortable="true">
             <f:facet name="header">
-              <h:outputText value="Machine Hostname" />
+              <h:outputText value="Hostname" />
             </f:facet>
             <h:outputText value="#{m.machineUrl}" />
           </t:column>
@@ -211,7 +211,7 @@
               <h:outputText value="Vizualizer URL" />
             </f:facet>
             <a href="http://#{m.vizUrl}" target="_blank">
-              <h:outputText value="#{m.vizUrl}" />
+              <h:outputText value="#{m.vizUrl} "/>
             </a>
           </t:column>
 
@@ -222,9 +222,6 @@
             <h:outputText value="#{!m.isInProgress()}" />
           </t:column>
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Toggle Status" />
-            </f:facet>
             <h:commandButton value="Set Running"
                              action="#{actionAdmin.toggleStatus(m)}"
                              rendered="#{!m.isInProgress()}" />
@@ -240,9 +237,6 @@
             <h:outputText value="#{m.available}" />
           </t:column>
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Toggle Available" />
-            </f:facet>
             <h:commandButton value="Enable"
                              action="#{actionAdmin.toggleAvailable(m)}"
                              rendered="#{!m.available}" />
@@ -253,15 +247,10 @@
 
           <t:column>
             <f:facet name="header">
-              <h:outputText value="Delete" />
+              <h:outputText value="Actions" />
             </f:facet>
             <h:commandButton value="Delete" action="#{actionAdmin.deleteMachine(m)}"
                              onclick="return confirmAlert('Are you sure you want to delete this machine?');"/>
-          </t:column>
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Edit" />
-            </f:facet>
             <h:commandButton value="Edit" action="#{actionAdmin.editMachine(m)}" />
           </t:column>
         </t:dataTable>

@@ -52,7 +52,7 @@ public class Scheduler implements InitializingBean
       @Override
       public void run ()
       {
-        //startWatchDog();
+        startWatchDog();
       }
     };
     t.schedule(tt, 3000);

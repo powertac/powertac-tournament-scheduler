@@ -13,10 +13,7 @@ import org.powertac.tourney.services.Utils;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @ManagedBean
@@ -128,6 +125,12 @@ public class ActionTournament
     for (Map.Entry<String, Double> entry: temp.entrySet()) {
       resultMap.add(entry);
     }
+
+    Collections.sort(resultMap, new Comparator<Map.Entry<String, Double>>() {
+      public int compare(Map.Entry<String, Double> t1, Map.Entry<String, Double> t2) {
+        return t2.getValue().compareTo(t1.getValue());
+      }
+    });
   }
 
   //<editor-fold desc="Setters and Getters">
