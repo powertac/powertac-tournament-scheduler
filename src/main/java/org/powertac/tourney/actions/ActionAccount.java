@@ -4,12 +4,16 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.beans.User;
+import org.powertac.tourney.services.Utils;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +30,7 @@ public class ActionAccount
   {
   }
 
+  @SuppressWarnings("unchecked")
   public List<Broker> getBrokers ()
   {
     if (brokers.size() == 0) {
@@ -34,16 +39,8 @@ public class ActionAccount
       for (Broker broker: user.getBrokerMap().values()) {
         brokers.add(broker);
       }
-
-      // TODO Improve this : http://www.davekoelle.com/alphanum.html
-
-      Collections.sort(brokers, new Comparator<Broker>() {
-        public int compare(Broker b1, Broker b2) {
-          return b1.getBrokerName().compareTo(b2.getBrokerName());
-        }
-      });
     }
-
+    Collections.sort(brokers, new Utils.AlphanumComparator());
     return brokers;
   }
 

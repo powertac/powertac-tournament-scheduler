@@ -229,6 +229,17 @@ public class Game implements Serializable
     return stateEquals(STATE.boot_failed) || stateEquals(STATE.game_failed);
   }
 
+  @Transient
+  public int getGameTypeIndex ()
+  {
+    if (tournament.isSingle()) {
+      return 0;
+    }
+
+    String[] parts = gameName.split("_");
+    return Integer.parseInt(parts[parts.length-3]);
+  }
+
   public String jenkinsMachineUrl ()
   {
     if (machine == null) {

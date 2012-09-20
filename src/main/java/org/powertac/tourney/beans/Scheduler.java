@@ -259,12 +259,7 @@ public class Scheduler implements InitializingBean
       for (int i=0; i<gameString.length(); i++) {
         if (gameString.charAt(i) == '1') {
           Broker broker = brokers.get(i);
-          Agent agent = new Agent();
-          agent.setGame(game);
-          agent.setBroker(broker);
-          agent.setBrokerQueue(Utils.createQueueName());
-          agent.setStatus(Agent.STATE.pending.toString());
-          agent.setBalance(-1);
+          Agent agent = Agent.createAgent(broker, game);
           session.save(agent);
           log.debug(String.format("Registering broker: %s with game: %s",
               broker.getBrokerId(), game.getGameId()));

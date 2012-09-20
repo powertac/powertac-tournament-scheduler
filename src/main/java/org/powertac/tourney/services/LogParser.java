@@ -140,7 +140,7 @@ public class LogParser implements Runnable
             .add(Restrictions.eq("game", game)).uniqueResult();
 
         // Apperantly the end-of-game message has already been recieved
-        if (agent.getBalance() != -1) {
+        if (agent.getBalance() != 0) {
           transaction.rollback();
           return;
         }

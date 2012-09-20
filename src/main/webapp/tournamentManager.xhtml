@@ -63,12 +63,21 @@
             <h:outputText value="#{t.startTimeUTC()}" />
 					</t:column>
 
-					<t:column sortable="true">
+					<t:column>
 						<f:facet name="header">
-							<h:outputText value="Reg / Max : Agents" />
+							<h:outputText value="Reg / Max" />
 						</f:facet>
-						<h:outputText value="#{t.brokerMap.size()} / #{t.maxBrokers} : #{t.maxAgents}"/>
+						<h:outputText value="#{t.brokerMap.size()} / #{t.maxBrokers}"/>
+            <h:outputText value=" : #{t.maxAgents}" rendered="#{t.type == 'MULTI_GAME'}"/>
 					</t:column>
+
+          <t:column sortable="true">
+            <f:facet name="header">
+              <h:outputText value="Games" />
+            </f:facet>
+            <h:outputText value="#{t.size1} / #{t.size2} / #{t.size3}"
+                          rendered="#{t.type == 'MULTI_GAME'}"/>
+          </t:column>
 
 					<t:column>
 						<f:facet name="header">

@@ -25,6 +25,10 @@ td {
     padding-right: 10px;
 }
 
+td.left {
+    text-align: left;
+}
+
 td.right {
     text-align: right;
 }
@@ -53,7 +57,7 @@ h3.withButton {
     height: 23px;
     display: inline-block;
     padding-right: 10px;
-    margin: 30px 0 5px 30;
+    margin: 30px 0 5px 0;
 }
 
 input[readonly], input[readonly="readonly"] {

@@ -86,8 +86,6 @@ public class Broker
 
   public boolean delete ()
   {
-    // TODO Check if allowed to delete broker? Running games etc?
-
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -97,6 +95,12 @@ public class Broker
 
       // Delete all agent belonging to this broker
       for (Agent agent: broker.agentMap.values()) {
+        // Don't allow deleting brokers with agents in running games
+        if (agent.getGame().isRunning()) {
+          transaction.rollback();
+          return false;
+        }
+
         session.delete(agent);
         session.flush();
       }
@@ -140,14 +144,9 @@ public class Broker
           brokerId, tournament.getTournamentId()));
 
       // Only for single game, the scheduler handles multigame tourneys
-      if (tournament.typeEquals(Tournament.TYPE.SINGLE_GAME)) {
+      if (tournament.isSingle()) {
         for (Game game: tournament.getGameMap().values()) {
-          Agent agent = new Agent();
-          agent.setGame(game);
-          agent.setBroker(this);
-          agent.setBrokerQueue(Utils.createQueueName());
-          agent.setStatus(Agent.STATE.pending.toString());
-          agent.setBalance(-1);
+          Agent agent = Agent.createAgent(this, game);
           session.save(agent);
           log.info(String.format("Registering broker: %s with game: %s",
               brokerId, game.getGameId()));

@@ -157,7 +157,6 @@ public class ActionTournamentManager
     // Once scheduled, these params can't change
     if (tournament.getGameMap().size() > 0) {
       disabled[0] = true; // name
-      disabled[1] = true; // type
       disabled[2] = true; // maxBrokers
       disabled[3] = true; // maxAgents
       disabled[4] = true; // size1
@@ -169,6 +168,7 @@ public class ActionTournamentManager
       disabled[10] = true; // pom
       disabled[11] = true; // locations
     }
+    disabled[1] = true; // type
     disabled[12] = true; // closed
   }
 
@@ -232,16 +232,19 @@ public class ActionTournamentManager
       allLocations += s + ",";
     }
 
+    Integer[] gameTypes = {Math.max(1,size1), Math.max(1,size2), Math.max(1,size3)};
+    Arrays.sort(gameTypes,Collections.reverseOrder());
+
     if (tournament.getGameMap().size() < 1) {
       tournament.setTournamentName(tournamentName);
       if (type != null) {
         tournament.setType(type.toString());
       }
       tournament.setMaxBrokers(Math.max(maxBrokers, tournament.getBrokerMap().size()));
-      tournament.setMaxAgents((type==Tournament.TYPE.MULTI_GAME) ? maxAgents : 0);
-      tournament.setSize1((type==Tournament.TYPE.MULTI_GAME) ? size1 : 0);
-      tournament.setSize2((type==Tournament.TYPE.MULTI_GAME) ? size2 : 0);
-      tournament.setSize3((type==Tournament.TYPE.MULTI_GAME) ? size3 : 0);
+      tournament.setMaxAgents(tournament.isMulti() ? maxAgents : 0);
+      tournament.setSize1(tournament.isMulti() ? gameTypes[0] : 0);
+      tournament.setSize2(tournament.isMulti() ? gameTypes[1] : 0);
+      tournament.setSize3(tournament.isMulti() ? gameTypes[2] : 0);
       tournament.setStartTime(startTime);
       tournament.setDateFrom(dateFrom);
       tournament.setDateTo(dateTo);

@@ -62,7 +62,7 @@ public class ActionOverview
       session.flush();
 
       // Reschedule all games of a SINGLE_GAME tournament
-      if (tournament.typeEquals(Tournament.TYPE.SINGLE_GAME)) {
+      if (tournament.isSingle()) {
         for (Game game: tournament.getGameMap().values()) {
           game.setStartTime(Utils.offsetDate());
           session.update(game);

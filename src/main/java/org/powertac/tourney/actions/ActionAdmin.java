@@ -55,6 +55,7 @@ public class ActionAdmin
     loadData();
   }
 
+  @SuppressWarnings("unchecked")
   private void loadData ()
   {
     for (Tournament tournament: Tournament.getNotCompleteTournamentList()) {
@@ -62,16 +63,12 @@ public class ActionAdmin
         continue;
       }
 
-      if (tournament.typeEquals(Tournament.TYPE.MULTI_GAME)) {
+      if (tournament.isMulti()) {
         availableTournaments.add(tournament);
       }
     }
 
-    Collections.sort(availableTournaments, new Comparator<Tournament>() {
-      public int compare(Tournament t1, Tournament t2) {
-        return t1.getTournamentName().compareTo(t2.getTournamentName());
-      }
-    });
+    Collections.sort(availableTournaments, new Utils.AlphanumComparator());
   }
 
   public void restartWatchDog ()

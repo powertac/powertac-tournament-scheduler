@@ -7,6 +7,8 @@
 
 package org.powertac.tourney.beans;
 
+import org.powertac.tourney.services.Utils;
+
 import javax.persistence.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -34,6 +36,18 @@ public class Agent {
 
   public Agent ()
   {
+  }
+
+  public static Agent createAgent (Broker broker, Game game)
+  {
+    Agent agent = new Agent();
+    agent.setGame(game);
+    agent.setBroker(broker);
+    agent.setBrokerQueue(Utils.createQueueName());
+    agent.setStatus(Agent.STATE.pending.toString());
+    agent.setBalance(0);
+
+    return agent;
   }
 
   //<editor-fold desc="Getters and Setters">

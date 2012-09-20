@@ -9,6 +9,7 @@ import org.powertac.tourney.services.HibernateUtil;
 import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 import javax.persistence.*;
 import java.util.*;
 
@@ -16,6 +17,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 
 @ManagedBean
+@RequestScoped
 @Entity
 @Table(name="tournaments", catalog="tourney", uniqueConstraints = {
             @UniqueConstraint(columnNames="tourneyId")})
@@ -127,17 +129,134 @@ public class Tournament
     }
   }
 
+  //<editor-fold desc="Winner determination">
+  public Map<String, Double[]> determineWinner ()
+  {
+    if (isMulti()) {
+      return determineWinnerMulti();
+    } else {
+      return determineWinnerSingle();
+    }
+  }
+
+  private Map<String, Double[]> determineWinnerSingle ()
+  {
+    Map<String, Double[]> resultMap = new HashMap<String, java.lang.Double[]>();
+
+    for (Game game: getGameMap().values()) {
+      for (Agent agent: game.getAgentMap().values()) {
+        String brokerName = agent.getBroker().getBrokerName();
+        if (!resultMap.containsKey(brokerName)) {
+          resultMap.put(brokerName, new Double[] {0.0});
+        }
+
+        Double[] results = resultMap.get(brokerName);
+        results[0] += agent.getBalance();
+        resultMap.put(brokerName, results);
+      }
+    }
+    return resultMap;
+  }
+
+  private Map<String, Double[]> determineWinnerMulti ()
+  {
+    // Col 0  = result gameType 1
+    // Col 1  = result gameType 2
+    // Col 2  = result gameType 3
+    // Col 3  = total not-normalized
+    // Col 4  = average gameType 1
+    // Col 5  = average gameType 2
+    // Col 6  = average gameType 3
+    // Col 7  = SD gameType 1
+    // Col 8  = SD gameType 2
+    // Col 9  = SD gameType 3
+    // Col 10 = normalized result gameType 1
+    // Col 11 = normalized result gameType 2
+    // Col 12 = normalized result gameType 3
+    // Col 13 = total normalized
+
+
+    Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
+    Double[] averages = new Double[] {0.0, 0.0, 0.0};
+    Double[] SD = new Double[] {0.0, 0.0, 0.0};
+
+    // Get the not-normalized results into the map
+    for (Game game: gameMap.values()) {
+      int gameTypeIndex = game.getGameTypeIndex();
+
+      for (Agent agent: game.getAgentMap().values()) {
+        if (!resultMap.containsKey(agent.getBroker().getBrokerName())) {
+          resultMap.put(agent.getBroker().getBrokerName(), new Double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0} );
+        }
+
+        Double[] results = resultMap.get(agent.getBroker().getBrokerName());
+        results[gameTypeIndex] += agent.getBalance();
+        averages[gameTypeIndex] += agent.getBalance();
+        results[3] = results[0] + results[1] + results[2];
+        resultMap.put(agent.getBroker().getBrokerName(), results);
+      }
+    }
+
+    averages[0] = averages[0] / resultMap.size();
+    averages[1] = averages[1] / resultMap.size();
+    averages[2] = averages[2] / resultMap.size();
+
+    // Put averages in map, calculate SD
+    for (String brokerName: resultMap.keySet()) {
+      Double[] results = resultMap.get(brokerName);
+      results[4] = averages[0];
+      results[5] = averages[1];
+      results[6] = averages[2];
+      resultMap.put(brokerName, results);
+
+      SD[0] += Math.pow((averages[0]-results[0]) ,2);
+      SD[1] += Math.pow((averages[1]-results[1]) ,2);
+      SD[2] += Math.pow((averages[2]-results[2]) ,2);
+    }
+
+    SD[0] = Math.sqrt(SD[0] / resultMap.size());
+    SD[1] = Math.sqrt(SD[1] / resultMap.size());
+    SD[2] = Math.sqrt(SD[2] / resultMap.size());
+
+    // Put SDs in map, calculate normalized results and total
+    for (String brokerName: resultMap.keySet()) {
+      Double[] results = resultMap.get(brokerName);
+      results[7] = SD[0];
+      results[8] = SD[1];
+      results[9] = SD[2];
+
+      results[10] = (results[0] - results[4])/results[7];
+      results[11] = (results[1] - results[5])/results[8];
+      results[12] = (results[2] - results[6])/results[9];
+
+      results[13] = results[10] + results[11] + results[12];
+
+      resultMap.put(brokerName, results);
+    }
+
+    return resultMap;
+  }
+  //</editor-fold>
+
+  //<editor-fold desc="Helper methods">
   @Transient
   public boolean isStarted ()
   {
-    return startTime.before(Utils.offsetDate());
+    return startTime.before (Utils.offsetDate());
   }
 
-  public boolean typeEquals(TYPE type)
+  @Transient
+  public boolean isMulti ()
   {
-    return this.type.equals(type.toString());
+    return type.equals(TYPE.MULTI_GAME.toString());
   }
-  public boolean stateEquals(STATE state)
+  @Transient
+  public boolean isSingle ()
+  {
+    return type.equals(TYPE.SINGLE_GAME.toString());
+  }
+
+  public boolean stateEquals (STATE state)
   {
     return this.status.equals(state.toString());
   }
@@ -146,14 +265,15 @@ public class Tournament
   {
     return Utils.dateFormat(startTime);
   }
-  public String dateFromUTC()
+  public String dateFromUTC ()
   {
     return Utils.dateFormat(dateFrom);
   }
-  public String dateToUTC()
+  public String dateToUTC ()
   {
     return Utils.dateFormat(dateTo);
   }
+  //</editor-fold>
 
   //<editor-fold desc="Collections">
   @OneToMany

@@ -23,7 +23,8 @@ public class ActionTournament
   private Tournament tournament;
   private List<String> tournamentInfo = new ArrayList<String>();
   private Map<Integer, List> agentsMap = new HashMap<Integer, List>();
-  private List<Map.Entry<String, Double>> resultMap = new ArrayList<Map.Entry<String, Double>>();
+  private Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
+  private List<Double> avgsAndSDs = new ArrayList<Double>();
 
   public ActionTournament()
   {
@@ -88,7 +89,7 @@ public class ActionTournament
     tournamentInfo.add("MaxAgents : " + tournament.getMaxAgents());
 
     tournamentInfo.add("Type : " + tournament.getType());
-    if (tournament.typeEquals(Tournament.TYPE.MULTI_GAME)) {
+    if (tournament.isMulti()) {
       tournamentInfo.add("GameSize 1 : " + tournament.getSize1());
       tournamentInfo.add("GameSize 2 : " + tournament.getSize2());
       tournamentInfo.add("GameSize 3 : " + tournament.getSize3());
@@ -100,37 +101,20 @@ public class ActionTournament
 
   private void loadMaps ()
   {
-    Map<String, Double> temp = new HashMap<String, Double>();
+    resultMap = tournament.determineWinner();
+
+    Map.Entry<String, Double[]> entry = resultMap.entrySet().iterator().next();
+    avgsAndSDs.addAll(Arrays.asList(entry.getValue()).subList(4, 10));
 
     for (Game game: tournament.getGameMap().values()) {
       List<Agent> agents = new ArrayList<Agent>();
 
       for (Agent agent: game.getAgentMap().values()) {
         agents.add(agent);
-
-        String brokerName = agent.getBroker().getBrokerName();
-        if (agent.getBalance() == -1) {
-          continue;
-        }
-        if (temp.get(brokerName) != null) {
-          temp.put(brokerName, (temp.get(brokerName) + agent.getBalance()));
-        } else {
-          temp.put(brokerName, agent.getBalance());
-        }
       }
 
       agentsMap.put(game.getGameId(), agents);
     }
-
-    for (Map.Entry<String, Double> entry: temp.entrySet()) {
-      resultMap.add(entry);
-    }
-
-    Collections.sort(resultMap, new Comparator<Map.Entry<String, Double>>() {
-      public int compare(Map.Entry<String, Double> t1, Map.Entry<String, Double> t2) {
-        return t2.getValue().compareTo(t1.getValue());
-      }
-    });
   }
 
   //<editor-fold desc="Setters and Getters">
@@ -143,8 +127,13 @@ public class ActionTournament
   public Map<Integer, List> getAgentsMap () {
     return agentsMap;
   }
-  public List<Map.Entry<String, Double>> getResultMap () {
+  public Map<String, Double[]> getResultMap () {
     return resultMap;
+  }
+
+  public List<Double> getAvgsAndSDs ()
+  {
+    return avgsAndSDs;
   }
   //</editor-fold>
 }
