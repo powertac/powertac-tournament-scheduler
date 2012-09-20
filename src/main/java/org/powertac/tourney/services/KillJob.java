@@ -2,7 +2,6 @@ package org.powertac.tourney.services;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
-import org.powertac.tourney.beans.Machine;
 
 import java.net.URL;
 import java.net.URLConnection;
@@ -13,14 +12,13 @@ public class KillJob
   private static Logger log = Logger.getLogger("TMLogger");
 
 
-  public KillJob (Machine machine)
+  public KillJob (String machineName)
   {
-    if (machine == null) {
+    if (machineName.isEmpty()) {
       return;
     }
     // Get the machineName and stop the job on Jenkins
     TournamentProperties properties = TournamentProperties.getProperties();
-    String machineName = machine.getMachineName();
     String stopUrl = properties.getProperty("jenkins.location")
         + "computer/" + machineName + "/executors/0/stop";
     log.info("Stop url: " + stopUrl);

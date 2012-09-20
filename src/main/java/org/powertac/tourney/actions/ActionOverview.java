@@ -108,14 +108,12 @@ public class ActionOverview
 
     int gameId = game.getGameId();
     int machineId = game.getMachine().getMachineId();
+    String machineName = game.getMachine().getMachineName();
     Scheduler scheduler = Scheduler.getScheduler();
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      // Kill the job on Jenkins and the slave
-      new KillJob(game.getMachine());
-
       // Reset game and machine on TM
       if (game.isBooting()) {
         log.info("Resetting boot game: " + gameId + " on machine: " + machineId);
@@ -164,7 +162,13 @@ public class ActionOverview
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
     }
-    session.close();
+    finally {
+      session.close();
+
+      // Kill the job on Jenkins and the slave
+      new KillJob(machineName);
+    }
+
   }
 
   public void restartGame (Game game)

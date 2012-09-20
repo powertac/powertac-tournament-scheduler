@@ -23,7 +23,7 @@ public class Rest
 
   private TournamentProperties properties = TournamentProperties.getProperties();
 
-  public String parseBrokerLogin (Map<String, String[]> params)
+  public synchronized String parseBrokerLogin (Map<String, String[]> params)
   {
     String responseType = params.get(Constants.Rest.REQ_PARAM_TYPE)[0];
     String brokerAuth = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
@@ -141,7 +141,7 @@ public class Rest
    * or queueName(qn) to tell the visualizer to connect to its machine and
    * listen on the queue named qn.
    */
-  public String parseVisualizerLogin (HttpServletRequest request,
+  public synchronized String parseVisualizerLogin (HttpServletRequest request,
                                       Map<String, String[]> params)
   {
     String machineName = params.get("machineName")[0];
@@ -194,7 +194,7 @@ public class Rest
     }
   }
 
-  public String handleServerInterface (Map<String, String[]> params,
+  public synchronized String handleServerInterface (Map<String, String[]> params,
                                        HttpServletRequest request)
   {
     String clientAddress = request.getRemoteAddr();
@@ -362,7 +362,7 @@ public class Rest
     return result;
   }
 
-  private String handleStatus (Map<String, String[]> params)
+  private synchronized String handleStatus (Map<String, String[]> params)
   {
     String statusString = params.get(Constants.Rest.REQ_PARAM_STATUS)[0];
     int gameId = Integer.parseInt(
@@ -398,7 +398,7 @@ public class Rest
     }
   }
 
-  public String handleHeartBeat (Map<String, String[]> params)
+  public synchronized String handleHeartBeat (Map<String, String[]> params)
   {
     String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
     int gameId = Integer.parseInt(
@@ -413,7 +413,7 @@ public class Rest
   /***
    * Handle 'PUT' to serverInterface.jsp, either boot.xml or (Boot|Sim) log
    */
-  public String handleServerInterfacePUT (Map<String, String[]> params,
+  public synchronized String handleServerInterfacePUT (Map<String, String[]> params,
                                           HttpServletRequest request)
   {
     if (!Utils.checkMachineAllowed(request.getRemoteAddr())) {
@@ -464,7 +464,7 @@ public class Rest
   /***
    * Handle 'POST' to serverInterface.jsp, this is a end-of-game message
    */
-  public String handleServerInterfacePOST (Map<String, String[]> params,
+  public synchronized String handleServerInterfacePOST (Map<String, String[]> params,
                                            HttpServletRequest request)
   {
     String remoteAddress = request.getRemoteAddr();
@@ -489,7 +489,7 @@ public class Rest
 
       String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
       log.debug(String.format("We received this gameResult for game %s : \n%s",
-          message, gameId));
+          gameId, message));
 
       HashMap<String, Double> results = new HashMap<String, Double>();
       for (String result: message.split(",")) {
@@ -505,6 +505,14 @@ public class Rest
       Transaction transaction = session.beginTransaction();
       try {
         Game game = (Game) session.get(Game.class, gameId);
+
+        log.debug("Status of the game is " + game.getStatus());
+
+        if (!game.isRunning()) {
+          transaction.rollback();
+          log.warn("Game is not running, aborting!");
+          return "error";
+        }
 
         for (Map.Entry<String, Double> entry: results.entrySet()) {
           Broker broker = (Broker) session
