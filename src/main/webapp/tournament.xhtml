@@ -31,13 +31,13 @@
           $("[id$=dataresultsSingle]").dataTable({
             "bFilter": false,
             "bInfo": false,
-            "bPaginate": false,
+            "bPaginate": false
           });
 
           $("[id$=dataresultsMulti]").dataTable({
             "bFilter": false,
             "bInfo": false,
-            "bPaginate": false,
+            "bPaginate": false
           });
         });
       </script>
@@ -166,7 +166,7 @@
         </t:dataTable>
       </h:form>
 
-      <h:panelGroup rendered="#{actionTournament.tournament.isMulti()}">
+      <h:panelGroup rendered="#{actionTournament.tournament.isMulti() and actionTournament.avgsAndSDs.size() > 0}">
         <br/>
         <table>
           <tbody>
@@ -196,6 +196,10 @@
             </tr>
           </tbody>
         </table>
+      </h:panelGroup>
+
+      <h:panelGroup rendered="#{actionTournament.tournament.isMulti() and actionTournament.avgsAndSDs.size() == 0}">
+        <h4>No game-data available yet</h4>
       </h:panelGroup>
 
       <h:form rendered="#{actionTournament.tournament.gameMap.size() > 0}">

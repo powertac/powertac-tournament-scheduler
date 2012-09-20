@@ -103,8 +103,10 @@ public class ActionTournament
   {
     resultMap = tournament.determineWinner();
 
-    Map.Entry<String, Double[]> entry = resultMap.entrySet().iterator().next();
-    avgsAndSDs.addAll(Arrays.asList(entry.getValue()).subList(4, 10));
+    if (resultMap.size() > 0) {
+      Map.Entry<String, Double[]> entry = resultMap.entrySet().iterator().next();
+      avgsAndSDs.addAll(Arrays.asList(entry.getValue()).subList(4, 10));
+    }
 
     for (Game game: tournament.getGameMap().values()) {
       List<Agent> agents = new ArrayList<Agent>();
