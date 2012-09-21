@@ -36,6 +36,9 @@ public class ActionTournamentManager
   private int size1;
   private int size2;
   private int size3;
+  private int multiplier1;
+  private int multiplier2;
+  private int multiplier3;
   private Date startTime;
   private Date dateFrom;
   private Date dateTo;
@@ -147,6 +150,9 @@ public class ActionTournamentManager
     size1 = tournament.getSize1();
     size2 = tournament.getSize2();
     size3 = tournament.getSize3();
+    multiplier1 = tournament.getMultiplier1();
+    multiplier2 = tournament.getMultiplier2();
+    multiplier3 = tournament.getMultiplier3();
     startTime = tournament.getStartTime();
     dateFrom = tournament.getDateFrom();
     dateTo = tournament.getDateTo();
@@ -162,6 +168,9 @@ public class ActionTournamentManager
       disabled[4] = true; // size1
       disabled[5] = true; // size2
       disabled[6] = true; // size3
+
+
+
       disabled[7] = true; // startTime
       disabled[8] = true; // date from
       disabled[9] = true; // date to
@@ -232,19 +241,26 @@ public class ActionTournamentManager
       allLocations += s + ",";
     }
 
-    Integer[] gameTypes = {Math.max(1,size1), Math.max(1,size2), Math.max(1,size3)};
+    Integer[] gameTypes = {Math.max(1,size1), Math.max(1,size2),
+        Math.max(1,size3)};
+    Integer[] multipliers = {Math.max(1,multiplier1), Math.max(1,multiplier2),
+        Math.max(1,multiplier3)};
     Arrays.sort(gameTypes,Collections.reverseOrder());
+    maxBrokers = Math.max(maxBrokers, tournament.getBrokerMap().size());
 
     if (tournament.getGameMap().size() < 1) {
       tournament.setTournamentName(tournamentName);
       if (type != null) {
         tournament.setType(type.toString());
       }
-      tournament.setMaxBrokers(Math.max(maxBrokers, tournament.getBrokerMap().size()));
+      tournament.setMaxBrokers(maxBrokers);
       tournament.setMaxAgents(tournament.isMulti() ? maxAgents : 0);
       tournament.setSize1(tournament.isMulti() ? gameTypes[0] : 0);
       tournament.setSize2(tournament.isMulti() ? gameTypes[1] : 0);
       tournament.setSize3(tournament.isMulti() ? gameTypes[2] : 0);
+      tournament.setMultiplier1(tournament.isMulti() ? multipliers[0] : 0);
+      tournament.setMultiplier2(tournament.isMulti() ? multipliers[1] : 0);
+      tournament.setMultiplier3(tournament.isMulti() ? multipliers[2] : 0);
       tournament.setStartTime(startTime);
       tournament.setDateFrom(dateFrom);
       tournament.setDateTo(dateTo);
@@ -264,6 +280,9 @@ public class ActionTournamentManager
     size1 = 2;
     size2 = 4;
     size3 = 8;
+    multiplier1 = 1;
+    multiplier2 = 1;
+    multiplier3 = 1;
     startTime = Utils.offsetDate();
     Calendar initTime = Calendar.getInstance();
     initTime.set(2009, Calendar.MARCH, 3, 0, 0, 0);
@@ -339,6 +358,27 @@ public class ActionTournamentManager
   }
   public void setSize3 (int size3) {
     this.size3 = size3;
+  }
+
+  public int getMultiplier1() {
+    return multiplier1;
+  }
+  public void setMultiplier1(int multiplier1) {
+    this.multiplier1 = multiplier1;
+  }
+
+  public int getMultiplier2() {
+    return multiplier2;
+  }
+  public void setMultiplier2(int multiplier2) {
+    this.multiplier2 = multiplier2;
+  }
+
+  public int getMultiplier3() {
+    return multiplier3;
+  }
+  public void setMultiplier3(int multiplier3) {
+    this.multiplier3 = multiplier3;
   }
 
   public Date getStartTime () {

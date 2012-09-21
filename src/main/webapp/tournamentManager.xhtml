@@ -156,6 +156,13 @@
             <span id="total1"/>
 					</h:panelGroup>
 
+          <h:outputText value="Game 1 Multiplier" />
+          <h:panelGroup>
+            <h:inputText id="multiplier1" value="#{actionTournamentManager.multiplier1}"
+                         onchange="showGamesCount()" onkeyup="showGamesCount()"
+                         readonly="#{actionTournamentManager.disabled[4]}"/>
+          </h:panelGroup>
+
 					<h:outputText value="Game 2 Size" />
 					<h:panelGroup>
 						<h:inputText id="gameSize2" value="#{actionTournamentManager.size2}"
@@ -164,6 +171,13 @@
             <span id="total2"/>
 					</h:panelGroup>
 
+          <h:outputText value="Game 2 Multiplier" />
+          <h:panelGroup>
+            <h:inputText id="multiplier2" value="#{actionTournamentManager.multiplier2}"
+                         onchange="showGamesCount()" onkeyup="showGamesCount()"
+                         readonly="#{actionTournamentManager.disabled[5]}"/>
+          </h:panelGroup>
+
 					<h:outputText value="Game 3 Size" />
 					<h:panelGroup>
 						<h:inputText id="gameSize3" value="#{actionTournamentManager.size3}"
@@ -171,6 +185,13 @@
                          readonly="#{actionTournamentManager.disabled[6]}"/>
             <span id="total3"/>
 					</h:panelGroup>
+
+          <h:outputText value="Game 3 Multiplier" />
+          <h:panelGroup>
+            <h:inputText id="multiplier3" value="#{actionTournamentManager.multiplier3}"
+                         onchange="showGamesCount()" onkeyup="showGamesCount()"
+                         readonly="#{actionTournamentManager.disabled[6]}"/>
+          </h:panelGroup>
 
 					<h:outputText value="StartTime UTC" />
 					<h:panelGroup>

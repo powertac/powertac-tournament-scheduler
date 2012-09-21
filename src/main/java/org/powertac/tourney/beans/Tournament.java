@@ -34,6 +34,9 @@ public class Tournament
   private int size1;
   private int size2;
   private int size3;
+  private int multiplier1;
+  private int multiplier2;
+  private int multiplier3;
   private String type;
   private int pomId;
   private String locations;
@@ -53,6 +56,10 @@ public class Tournament
   public Tournament ()
   {
   }
+
+  /*ALTER TABLE  `tournaments` ADD  `multiplier1` INT NOT NULL AFTER  `gameSize3` ,
+  ADD  `multiplier2` INT NOT NULL AFTER  `multiplier1` ,
+  ADD  `multiplier3` INT NOT NULL AFTER  `multiplier2`*/
 
   public String delete ()
   {
@@ -456,6 +463,30 @@ public class Tournament
   public void setSize3 (int size3)
   {
     this.size3 = size3;
+  }
+
+  @Column(name="multiplier1", nullable=false)
+  public int getMultiplier1() {
+    return multiplier1;
+  }
+  public void setMultiplier1(int multiplier1) {
+    this.multiplier1 = multiplier1;
+  }
+
+  @Column(name="multiplier2", nullable=false)
+  public int getMultiplier2() {
+    return multiplier2;
+  }
+  public void setMultiplier2(int multiplier2) {
+    this.multiplier2 = multiplier2;
+  }
+
+  @Column(name="multiplier3", nullable=false)
+  public int getMultiplier3() {
+    return multiplier3;
+  }
+  public void setMultiplier3(int multiplier3) {
+    this.multiplier3 = multiplier3;
   }
 
   @Column(name="type", nullable=false)

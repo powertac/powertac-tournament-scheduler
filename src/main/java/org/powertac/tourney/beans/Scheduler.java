@@ -166,10 +166,11 @@ public class Scheduler implements InitializingBean
       return;
     }
 
-    // Get array of gametypes, and number of participants
+    // Get array of gametypes
     int[] gameTypes = {runningTournament.getSize1(),
-        runningTournament.getSize2(),
-        runningTournament.getSize3() };
+        runningTournament.getSize2(), runningTournament.getSize3() };
+    int[] multipliers = {runningTournament.getMultiplier1(),
+        runningTournament.getMultiplier2(), runningTournament.getMultiplier3()};
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
@@ -188,10 +189,10 @@ public class Scheduler implements InitializingBean
         return;
       }
 
-      // Sort and do the largest first, smaller ones are easier to schedule
-      Arrays.sort(gameTypes);
-      for (int i=gameTypes.length-1; i > -1; i--) {
-        doTheKailash(session, gameTypes[i], i, brokers);
+      for (int i=0; i < (gameTypes.length); i++) {
+        for (int j=0; j < multipliers[i]; j++) {
+          doTheKailash(session, gameTypes[i], i, brokers);
+        }
       }
 
       transaction.commit();

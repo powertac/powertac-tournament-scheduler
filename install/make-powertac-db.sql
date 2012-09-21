@@ -56,6 +56,9 @@ CREATE TABLE `tourney`.`tournaments` (
 	`gameSize1` integer NOT NULL,
 	`gameSize2` integer NOT NULL,
 	`gameSize3` integer NOT NULL,
+    `multiplier1` int(11) NOT NULL,
+    `multiplier2` int(11) NOT NULL,
+    `multiplier3` int(11) NOT NULL,
 	`type` VARCHAR(32) NOT NULL, /* Type is either multi-game or single game if single game ignore the gameSize params */
 	`pomId` INT(10) UNSIGNED NOT NULL, /* This will be a foreign key to poms.pomId */
 	`locations` VARCHAR(256) NOT NULL, /* This will be a comma delimited list for now */
