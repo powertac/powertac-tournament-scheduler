@@ -145,14 +145,8 @@ public class Tournament
 
     for (Game game: getGameMap().values()) {
       for (Agent agent: game.getAgentMap().values()) {
-        String brokerName = agent.getBroker().getBrokerName();
-        if (!resultMap.containsKey(brokerName)) {
-          resultMap.put(brokerName, new Double[] {0.0});
-        }
-
-        Double[] results = resultMap.get(brokerName);
-        results[0] += agent.getBalance();
-        resultMap.put(brokerName, results);
+        resultMap.put(agent.getBroker().getBrokerName(),
+                      new Double[] {agent.getBalance()});
       }
     }
     return resultMap;
@@ -174,7 +168,6 @@ public class Tournament
     // Col 11 = normalized result gameType 2
     // Col 12 = normalized result gameType 3
     // Col 13 = total normalized
-
 
     Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
     Double[] averages = new Double[] {0.0, 0.0, 0.0};
@@ -225,9 +218,21 @@ public class Tournament
       results[8] = SD[1];
       results[9] = SD[2];
 
-      results[10] = (results[0] - results[4])/results[7];
-      results[11] = (results[1] - results[5])/results[8];
-      results[12] = (results[2] - results[6])/results[9];
+      if (results[7] > 0) {
+        results[10] = (results[0] - results[4])/results[7];
+      } else {
+        results[10] = results[0] - results[4];
+      }
+      if (results[8] > 0) {
+        results[11] = (results[1] - results[5])/results[8];
+      } else {
+        results[11] = results[1] - results[5];
+      }
+      if (results[9] > 0) {
+        results[12] = (results[2] - results[6])/results[9];
+      } else {
+        results[12] = results[2] - results[6];
+      }
 
       results[13] = results[10] + results[11] + results[12];
 

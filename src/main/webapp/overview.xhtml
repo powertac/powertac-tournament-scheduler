@@ -32,7 +32,7 @@
             "sScrollY": Math.min(400, $("[id$=datatourneys]").height()) + "px",
             "bPaginate": false,
             "aoColumnDefs": [
-              { 'bSortable': false, 'aTargets': [8] },
+              { 'bSortable': false, 'aTargets': [5, 6, 7, 8] },
               { "sType": "natural", "aTargets": [0] }
             ]
           });
@@ -126,6 +126,7 @@
               <h:outputText value="Status" />
             </f:facet>
             <h:outputText value="#{t.status}" />
+            <h:outputText value=" / closed" rendered="#{t.closed}"/>
           </t:column>
 
           <t:column>
@@ -145,16 +146,18 @@
 
           <t:column>
             <f:facet name="header">
-              <h:outputText value="Max Bro" />
+              <h:outputText value="Reg / Max" />
             </f:facet>
-            <h:outputText value="#{t.maxBrokers}" />
+            <h:outputText value="#{t.brokerMap.size()} / #{t.maxBrokers}"/>
+            <h:outputText value=" : #{t.maxAgents}" rendered="#{t.type == 'MULTI_GAME'}"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">
-              <h:outputText value="Reg Bro" />
+              <h:outputText value="Games" />
             </f:facet>
-            <h:outputText value="#{t.brokerMap.size()}" />
+            <h:outputText value="#{t.size1} / #{t.size2} / #{t.size3}"
+                          rendered="#{t.type == 'MULTI_GAME'}"/>
           </t:column>
 
           <t:column>

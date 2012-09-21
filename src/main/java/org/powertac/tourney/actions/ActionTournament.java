@@ -103,7 +103,7 @@ public class ActionTournament
   {
     resultMap = tournament.determineWinner();
 
-    if (resultMap.size() > 0) {
+    if (resultMap.size() > 0 && tournament.isMulti()) {
       Map.Entry<String, Double[]> entry = resultMap.entrySet().iterator().next();
       avgsAndSDs.addAll(Arrays.asList(entry.getValue()).subList(4, 10));
     }

@@ -11,13 +11,12 @@ public class KillJob
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-
   public KillJob (String machineName)
   {
     if (machineName.isEmpty()) {
       return;
     }
-    // Get the machineName and stop the job on Jenkins
+    // Stop the job on Jenkins
     TournamentProperties properties = TournamentProperties.getProperties();
     String stopUrl = properties.getProperty("jenkins.location")
         + "computer/" + machineName + "/executors/0/stop";
