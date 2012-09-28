@@ -91,24 +91,6 @@
             <h:outputText value="#{broker.getRegisteredString()}" />
           </t:column>
 
-          <t:column style="text-align: right">
-            <f:facet name="header">Add</f:facet>
-            <h:selectOneMenu value="#{broker.selectedTourneyRegister}">
-              <f:selectItems value="#{actionOverview.getAvailableTournaments(broker)}" var="t"
-                             itemValue="#{t.tournamentId}" itemLabel="#{t.tournamentName}" rendered="{(t.maxBrokers != t.numberRegistered)}"/>
-            </h:selectOneMenu>
-            <h:commandButton value="register" action="#{actionOverview.register(broker)}" />
-          </t:column>
-
-          <t:column style="text-align: right">
-            <f:facet name="header">Remove</f:facet>
-            <h:selectOneMenu value="#{broker.selectedTourneyUnregister}">
-              <f:selectItems value="#{actionOverview.getRegisteredTournaments(broker)}" var="t"
-                             itemValue="#{t.tournamentId}" itemLabel="#{t.tournamentName}" rendered="{(t.maxBrokers != t.numberRegistered)}"/>
-            </h:selectOneMenu>
-            <h:commandButton value="unregister" action="#{actionOverview.unregister(broker)}" />
-          </t:column>
-
           <t:column>
             <f:facet name="header">Logins</f:facet>
             <t:outputText value="#{actionOverview.getLogins(broker.getBrokerId())}"/>

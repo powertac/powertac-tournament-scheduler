@@ -51,16 +51,6 @@ public class ActionOverview
     return notCompleteGamesList;
   }
 
-  public List<Tournament> getAvailableTournaments (Broker b)
-  {
-    return b.getAvailableTournaments();
-  }
-
-  public List<Tournament> getRegisteredTournaments (Broker b)
-  {
-    return b.getRegisteredTournaments();
-  }
-
   public String getLogins (int brokerId)
   {
     String result = "";
@@ -98,42 +88,6 @@ public class ActionOverview
     catch (Exception e) {
       e.printStackTrace();
       return "";
-    }
-  }
-
-  public void register (Broker b)
-  {
-    if (!(b.getSelectedTourneyRegister() > 0)) {
-      return;
-    }
-
-    boolean registered = b.register(b.getSelectedTourneyRegister());
-    if (!registered) {
-      String msg = "Error registering broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
-      FacesContext.getCurrentInstance().addMessage("formDatabrokers", fm);
-    } else {
-      brokerList = Broker.getBrokerList();
-      User user = User.getCurrentUser();
-      User.reloadUser(user);
-    }
-  }
-
-  public void unregister (Broker b)
-  {
-    if (!(b.getSelectedTourneyUnregister() > 0)) {
-      return;
-    }
-
-    boolean registered = b.unregister(b.getSelectedTourneyUnregister());
-    if (!registered) {
-      String msg = "Error unregistering broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
-      FacesContext.getCurrentInstance().addMessage("formDatabrokers", fm);
-    } else {
-      brokerList = Broker.getBrokerList();
-      User user = User.getCurrentUser();
-      User.reloadUser(user);
     }
   }
 

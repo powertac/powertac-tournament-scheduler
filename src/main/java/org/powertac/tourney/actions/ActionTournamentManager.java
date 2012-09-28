@@ -4,10 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
-import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Location;
-import org.powertac.tourney.beans.Pom;
-import org.powertac.tourney.beans.Tournament;
+import org.powertac.tourney.beans.*;
 import org.powertac.tourney.services.HibernateUtil;
 import org.powertac.tourney.services.Utils;
 
@@ -25,6 +22,8 @@ public class ActionTournamentManager
   private static Logger log = Logger.getLogger("TMLogger");
 
   private boolean[] disabled = new boolean[13];
+
+  private List<Broker> brokerList = new ArrayList<Broker>();
 
   private int tourneyId = -1;
   private String tournamentName;
@@ -295,6 +294,59 @@ public class ActionTournamentManager
 
     disabled = new boolean[13];
     Arrays.fill(disabled, Boolean.FALSE);
+
+    brokerList = Broker.getBrokerList();
+  }
+
+  public List<Broker> getBrokerList ()
+  {
+    return brokerList;
+  }
+
+  public List<Tournament> getAvailableTournaments (Broker b)
+  {
+    return b.getAvailableTournaments();
+  }
+
+  public List<Tournament> getRegisteredTournaments (Broker b)
+  {
+    return b.getRegisteredTournaments();
+  }
+
+  public void register (Broker b)
+  {
+    if (!(b.getSelectedTourneyRegister() > 0)) {
+      return;
+    }
+
+    boolean registered = b.register(b.getSelectedTourneyRegister());
+    if (!registered) {
+      String msg = "Error registering broker";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesContext.getCurrentInstance().addMessage("formDatabrokers", fm);
+    } else {
+      brokerList = Broker.getBrokerList();
+      User user = User.getCurrentUser();
+      User.reloadUser(user);
+    }
+  }
+
+  public void unregister (Broker b)
+  {
+    if (!(b.getSelectedTourneyUnregister() > 0)) {
+      return;
+    }
+
+    boolean registered = b.unregister(b.getSelectedTourneyUnregister());
+    if (!registered) {
+      String msg = "Error unregistering broker";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesContext.getCurrentInstance().addMessage("formDatabrokers", fm);
+    } else {
+      brokerList = Broker.getBrokerList();
+      User user = User.getCurrentUser();
+      User.reloadUser(user);
+    }
   }
 
   public void refresh ()

@@ -88,6 +88,48 @@
         <h:message for="removeTournament" />
 			</h:form>
 
+      <h:form rendered="#{(user.permissionId le 0) and (actionTournamentManager.brokerList.size() > 0)}" id="formDatabrokers">
+        <h3 class="withButton">Registered Brokers</h3><h:commandButton value="Refresh" action="#{actionTournamentManager.refresh}"/>
+        <t:dataTable id="databrokers" border="1"
+                     style="border:1px solid black;border-collapse:collapse;text-align:center"
+                     value="#{actionTournamentManager.brokerList}" var="broker">
+
+          <t:column>
+            <f:facet name="header">ID</f:facet>
+            <h:outputText value="#{broker.brokerId}" />
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Name</f:facet>
+            <h:outputText value="#{broker.brokerName}" />
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Registered</f:facet>
+            <h:outputText value="#{broker.getRegisteredString()}" />
+          </t:column>
+
+          <t:column style="text-align: right">
+            <f:facet name="header">Add</f:facet>
+            <h:selectOneMenu value="#{broker.selectedTourneyRegister}">
+              <f:selectItems value="#{actionTournamentManager.getAvailableTournaments(broker)}" var="t"
+                             itemValue="#{t.tournamentId}" itemLabel="#{t.tournamentName}" rendered="{(t.maxBrokers != t.numberRegistered)}"/>
+            </h:selectOneMenu>
+            <h:commandButton value="register" action="#{actionTournamentManager.register(broker)}" />
+          </t:column>
+
+          <t:column style="text-align: right">
+            <f:facet name="header">Remove</f:facet>
+            <h:selectOneMenu value="#{broker.selectedTourneyUnregister}">
+              <f:selectItems value="#{actionTournamentManager.getRegisteredTournaments(broker)}" var="t"
+                             itemValue="#{t.tournamentId}" itemLabel="#{t.tournamentName}" rendered="{(t.maxBrokers != t.numberRegistered)}"/>
+            </h:selectOneMenu>
+            <h:commandButton value="unregister" action="#{actionTournamentManager.unregister(broker)}" />
+          </t:column>
+        </t:dataTable>
+        <h:messages for="formDatabrokers" layout=""/>
+      </h:form>
+
 			<h:form enctype="multipart/form-data" rendered="#{user.permissionId le 0}"
           id="saveTournament">
         <h:panelGroup rendered="#{actionTournamentManager.tourneyId == -1}">
