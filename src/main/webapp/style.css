@@ -63,3 +63,8 @@ h3.withButton {
 input[readonly], input[readonly="readonly"] {
     background: buttonface;
 }
+
+input.smallButton {
+    padding: 0;
+    margin: 0;
+}
