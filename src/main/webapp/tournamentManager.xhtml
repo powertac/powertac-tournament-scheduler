@@ -18,25 +18,23 @@
 
         <h3 class="withButton">Pending/Running Tournaments</h3>
         <h:commandButton value="Refresh" action="#{actionTournamentManager.refresh()}"/>
-				<t:dataTable id="datatourneys" border="1" sortable="false"
-					sortColumn="#{actionTournamentManager.sortColumn}"
-					sortAscending="#{actionTournamentManager.sortAscending}" preserveSort="true"
+				<t:dataTable id="datatourneys" border="1"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{actionTournamentManager.tournamentList}" var="t">
 
-					<t:column defaultSorted="true" sortable="true">
+					<t:column>
 						<f:facet name="header">ID</f:facet>
 						<h:outputText value="#{t.tournamentId}" />
 					</t:column>
 
-					<t:column sortable="true">
+					<t:column>
 						<f:facet name="header">Name</f:facet>
             <h:link value="#{t.tournamentName}" outcome="Tournament">
               <f:param name="tournamentId" value="#{t.tournamentId}" />
             </h:link>
 					</t:column>
 
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">Status</f:facet>
             <h:outputText value="#{t.status}" />
             <h:outputText value=" / closed" rendered="#{t.closed}"/>
@@ -61,7 +59,7 @@
 
           <t:column>
             <f:facet name="header">Games</f:facet>
-            <h:outputText value="#{t.size1}(#{t.multiplier1})  #{t.size2}(#{t.multiplier2})  #{t.size3}(#{t.multiplier3})"
+            <h:outputText value="#{t.size1} (#{t.multiplier1})  #{t.size2} (#{t.multiplier2})  #{t.size3} (#{t.multiplier3})"
                           escape="false"
                           rendered="#{t.type == 'MULTI_GAME'}"/>
           </t:column>

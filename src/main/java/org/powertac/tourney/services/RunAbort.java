@@ -18,7 +18,7 @@ public class RunAbort
     // Abort the job on the slave
     String abortUrl = properties.getProperty("jenkins.location")
         + "job/abort-server-instance/buildWithParameters?"
-        + "machine=" + machineName + "-abort";
+        + "machine=" + machineName;
     log.info("Abort url: " + abortUrl);
 
     try {

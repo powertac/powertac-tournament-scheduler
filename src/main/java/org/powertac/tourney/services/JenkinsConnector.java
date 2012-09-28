@@ -16,6 +16,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.net.URL;
 import java.net.URLConnection;
 
+
 public class JenkinsConnector {
 
   public static void sendJob (String jobUrl) throws Exception
@@ -46,8 +47,20 @@ public class JenkinsConnector {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     DocumentBuilder docB = dbf.newDocumentBuilder();
     Document doc = docB.parse(new URL(url).openStream());
-    NodeList nList = doc.getElementsByTagName("computer");
+    return doc.getElementsByTagName("computer");
+  }
 
-    return nList;
+  public static NodeList getExecutorList (String machineName, int number)
+      throws Exception
+  {
+    TournamentProperties properties = TournamentProperties.getProperties();
+
+    String url = properties.getProperty("jenkins.location")
+        + "computer/" + machineName + "/executors/" + number + "/api/xml";
+
+    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    DocumentBuilder docB = dbf.newDocumentBuilder();
+    Document doc = docB.parse(new URL(url).openStream());
+    return doc.getElementsByTagName("idle");
   }
 }

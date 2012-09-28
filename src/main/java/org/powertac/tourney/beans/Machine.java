@@ -81,10 +81,6 @@ public class Machine
             String idle = eElement.getElementsByTagName("idle")
                 .item(0).getChildNodes().item(0).getNodeValue();
 
-            // We don't check the status of the master or abort machines
-            if (displayName.equals("master") || displayName.contains("-abort")){
-              continue;
-            }
             log.debug("Checking machine " + displayName);
 
             Query query = session.

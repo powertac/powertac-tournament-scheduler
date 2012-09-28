@@ -160,7 +160,7 @@
 
           <t:column>
             <f:facet name="header">Games</f:facet>
-            <h:outputText value="#{t.size1}(#{t.multiplier1})  #{t.size2}(#{t.multiplier2})  #{t.size3}(#{t.multiplier3})"
+            <h:outputText value="#{t.size1} (#{t.multiplier1})  #{t.size2} (#{t.multiplier2})  #{t.size3} (#{t.multiplier3})"
                           rendered="#{t.type == 'MULTI_GAME'}"/>
           </t:column>
 
@@ -209,7 +209,8 @@
 
           <t:column>
             <f:facet name="header">Heartbeat</f:facet>
-            <t:outputText value="#{actionOverview.getHeartbeat(g.gameId)}" />
+            <t:outputText value="#{actionOverview.getHeartbeat(g.gameId)}"
+                rendered="#{g.isRunning()}" />
           </t:column>
 
           <t:column style="text-align: left">

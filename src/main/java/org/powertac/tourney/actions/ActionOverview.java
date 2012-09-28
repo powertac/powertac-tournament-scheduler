@@ -93,7 +93,7 @@ public class ActionOverview
     try {
       int ago = (int)
           (System.currentTimeMillis() - Long.parseLong(messages[1])) / 1000;
-      return messages[0] +" ("+ String.valueOf(ago) + ")";
+      return messages[0] +" ("+ ago + ")";
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -205,8 +205,6 @@ public class ActionOverview
     Machine machine = game.getMachine();
     String machineName = game.getMachine().getMachineName();
 
-    Cache.removeSim(game.getGameId());
-
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -214,31 +212,26 @@ public class ActionOverview
       if (game.isBooting()) {
         log.info("Resetting boot game: " + gameId + " on machine: " + machineId);
 
-        game.removeBootFile();
         game.setStatus(Game.STATE.boot_pending.toString());
-
-        Cache.removeBootstrap(gameId);
+        game.removeBootFile();
       }
       else if (game.isRunning()) {
         log.info("Resetting sim game: " + gameId + " on machine: " + machineId);
 
         game.setStatus(Game.STATE.boot_complete.toString());
-
         for (Agent agent: game.getAgentMap().values()) {
           agent.setStatus(Agent.STATE.pending.toString());
           agent.setBalance(0);
           session.update(agent);
         }
-
-        Cache.removeSim(gameId);
       }
 
       game.setReadyTime(null);
       game.setMachine(null);
       session.update(game);
-      transaction.commit();
-
       Machine.delayedMachineUpdate(machine, 300);
+
+      transaction.commit();
     }
     catch (Exception e) {
       transaction.rollback();
@@ -251,11 +244,12 @@ public class ActionOverview
     }
     finally {
       session.close();
-
-      // Kill the job on Jenkins and the slave
-      new RunKill(machineName);
     }
 
+    // Kill the job on Jenkins and the slave
+    new RunKill(machineName);
+    Cache.removeSim(gameId);
+    Cache.removeBootstrap(gameId);
   }
 
   public void restartGame (Game game)

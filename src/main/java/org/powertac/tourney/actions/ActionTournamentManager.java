@@ -24,8 +24,6 @@ public class ActionTournamentManager
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private String sortColumn = null;
-  private boolean sortAscending = true;
   private boolean[] disabled = new boolean[13];
 
   private int tourneyId = -1;
@@ -414,21 +412,6 @@ public class ActionTournamentManager
   }
   public void setLocations (List<String> locations) {
     this.locations = locations;
-  }
-
-  public String getSortColumn () {
-    return sortColumn;
-  }
-  public void setSortColumn (String sortColumn) {
-
-    this.sortColumn = sortColumn;
-  }
-
-  public boolean isSortAscending () {
-    return sortAscending;
-  }
-  public void setSortAscending (boolean sortAscending) {
-    this.sortAscending = sortAscending;
   }
 
   public boolean[] getDisabled() {
