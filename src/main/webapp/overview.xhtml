@@ -42,7 +42,7 @@
             "sScrollY": Math.min(400, $("[id$=datagames]").height()) + "px",
             "bPaginate": false,
             "aoColumnDefs": [
-              { 'bSortable': false, 'aTargets': [4, 5, 6] },
+              { 'bSortable': false, 'aTargets': [3, 4, 5, 6] },
               { "sType": "natural", "aTargets": [0, 1] }
             ]
           });
@@ -185,8 +185,8 @@
           </t:column>
 
           <t:column>
-            <f:facet name="header">Start Time</f:facet>
-            <h:outputText value="#{g.startTimeUTC()}" />
+            <f:facet name="header">Brokers</f:facet>
+            <h:outputText value="#{g.getBrokerIdsInGameString()}" />
           </t:column>
 
           <t:column>

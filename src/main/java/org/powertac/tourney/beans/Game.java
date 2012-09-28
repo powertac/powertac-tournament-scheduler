@@ -100,6 +100,22 @@ public class Game implements Serializable
     return result;
   }
 
+  @Transient
+  public String getBrokerIdsInGameString()
+  {
+    String result = "";
+
+    for (Agent agent: agentMap.values()) {
+      result += agent.getBroker().getBrokerId() + ", ";
+    }
+
+    if (!result.isEmpty()) {
+      result = result.substring(0, result.length()-2);
+    }
+
+    return result;
+  }
+
   public void handleStatus (Session session, String status) throws Exception
   {
     STATE state;
