@@ -68,16 +68,12 @@
                      value="#{actionTournament.resultMap.keySet()}" var="key"
                      rendered="#{actionTournament.tournament.isSingle()}">
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Broker" />
-            </f:facet>
+            <f:facet name="header">Broker</f:facet>
             <h:outputText value="#{key}" />
           </t:column>
 
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Total" />
-            </f:facet>
+            <f:facet name="header">Total</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[0]}" >
               <f:convertNumber minFractionDigits="4" groupingUsed="false" />
             </h:outputText><br/>
@@ -90,75 +86,57 @@
                      value="#{actionTournament.resultMap.keySet()}" var="key"
                      rendered="#{actionTournament.tournament.isMulti()}">
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Broker" />
-            </f:facet>
+            <f:facet name="header">Broker</f:facet>
             <h:outputText value="#{key}" />
           </t:column>
 
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Size 1" />
-            </f:facet>
+            <f:facet name="header">Size 1</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[0]}" >
               <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
             </h:outputText><br/>
           </t:column>
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Size 2" />
-            </f:facet>
+            <f:facet name="header">Size 2</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[1]}" >
               <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
             </h:outputText><br/>
           </t:column>
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Size 3" />
-            </f:facet>
+            <f:facet name="header">Size 3</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[2]}" >
               <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
             </h:outputText><br/>
           </t:column>
 
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Total (not normalized)" />
-            </f:facet>
+            <f:facet name="header">Total (not normalized)</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[3]}" >
               <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
             </h:outputText><br/>
           </t:column>
 
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Size 1" />
-            </f:facet>
+            <f:facet name="header">Size 1</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[10]}" >
               <f:convertNumber minFractionDigits="1" groupingUsed="false" />
             </h:outputText><br/>
           </t:column>
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Size 2" />
-            </f:facet>
+            <f:facet name="header">Size 2</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[11]}" >
               <f:convertNumber minFractionDigits="1" groupingUsed="false" />
             </h:outputText><br/>
           </t:column>
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Size 3" />
-            </f:facet>
+            <f:facet name="header">Size 3</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[12]}" >
               <f:convertNumber minFractionDigits="1" groupingUsed="false" />
             </h:outputText><br/>
           </t:column>
 
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Total (normalized)" />
-            </f:facet>
+            <f:facet name="header">Total (normalized)</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[13]}" >
               <f:convertNumber minFractionDigits="1" groupingUsed="false" />
             </h:outputText><br/>
@@ -210,9 +188,7 @@
                      value="#{actionTournament.tournament.gameMap.values()}"
                      var="entry">
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="ID" />
-            </f:facet>
+            <f:facet name="header">ID</f:facet>
             <h:outputText >
               <h:link value="#{entry.gameId}" outcome="Game">
                 <f:param name="gameId" value="#{entry.gameId}" />
@@ -221,23 +197,17 @@
           </t:column>
 
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Name" />
-            </f:facet>
+            <f:facet name="header">Name</f:facet>
             <h:outputText value="#{entry.gameName}" />
           </t:column>
 
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Status" />
-            </f:facet>
+            <f:facet name="header">Status</f:facet>
             <h:outputText value="#{entry.status}" />
           </t:column>
 
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Brokers" />
-            </f:facet>
+            <f:facet name="header">Brokers</f:facet>
             <h:panelGroup>
               <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}" var="a">
                 <b>#{a.broker.getBrokerName()}</b><br/>
@@ -246,9 +216,7 @@
           </t:column>
 
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Balance" />
-            </f:facet>
+            <f:facet name="header">Balance</f:facet>
             <h:panelGroup>
               <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}" var="a" >
                 <h:outputText value="#{a.balance}" >

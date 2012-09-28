@@ -98,10 +98,9 @@ public class ActionGame
   private void loadResultMap ()
   {
     for (Agent agent: game.getAgentMap().values()) {
-      Double balance = Math.max(0, agent.getBalance());
       Map.Entry<String, Double> entry2 =
           new AbstractMap.SimpleEntry<String, Double>(
-          agent.getBroker().getBrokerName(), balance);
+          agent.getBroker().getBrokerName(), agent.getBalance());
       resultMap.add(entry2);
     }
   }

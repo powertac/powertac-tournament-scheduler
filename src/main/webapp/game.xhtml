@@ -22,16 +22,12 @@
                    columnClasses=",right"
                    value="#{actionGame.resultMap}" var="entry">
         <t:column>
-          <f:facet name="header">
-            <h:outputText value="Broker" />
-          </f:facet>
+          <f:facet name="header">Broker</f:facet>
           <h:outputText value="#{entry.key}" />
         </t:column>
 
         <t:column>
-          <f:facet name="header">
-            <h:outputText value="Balance" />
-          </f:facet>
+          <f:facet name="header">Balance</f:facet>
           <h:outputText value="#{entry.value}">
             <f:convertNumber minFractionDigits="4" />
           </h:outputText><br/>

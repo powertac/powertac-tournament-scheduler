@@ -1,13 +1,10 @@
 package org.powertac.tourney.services;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tourney.beans.*;
 
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -161,19 +158,8 @@ public class RunGame
     log.info("Final url: " + finalUrl);
 
     try {
-      URL url = new URL(finalUrl);
-      URLConnection conn = url.openConnection();
+      JenkinsConnector.sendJob(finalUrl);
 
-      String user = properties.getProperty("jenkins.username", "");
-      String pass = properties.getProperty("jenkins.password", "");
-      if (!user.isEmpty() && !pass.isEmpty()) {
-        String userpass = String.format("%s:%s", user, pass);
-        String basicAuth = "Basic " +
-            new String(new Base64().encode(userpass.getBytes()));
-        conn.setRequestProperty("Authorization", basicAuth);
-      }
-
-      conn.getInputStream();
       log.info("Jenkins request to start sim game: " + game.getGameId());
       game.setStatus(Game.STATE.game_pending.toString());
       game.setReadyTime(Utils.offsetDate());

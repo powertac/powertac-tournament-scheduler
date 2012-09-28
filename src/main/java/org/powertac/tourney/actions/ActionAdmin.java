@@ -6,16 +6,16 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.powertac.tourney.beans.*;
-import org.powertac.tourney.services.HibernateUtil;
-import org.powertac.tourney.services.TournamentProperties;
-import org.powertac.tourney.services.Upload;
-import org.powertac.tourney.services.Utils;
+import org.powertac.tourney.services.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 @ManagedBean
 @RequestScoped
@@ -92,6 +92,11 @@ public class ActionAdmin
 
     Scheduler scheduler = Scheduler.getScheduler();
     scheduler.unloadTournament();
+  }
+
+  public void destroyCache ()
+  {
+    new Cache();
   }
 
   public List<Tournament> getAvailableTournaments ()
@@ -278,8 +283,8 @@ public class ActionAdmin
   	}
 
     // Make sure we get a new list of IPs
-    Utils.machineIPs = null;
-    Utils.vizIPs = null;
+    Cache.machineIPs = null;
+    Cache.vizIPs = null;
 
     // It's a new machine
     if (machineId == -1) {

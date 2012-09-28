@@ -31,7 +31,7 @@
 
           <h:column>
             <f:facet name="header">Available</f:facet>
-            <h:selectOneMenu value="#{broker.selectedTourney}">
+            <h:selectOneMenu value="#{broker.selectedTourneyRegister}">
               <f:selectItems value="#{actionAccount.getAvailableTournaments(broker)}" var="t"
                              itemValue="#{t.tournamentId}" itemLabel="#{t.tournamentName}" rendered="{(t.maxBrokers != t.numberRegistered)}"/>
             </h:selectOneMenu>
@@ -102,7 +102,8 @@
       </h:form>
 
 			<h:form rendered="#{user.permissionId gt 3}">
-				<h2>Insufficient Permissions</h2>
+        <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
+        <meta http-equiv="REFRESH" content="10;url=login.xhtml" />
 			</h:form>
 		</ui:define>
 	</ui:composition>

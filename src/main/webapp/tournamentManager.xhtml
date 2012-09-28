@@ -25,73 +25,56 @@
 					value="#{actionTournamentManager.tournamentList}" var="t">
 
 					<t:column defaultSorted="true" sortable="true">
-						<f:facet name="header">
-							<h:outputText value="ID" />
-						</f:facet>
+						<f:facet name="header">ID</f:facet>
 						<h:outputText value="#{t.tournamentId}" />
 					</t:column>
 
 					<t:column sortable="true">
-						<f:facet name="header">
-							<h:outputText value="Name" />
-						</f:facet>
+						<f:facet name="header">Name</f:facet>
             <h:link value="#{t.tournamentName}" outcome="Tournament">
               <f:param name="tournamentId" value="#{t.tournamentId}" />
             </h:link>
 					</t:column>
 
           <t:column sortable="true">
-            <f:facet name="header">
-              <h:outputText value="Status" />
-            </f:facet>
+            <f:facet name="header">Status</f:facet>
             <h:outputText value="#{t.status}" />
             <h:outputText value=" / closed" rendered="#{t.closed}"/>
           </t:column>
 
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Type" />
-            </f:facet>
+            <f:facet name="header">Type</f:facet>
             <h:outputText value="Multi" rendered="#{t.type == 'MULTI_GAME'}"/>
             <h:outputText value="Single" rendered="#{t.type == 'SINGLE_GAME'}"/>
           </t:column>
 
 					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Start Time" />
-						</f:facet>
+						<f:facet name="header">Start Time</f:facet>
             <h:outputText value="#{t.startTimeUTC()}" />
 					</t:column>
 
 					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Reg / Max" />
-						</f:facet>
+						<f:facet name="header">Reg / Max</f:facet>
 						<h:outputText value="#{t.brokerMap.size()} / #{t.maxBrokers}"/>
             <h:outputText value=" : #{t.maxAgents}" rendered="#{t.type == 'MULTI_GAME'}"/>
 					</t:column>
 
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Games" />
-            </f:facet>
-            <h:outputText value="#{t.size1} / #{t.size2} / #{t.size3}"
+            <f:facet name="header">Games</f:facet>
+            <h:outputText value="#{t.size1}(#{t.multiplier1})  #{t.size2}(#{t.multiplier2})  #{t.size3}(#{t.multiplier3})"
+                          escape="false"
                           rendered="#{t.type == 'MULTI_GAME'}"/>
           </t:column>
 
 					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Pom" />
-						</f:facet>
+						<f:facet name="header">Pom</f:facet>
 						<a href="pom.jsp?pomId=#{t.pomId}">
               <h:outputText value="#{t.pomId}" />
             </a>
 					</t:column>
 
           <t:column style="text-align: left">
-            <f:facet name="header">
-              <h:outputText value="Actions" />
-            </f:facet>
+            <f:facet name="header">Actions</f:facet>
             <h:commandButton value="Delete"
                 action="#{actionTournamentManager.removeTournament(t)}"
                 rendered="#{t.tournamentName.toLowerCase().contains('test')}"
@@ -257,7 +240,8 @@
       </h:form>
 
 			<h:form rendered="#{user.permissionId gt 0}">
-				<h2>Insufficient Permissions</h2>
+        <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
+        <meta http-equiv="REFRESH" content="10;url=login.xhtml" />
 			</h:form>
 		</ui:define>
 	</ui:composition>

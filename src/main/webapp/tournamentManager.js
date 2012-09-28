@@ -29,7 +29,7 @@ function showGamesCount() {
     var total1 = 0;
     var total2 = 0;
     var total3 = 0;
-    if ((maxBrokers > 0) && (gameType1 > 0)) {
+    if ((maxBrokers > 0) && (gameType1 > 0) && (multiplier1 > 0)) {
         if (gameType1 > maxBrokers) {
             elems[4].value = maxBrokers;
             gameType1 = maxBrokers;
@@ -37,17 +37,17 @@ function showGamesCount() {
         total1 = multiplier1 * calculateGames(maxBrokers, gameType1);
         setText("total1", "Games for this type : " + total1);
     }
-    if ((maxBrokers > 0) && (gameType2 > 0)) {
+    if ((maxBrokers > 0) && (gameType2 > 0) && (multiplier2 > 0)) {
         if (gameType2 > maxBrokers) {
-            elems[5].value = maxBrokers;
+            elems[6].value = maxBrokers;
             gameType2 = maxBrokers;
         }
         total2 = multiplier2 * calculateGames(maxBrokers, gameType2);
         setText("total2", "Games for this type : " + total2);
     }
-    if ((maxBrokers > 0) && (gameType3 > 0)) {
+    if ((maxBrokers > 0) && (gameType3 > 0) && (multiplier3 > 0)) {
         if (gameType3 > maxBrokers) {
-            elems[6].value = maxBrokers;
+            elems[8].value = maxBrokers;
             gameType3 = maxBrokers;
         }
         total3 = multiplier3 * calculateGames(maxBrokers, gameType3);

@@ -174,7 +174,8 @@ public class Constants
     public static final String GET_BROKERS =
         "FROM Broker AS broker "
             + "LEFT JOIN FETCH broker.tournamentMap "
-            + "LEFT JOIN FETCH broker.user ";
+            + "LEFT JOIN FETCH broker.user "
+            + "LEFT JOIN FETCH broker.agentMap as agentMap ";
 
     public static final String GET_BROKER_BY_ID =
         "FROM Broker AS broker "

@@ -72,44 +72,32 @@
 					value="#{actionIndex.notCompleteGamesList}" var="g"
           styleClass="display dataTable" >
 					<t:column>
-						<f:facet name="header">
-							<h:outputText value="ID" />
-						</f:facet>
+						<f:facet name="header">ID</f:facet>
             <h:outputText value="#{g.gameId}" />
     			</t:column>
     				
           <t:column>
-						<f:facet name="header">
-							<h:outputText value="Tournament" />
-						</f:facet>
+						<f:facet name="header">Tournament</f:facet>
             <h:outputText value="#{g.tournament.tournamentName}" />
           </t:column>
     				
           <t:column>
-						<f:facet name="header">
-							<h:outputText value="Brokers" />
-						</f:facet>
+						<f:facet name="header">Brokers</f:facet>
             <h:outputText value="#{g.getBrokersInGameString()}" />
           </t:column>
 
 					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Status" />
-						</f:facet>
+						<f:facet name="header">Status</f:facet>
             <h:outputText value="#{g.status}" />
     				</t:column>
 
 					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Start Time" />
-						</f:facet>
+						<f:facet name="header">Start Time</f:facet>
             <h:outputText value="#{g.startTimeUTC()}" />
           </t:column>
 
 					<t:column>
-						<f:facet name="header">
-							<h:outputText value="Viz&lt;br/&gt;Link" escape="false"/>
-						</f:facet>
+						<f:facet name="header">Viz Link</f:facet>
             <h:outputText value="Not avail." rendered="#{!g.isRunning()}"/>
             <h:panelGroup rendered="#{g.isRunning()}" >
               <a href="http://#{g.machine.vizUrl}" target="_blank">Visualizer</a>
@@ -125,41 +113,31 @@
 					value="#{actionIndex.completeGamesList}" var="g"
           styleClass="display dataTable" >
 					<t:column>
-						<f:facet name="header">
-							<h:outputText value="ID" />
-						</f:facet>
+						<f:facet name="header">ID</f:facet>
               <h:link value="#{g.gameId}" outcome="Game">
                 <f:param name="gameId" value="#{g.gameId}" />
               </h:link>
     				</t:column>
     				
     				<t:column>
-              <f:facet name="header">
-                <h:outputText value="Tournament" />
-              </f:facet>
+              <f:facet name="header">Tournament</f:facet>
               <h:link value="#{g.tournament.tournamentName}" outcome="Tournament">
                 <f:param name="tournamentId" value="#{g.tournament.tournamentId}" />
               </h:link>
     				</t:column>
 
             <t:column>
-              <f:facet name="header">
-                <h:outputText value="Brokers" />
-              </f:facet>
+              <f:facet name="header">Brokers</f:facet>
               <h:outputText value="#{g.getBrokersInGameString()}" />
             </t:column>
 
             <t:column>
-              <f:facet name="header">
-                <h:outputText value="Start Time" />
-              </f:facet>
+              <f:facet name="header">Start Time</f:facet>
               <h:outputText value="#{g.readyTimeUTC()}" />
             </t:column>
 
     				<t:column>
-						<f:facet name="header">
-							<h:outputText value="Logs" />
-						</f:facet>
+						<f:facet name="header">Logs</f:facet>
               <a href="#{actionIndex.getLogUrl(g)}">Logs</a>
     				</t:column>
 				</t:dataTable>

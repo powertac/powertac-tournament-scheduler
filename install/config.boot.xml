@@ -140,6 +140,8 @@ if [ ! -d &quot;$DIRECTORY&quot; ]; then
     mkdir $DIRECTORY
 fi
 
+StartTime=$(date +%s)
+log &quot;StartTime     : $(date +%F\ %H:%M:%S)&quot;
 log &quot;Nodename      : $NODE_NAME&quot;
 log &quot;Account       : ${USER}&quot;
 log &quot;GameId        : $gameId&quot;
@@ -163,7 +165,7 @@ get_properties
 log nl &quot;Get the pom file from $pomUrl&quot;
 get_pom
 
-CMD=&quot;$MVN_CMD -Pcli -Dexec.args=\&quot;--boot $bootName.xml --config=$propUrl --log-suffix $suffix$gameId\&quot;&quot;
+CMD=&quot;$MVN_CMD -U -Pcli -Dexec.args=\&quot;--boot $bootName.xml --config=$propUrl --log-suffix $suffix$gameId\&quot;&quot;
 log nl &quot;Run maven : $CMD&quot;
 eval $CMD
 
@@ -183,6 +185,10 @@ if [ &quot;$FILESIZE&quot; -eq 0 ] ; then
 
     exit 1
 else
+    EndTime=$(date +%s)
+    ((RunningTime=EndTime-StartTime))
+    log nl &quot;Bootstrap took (M:S) $(($RunningTime / 60)):$(($RunningTime % 60))&quot;
+
     log nl &quot;Compressing log files&quot;
     $COMP_CMD &quot;$bootName-logs.$COMP_EXT&quot; log/powertac-$suffix$gameId.* log/init.*
 

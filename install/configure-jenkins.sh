@@ -22,6 +22,15 @@ else
     echo -e "\nConfiguration of start-sim-server Success!" $status
 fi
 
+echo -e "\n\nConfiguring Jenkins Abort Job..."
+status=`curl -o /dev/null --write-out %{http_code} --upload-file ./config.abort.xml -H Content-Type:text/xml http://$1/jenkins/createItem?name=abort-server-instance&mode=create`
+
+if [ "$status" != "200" ] ; then
+    echo -e "\nConfiguring Start Abort Failed!" $status
+    exit 1
+else
+    echo -e "\nConfiguring Start Abort Success!" $status
+fi
 
 echo -e "\n\nConfiguring Jenkins Kill Job..."
 status=`curl -o /dev/null --write-out %{http_code} --upload-file ./config.kill.xml -H Content-Type:text/xml http://$1/jenkins/createItem?name=kill-server-instance&mode=create`

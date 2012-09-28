@@ -40,7 +40,8 @@ public class Broker
   private String newAuth;
   private String newShort;
   // For registration, web interface
-  private int selectedTourney;
+  private int selectedTourneyRegister;
+  private int selectedTourneyUnregister;
 
   public Broker ()
   {
@@ -166,6 +167,52 @@ public class Broker
     }
   }
 
+  public boolean unregister (int tourneyId)
+  {
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      Tournament tournament =
+          (Tournament) session.get(Tournament.class, tourneyId);
+
+      // Can't unregister from games that already started (or should have)
+      if (tournament.isStarted()) {
+        transaction.rollback();
+        return false;
+      }
+
+      Registration registration = (Registration) session
+          .createCriteria(Registration.class)
+          .add(Restrictions.eq("tournament", tournament))
+          .add(Restrictions.eq("broker", this)).uniqueResult();
+      session.delete(registration);
+
+      List<Integer> deleteAgents = new ArrayList<Integer>();
+      for (Agent agent: agentMap.values()) {
+        if (agent.getGame().getTournament().getTournamentId() == tourneyId) {
+          deleteAgents.add(agent.getAgentId());
+        }
+      }
+
+      for (Integer agentId: deleteAgents) {
+        Agent agent = (Agent) session.load(Agent.class, agentId);
+        session.delete(agent);
+        session.flush();
+      }
+
+      transaction.commit();
+      return true;
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+      return false;
+    }
+    finally {
+      session.close();
+    }
+  }
+
   // Check if not more than maxBrokers are running (only multi_game tourneys)
   public boolean agentsAvailable()
   {
@@ -194,10 +241,9 @@ public class Broker
     String result = "";
 
     for (Tournament tournament: tournamentMap.values()) {
-      if (tournament.stateEquals(Tournament.STATE.complete)) {
-        continue;
+      if (!tournament.stateEquals(Tournament.STATE.complete)) {
+        result += tournament.getTournamentName() + ", ";
       }
-      result += tournament.getTournamentName() + ", ";
     }
     if (!result.isEmpty()) {
       result = result.substring(0, result.length()-2);
@@ -238,33 +284,52 @@ public class Broker
         Integer.parseInt(properties.getProperty("loginDeadline", "3600000"));
     long nowStamp = Utils.offsetDate().getTime();
 
-    Outer: for (Tournament tourney: Tournament.getNotCompleteTournamentList()) {
+    Outer: for (Tournament tournament: Tournament.getNotCompleteTournamentList()) {
       // Check if maxNofBrokers reached
-      if (tourney.getBrokerMap().size() >= tourney.getMaxBrokers()) {
+      if (tournament.getBrokerMap().size() >= tournament.getMaxBrokers()) {
         continue;
       }
       // Check if after deadline
-      long diff = tourney.getStartTime().getTime() - nowStamp;
+      long diff = tournament.getStartTime().getTime() - nowStamp;
       if (diff < loginDeadline) {
         continue;
       }
       // Check if already registered
       for (Tournament t : tournamentMap.values()) {
         // Check if already registered
-        if (t.getTournamentId() == tourney.getTournamentId()) {
+        if (t.getTournamentId() == tournament.getTournamentId()) {
           continue Outer;
         }
       }
       // Check if not closed
-      if (tourney.isClosed()) {
+      if (tournament.isClosed()) {
         continue;
       }
 
       // No reason not to be able to register
-      registrableTournaments.add(tourney);
+      registrableTournaments.add(tournament);
     }
 
     return registrableTournaments;
+  }
+
+  @Transient
+  public List<Tournament> getRegisteredTournaments ()
+  {
+    List<Tournament> registeredTournaments = new ArrayList<Tournament>();
+
+    for (Tournament tournament: tournamentMap.values()) {
+      if (tournament.stateEquals(Tournament.STATE.complete)) {
+        continue;
+      }
+      if (tournament.isStarted()) {
+        continue;
+      }
+
+      registeredTournaments.add(tournament);
+    }
+
+    return registeredTournaments;
   }
 
   public static Broker getBrokerByName (String brokerName)
@@ -390,11 +455,19 @@ public class Broker
   }
 
   @Transient
-  public int getSelectedTourney () {
-    return selectedTourney;
+  public int getSelectedTourneyRegister () {
+    return selectedTourneyRegister;
   }
-  public void setSelectedTourney (int selectedTourney) {
-    this.selectedTourney = selectedTourney;
+  public void setSelectedTourneyRegister (int selectedTourneyRegister) {
+    this.selectedTourneyRegister = selectedTourneyRegister;
+  }
+
+  @Transient
+  public int getSelectedTourneyUnregister () {
+    return selectedTourneyUnregister;
+  }
+  public void setSelectedTourneyUnregister (int selectedTourneyUnregister) {
+    this.selectedTourneyUnregister = selectedTourneyUnregister;
   }
   //</editor-fold>
 }

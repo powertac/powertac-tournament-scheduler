@@ -121,6 +121,7 @@ public class Rest
       transaction.commit();
       log.debug(String.format("No games ready to start for tournament %s",
           tournamentName));
+      Cache.addBrokerLogin(broker.getBrokerId());
       return String.format(retryResponse, 60);
     }
     catch (Exception e) {
@@ -154,7 +155,7 @@ public class Rest
     log.info("Visualizer login request : " + machineName);
 
     // Validate source of request
-    if (!Utils.checkVizAllowed(request.getRemoteHost())) {
+    if (!Cache.checkVizAllowed(request.getRemoteHost())) {
       return String.format(errorResponse, "invalid login request");
     }
 
@@ -201,7 +202,7 @@ public class Rest
     try {
       String actionString = params.get(Constants.Rest.REQ_PARAM_ACTION)[0];
       if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_STATUS)) {
-        if (!Utils.checkMachineAllowed(clientAddress)) {
+        if (!Cache.checkMachineAllowed(clientAddress)) {
           return "error";
         }
 
@@ -212,12 +213,11 @@ public class Rest
         return serveBoot(gameId);
       }
       else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_HEARTBEAT)) {
-        return "success";
-        /*if (!Utils.checkMachineAllowed(clientAddress)) {
+        if (!Cache.checkMachineAllowed(clientAddress)) {
           return "error";
         }
 
-        return handleHeartBeat(params);*/
+        return handleHeartBeat(params);
       }
     }
 
@@ -404,8 +404,7 @@ public class Rest
     int gameId = Integer.parseInt(
         params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0]);
 
-    log.debug(String.format("We received heartBeat message for game %s : %s",
-        message,gameId));
+    Cache.addGameHeartbeat(gameId, message);
 
     return "success";
   }
@@ -416,7 +415,7 @@ public class Rest
   public synchronized String handleServerInterfacePUT (Map<String, String[]> params,
                                           HttpServletRequest request)
   {
-    if (!Utils.checkMachineAllowed(request.getRemoteAddr())) {
+    if (!Cache.checkMachineAllowed(request.getRemoteAddr())) {
       return "error";
     }
 
@@ -445,8 +444,6 @@ public class Rest
 
       if (fileName.contains("sim-logs")) {
         try {
-          // new LogParser(properties.getProperty("logLocation"), fileName);
-
           Runnable r = new LogParser(
               properties.getProperty("logLocation"), fileName);
           new Thread(r).start();
@@ -469,7 +466,7 @@ public class Rest
   {
     String remoteAddress = request.getRemoteAddr();
 
-    if (!Utils.checkMachineAllowed(remoteAddress)) {
+    if (!Cache.checkMachineAllowed(remoteAddress)) {
       return "error";
     }
 

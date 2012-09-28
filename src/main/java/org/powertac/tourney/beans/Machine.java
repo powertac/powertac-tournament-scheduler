@@ -6,18 +6,14 @@ import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.HibernateUtil;
-import org.powertac.tourney.services.TournamentProperties;
+import org.powertac.tourney.services.JenkinsConnector;
 import org.powertac.tourney.services.Utils;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.persistence.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,17 +63,10 @@ public class Machine
   {
     log.info("WatchDogTimer Checking Machine States..");
 
-    TournamentProperties properties = TournamentProperties.getProperties();
-
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      String url = properties.getProperty("jenkins.location")
-          + "computer/api/xml";
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      DocumentBuilder docB = dbf.newDocumentBuilder();
-      Document doc = docB.parse(new URL(url).openStream());
-      NodeList nList = doc.getElementsByTagName("computer");
+      NodeList nList = JenkinsConnector.getNodeList();
 
       for (int temp = 0; temp < nList.getLength(); temp++) {
         try {
@@ -92,11 +81,11 @@ public class Machine
             String idle = eElement.getElementsByTagName("idle")
                 .item(0).getChildNodes().item(0).getNodeValue();
 
-            // We don't check the status of the master
-            log.debug("Checking machine " + displayName);
-            if (displayName.equals("master")) {
+            // We don't check the status of the master or abort machines
+            if (displayName.equals("master") || displayName.contains("-abort")){
               continue;
             }
+            log.debug("Checking machine " + displayName);
 
             Query query = session.
                 createQuery(Constants.HQL.GET_MACHINE_BY_MACHINENAME);
@@ -172,14 +161,18 @@ public class Machine
     return machines;
   }
 
-  public static void delayedMachineUpdate (int machineId, int delay)
+  public static void delayedMachineUpdate (Machine machine, int delay)
   {
+    if (machine == null) {
+      return;
+    }
+
     // There are 2 scenarios where we want to delay the setting to idle.
     // 1 After we kill a job. The viz doesn't receive an end-of-sim message.
     // It takes the viz 2 minutes to recover from this, so we delay for 5 min.
     // 2 When the jenkins-script sends an we're-done message, it still takes
     // some time to end the jenkins job. If the check-machines method runs
-    // before the jobs end, the machine gets set to not-idle.
+    // before the jobs end, the machine gets set to not-idle and never recover.
 
     class updateThread implements Runnable {
       private int machineId;
@@ -209,7 +202,7 @@ public class Machine
         session.close();
       }
     }
-    Runnable r = new updateThread(machineId, delay);
+    Runnable r = new updateThread(machine.getMachineId(), delay);
     new Thread(r).start();
   }
 

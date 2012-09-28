@@ -29,9 +29,6 @@ public class Scheduler implements InitializingBean
 
   private Tournament runningTournament = null;
 
-  private List<Integer> checkedBootstraps = new ArrayList<Integer>();
-  private List<Integer> checkedSims = new ArrayList<Integer>();
-
   public Scheduler ()
   {
     super();
@@ -160,7 +157,7 @@ public class Scheduler implements InitializingBean
       log.info("Tournament already scheduled");
       return;
     }
-    else if (runningTournament.getStartTime().after(new Date())) {
+    else if (!runningTournament.isStarted()) {
       log.info("Too early to start tournament: " +
           runningTournament.getTournamentName());
       return;
@@ -191,7 +188,7 @@ public class Scheduler implements InitializingBean
 
       for (int i=0; i < (gameTypes.length); i++) {
         for (int j=0; j < multipliers[i]; j++) {
-          doTheKailash(session, gameTypes[i], i, brokers);
+          doTheKailash(session, gameTypes[i], i, j, brokers);
         }
       }
 
@@ -207,7 +204,8 @@ public class Scheduler implements InitializingBean
   }
 
   //private void doTheKailash (Session session, int gameType, List<Broker> brokers)
-  private void doTheKailash (Session session, int gameType, int gameNumber, List<Broker> brokers)
+  private void doTheKailash (Session session, int gameType, int gameNumber,
+                             int multiplier, List<Broker> brokers)
   {
     log.info(String.format("Doing the Kailash with gameType = %s ; "
         + "maxBrokers = %s", gameType, brokers.size()));
@@ -251,7 +249,8 @@ public class Scheduler implements InitializingBean
       String gameString = games.get(j);
 
       String gameName = String.format("%s_%s_%s_%s",
-          runningTournament.getTournamentName(), gameNumber, gameType, j);
+          runningTournament.getTournamentName(),
+          gameNumber, gameType, j + multiplier*games.size());
       Game game = Game.createGame(runningTournament, gameName);
       session.save(game);
 
@@ -275,32 +274,12 @@ public class Scheduler implements InitializingBean
 
     List<Game> games = Game.getNotCompleteGamesList();
 
-    long wedgedDeadline = Integer.parseInt(
-        properties.getProperty("scheduler.bootstrapWedged", "900000"));
-    long nowStamp = Utils.offsetDate().getTime();
-
     for (Game game: games) {
       if (!game.isBooting() || game.getReadyTime() == null) {
         continue;
       }
 
-      // Make sure no more than 1 email per wedged boot
-      if (checkedBootstraps.contains(game.getGameId())) {
-        continue;
-      }
-
-      long diff = nowStamp - game.getReadyTime().getTime();
-      if (diff > wedgedDeadline) {
-        checkedBootstraps.add(game.getGameId());
-
-        String msg = String.format(
-            "Bootstrapping of game %s seems to take too long : %s seconds",
-            game.getGameId(), (diff / 1000));
-        log.error(msg);
-        Utils.sendMail("Bootstrap seems stuck", msg,
-            properties.getProperty("scheduler.mailRecipient"));
-        properties.addErrorMessage(msg);
-      }
+      Cache.addBootstrap(game);
     }
     log.debug("WatchDogTimer No Bootstraps seems Wedged");
   }
@@ -311,42 +290,12 @@ public class Scheduler implements InitializingBean
 
     List<Game> games = Game.getNotCompleteGamesList();
 
-    long wedgedSimDeadline = Integer.parseInt(
-        properties.getProperty("scheduler.simWedged", "10800000"));
-    long wedgedTestDeadline = Integer.parseInt(
-        properties.getProperty("scheduler.simTestWedged", "2700000"));
-    long nowStamp = Utils.offsetDate().getTime();
-
     for (Game game: games) {
       if (!game.isRunning() || game.getReadyTime() == null) {
         continue;
       }
 
-      // Make sure no more than 1 email per wedged sim
-      if (checkedSims.contains(game.getGameId())) {
-        continue;
-      }
-
-      long wedgedDeadline;
-      if (game.getTournament().getTournamentName()
-            .toLowerCase().contains("test")) {
-        wedgedDeadline = wedgedTestDeadline;
-      } else {
-        wedgedDeadline = wedgedSimDeadline;
-      }
-
-      long diff = nowStamp - game.getReadyTime().getTime();
-      if (diff > wedgedDeadline) {
-        checkedSims.add(game.getGameId());
-
-        String msg = String.format(
-            "Sim of game %s seems to take too long : %s seconds",
-            game.getGameId(), (diff / 1000));
-        log.error(msg);
-        Utils.sendMail("Sim seems stuck", msg,
-            properties.getProperty("scheduler.mailRecipient"));
-        properties.addErrorMessage(msg);
-      }
+      Cache.addSim(game);
     }
     log.debug("WatchDogTimer No Sim seems Wedged");
   }
@@ -385,20 +334,6 @@ public class Scheduler implements InitializingBean
   }
   public void setWatchDogInterval(long watchDogInterval) {
     this.watchDogInterval = watchDogInterval;
-  }
-
-  public List<Integer> getCheckedBootstraps() {
-    return checkedBootstraps;
-  }
-  public void setCheckedBootstraps(List<Integer> checkedBootstraps) {
-    this.checkedBootstraps = checkedBootstraps;
-  }
-
-  public List<Integer> getCheckedSims() {
-    return checkedSims;
-  }
-  public void setCheckedSims(List<Integer> checkedSims) {
-    this.checkedSims = checkedSims;
   }
   //</editor-fold>
 }

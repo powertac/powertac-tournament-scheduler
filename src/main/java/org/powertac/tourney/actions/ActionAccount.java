@@ -198,11 +198,11 @@ public class ActionAccount
 
   public void register (Broker b)
   {
-    if (!(b.getSelectedTourney() > 0)) {
+    if (!(b.getSelectedTourneyRegister() > 0)) {
       return;
     }
 
-    boolean registered = b.register(b.getSelectedTourney());
+    boolean registered = b.register(b.getSelectedTourneyRegister());
     if (!registered) {
       String msg = "Error registering broker";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);

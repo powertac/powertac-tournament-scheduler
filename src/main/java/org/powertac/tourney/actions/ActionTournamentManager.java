@@ -243,8 +243,8 @@ public class ActionTournamentManager
 
     Integer[] gameTypes = {Math.max(1,size1), Math.max(1,size2),
         Math.max(1,size3)};
-    Integer[] multipliers = {Math.max(1,multiplier1), Math.max(1,multiplier2),
-        Math.max(1,multiplier3)};
+    Integer[] multipliers = {Math.max(0,multiplier1), Math.max(0,multiplier2),
+        Math.max(0,multiplier3)};
     Arrays.sort(gameTypes,Collections.reverseOrder());
     maxBrokers = Math.max(maxBrokers, tournament.getBrokerMap().size());
 
@@ -277,9 +277,9 @@ public class ActionTournamentManager
     type = Tournament.TYPE.SINGLE_GAME;
     maxBrokers = 0;
     maxAgents = 2;
-    size1 = 2;
+    size1 = 8;
     size2 = 4;
-    size3 = 8;
+    size3 = 2;
     multiplier1 = 1;
     multiplier2 = 1;
     multiplier3 = 1;

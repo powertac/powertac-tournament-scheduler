@@ -4,15 +4,14 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tourney.beans.*;
-import org.powertac.tourney.services.HibernateUtil;
-import org.powertac.tourney.services.KillJob;
-import org.powertac.tourney.services.Utils;
+import org.powertac.tourney.services.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @ManagedBean
@@ -50,6 +49,92 @@ public class ActionOverview
   public List<Game> getNotCompleteGamesList ()
   {
     return notCompleteGamesList;
+  }
+
+  public List<Tournament> getAvailableTournaments (Broker b)
+  {
+    return b.getAvailableTournaments();
+  }
+
+  public List<Tournament> getRegisteredTournaments (Broker b)
+  {
+    return b.getRegisteredTournaments();
+  }
+
+  public String getLogins (int brokerId)
+  {
+    String result = "";
+
+    List<Long> logins = Cache.brokerLogins.get(brokerId);
+    if (logins == null) {
+      return "";
+    }
+
+    Iterator<Long> iter = logins.iterator();
+    while (iter.hasNext()) {
+      int stamp = (int) (System.currentTimeMillis() - iter.next()) / 1000;
+      if (stamp > 900) {
+        iter.remove();
+      } else {
+        result += stamp + " ";
+      }
+    }
+
+    return result;
+  }
+
+  public String getHeartbeat (int gameId)
+  {
+    String[] messages = Cache.gameHeartbeats.get(gameId);
+    if (messages == null) {
+      return "";
+    }
+
+    try {
+      int ago = (int)
+          (System.currentTimeMillis() - Long.parseLong(messages[1])) / 1000;
+      return messages[0] +" ("+ String.valueOf(ago) + ")";
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      return "";
+    }
+  }
+
+  public void register (Broker b)
+  {
+    if (!(b.getSelectedTourneyRegister() > 0)) {
+      return;
+    }
+
+    boolean registered = b.register(b.getSelectedTourneyRegister());
+    if (!registered) {
+      String msg = "Error registering broker";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesContext.getCurrentInstance().addMessage("formDatabrokers", fm);
+    } else {
+      brokerList = Broker.getBrokerList();
+      User user = User.getCurrentUser();
+      User.reloadUser(user);
+    }
+  }
+
+  public void unregister (Broker b)
+  {
+    if (!(b.getSelectedTourneyUnregister() > 0)) {
+      return;
+    }
+
+    boolean registered = b.unregister(b.getSelectedTourneyUnregister());
+    if (!registered) {
+      String msg = "Error unregistering broker";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesContext.getCurrentInstance().addMessage("formDatabrokers", fm);
+    } else {
+      brokerList = Broker.getBrokerList();
+      User user = User.getCurrentUser();
+      User.reloadUser(user);
+    }
   }
 
   public void startNow (Tournament tournament)
@@ -102,14 +187,25 @@ public class ActionOverview
     }
   }
 
-  public void stopGame (Game game)
+  public void abortGame (Game game)
   {
-    log.info("Trying to stop game: " + game.getGameId());
+    log.info("Trying to abort game: " + game.getGameId());
+
+    Cache.removeSim(game.getGameId());
+
+    new RunAbort(game.getMachine().getMachineName());
+  }
+
+  public void killGame(Game game)
+  {
+    log.info("Trying to kill game: " + game.getGameId());
 
     int gameId = game.getGameId();
     int machineId = game.getMachine().getMachineId();
+    Machine machine = game.getMachine();
     String machineName = game.getMachine().getMachineName();
-    Scheduler scheduler = Scheduler.getScheduler();
+
+    Cache.removeSim(game.getGameId());
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
@@ -121,12 +217,7 @@ public class ActionOverview
         game.removeBootFile();
         game.setStatus(Game.STATE.boot_pending.toString());
 
-        List<Integer> checkedBoots = scheduler.getCheckedBootstraps();
-        if (checkedBoots.contains(gameId)) {
-          int index = checkedBoots.indexOf(gameId);
-          checkedBoots.remove(index);
-          scheduler.setCheckedBootstraps(checkedBoots);
-        }
+        Cache.removeBootstrap(gameId);
       }
       else if (game.isRunning()) {
         log.info("Resetting sim game: " + gameId + " on machine: " + machineId);
@@ -135,15 +226,11 @@ public class ActionOverview
 
         for (Agent agent: game.getAgentMap().values()) {
           agent.setStatus(Agent.STATE.pending.toString());
+          agent.setBalance(0);
           session.update(agent);
         }
 
-        List<Integer> checkedSims = scheduler.getCheckedSims();
-        if (checkedSims.contains(gameId)) {
-          int index = checkedSims.indexOf(gameId);
-          checkedSims.remove(index);
-          scheduler.setCheckedSims(checkedSims);
-        }
+        Cache.removeSim(gameId);
       }
 
       game.setReadyTime(null);
@@ -151,14 +238,14 @@ public class ActionOverview
       session.update(game);
       transaction.commit();
 
-      Machine.delayedMachineUpdate(machineId, 300);
+      Machine.delayedMachineUpdate(machine, 300);
     }
     catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
 
-      log.error("Failed to completely stop game: " + gameId);
-      String msg = "Error stopping game : " + gameId;
+      log.error("Failed to completely kill game: " + gameId);
+      String msg = "Error killing game : " + gameId;
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
     }
@@ -166,7 +253,7 @@ public class ActionOverview
       session.close();
 
       // Kill the job on Jenkins and the slave
-      new KillJob(machineName);
+      new RunKill(machineName);
     }
 
   }
@@ -185,25 +272,13 @@ public class ActionOverview
         game.removeBootFile();
         game.setStatus(Game.STATE.boot_pending.toString());
 
-        Scheduler scheduler = Scheduler.getScheduler();
-        List<Integer> checkedBoots = scheduler.getCheckedBootstraps();
-        if (checkedBoots.contains(gameId)) {
-          int index = checkedBoots.indexOf(gameId);
-          checkedBoots.remove(index);
-          scheduler.setCheckedBootstraps(checkedBoots);
-        }
+        Cache.removeBootstrap(gameId);
       }
       if (game.stateEquals(Game.STATE.game_failed)) {
         log.info("Resetting sim game: " + gameId);
         game.setStatus(Game.STATE.boot_complete.toString());
 
-        Scheduler scheduler = Scheduler.getScheduler();
-        List<Integer> checkedSims = scheduler.getCheckedSims();
-        if (checkedSims.contains(gameId)) {
-          int index = checkedSims.indexOf(gameId);
-          checkedSims.remove(index);
-          scheduler.setCheckedSims(checkedSims);
-        }
+        Cache.removeSim(gameId);
 
         for (Agent agent: game.getAgentMap().values()) {
           agent.setStatus(Agent.STATE.pending.toString());

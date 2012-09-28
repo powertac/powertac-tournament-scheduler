@@ -25,7 +25,8 @@
 
       <h:form id="adminControls" rendered="#{user.permissionId le 0}">
         <t:panelGrid columns="3">
-          <h4>WatchDog Status:</h4>
+          <h4>WatchDog Status</h4>
+          <h:commandButton value="Restart" action="#{actionAdmin.restartWatchDog}"/>
           <h:panelGroup>
             <h:outputText value="WatchDog running"
                           style="color:green;"
@@ -34,17 +35,8 @@
                           style="color:red;"
                           rendered="#{!scheduler.running}" />
           </h:panelGroup>
-          <h:commandButton value="Restart" action="#{actionAdmin.restartWatchDog}"/>
 
-          <h4>Tournament Status:</h4>
-          <h:panelGroup>
-            <h:outputText value="Tourney &lt;b&gt;#{scheduler.getRunningTournament().tournamentName}&lt;/b&gt; Loaded"
-                          style="color:green;" escape="false"
-                          rendered="#{!scheduler.nullTourney}" />
-            <h:outputText value="Tourney not Loaded"
-                          style="color:red;"
-                          rendered="#{scheduler.nullTourney}" />
-          </h:panelGroup>
+          <h4>Tournament Status</h4>
           <h:panelGroup>
             <h:commandButton value="Unload"
                              action="#{actionAdmin.unloadTournament()}"
@@ -65,8 +57,22 @@
               No tournaments availble for loading
             </h:outputText>
           </h:panelGroup>
+          <h:panelGroup>
+            <h:outputText value="Tourney &lt;b&gt;#{scheduler.getRunningTournament().tournamentName}&lt;/b&gt; Loaded"
+                          style="color:green;" escape="false"
+                          rendered="#{!scheduler.nullTourney}" />
+            <h:outputText value="Tourney not Loaded"
+                          style="color:red;"
+                          rendered="#{scheduler.nullTourney}" />
+          </h:panelGroup>
 
-          <h4>Weather Server Status:</h4>
+          <h4>Cache</h4>
+          <h:commandButton value="Destroy cache"
+                           action="#{actionAdmin.destroyCache()}"/>
+          <t:panelGroup/>
+
+          <h4>Weather Server Status</h4>
+          <t:panelGroup> </t:panelGroup>
           <t:panelGroup colspan="2">
             <h:outputText value="#{checkWeatherServer.status}"
                           style="color:green;"
@@ -79,7 +85,7 @@
                           rendered="#{checkWeatherServer.status == 'Server Timeout or Network Error'}" />
           </t:panelGroup>
 
-          <h4>Weather Server Location:</h4>
+          <h4>Weather Server Location</h4>
           <t:panelGroup colspan="2">
             <h:outputText value="#{checkWeatherServer.weatherServerLocation}" />
           </t:panelGroup>
@@ -148,25 +154,19 @@
                      value="#{actionAdmin.pomList}" var="p">
 
           <t:column defaultSorted="true">
-            <f:facet name="header">
-              <h:outputText value="Pom Name" />
-            </f:facet>
+            <f:facet name="header">Pom Name</f:facet>
             <a href="pom.jsp?pomId=#{p.pomId}">
                 <h:outputText value="#{p.pomName}" />
             </a>
           </t:column>
 
           <t:column defaultSorted="true">
-            <f:facet name="header">
-              <h:outputText value="Pom Id" />
-            </f:facet>
+            <f:facet name="header">Pom Id</f:facet>
             <h:outputText value="#{p.pomId}" />
           </t:column>
 
           <t:column defaultSorted="true">
-            <f:facet name="header">
-              <h:outputText value="Uploading User" />
-            </f:facet>
+            <f:facet name="header">Uploading User</f:facet>
             <h:outputText value="#{p.user.getUserName()}" />
           </t:column>
         </t:dataTable>
@@ -195,30 +195,22 @@
                      value="#{actionAdmin.machineList}" var="m">
 
           <t:column defaultSorted="true" sortable="true">
-            <f:facet name="header">
-              <h:outputText value="Name" />
-            </f:facet>
+            <f:facet name="header">Name"</f:facet>
             <h:outputText value="#{m.machineName}" />
           </t:column>
           <t:column sortable="true">
-            <f:facet name="header">
-              <h:outputText value="Hostname" />
-            </f:facet>
+            <f:facet name="header">Hostname</f:facet>
             <h:outputText value="#{m.machineUrl}" />
           </t:column>
           <t:column sortable="true">
-            <f:facet name="header">
-              <h:outputText value="Vizualizer URL" />
-            </f:facet>
+            <f:facet name="header">Vizualizer URL</f:facet>
             <a href="http://#{m.vizUrl}" target="_blank">
               <h:outputText value="#{m.vizUrl} "/>
             </a>
           </t:column>
 
           <t:column sortable="true">
-            <f:facet name="header">
-              <h:outputText value="Idle" />
-            </f:facet>
+            <f:facet name="header">Idle</f:facet>
             <h:outputText value="#{!m.isInProgress()}" />
           </t:column>
           <t:column>
@@ -231,9 +223,7 @@
           </t:column>
 
           <t:column sortable="true">
-            <f:facet name="header">
-              <h:outputText value="Available" />
-            </f:facet>
+            <f:facet name="header">Available</f:facet>
             <h:outputText value="#{m.available}" />
           </t:column>
           <t:column>
@@ -246,9 +236,7 @@
           </t:column>
 
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Actions" />
-            </f:facet>
+            <f:facet name="header">Actions</f:facet>
             <h:commandButton value="Delete" action="#{actionAdmin.deleteMachine(m)}"
                              onclick="return confirmAlert('Are you sure you want to delete this machine?');"/>
             <h:commandButton value="Edit" action="#{actionAdmin.editMachine(m)}" />
@@ -290,30 +278,25 @@
                      value="#{actionAdmin.userList}" var="u">
 
           <t:column defaultSorted="true">
-            <f:facet name="header">
-              <h:outputText value="User ID" />
-            </f:facet>
+            <f:facet name="header">User ID</f:facet>
             <h:outputText value="#{u.userId}" />
           </t:column>
 
           <t:column defaultSorted="true">
-            <f:facet name="header">
-              <h:outputText value="Username" />
-            </f:facet>
+            <f:facet name="header">Username</f:facet>
             <h:outputText value="#{u.userName}" />
           </t:column>
 
           <t:column defaultSorted="true">
-            <f:facet name="header">
-              <h:outputText value="Permission" />
-            </f:facet>
+            <f:facet name="header">Permission</f:facet>
             <h:outputText value="#{u.permissionId}" />
           </t:column>
         </t:dataTable>
       </h:form>
 
       <h:form rendered="#{user.permissionId gt 0}">
-        <h2>Insufficient Permissions</h2>
+        <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
+        <meta http-equiv="REFRESH" content="10;url=login.xhtml" />
       </h:form>
 
       <br/><br/>

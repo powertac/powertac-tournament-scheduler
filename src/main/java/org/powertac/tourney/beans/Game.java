@@ -6,6 +6,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tourney.constants.Constants;
+import org.powertac.tourney.services.Cache;
 import org.powertac.tourney.services.HibernateUtil;
 import org.powertac.tourney.services.TournamentProperties;
 import org.powertac.tourney.services.Utils;
@@ -118,14 +119,24 @@ public class Game implements Serializable
         break;
 
       case boot_complete:
-        Machine.delayedMachineUpdate(machine.getMachineId(), 10);
+        Machine.delayedMachineUpdate(machine, 10);
         machine = null;
         log.debug("Freeing Machines for game: " + gameId);
+
+        // Reset values when a game is aborted
+        for (Agent agent: getAgentMap().values()) {
+          agent.setStatus(Agent.STATE.pending.toString());
+          agent.setBalance(0);
+          session.update(agent);
+        }
+        Cache.removeSim(gameId);
+        setReadyTime(null);
+
         break;
 
       case boot_failed:
         log.warn("BOOT " + gameId + " FAILED!");
-        Machine.delayedMachineUpdate(machine.getMachineId(), 10);
+        Machine.delayedMachineUpdate(machine, 10);
         machine = null;
         log.debug("Freeing Machines for game: " + gameId);
         break;
@@ -144,7 +155,7 @@ public class Game implements Serializable
           session.update(agent);
         }
         log.info("Setting Agents to Complete for game: " + gameId);
-        Machine.delayedMachineUpdate(machine.getMachineId(), 10);
+        Machine.delayedMachineUpdate(machine, 10);
         machine = null;
         log.debug("Freeing Machines for game: " + gameId);
         // If all games of tournament are complete, set tournament complete
@@ -158,7 +169,7 @@ public class Game implements Serializable
           session.update(agent);
         }
         log.info("Setting Agents to Complete for game: " + gameId);
-        Machine.delayedMachineUpdate(machine.getMachineId(), 10);
+        Machine.delayedMachineUpdate(machine, 10);
         machine = null;
         log.debug("Freeing Machines for game: " + gameId);
         break;

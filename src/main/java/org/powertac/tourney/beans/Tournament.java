@@ -57,10 +57,6 @@ public class Tournament
   {
   }
 
-  /*ALTER TABLE  `tournaments` ADD  `multiplier1` INT NOT NULL AFTER  `gameSize3` ,
-  ADD  `multiplier2` INT NOT NULL AFTER  `multiplier1` ,
-  ADD  `multiplier3` INT NOT NULL AFTER  `multiplier2`*/
-
   public String delete ()
   {
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -254,7 +250,7 @@ public class Tournament
   @Transient
   public boolean isStarted ()
   {
-    return startTime.before (Utils.offsetDate());
+    return startTime.before(Utils.offsetDate());
   }
 
   @Transient
