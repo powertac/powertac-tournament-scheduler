@@ -118,7 +118,8 @@
           <h:column>
             <f:facet name="header">Action</f:facet>
             <h:commandButton value="Delete" action="#{actionAdmin.deleteLocation(l)}"
-                             onclick="return confirmAlert('Are you sure you want to delete this location?');"/>
+                             onclick="return confirmAlert('Are you sure you want to delete this location?');"
+                             styleClass="smallButton"/>
           </h:column>
         </h:dataTable>
 
@@ -230,10 +231,12 @@
           <t:column>
             <h:commandButton value="Set Running"
                              action="#{actionAdmin.toggleStatus(m)}"
-                             rendered="#{!m.isInProgress()}" />
+                             rendered="#{!m.isInProgress()}"
+                             styleClass="smallButton"/>
             <h:commandButton value="Set Idle"
                              action="#{actionAdmin.toggleStatus(m)}"
-                             rendered="#{m.isInProgress()}"  />
+                             rendered="#{m.isInProgress()}"
+                             styleClass="smallButton"/>
           </t:column>
 
           <t:column sortable="true">
@@ -245,10 +248,12 @@
           <t:column>
             <h:commandButton value="Enable"
                              action="#{actionAdmin.toggleAvailable(m)}"
-                             rendered="#{!m.available}" />
+                             rendered="#{!m.available}"
+                             styleClass="smallButton"/>
             <h:commandButton value="Disable"
                              action="#{actionAdmin.toggleAvailable(m)}"
-                             rendered="#{m.available}" />
+                             rendered="#{m.available}"
+                             styleClass="smallButton"/>
           </t:column>
 
           <t:column>
@@ -256,8 +261,10 @@
               <h:outputText value="Actions" />
             </f:facet>
             <h:commandButton value="Delete" action="#{actionAdmin.deleteMachine(m)}"
-                             onclick="return confirmAlert('Are you sure you want to delete this machine?');"/>
-            <h:commandButton value="Edit" action="#{actionAdmin.editMachine(m)}" />
+                             onclick="return confirmAlert('Are you sure you want to delete this machine?');"
+                             styleClass="smallButton"/>
+            <h:commandButton value="Edit" action="#{actionAdmin.editMachine(m)}"
+                             styleClass="smallButton"/>
           </t:column>
         </t:dataTable>
       </h:form>
