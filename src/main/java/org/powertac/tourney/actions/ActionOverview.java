@@ -135,7 +135,7 @@ public class ActionOverview
           log.info(msg);
           FacesMessage fm =
               new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-          FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+          FacesContext.getCurrentInstance().addMessage("tournamentForm", fm);
         }
       }
 
@@ -143,7 +143,7 @@ public class ActionOverview
           "Setting tournament: "+ tournament.getTournamentId() +" to start now";
       log.info(msg);
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+      FacesContext.getCurrentInstance().addMessage("tournamentForm", fm);
 
       transaction.commit();
     }
@@ -153,7 +153,7 @@ public class ActionOverview
       String msg =
           "Failed to start tournament "+ tournament.getTournamentId() +" to now";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+      FacesContext.getCurrentInstance().addMessage("tournamentForm", fm);
     }
     session.close();
 
@@ -170,6 +170,10 @@ public class ActionOverview
     log.info("Trying to abort game: " + game.getGameId());
 
     new RunAbort(game.getMachine().getMachineName());
+
+    String msg = "Aborting games takes some time, please wait";
+    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+    FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
   }
 
   public void killGame(Game game)

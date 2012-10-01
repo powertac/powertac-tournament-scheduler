@@ -110,7 +110,7 @@
         <h:messages for="formDatabrokers" layout=""/>
       </h:form>
 
-      <h:form rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteTournamentList.size() > 0)}">
+      <h:form rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteTournamentList.size() > 0)}" id="tournamentForm">
         <h3 class="withButton">Pending/Running Tournaments</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
         <t:dataTable id="datatourneys" border="1"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
@@ -171,6 +171,8 @@
                              rendered="#{!t.isStarted()}"/>
           </t:column>
         </t:dataTable>
+
+        <h:messages for="tournamentForm" />
       </h:form>
 
       <h:form rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteGamesList.size() > 0)}" id="gamesForm">
@@ -192,7 +194,8 @@
 
           <t:column>
             <f:facet name="header">Status</f:facet>
-            <h:outputText value="#{g.status}" />
+            <h:outputText value="#{g.status}"
+                          style="#{g.isRunning() ? 'font-weight:bold;' : '' }"/>
           </t:column>
 
           <t:column>
