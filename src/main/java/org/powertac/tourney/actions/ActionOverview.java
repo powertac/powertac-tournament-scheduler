@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+
 @ManagedBean
 @RequestScoped
 public class ActionOverview
@@ -65,12 +66,35 @@ public class ActionOverview
       int stamp = (int) (System.currentTimeMillis() - iter.next()) / 1000;
       if (stamp > 900) {
         iter.remove();
+      } else if (stamp < 61) {
+        result += "<b>" + stamp + "</b> ";
       } else {
         result += stamp + " ";
       }
     }
 
     return result;
+  }
+
+  public String getBrokerState (int brokerId)
+  {
+    if (Cache.getBrokerState(brokerId)) {
+      return "Enabled";
+    } else {
+      return "Disabled";
+    }
+  }
+
+  public void toggleState (int brokerId)
+  {
+    boolean enabled = true;
+
+    try {
+      enabled = Cache.brokerState.get(brokerId);
+    }
+    catch (Exception ignored) {}
+
+    Cache.setBrokerState(brokerId, !enabled);
   }
 
   public String getHeartbeat (int gameId)
@@ -145,8 +169,6 @@ public class ActionOverview
   {
     log.info("Trying to abort game: " + game.getGameId());
 
-    Cache.removeSim(game.getGameId());
-
     new RunAbort(game.getMachine().getMachineName());
   }
 
@@ -202,8 +224,6 @@ public class ActionOverview
 
     // Kill the job on Jenkins and the slave
     new RunKill(machineName);
-    Cache.removeSim(gameId);
-    Cache.removeBootstrap(gameId);
   }
 
   public void restartGame (Game game)
@@ -219,14 +239,10 @@ public class ActionOverview
         log.info("Resetting boot game: " + gameId);
         game.removeBootFile();
         game.setStatus(Game.STATE.boot_pending.toString());
-
-        Cache.removeBootstrap(gameId);
       }
       if (game.stateEquals(Game.STATE.game_failed)) {
         log.info("Resetting sim game: " + gameId);
         game.setStatus(Game.STATE.boot_complete.toString());
-
-        Cache.removeSim(gameId);
 
         for (Agent agent: game.getAgentMap().values()) {
           agent.setStatus(Agent.STATE.pending.toString());

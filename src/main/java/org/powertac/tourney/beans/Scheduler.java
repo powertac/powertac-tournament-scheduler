@@ -178,11 +178,11 @@ public class Scheduler implements InitializingBean
       }
 
       if (brokers.size() == 0) {
+        log.info("Tournament has no brokers registered, setting to complete");
         runningTournament.setStatus(Tournament.STATE.complete.toString());
         session.update(runningTournament);
-        transaction.commit();
-        log.info("Tournament has no brokers registered, setting to complete");
         unloadTournament();
+        transaction.commit();
         return;
       }
 
@@ -198,7 +198,9 @@ public class Scheduler implements InitializingBean
       transaction.rollback();
       e.printStackTrace();
     }
-    session.close();
+    finally {
+      session.close();
+    }
 
     reloadTournament();
   }
@@ -272,14 +274,26 @@ public class Scheduler implements InitializingBean
   {
     log.info("WatchDogTimer Looking for Wedged Bootstraps");
 
-    List<Game> games = Game.getNotCompleteGamesList();
-
-    for (Game game: games) {
+    for (Game game: Game.getNotCompleteGamesList()) {
       if (!game.isBooting() || game.getReadyTime() == null) {
         continue;
       }
 
-      Cache.addBootstrap(game);
+      long wedgedDeadline = Integer.parseInt(
+          properties.getProperty("scheduler.bootstrapWedged", "900000"));
+      long nowStamp = Utils.offsetDate().getTime();
+      long minStamp = game.getReadyTime().getTime() + wedgedDeadline;
+      long maxStamp = minStamp + watchDogInterval;
+
+      if (nowStamp > minStamp && nowStamp < maxStamp) {
+        String msg = String.format(
+            "Bootstrapping of game %s seems to take too long : %s seconds",
+            game.getGameId(),((nowStamp - game.getReadyTime().getTime())/1000));
+        log.error(msg);
+        Utils.sendMail("Bootstrap seems stuck", msg,
+            properties.getProperty("scheduler.mailRecipient"));
+        properties.addErrorMessage(msg);
+      }
     }
     log.debug("WatchDogTimer No Bootstraps seems Wedged");
   }
@@ -288,14 +302,30 @@ public class Scheduler implements InitializingBean
   {
     log.info("WatchDogTimer Looking for Wedged Sims");
 
-    List<Game> games = Game.getNotCompleteGamesList();
-
-    for (Game game: games) {
+    for (Game game: Game.getNotCompleteGamesList()) {
       if (!game.isRunning() || game.getReadyTime() == null) {
         continue;
       }
 
-      Cache.addSim(game);
+      long wedgedDeadline = Integer.parseInt(
+          properties.getProperty("scheduler.simTestWedged", "2700000"));
+      if (game.getTournament().getTournamentName().toLowerCase().contains("test")) {
+        wedgedDeadline = Integer.parseInt(
+            properties.getProperty("scheduler.simWedged", "10800000"));
+      }
+      long nowStamp = Utils.offsetDate().getTime();
+      long minStamp = game.getReadyTime().getTime() + wedgedDeadline;
+      long maxStamp = minStamp + watchDogInterval;
+
+      if (nowStamp > minStamp && nowStamp < maxStamp) {
+        String msg = String.format(
+            "Sim of game %s seems to take too long : %s seconds",
+            game.getGameId(),((nowStamp - game.getReadyTime().getTime())/1000));
+        log.error(msg);
+        Utils.sendMail("Sim seems stuck", msg,
+            properties.getProperty("scheduler.mailRecipient"));
+        properties.addErrorMessage(msg);
+      }
     }
     log.debug("WatchDogTimer No Sim seems Wedged");
   }

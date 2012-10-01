@@ -8,7 +8,6 @@
 package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
-import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Machine;
 import org.springframework.stereotype.Service;
 
@@ -28,51 +27,20 @@ public class Cache {
   public static HashMap<String, String> localIPs;
 
   public static HashMap<Integer, List<Long>> brokerLogins;
+  public static HashMap<String, Long> vizLogins;
   public static HashMap<Integer, String[]> gameHeartbeats;
 
-  private static List<Integer> checkedBootstraps;
-  private static List<Integer> checkedSims;
+  public static HashMap<Integer, Boolean> brokerState = new HashMap<Integer, Boolean>();
 
   public Cache ()
   {
-    brokerLogins = new HashMap<Integer, List<Long>>();
-    gameHeartbeats = new HashMap<Integer, String[]>();
-
     machineIPs = null;
     vizIPs = null;
     localIPs = null;
 
-    checkedBootstraps = new ArrayList<Integer>();
-    checkedSims = new ArrayList<Integer>();
-  }
-
-  public synchronized static void addBrokerLogin (int brokerId)
-  {
-    List<Long> dates = brokerLogins.get(brokerId);
-    if (dates == null) {
-      dates = new ArrayList<Long>();
-    }
-
-    dates.add(System.currentTimeMillis());
-
-    if (dates.size() > 4) {
-      dates.remove(0);
-    }
-
-    brokerLogins.put(brokerId, dates);
-  }
-
-  public synchronized static void removeBrokerLogin (int brokerId)
-  {
-    if (brokerLogins.containsKey(brokerId)) {
-      brokerLogins.remove(brokerId);
-    }
-  }
-
-  public synchronized static void addGameHeartbeat (int gameId, String message)
-  {
-    gameHeartbeats.put(gameId,
-        new String[] {message, System.currentTimeMillis()+""});
+    brokerLogins = new HashMap<Integer, List<Long>>();
+    vizLogins = new HashMap<String, Long>();
+    gameHeartbeats = new HashMap<Integer, String[]>();
   }
 
   public static void getIpAddresses ()
@@ -180,80 +148,47 @@ public class Cache {
     return true;
   }
 
-  public static void addBootstrap (Game game) {
-
-    // Make sure no more than 1 email per wedged boot
-    if (checkedBootstraps.contains(game.getGameId())) {
-      return;
+  public synchronized static void addBrokerLogin (int brokerId)
+  {
+    List<Long> dates = brokerLogins.get(brokerId);
+    if (dates == null) {
+      dates = new ArrayList<Long>();
     }
 
-    TournamentProperties properties = TournamentProperties.getProperties();
+    dates.add(System.currentTimeMillis());
 
-    long wedgedDeadline = Integer.parseInt(
-        properties.getProperty("scheduler.bootstrapWedged", "900000"));
-    long nowStamp = Utils.offsetDate().getTime();
-
-    long diff = nowStamp - game.getReadyTime().getTime();
-    if (diff > wedgedDeadline) {
-      checkedBootstraps.add(game.getGameId());
-
-      String msg = String.format(
-          "Bootstrapping of game %s seems to take too long : %s seconds",
-          game.getGameId(), (diff / 1000));
-      log.error(msg);
-      Utils.sendMail("Bootstrap seems stuck", msg,
-          properties.getProperty("scheduler.mailRecipient"));
-      properties.addErrorMessage(msg);
+    if (dates.size() > 4) {
+      dates.remove(0);
     }
+
+    brokerLogins.put(brokerId, dates);
   }
 
-  public static void removeBootstrap (int gameId) {
-    if (checkedBootstraps.contains(gameId)) {
-      int index = checkedBootstraps.indexOf(gameId);
-      checkedBootstraps.remove(index);
-    }
+  public synchronized static void addVizLogin (String machineName)
+  {
+    vizLogins.put(machineName, System.currentTimeMillis());
   }
 
-  public static void addSim (Game game) {
-
-    // Make sure no more than 1 email per wedged sim
-    if (checkedSims.contains(game.getGameId())) {
-      return;
-    }
-
-    TournamentProperties properties = TournamentProperties.getProperties();
-
-    long wedgedSimDeadline = Integer.parseInt(
-        properties.getProperty("scheduler.simWedged", "10800000"));
-    long wedgedTestDeadline = Integer.parseInt(
-        properties.getProperty("scheduler.simTestWedged", "2700000"));
-    long nowStamp = Utils.offsetDate().getTime();
-
-    long wedgedDeadline;
-    if (game.getTournament().getTournamentName().toLowerCase().contains("test")) {
-      wedgedDeadline = wedgedTestDeadline;
-    } else {
-      wedgedDeadline = wedgedSimDeadline;
-    }
-
-    long diff = nowStamp - game.getReadyTime().getTime();
-    if (diff > wedgedDeadline) {
-      checkedSims.add(game.getGameId());
-
-      String msg = String.format(
-          "Sim of game %s seems to take too long : %s seconds",
-          game.getGameId(), (diff / 1000));
-      log.error(msg);
-      Utils.sendMail("Sim seems stuck", msg,
-          properties.getProperty("scheduler.mailRecipient"));
-      properties.addErrorMessage(msg);
-    }
+  public synchronized static void addGameHeartbeat (int gameId, String message)
+  {
+    gameHeartbeats.put(gameId,
+        new String[] {message, System.currentTimeMillis()+""});
   }
 
-  public static void removeSim (int gameId) {
-    if (checkedSims.contains(gameId)) {
-      int index = checkedSims.indexOf(gameId);
-      checkedSims.remove(index);
+
+  public static boolean getBrokerState (int brokerId)
+  {
+    boolean enabled = true;
+    try {
+      enabled = Cache.brokerState.get(brokerId);
     }
+    catch (Exception ignored) {}
+
+    return enabled;
+  }
+
+  public static void setBrokerState (int brokerId, boolean state)
+  {
+    brokerState.put(brokerId, state);
   }
 }

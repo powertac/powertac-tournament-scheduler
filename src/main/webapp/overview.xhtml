@@ -23,6 +23,7 @@
             "sScrollY": Math.min(400, $("[id$=databrokers]").height()) + "px",
             "bPaginate": false,
             "aoColumnDefs": [
+              { 'bSortable': false, 'aTargets': [6] },
               { "sType": "natural", "aTargets": [0] }
             ]
           });
@@ -74,10 +75,10 @@
             <h:outputText value="#{broker.brokerId}" />
           </t:column>
 
-          <t:column>
+          <t:column styleClass="#{actionOverview.getBrokerState(broker.getBrokerId())}">
             <f:facet name="header">Name</f:facet>
             <h:outputLink value="mailto:#{broker.user.contactEmail}" >
-              <h:outputText value="#{broker.brokerName}" />
+              <h:outputText value="#{broker.brokerName}"/>
             </h:outputLink>
           </t:column>
 
@@ -93,7 +94,17 @@
 
           <t:column>
             <f:facet name="header">Logins</f:facet>
-            <t:outputText value="#{actionOverview.getLogins(broker.getBrokerId())}"/>
+            <t:outputText value="#{actionOverview.getLogins(broker.getBrokerId())}" escape="false"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">State</f:facet>
+            <t:outputText value="#{actionOverview.getBrokerState(broker.getBrokerId())}"/>
+          </t:column>
+
+          <t:column>
+            <h:commandButton value="Toggle" styleClass="smallButton"
+                             action="#{actionOverview.toggleState(broker.getBrokerId())}"/>
           </t:column>
         </t:dataTable>
         <h:messages for="formDatabrokers" layout=""/>

@@ -75,7 +75,7 @@
 ###############################################################################
 # You might want or need to change these 
 ###############################################################################
-LOGFILE=&quot;./log/$(date +%y%m%d_%H%M).log&quot;
+LOGFILE=&quot;./log/$(date -u +%y%m%d_%H%M).log&quot;
 MVN_CMD=&quot;mvn&quot;
 #COMP_CMD=&quot;7za a -mx=9&quot; COMP_EXT=&quot;7z&quot;
 #COMP_CMD=&quot;tar -cjvf&quot; #COMP_EXT=&quot;bz2&quot;
@@ -87,7 +87,7 @@ COMP_EXT=&quot;tar.gz&quot;
 interfacePath=&quot;faces/serverInterface.jsp&quot;
 propPath=&quot;faces/properties.jsp&quot;
 pomPath=&quot;faces/pom.jsp&quot;
-LOGFILE=&quot;./log/sim.$(date +%y%m%d_%H%M).log&quot;
+LOGFILE=&quot;./log/sim.$(date -u +%y%m%d_%H%M).log&quot;
 
 
 ###############################################################################
@@ -161,7 +161,7 @@ if [ ! -d &quot;$DIRECTORY&quot; ]; then
 fi
 
 StartTime=$(date +%s)
-log &quot;StartTime     : $(date +%F\ %H:%M:%S)&quot;
+log &quot;StartTime     : $(date -u +%F\ %H:%M:%S)&quot;
 log &quot;Nodename      : $NODE_NAME&quot;
 log &quot;Account       : ${USER}&quot;
 log &quot;GameId        : $gameId&quot;
@@ -202,7 +202,10 @@ fi
 
 EndTime=$(date +%s)
 ((RunningTime=EndTime-StartTime))
-log nl &quot;Game took (H:M:S) $(($RunningTime / 3600)):$(($RunningTime / 60)):$(($RunningTime % 60))&quot;
+H=$(($RunningTime / 3600))
+M=$((($RunningTime-3600*$H) / 60))
+S=$(($RunningTime % 60))
+log nl &quot;Game took (H:M:S) $H:$M:$S&quot;
 
 log nl &quot;Compressing log files&quot;
 $COMP_CMD &quot;$simName-logs.$COMP_EXT&quot; log/powertac-$suffix$gameId.* log/init.*

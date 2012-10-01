@@ -185,10 +185,10 @@ public class Machine
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction transaction = session.beginTransaction();
         try {
+          log.info("Setting machine " + machineId + " to idle");
           Machine machine = (Machine) session.get(Machine.class, machineId);
           machine.setStatus(Machine.STATE.idle.toString());
           transaction.commit();
-          log.info("Setting machine " + machineId + " to idle");
         }
         catch (Exception e) {
           transaction.rollback();

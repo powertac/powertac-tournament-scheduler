@@ -6,6 +6,14 @@ jQuery.fn.dataTableExt.oSort['natural-desc'] = function(a,b) {
     return naturalSort(a,b) * -1;
 };
 
+jQuery.fn.dataTableExt.oSort['numeric-asc']  = function(a,b) {
+    return parseFloat(a) > parseFloat(b)
+};
+
+jQuery.fn.dataTableExt.oSort['numeric-desc'] = function(a,b) {
+    return parseFloat(a) < parseFloat(b)
+};
+
 /*
  * Natural Sort algorithm for Javascript - Version 0.7 - Released under MIT license
  * Author: Jim Palmer (based on chunking idea from Dave Koelle)
@@ -17,13 +25,13 @@ function naturalSort (a, b) {
         hre = /^0x[0-9a-f]+$/i,
         ore = /^0/,
         i = function(s) { return naturalSort.insensitive && (''+s).toLowerCase() || ''+s },
-    // convert all to strings strip whitespace
+        // convert all to strings strip whitespace
         x = i(a).replace(sre, '') || '',
         y = i(b).replace(sre, '') || '',
-    // chunk/tokenize
+        // chunk/tokenize
         xN = x.replace(re, '\0$1\0').replace(/\0$/,'').replace(/^\0/,'').split('\0'),
         yN = y.replace(re, '\0$1\0').replace(/\0$/,'').replace(/^\0/,'').split('\0'),
-    // numeric, hex or date detection
+        // numeric, hex or date detection
         xD = parseInt(x.match(hre)) || (xN.length != 1 && x.match(dre) && Date.parse(x)),
         yD = parseInt(y.match(hre)) || xD && y.match(dre) && Date.parse(y) || null,
         oFxNcL, oFyNcL;

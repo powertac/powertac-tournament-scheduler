@@ -12,10 +12,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @ManagedBean
 @RequestScoped
@@ -134,13 +131,13 @@ public class ActionAdmin
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      session.save(location);
-      transaction.commit();
-
       locationName = "";
       locationTimezone = 0;
       locationStartTime = null;
       locationEndTime = null;
+
+      session.save(location);
+      transaction.commit();
     }
     catch (Exception e) {
       transaction.rollback();
@@ -308,8 +305,6 @@ public class ActionAdmin
     try {
       session.save(machine);
       transaction.commit();
-      resetMachineData();
-      log.info("Added new machine " + machine.getMachineId());
     }
     catch (Exception e) {
       transaction.rollback();
@@ -319,6 +314,11 @@ public class ActionAdmin
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
     }
+    if (transaction.wasCommitted()) {
+      resetMachineData();
+      log.info("Added new machine " + machine.getMachineId());
+    }
+
     session.close();
   }
 
@@ -332,10 +332,10 @@ public class ActionAdmin
       machine.setMachineUrl(machineUrl);
       machine.setVizUrl(machineViz);
 
-      session.update(machine);
-      transaction.commit();
       resetMachineData();
       log.info("Edited machine " + machine.getMachineId());
+      session.update(machine);
+      transaction.commit();
     }
     catch (Exception e) {
       transaction.rollback();
@@ -353,11 +353,9 @@ public class ActionAdmin
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
+      log.info("Deleting machine " + machine.getMachineId());
       session.delete(machine);
       transaction.commit();
-      log.info("Added new machine " + machine.getMachineId());
-
-      resetMachineData();
     }
     catch (Exception e) {
       transaction.rollback();
@@ -368,6 +366,7 @@ public class ActionAdmin
       FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
     }
     session.close();
+    resetMachineData();
   }
 
   private void resetMachineData() {
@@ -375,6 +374,22 @@ public class ActionAdmin
     machineViz = "";
     machineName = "";
     machineUrl = "";
+  }
+
+  public String getLogins (String machineName)
+  {
+    try {
+      long login =
+          (System.currentTimeMillis() - Cache.vizLogins.get(machineName))/1000;
+      if (login > 900) {
+        Cache.vizLogins.remove(machineName);
+      } else {
+        return String.valueOf(login);
+      }
+    }
+    catch (Exception ignored) {}
+
+    return "";
   }
   //</editor-fold>
 

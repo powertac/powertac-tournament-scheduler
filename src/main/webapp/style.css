@@ -32,6 +32,9 @@ td.left {
 td.right {
     text-align: right;
 }
+td.Disabled {
+    background-color: #FF0000;
+}
 
 #page {
     margin-left: auto;

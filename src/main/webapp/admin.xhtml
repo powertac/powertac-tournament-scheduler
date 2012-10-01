@@ -221,6 +221,12 @@
               <h:outputText value="#{m.vizUrl} "/>
             </a>
           </t:column>
+          <t:column>
+            <f:facet name="header">
+              <h:outputText value="Login" />
+            </f:facet>
+            <h:outputText value="#{actionAdmin.getLogins(m.machineName)}" />
+          </t:column>
 
           <t:column sortable="true">
             <f:facet name="header">
@@ -229,30 +235,20 @@
             <h:outputText value="#{!m.isInProgress()}" />
           </t:column>
           <t:column>
-            <h:commandButton value="Set Running"
+            <h:commandButton value="Toggle"
                              action="#{actionAdmin.toggleStatus(m)}"
-                             rendered="#{!m.isInProgress()}"
-                             styleClass="smallButton"/>
-            <h:commandButton value="Set Idle"
-                             action="#{actionAdmin.toggleStatus(m)}"
-                             rendered="#{m.isInProgress()}"
                              styleClass="smallButton"/>
           </t:column>
 
           <t:column sortable="true">
             <f:facet name="header">
-              <h:outputText value="Available" />
+              <h:outputText value="Avail" />
             </f:facet>
             <h:outputText value="#{m.available}" />
           </t:column>
           <t:column>
-            <h:commandButton value="Enable"
+            <h:commandButton value="Toggle"
                              action="#{actionAdmin.toggleAvailable(m)}"
-                             rendered="#{!m.available}"
-                             styleClass="smallButton"/>
-            <h:commandButton value="Disable"
-                             action="#{actionAdmin.toggleAvailable(m)}"
-                             rendered="#{m.available}"
                              styleClass="smallButton"/>
           </t:column>
 

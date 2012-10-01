@@ -52,9 +52,9 @@ public class ActionRegister
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
+      log.info("Registring user " + username);
       session.save(user);
       transaction.commit();
-      log.info("Registring user " + username);
       return "Success";
     }
     catch (Exception e) {

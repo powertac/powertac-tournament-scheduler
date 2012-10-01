@@ -96,6 +96,12 @@ public class RunGame
     }
 
     for (Agent agent: game.getAgentMap().values()) {
+      if (! Cache.getBrokerState(agent.getBroker().getBrokerId())) {
+        log.info(String.format("Not starting game %s : broker %s is disabled",
+            game.getGameId(), agent.getBroker().getBrokerId()));
+        return false;
+      }
+
       if (!agent.getBroker().agentsAvailable()) {
         log.info(String.format("Not starting game %s : broker %s doesn't have "
             + "enough available agents",

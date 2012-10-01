@@ -109,19 +109,18 @@ public class Rest
 
         agent.setStatus(Agent.STATE.in_progress.toString());
         session.update(agent);
-        transaction.commit();
-
         log.info(String.format("Sending login to broker %s : %s, %s, %s",
             broker.getBrokerName(), game.getMachine().getJmsUrl(),
             agent.getBrokerQueue(), game.getServerQueue()));
+        transaction.commit();
         return String.format(loginResponse, game.getMachine().getJmsUrl(),
             agent.getBrokerQueue(), game.getServerQueue());
       }
 
-      transaction.commit();
       log.debug(String.format("No games ready to start for tournament %s",
           tournamentName));
       Cache.addBrokerLogin(broker.getBrokerId());
+      transaction.commit();
       return String.format(retryResponse, 60);
     }
     catch (Exception e) {
@@ -175,12 +174,13 @@ public class Rest
 
         String queue = game.getVisualizerQueue();
         String svrQueue = game.getServerQueue();
-        transaction.commit();
         log.info("Game available, login visualizer, " + queue +", "+ svrQueue);
+        transaction.commit();
         return String.format(loginResponse, queue, svrQueue);
       }
 
       log.debug("No games available, retry visualizer");
+      Cache.addVizLogin(machineName);
       transaction.commit();
       return String.format(retryResponse, 60);
     }

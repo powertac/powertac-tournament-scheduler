@@ -145,7 +145,6 @@ public class Game implements Serializable
           agent.setBalance(0);
           session.update(agent);
         }
-        Cache.removeSim(gameId);
         setReadyTime(null);
 
         break;

@@ -119,7 +119,6 @@ public class ActionTournamentManager
       }
 
       transaction.commit();
-      resetValues();
     }
     catch (ConstraintViolationException ignored) {
       transaction.rollback();
@@ -133,6 +132,9 @@ public class ActionTournamentManager
       log.error("Error creating tournament");
     }
     finally {
+      if (transaction.wasCommitted()) {
+        resetValues();
+      }
       session.close();
     }
   }
@@ -184,13 +186,11 @@ public class ActionTournamentManager
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
-    boolean saved = false;
     try {
       Tournament tournament = (Tournament) session.get(Tournament.class, tourneyId);
       setValues(tournament);
       session.saveOrUpdate(tournament);
       transaction.commit();
-      saved = true;
     }
     catch (ConstraintViolationException ignored) {
       transaction.rollback();
@@ -204,11 +204,10 @@ public class ActionTournamentManager
       log.error("Error saving tournament");
     }
     finally {
+      if (transaction.wasCommitted()) {
+        resetValues();
+      }
       session.close();
-    }
-
-    if (saved) {
-      resetValues();
     }
   }
 
