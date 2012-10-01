@@ -11,7 +11,7 @@ jenkins.password =
 # URL of the Tournament Scheduler. Leave empty for automatic detection
 tourney.location =
 
-# We send an email if bootstraps seem wedged (running for more than bootstrapWedged msecs)
+# We send an email if sims or bootstraps seem wedged
 scheduler.bootstrapWedged = 900000
 scheduler.simWedged = 10800000
 scheduler.simTestWedged = 2700000
