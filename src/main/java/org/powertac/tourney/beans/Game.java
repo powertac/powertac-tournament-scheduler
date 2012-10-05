@@ -6,7 +6,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tourney.constants.Constants;
-import org.powertac.tourney.services.Cache;
+import org.powertac.tourney.services.MemStore;
 import org.powertac.tourney.services.HibernateUtil;
 import org.powertac.tourney.services.TournamentProperties;
 import org.powertac.tourney.services.Utils;
@@ -146,6 +146,7 @@ public class Game implements Serializable
           session.update(agent);
         }
         setReadyTime(null);
+        MemStore.removeGameHeartbeat(gameId);
 
         break;
 
@@ -190,6 +191,40 @@ public class Game implements Serializable
         break;
     }
     session.update(this);
+  }
+
+  public String handleStandings (Session session, String standings,
+                               boolean checkEndOfGame) throws Exception
+  {
+    log.info("We received standings for game " + gameId);
+
+    HashMap<String, Double> results = new HashMap<String, Double>();
+    for (String result: standings.split(",")) {
+      Double balance = Double.parseDouble(result.split(":")[1]);
+      String name = result.split(":")[0];
+      if (name.equals("default broker")) {
+        continue;
+      }
+      results.put(name, balance);
+    }
+
+    if (checkEndOfGame) {
+      log.debug("Status of the game is " + status);
+
+      if (!isRunning()) {
+        session.getTransaction().rollback();
+        log.warn("Game is not running, aborting!");
+        return "error";
+      }
+    }
+
+    for (Agent agent: agentMap.values()) {
+      agent.setBalance(results.get(agent.getBroker().getBrokerName()));
+      session.update(agent);
+    }
+
+    session.getTransaction().commit();
+    return "success";
   }
 
   @Transient

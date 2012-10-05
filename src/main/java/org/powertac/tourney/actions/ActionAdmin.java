@@ -91,9 +91,9 @@ public class ActionAdmin
     scheduler.unloadTournament();
   }
 
-  public void destroyCache ()
+  public void cleanMemStore ()
   {
-    new Cache();
+    new MemStore();
   }
 
   public List<Tournament> getAvailableTournaments ()
@@ -280,8 +280,8 @@ public class ActionAdmin
   	}
 
     // Make sure we get a new list of IPs
-    Cache.machineIPs = null;
-    Cache.vizIPs = null;
+    MemStore.machineIPs = null;
+    MemStore.vizIPs = null;
 
     // It's a new machine
     if (machineId == -1) {
@@ -380,9 +380,9 @@ public class ActionAdmin
   {
     try {
       long login =
-          (System.currentTimeMillis() - Cache.vizLogins.get(machineName))/1000;
+          (System.currentTimeMillis() - MemStore.vizLogins.get(machineName))/1000;
       if (login > 900) {
-        Cache.vizLogins.remove(machineName);
+        MemStore.vizLogins.remove(machineName);
       } else {
         return String.valueOf(login);
       }

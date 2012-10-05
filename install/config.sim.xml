@@ -98,7 +98,7 @@ function log () {
     if [ &quot;$1&quot; == &apos;nl&apos; ]; then
         echo -e &quot;\n$2&quot;  | tee -a $LOGFILE
     else
-        echo &quot;$1&quot;       | tee -a $LOGFILE
+        echo -e &quot;$1&quot;    | tee -a $LOGFILE
     fi
 }
 
@@ -188,7 +188,7 @@ log nl &quot;Get the pom file from $pomUrl&quot;
 get_pom
 
 CMD=&quot;$MVN_CMD -U -Pcli -Dexec.args=\&quot;-sim --control $tourneyUrl --game-id $gameId --log-suffix $suffix$gameId --brokers $brokers --input-queue $serverQueue\&quot;&quot;
-log nl &quot;Run maven : $CMD&quot;
+log nl &quot;Run maven : $CMD \n&quot;
 eval $CMD
 
 COUNT=$(grep -c &apos;Abort file detected - shutting down&apos; log/powertac-sim-$gameId.trace)

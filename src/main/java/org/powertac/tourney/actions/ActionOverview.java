@@ -56,7 +56,7 @@ public class ActionOverview
   {
     String result = "";
 
-    List<Long> logins = Cache.brokerLogins.get(brokerId);
+    List<Long> logins = MemStore.brokerLogins.get(brokerId);
     if (logins == null) {
       return "";
     }
@@ -78,7 +78,7 @@ public class ActionOverview
 
   public String getBrokerState (int brokerId)
   {
-    if (Cache.getBrokerState(brokerId)) {
+    if (MemStore.getBrokerState(brokerId)) {
       return "Enabled";
     } else {
       return "Disabled";
@@ -90,29 +90,38 @@ public class ActionOverview
     boolean enabled = true;
 
     try {
-      enabled = Cache.brokerState.get(brokerId);
+      enabled = MemStore.brokerState.get(brokerId);
     }
     catch (Exception ignored) {}
 
-    Cache.setBrokerState(brokerId, !enabled);
+    MemStore.setBrokerState(brokerId, !enabled);
   }
 
   public String getHeartbeat (int gameId)
   {
-    String[] messages = Cache.gameHeartbeats.get(gameId);
+    String[] messages = MemStore.gameHeartbeats.get(gameId);
     if (messages == null) {
       return "";
     }
 
     try {
-      int ago = (int)
+      int stamp = (int)
           (System.currentTimeMillis() - Long.parseLong(messages[1])) / 1000;
-      return messages[0] +" ("+ ago + ")";
+      if (stamp > 900) {
+        MemStore.gameHeartbeats.remove(gameId);
+      } else {
+        Integer gameLength = MemStore.gameLengths.get(gameId);
+        if (gameLength==null) {
+          return messages[0] +" ("+ stamp + ")";
+        } else {
+          return messages[0] +" / "+ (gameLength+360) +" ("+ stamp + ")";
+        }
+      }
     }
     catch (Exception e) {
       e.printStackTrace();
-      return "";
     }
+    return "";
   }
 
   public void startNow (Tournament tournament)
@@ -124,6 +133,12 @@ public class ActionOverview
       session.update(tournament);
       session.flush();
 
+      String msg =
+          "Setting tournament: "+ tournament.getTournamentId() +" to start now";
+      log.info(msg);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("tournamentForm", fm);
+
       // Reschedule all games of a SINGLE_GAME tournament
       if (tournament.isSingle()) {
         for (Game game: tournament.getGameMap().values()) {
@@ -131,19 +146,12 @@ public class ActionOverview
           session.update(game);
           session.flush();
 
-          String msg = "Setting game: " + game.getGameId() + " to start now";
+          msg = "Setting game: " + game.getGameId() + " to start now";
           log.info(msg);
-          FacesMessage fm =
-              new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+          fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
           FacesContext.getCurrentInstance().addMessage("tournamentForm", fm);
         }
       }
-
-      String msg =
-          "Setting tournament: "+ tournament.getTournamentId() +" to start now";
-      log.info(msg);
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("tournamentForm", fm);
 
       transaction.commit();
     }

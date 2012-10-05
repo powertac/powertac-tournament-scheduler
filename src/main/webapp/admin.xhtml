@@ -26,7 +26,6 @@
       <h:form id="adminControls" rendered="#{user.permissionId le 0}">
         <t:panelGrid columns="3">
           <h4>WatchDog Status</h4>
-          <h:commandButton value="Restart" action="#{actionAdmin.restartWatchDog}"/>
           <h:panelGroup>
             <h:outputText value="WatchDog running"
                           style="color:green;"
@@ -35,8 +34,17 @@
                           style="color:red;"
                           rendered="#{!scheduler.running}" />
           </h:panelGroup>
+          <h:commandButton value="Restart" action="#{actionAdmin.restartWatchDog}"/>
 
           <h4>Tournament Status</h4>
+          <h:panelGroup>
+            <h:outputText value="Tourney not Loaded"
+                          style="color:red;"
+                          rendered="#{scheduler.nullTourney}" />
+            <h:outputText value="Tourney &lt;b&gt;#{scheduler.getRunningTournament().tournamentName}&lt;/b&gt; Loaded"
+                          style="color:green;" escape="false"
+                          rendered="#{!scheduler.nullTourney}" />
+          </h:panelGroup>
           <h:panelGroup>
             <h:commandButton value="Unload"
                              action="#{actionAdmin.unloadTournament()}"
@@ -57,22 +65,13 @@
               No tournaments availble for loading
             </h:outputText>
           </h:panelGroup>
-          <h:panelGroup>
-            <h:outputText value="Tourney &lt;b&gt;#{scheduler.getRunningTournament().tournamentName}&lt;/b&gt; Loaded"
-                          style="color:green;" escape="false"
-                          rendered="#{!scheduler.nullTourney}" />
-            <h:outputText value="Tourney not Loaded"
-                          style="color:red;"
-                          rendered="#{scheduler.nullTourney}" />
-          </h:panelGroup>
 
-          <h4>Cache</h4>
-          <h:commandButton value="Destroy cache"
-                           action="#{actionAdmin.destroyCache()}"/>
+          <h4>Mem Store</h4>
+          <h:commandButton value="Clean MemStore"
+                           action="#{actionAdmin.cleanMemStore()}" />
           <t:panelGroup/>
 
           <h4>Weather Server Status</h4>
-          <t:panelGroup> </t:panelGroup>
           <t:panelGroup colspan="2">
             <h:outputText value="#{checkWeatherServer.status}"
                           style="color:green;"
@@ -87,7 +86,9 @@
 
           <h4>Weather Server Location</h4>
           <t:panelGroup colspan="2">
-            <h:outputText value="#{checkWeatherServer.weatherServerLocation}" />
+            <a href="#{checkWeatherServer.weatherServerLocation}" target="_blank">
+              <h:outputText value="#{checkWeatherServer.weatherServerLocation}" />
+            </a>
           </t:panelGroup>
         </t:panelGrid>
       </h:form>
@@ -120,14 +121,11 @@
             <h:commandButton value="Delete" action="#{actionAdmin.deleteLocation(l)}"
                              onclick="return confirmAlert('Are you sure you want to delete this location?');"
                              styleClass="smallButton"/>
-          </h:column>
+          </h:column>             /
         </h:dataTable>
 
         <br/>
         <h:panelGrid columns="2">
-          <h4>New Location</h4>
-          <h:panelGroup/>
-
           <h:outputText value="Name:" />
           <h:inputText value="#{actionAdmin.locationName}" />
 
@@ -140,58 +138,60 @@
           <h:outputText value="End Date:" />
           <t:inputDate value="#{actionAdmin.locationEndTime}" />
 
-          <h:commandButton value="Add location"
+          <h:commandButton value="Add new location"
                            action="#{actionAdmin.addLocation}" />
           <h:panelGroup/>
         </h:panelGrid>
       </h:form>
 
-      <h:form rendered="#{user.permissionId le 0}">
-        <h3>Available Poms</h3>
-        <t:dataTable id="datausers" border="1" sortable="true"
-                     sortColumn="#{actionAdmin.sortColumnPom}"
-                     sortAscending="#{actionAdmin.sortAscendingPom}" preserveSort="true"
-                     styleClass="dataTable"
-                     value="#{actionAdmin.pomList}" var="p">
+      <h:panelGrid columns="2">
+        <h:form rendered="#{user.permissionId le 0}">
+          <h3>Available Poms</h3>
+          <t:dataTable id="datausers" border="1" sortable="true"
+                       sortColumn="#{actionAdmin.sortColumnPom}"
+                       sortAscending="#{actionAdmin.sortAscendingPom}" preserveSort="true"
+                       styleClass="dataTable"
+                       value="#{actionAdmin.pomList}" var="p">
 
-          <t:column defaultSorted="true">
-            <f:facet name="header">
-              <h:outputText value="Pom Name" />
-            </f:facet>
-            <a href="pom.jsp?pomId=#{p.pomId}">
-                <h:outputText value="#{p.pomName}" />
-            </a>
-          </t:column>
+            <t:column defaultSorted="true">
+              <f:facet name="header">
+                <h:outputText value="Pom Name" />
+              </f:facet>
+              <a href="pom.jsp?pomId=#{p.pomId}">
+                  <h:outputText value="#{p.pomName}" />
+              </a>
+            </t:column>
 
-          <t:column defaultSorted="true">
-            <f:facet name="header">
-              <h:outputText value="Pom Id" />
-            </f:facet>
-            <h:outputText value="#{p.pomId}" />
-          </t:column>
+            <t:column defaultSorted="true">
+              <f:facet name="header">
+                <h:outputText value="Pom Id" />
+              </f:facet>
+              <h:outputText value="#{p.pomId}" />
+            </t:column>
 
-          <t:column defaultSorted="true">
-            <f:facet name="header">
-              <h:outputText value="Uploading User" />
-            </f:facet>
-            <h:outputText value="#{p.user.getUserName()}" />
-          </t:column>
-        </t:dataTable>
-      </h:form>
+            <t:column defaultSorted="true">
+              <f:facet name="header">
+                <h:outputText value="Uploading User" />
+              </f:facet>
+              <h:outputText value="#{p.user.getUserName()}" />
+            </t:column>
+          </t:dataTable>
+        </h:form>
 
-      <h:form rendered="#{user.permissionId le 0}" enctype="multipart/form-data" id="pomUploadForm" >
-        <br/>
-        <h4>Upload Pom File</h4>
-        <h:outputText value="Pom Name(X.X.X): " />
-        <h:inputText value="#{actionAdmin.pomName}" />
-        <br/>
-        <t:inputFileUpload disabled="false" value="#{actionAdmin.uploadedPom}"
-                           accept="mime-type" storage="file" />
-        <br/>
-        <h:commandButton value="Submit Pom"
-                         action="#{actionAdmin.submitPom}" />
-        <h:message for="pomUploadForm" />
-      </h:form>
+        <h:form rendered="#{user.permissionId le 0}" enctype="multipart/form-data" id="pomUploadForm" >
+          <br/>
+          <h4>Upload Pom File</h4>
+          <h:outputText value="Pom Name" />
+          <h:inputText value="#{actionAdmin.pomName}" />
+          <br/>
+          <t:inputFileUpload disabled="false" value="#{actionAdmin.uploadedPom}"
+                             accept="mime-type" storage="file" />
+          <br/>
+          <h:commandButton value="Submit Pom"
+                           action="#{actionAdmin.submitPom}" />
+          <h:message for="pomUploadForm" />
+        </h:form>
+      </h:panelGrid>
 
       <h:form rendered="#{user.permissionId le 0}">
         <h3 class="withButton">Available Machines</h3><h:commandButton value="Refresh" action="#{actionAdmin.refresh}"/>
@@ -264,6 +264,7 @@
           </t:column>
         </t:dataTable>
       </h:form>
+
 
       <h:form rendered="#{user.permissionId le 0}" id="saveMachine">
           <br/>

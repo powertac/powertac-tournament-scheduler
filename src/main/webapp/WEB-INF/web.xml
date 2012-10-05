@@ -103,7 +103,7 @@
     <param-value>true</param-value>
   </context-param>
   <session-config>
-    <session-timeout>30</session-timeout>
+    <session-timeout>240</session-timeout>
   </session-config>
   <listener>
     <listener-class>org.powertac.tourney.listeners.Initializer</listener-class>

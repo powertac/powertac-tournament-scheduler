@@ -36,13 +36,15 @@ public class Constants
 
     // Possible Rest Paramenters for Server Interface
     public static final String REQ_PARAM_STATUS = "status";
-    public static final String REQ_PARAM_GAME_ID = "gameId";
+    public static final String REQ_PARAM_GAMEID = "gameId";
     public static final String REQ_PARAM_ACTION = "action";
     public static final String REQ_PARAM_FILENAME = "fileName";
     public static final String REQ_PARAM_MESSAGE = "message";
     public static final String REQ_PARAM_BOOT = "boot";
     public static final String REQ_PARAM_HEARTBEAT = "heartbeat";
     public static final String REQ_PARAM_GAMERESULTS = "gameresults";
+    public static final String REQ_PARAM_GAMELENGTH = "gameLength";
+    public static final String REQ_PARAM_STANDINGS = "standings";
 
     // Possible Rest Parameters for pom service
     public static final String REQ_PARAM_POM_ID = "pomId";

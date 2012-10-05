@@ -18,8 +18,8 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 
-@Service("cache")
-public class Cache {
+@Service("memStore")
+public class MemStore {
   private static Logger log = Logger.getLogger("TMLogger");
 
   public static HashMap<String, List<String>> machineIPs;
@@ -29,10 +29,11 @@ public class Cache {
   public static HashMap<Integer, List<Long>> brokerLogins;
   public static HashMap<String, Long> vizLogins;
   public static HashMap<Integer, String[]> gameHeartbeats;
+  public static HashMap<Integer, Integer> gameLengths;
 
   public static HashMap<Integer, Boolean> brokerState = new HashMap<Integer, Boolean>();
 
-  public Cache ()
+  public MemStore()
   {
     machineIPs = null;
     vizIPs = null;
@@ -41,6 +42,7 @@ public class Cache {
     brokerLogins = new HashMap<Integer, List<Long>>();
     vizLogins = new HashMap<String, Long>();
     gameHeartbeats = new HashMap<Integer, String[]>();
+    gameLengths = new HashMap<Integer, Integer>();
   }
 
   public static void getIpAddresses ()
@@ -175,12 +177,25 @@ public class Cache {
         new String[] {message, System.currentTimeMillis()+""});
   }
 
+  public synchronized static void removeGameHeartbeat (int gameId)
+  {
+    if (gameHeartbeats.containsKey(gameId)) {
+      gameHeartbeats.remove(gameId);
+    }
+  }
+
+  public synchronized static void addGameLength (int gameId, String gameLength)
+  {
+    try {
+      gameLengths.put(gameId, Integer.parseInt(gameLength));
+    } catch(Exception ignored) {}
+  }
 
   public static boolean getBrokerState (int brokerId)
   {
     boolean enabled = true;
     try {
-      enabled = Cache.brokerState.get(brokerId);
+      enabled = MemStore.brokerState.get(brokerId);
     }
     catch (Exception ignored) {}
 

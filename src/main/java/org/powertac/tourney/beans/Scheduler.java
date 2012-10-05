@@ -309,7 +309,7 @@ public class Scheduler implements InitializingBean
 
       long wedgedDeadline = Integer.parseInt(
           properties.getProperty("scheduler.simTestWedged", "2700000"));
-      if (game.getTournament().getTournamentName().toLowerCase().contains("test")) {
+      if (game.getGameName().toLowerCase().contains("test")) {
         wedgedDeadline = Integer.parseInt(
             properties.getProperty("scheduler.simWedged", "10800000"));
       }

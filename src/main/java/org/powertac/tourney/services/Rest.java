@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.criterion.Restrictions;
 import org.powertac.tourney.beans.Agent;
 import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
@@ -13,7 +12,6 @@ import org.powertac.tourney.constants.Constants;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -119,7 +117,7 @@ public class Rest
 
       log.debug(String.format("No games ready to start for tournament %s",
           tournamentName));
-      Cache.addBrokerLogin(broker.getBrokerId());
+      MemStore.addBrokerLogin(broker.getBrokerId());
       transaction.commit();
       return String.format(retryResponse, 60);
     }
@@ -154,7 +152,7 @@ public class Rest
     log.info("Visualizer login request : " + machineName);
 
     // Validate source of request
-    if (!Cache.checkVizAllowed(request.getRemoteHost())) {
+    if (!MemStore.checkVizAllowed(request.getRemoteHost())) {
       return String.format(errorResponse, "invalid login request");
     }
 
@@ -180,7 +178,7 @@ public class Rest
       }
 
       log.debug("No games available, retry visualizer");
-      Cache.addVizLogin(machineName);
+      MemStore.addVizLogin(machineName);
       transaction.commit();
       return String.format(retryResponse, 60);
     }
@@ -202,18 +200,18 @@ public class Rest
     try {
       String actionString = params.get(Constants.Rest.REQ_PARAM_ACTION)[0];
       if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_STATUS)) {
-        if (!Cache.checkMachineAllowed(clientAddress)) {
+        if (!MemStore.checkMachineAllowed(clientAddress)) {
           return "error";
         }
 
         return handleStatus(params);
       }
       else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_BOOT)) {
-        String gameId = params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0];
+        String gameId = params.get(Constants.Rest.REQ_PARAM_GAMEID)[0];
         return serveBoot(gameId);
       }
       else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_HEARTBEAT)) {
-        if (!Cache.checkMachineAllowed(clientAddress)) {
+        if (!MemStore.checkMachineAllowed(clientAddress)) {
           return "error";
         }
 
@@ -235,7 +233,7 @@ public class Rest
   {
     int gameId;
     try {
-      gameId = Integer.parseInt(params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0]);
+      gameId = Integer.parseInt(params.get(Constants.Rest.REQ_PARAM_GAMEID)[0]);
     }
     catch (Exception ignored) {
       return "";
@@ -366,7 +364,7 @@ public class Rest
   {
     String statusString = params.get(Constants.Rest.REQ_PARAM_STATUS)[0];
     int gameId = Integer.parseInt(
-        params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0]);
+        params.get(Constants.Rest.REQ_PARAM_GAMEID)[0]);
 
     log.info(String.format("Received %s message from game: %s",
         statusString, gameId));
@@ -395,18 +393,50 @@ public class Rest
     }
     finally {
       session.close();
+
+      String[] gameLengths = params.get(Constants.Rest.REQ_PARAM_GAMELENGTH);
+      if (gameLengths!=null && transaction.wasCommitted()) {
+        log.info(String.format("Received gamelength %s for game %s",
+            gameLengths[0], gameId));
+        MemStore.addGameLength(gameId, gameLengths[0]);
+      }
     }
   }
 
   public synchronized String handleHeartBeat (Map<String, String[]> params)
   {
-    String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
-    int gameId = Integer.parseInt(
-        params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0]);
+    int gameId;
 
-    Cache.addGameHeartbeat(gameId, message);
+    try {
+      String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
+      gameId = Integer.parseInt(params.get(Constants.Rest.REQ_PARAM_GAMEID)[0]);
+      if (!(gameId>0)) {
+        log.debug("The message didn't have a gameId!");
+        return "error";
+      }
 
-    return "success";
+      MemStore.addGameHeartbeat(gameId, message);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      return "error";
+    }
+
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+        Game game = (Game) session.get(Game.class, gameId);
+        String standings = params.get(Constants.Rest.REQ_PARAM_STANDINGS)[0];
+        return game.handleStandings(session, standings, false);
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+      return "error";
+    }
+    finally {
+      session.close();
+    }
   }
 
   /***
@@ -415,7 +445,7 @@ public class Rest
   public synchronized String handleServerInterfacePUT (Map<String, String[]> params,
                                           HttpServletRequest request)
   {
-    if (!Cache.checkMachineAllowed(request.getRemoteAddr())) {
+    if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
       return "error";
     }
 
@@ -465,8 +495,7 @@ public class Rest
                                            HttpServletRequest request)
   {
     String remoteAddress = request.getRemoteAddr();
-
-    if (!Cache.checkMachineAllowed(remoteAddress)) {
+    if (!MemStore.checkMachineAllowed(remoteAddress)) {
       return "error";
     }
 
@@ -478,17 +507,17 @@ public class Rest
       }
 
       int gameId = Integer.parseInt(
-          params.get(Constants.Rest.REQ_PARAM_GAME_ID)[0]);
+          params.get(Constants.Rest.REQ_PARAM_GAMEID)[0]);
       if (!(gameId>0)) {
         log.debug("The message didn't have a gameId!");
         return "error";
       }
 
-      String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
+      /*String standings = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
       log.debug(String.format("We received this gameResult for game %s : \n%s",
-          gameId, message));
+          gameId, standings));*/
 
-      HashMap<String, Double> results = new HashMap<String, Double>();
+      /*HashMap<String, Double> results = new HashMap<String, Double>();
       for (String result: message.split(",")) {
         Double balance = Double.parseDouble(result.split(":")[1]);
         String name = result.split(":")[0];
@@ -496,14 +525,17 @@ public class Rest
           continue;
         }
         results.put(name, balance);
-      }
+      }*/
 
       Session session = HibernateUtil.getSessionFactory().openSession();
       Transaction transaction = session.beginTransaction();
       try {
         Game game = (Game) session.get(Game.class, gameId);
 
-        log.debug("Status of the game is " + game.getStatus());
+        String standings = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
+        return game.handleStandings(session, standings, true);
+
+        /*log.debug("Status of the game is " + game.getStatus());
 
         if (!game.isRunning()) {
           transaction.rollback();
@@ -523,7 +555,7 @@ public class Rest
         }
 
         transaction.commit();
-        return "success";
+        return "success";*/
       }
       catch (Exception e) {
         transaction.rollback();
