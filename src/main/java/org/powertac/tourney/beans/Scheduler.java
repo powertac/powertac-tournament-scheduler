@@ -28,6 +28,7 @@ public class Scheduler implements InitializingBean
   private long watchDogInterval;
 
   private Tournament runningTournament = null;
+  private long lastWatchdogRun = 0;
 
   public Scheduler ()
   {
@@ -64,6 +65,8 @@ public class Scheduler implements InitializingBean
 
     log.info("Starting WatchDog...");
 
+    lastWatchdogRun = System.currentTimeMillis();
+
     TimerTask watchDog = new TimerTask() {
       @Override
       public void run ()
@@ -75,6 +78,8 @@ public class Scheduler implements InitializingBean
           RunBoot.startBootableGames(runningTournament);
           checkWedgedBoots();
           checkWedgedSims();
+
+          lastWatchdogRun = System.currentTimeMillis();
         }
         catch (Exception e) {
           log.error("Severe error in WatchDogTimer!");
@@ -99,10 +104,15 @@ public class Scheduler implements InitializingBean
     }
   }
 
-  public void restartWatchDog ()
+  public boolean restartWatchDog ()
   {
-    stopWatchDog();
-    startWatchDog();
+    if ( (System.currentTimeMillis()-lastWatchdogRun) < 55000) {
+      stopWatchDog();
+      startWatchDog();
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public void loadTournament (int tourneyId)
@@ -308,10 +318,10 @@ public class Scheduler implements InitializingBean
       }
 
       long wedgedDeadline = Integer.parseInt(
-          properties.getProperty("scheduler.simTestWedged", "2700000"));
-      if (game.getGameName().toLowerCase().contains("test")) {
+          properties.getProperty("scheduler.simWedged", "10800000"));
+      if (game.getTournament().getTournamentName().toLowerCase().contains("test")) {
         wedgedDeadline = Integer.parseInt(
-            properties.getProperty("scheduler.simWedged", "10800000"));
+            properties.getProperty("scheduler.simTestWedged", "2700000"));
       }
       long nowStamp = Utils.offsetDate().getTime();
       long minStamp = game.getReadyTime().getTime() + wedgedDeadline;
@@ -364,6 +374,15 @@ public class Scheduler implements InitializingBean
   }
   public void setWatchDogInterval(long watchDogInterval) {
     this.watchDogInterval = watchDogInterval;
+  }
+
+  public String getLastWatchdogRun() {
+    if (lastWatchdogRun == 0) {
+      return "";
+    } else {
+      return String.format(" : ran %s secs ago",
+          (int) (System.currentTimeMillis()-lastWatchdogRun)/1000 );
+    }
   }
   //</editor-fold>
 }

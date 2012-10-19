@@ -17,17 +17,6 @@
 
       <script type="text/javascript" charset="utf8" >
         $(document).ready(function() {
-          $("[id$=games]").dataTable({
-            "bFilter": false,
-            "bInfo": false,
-            "sScrollY": Math.min(500, $("[id$=games]").height()) + "px",
-            "bPaginate": false,
-            "aoColumnDefs": [
-              { 'bSortable': false, 'aTargets': [3, 4] },
-              { "sType": "natural", "aTargets": [0, 1] }
-            ]
-          });
-
           $("[id$=dataresultsSingle]").dataTable({
             "bFilter": false,
             "bInfo": false,
@@ -40,7 +29,17 @@
             "bPaginate": false,
             "aoColumnDefs": [
               { "sType": "natural", "aTargets": [0] },
-              { "sType": "numeric", "aTargets": [1, 2, 3, 4, 5, 6, 7, 8] }
+            ]
+          });
+
+          $("[id$=games]").dataTable({
+            "bFilter": false,
+            "bInfo": false,
+            "sScrollY": Math.min(500, $("[id$=games]").height()) + "px",
+            "bPaginate": false,
+            "aoColumnDefs": [
+              { 'bSortable': false, 'aTargets': [3, 4] },
+              { "sType": "natural", "aTargets": [0, 1, 2] }
             ]
           });
         });
@@ -80,7 +79,7 @@
             <f:facet name="header">Total</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[0]}" >
               <f:convertNumber minFractionDigits="4" groupingUsed="false" />
-            </h:outputText><br/>
+            </h:outputText>
           </t:column>
         </t:dataTable>
 
@@ -98,52 +97,52 @@
             <f:facet name="header">Size 1</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[0]}" >
               <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-            </h:outputText><br/>
+            </h:outputText>
           </t:column>
           <t:column>
             <f:facet name="header">Size 2</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[1]}" >
               <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-            </h:outputText><br/>
+            </h:outputText>
           </t:column>
           <t:column>
             <f:facet name="header">Size 3</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[2]}" >
               <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-            </h:outputText><br/>
+            </h:outputText>
           </t:column>
 
           <t:column>
             <f:facet name="header">Total (not normalized)</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[3]}" >
               <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-            </h:outputText><br/>
+            </h:outputText>
           </t:column>
 
           <t:column>
             <f:facet name="header">Size 1</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[10]}" >
               <f:convertNumber minFractionDigits="1" groupingUsed="false" />
-            </h:outputText><br/>
+            </h:outputText>
           </t:column>
           <t:column>
             <f:facet name="header">Size 2</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[11]}" >
               <f:convertNumber minFractionDigits="1" groupingUsed="false" />
-            </h:outputText><br/>
+            </h:outputText>
           </t:column>
           <t:column>
             <f:facet name="header">Size 3</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[12]}" >
               <f:convertNumber minFractionDigits="1" groupingUsed="false" />
-            </h:outputText><br/>
+            </h:outputText>
           </t:column>
 
           <t:column>
             <f:facet name="header">Total (normalized)</f:facet>
             <h:outputText value="#{actionTournament.resultMap.get(key)[13]}" >
               <f:convertNumber minFractionDigits="1" groupingUsed="false" />
-            </h:outputText><br/>
+            </h:outputText>
           </t:column>
         </t:dataTable>
       </h:form>
@@ -154,27 +153,39 @@
           <tbody>
             <tr>
               <td><h4>Averages</h4></td>
-              <td class="right"><h:outputText value="#{actionTournament.avgsAndSDs.get(0)}" >
-                <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-              </h:outputText><br/></td>
-              <td class="right"><h:outputText value="#{actionTournament.avgsAndSDs.get(1)}" >
-                <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-              </h:outputText><br/></td>
-              <td class="right"><h:outputText value="#{actionTournament.avgsAndSDs.get(2)}" >
-                <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-              </h:outputText><br/></td>
+              <td class="right">
+                <h:outputText value="#{actionTournament.avgsAndSDs.get(0)}" >
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
+                </h:outputText>
+              </td>
+              <td class="right">
+                <h:outputText value="#{actionTournament.avgsAndSDs.get(1)}" >
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
+                </h:outputText>
+              </td>
+              <td class="right">
+                <h:outputText value="#{actionTournament.avgsAndSDs.get(2)}" >
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
+                </h:outputText>
+              </td>
             </tr>
             <tr>
               <td><h4>Standard deviations</h4></td>
-              <td class="right"><h:outputText value="#{actionTournament.avgsAndSDs.get(3)}" >
-                <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-              </h:outputText><br/></td>
-              <td class="right"><h:outputText value="#{actionTournament.avgsAndSDs.get(4)}" >
-                <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-              </h:outputText><br/></td>
-              <td class="right"><h:outputText value="#{actionTournament.avgsAndSDs.get(5)}" >
-                <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-              </h:outputText><br/></td>
+              <td class="right">
+                <h:outputText value="#{actionTournament.avgsAndSDs.get(3)}" >
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
+                </h:outputText>
+              </td>
+              <td class="right">
+                <h:outputText value="#{actionTournament.avgsAndSDs.get(4)}" >
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
+                </h:outputText>
+              </td>
+              <td class="right">
+                <h:outputText value="#{actionTournament.avgsAndSDs.get(5)}" >
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
+                </h:outputText>
+              </td>
             </tr>
           </tbody>
         </table>

@@ -6,14 +6,6 @@ jQuery.fn.dataTableExt.oSort['natural-desc'] = function(a,b) {
     return naturalSort(a,b) * -1;
 };
 
-jQuery.fn.dataTableExt.oSort['numeric-asc']  = function(a,b) {
-    return parseFloat(a) > parseFloat(b)
-};
-
-jQuery.fn.dataTableExt.oSort['numeric-desc'] = function(a,b) {
-    return parseFloat(a) < parseFloat(b)
-};
-
 /*
  * Natural Sort algorithm for Javascript - Version 0.7 - Released under MIT license
  * Author: Jim Palmer (based on chunking idea from Dave Koelle)

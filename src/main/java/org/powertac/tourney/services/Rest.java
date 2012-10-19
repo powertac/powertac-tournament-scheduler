@@ -156,6 +156,9 @@ public class Rest
       return String.format(errorResponse, "invalid login request");
     }
 
+    // Wait 30 seconds, game is set ready before it actually starts
+    long readyDeadline = 30*1000;
+    long nowStamp = Utils.offsetDate().getTime();
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -167,6 +170,9 @@ public class Rest
           continue;
         }
         if (!game.stateEquals(Game.STATE.game_ready)) {
+          continue;
+        }
+        if ((nowStamp - game.getReadyTime().getTime()) < readyDeadline) {
           continue;
         }
 
@@ -513,49 +519,12 @@ public class Rest
         return "error";
       }
 
-      /*String standings = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
-      log.debug(String.format("We received this gameResult for game %s : \n%s",
-          gameId, standings));*/
-
-      /*HashMap<String, Double> results = new HashMap<String, Double>();
-      for (String result: message.split(",")) {
-        Double balance = Double.parseDouble(result.split(":")[1]);
-        String name = result.split(":")[0];
-        if (name.equals("default broker")) {
-          continue;
-        }
-        results.put(name, balance);
-      }*/
-
       Session session = HibernateUtil.getSessionFactory().openSession();
       Transaction transaction = session.beginTransaction();
       try {
         Game game = (Game) session.get(Game.class, gameId);
-
         String standings = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
         return game.handleStandings(session, standings, true);
-
-        /*log.debug("Status of the game is " + game.getStatus());
-
-        if (!game.isRunning()) {
-          transaction.rollback();
-          log.warn("Game is not running, aborting!");
-          return "error";
-        }
-
-        for (Map.Entry<String, Double> entry: results.entrySet()) {
-          Broker broker = (Broker) session
-              .createCriteria(Broker.class)
-              .add(Restrictions.eq("brokerName", entry.getKey())).uniqueResult();
-          Agent agent = (Agent) session.createCriteria(Agent.class)
-              .add(Restrictions.eq("broker", broker))
-              .add(Restrictions.eq("game", game)).uniqueResult();
-          agent.setBalance(entry.getValue());
-          session.update(agent);
-        }
-
-        transaction.commit();
-        return "success";*/
       }
       catch (Exception e) {
         transaction.rollback();

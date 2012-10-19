@@ -50,20 +50,22 @@ public class Game implements Serializable
 
   /*
   - Boot
-    Game are initially set to boot_pending.
-    When the jobs is sent to Jenkins, the TM sets it to in_progress.
-    When done the Jenkins script sets it complete or failed when done,
-    depending on the boot file. When the TM isn't able to send the job to
-    Jenkins, the game is set to failed.
+    Games are initially set to boot_pending.
+    When the job is sent to Jenkins, the TM sets it to in_progress.
+    When done the Jenkins script sets it to complete or failed, depending on
+    the resulting boot file. When the TM isn't able to send the job to
+    Jenkins, the game is set to failed as well.
 
   - Game
     When the job is sent to Jenkins, the TM sets it to game_pending.
     When the sim is ready, the sim sets the game to game_ready.
+    (This is done before the game is actually started.
+    That's why we delay the login of the visualizers.)
     It also sets readyTime, to give the visualizer some time to log in before
     the brokers log in. Brokers are allowed to log in when game_ready and
-    readyTime + X minutes.
+    readyTime + 2 minutes (so the viz is logged in).
     When all the brokers are logged in (or login timeout occurs), the sim sets
-    it to in_progress.
+    the game to in_progress.
 
     When the sim stops, the Jenkins script sets the game to complete.
     game_failed occurs when the script encounters problems downloading the POM-
@@ -194,9 +196,9 @@ public class Game implements Serializable
   }
 
   public String handleStandings (Session session, String standings,
-                               boolean checkEndOfGame) throws Exception
+                                 boolean checkEndOfGame) throws Exception
   {
-    log.info("We received standings for game " + gameId);
+    log.debug("We received standings for game " + gameId);
 
     HashMap<String, Double> results = new HashMap<String, Double>();
     for (String result: standings.split(",")) {
@@ -219,7 +221,11 @@ public class Game implements Serializable
     }
 
     for (Agent agent: agentMap.values()) {
-      agent.setBalance(results.get(agent.getBroker().getBrokerName()));
+      Double balance = results.get(agent.getBroker().getBrokerName());
+      if (balance == Double.NaN) {
+        continue;
+      }
+      agent.setBalance(balance);
       session.update(agent);
     }
 

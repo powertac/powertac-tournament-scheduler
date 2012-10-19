@@ -27,6 +27,7 @@ public class ActionAdmin
   private String sortColumnUsers = null;
   private boolean sortAscendingUsers = true;
 
+  private int locationId = -1;
   private String locationName = "";
   private int locationTimezone = 0;
   private Date locationStartTime = null;
@@ -45,13 +46,14 @@ public class ActionAdmin
 
   private TournamentProperties properties = TournamentProperties.getProperties();
 
-  public List<Tournament> availableTournaments = new ArrayList<Tournament>();
+  private List<Tournament> availableTournaments = new ArrayList<Tournament>();
 
   public ActionAdmin ()
   {
     loadData();
   }
 
+  //<editor-fold desc="Header stuff">
   @SuppressWarnings("unchecked")
   private void loadData ()
   {
@@ -72,7 +74,9 @@ public class ActionAdmin
   {
     log.info("Restarting WatchDog");
     Scheduler scheduler = Scheduler.getScheduler();
-    scheduler.restartWatchDog();
+    if (!scheduler.restartWatchDog()) {
+      log.info("Not restarting WatchDog, to close");
+    }
   }
 
   public void loadTournament ()
@@ -110,6 +114,7 @@ public class ActionAdmin
   {
     properties.removeErrorMessage(message);
   }
+  //</editor-fold>
 
   //<editor-fold desc="Location stuff">
   public List<Location> getLocationList ()
@@ -117,25 +122,42 @@ public class ActionAdmin
     return Location.getLocationList();
   }
 
-  public void addLocation ()
+  public void editLocation (Location l)
   {
-    if (locationName.isEmpty() || (locationStartTime == null) || (locationEndTime == null)) {
+    locationId = l.getLocationId();
+    locationName = l.getLocation();
+    locationTimezone = l.getTimezone();
+    locationStartTime = l.getFromDate();
+    locationEndTime = l.getToDate();
+  }
+
+  public void saveLocation ()
+  {
+    if (locationName.isEmpty() || locationStartTime == null || locationEndTime == null) {
+      String msg = "Error: location not saved, some fields were empty!";
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("saveLocation", fm);
       return;
     }
 
+    if (locationId == -1) {
+      addLocation();
+    } else {
+      editLocation();
+    }
+  }
+
+  public void addLocation ()
+  {
     Location location = new Location();
     location.setLocation(locationName);
     location.setFromDate(locationStartTime);
     location.setToDate(locationEndTime);
+    location.setTimezone(locationTimezone);
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      locationName = "";
-      locationTimezone = 0;
-      locationStartTime = null;
-      locationEndTime = null;
-
       session.save(location);
       transaction.commit();
     }
@@ -143,6 +165,41 @@ public class ActionAdmin
       transaction.rollback();
       e.printStackTrace();
     }
+    if (transaction.wasCommitted()) {
+      log.info("Added new location " + locationName);
+      resetLocationData();
+    }
+
+    session.close();
+  }
+
+  public void editLocation ()
+  {
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      Location location = (Location) session.get(Location.class, locationId);
+      location.setLocation(locationName);
+      location.setFromDate(locationStartTime);
+      location.setToDate(locationEndTime);
+      location.setTimezone(locationTimezone);
+
+      session.update(location);
+      transaction.commit();
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+
+      String msg = "Error : location not edited " + e.getMessage();
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
+      FacesContext.getCurrentInstance().addMessage("saveLocation", fm);
+    }
+    if (transaction.wasCommitted()) {
+      log.info("Edited location " + locationName);
+      resetLocationData();
+    }
+
     session.close();
   }
 
@@ -159,6 +216,15 @@ public class ActionAdmin
       e.printStackTrace();
     }
     session.close();
+    resetLocationData();
+  }
+
+  private void resetLocationData () {
+    locationId = -1;
+    locationName = "";
+    locationTimezone = 0;
+    locationStartTime = null;
+    locationEndTime = null;
   }
   //</editor-fold>
 
@@ -267,7 +333,7 @@ public class ActionAdmin
     machineViz = m.getVizUrl();
   }
   
-  public void saveMachine()
+  public void saveMachine ()
   {
     machineUrl = machineUrl.replace("https://", "").replace("http://", "");
     machineViz = machineViz.replace("https://", "").replace("http://", "");
@@ -315,8 +381,8 @@ public class ActionAdmin
       FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
     }
     if (transaction.wasCommitted()) {
+      log.info("Added new machine " + machineName);
       resetMachineData();
-      log.info("Added new machine " + machine.getMachineId());
     }
 
     session.close();
@@ -332,8 +398,6 @@ public class ActionAdmin
       machine.setMachineUrl(machineUrl);
       machine.setVizUrl(machineViz);
 
-      resetMachineData();
-      log.info("Edited machine " + machine.getMachineId());
       session.update(machine);
       transaction.commit();
     }
@@ -345,6 +409,11 @@ public class ActionAdmin
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
     }
+    if (transaction.wasCommitted()) {
+      log.info("Edited machine " + machineName);
+      resetMachineData();
+    }
+
     session.close();
   }
 
@@ -369,7 +438,7 @@ public class ActionAdmin
     resetMachineData();
   }
 
-  private void resetMachineData() {
+  private void resetMachineData () {
     machineId = -1;
     machineViz = "";
     machineName = "";
@@ -393,7 +462,7 @@ public class ActionAdmin
   }
   //</editor-fold>
 
-  public List<User> getUserList()
+  public List<User> getUserList ()
   {
     return User.getUserList();
   }
@@ -403,12 +472,17 @@ public class ActionAdmin
   }
 
   //<editor-fold desc="Setters and Getters">
-  public String getLocationName()
-  {
+  public int getLocationId() {
+    return locationId;
+  }
+  public void setLocationId(int locationId) {
+    this.locationId = locationId;
+  }
+
+  public String getLocationName() {
     return locationName;
   }
-  public void setLocationName(String locationName)
-  {
+  public void setLocationName(String locationName) {
     this.locationName = locationName;
   }
 
@@ -419,130 +493,103 @@ public class ActionAdmin
     this.locationTimezone = locationTimezone;
   }
 
-  public Date getLocationStartTime ()
-  {
+  public Date getLocationStartTime () {
     return locationStartTime;
   }
-  public void setLocationStartTime (Date locationStartTime)
-  {
+  public void setLocationStartTime (Date locationStartTime) {
     this.locationStartTime = locationStartTime;
   }
 
-  public Date getLocationEndTime ()
-  {
+  public Date getLocationEndTime () {
     return locationEndTime;
   }
-  public void setLocationEndTime (Date locationEndTime)
-  {
+  public void setLocationEndTime (Date locationEndTime) {
     this.locationEndTime = locationEndTime;
   }
 
-  public String getPomName ()
-  {
+  public String getPomName () {
     return pomName;
   }
-  public void setPomName (String pomName)
-  {
+  public void setPomName (String pomName) {
     this.pomName = pomName.trim();
   }
 
-  public UploadedFile getUploadedPom ()
-  {
+  public UploadedFile getUploadedPom () {
     return uploadedPom;
   }
-  public void setUploadedPom (UploadedFile uploadedPom)
-  {
+  public void setUploadedPom (UploadedFile uploadedPom)  {
     this.uploadedPom = uploadedPom;
   }
 
-  public int getMachineId ()
-  {
+  public int getMachineId () {
     return machineId;
   }
   public void setMachineId(int machineId) {
     this.machineId = machineId;
   }
 
-  public String getMachineName ()
-  {
+  public String getMachineName () {
     return machineName;
   }
-  public void setMachineName (String machineName)
-  {
+  public void setMachineName (String machineName) {
     this.machineName = machineName;
   }
 
-  public String getMachineUrl ()
-  {
+  public String getMachineUrl () {
     return machineUrl;
   }
-  public void setMachineUrl (String machineUrl)
-  {
+  public void setMachineUrl (String machineUrl) {
     this.machineUrl = machineUrl;
   }
 
-  public String getMachineViz ()
-  {
+  public String getMachineViz () {
     return machineViz;
   }
-  public void setMachineViz (String machineViz)
-  {
+  public void setMachineViz (String machineViz) {
     this.machineViz = machineViz;
   }
   //</editor-fold>
 
   //<editor-fold desc="Sorting setters and getters">
-  public boolean isSortAscendingPom ()
-  {
+  public boolean isSortAscendingPom () {
     return sortAscendingPom;
   }
-  public void setSortAscendingPom (boolean sortAscendingPom)
-  {
+  public void setSortAscendingPom (boolean sortAscendingPom) {
     this.sortAscendingPom = sortAscendingPom;
   }
 
-  public String getSortColumnPom()
-  {
+  public String getSortColumnPom() {
     return sortColumnPom;
   }
-  public void setSortColumnPom(String sortColumnPom)
-  {
+  public void setSortColumnPom(String sortColumnPom) {
     this.sortColumnPom = sortColumnPom;
   }
 
-  public String getSortColumnMachine ()
-  {
+  public String getSortColumnMachine () {
     return sortColumnMachine;
   }
-  public void setSortColumnMachine (String sortColumnMachine)
-  {
+  public void setSortColumnMachine (String sortColumnMachine) {
     this.sortColumnMachine = sortColumnMachine;
   }
 
-  public boolean isSortAscendingMachine ()
-  {
+  public boolean isSortAscendingMachine () {
     return sortAscendingMachine;
   }
-  public void setSortAscendingMachine (boolean sortAscendingMachine)
-  {
+  public void setSortAscendingMachine (boolean sortAscendingMachine) {
     this.sortAscendingMachine = sortAscendingMachine;
   }
 
-  public String getSortColumnUsers ()
-  {
+  public String getSortColumnUsers () {
     return sortColumnUsers;
   }
-  public void setSortColumnUsers (String sortColumnUsers)
-  {
+  public void setSortColumnUsers (String sortColumnUsers) {
     this.sortColumnUsers = sortColumnUsers;
   }
 
-  public boolean isSortAscendingUsers ()
-  {
+  public boolean isSortAscendingUsers () {
     return sortAscendingUsers;
   }
-  public void setSortAscendingUsers (boolean sortAscendingUsers)
-  {
+  public void setSortAscendingUsers (boolean sortAscendingUsers) {
     this.sortAscendingUsers = sortAscendingUsers;
   }
 
