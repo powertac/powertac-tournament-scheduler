@@ -222,7 +222,7 @@ public class Game implements Serializable
 
     for (Agent agent: agentMap.values()) {
       Double balance = results.get(agent.getBroker().getBrokerName());
-      if (balance == Double.NaN) {
+      if (balance == null || balance == Double.NaN) {
         continue;
       }
       agent.setBalance(balance);
