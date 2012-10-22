@@ -7,6 +7,8 @@ public class Constants
 {
   public class Props
   {
+    public static final String weatherServerURL =
+        "server.weatherService.serverUrl = %s\n";
     public static final String weatherLocation =
         "server.weatherService.weatherLocation = %s\n";
     public static final String startTime =

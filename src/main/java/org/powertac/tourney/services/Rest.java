@@ -261,7 +261,11 @@ public class Rest
       session.close();
     }
 
+    TournamentProperties properties = TournamentProperties.getProperties();
+
     String result = "";
+    result += String.format(Constants.Props.weatherServerURL,
+        properties.getProperty("weatherServerLocation"));
     result += String.format(Constants.Props.weatherLocation, game.getLocation());
     result += String.format(Constants.Props.startTime, game.getSimStartTime());
     if (game.getMachine() != null) {
