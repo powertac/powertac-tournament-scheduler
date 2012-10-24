@@ -23,7 +23,7 @@
             "sScrollY": Math.min(400, $("[id$=databrokers]").height()) + "px",
             "bPaginate": false,
             "aoColumnDefs": [
-              { 'bSortable': false, 'aTargets': [6] },
+              { 'bSortable': false, 'aTargets': [4, 6] },
               { "sType": "natural", "aTargets": [0] }
             ]
           });
@@ -47,6 +47,46 @@
               { "sType": "natural", "aTargets": [0, 1] }
             ]
           });
+
+          function updateTables() {
+            $.ajax({
+              url: "Rest?type=brokers",
+              success: updateBrokers
+            });
+            $.ajax({
+              url: "Rest?type=games",
+              success: updateGames
+            });
+          }
+
+          function updateBrokers(data) {
+            var row = 0;
+            $('#formDatabrokers\\:databrokers>tbody>tr>td:nth-child(1)').each( function(){
+              if (data[$(this).text()] != undefined) {
+                $('#formDatabrokers\\:databrokers\\:' + row + '\\:login').html(data[$(this).text()]);
+              } else {
+                $('#formDatabrokers\\:databrokers\\:' + row + '\\:login').html("");
+              }
+
+              row += 1;
+            });
+          }
+
+          function updateGames(data) {
+            var row = 0;
+            $('#gamesForm\\:datagames>tbody>tr>td:nth-child(1)').each( function(){
+              if (data[$(this).text()] != undefined) {
+                $('#gamesForm\\:datagames\\:' + row + '\\:heartbeat').html(data[$(this).text()]);
+              } else {
+                $('#gamesForm\\:datagames\\:' + row + '\\:heartbeat').html("");
+              }
+
+              row += 1;
+            });
+          }
+
+          updateTables();
+          setInterval(updateTables, 3000);
         });
       </script>
 
@@ -72,7 +112,7 @@
 
           <t:column>
             <f:facet name="header">ID</f:facet>
-            <h:outputText value="#{broker.brokerId}" />
+            <h:outputText value="#{broker.brokerId}" id="id"/>
           </t:column>
 
           <t:column styleClass="#{actionOverview.getBrokerState(broker.getBrokerId())}">
@@ -94,7 +134,7 @@
 
           <t:column>
             <f:facet name="header">Logins</f:facet>
-            <t:outputText value="#{actionOverview.getLogins(broker.getBrokerId())}" escape="false"/>
+            <t:outputText id="login"/>
           </t:column>
 
           <t:column>
@@ -182,7 +222,7 @@
                      value="#{actionOverview.notCompleteGamesList}" var="g">
           <t:column>
             <f:facet name="header">ID</f:facet>
-            <h:outputText value="#{g.gameId}" />
+            <h:outputText value="#{g.gameId}" id="id"/>
           </t:column>
 
           <t:column>
@@ -205,8 +245,8 @@
 
           <t:column>
             <f:facet name="header">Heartbeat</f:facet>
-            <t:outputText value="#{actionOverview.getHeartbeat(g.gameId)}"
-                rendered="#{g.isRunning()}" />
+            <t:outputText id="heartbeat" rendered="#{g.isRunning()}"
+                          style="float:left; width: 110px;"/>
           </t:column>
 
           <t:column style="text-align: left">

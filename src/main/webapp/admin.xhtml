@@ -10,6 +10,47 @@
 <h:body>
   <ui:composition template="template.xhtml">
     <ui:define name="content">
+      <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
+      <script type="text/javascript" charset="utf8" >
+        $(document).ready(function() {
+          function updateTables() {
+            $.ajax({
+              url: "Rest?type=visualizers",
+              success: updateVisualizers
+            });
+
+            $.ajax({
+              url: "Rest?type=watchdog",
+              success: updateWatchdog
+            });
+          }
+
+          function updateVisualizers(data) {
+            var row = 0;
+            $('#machinesForm\\:machines>tbody>tr>td:nth-child(1)').each( function(){
+              if (data[$(this).text()] != undefined) {
+                $('#machinesForm\\:machines\\:' + row + '\\:login').html(data[$(this).text()]);
+              } else {
+                $('#machinesForm\\:machines\\:' + row + '\\:login').html("");
+              }
+
+              row += 1;
+            });
+          }
+
+          function updateWatchdog(data) {
+            if (data['text'] != undefined) {
+              $('#adminControls\\:watchdog').html(data['text']);
+            } else {
+              $('#adminControls\\:watchdog').html("");
+            }
+          }
+
+          updateTables();
+          setInterval(updateTables, 3000);
+        });
+      </script>
+
       <h2>Admin</h2>
 
       <h:form >
@@ -27,8 +68,7 @@
         <t:panelGrid columns="3">
           <h4>WatchDog Status</h4>
           <h:panelGroup>
-            <h:outputText value="WatchDog running#{scheduler.getLastWatchdogRun()}"
-                          style="color:green;"
+            <h:outputText style="color:green;" id="watchdog"
                           rendered="#{scheduler.running}" />
             <h:outputText value="WatchDog not running"
                           style="color:red;"
@@ -199,7 +239,7 @@
         </h:form>
       </h:panelGrid>
 
-      <h:form rendered="#{user.permissionId le 0}">
+      <h:form rendered="#{user.permissionId le 0}" id="machinesForm">
         <h3 class="withButton">Available Machines</h3><h:commandButton value="Refresh" action="#{actionAdmin.refresh}"/>
         <t:dataTable id="machines" border="1" sortable="false"
                      sortColumn="#{actionAdmin.sortColumnMachine}"
@@ -211,7 +251,7 @@
             <f:facet name="header">
               <h:outputText value="Name" />
             </f:facet>
-            <h:outputText value="#{m.machineName}" />
+            <h:outputText value="#{m.machineName}" id="id"/>
           </t:column>
           <t:column sortable="true">
             <f:facet name="header">
@@ -228,10 +268,8 @@
             </a>
           </t:column>
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Login" />
-            </f:facet>
-            <h:outputText value="#{actionAdmin.getLogins(m.machineName)}" />
+            <f:facet name="header">Login</f:facet>
+            <h:outputText id="login" />
           </t:column>
 
           <t:column sortable="true">
@@ -259,9 +297,7 @@
           </t:column>
 
           <t:column>
-            <f:facet name="header">
-              <h:outputText value="Actions" />
-            </f:facet>
+            <f:facet name="header">Actions</f:facet>
             <h:commandButton value="Delete" action="#{actionAdmin.deleteMachine(m)}"
                              onclick="return confirmAlert('Are you sure you want to delete this machine?');"
                              styleClass="smallButton"/>

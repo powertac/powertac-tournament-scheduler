@@ -1,4 +1,4 @@
-package org.powertac.tourney.dl;
+package org.powertac.tourney.servlets;
 
 import org.powertac.tourney.services.TournamentProperties;
 

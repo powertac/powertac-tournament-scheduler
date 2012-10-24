@@ -191,6 +191,13 @@ public class MemStore {
     } catch(Exception ignored) {}
   }
 
+  public synchronized static void removeGameLength (int gameId)
+  {
+    if (gameLengths.containsKey(gameId)) {
+      gameLengths.remove(gameId);
+    }
+  }
+
   public static boolean getBrokerState (int brokerId)
   {
     boolean enabled = true;

@@ -11,7 +11,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -52,30 +51,6 @@ public class ActionOverview
     return notCompleteGamesList;
   }
 
-  public String getLogins (int brokerId)
-  {
-    String result = "";
-
-    List<Long> logins = MemStore.brokerLogins.get(brokerId);
-    if (logins == null) {
-      return "";
-    }
-
-    Iterator<Long> iter = logins.iterator();
-    while (iter.hasNext()) {
-      int stamp = (int) (System.currentTimeMillis() - iter.next()) / 1000;
-      if (stamp > 900) {
-        iter.remove();
-      } else if (stamp < 61) {
-        result += "<b>" + stamp + "</b> ";
-      } else {
-        result += stamp + " ";
-      }
-    }
-
-    return result;
-  }
-
   public String getBrokerState (int brokerId)
   {
     if (MemStore.getBrokerState(brokerId)) {
@@ -95,33 +70,6 @@ public class ActionOverview
     catch (Exception ignored) {}
 
     MemStore.setBrokerState(brokerId, !enabled);
-  }
-
-  public String getHeartbeat (int gameId)
-  {
-    String[] messages = MemStore.gameHeartbeats.get(gameId);
-    if (messages == null) {
-      return "";
-    }
-
-    try {
-      int stamp = (int)
-          (System.currentTimeMillis() - Long.parseLong(messages[1])) / 1000;
-      if (stamp > 900) {
-        MemStore.gameHeartbeats.remove(gameId);
-      } else {
-        Integer gameLength = MemStore.gameLengths.get(gameId);
-        if (gameLength==null) {
-          return messages[0] +" ("+ stamp + ")";
-        } else {
-          return messages[0] +" / "+ (gameLength+360) +" ("+ stamp + ")";
-        }
-      }
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-    }
-    return "";
   }
 
   public void startNow (Tournament tournament)

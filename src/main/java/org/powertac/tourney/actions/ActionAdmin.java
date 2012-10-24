@@ -444,22 +444,6 @@ public class ActionAdmin
     machineName = "";
     machineUrl = "";
   }
-
-  public String getLogins (String machineName)
-  {
-    try {
-      long login =
-          (System.currentTimeMillis() - MemStore.vizLogins.get(machineName))/1000;
-      if (login > 900) {
-        MemStore.vizLogins.remove(machineName);
-      } else {
-        return String.valueOf(login);
-      }
-    }
-    catch (Exception ignored) {}
-
-    return "";
-  }
   //</editor-fold>
 
   public List<User> getUserList ()

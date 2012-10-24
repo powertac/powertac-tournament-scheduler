@@ -181,6 +181,7 @@ log &quot;propUrl       : $propUrl&quot;
 log &quot;pomUrl        : $pomUrl&quot;
 log &quot;simName       : $simName&quot;
 
+# Only for debugging purposes, the server will access the properties URL on the TS
 log nl &quot;Get the game properties from $propUrl&quot;
 get_properties
 
