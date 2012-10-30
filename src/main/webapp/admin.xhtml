@@ -29,9 +29,9 @@
             var row = 0;
             $('#machinesForm\\:machines>tbody>tr>td:nth-child(1)').each( function(){
               if (data[$(this).text()] != undefined) {
-                $('#machinesForm\\:machines\\:' + row + '\\:login').html(data[$(this).text()]);
+                $('#machinesForm\\:machines\\:' + row + '\\:checkins').html(data[$(this).text()]);
               } else {
-                $('#machinesForm\\:machines\\:' + row + '\\:login').html("");
+                $('#machinesForm\\:machines\\:' + row + '\\:checkins').html("");
               }
 
               row += 1;
@@ -268,8 +268,8 @@
             </a>
           </t:column>
           <t:column>
-            <f:facet name="header">Login</f:facet>
-            <h:outputText id="login" />
+            <f:facet name="header">CheckIns</f:facet>
+            <h:outputText id="checkins" />
           </t:column>
 
           <t:column sortable="true">

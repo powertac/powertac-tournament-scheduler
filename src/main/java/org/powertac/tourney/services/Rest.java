@@ -117,7 +117,7 @@ public class Rest
 
       log.debug(String.format("No games ready to start for tournament %s",
           tournamentName));
-      MemStore.addBrokerLogin(broker.getBrokerId());
+      MemStore.addBrokerCheckin(broker.getBrokerId());
       transaction.commit();
       return String.format(retryResponse, 60);
     }
@@ -184,7 +184,7 @@ public class Rest
       }
 
       log.debug("No games available, retry visualizer");
-      MemStore.addVizLogin(machineName);
+      MemStore.addVizCheckin(machineName);
       transaction.commit();
       return String.format(retryResponse, 60);
     }
@@ -482,9 +482,11 @@ public class Rest
       is.close();
       fos.close();
 
+      // TODO Check if still needed : receiving standings from the game directly
+      // If sim-logs received, extract end-of-game standings
       if (fileName.contains("sim-logs")) {
         try {
-          Runnable r = new LogParser(
+          Runnable r = new SimLogParser(
               properties.getProperty("logLocation"), fileName);
           new Thread(r).start();
         }

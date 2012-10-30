@@ -26,21 +26,21 @@ public class MemStore {
   public static HashMap<String, String> vizIPs;
   public static HashMap<String, String> localIPs;
 
-  public static HashMap<Integer, List<Long>> brokerLogins;
-  public static HashMap<String, Long> vizLogins;
+  public static HashMap<Integer, List<Long>> brokerCheckins;
+  public static HashMap<String, Long> vizCheckins;
   public static HashMap<Integer, String[]> gameHeartbeats;
   public static HashMap<Integer, Integer> gameLengths;
 
   public static HashMap<Integer, Boolean> brokerState = new HashMap<Integer, Boolean>();
 
-  public MemStore()
+  public MemStore ()
   {
     machineIPs = null;
     vizIPs = null;
     localIPs = null;
 
-    brokerLogins = new HashMap<Integer, List<Long>>();
-    vizLogins = new HashMap<String, Long>();
+    brokerCheckins = new HashMap<Integer, List<Long>>();
+    vizCheckins = new HashMap<String, Long>();
     gameHeartbeats = new HashMap<Integer, String[]>();
     gameLengths = new HashMap<Integer, Integer>();
   }
@@ -102,7 +102,7 @@ public class MemStore {
     }
   }
 
-  public static boolean checkMachineAllowed(String slaveAddress)
+  public static boolean checkMachineAllowed (String slaveAddress)
   {
     //log.debug("Testing checkMachineAllowed : " + slaveAddress);
 
@@ -126,7 +126,7 @@ public class MemStore {
     return false;
   }
 
-  public static boolean checkVizAllowed(String vizAddress)
+  public static boolean checkVizAllowed (String vizAddress)
   {
     //log.debug("Testing checkVizAllowed : " + vizAddress);
 
@@ -150,9 +150,9 @@ public class MemStore {
     return true;
   }
 
-  public synchronized static void addBrokerLogin (int brokerId)
+  public synchronized static void addBrokerCheckin (int brokerId)
   {
-    List<Long> dates = brokerLogins.get(brokerId);
+    List<Long> dates = brokerCheckins.get(brokerId);
     if (dates == null) {
       dates = new ArrayList<Long>();
     }
@@ -163,12 +163,12 @@ public class MemStore {
       dates.remove(0);
     }
 
-    brokerLogins.put(brokerId, dates);
+    brokerCheckins.put(brokerId, dates);
   }
 
-  public synchronized static void addVizLogin (String machineName)
+  public synchronized static void addVizCheckin (String machineName)
   {
-    vizLogins.put(machineName, System.currentTimeMillis());
+    vizCheckins.put(machineName, System.currentTimeMillis());
   }
 
   public synchronized static void addGameHeartbeat (int gameId, String message)

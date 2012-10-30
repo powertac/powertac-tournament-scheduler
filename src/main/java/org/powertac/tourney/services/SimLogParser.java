@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class LogParser implements Runnable
+public class SimLogParser implements Runnable
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
@@ -27,7 +27,7 @@ public class LogParser implements Runnable
   String logLocation;
   String fileName;
 
-  public LogParser (String logLocation, String fileName)
+  public SimLogParser(String logLocation, String fileName)
   {
     gameId = Integer.parseInt(fileName.split("-")[1]);
     this.logLocation = logLocation;

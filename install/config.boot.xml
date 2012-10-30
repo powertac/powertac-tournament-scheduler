@@ -13,11 +13,6 @@
           <defaultValue>http://127.0.0.1:8080/TournamentScheduler</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>suffix</name>
-          <description></description>
-          <defaultValue>boot-</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
           <name>pomId</name>
           <description></description>
           <defaultValue></defaultValue>
@@ -75,7 +70,6 @@ COMP_CMD=&quot;tar -czvf&quot;
 COMP_EXT=&quot;tar.gz&quot;
 
 interfacePath=&quot;faces/serverInterface.jsp&quot;
-propPath=&quot;faces/properties.jsp&quot;
 pomPath=&quot;faces/pom.jsp&quot;
 LOGFILE=&quot;./log/boot.$(date -u +%y%m%d_%H%M).log&quot;
 
@@ -104,20 +98,6 @@ function cleanup () {
     log nl &quot;Not cleaning up, need to enable this&quot;
 }
 
-function get_properties () {
-    wget -O properties $propUrl
-    COUNT=$(grep -c &apos;server.weatherService.weatherLocation&apos; properties)
-    if [ $COUNT -le 0 ] ; then
-        log nl &quot;Error getting game properties : $propUrl&quot;
-        log nl &quot;Notify TM we&apos;re game_failed&quot;
-        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_failed&quot;
-        cleanup
-        exit 1
-    else
-        cat properties &gt;&gt; $LOGFILE
-    fi
-}
-
 function get_pom () {
     wget -O pom.xml $pomUrl
     SIZE=$(stat -c%s &quot;pom.xml&quot;)
@@ -139,9 +119,9 @@ function get_pom () {
 
 # Some intermediate variables
 interfaceUrl=&quot;$tourneyUrl$interfacePath&quot;
-propUrl=&quot;$tourneyUrl$propPath?gameId=$gameId&quot;
 pomUrl=&quot;$tourneyUrl$pomPath?pomId=$pomId&quot;
 bootName=&quot;game-$gameId-boot&quot;
+suffix=&quot;boot-&quot;
 
 # Make sure logdir exists
 DIRECTORY=&quot;log&quot;
@@ -149,28 +129,23 @@ if [ ! -d &quot;$DIRECTORY&quot; ]; then
     mkdir $DIRECTORY
 fi
 
+log &quot;&quot; 
 StartTime=$(date +%s)
 log &quot;StartTime     : $(date -u +%F\ %H:%M:%S)&quot;
 log &quot;Nodename      : $NODE_NAME&quot;
+log &quot;BuildNumber   : $BUILD_NUMBER&quot;
 log &quot;Account       : ${USER}&quot;
 log &quot;GameId        : $gameId&quot;
 log &quot;PomId         : $pomId&quot;
 log &quot;TourneyUrl    : $tourneyUrl&quot;
-log &quot;Suffix        : $suffix&quot;
 log &quot;MVN_CMD       : $MVN_CMD&quot;
 log &quot;COMP_CMD      : $COMP_CMD&quot;
 log &quot;COMP_EXT      : $COMP_EXT&quot;
 log &quot;interfacePath : $interfacePath&quot;
-log &quot;propPath      : $propPath&quot;
-log &quot;pomPath       : $pomPath&quot;
 log &quot;interfaceUrl  : $interfaceUrl&quot;
-log &quot;propUrl       : $propUrl&quot;
+log &quot;pomPath       : $pomPath&quot;
 log &quot;pomUrl        : $pomUrl&quot;
 log &quot;bootName      : $bootName&quot;
-
-# Only for debugging purposes, the server will access the properties URL on the TS
-log nl &quot;Get the game properties from $propUrl&quot;
-get_properties
 
 log nl &quot;Get the pom file from $pomUrl&quot;
 get_pom

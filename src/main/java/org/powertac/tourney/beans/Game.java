@@ -149,7 +149,6 @@ public class Game implements Serializable
         }
         setReadyTime(null);
         MemStore.removeGameHeartbeat(gameId);
-
         break;
 
       case boot_failed:

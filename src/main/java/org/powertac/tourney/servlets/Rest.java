@@ -51,14 +51,14 @@ public class Rest extends HttpServlet
   {
     String result = "{ ";
 
-    for (Integer i: MemStore.brokerLogins.keySet()) {
-      if (MemStore.brokerLogins.get(i) == null) {
+    for (Integer i: MemStore.brokerCheckins.keySet()) {
+      if (MemStore.brokerCheckins.get(i) == null) {
         continue;
       }
 
       result += "\"" + i.toString() + "\": \"" ;
 
-      Iterator<Long> iter = MemStore.brokerLogins.get(i).iterator();
+      Iterator<Long> iter = MemStore.brokerCheckins.get(i).iterator();
       while (iter.hasNext()) {
         int stamp = (int) (System.currentTimeMillis() - iter.next()) / 1000;
         if (stamp > 900) {
@@ -126,20 +126,20 @@ public class Rest extends HttpServlet
   {
     String result = "{ ";
 
-    for (String s: MemStore.vizLogins.keySet()) {
-      if (MemStore.vizLogins.get(s) == null) {
+    for (String s: MemStore.vizCheckins.keySet()) {
+      if (MemStore.vizCheckins.get(s) == null) {
         continue;
       }
 
       result += "\"" + s + "\": \"";
 
       try {
-        long login =
-            (System.currentTimeMillis() - MemStore.vizLogins.get(s))/1000;
-        if (login > 900) {
-          MemStore.vizLogins.remove(s);
+        long stamp =
+            (System.currentTimeMillis() - MemStore.vizCheckins.get(s))/1000;
+        if (stamp > 900) {
+          MemStore.vizCheckins.remove(s);
         } else {
-          result += String.valueOf(login);
+          result += String.valueOf(stamp);
         }
       }
       catch (Exception ignored) {}

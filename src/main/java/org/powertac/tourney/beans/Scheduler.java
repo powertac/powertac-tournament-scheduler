@@ -262,7 +262,7 @@ public class Scheduler implements InitializingBean
 
       String gameName = String.format("%s_%s_%s_%s",
           runningTournament.getTournamentName(),
-          gameNumber, gameType, j + multiplier*games.size());
+          (gameNumber+1), gameType, j + multiplier*games.size());
       Game game = Game.createGame(runningTournament, gameName);
       session.save(game);
 

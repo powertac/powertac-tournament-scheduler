@@ -12,11 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/*
+ *
+ */
 public class RunBoot
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private String logSuffix = "boot-";
   private Game game;
   private TournamentProperties properties = TournamentProperties.getProperties();
   private Session session;
@@ -62,7 +64,6 @@ public class RunBoot
   /***
    * Make sure there is a machine available for the game
    */
-  @SuppressWarnings("unchecked")
   private boolean checkMachineAvailable ()
       throws Exception
   {
@@ -91,18 +92,18 @@ public class RunBoot
     }
   }
 
+  /*
+   * If all conditions are met (we have a slave available) send job to Jenkins.
+   */
   private boolean startJob () throws Exception
   {
     String finalUrl =
         properties.getProperty("jenkins.location")
             + "job/start-boot-server/buildWithParameters?"
             + "tourneyUrl=" + properties.getProperty("tourneyUrl")
-            + "&suffix=" + logSuffix
             + "&pomId=" + game.getTournament().getPomId()
-            + "&machine=" + game.getMachine().getMachineName()
-            + "&gameId=" + game.getGameId();
-
-
+            + "&gameId=" + game.getGameId()
+            + "&machine=" + game.getMachine().getMachineName();
 
     log.info("Final url: " + finalUrl);
 
@@ -124,6 +125,12 @@ public class RunBoot
     }
   }
 
+  /*
+   * Look for bootable games. This means games that are 'boot_pending'.
+   * If a tournament is loaded (runningTournament != null) we only look for
+   * games in that tournament. If no tournament loaded, we look for games in
+   * all singleGame tournaments.
+  **/
   public static void startBootableGames (Tournament runningTournament)
   {
     log.info("WatchDogTimer Looking for Bootstraps To Start..");

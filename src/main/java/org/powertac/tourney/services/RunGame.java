@@ -13,7 +13,6 @@ public class RunGame
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private String logSuffix = "sim-";
   private Game game;
   private String brokers = "";
   private TournamentProperties properties = TournamentProperties.getProperties();
@@ -84,7 +83,8 @@ public class RunGame
 
   /***
    * Make sure brokers are registered for the tournament
-   * Also check if participating brokers have an agent available
+   * Also check if participating brokers have an agent available (we don't check
+   * if agents are checking in, brokers are responsible for availability).
    */
   private boolean checkBrokers ()
   {
@@ -119,7 +119,6 @@ public class RunGame
   /***
    * Make sure there is a machine available for the game
    */
-  @SuppressWarnings("unchecked")
   private boolean checkMachineAvailable ()
       throws Exception
   {
@@ -148,16 +147,19 @@ public class RunGame
     }
   }
 
+  /*
+   * If all conditions are met (we have a slave available, game is booted and
+   * agents should be avalable) send job to Jenkins.
+   */
   private boolean startJob () throws Exception
   {
     String finalUrl =
         properties.getProperty("jenkins.location")
             + "job/start-sim-server/buildWithParameters?"
             + "tourneyUrl=" + properties.getProperty("tourneyUrl")
-            + "&suffix=" + logSuffix
             + "&pomId=" + game.getTournament().getPomId()
-            + "&machine=" + game.getMachine().getMachineName()
             + "&gameId=" + game.getGameId()
+            + "&machine=" + game.getMachine().getMachineName()
             + "&brokers=" + brokers
             + "&serverQueue=" + game.getServerQueue();
 
@@ -181,6 +183,12 @@ public class RunGame
     }
   }
 
+  /*
+   * Look for runnable games. This means games that are 'game_pending'.
+   * If a tournament is loaded (runningTournament != null) we only look for
+   * games in that tournament. If no tournament loaded, we look for games in
+   * all singleGame tournaments.
+  **/
   public static void startRunnableGames(Tournament runningTournament)
   {
     log.info("WatchDogTimer Looking for Runnable Games");

@@ -63,9 +63,9 @@
             var row = 0;
             $('#formDatabrokers\\:databrokers>tbody>tr>td:nth-child(1)').each( function(){
               if (data[$(this).text()] != undefined) {
-                $('#formDatabrokers\\:databrokers\\:' + row + '\\:login').html(data[$(this).text()]);
+                $('#formDatabrokers\\:databrokers\\:' + row + '\\:checkins').html(data[$(this).text()]);
               } else {
-                $('#formDatabrokers\\:databrokers\\:' + row + '\\:login').html("");
+                $('#formDatabrokers\\:databrokers\\:' + row + '\\:checkins').html("");
               }
 
               row += 1;
@@ -133,8 +133,8 @@
           </t:column>
 
           <t:column>
-            <f:facet name="header">Logins</f:facet>
-            <t:outputText id="login"/>
+            <f:facet name="header">CheckIns</f:facet>
+            <t:outputText id="checkins"/>
           </t:column>
 
           <t:column>
