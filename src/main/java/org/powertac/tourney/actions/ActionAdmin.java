@@ -58,10 +58,6 @@ public class ActionAdmin
   private void loadData ()
   {
     for (Tournament tournament: Tournament.getNotCompleteTournamentList()) {
-      if (tournament.getStartTime().after(Utils.offsetDate())) {
-        continue;
-      }
-
       if (tournament.isMulti()) {
         availableTournaments.add(tournament);
       }

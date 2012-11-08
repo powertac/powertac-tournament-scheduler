@@ -193,7 +193,7 @@ public class ActionAccount
 
   public List<Tournament> getAvailableTournaments (Broker b)
   {
-    return b.getAvailableTournaments();
+    return b.getAvailableTournaments(true);
   }
 
   public void register (Broker b)

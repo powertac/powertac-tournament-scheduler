@@ -304,7 +304,7 @@ public class ActionTournamentManager
 
   public List<Tournament> getAvailableTournaments (Broker b)
   {
-    return b.getAvailableTournaments();
+    return b.getAvailableTournaments(false);
   }
 
   public List<Tournament> getRegisteredTournaments (Broker b)

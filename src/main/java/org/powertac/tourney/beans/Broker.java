@@ -275,7 +275,7 @@ public class Broker
   }
 
   @Transient
-  public List<Tournament> getAvailableTournaments ()
+  public List<Tournament> getAvailableTournaments (Boolean checkClosed)
   {
     List<Tournament> registrableTournaments = new ArrayList<Tournament>();
 
@@ -302,7 +302,7 @@ public class Broker
         }
       }
       // Check if not closed
-      if (tournament.isClosed()) {
+      if (checkClosed && tournament.isClosed()) {
         continue;
       }
 
