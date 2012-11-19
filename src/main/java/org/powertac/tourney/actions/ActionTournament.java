@@ -90,9 +90,12 @@ public class ActionTournament
 
     tournamentInfo.add("Type : " + tournament.getType());
     if (tournament.isMulti()) {
-      tournamentInfo.add("GameSize 1 : " + tournament.getSize1());
-      tournamentInfo.add("GameSize 2 : " + tournament.getSize2());
-      tournamentInfo.add("GameSize 3 : " + tournament.getSize3());
+      tournamentInfo.add(String.format("Size / multiplier 1 : %s / %s",
+          tournament.getSize1(), tournament.getMultiplier1()));
+      tournamentInfo.add(String.format("Size / multiplier 2 : %s / %s",
+          tournament.getSize2(), tournament.getMultiplier2()));
+      tournamentInfo.add(String.format("Size / multiplier 3 : %s / %s",
+          tournament.getSize3(), tournament.getMultiplier3()));
     }
 
     tournamentInfo.add("Pom Id : " + tournament.getPomId());
