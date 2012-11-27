@@ -303,7 +303,7 @@ public class Game implements Serializable
     }
 
     String[] parts = gameName.split("_");
-    return Integer.parseInt(parts[parts.length-3]);
+    return Integer.parseInt(parts[parts.length-3]) - 1;
   }
 
   public String jenkinsMachineUrl ()
