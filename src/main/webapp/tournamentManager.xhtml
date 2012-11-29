@@ -91,6 +91,7 @@
         <h:message for="removeTournament" />
 			</h:form>
 
+      <br/>
       <h:form rendered="#{(user.permissionId le 0) and (actionTournamentManager.brokerList.size() > 0)}" id="formDatabrokers">
         <h3 class="withButton">Registered Brokers</h3><h:commandButton value="Refresh" action="#{actionTournamentManager.refresh}"/>
         <t:dataTable id="databrokers" border="1"
