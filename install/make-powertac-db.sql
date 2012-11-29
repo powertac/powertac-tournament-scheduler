@@ -123,7 +123,7 @@ CREATE TABLE `tourney`.`locations` (
 
 INSERT INTO `tourney`.`locations`
  (`locationId`, `location`, `timezone`, `fromDate`, `toDate`) VALUES
- (1, 'minneapolis', -6, '2009-01-01 00:00:00', '2009-06-01 00:00:00');
+ (1, 'rotterdam', 1, '2009-01-01 00:00:00', '2009-06-01 00:00:00');
 
 
 DROP TABLE IF EXISTS `tourney`.`agents`;

@@ -13,28 +13,16 @@
       <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
       <script type="text/javascript" charset="utf8" >
         $(document).ready(function() {
-          function updateTables() {
-            $.ajax({
-              url: "Rest?type=visualizers",
-              success: updateVisualizers
-            });
-
-            $.ajax({
-              url: "Rest?type=watchdog",
-              success: updateWatchdog
-            });
-          }
-
           function updateVisualizers(data) {
-            var row = 0;
-            $('#machinesForm\\:machines>tbody>tr>td:nth-child(1)').each( function(){
-              if (data[$(this).text()] != undefined) {
-                $('#machinesForm\\:machines\\:' + row + '\\:checkins').html(data[$(this).text()]);
-              } else {
-                $('#machinesForm\\:machines\\:' + row + '\\:checkins').html("");
-              }
+            $('#machinesForm\\:machines>tbody>tr').each( function(){
+              var sp = $(this).find('td:first-child span')[0];
+              var orgRowNr = $(sp).attr("id").split(":")[2];
 
-              row += 1;
+              if (data[$(sp).text()] != undefined) {
+                $('#machinesForm\\:machines\\:' + orgRowNr + '\\:checkins').html(data[$(sp).text()]);
+              } else {
+                $('#machinesForm\\:machines\\:' + orgRowNr + '\\:checkins').html("");
+              }
             });
           }
 
@@ -44,6 +32,17 @@
             } else {
               $('#adminControls\\:watchdog').html("");
             }
+          }
+
+          function updateTables() {
+            $.ajax({
+              url: "Rest?type=visualizers",
+              success: updateVisualizers
+            });
+            $.ajax({
+              url: "Rest?type=watchdog",
+              success: updateWatchdog
+            });
           }
 
           updateTables();

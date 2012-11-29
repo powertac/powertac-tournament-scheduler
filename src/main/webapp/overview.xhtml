@@ -48,6 +48,32 @@
             ]
           });
 
+          function updateBrokers(data) {
+            $('#formDatabrokers\\:databrokers>tbody>tr').each( function(){
+              var sp = $(this).find('td:first-child span')[0];
+              var orgRowNr = $(sp).attr("id").split(":")[2];
+
+              if (data[$(sp).text()] != undefined) {
+                $('#formDatabrokers\\:databrokers\\:' + orgRowNr + '\\:checkins').html(data[$(sp).text()]);
+              } else {
+                $('#formDatabrokers\\:databrokers\\:' + orgRowNr + '\\:checkins').html("");
+              }
+            });
+          }
+
+          function updateGames(data) {
+            $('#gamesForm\\:datagames>tbody>tr').each( function(){
+              var sp = $(this).find('td:first-child span')[0];
+              var orgRowNr = $(sp).attr("id").split(":")[2];
+
+              if (data[$(sp).text()] != undefined) {
+                $('#gamesForm\\:datagames\\:' + orgRowNr + '\\:heartbeat').html(data[$(sp).text()]);
+              } else {
+                $('#gamesForm\\:datagames\\:' + orgRowNr + '\\:heartbeat').html("");
+              }
+            });
+          }
+
           function updateTables() {
             $.ajax({
               url: "Rest?type=brokers",
@@ -56,32 +82,6 @@
             $.ajax({
               url: "Rest?type=games",
               success: updateGames
-            });
-          }
-
-          function updateBrokers(data) {
-            var row = 0;
-            $('#formDatabrokers\\:databrokers>tbody>tr>td:nth-child(1)').each( function(){
-              if (data[$(this).text()] != undefined) {
-                $('#formDatabrokers\\:databrokers\\:' + row + '\\:checkins').html(data[$(this).text()]);
-              } else {
-                $('#formDatabrokers\\:databrokers\\:' + row + '\\:checkins').html("");
-              }
-
-              row += 1;
-            });
-          }
-
-          function updateGames(data) {
-            var row = 0;
-            $('#gamesForm\\:datagames>tbody>tr>td:nth-child(1)').each( function(){
-              if (data[$(this).text()] != undefined) {
-                $('#gamesForm\\:datagames\\:' + row + '\\:heartbeat').html(data[$(this).text()]);
-              } else {
-                $('#gamesForm\\:datagames\\:' + row + '\\:heartbeat').html("");
-              }
-
-              row += 1;
             });
           }
 
