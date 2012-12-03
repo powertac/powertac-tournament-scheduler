@@ -149,6 +149,7 @@
         </t:dataTable>
         <h:messages for="formDatabrokers" layout=""/>
       </h:form>
+      <br/>
 
       <h:form rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteTournamentList.size() > 0)}" id="tournamentForm">
         <h3 class="withButton">Pending/Running Tournaments</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
@@ -214,6 +215,7 @@
 
         <h:messages for="tournamentForm" />
       </h:form>
+      <br/>
 
       <h:form rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteGamesList.size() > 0)}" id="gamesForm">
         <h3 class="withButton">Pending/Running Games</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>

@@ -7,6 +7,35 @@
 <h:body>
 	<ui:composition template="template.xhtml">
 		<ui:define name="content">
+      <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
+
+      <script type="text/javascript" charset="utf8" >
+        $(document).ready(function() {
+          function updateBrokers(data) {
+            $('#accountForm0\\:brokers>tbody>tr').each( function(){
+              var sp = $(this).find('td:first-child span')[0];
+              var orgRowNr = $(sp).attr("id").split(":")[2];
+
+              if (data[$(sp).text()] != undefined) {
+                $('#accountForm0\\:brokers\\:' + orgRowNr + '\\:checkins').html(data[$(sp).text()]);
+              } else {
+                $('#accountForm0\\:brokers\\:' + orgRowNr + '\\:checkins').html("");
+              }
+            });
+          }
+
+          function updateTables() {
+            $.ajax({
+              url: "Rest?type=brokers",
+              success: updateBrokers
+            });
+          }
+
+          updateTables();
+          setInterval(updateTables, 3000);
+        });
+      </script>
+
 
       <h:panelGroup rendered="#{user.permissionId == 4}">
         <meta http-equiv="REFRESH" content="0;url=login.xhtml" />
@@ -16,9 +45,14 @@
 
       <h:form id="accountForm0" rendered="#{user.permissionId le 3}">
         <h4>Brokers in Tournaments</h4>
-        <h:dataTable border="1"
+        <h:dataTable border="1" id="brokers"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
                      value="#{actionAccount.brokers}" var="broker">
+          <h:column>
+            <f:facet name="header">Id</f:facet>
+            <h:outputText value="#{broker.brokerId}" id="id"/>
+          </h:column>
+
           <h:column>
             <f:facet name="header">Broker Name</f:facet>
             <h:outputText value="#{broker.brokerName}" />
@@ -45,6 +79,11 @@
             <h:commandButton value="register" styleClass="smallButton"
                              action="#{actionAccount.register(broker)}"/>
           </h:column>
+
+          <h:column>
+            <f:facet name="header">CheckIns</f:facet>
+            <h:outputText id="checkins"/>
+          </h:column>
         </h:dataTable>
         <h:message for="accountForm0" />
       </h:form>
@@ -61,11 +100,6 @@
                           rendered="#{!broker.edit}" />
             <h:inputText value="#{broker.newName}"
                          rendered="#{broker.edit}" maxlength="45"/>
-          </h:column>
-
-          <h:column>
-            <f:facet name="header">Broker Id</f:facet>
-            <h:outputText value="#{broker.brokerId}" />
           </h:column>
 
           <h:column>
