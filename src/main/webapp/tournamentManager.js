@@ -8,8 +8,10 @@
 
 function showGamesCount() {
     var elems = saveTournament.elements;
+    var gameName = elems[0].value;
     var type = elems[1].value;
     var maxBrokers = parseInt(elems[2].value);
+    var maxAgents = parseInt(elems[3].value);
     var gameType1 = parseInt(elems[4].value);
     var gameType2 = parseInt(elems[6].value);
     var gameType3 = parseInt(elems[8].value);
@@ -26,37 +28,46 @@ function showGamesCount() {
         return;
     }
 
-    var total1 = 0;
-    var total2 = 0;
-    var total3 = 0;
+    var gameDuration = (gameName.toLowerCase().indexOf("test") > -1) ? 0.33 : 2;
+    var totalGames1 = 0;
+    var totalGames2 = 0;
+    var totalGames3 = 0;
+    var totalTime1 = 0;
+    var totalTime2 = 0;
+    var totalTime3 = 0;
     if ((maxBrokers > 0) && (gameType1 > 0) && (multiplier1 > 0)) {
         if (gameType1 > maxBrokers) {
             elems[4].value = maxBrokers;
             gameType1 = maxBrokers;
         }
-        total1 = multiplier1 * calculateGames(maxBrokers, gameType1);
-        setText("total1", "Games for this type : " + total1);
+        totalGames1 = calculateGames(maxBrokers, gameType1, multiplier1);
+        totalTime1 = gameDuration * (totalGames1 * gameType1) / (maxBrokers * maxAgents);
+        setText("total1", "Games for this type : " + totalGames1);
     }
     if ((maxBrokers > 0) && (gameType2 > 0) && (multiplier2 > 0)) {
         if (gameType2 > maxBrokers) {
             elems[6].value = maxBrokers;
             gameType2 = maxBrokers;
         }
-        total2 = multiplier2 * calculateGames(maxBrokers, gameType2);
-        setText("total2", "Games for this type : " + total2);
+        totalGames2 = calculateGames(maxBrokers, gameType2, multiplier2);
+        totalTime2 = gameDuration * (totalGames2 * gameType2) / (maxBrokers * maxAgents);
+        setText("total2", "Games for this type : " + totalGames2);
     }
     if ((maxBrokers > 0) && (gameType3 > 0) && (multiplier3 > 0)) {
         if (gameType3 > maxBrokers) {
             elems[8].value = maxBrokers;
             gameType3 = maxBrokers;
         }
-        total3 = multiplier3 * calculateGames(maxBrokers, gameType3);
-        setText("total3", "Games for this type : " + total3);
+        totalGames3 = calculateGames(maxBrokers, gameType3, multiplier3);
+        totalTime3 = gameDuration * (totalGames3 * gameType3) / (maxBrokers * maxAgents);
+        setText("total3", "Games for this type : " + totalGames3);
     }
 
-    var total = total1 + total2 + total3;
+    var total = totalGames1 + totalGames2 + totalGames3;
+    var duration = totalTime1 + totalTime2 + totalTime3;
     if (total > 0) {
         setText("totalGames", "Total games to be created : " + total);
+        setText("totalTime", "Estimated duration : " + parseInt(1.1 * duration) +" hours");
     }
 }
 
@@ -68,14 +79,14 @@ function setText(fieldId, newText) {
     el.appendChild(el.ownerDocument.createTextNode(newText));
 }
 
-function calculateGames(players, gametype) {
+function calculateGames(players, gametype, multiplier) {
     if (players == gametype) {
-        return 1;
+        return multiplier;
     }
     if (gametype == 1) {
-        return players;
+        return players * multiplier;
     }
-    return calculateGames(players-1, gametype) + calculateGames(players-1, gametype-1);
+    return calculateGames(players-1, gametype, multiplier) + calculateGames(players-1, gametype-1, multiplier);
 }
 
 function typeSelected() {
