@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -56,10 +57,11 @@ public class CheckWeatherServer implements InitializingBean
   public void ping ()
   {
     log.info("Checking WeatherService");
+    InputStream is = null;
     try {
       URL url = new URL( getWeatherServerLocation() );
       URLConnection conn = url.openConnection();
-      conn.getInputStream();
+      is = conn.getInputStream();
 
       int status = ((HttpURLConnection) conn).getResponseCode();
       if (status == 200) {
@@ -89,6 +91,15 @@ public class CheckWeatherServer implements InitializingBean
         Utils.sendMail("WeatherServer Timeout or Network Error", msg,
             properties.getProperty("scheduler.mailRecipient"));
         mailed = true;
+      }
+    }
+    finally {
+      if (is != null) {
+        try {
+          is.close();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
     }
   }

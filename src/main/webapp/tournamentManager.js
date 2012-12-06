@@ -7,6 +7,10 @@
  */
 
 function showGamesCount() {
+    // Hardcoded for now. How do we get this dynamic? Input field?
+    var maxSlaves = 5;
+    var durationOverhead = 1.1;
+
     var elems = saveTournament.elements;
     var gameName = elems[0].value;
     var type = elems[1].value;
@@ -35,14 +39,16 @@ function showGamesCount() {
     var totalTime1 = 0;
     var totalTime2 = 0;
     var totalTime3 = 0;
+    var slaves = 0
     if ((maxBrokers > 0) && (gameType1 > 0) && (multiplier1 > 0)) {
         if (gameType1 > maxBrokers) {
             elems[4].value = maxBrokers;
             gameType1 = maxBrokers;
         }
         totalGames1 = calculateGames(maxBrokers, gameType1, multiplier1);
-        totalTime1 = gameDuration * (totalGames1 * gameType1) / (maxBrokers * maxAgents);
-        setText("total1", "Games for this type : " + totalGames1);
+        slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType1);
+        totalTime1 = parseInt(durationOverhead * gameDuration * (totalGames1 / slaves));
+        setText("total1", "Games / duration : " + totalGames1 +" / "+ totalTime1);
     }
     if ((maxBrokers > 0) && (gameType2 > 0) && (multiplier2 > 0)) {
         if (gameType2 > maxBrokers) {
@@ -50,8 +56,9 @@ function showGamesCount() {
             gameType2 = maxBrokers;
         }
         totalGames2 = calculateGames(maxBrokers, gameType2, multiplier2);
-        totalTime2 = gameDuration * (totalGames2 * gameType2) / (maxBrokers * maxAgents);
-        setText("total2", "Games for this type : " + totalGames2);
+        slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType2);
+        totalTime2 = parseInt(durationOverhead * gameDuration * (totalGames2 / slaves));
+        setText("total2", "Games / duration : " + totalGames2 +" / "+ totalTime2);
     }
     if ((maxBrokers > 0) && (gameType3 > 0) && (multiplier3 > 0)) {
         if (gameType3 > maxBrokers) {
@@ -59,15 +66,15 @@ function showGamesCount() {
             gameType3 = maxBrokers;
         }
         totalGames3 = calculateGames(maxBrokers, gameType3, multiplier3);
-        totalTime3 = gameDuration * (totalGames3 * gameType3) / (maxBrokers * maxAgents);
-        setText("total3", "Games for this type : " + totalGames3);
+        slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType3);
+        totalTime3 = parseInt(durationOverhead * gameDuration * (totalGames3 / slaves));
+        setText("total3", "Games / duration : " + totalGames3 +" / "+ totalTime3);
     }
 
     var total = totalGames1 + totalGames2 + totalGames3;
     var duration = totalTime1 + totalTime2 + totalTime3;
     if (total > 0) {
-        setText("totalGames", "Total games to be created : " + total);
-        setText("totalTime", "Estimated duration : " + parseInt(1.1 * duration) +" hours");
+        setText("totalGames", "Total games / estimated duration : " + total + " / " + duration + " hours");
     }
 }
 

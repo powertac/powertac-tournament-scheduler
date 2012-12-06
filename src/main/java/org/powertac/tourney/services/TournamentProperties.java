@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
@@ -153,10 +154,12 @@ public class TournamentProperties
 
   private void checkJenkinsLocation()
   {
+    InputStream is = null;
     try {
       URL url = new URL(properties.getProperty("jenkins.location"));
       URLConnection conn = url.openConnection();
-      if (conn.getInputStream() == null) {
+      is = conn.getInputStream();
+      if (is == null) {
         throw new Exception("Couldn't open Jenkins Location");
       }
     }
@@ -165,6 +168,15 @@ public class TournamentProperties
       String msg = "Jenkins Location could not be reached!";
       if (!messages.contains(msg)) {
         messages.add(msg);
+      }
+    }
+    finally {
+      if (is != null) {
+        try {
+          is.close();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
     }
   }

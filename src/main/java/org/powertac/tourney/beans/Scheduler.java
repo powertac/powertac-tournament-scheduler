@@ -217,7 +217,6 @@ public class Scheduler implements InitializingBean
     reloadTournament();
   }
 
-  //private void doTheKailash (Session session, int gameType, List<Broker> brokers)
   private void doTheKailash (Session session, int gameType, int gameNumber,
                              int multiplier, List<Broker> brokers)
   {

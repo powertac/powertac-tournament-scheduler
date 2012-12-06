@@ -16,6 +16,50 @@
       <script type="text/javascript" src="datatable.sort.js"></script>
 
       <script type="text/javascript" charset="utf8" >
+        function toggleSample() {
+          if ($('#toggleSampleButton').val() == "Hide sample") {
+            $('#toggleSampleButton').val("Show sample");
+
+            $('#formDatabrokers\\:databrokers>tbody>tr').each( function() {
+              var sp = $(this).find('td:nth-child(2) a')[0];
+              var name = $(sp).text();
+
+              if (name.toLowerCase().indexOf("sample") > -1) {
+                $(this).css("display", "none");
+              }
+            });
+          } else {
+            $('#toggleSampleButton').val("Hide sample");
+
+            $('#formDatabrokers\\:databrokers>tbody>tr').each( function() {
+              $(this).css("display", "");
+            });
+          }
+        }
+
+        function toggleActive() {
+          var active_statuses = new Array('boot_in_progress', 'game_pending', 'game_ready', 'game_in_progress');
+
+          if ($('#toggleActiveButton').val() == "Hide inactive") {
+            $('#toggleActiveButton').val("Show inactive");
+
+            $('#gamesForm\\:datagames>tbody>tr').each( function() {
+              var sp = $(this).find('td:nth-child(3) span')[0];
+              var status = $(sp).text();
+
+              if (!($.inArray(status, active_statuses) > -1)) {
+                $(this).css("display", "none");
+              }
+            });
+          } else {
+            $('#toggleActiveButton').val("Hide inactive");
+
+            $('#gamesForm\\:datagames>tbody>tr').each( function() {
+              $(this).css("display", "");
+            });
+          }
+        }
+
         $(document).ready(function() {
           $("[id$=databrokers]").dataTable({
             "bFilter": false,
@@ -87,6 +131,7 @@
 
           updateTables();
           setInterval(updateTables, 3000);
+          toggleActive();
         });
       </script>
 
@@ -104,8 +149,12 @@
 
       <h2>Overview</h2>
 
-      <h:form rendered="#{(user.permissionId le 0) and (actionOverview.brokerList.size() > 0)}" id="formDatabrokers">
-        <h3 class="withButton">Registered Brokers</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
+      <h:form rendered="#{(user.permissionId le 0) and (actionOverview.brokerList.size() > 0)}"
+              id="formDatabrokers">
+        <h3 class="withButton">Registered Brokers</h3>
+        <h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
+        <input id="toggleSampleButton" type="button" value="Hide sample"
+               onclick="toggleSample();" />
         <t:dataTable id="databrokers" border="1"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
                      value="#{actionOverview.brokerList}" var="broker">
@@ -217,8 +266,12 @@
       </h:form>
       <br/>
 
-      <h:form rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteGamesList.size() > 0)}" id="gamesForm">
-        <h3 class="withButton">Pending/Running Games</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
+      <h:form rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteGamesList.size() > 0)}"
+              id="gamesForm">
+        <h3 class="withButton">Pending/Running Games</h3>
+        <h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
+        <input id="toggleActiveButton" type="button" value="Hide inactive"
+               onclick="toggleActive();" />
         <t:dataTable id="datagames" border="1"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
                      value="#{actionOverview.notCompleteGamesList}" var="g">
