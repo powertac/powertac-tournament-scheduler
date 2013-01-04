@@ -78,6 +78,8 @@ public class ActionGame
 
   private void loadGameInfo ()
   {
+    gameInfo.add("Id : " + game.getGameId());
+    gameInfo.add("Name : " + game.getGameName());
     gameInfo.add("Status : " + game.getStatus());
 
     gameInfo.add("Tournament : <a href=\"tournament.xhtml?tournamentId=" +

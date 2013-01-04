@@ -79,7 +79,10 @@ public class ActionTournament
 
   private void loadTournamentInfo ()
   {
+    tournamentInfo.add("Id : " + tournament.getTournamentId());
+    tournamentInfo.add("Name : " + tournament.getTournamentName());
     tournamentInfo.add("Status : " + tournament.getStatus());
+
     tournamentInfo.add("StartTime : " + tournament.startTimeUTC());
     tournamentInfo.add("Date from : " + tournament.dateFromUTC());
     tournamentInfo.add("Date to : " + tournament.dateToUTC());

@@ -57,7 +57,7 @@
         }
       </style>
 
-      <h2>Overview for tournament #{actionTournament.tournament.getTournamentName()}</h2>
+      <h2>Overview for tournament : #{actionTournament.tournament.getTournamentName()}</h2>
 
       <t:dataList var="infoEntry" value="#{actionTournament.tournamentInfo}" layout="unorderedList">
         <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>

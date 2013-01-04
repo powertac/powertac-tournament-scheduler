@@ -10,7 +10,7 @@
 <h:body>
   <ui:composition template="template.xhtml">
     <ui:define name="content">
-      <h2>Overview for game #{actionGame.game.getGameName()}</h2>
+      <h2>Overview for game : #{actionGame.game.getGameName()}</h2>
 
       <t:dataList var="infoEntry" value="#{actionGame.gameInfo}" layout="unorderedList">
         <t:outputText value="#{infoEntry}" escape="false" id="infoEntry" />
