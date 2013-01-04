@@ -17,7 +17,7 @@
 				<h2>Tournament Manager</h2>
 
         <h3 class="withButton">Pending/Running Tournaments</h3>
-        <h:commandButton value="Refresh" action="#{actionTournamentManager.refresh()}"/>
+        <h:commandButton value="Refresh"/>
 				<t:dataTable id="datatourneys" border="1"
 					style="border:1px solid black;border-collapse:collapse;text-align:center"
 					value="#{actionTournamentManager.tournamentList}" var="t">
@@ -93,7 +93,8 @@
 
       <br/>
       <h:form rendered="#{(user.permissionId le 0) and (actionTournamentManager.brokerList.size() > 0)}" id="formDatabrokers">
-        <h3 class="withButton">Registered Brokers</h3><h:commandButton value="Refresh" action="#{actionTournamentManager.refresh}"/>
+        <h3 class="withButton">Registered Brokers</h3>
+        <h:commandButton value="Refresh"/>
         <t:dataTable id="databrokers" border="1"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
                      value="#{actionTournamentManager.brokerList}" var="broker">

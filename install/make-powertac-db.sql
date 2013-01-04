@@ -139,3 +139,12 @@ CREATE TABLE `tourney`.`agents` (
   PRIMARY KEY (`agentId`)
 ) ENGINE=InnoDB;
 
+
+DROP TABLE IF EXISTS `tourney`.`config`;
+CREATE TABLE IF NOT EXISTS `tourney``config` (
+  `configId` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `configKey` VARCHAR(256) UNIQUE NOT NULL,
+  `configValue` LONGTEXT,
+  PRIMARY KEY (`configId`)
+) ENGINE=InnoDB;
+

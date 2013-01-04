@@ -240,7 +240,8 @@
 
       <br/>
       <h:form rendered="#{user.permissionId le 0}" id="machinesForm">
-        <h3 class="withButton">Available Machines</h3><h:commandButton value="Refresh" action="#{actionAdmin.refresh}"/>
+        <h3 class="withButton">Available Machines</h3>
+        <h:commandButton value="Refresh"/>
         <t:dataTable id="machines" border="1" sortable="false"
                      sortColumn="#{actionAdmin.sortColumnMachine}"
                      sortAscending="#{actionAdmin.sortAscendingMachine}"

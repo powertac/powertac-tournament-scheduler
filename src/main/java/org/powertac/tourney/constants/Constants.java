@@ -207,5 +207,9 @@ public class Constants
             + "LEFT JOIN FETCH agentMap.broker as broker2 "
             + "LEFT JOIN FETCH broker2.user "
             + "WHERE broker.brokerAuth =:brokerAuth ";
+
+    public static final String GET_CONFIG =
+        "FROM Config AS config "
+            + "WHERE config.configKey =:configKey ";
   }
 }

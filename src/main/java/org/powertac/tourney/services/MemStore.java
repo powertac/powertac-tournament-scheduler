@@ -8,6 +8,7 @@
 package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
+import org.powertac.tourney.beans.Config;
 import org.powertac.tourney.beans.Machine;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,8 @@ public class MemStore {
   public static HashMap<Integer, Integer> gameLengths;
 
   public static HashMap<Integer, Boolean> brokerState = new HashMap<Integer, Boolean>();
+
+  public static String content;
 
   public MemStore ()
   {
@@ -212,5 +215,24 @@ public class MemStore {
   public static void setBrokerState (int brokerId, boolean state)
   {
     brokerState.put(brokerId, state);
+  }
+
+  public static String getIndexContent()
+  {
+    if (content == null || content.isEmpty()) {
+      content = Config.getIndexContent();
+      if (content == null) {
+        return "Error connecting to DB";
+      }
+    }
+
+    return content;
+  }
+
+  public static boolean setIndexContent (String newContent)
+  {
+    content = newContent;
+
+    return Config.setIndexContent(newContent);
   }
 }

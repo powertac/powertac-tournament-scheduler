@@ -226,8 +226,4 @@ public class ActionOverview
     }
     session.close();
   }
-
-  public void refresh ()
-  {
-  }
 }

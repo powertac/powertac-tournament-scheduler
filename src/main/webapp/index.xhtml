@@ -50,21 +50,22 @@
         table.dataTable tr.even td.sorting_1 {
           background-color: #FFFFFF;
         }
+        textarea {
+          width: 960px;
+          height: 400px;
+        }
       </style>
 
-      <h2>Welcome to the PowerTac 2012 Tournament Scheduler</h2>
+      <h:outputText value="#{actionIndex.content}" escape="false"/>
 
-      <p>More information on PowerTac, including the latest specification, can be found on the <a href="http://powertac.org">website</a>.</p>
-
-      <p>If you have not already done so, create an account on the
-        <a href="register.xhtml">registration page</a>.
-        On the <a href="account.xhtml">account page</a> you can add/edit your broker(s).<br/>
-        There you can also register your broker(s) to tournaments.<br/><br/>
-        Please register your broker to 'finals_2012_12' if you wish to participate in the 2012 December PowerTAC competition.</p>
-
-      <p>The logs of the 2012 September games can be found <a href="http://wolf-08.fbk.eur.nl/log/finals_2012_09/">here</a>. Please do not link to these logs, as the URL might change in the future.</p>
-      <p>More information on the Broker login procedure found on the <a href="https://github.com/powertac/powertac-server/wiki/Broker-Tournament-Login">
-        Github wiki instruction page</a>.</p>
+      <h:form id="contentForm" rendered="#{user.permissionId le 0}">
+        <h:inputTextarea id="contentInput"
+                         rendered="#{actionIndex.editing == true}"
+                         value="#{actionIndex.content}"/>
+        <h:commandButton value="#{actionIndex.editing ? 'Save' : 'Edit'}"
+                         action="#{actionIndex.edit}"/>
+        <h:message for="contentForm" />
+      </h:form>
 
 			<h:form rendered="#{actionIndex.notCompleteGamesList.size() != 0}">
         <h3>Running Games and their Visualizers</h3>
@@ -76,12 +77,12 @@
 						<f:facet name="header">ID</f:facet>
             <h:outputText value="#{g.gameId}" />
     			</t:column>
-    				
+
           <t:column>
 						<f:facet name="header">Tournament</f:facet>
             <h:outputText value="#{g.tournament.tournamentName}" />
           </t:column>
-    				
+
           <t:column>
 						<f:facet name="header">Brokers</f:facet>
             <h:outputText value="#{g.getBrokersInGameString()}" />
@@ -119,7 +120,7 @@
                 <f:param name="gameId" value="#{g.gameId}" />
               </h:link>
     				</t:column>
-    				
+
     				<t:column>
               <f:facet name="header">Tournament</f:facet>
               <h:link value="#{g.tournament.tournamentName}" outcome="Tournament">

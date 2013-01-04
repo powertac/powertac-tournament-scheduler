@@ -38,7 +38,6 @@ public class User
 
   private Map<Integer, Broker> brokerMap = new HashMap<Integer, Broker>();
 
-  @Transient
   private boolean isEditing;
 
   public User ()

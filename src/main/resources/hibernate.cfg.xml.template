@@ -32,5 +32,6 @@
         <mapping class="org.powertac.tourney.beans.Agent" />
         <mapping class="org.powertac.tourney.beans.Registration" />
         <mapping class="org.powertac.tourney.beans.Location" />
+        <mapping class="org.powertac.tourney.beans.Config" />
     </session-factory>
 </hibernate-configuration>

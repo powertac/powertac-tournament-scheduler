@@ -152,7 +152,7 @@
       <h:form rendered="#{(user.permissionId le 0) and (actionOverview.brokerList.size() > 0)}"
               id="formDatabrokers">
         <h3 class="withButton">Registered Brokers</h3>
-        <h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
+        <h:commandButton value="Refresh"/>
         <input id="toggleSampleButton" type="button" value="Hide sample"
                onclick="toggleSample();" />
         <t:dataTable id="databrokers" border="1"
@@ -201,7 +201,8 @@
       <br/>
 
       <h:form rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteTournamentList.size() > 0)}" id="tournamentForm">
-        <h3 class="withButton">Pending/Running Tournaments</h3><h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
+        <h3 class="withButton">Pending/Running Tournaments</h3>
+        <h:commandButton value="Refresh"/>
         <t:dataTable id="datatourneys" border="1"
                      style="border:1px solid black;border-collapse:collapse;text-align:center"
                      value="#{actionOverview.notCompleteTournamentList}" var="t">
@@ -269,7 +270,7 @@
       <h:form rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteGamesList.size() > 0)}"
               id="gamesForm">
         <h3 class="withButton">Pending/Running Games</h3>
-        <h:commandButton value="Refresh" action="#{actionOverview.refresh}"/>
+        <h:commandButton value="Refresh"/>
         <input id="toggleActiveButton" type="button" value="Hide inactive"
                onclick="toggleActive();" />
         <t:dataTable id="datagames" border="1"

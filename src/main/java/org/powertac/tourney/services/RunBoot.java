@@ -158,9 +158,9 @@ public class RunBoot
 
     log.info(String.format("WatchDogTimer reports %s boots are ready to "
         + "start", games.size()));
-    for (Game game: games) {
-      machinesAvailable = true;
 
+    machinesAvailable = true;
+    for (Game game: games) {
       log.info(String.format("Boot %s will be started ...", game.getGameId()));
       new RunBoot(game);
 

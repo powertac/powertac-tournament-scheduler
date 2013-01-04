@@ -447,10 +447,6 @@ public class ActionAdmin
     return User.getUserList();
   }
 
-  public void refresh ()
-  {
-  }
-
   //<editor-fold desc="Setters and Getters">
   public int getLocationId() {
     return locationId;

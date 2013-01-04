@@ -348,10 +348,6 @@ public class ActionTournamentManager
     }
   }
 
-  public void refresh ()
-  {
-  }
-
   //<editor-fold desc="Setters and getters">
   public int getTourneyId() {
     return tourneyId;
