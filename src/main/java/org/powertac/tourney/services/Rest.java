@@ -65,7 +65,7 @@ public class Rest
       }
 
       // Check if tournament is finished
-      if (tournament.stateEquals(Tournament.STATE.complete)) {
+      if (tournament.isComplete()) {
         log.info("Tournament is finished, we're done : " + tournamentName);
         transaction.commit();
         return doneResponse;
@@ -84,7 +84,7 @@ public class Rest
 
       // Check if any ready games that are more than X minutes ready (to allow Viz Login)
       for (Game game: tournament.getGameMap().values()) {
-        if (!game.stateEquals(Game.STATE.game_ready)) {
+        if (!game.isReady()) {
           continue;
         }
         Agent agent = game.getAgentMap().get(broker.getBrokerId());
@@ -169,7 +169,7 @@ public class Rest
         if (!game.getMachine().getMachineName().equals(machineName)) {
           continue;
         }
-        if (!game.stateEquals(Game.STATE.game_ready)) {
+        if (!game.isReady()) {
           continue;
         }
         if ((nowStamp - game.getReadyTime().getTime()) < readyDeadline) {
@@ -501,7 +501,7 @@ public class Rest
   }
 
   /***
-   * Handle 'POST' to serverInterface.jsp, this is a end-of-game message
+   * Handle 'POST' to serverInterface.jsp, this is an end-of-game message
    */
   public synchronized String handleServerInterfacePOST (Map<String, String[]> params,
                                            HttpServletRequest request)

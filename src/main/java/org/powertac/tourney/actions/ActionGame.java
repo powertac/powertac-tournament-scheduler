@@ -7,6 +7,7 @@ import org.powertac.tourney.beans.Agent;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.HibernateUtil;
+import org.powertac.tourney.services.TournamentProperties;
 import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
@@ -81,6 +82,17 @@ public class ActionGame
     gameInfo.add("Id : " + game.getGameId());
     gameInfo.add("Name : " + game.getGameName());
     gameInfo.add("Status : " + game.getStatus());
+
+    if (game.isComplete()) {
+      TournamentProperties properties = TournamentProperties.getProperties();
+      String baseUrl = properties.getProperty("actionIndex.logUrl",
+                                              "download?game=%d");
+      String link = String.format("<a href=\"%s\">link</a>", baseUrl);
+      gameInfo.add("Logs : " + String.format(link, game.getGameId()));
+
+      gameInfo.add("Game length : " + game.getGameLength());
+      gameInfo.add("Last tick : " + game.getLastTick());
+    }
 
     gameInfo.add("Tournament : <a href=\"tournament.xhtml?tournamentId=" +
         + game.getTournament().getTournamentId() + "\">"

@@ -63,7 +63,7 @@ public class Rest extends HttpServlet
         int stamp = (int) (System.currentTimeMillis() - iter.next()) / 1000;
         if (stamp > 900) {
           iter.remove();
-        } else if (stamp < 61) {
+        } else if (stamp < 60) {
           result += "<b>" + stamp + "</b> ";
         } else {
           result += stamp + " ";

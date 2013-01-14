@@ -6,11 +6,16 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.HibernateUtil;
+import org.powertac.tourney.services.TournamentProperties;
 import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.persistence.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -116,7 +121,7 @@ public class Tournament
       if (game.getGameId() == finishedGameId) {
         continue;
       }
-      if (!game.stateEquals(Game.STATE.game_complete)) {
+      if (!game.isComplete()) {
         allDone = false;
       }
     }
@@ -130,32 +135,186 @@ public class Tournament
         scheduler.unloadTournament();
       }
     }
+
+    // Always generate new CSVs
+    createCsv();
+  }
+
+  public void createCsv ()
+  {
+    String lineSep = System.getProperty("line.separator");
+    TournamentProperties properties = TournamentProperties.getProperties();
+    String tournamentCsv = String.format("%s%s.csv",
+        properties.getProperty("logLocation"), tournamentName);
+    String gamesCsv = String.format("%s%s.games.csv",
+        properties.getProperty("logLocation"), tournamentName);
+
+    createTournamentCsv(new File(tournamentCsv), lineSep);
+    createGamesCsv(new File(gamesCsv), lineSep, properties);
+  }
+
+  private void createTournamentCsv(File tournamentFile, String lineSep)
+  {
+    if (tournamentFile.isFile() && tournamentFile.canRead()) {
+      tournamentFile.delete();
+    }
+
+    // Create new CSVs
+    try {
+      tournamentFile.createNewFile();
+
+      FileWriter fw = new FileWriter(tournamentFile.getAbsoluteFile());
+      BufferedWriter bw = new BufferedWriter(fw);
+
+      bw.write("tournamentId;" + tourneyId +";" + lineSep);
+      bw.write("tournamentName;" + tournamentName +";" + lineSep);
+      bw.write("status;" + status +";" + lineSep);
+
+      bw.write("StartTime;" + startTimeUTC() +";" + lineSep);
+      bw.write("Date from;" + dateFromUTC() +";" + lineSep);
+      bw.write("Date to;" + dateToUTC() +";" + lineSep);
+
+      bw.write("MaxBrokers;" + maxBrokers +";" + lineSep);
+      bw.write("Registered Brokers;" + getBrokerMap().size() +";" + lineSep);
+      bw.write("MaxAgents;" + maxAgents +";" + lineSep);
+
+      bw.write("type;" + type +";" + lineSep);
+      if (isMulti()) {
+        bw.write("size1;" + size1 +";" + lineSep);
+        bw.write("multiplier1;" + multiplier1 +";" + lineSep);
+        bw.write("size2;" + size2 +";" + lineSep);
+        bw.write("multiplier2;" + multiplier2 +";" + lineSep);
+        bw.write("size3;" + size3 +";" + lineSep);
+        bw.write("multiplier3;" + multiplier3 +";" + lineSep);
+      }
+
+      bw.write("pomId;" + pomId +";" + lineSep);
+      bw.write("Locations;" + locations +";" + lineSep);
+      bw.write(lineSep);
+
+      if (isMulti()) {
+        Map<String, Double[]> resultMap = determineWinnerMulti(false);
+
+        List<Double> avgsAndSDs = getAvgsAndSDs(resultMap);
+        bw.write("Average type 1;" + avgsAndSDs.get(0) +";" + lineSep);
+        bw.write("Average type 2;" + avgsAndSDs.get(1) +";" + lineSep);
+        bw.write("Average type 3;" + avgsAndSDs.get(2) +";" + lineSep);
+
+        bw.write("Standard deviation type 1;" + avgsAndSDs.get(3) +";" + lineSep);
+        bw.write("Standard deviation type 2;" + avgsAndSDs.get(4) +";" + lineSep);
+        bw.write("Standard deviation type 3;" + avgsAndSDs.get(5) +";" + lineSep);
+        bw.write(lineSep);
+
+        bw.write("brokerId;Size 1;Size 2;Size 3;Total (not normalized);" +
+            "Size 1;Size 2;Size3;Total (normalized);" + lineSep);
+
+        for (Map.Entry<String, Double[]> entry: resultMap.entrySet()) {
+          Double[] results = entry.getValue();
+          bw.write(String.format("%s;%f;%f;%f;%f;%f;%f;%f;%f;%s",
+              entry.getKey(),
+              results[0],results[1],results[2],results[3],
+              results[10],results[11],results[12],results[13],
+              lineSep));
+        }
+      } else {
+        Map<String, Double[]> resultMap = determineWinnerSingle(false);
+        for (Map.Entry<String, Double[]> entry: resultMap.entrySet()) {
+          bw.write("brokerId;Total;" + lineSep);
+          Double[] results = entry.getValue();
+          bw.write(String.format("%s;%f;%s",
+              entry.getKey(), results[0], lineSep));
+        }
+      }
+
+      bw.close();
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void createGamesCsv (File gamesFile, String lineSep,
+                               TournamentProperties properties)
+  {
+    if (gamesFile.isFile() && gamesFile.canRead()) {
+      gamesFile.delete();
+    }
+
+    try {
+      gamesFile.createNewFile();
+
+      FileWriter fw = new FileWriter(gamesFile.getAbsoluteFile());
+      BufferedWriter bw = new BufferedWriter(fw);
+
+      bw.write(
+          "gameId;gameName;status;gameLength;lastTick;" +
+              "weatherLocation;weatherDate;logUrl;brokerId;brokerBalance;"
+              + lineSep);
+
+      String tourneyUrl = properties.getProperty("tourneyUrl");
+      String baseUrl = properties.getProperty("actionIndex.logUrl",
+          "download?game=%d");
+      for (Map.Entry<Integer, Game> entry: getGameMap().entrySet()) {
+        Game game = entry.getValue();
+
+        String logUrl = "";
+        if (game.isComplete()) {
+          if (baseUrl.startsWith("http://")) {
+            logUrl = String.format(baseUrl, game.getGameId());
+          } else {
+            logUrl = tourneyUrl + String.format(baseUrl, game.getGameId());
+          }
+        }
+
+        String content = String.format("%d;%s;%s;%d;%d;%s;%s;%s;",
+            game.getGameId(), game.getGameName(), game.getStatus(),
+            game.getGameLength(), game.getLastTick(),
+            game.getLocation(), game.getSimStartTime(),
+            logUrl);
+        for (Agent agent: game.getAgentMap().values()) {
+          content = String.format("%s%d;%f;", content,
+              agent.getBrokerId(), agent.getBalance());
+        }
+
+        bw.write(content + lineSep);
+      }
+
+      bw.close();
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   //<editor-fold desc="Winner determination">
   public Map<String, Double[]> determineWinner ()
   {
     if (isMulti()) {
-      return determineWinnerMulti();
+      return determineWinnerMulti(true);
     } else {
-      return determineWinnerSingle();
+      return determineWinnerSingle(true);
     }
   }
 
-  private Map<String, Double[]> determineWinnerSingle ()
+  private Map<String, Double[]> determineWinnerSingle (boolean useName)
   {
-    Map<String, Double[]> resultMap = new HashMap<String, java.lang.Double[]>();
+    Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
 
     for (Game game: getGameMap().values()) {
       for (Agent agent: game.getAgentMap().values()) {
-        resultMap.put(agent.getBroker().getBrokerName(),
-                      new Double[] {agent.getBalance()});
+        if (useName) {
+          resultMap.put(agent.getBroker().getBrokerName(),
+                        new Double[] {agent.getBalance()});
+        } else {
+          resultMap.put(String.valueOf(agent.getBroker().getBrokerId()),
+              new Double[] {agent.getBalance()});
+        }
       }
     }
     return resultMap;
   }
 
-  private Map<String, Double[]> determineWinnerMulti ()
+  private Map<String, Double[]> determineWinnerMulti (boolean useName)
   {
     // Col 0  = result gameType 1
     // Col 1  = result gameType 2
@@ -181,15 +340,21 @@ public class Tournament
       int gameTypeIndex = game.getGameTypeIndex();
 
       for (Agent agent: game.getAgentMap().values()) {
-        if (!resultMap.containsKey(agent.getBroker().getBrokerName())) {
-          resultMap.put(agent.getBroker().getBrokerName(), new Double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0} );
+        String brokerKey = String.valueOf(agent.getBroker().getBrokerId());
+        if (useName) {
+          brokerKey = agent.getBroker().getBrokerName();
         }
 
-        Double[] results = resultMap.get(agent.getBroker().getBrokerName());
+        if (!resultMap.containsKey(brokerKey)) {
+          resultMap.put(brokerKey, new Double[] {
+                  0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0} );
+        }
+
+        Double[] results = resultMap.get(brokerKey);
         results[gameTypeIndex] += agent.getBalance();
         averages[gameTypeIndex] += agent.getBalance();
         results[3] = results[0] + results[1] + results[2];
-        resultMap.put(agent.getBroker().getBrokerName(), results);
+        resultMap.put(brokerKey, results);
       }
     }
 
@@ -264,22 +429,34 @@ public class Tournament
     return type.equals(TYPE.SINGLE_GAME.toString());
   }
 
+  @Transient
+  public boolean isComplete () {
+    return stateEquals(Tournament.STATE.complete);
+  }
+
   public boolean stateEquals (STATE state)
   {
     return this.status.equals(state.toString());
   }
 
-  public String startTimeUTC ()
-  {
+  public String startTimeUTC () {
     return Utils.dateFormat(startTime);
   }
-  public String dateFromUTC ()
-  {
+  public String dateFromUTC () {
     return Utils.dateFormat(dateFrom);
   }
-  public String dateToUTC ()
-  {
+  public String dateToUTC () {
     return Utils.dateFormat(dateTo);
+  }
+
+  public void setStatusToPending() {
+    this.setStatus(STATE.pending.toString());
+  }
+  public void setStatusToInProgress() {
+    this.setStatus(STATE.in_progress.toString());
+  }
+  public void setStatusToComplete() {
+    this.setStatus(STATE.complete.toString());
   }
   //</editor-fold>
 
@@ -346,6 +523,18 @@ public class Tournament
     session.close();
 
     return tournaments;
+  }
+
+  public List<Double> getAvgsAndSDs (Map<String, Double[]> resultMap)
+  {
+    List<Double> result = new ArrayList<Double>();
+
+    if (resultMap.size() > 0 && isMulti()) {
+      Map.Entry<String, Double[]> entry = resultMap.entrySet().iterator().next();
+      result.addAll(Arrays.asList(entry.getValue()).subList(4, 10));
+    }
+
+    return result;
   }
   //</editor-fold>
 

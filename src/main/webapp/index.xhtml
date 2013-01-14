@@ -64,6 +64,8 @@
                          value="#{actionIndex.content}"/>
         <h:commandButton value="#{actionIndex.editing ? 'Save' : 'Edit'}"
                          action="#{actionIndex.edit}"/>
+        <h:commandButton rendered="#{actionIndex.editing}"
+                         value="Cancel" action="#{actionIndex.cancel}"/>
         <h:message for="contentForm" />
       </h:form>
 

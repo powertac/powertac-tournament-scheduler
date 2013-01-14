@@ -14,30 +14,38 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
- * Servlet implementation class LogDownloader
+ * Servlet implementation class Downloader
  */
 @WebServlet(description = "Access to download compressed logfiles",
-            urlPatterns = { "/LogDownloader" })
-public class LogDownloader extends HttpServlet 
+            urlPatterns = { "/Downloader" })
+public class Downloader extends HttpServlet
 {
-	private static final long serialVersionUID = 1L;
-
   TournamentProperties properties = TournamentProperties.getProperties();
   String absolutePath = properties.getProperty("logLocation");
-
-	public LogDownloader() {
-	  super();
-	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException
 	{
     String gameId = request.getParameter("game");
-    String downloadFile = "game-" + gameId + "-sim-logs.tar.gz";
+    String csvName = request.getParameter("csv");
 
-    response.setContentType("application/x-tar; x-gzip");
-    response.addHeader("Content-Disposition", "attachment; filename=\""
-        + downloadFile + "\"");
+    if (gameId != null) {
+      String downloadFile = "game-" + gameId + "-sim-logs.tar.gz";
+      response.setContentType("application/x-tar; x-gzip");
+      response.addHeader("Content-Disposition", "attachment; filename=\""
+          + downloadFile + "\"");
+      streamFile (response, downloadFile);
+    } else if (csvName != null) {
+      String downloadFile = csvName + ".csv";
+      response.setContentType("text/csv");
+      response.addHeader("Content-Disposition", "attachment; filename=\""
+          + downloadFile + "\"");
+      streamFile (response, downloadFile);
+    }
+	}
+
+  private void streamFile (HttpServletResponse response, String downloadFile)
+  {
     byte[] buf = new byte[1024];
     try {
       String realPath = absolutePath + downloadFile;
@@ -56,6 +64,5 @@ public class LogDownloader extends HttpServlet
     catch (Exception exc) {
       exc.printStackTrace();
     }
-	}
-
+  }
 }

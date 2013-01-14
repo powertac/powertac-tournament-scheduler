@@ -106,7 +106,7 @@ public class ActionTournamentManager
     try {
       Tournament tournament = new Tournament();
       setValues(tournament);
-      tournament.setStatus(Tournament.STATE.pending.toString());
+      tournament.setStatusToPending();
       session.save(tournament);
 
       log.info(String.format("Created %s tournament %s",

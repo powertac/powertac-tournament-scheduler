@@ -59,9 +59,19 @@
 
       <h2>Overview for tournament : #{actionTournament.tournament.getTournamentName()}</h2>
 
-      <t:dataList var="infoEntry" value="#{actionTournament.tournamentInfo}" layout="unorderedList">
+      <t:dataList var="infoEntry" value="#{actionTournament.tournamentInfo}"
+                  layout="unorderedList">
         <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
       </t:dataList>
+
+      <h:form rendered="#{user.permissionId le 0}">
+        <h:commandButton action="#{actionTournament.createCsv}"
+                         value="Create or update CSV">
+          <f:ajax execute="@form" render="@form" />
+        </h:commandButton>
+        <input type="hidden" name="tournamentId"
+               value="#{actionTournament.tournament.tournamentId}" />
+      </h:form>
 
       <h:form rendered="#{actionTournament.getResultMap().size() > 0}">
         <h3>Totals</h3>

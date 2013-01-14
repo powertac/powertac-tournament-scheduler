@@ -191,7 +191,7 @@ public class Scheduler implements InitializingBean
 
       if (brokers.size() == 0) {
         log.info("Tournament has no brokers registered, setting to complete");
-        runningTournament.setStatus(Tournament.STATE.complete.toString());
+        runningTournament.setStatusToComplete();
         session.update(runningTournament);
         unloadTournament();
         transaction.commit();

@@ -38,6 +38,8 @@ public class Game implements Serializable
   private String visualizerQueue = "";
   private String location = "";
   private String simStartTime;
+  private Integer gameLength = 0;
+  private Integer lastTick = 0;
 
   TournamentProperties properties = TournamentProperties.getProperties();
 
@@ -159,11 +161,12 @@ public class Game implements Serializable
         break;
 
       case game_ready:
-        tournament.setStatus(Tournament.STATE.in_progress.toString());
+        tournament.setStatusToInProgress();
         readyTime = Utils.offsetDate();
         break;
+
       case game_in_progress:
-        tournament.setStatus(Tournament.STATE.in_progress.toString());
+        tournament.setStatusToInProgress();
         break;
 
       case game_complete:
@@ -194,10 +197,26 @@ public class Game implements Serializable
     session.update(this);
   }
 
+  /*
+   * This is called when the REST interface receives a heartbeat message (GET)
+   * or a end-of-game message (POST)
+   */
   public String handleStandings (Session session, String standings,
-                                 boolean checkEndOfGame) throws Exception
+                                 boolean isEndOfGame) throws Exception
   {
     log.debug("We received standings for game " + gameId);
+
+    if (isEndOfGame) {
+      log.debug("Status of the game is " + status);
+
+      if (!isRunning()) {
+        session.getTransaction().rollback();
+        log.warn("Game is not running, aborting!");
+        return "error";
+      }
+
+      saveStandings();
+    }
 
     HashMap<String, Double> results = new HashMap<String, Double>();
     for (String result: standings.split(",")) {
@@ -207,16 +226,6 @@ public class Game implements Serializable
         continue;
       }
       results.put(name, balance);
-    }
-
-    if (checkEndOfGame) {
-      log.debug("Status of the game is " + status);
-
-      if (!isRunning()) {
-        session.getTransaction().rollback();
-        log.warn("Game is not running, aborting!");
-        return "error";
-      }
     }
 
     for (Agent agent: agentMap.values()) {
@@ -233,12 +242,14 @@ public class Game implements Serializable
   }
 
   @Transient
-  public boolean isBooting () {
+  public boolean isBooting ()
+  {
     return status.equals(STATE.boot_in_progress.toString());
   }
 
   @Transient
-  public boolean isRunning () {
+  public boolean isRunning ()
+  {
     List<String> running = Arrays.asList(
         Game.STATE.game_pending.toString(),
         Game.STATE.game_ready.toString(),
@@ -246,7 +257,8 @@ public class Game implements Serializable
     return running.contains(status);
   }
 
-  public boolean hasBootstrap () {
+  public boolean hasBootstrap ()
+  {
     List<String> hasBootStrapStates = Arrays.asList(
         STATE.boot_complete.toString(),
         STATE.game_pending.toString(),
@@ -290,9 +302,25 @@ public class Game implements Serializable
     return this.status.equals(state.toString());
   }
 
-  public boolean gameFailed ()
-  {
-    return stateEquals(STATE.boot_failed) || stateEquals(STATE.game_failed);
+  @Transient
+  public boolean isComplete() {
+    return stateEquals(STATE.game_complete);
+  }
+  @Transient
+  public boolean isReady() {
+    return stateEquals(STATE.game_ready);
+  }
+  @Transient
+  public boolean isBootFailed() {
+    return stateEquals(STATE.boot_failed);
+  }
+  @Transient
+  public boolean isGameFailed() {
+    return stateEquals(STATE.game_failed);
+  }
+  @Transient
+  public boolean isFailed() {
+    return isBootFailed() || isGameFailed();
   }
 
   @Transient
@@ -315,6 +343,15 @@ public class Game implements Serializable
     return String.format("%scomputer/%s/",
         properties.getProperty("jenkins.location"),
         machine.getMachineName());
+  }
+
+  private void saveStandings ()
+  {
+    try {
+      gameLength = MemStore.gameLengths.get(gameId) + 360;
+      lastTick = Integer.parseInt(MemStore.gameHeartbeats.get(gameId)[0]);
+    }
+    catch (Exception ignored) {}
   }
 
   public static Game createGame (Tournament tournament, String gameName)
@@ -547,6 +584,22 @@ public class Game implements Serializable
   }
   public void setSimStartTime (String simStartTime) {
     this.simStartTime = simStartTime;
+  }
+
+  @Column(name="gameLength")
+  public Integer getGameLength() {
+    return gameLength;
+  }
+  public void setGameLength(Integer gameLength) {
+    this.gameLength = gameLength;
+  }
+
+  @Column(name="lastTick")
+  public Integer getLastTick() {
+    return lastTick;
+  }
+  public void setLastTick(Integer lastTick) {
+    this.lastTick = lastTick;
   }
   //</editor-fold>
 }

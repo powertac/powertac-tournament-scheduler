@@ -200,7 +200,8 @@
       </h:form>
       <br/>
 
-      <h:form rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteTournamentList.size() > 0)}" id="tournamentForm">
+      <h:form rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteTournamentList.size() > 0)}"
+              id="tournamentForm">
         <h3 class="withButton">Pending/Running Tournaments</h3>
         <h:commandButton value="Refresh"/>
         <t:dataTable id="datatourneys" border="1"
@@ -338,7 +339,7 @@
                                onclick="return confirmAlert('Are you sure you want to kill this game?');"
                                rendered="#{g.machine != null}" styleClass="smallButton"/>
               <h:commandButton value="Restart" action="#{actionOverview.restartGame(g)}"
-                               rendered="#{g.gameFailed()}" styleClass="smallButton"/>
+                               rendered="#{g.isFailed()}" styleClass="smallButton"/>
             </h:panelGroup>
           </t:column>
         </t:dataTable>

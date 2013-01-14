@@ -70,6 +70,11 @@ public class ActionIndex
     editing = !editing;
   }
 
+  public void cancel ()
+  {
+    editing = false;
+  }
+
   public boolean isEditing() {
     return editing;
   }

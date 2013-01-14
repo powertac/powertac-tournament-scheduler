@@ -8,11 +8,13 @@ import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.HibernateUtil;
+import org.powertac.tourney.services.TournamentProperties;
 import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
+import java.io.File;
 import java.util.*;
 
 
@@ -72,8 +74,26 @@ public class ActionTournament
           getRequestParameterMap().get("tournamentId"));
     }
     catch (NumberFormatException ignored) {
-      Utils.redirect();
+      if (!FacesContext.getCurrentInstance().isPostback()) {
+        Utils.redirect();
+      }
       return -1;
+    }
+  }
+
+  private void loadMaps ()
+  {
+    resultMap = tournament.determineWinner();
+    avgsAndSDs = tournament.getAvgsAndSDs(resultMap);
+
+    for (Game game: tournament.getGameMap().values()) {
+      List<Agent> agents = new ArrayList<Agent>();
+
+      for (Agent agent: game.getAgentMap().values()) {
+        agents.add(agent);
+      }
+
+      agentsMap.put(game.getGameId(), agents);
     }
   }
 
@@ -103,26 +123,49 @@ public class ActionTournament
 
     tournamentInfo.add("Pom Id : " + tournament.getPomId());
     tournamentInfo.add("Locations : " + tournament.getLocations());
+
+    addCsvLinks();
   }
 
-  private void loadMaps ()
+  private void addCsvLinks ()
   {
-    resultMap = tournament.determineWinner();
+    TournamentProperties properties = TournamentProperties.getProperties();
 
-    if (resultMap.size() > 0 && tournament.isMulti()) {
-      Map.Entry<String, Double[]> entry = resultMap.entrySet().iterator().next();
-      avgsAndSDs.addAll(Arrays.asList(entry.getValue()).subList(4, 10));
-    }
+    String baseUrl = properties.getProperty("actionIndex.logUrl",
+        "download?game=%d");
+    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("game"));
 
-    for (Game game: tournament.getGameMap().values()) {
-      List<Agent> agents = new ArrayList<Agent>();
+    String tournamentCsv = tournament.getTournamentName() + ".csv";
+    String gamesCsv = tournament.getTournamentName() + ".games.csv";
 
-      for (Agent agent: game.getAgentMap().values()) {
-        agents.add(agent);
+    File tournamentFile = new File(String.format("%s%s",
+        properties.getProperty("logLocation"), tournamentCsv));
+    File gamesFile = new File(String.format("%s%s",
+        properties.getProperty("logLocation"), gamesCsv));
+
+    if (tournamentFile.isFile()) {
+      if (baseUrl.endsWith("?")) {
+        tournamentCsv = "csv=" + tournament.getTournamentName();
+      } else if (!baseUrl.endsWith("/")) {
+        baseUrl += "/";
       }
-
-      agentsMap.put(game.getGameId(), agents);
+      tournamentInfo.add(String.format(
+          "Tournament csv : <a href=\"%s\">link</a>", baseUrl + tournamentCsv));
     }
+    if (gamesFile.exists()) {
+      if (baseUrl.endsWith("?")) {
+        gamesCsv = "csv=" + tournament.getTournamentName() +".games";
+      } else if (!baseUrl.endsWith("/")) {
+        baseUrl += "/";
+      }
+      tournamentInfo.add(String.format(
+          "Games csv : <a href=\"%s\">link</a>", baseUrl + gamesCsv));
+    }
+  }
+
+  public void createCsv ()
+  {
+    tournament.createCsv();
   }
 
   //<editor-fold desc="Setters and Getters">

@@ -195,12 +195,12 @@ public class ActionOverview
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      if (game.stateEquals(Game.STATE.boot_failed)) {
+      if (game.isBootFailed()) {
         log.info("Resetting boot game: " + gameId);
         game.removeBootFile();
         game.setStatus(Game.STATE.boot_pending.toString());
       }
-      if (game.stateEquals(Game.STATE.game_failed)) {
+      if (game.isGameFailed()) {
         log.info("Resetting sim game: " + gameId);
         game.setStatus(Game.STATE.boot_complete.toString());
 

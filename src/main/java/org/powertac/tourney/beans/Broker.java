@@ -241,7 +241,7 @@ public class Broker
     String result = "";
 
     for (Tournament tournament: tournamentMap.values()) {
-      if (!tournament.stateEquals(Tournament.STATE.complete)) {
+      if (!tournament.isComplete()) {
         result += tournament.getTournamentName() + ", ";
       }
     }
@@ -319,7 +319,7 @@ public class Broker
     List<Tournament> registeredTournaments = new ArrayList<Tournament>();
 
     for (Tournament tournament: tournamentMap.values()) {
-      if (tournament.stateEquals(Tournament.STATE.complete)) {
+      if (tournament.isComplete()) {
         continue;
       }
       if (tournament.isStarted()) {
