@@ -247,7 +247,7 @@ public class Tournament
       BufferedWriter bw = new BufferedWriter(fw);
 
       bw.write(
-          "gameId;gameName;status;gameLength;lastTick;" +
+          "gameId;gameName;status;gameSize;gameLength;lastTick;" +
               "weatherLocation;weatherDate;logUrl;brokerId;brokerBalance;"
               + lineSep);
 
@@ -266,11 +266,10 @@ public class Tournament
           }
         }
 
-        String content = String.format("%d;%s;%s;%d;%d;%s;%s;%s;",
+        String content = String.format("%d;%s;%s;%d;%d;%d;%s;%s;%s;",
             game.getGameId(), game.getGameName(), game.getStatus(),
-            game.getGameLength(), game.getLastTick(),
-            game.getLocation(), game.getSimStartTime(),
-            logUrl);
+            game.getAgentMap().size(), game.getGameLength(), game.getLastTick(),
+            game.getLocation(), game.getSimStartTime(), logUrl);
         for (Agent agent: game.getAgentMap().values()) {
           content = String.format("%s%d;%f;", content,
               agent.getBrokerId(), agent.getBalance());
