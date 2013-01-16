@@ -8,9 +8,9 @@
 package org.powertac.tourney.beans;
 
 import org.apache.log4j.Logger;
-import org.hibernate.*;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.annotations.Type;
-import org.hibernate.classic.Session;
 import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.HibernateUtil;
 

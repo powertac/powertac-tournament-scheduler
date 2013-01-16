@@ -105,6 +105,8 @@ CREATE TABLE `tourney`.`games` (
   `serverQueue` VARCHAR(256) NOT NULL, /* name of server input queue */
   `location` VARCHAR(256) NOT NULL,
   `simStartDate` VARCHAR(256) NOT NULL,
+  `gameLength` INT(11) DEFAULT NULL,
+  `lastTick` INT(11) DEFAULT NULL,
   PRIMARY KEY (`gameId`),
   CONSTRAINT tourneyId2_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` ( `tourneyId` ),
   CONSTRAINT machineId2_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` ( `machineId` )
