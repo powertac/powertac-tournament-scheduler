@@ -1,8 +1,8 @@
 package org.powertac.tourney.beans;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.Query;
 import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.HibernateUtil;
 
@@ -16,20 +16,18 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @ManagedBean
 @Entity
-@Table(name="poms", catalog="tourney", uniqueConstraints={
-		@UniqueConstraint(columnNames="pomId")})
+@Table(name = "poms", catalog = "tourney", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "pomId")})
 public class Pom {
-	private int pomId;
-	private String pomName;
+  private int pomId;
+  private String pomName;
   private User user;
 
-  public Pom ()
-  {
+  public Pom() {
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Pom> getPomList ()
-  {
+  public static List<Pom> getPomList() {
     List<Pom> poms = new ArrayList<Pom>();
 
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -38,8 +36,7 @@ public class Pom {
       Query query = session.createQuery(Constants.HQL.GET_POMS);
       poms = (List<Pom>) query.list();
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -48,30 +45,33 @@ public class Pom {
     return poms;
   }
 
-	@Id
-	@GeneratedValue(strategy=IDENTITY)
-	@Column(name="pomId", unique=true, nullable=false)
-	public int getPomId() {
-		return pomId;
-	}
-	public void setPomId(int pomId) {
-		this.pomId = pomId;
-	}
-	
-	@Column(name="pomName", unique=true, nullable=false)
-	public String getPomName() {
-		return pomName;
-	}
-	public void setPomName(String pomName) {
-		this.pomName = pomName;
-	}
+  @Id
+  @GeneratedValue(strategy = IDENTITY)
+  @Column(name = "pomId", unique = true, nullable = false)
+  public int getPomId() {
+    return pomId;
+  }
+
+  public void setPomId(int pomId) {
+    this.pomId = pomId;
+  }
+
+  @Column(name = "pomName", unique = true, nullable = false)
+  public String getPomName() {
+    return pomName;
+  }
+
+  public void setPomName(String pomName) {
+    this.pomName = pomName;
+  }
 
   @ManyToOne
-  @JoinColumn(name="userId")
-  public User getUser () {
+  @JoinColumn(name = "userId")
+  public User getUser() {
     return user;
   }
-  public void setUser (User user) {
+
+  public void setUser(User user) {
     this.user = user;
   }
 }

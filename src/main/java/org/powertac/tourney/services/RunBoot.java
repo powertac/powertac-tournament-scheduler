@@ -15,8 +15,7 @@ import java.util.List;
 /*
  *
  */
-public class RunBoot
-{
+public class RunBoot {
   private static Logger log = Logger.getLogger("TMLogger");
 
   private Game game;
@@ -25,15 +24,13 @@ public class RunBoot
 
   private static boolean machinesAvailable;
 
-  public RunBoot (Game game)
-  {
+  public RunBoot(Game game) {
     this.game = game;
 
     run();
   }
 
-  private void run ()
-  {
+  private void run() {
     session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -50,23 +47,20 @@ public class RunBoot
 
       session.update(game);
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.info("Failed to bootstrap game: " + game.getGameId());
-    }
-    finally {
+    } finally {
       session.close();
     }
   }
 
-  /***
+  /**
    * Make sure there is a machine available for the game
    */
-  private boolean checkMachineAvailable ()
-      throws Exception
-  {
+  private boolean checkMachineAvailable()
+      throws Exception {
     try {
       log.info("Claiming free machine");
 
@@ -75,7 +69,7 @@ public class RunBoot
         Scheduler scheduler = Scheduler.getScheduler();
         log.info(String.format("No machines available to run scheduled boot %s"
             + "... will retry in %s seconds",
-            game.getGameId(), scheduler.getWatchDogInterval()/1000));
+            game.getGameId(), scheduler.getWatchDogInterval() / 1000));
         return false;
       }
 
@@ -85,8 +79,7 @@ public class RunBoot
       log.info(String.format("Game: %s booting on machine: %s",
           game.getGameId(), game.getMachine().getMachineName()));
       return true;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       log.warn("Error claiming free machine for boot " + game.getGameId());
       throw e;
     }
@@ -95,8 +88,7 @@ public class RunBoot
   /*
    * If all conditions are met (we have a slave available) send job to Jenkins.
    */
-  private boolean startJob () throws Exception
-  {
+  private boolean startJob() throws Exception {
     String finalUrl =
         properties.getProperty("jenkins.location")
             + "job/start-boot-server/buildWithParameters?"
@@ -117,8 +109,7 @@ public class RunBoot
           Game.STATE.boot_in_progress.toString()));
 
       return true;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       log.error("Jenkins failure to bootstrap game: " + game.getGameId());
       game.setStatus(Game.STATE.boot_failed.toString());
       throw e;
@@ -131,8 +122,7 @@ public class RunBoot
    * games in that tournament. If no tournament loaded, we look for games in
    * all singleGame tournaments.
   **/
-  public static void startBootableGames (Tournament runningTournament)
-  {
+  public static void startBootableGames(Tournament runningTournament) {
     log.info("WatchDogTimer Looking for Bootstraps To Start..");
 
     List<Game> games = new ArrayList<Game>();
@@ -143,14 +133,12 @@ public class RunBoot
       if (runningTournament == null) {
         games = Game.getBootableSingleGames(session);
         log.info("WatchDog CheckForBoots for SINGLE_GAME tournament boots");
-      }
-      else {
+      } else {
         games = Game.getBootableMultiGames(session, runningTournament);
         log.info("WatchDog CheckForBoots for MULTI_GAME tournament boots");
       }
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -160,7 +148,7 @@ public class RunBoot
         + "start", games.size()));
 
     machinesAvailable = true;
-    for (Game game: games) {
+    for (Game game : games) {
       log.info(String.format("Boot %s will be started ...", game.getGameId()));
       new RunBoot(game);
 

@@ -1,47 +1,21 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+
 <h:body>
-	<ui:composition template="template.xhtml">
-		<ui:define name="content">
-      <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
-
-      <script type="text/javascript" charset="utf8" >
-        $(document).ready(function() {
-          function updateBrokers(data) {
-            $('#accountForm0\\:brokers>tbody>tr').each( function(){
-              var sp = $(this).find('td:first-child span')[0];
-              var orgRowNr = $(sp).attr("id").split(":")[2];
-
-              if (data[$(sp).text()] != undefined) {
-                $('#accountForm0\\:brokers\\:' + orgRowNr + '\\:checkins').html(data[$(sp).text()]);
-              } else {
-                $('#accountForm0\\:brokers\\:' + orgRowNr + '\\:checkins').html("");
-              }
-            });
-          }
-
-          function updateTables() {
-            $.ajax({
-              url: "Rest?type=brokers",
-              success: updateBrokers
-            });
-          }
-
-          updateTables();
-          setInterval(updateTables, 3000);
-        });
-      </script>
-
+  <ui:composition template="template.xhtml">
+    <ui:define name="content">
+      <script type="text/javascript" charset="utf8"
+              src="resources/js/account.js"></script>
 
       <h:panelGroup rendered="#{user.permissionId == 4}">
-        <meta http-equiv="REFRESH" content="0;url=login.xhtml" />
+        <meta http-equiv="REFRESH" content="0;url=login.xhtml"/>
       </h:panelGroup>
 
-			<h2>Account for user: #{user.userName}</h2>
+      <h2>Account for user: #{user.userName}</h2>
 
       <h:form id="accountForm0" rendered="#{user.permissionId le 3}">
         <h4>Brokers in Tournaments</h4>
@@ -55,22 +29,23 @@
 
           <h:column>
             <f:facet name="header">Broker Name</f:facet>
-            <h:outputText value="#{broker.brokerName}" />
+            <h:outputText value="#{broker.brokerName}"/>
           </h:column>
 
           <h:column>
             <f:facet name="header">Tournaments</f:facet>
-            <h:outputText value="#{broker.getRegisteredString()}" />
+            <h:outputText value="#{broker.getRegisteredString()}"/>
           </h:column>
 
           <h:column>
             <f:facet name="header">Available</f:facet>
             <h:selectOneMenu value="#{broker.selectedTourneyRegister}"
                              styleClass="smallButton">
-              <f:selectItems value="#{actionAccount.getAvailableTournaments(broker)}"
-                             var="t" itemValue="#{t.tournamentId}"
-                             itemLabel="#{t.tournamentName}"
-                             rendered="{(t.maxBrokers != t.numberRegistered)}"/>
+              <f:selectItems
+                  value="#{actionAccount.getAvailableTournaments(broker)}"
+                  var="t" itemValue="#{t.tournamentId}"
+                  itemLabel="#{t.tournamentName}"
+                  rendered="{(t.maxBrokers != t.numberRegistered)}"/>
             </h:selectOneMenu>
           </h:column>
 
@@ -85,7 +60,7 @@
             <h:outputText id="checkins"/>
           </h:column>
         </h:dataTable>
-        <h:message for="accountForm0" />
+        <h:message for="accountForm0"/>
       </h:form>
 
       <h:form id="accountForm1" rendered="#{user.permissionId le 3}">
@@ -97,7 +72,7 @@
           <h:column>
             <f:facet name="header">Broker Name</f:facet>
             <h:outputText value="#{broker.brokerName}"
-                          rendered="#{!broker.edit}" />
+                          rendered="#{!broker.edit}"/>
             <h:inputText value="#{broker.newName}"
                          rendered="#{broker.edit}" maxlength="45"/>
           </h:column>
@@ -105,7 +80,7 @@
           <h:column>
             <f:facet name="header">Broker Auth Token</f:facet>
             <h:outputText value="#{broker.brokerAuth}"
-                          rendered="#{!broker.edit}" />
+                          rendered="#{!broker.edit}"/>
             <h:inputText value="#{broker.newAuth}"
                          rendered="#{broker.edit}" maxlength="32"/>
           </h:column>
@@ -113,7 +88,7 @@
           <h:column>
             <f:facet name="header">Short Description</f:facet>
             <h:outputText value="#{broker.shortDescription}"
-                          rendered="#{!broker.edit}" />
+                          rendered="#{!broker.edit}"/>
             <h:inputText value="#{broker.newShort}"
                          rendered="#{broker.edit}" maxlength="256"/>
           </h:column>
@@ -122,19 +97,19 @@
             <f:facet name="header">Action</f:facet>
             <h:commandButton value="edit" styleClass="smallButton"
                              action="#{actionAccount.editBroker(broker)}"
-                             rendered="#{!broker.edit}" />
+                             rendered="#{!broker.edit}"/>
             <h:commandButton value="delete" styleClass="smallButton"
                              action="#{actionAccount.deleteBroker(broker)}"
-                             rendered="#{!broker.edit}" />
+                             rendered="#{!broker.edit}"/>
             <h:commandButton value="save" styleClass="smallButton"
                              action="#{actionAccount.updateBroker(broker)}"
-                             rendered="#{broker.edit}" />
+                             rendered="#{broker.edit}"/>
             <h:commandButton value="cancel" styleClass="smallButton"
                              action="#{actionAccount.cancelBroker(broker)}"
-                             rendered="#{broker.edit}" />
+                             rendered="#{broker.edit}"/>
           </h:column>
         </h:dataTable>
-        <h:message for="accountForm1" />
+        <h:message for="accountForm1"/>
       </h:form>
 
       <h:form id="accountForm2" rendered="#{user.permissionId le 3}">
@@ -145,17 +120,17 @@
           <h:inputTextarea value="#{actionAccount.brokerShort}"
                            maxlength="256"/>
           <h:commandButton value="Add Broker"
-                           action="#{actionAccount.addBroker}" />
+                           action="#{actionAccount.addBroker}"/>
           <br/>
         </h:panelGrid>
-        <h:message for="accountForm2" />
+        <h:message for="accountForm2"/>
       </h:form>
 
-			<h:form rendered="#{user.permissionId gt 3}">
+      <h:form rendered="#{user.permissionId gt 3}">
         <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
-        <meta http-equiv="REFRESH" content="10;url=login.xhtml" />
-			</h:form>
-		</ui:define>
-	</ui:composition>
+        <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
+      </h:form>
+    </ui:define>
+  </ui:composition>
 </h:body>
 </html>

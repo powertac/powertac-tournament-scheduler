@@ -18,8 +18,8 @@ import static javax.persistence.GenerationType.IDENTITY;
  */
 
 @Entity
-@Table(name="agents", catalog="tourney", uniqueConstraints={
-    @UniqueConstraint(columnNames="agentId")})
+@Table(name = "agents", catalog = "tourney", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "agentId")})
 public class Agent {
   private int agentId;
   private Game game;
@@ -34,12 +34,10 @@ public class Agent {
     pending, in_progress, complete
   }
 
-  public Agent ()
-  {
+  public Agent() {
   }
 
-  public static Agent createAgent (Broker broker, Game game)
-  {
+  public static Agent createAgent(Broker broker, Game game) {
     Agent agent = new Agent();
     agent.setGame(game);
     agent.setBroker(broker);
@@ -52,69 +50,77 @@ public class Agent {
 
   //<editor-fold desc="Getters and Setters">
   @Id
-  @GeneratedValue(strategy=IDENTITY)
-  @Column(name="agentId", unique=true, nullable=false)
+  @GeneratedValue(strategy = IDENTITY)
+  @Column(name = "agentId", unique = true, nullable = false)
   public int getAgentId() {
     return agentId;
   }
+
   public void setAgentId(int agentId) {
     this.agentId = agentId;
   }
 
   @ManyToOne
-  @JoinColumn(name="gameId")
+  @JoinColumn(name = "gameId")
   public Game getGame() {
     return game;
   }
+
   public void setGame(Game game) {
     this.game = game;
   }
 
-  @Column(name="gameId", updatable=false, insertable=false)
+  @Column(name = "gameId", updatable = false, insertable = false)
   public int getGameId() {
     return gameId;
   }
+
   public void setGameId(int gameId) {
     this.gameId = gameId;
   }
 
   @ManyToOne
-  @JoinColumn(name="brokerId")
+  @JoinColumn(name = "brokerId")
   public Broker getBroker() {
     return broker;
   }
+
   public void setBroker(Broker broker) {
     this.broker = broker;
   }
 
-  @Column(name="brokerId", updatable=false, insertable=false)
+  @Column(name = "brokerId", updatable = false, insertable = false)
   public int getBrokerId() {
     return brokerId;
   }
+
   public void setBrokerId(int brokerId) {
     this.brokerId = brokerId;
   }
 
-  @Column(name="brokerQueue")
+  @Column(name = "brokerQueue")
   public String getBrokerQueue() {
     return brokerQueue;
   }
+
   public void setBrokerQueue(String brokerQueue) {
     this.brokerQueue = brokerQueue;
   }
 
-  @Column(name="status", nullable=false)
+  @Column(name = "status", nullable = false)
   public String getStatus() {
     return status;
   }
+
   public void setStatus(String status) {
     this.status = status;
   }
 
-  @Column(name="balance", nullable=false)
+  @Column(name = "balance", nullable = false)
   public double getBalance() {
     return balance;
   }
+
   public void setBalance(double balance) {
     this.balance = balance;
   }

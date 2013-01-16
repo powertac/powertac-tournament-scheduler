@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>The purpose of this job is to abort a stand alone server instance on a particular machine</description>
+  <description>The purpose of this job is to abort a stand alone server instance
+    on a particular machine
+  </description>
   <logRotator>
     <daysToKeep>-1</daysToKeep>
     <numToKeep>50</numToKeep>
@@ -12,7 +14,8 @@
   <properties>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
-        <org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition plugin="nodelabelparameter@1.2.1">
+        <org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition
+            plugin="nodelabelparameter@1.2.1">
           <name>machine</name>
           <description></description>
           <allowedSlaves/>
@@ -23,7 +26,8 @@
         </org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.7.2">
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty
+        plugin="throttle-concurrents@1.7.2">
       <maxConcurrentPerNode>0</maxConcurrentPerNode>
       <maxConcurrentTotal>0</maxConcurrentTotal>
       <throttleEnabled>false</throttleEnabled>
@@ -42,9 +46,10 @@
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 
-touch ../start-sim-server/abort
+        touch ../start-sim-server/abort
 
-exit 0</command>
+        exit 0
+      </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

@@ -17,8 +17,7 @@ import java.util.*;
 
 @ManagedBean
 @RequestScoped
-public class ActionTournamentManager
-{
+public class ActionTournamentManager {
   private static Logger log = Logger.getLogger("TMLogger");
 
   private boolean[] disabled = new boolean[13];
@@ -43,33 +42,27 @@ public class ActionTournamentManager
   private List<String> locations;
   private boolean closed;
 
-  public ActionTournamentManager()
-  {
+  public ActionTournamentManager() {
     resetValues();
   }
 
-  public List<Tournament.TYPE> getTypes ()
-  {
+  public List<Tournament.TYPE> getTypes() {
     return Arrays.asList(Tournament.TYPE.values());
   }
 
-  public List<Tournament> getTournamentList()
-  {
+  public List<Tournament> getTournamentList() {
     return Tournament.getNotCompleteTournamentList();
   }
 
-  public List<Pom> getPomList ()
-  {
+  public List<Pom> getPomList() {
     return Pom.getPomList();
   }
 
-  public List<Location> getLocationList()
-  {
+  public List<Location> getLocationList() {
     return Location.getLocationList();
   }
 
-  public void saveTournament()
-  {
+  public void saveTournament() {
     if (tournamentName.trim().isEmpty()) {
       String msg = "The tournament name cannot be empty";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
@@ -97,8 +90,7 @@ public class ActionTournamentManager
     }
   }
 
-  private void createTournament ()
-  {
+  private void createTournament() {
     log.info("Creating " + type.toString() + " tournament");
 
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -119,19 +111,16 @@ public class ActionTournamentManager
       }
 
       transaction.commit();
-    }
-    catch (ConstraintViolationException ignored) {
+    } catch (ConstraintViolationException ignored) {
       transaction.rollback();
       String msg = "The tournament name already exists";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.error("Error creating tournament");
-    }
-    finally {
+    } finally {
       if (transaction.wasCommitted()) {
         resetValues();
       }
@@ -139,8 +128,7 @@ public class ActionTournamentManager
     }
   }
 
-  public void editTournament (Tournament tournament)
-  {
+  public void editTournament(Tournament tournament) {
     tourneyId = tournament.getTournamentId();
     tournamentName = tournament.getTournamentName();
     type = Tournament.TYPE.valueOf(tournament.getType());
@@ -169,7 +157,6 @@ public class ActionTournamentManager
       disabled[6] = true; // size3
 
 
-
       disabled[7] = true; // startTime
       disabled[8] = true; // date from
       disabled[9] = true; // date to
@@ -180,8 +167,7 @@ public class ActionTournamentManager
     disabled[12] = true; // closed
   }
 
-  public void saveEditedTournament()
-  {
+  public void saveEditedTournament() {
     log.info("Saving tournament " + tourneyId);
 
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -191,19 +177,16 @@ public class ActionTournamentManager
       setValues(tournament);
       session.saveOrUpdate(tournament);
       transaction.commit();
-    }
-    catch (ConstraintViolationException ignored) {
+    } catch (ConstraintViolationException ignored) {
       transaction.rollback();
       String msg = "The tournament name already exists";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.error("Error saving tournament");
-    }
-    finally {
+    } finally {
       if (transaction.wasCommitted()) {
         resetValues();
       }
@@ -211,13 +194,12 @@ public class ActionTournamentManager
     }
   }
 
-  public void removeTournament(Tournament tournament)
-  {
+  public void removeTournament(Tournament tournament) {
     if (!tournament.getTournamentName().toLowerCase().contains("test")) {
       log.info("Someone tried to remove a non-test Tournament!");
-      String msg = "Nice try, hacker!" ;
+      String msg = "Nice try, hacker!";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_WARN, msg, null);
-      FacesContext.getCurrentInstance().addMessage("removeTournament", fm);
+      FacesContext.getCurrentInstance().addMessage("runningTournaments", fm);
       return;
     }
 
@@ -226,22 +208,21 @@ public class ActionTournamentManager
       log.info(String.format("Something went wrong with removing tournament "
           + "%s\n%s", tournament.getTournamentName(), msg));
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_WARN, msg, null);
-      FacesContext.getCurrentInstance().addMessage("removeTournament", fm);
+      FacesContext.getCurrentInstance().addMessage("runningTournaments", fm);
     }
   }
 
-  public void setValues (Tournament tournament)
-  {
+  public void setValues(Tournament tournament) {
     String allLocations = "";
-    for (String s: locations) {
+    for (String s : locations) {
       allLocations += s + ",";
     }
 
-    Integer[] gameTypes = {Math.max(1,size1), Math.max(1,size2),
-        Math.max(1,size3)};
-    Integer[] multipliers = {Math.max(0,multiplier1), Math.max(0,multiplier2),
-        Math.max(0,multiplier3)};
-    Arrays.sort(gameTypes,Collections.reverseOrder());
+    Integer[] gameTypes = {Math.max(1, size1), Math.max(1, size2),
+        Math.max(1, size3)};
+    Integer[] multipliers = {Math.max(0, multiplier1), Math.max(0, multiplier2),
+        Math.max(0, multiplier3)};
+    Arrays.sort(gameTypes, Collections.reverseOrder());
     maxBrokers = Math.max(maxBrokers, tournament.getBrokerMap().size());
 
     if (tournament.getGameMap().size() < 1) {
@@ -266,8 +247,7 @@ public class ActionTournamentManager
     tournament.setClosed(closed);
   }
 
-  public void resetValues ()
-  {
+  public void resetValues() {
     tourneyId = -1;
     tournamentName = "";
     type = Tournament.TYPE.SINGLE_GAME;
@@ -297,23 +277,19 @@ public class ActionTournamentManager
     brokerList = Broker.getBrokerList();
   }
 
-  public List<Broker> getBrokerList ()
-  {
+  public List<Broker> getBrokerList() {
     return brokerList;
   }
 
-  public List<Tournament> getAvailableTournaments (Broker b)
-  {
+  public List<Tournament> getAvailableTournaments(Broker b) {
     return b.getAvailableTournaments(false);
   }
 
-  public List<Tournament> getRegisteredTournaments (Broker b)
-  {
+  public List<Tournament> getRegisteredTournaments(Broker b) {
     return b.getRegisteredTournaments();
   }
 
-  public void register (Broker b)
-  {
+  public void register(Broker b) {
     if (!(b.getSelectedTourneyRegister() > 0)) {
       return;
     }
@@ -321,7 +297,7 @@ public class ActionTournamentManager
     boolean registered = b.register(b.getSelectedTourneyRegister());
     if (!registered) {
       String msg = "Error registering broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage("formDatabrokers", fm);
     } else {
       brokerList = Broker.getBrokerList();
@@ -330,8 +306,7 @@ public class ActionTournamentManager
     }
   }
 
-  public void unregister (Broker b)
-  {
+  public void unregister(Broker b) {
     if (!(b.getSelectedTourneyUnregister() > 0)) {
       return;
     }
@@ -339,7 +314,7 @@ public class ActionTournamentManager
     boolean registered = b.unregister(b.getSelectedTourneyUnregister());
     if (!registered) {
       String msg = "Error unregistering broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage("formDatabrokers", fm);
     } else {
       brokerList = Broker.getBrokerList();
@@ -352,62 +327,71 @@ public class ActionTournamentManager
   public int getTourneyId() {
     return tourneyId;
   }
+
   public void setTourneyId(int tourneyId) {
     this.tourneyId = tourneyId;
   }
 
-  public String getTournamentName () {
+  public String getTournamentName() {
     return tournamentName;
   }
-  public void setTournamentName (String tournamentName) {
+
+  public void setTournamentName(String tournamentName) {
     this.tournamentName = tournamentName;
   }
 
-  public Tournament.TYPE getType () {
+  public Tournament.TYPE getType() {
     return type;
   }
-  public void setType (Tournament.TYPE type) {
+
+  public void setType(Tournament.TYPE type) {
     this.type = type;
   }
 
-  public int getMaxBrokers () {
+  public int getMaxBrokers() {
     return maxBrokers;
   }
-  public void setMaxBrokers (int maxBrokers) {
+
+  public void setMaxBrokers(int maxBrokers) {
     this.maxBrokers = maxBrokers;
   }
 
   public int getMaxAgents() {
     return maxAgents;
   }
+
   public void setMaxAgents(int maxAgents) {
     this.maxAgents = maxAgents;
   }
 
-  public int getSize1 () {
+  public int getSize1() {
     return size1;
   }
-  public void setSize1 (int size1) {
+
+  public void setSize1(int size1) {
     this.size1 = size1;
   }
 
-  public int getSize2 () {
+  public int getSize2() {
     return size2;
   }
-  public void setSize2 (int size2) {
+
+  public void setSize2(int size2) {
     this.size2 = size2;
   }
 
-  public int getSize3 () {
+  public int getSize3() {
     return size3;
   }
-  public void setSize3 (int size3) {
+
+  public void setSize3(int size3) {
     this.size3 = size3;
   }
 
   public int getMultiplier1() {
     return multiplier1;
   }
+
   public void setMultiplier1(int multiplier1) {
     this.multiplier1 = multiplier1;
   }
@@ -415,6 +399,7 @@ public class ActionTournamentManager
   public int getMultiplier2() {
     return multiplier2;
   }
+
   public void setMultiplier2(int multiplier2) {
     this.multiplier2 = multiplier2;
   }
@@ -422,20 +407,23 @@ public class ActionTournamentManager
   public int getMultiplier3() {
     return multiplier3;
   }
+
   public void setMultiplier3(int multiplier3) {
     this.multiplier3 = multiplier3;
   }
 
-  public Date getStartTime () {
+  public Date getStartTime() {
     return startTime;
   }
-  public void setStartTime (Date startTime) {
+
+  public void setStartTime(Date startTime) {
     this.startTime = startTime;
   }
 
   public Date getDateFrom() {
     return dateFrom;
   }
+
   public void setDateFrom(Date dateFrom) {
     this.dateFrom = dateFrom;
   }
@@ -443,27 +431,31 @@ public class ActionTournamentManager
   public Date getDateTo() {
     return dateTo;
   }
+
   public void setDateTo(Date dateTo) {
     this.dateTo = dateTo;
   }
 
-  public int getSelectedPom () {
+  public int getSelectedPom() {
     return selectedPom;
   }
-  public void setSelectedPom (int selectedPom) {
+
+  public void setSelectedPom(int selectedPom) {
     this.selectedPom = selectedPom;
   }
 
-  public List<String> getLocations () {
+  public List<String> getLocations() {
     return locations;
   }
-  public void setLocations (List<String> locations) {
+
+  public void setLocations(List<String> locations) {
     this.locations = locations;
   }
 
   public boolean[] getDisabled() {
     return disabled;
   }
+
   public void setDisabled(boolean[] disabled) {
     this.disabled = disabled;
   }
@@ -471,6 +463,7 @@ public class ActionTournamentManager
   public boolean isClosed() {
     return closed;
   }
+
   public void setClosed(boolean closed) {
     this.closed = closed;
   }

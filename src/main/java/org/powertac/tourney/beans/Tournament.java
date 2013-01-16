@@ -24,10 +24,9 @@ import static javax.persistence.GenerationType.IDENTITY;
 @ManagedBean
 @RequestScoped
 @Entity
-@Table(name="tournaments", catalog="tourney", uniqueConstraints = {
-            @UniqueConstraint(columnNames="tourneyId")})
-public class Tournament
-{
+@Table(name = "tournaments", catalog = "tourney", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "tourneyId")})
+public class Tournament {
   private int tourneyId;
   private String tournamentName;
   private Date startTime;
@@ -58,21 +57,19 @@ public class Tournament
     SINGLE_GAME, MULTI_GAME
   }
 
-  public Tournament ()
-  {
+  public Tournament() {
   }
 
-  public String delete ()
-  {
+  public String delete() {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Tournament tournament = (Tournament)session
+      Tournament tournament = (Tournament) session
           .createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID)
           .setInteger("tournamentId", tourneyId).uniqueResult();
 
       // Disallow removal when games booting or running
-      for (Game game: tournament.gameMap.values()) {
+      for (Game game : tournament.gameMap.values()) {
         if (game.isBooting() || game.isRunning()) {
           transaction.rollback();
           return String.format("Game %s can not be removed, state = %s",
@@ -84,12 +81,12 @@ public class Tournament
       List<Registration> registrations = (List<Registration>) session
           .createCriteria(Registration.class)
           .add(Restrictions.eq("tournament", tournament)).list();
-      for (Registration registration: registrations) {
+      for (Registration registration : registrations) {
         session.delete(registration);
       }
       session.flush();
 
-      for (Game game: tournament.gameMap.values()) {
+      for (Game game : tournament.gameMap.values()) {
         game.delete(session);
       }
       session.flush();
@@ -97,13 +94,11 @@ public class Tournament
       session.delete(tournament);
       transaction.commit();
       return "";
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return "Error deleting tournament";
-    }
-    finally {
+    } finally {
       session.close();
     }
   }
@@ -112,11 +107,10 @@ public class Tournament
    * If a game is complete, check if it was the last one to complete
    * If so, set tournament state to complete
    */
-  public void processGameFinished (int finishedGameId)
-  {
+  public void processGameFinished(int finishedGameId) {
     boolean allDone = true;
 
-    for (Game game: gameMap.values()) {
+    for (Game game : gameMap.values()) {
       // The state of the finished game isn't in the db yet.
       if (game.getGameId() == finishedGameId) {
         continue;
@@ -140,8 +134,7 @@ public class Tournament
     createCsv();
   }
 
-  public void createCsv ()
-  {
+  public void createCsv() {
     String lineSep = System.getProperty("line.separator");
     TournamentProperties properties = TournamentProperties.getProperties();
     String tournamentCsv = String.format("%s%s.csv",
@@ -153,8 +146,7 @@ public class Tournament
     createGamesCsv(new File(gamesCsv), lineSep, properties);
   }
 
-  private void createTournamentCsv(File tournamentFile, String lineSep)
-  {
+  private void createTournamentCsv(File tournamentFile, String lineSep) {
     if (tournamentFile.isFile() && tournamentFile.canRead()) {
       tournamentFile.delete();
     }
@@ -166,60 +158,60 @@ public class Tournament
       FileWriter fw = new FileWriter(tournamentFile.getAbsoluteFile());
       BufferedWriter bw = new BufferedWriter(fw);
 
-      bw.write("tournamentId;" + tourneyId +";" + lineSep);
-      bw.write("tournamentName;" + tournamentName +";" + lineSep);
-      bw.write("status;" + status +";" + lineSep);
+      bw.write("tournamentId;" + tourneyId + ";" + lineSep);
+      bw.write("tournamentName;" + tournamentName + ";" + lineSep);
+      bw.write("status;" + status + ";" + lineSep);
 
-      bw.write("StartTime;" + startTimeUTC() +";" + lineSep);
-      bw.write("Date from;" + dateFromUTC() +";" + lineSep);
-      bw.write("Date to;" + dateToUTC() +";" + lineSep);
+      bw.write("StartTime;" + startTimeUTC() + ";" + lineSep);
+      bw.write("Date from;" + dateFromUTC() + ";" + lineSep);
+      bw.write("Date to;" + dateToUTC() + ";" + lineSep);
 
-      bw.write("MaxBrokers;" + maxBrokers +";" + lineSep);
-      bw.write("Registered Brokers;" + getBrokerMap().size() +";" + lineSep);
-      bw.write("MaxAgents;" + maxAgents +";" + lineSep);
+      bw.write("MaxBrokers;" + maxBrokers + ";" + lineSep);
+      bw.write("Registered Brokers;" + getBrokerMap().size() + ";" + lineSep);
+      bw.write("MaxAgents;" + maxAgents + ";" + lineSep);
 
-      bw.write("type;" + type +";" + lineSep);
+      bw.write("type;" + type + ";" + lineSep);
       if (isMulti()) {
-        bw.write("size1;" + size1 +";" + lineSep);
-        bw.write("multiplier1;" + multiplier1 +";" + lineSep);
-        bw.write("size2;" + size2 +";" + lineSep);
-        bw.write("multiplier2;" + multiplier2 +";" + lineSep);
-        bw.write("size3;" + size3 +";" + lineSep);
-        bw.write("multiplier3;" + multiplier3 +";" + lineSep);
+        bw.write("size1;" + size1 + ";" + lineSep);
+        bw.write("multiplier1;" + multiplier1 + ";" + lineSep);
+        bw.write("size2;" + size2 + ";" + lineSep);
+        bw.write("multiplier2;" + multiplier2 + ";" + lineSep);
+        bw.write("size3;" + size3 + ";" + lineSep);
+        bw.write("multiplier3;" + multiplier3 + ";" + lineSep);
       }
 
-      bw.write("pomId;" + pomId +";" + lineSep);
-      bw.write("Locations;" + locations +";" + lineSep);
+      bw.write("pomId;" + pomId + ";" + lineSep);
+      bw.write("Locations;" + locations + ";" + lineSep);
       bw.write(lineSep);
 
       if (isMulti()) {
         Map<String, Double[]> resultMap = determineWinnerMulti();
 
         List<Double> avgsAndSDs = getAvgsAndSDs(resultMap);
-        bw.write("Average type 1;" + avgsAndSDs.get(0) +";" + lineSep);
-        bw.write("Average type 2;" + avgsAndSDs.get(1) +";" + lineSep);
-        bw.write("Average type 3;" + avgsAndSDs.get(2) +";" + lineSep);
+        bw.write("Average type 1;" + avgsAndSDs.get(0) + ";" + lineSep);
+        bw.write("Average type 2;" + avgsAndSDs.get(1) + ";" + lineSep);
+        bw.write("Average type 3;" + avgsAndSDs.get(2) + ";" + lineSep);
 
-        bw.write("Standard deviation type 1;" + avgsAndSDs.get(3) +";" + lineSep);
-        bw.write("Standard deviation type 2;" + avgsAndSDs.get(4) +";" + lineSep);
-        bw.write("Standard deviation type 3;" + avgsAndSDs.get(5) +";" + lineSep);
+        bw.write("Standard deviation type 1;" + avgsAndSDs.get(3) + ";" + lineSep);
+        bw.write("Standard deviation type 2;" + avgsAndSDs.get(4) + ";" + lineSep);
+        bw.write("Standard deviation type 3;" + avgsAndSDs.get(5) + ";" + lineSep);
         bw.write(lineSep);
 
         bw.write("brokerId;brokerName;Size 1;Size 2;Size 3;" +
             "Total (not normalized);Size 1;Size 2;Size3;Total (normalized);" +
             lineSep);
 
-        for (Map.Entry<String, Double[]> entry: resultMap.entrySet()) {
+        for (Map.Entry<String, Double[]> entry : resultMap.entrySet()) {
           Double[] results = entry.getValue();
           bw.write(String.format("%s;%s;%f;%f;%f;%f;%f;%f;%f;%f;%s",
               entry.getKey().split(",")[0], entry.getKey().split(",")[1],
-              results[0],results[1],results[2],results[3],
-              results[10],results[11],results[12],results[13],
+              results[0], results[1], results[2], results[3],
+              results[10], results[11], results[12], results[13],
               lineSep));
         }
       } else {
         Map<String, Double[]> resultMap = determineWinnerSingle();
-        for (Map.Entry<String, Double[]> entry: resultMap.entrySet()) {
+        for (Map.Entry<String, Double[]> entry : resultMap.entrySet()) {
           bw.write("brokerId;Total;" + lineSep);
           Double[] results = entry.getValue();
           bw.write(String.format("%s;%f;%s",
@@ -228,15 +220,13 @@ public class Tournament
       }
 
       bw.close();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
-  private void createGamesCsv (File gamesFile, String lineSep,
-                               TournamentProperties properties)
-  {
+  private void createGamesCsv(File gamesFile, String lineSep,
+                              TournamentProperties properties) {
     if (gamesFile.isFile() && gamesFile.canRead()) {
       gamesFile.delete();
     }
@@ -255,7 +245,7 @@ public class Tournament
       String tourneyUrl = properties.getProperty("tourneyUrl");
       String baseUrl = properties.getProperty("actionIndex.logUrl",
           "download?game=%d");
-      for (Map.Entry<Integer, Game> entry: getGameMap().entrySet()) {
+      for (Map.Entry<Integer, Game> entry : getGameMap().entrySet()) {
         Game game = entry.getValue();
 
         String logUrl = "";
@@ -271,7 +261,7 @@ public class Tournament
             game.getGameId(), game.getGameName(), game.getStatus(),
             game.getAgentMap().size(), game.getGameLength(), game.getLastTick(),
             game.getLocation(), game.getSimStartTime(), logUrl);
-        for (Agent agent: game.getAgentMap().values()) {
+        for (Agent agent : game.getAgentMap().values()) {
           content = String.format("%s%d;%f;", content,
               agent.getBrokerId(), agent.getBalance());
         }
@@ -280,15 +270,13 @@ public class Tournament
       }
 
       bw.close();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
   //<editor-fold desc="Winner determination">
-  public Map<String, Double[]> determineWinner ()
-  {
+  public Map<String, Double[]> determineWinner() {
     if (isMulti()) {
       return determineWinnerMulti();
     } else {
@@ -296,23 +284,21 @@ public class Tournament
     }
   }
 
-  private Map<String, Double[]> determineWinnerSingle ()
-  {
+  private Map<String, Double[]> determineWinnerSingle() {
     Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
 
-    for (Game game: getGameMap().values()) {
-      for (Agent agent: game.getAgentMap().values()) {
+    for (Game game : getGameMap().values()) {
+      for (Agent agent : game.getAgentMap().values()) {
         String brokerKey = String.format("%d,%s",
             agent.getBroker().getBrokerId(), agent.getBroker().getBrokerName());
 
-        resultMap.put(brokerKey, new Double[] {agent.getBalance()});
+        resultMap.put(brokerKey, new Double[]{agent.getBalance()});
       }
     }
     return resultMap;
   }
 
-  private Map<String, Double[]> determineWinnerMulti ()
-  {
+  private Map<String, Double[]> determineWinnerMulti() {
     // Col 0  = result gameType 1
     // Col 1  = result gameType 2
     // Col 2  = result gameType 3
@@ -329,20 +315,20 @@ public class Tournament
     // Col 13 = total normalized
 
     Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
-    Double[] averages = new Double[] {0.0, 0.0, 0.0};
-    Double[] SD = new Double[] {0.0, 0.0, 0.0};
+    Double[] averages = new Double[]{0.0, 0.0, 0.0};
+    Double[] SD = new Double[]{0.0, 0.0, 0.0};
 
     // Get the not-normalized results into the map
-    for (Game game: gameMap.values()) {
+    for (Game game : gameMap.values()) {
       int gameTypeIndex = game.getGameTypeIndex();
 
-      for (Agent agent: game.getAgentMap().values()) {
+      for (Agent agent : game.getAgentMap().values()) {
         String brokerKey = String.format("%d,%s",
             agent.getBroker().getBrokerId(), agent.getBroker().getBrokerName());
 
         if (!resultMap.containsKey(brokerKey)) {
-          resultMap.put(brokerKey, new Double[] {
-                  0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0} );
+          resultMap.put(brokerKey, new Double[]{
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
         }
 
         Double[] results = resultMap.get(brokerKey);
@@ -358,16 +344,16 @@ public class Tournament
     averages[2] = averages[2] / resultMap.size();
 
     // Put averages in map, calculate SD
-    for (String brokerName: resultMap.keySet()) {
+    for (String brokerName : resultMap.keySet()) {
       Double[] results = resultMap.get(brokerName);
       results[4] = averages[0];
       results[5] = averages[1];
       results[6] = averages[2];
       resultMap.put(brokerName, results);
 
-      SD[0] += Math.pow((averages[0]-results[0]) ,2);
-      SD[1] += Math.pow((averages[1]-results[1]) ,2);
-      SD[2] += Math.pow((averages[2]-results[2]) ,2);
+      SD[0] += Math.pow((averages[0] - results[0]), 2);
+      SD[1] += Math.pow((averages[1] - results[1]), 2);
+      SD[2] += Math.pow((averages[2] - results[2]), 2);
     }
 
     SD[0] = Math.sqrt(SD[0] / resultMap.size());
@@ -375,24 +361,24 @@ public class Tournament
     SD[2] = Math.sqrt(SD[2] / resultMap.size());
 
     // Put SDs in map, calculate normalized results and total
-    for (String brokerName: resultMap.keySet()) {
+    for (String brokerName : resultMap.keySet()) {
       Double[] results = resultMap.get(brokerName);
       results[7] = SD[0];
       results[8] = SD[1];
       results[9] = SD[2];
 
       if (results[7] > 0) {
-        results[10] = (results[0] - results[4])/results[7];
+        results[10] = (results[0] - results[4]) / results[7];
       } else {
         results[10] = results[0] - results[4];
       }
       if (results[8] > 0) {
-        results[11] = (results[1] - results[5])/results[8];
+        results[11] = (results[1] - results[5]) / results[8];
       } else {
         results[11] = results[1] - results[5];
       }
       if (results[9] > 0) {
-        results[12] = (results[2] - results[6])/results[9];
+        results[12] = (results[2] - results[6]) / results[9];
       } else {
         results[12] = results[2] - results[6];
       }
@@ -408,48 +394,49 @@ public class Tournament
 
   //<editor-fold desc="Helper methods">
   @Transient
-  public boolean isStarted ()
-  {
+  public boolean isStarted() {
     return startTime.before(Utils.offsetDate());
   }
 
   @Transient
-  public boolean isMulti ()
-  {
+  public boolean isMulti() {
     return type.equals(TYPE.MULTI_GAME.toString());
   }
+
   @Transient
-  public boolean isSingle ()
-  {
+  public boolean isSingle() {
     return type.equals(TYPE.SINGLE_GAME.toString());
   }
 
   @Transient
-  public boolean isComplete () {
+  public boolean isComplete() {
     return stateEquals(Tournament.STATE.complete);
   }
 
-  public boolean stateEquals (STATE state)
-  {
+  public boolean stateEquals(STATE state) {
     return this.status.equals(state.toString());
   }
 
-  public String startTimeUTC () {
+  public String startTimeUTC() {
     return Utils.dateFormat(startTime);
   }
-  public String dateFromUTC () {
+
+  public String dateFromUTC() {
     return Utils.dateFormat(dateFrom);
   }
-  public String dateToUTC () {
+
+  public String dateToUTC() {
     return Utils.dateFormat(dateTo);
   }
 
   public void setStatusToPending() {
     this.setStatus(STATE.pending.toString());
   }
+
   public void setStatusToInProgress() {
     this.setStatus(STATE.in_progress.toString());
   }
+
   public void setStatusToComplete() {
     this.setStatus(STATE.complete.toString());
   }
@@ -457,43 +444,43 @@ public class Tournament
 
   //<editor-fold desc="Collections">
   @OneToMany
-  @JoinColumn(name="tourneyId")
-  @MapKey(name="gameId")
+  @JoinColumn(name = "tourneyId")
+  @MapKey(name = "gameId")
   public Map<Integer, Game> getGameMap() {
     return gameMap;
   }
+
   public void setGameMap(Map<Integer, Game> gameMap) {
     this.gameMap = gameMap;
   }
 
   @ManyToMany
-  @JoinTable(name="registrations",
-      joinColumns=
-      @JoinColumn(name="tourneyId", referencedColumnName="tourneyId"),
-      inverseJoinColumns=
-      @JoinColumn(name="brokerId", referencedColumnName="brokerId")
+  @JoinTable(name = "registrations",
+      joinColumns =
+      @JoinColumn(name = "tourneyId", referencedColumnName = "tourneyId"),
+      inverseJoinColumns =
+      @JoinColumn(name = "brokerId", referencedColumnName = "brokerId")
   )
-  @MapKey(name="brokerId")
+  @MapKey(name = "brokerId")
   public Map<Integer, Broker> getBrokerMap() {
     return brokerMap;
   }
+
   public void setBrokerMap(Map<Integer, Broker> brokerMap) {
     this.brokerMap = brokerMap;
   }
 
   @Transient
-  public List<String> getLocationsList ()
-  {
+  public List<String> getLocationsList() {
     List<String> locationList = new ArrayList<String>();
-    for (String location: locations.split(",")) {
+    for (String location : locations.split(",")) {
       locationList.add(location.trim());
     }
     return locationList;
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Tournament> getNotCompleteTournamentList ()
-  {
+  public static List<Tournament> getNotCompleteTournamentList() {
     List<Tournament> tournaments = new ArrayList<Tournament>();
 
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -503,15 +490,14 @@ public class Tournament
           .createQuery(Constants.HQL.GET_TOURNAMENTS_NOT_COMPLETE)
           .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
-      for (Tournament tournament: tournaments) {
-        for (Game game: tournament.getGameMap().values()) {
+      for (Tournament tournament : tournaments) {
+        for (Game game : tournament.getGameMap().values()) {
           game.getAgentMap().size();
         }
       }
 
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -520,8 +506,7 @@ public class Tournament
     return tournaments;
   }
 
-  public List<Double> getAvgsAndSDs (Map<String, Double[]> resultMap)
-  {
+  public List<Double> getAvgsAndSDs(Map<String, Double[]> resultMap) {
     List<Double> result = new ArrayList<Double>();
 
     if (resultMap.size() > 0 && isMulti()) {
@@ -535,174 +520,168 @@ public class Tournament
 
   //<editor-fold desc="Getters and setters">
   @Id
-  @GeneratedValue(strategy=IDENTITY)
-  @Column(name="tourneyId", unique=true, nullable=false)
-  public int getTournamentId ()
-  {
+  @GeneratedValue(strategy = IDENTITY)
+  @Column(name = "tourneyId", unique = true, nullable = false)
+  public int getTournamentId() {
     return tourneyId;
   }
-  public void setTournamentId (int tourneyId)
-  {
+
+  public void setTournamentId(int tourneyId) {
     this.tourneyId = tourneyId;
   }
 
-  @Column(name="tourneyName", nullable=false)
-  public String getTournamentName ()
-  {
+  @Column(name = "tourneyName", nullable = false)
+  public String getTournamentName() {
     return tournamentName;
   }
-  public void setTournamentName (String tournamentName)
-  {
+
+  public void setTournamentName(String tournamentName) {
     this.tournamentName = tournamentName;
   }
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name="startTime", nullable=false, length=10)
-  public Date getStartTime ()
-  {
+  @Column(name = "startTime", nullable = false, length = 10)
+  public Date getStartTime() {
     return startTime;
   }
-  public void setStartTime (Date startTime)
-  {
+
+  public void setStartTime(Date startTime) {
     this.startTime = startTime;
   }
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name="dateFrom", nullable=false)
+  @Column(name = "dateFrom", nullable = false)
   public Date getDateFrom() {
     return dateFrom;
   }
+
   public void setDateFrom(Date dateFrom) {
     this.dateFrom = dateFrom;
   }
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name="dateTo", nullable=false)
+  @Column(name = "dateTo", nullable = false)
   public Date getDateTo() {
     return dateTo;
   }
+
   public void setDateTo(Date dateTo) {
     this.dateTo = dateTo;
   }
 
-  @Column(name="maxBrokers", nullable=false)
-  public int getMaxBrokers ()
-  {
+  @Column(name = "maxBrokers", nullable = false)
+  public int getMaxBrokers() {
     return maxBrokers;
   }
-  public void setMaxBrokers (int maxBrokers)
-  {
+
+  public void setMaxBrokers(int maxBrokers) {
     this.maxBrokers = maxBrokers;
   }
 
-  @Column(name="maxAgents", nullable=false)
-  public int getMaxAgents()
-  {
+  @Column(name = "maxAgents", nullable = false)
+  public int getMaxAgents() {
     return maxAgents;
   }
-  public void setMaxAgents(int maxAgents)
-  {
+
+  public void setMaxAgents(int maxAgents) {
     this.maxAgents = maxAgents;
   }
 
-  @Column(name="status", nullable=false)
-  public String getStatus ()
-  {
+  @Column(name = "status", nullable = false)
+  public String getStatus() {
     return status;
   }
-  public void setStatus (String status)
-  {
+
+  public void setStatus(String status) {
     this.status = status;
   }
 
-  @Column(name="gameSize1", nullable=false)
-  public int getSize1 ()
-  {
+  @Column(name = "gameSize1", nullable = false)
+  public int getSize1() {
     return size1;
   }
-  public void setSize1 (int size1)
-  {
+
+  public void setSize1(int size1) {
     this.size1 = size1;
   }
 
-  @Column(name="gameSize2", nullable=false)
-  public int getSize2 ()
-  {
+  @Column(name = "gameSize2", nullable = false)
+  public int getSize2() {
     return size2;
   }
-  public void setSize2 (int size2)
-  {
+
+  public void setSize2(int size2) {
     this.size2 = size2;
   }
 
-  @Column(name="gameSize3", nullable=false)
-  public int getSize3 ()
-  {
+  @Column(name = "gameSize3", nullable = false)
+  public int getSize3() {
     return size3;
   }
-  public void setSize3 (int size3)
-  {
+
+  public void setSize3(int size3) {
     this.size3 = size3;
   }
 
-  @Column(name="multiplier1", nullable=false)
+  @Column(name = "multiplier1", nullable = false)
   public int getMultiplier1() {
     return multiplier1;
   }
+
   public void setMultiplier1(int multiplier1) {
     this.multiplier1 = multiplier1;
   }
 
-  @Column(name="multiplier2", nullable=false)
+  @Column(name = "multiplier2", nullable = false)
   public int getMultiplier2() {
     return multiplier2;
   }
+
   public void setMultiplier2(int multiplier2) {
     this.multiplier2 = multiplier2;
   }
 
-  @Column(name="multiplier3", nullable=false)
+  @Column(name = "multiplier3", nullable = false)
   public int getMultiplier3() {
     return multiplier3;
   }
+
   public void setMultiplier3(int multiplier3) {
     this.multiplier3 = multiplier3;
   }
 
-  @Column(name="type", nullable=false)
-  public String getType ()
-  {
+  @Column(name = "type", nullable = false)
+  public String getType() {
     return type;
   }
-  public void setType (String type)
-  {
+
+  public void setType(String type) {
     this.type = type;
   }
 
-  @Column(name="pomId", nullable=false)
-  public int getPomId ()
-  {
+  @Column(name = "pomId", nullable = false)
+  public int getPomId() {
     return pomId;
   }
-  public void setPomId (int pomId)
-  {
+
+  public void setPomId(int pomId) {
     this.pomId = pomId;
   }
 
-  @Column(name="locations", nullable=false)
-  public String getLocations ()
-  {
+  @Column(name = "locations", nullable = false)
+  public String getLocations() {
     return locations;
   }
-  public void setLocations (String locations)
-  {
+
+  public void setLocations(String locations) {
     this.locations = locations;
   }
 
-  @Column(name="closed", nullable=false)
+  @Column(name = "closed", nullable = false)
   public boolean isClosed() {
     return closed;
   }
+
   public void setClosed(boolean closed) {
     this.closed = closed;
   }

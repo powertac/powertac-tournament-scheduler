@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
 
 <h:body>
-	<ui:composition template="template.xhtml">
-		<ui:define name="content">
-			<h:form rendered="#{!user.loggedIn}" id="loginForm">
-				<h2>Login:</h2>
-				<h:panelGrid columns="2">
-					<h:outputText value="Username:" />
-					<h:panelGroup>
-						<h:inputText value="#{actionLogin.userName}" />
-					</h:panelGroup>
+  <ui:composition template="template.xhtml">
+    <ui:define name="content">
+      <h:form rendered="#{!user.loggedIn}" id="loginForm">
+        <h2>Login:</h2>
+        <h:panelGrid columns="2">
+          <h:outputText value="Username:"/>
+          <h:panelGroup>
+            <h:inputText value="#{actionLogin.userName}"/>
+          </h:panelGroup>
 
-					<h:outputText value="Password:" />
-					<h:panelGroup>
-						<h:inputSecret value="#{actionLogin.password}" />
-					</h:panelGroup>
+          <h:outputText value="Password:"/>
+          <h:panelGroup>
+            <h:inputSecret value="#{actionLogin.password}"/>
+          </h:panelGroup>
 
-          <h:link value="Register" outcome="Register" />
-					<h:panelGroup>
-						<h:commandButton value="Login" action="#{actionLogin.login}" />
-					</h:panelGroup>
+          <h:link value="Register" outcome="Register"/>
+          <h:panelGroup>
+            <h:commandButton value="Login" action="#{actionLogin.login}"/>
+          </h:panelGroup>
 
           <br/>
-          <h:message for="loginForm" />
-				</h:panelGrid>
-			</h:form>
+          <h:message for="loginForm"/>
+        </h:panelGrid>
+      </h:form>
 
-			<h:form rendered="#{user.loggedIn}">
-				<h:outputText value="Logged In As: " rendered="#{user.loggedIn}" />
-				<h:link value="#{user.userName}" outcome="Account" />
-				<br />
-				<h:commandButton value="Logout" action="#{actionLogin.logout}" />
-			</h:form>
+      <h:form rendered="#{user.loggedIn}">
+        <h:outputText value="Logged In As: " rendered="#{user.loggedIn}"/>
+        <h:link value="#{user.userName}" outcome="Account"/>
+        <br/>
+        <h:commandButton value="Logout" action="#{actionLogin.logout}"/>
+      </h:form>
 
-		</ui:define>
-	</ui:composition>
+    </ui:define>
+  </ui:composition>
 </h:body>
 </html>

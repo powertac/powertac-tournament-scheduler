@@ -24,16 +24,14 @@ import java.util.*;
 public class Utils {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  public static void secondsSleep (int seconds)
-  {
+  public static void secondsSleep(int seconds) {
     try {
       Thread.sleep(seconds * 1000);
+    } catch (Exception ignored) {
     }
-    catch(Exception ignored){}
   }
 
-  public static void sendMail (String sub, String msg, String recipient)
-  {
+  public static void sendMail(String sub, String msg, String recipient) {
     TournamentProperties properties = TournamentProperties.getProperties();
     final String username = properties.getProperty("gmail.username");
     final String password = properties.getProperty("gmail.password");
@@ -71,42 +69,37 @@ public class Utils {
     }
   }
 
-  public static void redirect ()
-  {
+  public static void redirect() {
     try {
       ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
       externalContext.redirect("index.xhtml");
+    } catch (Exception ignored) {
     }
-    catch (Exception ignored) {}
   }
 
   private static Random queueGenerator = new Random(new Date().getTime());
-  public static String createQueueName ()
-  {
+
+  public static String createQueueName() {
     return Long.toString(queueGenerator.nextLong(), 31);
   }
 
-  public static String dateFormat (Date date)
-  {
+  public static String dateFormat(Date date) {
     try {
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
       return sdf.format(date);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       return "";
     }
   }
 
-  public static Date offsetDate ()
-  {
+  public static Date offsetDate() {
     return offsetDate(new Date());
   }
 
-  public static Date offsetDate (Date date)
-  {
+  public static Date offsetDate(Date date) {
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(date);
-    if (TimeZone.getDefault().inDaylightTime( date )) {
+    if (TimeZone.getDefault().inDaylightTime(date)) {
       calendar.add(Calendar.HOUR, -1);
     }
     TimeZone tz = Calendar.getInstance().getTimeZone();
@@ -142,44 +135,39 @@ public class Utils {
   /**
    * This is an updated version with enhancements made by Daniel Migowski,
    * Andre Bogus, and David Koelle
-   *
+   * <p/>
    * To convert to use Templates (Java 1.5+):
-   *   - Change "implements Comparator" to "implements Comparator<String>"
-   *   - Change "compare(Object o1, Object o2)" to "compare(String s1, String s2)"
-   *   - Remove the type checking and casting in compare().
-   *
+   * - Change "implements Comparator" to "implements Comparator<String>"
+   * - Change "compare(Object o1, Object o2)" to "compare(String s1, String s2)"
+   * - Remove the type checking and casting in compare().
+   * <p/>
    * To use this class:
-   *   Use the static "sort" method from the java.util.Collections class:
-   *   Collections.sort(your list, new AlphanumComparator());
+   * Use the static "sort" method from the java.util.Collections class:
+   * Collections.sort(your list, new AlphanumComparator());
    */
-  public static class AlphanumComparator implements Comparator
-  {
-    private boolean isDigit(char ch)
-    {
+  public static class AlphanumComparator implements Comparator {
+    private boolean isDigit(char ch) {
       return ch >= 48 && ch <= 57;
     }
 
-    /** Length of string is passed in for improved efficiency (only need to calculate it once) **/
-    private String getChunk(String s, int slength, int marker)
-    {
+    /**
+     * Length of string is passed in for improved efficiency (only need to calculate it once) *
+     */
+    private String getChunk(String s, int slength, int marker) {
       StringBuilder chunk = new StringBuilder();
       char c = s.charAt(marker);
       chunk.append(c);
       marker++;
-      if (isDigit(c))
-      {
-        while (marker < slength)
-        {
+      if (isDigit(c)) {
+        while (marker < slength) {
           c = s.charAt(marker);
           if (!isDigit(c))
             break;
           chunk.append(c);
           marker++;
         }
-      } else
-      {
-        while (marker < slength)
-        {
+      } else {
+        while (marker < slength) {
           c = s.charAt(marker);
           if (isDigit(c))
             break;
@@ -190,22 +178,19 @@ public class Utils {
       return chunk.toString();
     }
 
-    public int compare(Object o1, Object o2)
-    {
-      if (!(o1 instanceof String) || !(o2 instanceof String))
-      {
+    public int compare(Object o1, Object o2) {
+      if (!(o1 instanceof String) || !(o2 instanceof String)) {
         return 0;
       }
-      String s1 = (String)o1;
-      String s2 = (String)o2;
+      String s1 = (String) o1;
+      String s2 = (String) o2;
 
       int thisMarker = 0;
       int thatMarker = 0;
       int s1Length = s1.length();
       int s2Length = s2.length();
 
-      while (thisMarker < s1Length && thatMarker < s2Length)
-      {
+      while (thisMarker < s1Length && thatMarker < s2Length) {
         String thisChunk = getChunk(s1, s1Length, thisMarker);
         thisMarker += thisChunk.length();
 
@@ -214,25 +199,20 @@ public class Utils {
 
         // If both chunks contain numeric characters, sort them numerically
         int result = 0;
-        if (isDigit(thisChunk.charAt(0)) && isDigit(thatChunk.charAt(0)))
-        {
+        if (isDigit(thisChunk.charAt(0)) && isDigit(thatChunk.charAt(0))) {
           // Simple chunk comparison by length.
           int thisChunkLength = thisChunk.length();
           result = thisChunkLength - thatChunk.length();
           // If equal, the first different number counts
-          if (result == 0)
-          {
-            for (int i = 0; i < thisChunkLength; i++)
-            {
+          if (result == 0) {
+            for (int i = 0; i < thisChunkLength; i++) {
               result = thisChunk.charAt(i) - thatChunk.charAt(i);
-              if (result != 0)
-              {
+              if (result != 0) {
                 return result;
               }
             }
           }
-        } else
-        {
+        } else {
           result = thisChunk.compareTo(thatChunk);
         }
 

@@ -1,311 +1,318 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:t="http://myfaces.apache.org/tomahawk">
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:t="http://myfaces.apache.org/tomahawk">
 
 <h:body>
-  <ui:composition template="template.xhtml">
-		<ui:define name="content">
-      <script type="text/javascript" src="tournamentManager.js"></script>
+<ui:composition template="template.xhtml">
+<ui:define name="content">
+<script type="text/javascript" charset="utf8"
+        src="resources/js/tournamentManager.js"></script>
 
-			<h:form rendered="#{user.permissionId le 0}" id="removeTournament">
-				<h2>Tournament Manager</h2>
+<h:form rendered="#{user.permissionId le 0}" id="runningTournaments">
+  <h2>Tournament Manager</h2>
 
-        <h3 class="withButton">Pending/Running Tournaments</h3>
-        <h:commandButton value="Refresh"/>
-				<t:dataTable id="datatourneys" border="1"
-					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{actionTournamentManager.tournamentList}" var="t">
+  <h3 class="withButton">Pending/Running Tournaments</h3>
+  <h:commandButton value="Refresh"/>
+  <t:dataTable id="datatourneys" border="1"
+               style="border:1px solid black;border-collapse:collapse;text-align:center"
+               value="#{actionTournamentManager.tournamentList}" var="t">
 
-					<t:column>
-						<f:facet name="header">ID</f:facet>
-						<h:outputText value="#{t.tournamentId}" />
-					</t:column>
+    <t:column>
+      <f:facet name="header">ID</f:facet>
+      <h:outputText value="#{t.tournamentId}"/>
+    </t:column>
 
-					<t:column>
-						<f:facet name="header">Name</f:facet>
-            <h:link value="#{t.tournamentName}" outcome="Tournament">
-              <f:param name="tournamentId" value="#{t.tournamentId}" />
-            </h:link>
-					</t:column>
+    <t:column>
+      <f:facet name="header">Name</f:facet>
+      <h:link value="#{t.tournamentName}" outcome="Tournament">
+        <f:param name="tournamentId" value="#{t.tournamentId}"/>
+      </h:link>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Status</f:facet>
-            <h:outputText value="#{t.status}" />
-            <h:outputText value=" / closed" rendered="#{t.closed}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Status</f:facet>
+      <h:outputText value="#{t.status}"/>
+      <h:outputText value=" / closed" rendered="#{t.closed}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Type</f:facet>
-            <h:outputText value="Multi" rendered="#{t.type == 'MULTI_GAME'}"/>
-            <h:outputText value="Single" rendered="#{t.type == 'SINGLE_GAME'}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Type</f:facet>
+      <h:outputText value="Multi" rendered="#{t.type == 'MULTI_GAME'}"/>
+      <h:outputText value="Single" rendered="#{t.type == 'SINGLE_GAME'}"/>
+    </t:column>
 
-					<t:column>
-						<f:facet name="header">Start Time</f:facet>
-            <h:outputText value="#{t.startTimeUTC()}" />
-					</t:column>
+    <t:column>
+      <f:facet name="header">Start Time</f:facet>
+      <h:outputText value="#{t.startTimeUTC()}"/>
+    </t:column>
 
-					<t:column>
-						<f:facet name="header">Reg / Max</f:facet>
-						<h:outputText value="#{t.brokerMap.size()} / #{t.maxBrokers}"/>
-            <h:outputText value=" : #{t.maxAgents}" rendered="#{t.type == 'MULTI_GAME'}"/>
-					</t:column>
+    <t:column>
+      <f:facet name="header">Reg / Max</f:facet>
+      <h:outputText value="#{t.brokerMap.size()} / #{t.maxBrokers}"/>
+      <h:outputText value=" : #{t.maxAgents}"
+                    rendered="#{t.type == 'MULTI_GAME'}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Games</f:facet>
-            <h:outputText value="#{t.size1} (#{t.multiplier1})  #{t.size2} (#{t.multiplier2})  #{t.size3} (#{t.multiplier3})"
-                          escape="false"
-                          rendered="#{t.type == 'MULTI_GAME'}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Games</f:facet>
+      <h:outputText
+          value="#{t.size1} (#{t.multiplier1})  #{t.size2} (#{t.multiplier2})  #{t.size3} (#{t.multiplier3})"
+          escape="false"
+          rendered="#{t.type == 'MULTI_GAME'}"/>
+    </t:column>
 
-					<t:column>
-						<f:facet name="header">Pom</f:facet>
-						<a href="pom.jsp?pomId=#{t.pomId}">
-              <h:outputText value="#{t.pomId}" />
-            </a>
-					</t:column>
+    <t:column>
+      <f:facet name="header">Pom</f:facet>
+      <a href="pom.jsp?pomId=#{t.pomId}">
+        <h:outputText value="#{t.pomId}"/>
+      </a>
+    </t:column>
 
-          <t:column style="text-align: left">
-            <f:facet name="header">Actions</f:facet>
-            <h:commandButton value="Delete"
-                action="#{actionTournamentManager.removeTournament(t)}"
-                rendered="#{t.tournamentName.toLowerCase().contains('test')}"
-                onclick="return confirmAlert('Are you sure you want to delete this tournament?');"
-                styleClass="smallButton"/>
-            <h:commandButton value="Edit"
-                             rendered="#{actionTournamentManager.tourneyId == -1}"
-                             action="#{actionTournamentManager.editTournament(t)}"
-                             styleClass="smallButton" />
-            <h:commandButton value="Cancel"
-                             action="#{actionTournamentManager.resetValues()}"
-                             rendered="#{actionTournamentManager.tourneyId == t.tournamentId}"
-                             styleClass="smallButton" />
-          </t:column>
-				</t:dataTable>
-        <h:message for="removeTournament" />
-			</h:form>
+    <t:column style="text-align: left">
+      <f:facet name="header">Actions</f:facet>
+      <h:commandButton value="Delete"
+                       action="#{actionTournamentManager.removeTournament(t)}"
+                       rendered="#{t.tournamentName.toLowerCase().contains('test')}"
+                       onclick="return confirmAlert('Are you sure you want to delete this tournament?');"
+                       styleClass="smallButton"/>
+      <h:commandButton value="Edit"
+                       rendered="#{actionTournamentManager.tourneyId == -1}"
+                       action="#{actionTournamentManager.editTournament(t)}"
+                       styleClass="smallButton"/>
+      <h:commandButton value="Cancel"
+                       action="#{actionTournamentManager.resetValues()}"
+                       rendered="#{actionTournamentManager.tourneyId == t.tournamentId}"
+                       styleClass="smallButton"/>
+    </t:column>
+  </t:dataTable>
+  <h:message for="runningTournaments"/>
+</h:form>
 
-      <br/>
-      <h:form rendered="#{(user.permissionId le 0) and (actionTournamentManager.brokerList.size() > 0)}" id="formDatabrokers">
-        <h3 class="withButton">Registered Brokers</h3>
-        <h:commandButton value="Refresh"/>
-        <t:dataTable id="databrokers" border="1"
-                     style="border:1px solid black;border-collapse:collapse;text-align:center"
-                     value="#{actionTournamentManager.brokerList}" var="broker">
+<br/>
+<h:form
+    rendered="#{(user.permissionId le 0) and (actionTournamentManager.brokerList.size() > 0)}"
+    id="formDatabrokers">
+  <h3 class="withButton">Registered Brokers</h3>
+  <h:commandButton value="Refresh"/>
+  <t:dataTable id="databrokers" border="1"
+               style="border:1px solid black;border-collapse:collapse;text-align:center"
+               value="#{actionTournamentManager.brokerList}" var="broker">
 
-          <t:column>
-            <f:facet name="header">ID</f:facet>
-            <h:outputText value="#{broker.brokerId}" />
-          </t:column>
+    <t:column>
+      <f:facet name="header">ID</f:facet>
+      <h:outputText value="#{broker.brokerId}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Name</f:facet>
-            <h:outputText value="#{broker.brokerName}" />
-          </t:column>
+    <t:column>
+      <f:facet name="header">Name</f:facet>
+      <h:outputText value="#{broker.brokerName}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Registered</f:facet>
-            <h:outputText value="#{broker.getRegisteredString()}" />
-          </t:column>
+    <t:column>
+      <f:facet name="header">Registered</f:facet>
+      <h:outputText value="#{broker.getRegisteredString()}"/>
+    </t:column>
 
-          <t:column style="text-align: right">
-            <f:facet name="header">Add</f:facet>
-            <h:selectOneMenu value="#{broker.selectedTourneyRegister}"
-                             styleClass="smallButton">
-              <f:selectItems value="#{actionTournamentManager.getAvailableTournaments(broker)}"
-                             var="t"
-                             itemValue="#{t.tournamentId}"
-                             itemLabel="#{t.tournamentName}"
-                             rendered="{(t.maxBrokers != t.numberRegistered)}"/>
-            </h:selectOneMenu>
-            <h:commandButton value="Register" styleClass="smallButton"
-                             action="#{actionTournamentManager.register(broker)}" />
-          </t:column>
+    <t:column style="text-align: right">
+      <f:facet name="header">Add</f:facet>
+      <h:selectOneMenu value="#{broker.selectedTourneyRegister}"
+                       styleClass="smallButton">
+        <f:selectItems
+            value="#{actionTournamentManager.getAvailableTournaments(broker)}"
+            var="t"
+            itemValue="#{t.tournamentId}"
+            itemLabel="#{t.tournamentName}"
+            rendered="{(t.maxBrokers != t.numberRegistered)}"/>
+      </h:selectOneMenu>
+      <h:commandButton value="Register" styleClass="smallButton"
+                       action="#{actionTournamentManager.register(broker)}"/>
+    </t:column>
 
-          <t:column style="text-align: right">
-            <f:facet name="header">Remove</f:facet>
-            <h:selectOneMenu value="#{broker.selectedTourneyUnregister}"
-                             styleClass="smallButton">
-              <f:selectItems value="#{actionTournamentManager.getRegisteredTournaments(broker)}"
-                             var="t"
-                             itemValue="#{t.tournamentId}"
-                             itemLabel="#{t.tournamentName}"
-                             rendered="{(t.maxBrokers != t.numberRegistered)}"/>
-            </h:selectOneMenu>
-            <h:commandButton value="Unregister" styleClass="smallButton"
-                             action="#{actionTournamentManager.unregister(broker)}"/>
-          </t:column>
-        </t:dataTable>
-        <h:messages for="formDatabrokers" layout=""/>
-      </h:form>
+    <t:column style="text-align: right">
+      <f:facet name="header">Remove</f:facet>
+      <h:selectOneMenu value="#{broker.selectedTourneyUnregister}"
+                       styleClass="smallButton">
+        <f:selectItems
+            value="#{actionTournamentManager.getRegisteredTournaments(broker)}"
+            var="t"
+            itemValue="#{t.tournamentId}"
+            itemLabel="#{t.tournamentName}"
+            rendered="{(t.maxBrokers != t.numberRegistered)}"/>
+      </h:selectOneMenu>
+      <h:commandButton value="Unregister" styleClass="smallButton"
+                       action="#{actionTournamentManager.unregister(broker)}"/>
+    </t:column>
+  </t:dataTable>
+  <h:messages for="formDatabrokers" layout=""/>
+</h:form>
 
-			<h:form enctype="multipart/form-data" rendered="#{user.permissionId le 0}"
-          id="saveTournament">
-        <h:panelGroup rendered="#{actionTournamentManager.tourneyId == -1}">
-          <h3>Create Tournament</h3>
-        </h:panelGroup>
-        <h:panelGroup rendered="#{actionTournamentManager.tourneyId != -1}">
-          <h3>Edit Tournament</h3>
-        </h:panelGroup>
+<h:form enctype="multipart/form-data" rendered="#{user.permissionId le 0}"
+        id="saveTournament">
+  <h:panelGroup rendered="#{actionTournamentManager.tourneyId == -1}">
+    <h3>Create Tournament</h3>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{actionTournamentManager.tourneyId != -1}">
+    <h3>Edit Tournament</h3>
+  </h:panelGroup>
 
-				<h:panelGrid columns="2" id="tournamentTable">
-					<h:outputText value="Tournament Name" />
-					<h:panelGroup>
-						<h:inputText value="#{actionTournamentManager.tournamentName}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         readonly="#{actionTournamentManager.disabled[0]}" />
-					</h:panelGroup>
+  <h:panelGrid columns="2" id="tournamentTable">
+    <h:outputText value="Tournament Name"/>
+    <h:panelGroup>
+      <h:inputText value="#{actionTournamentManager.tournamentName}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   readonly="#{actionTournamentManager.disabled[0]}"/>
+    </h:panelGroup>
 
-					<h:outputText value="Tournament Type" />
-					<h:panelGroup>
-						<h:selectOneMenu value="#{actionTournamentManager.type}"
-                             onchange="typeSelected()"
-                             disabled="#{actionTournamentManager.disabled[1]}" >
-							<f:selectItems value="#{actionTournamentManager.types}" var="t"
-                             itemValues="#{t}" itemLabel="#{t.toString()}" />
-						</h:selectOneMenu>
-					</h:panelGroup>
+    <h:outputText value="Tournament Type"/>
+    <h:panelGroup>
+      <h:selectOneMenu value="#{actionTournamentManager.type}"
+                       onchange="typeSelected()"
+                       disabled="#{actionTournamentManager.disabled[1]}">
+        <f:selectItems value="#{actionTournamentManager.types}" var="t"
+                       itemValues="#{t}" itemLabel="#{t.toString()}"/>
+      </h:selectOneMenu>
+    </h:panelGroup>
 
-          <h:outputText value="Max Brokers" />
-          <h:panelGroup>
-            <h:inputText id="maxBrokers"
-                         value="#{actionTournamentManager.maxBrokers}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         readonly="#{actionTournamentManager.disabled[2]}" />
-            <span id="totalGames"/>
-          </h:panelGroup>
+    <h:outputText value="Max Brokers"/>
+    <h:panelGroup>
+      <h:inputText id="maxBrokers"
+                   value="#{actionTournamentManager.maxBrokers}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   readonly="#{actionTournamentManager.disabled[2]}"/>
+      <span id="totalGames"/>
+    </h:panelGroup>
 
-          <h:outputText value="Max Agents" />
-          <h:panelGroup>
-            <h:inputText  id="maxAgents"
-                         value="#{actionTournamentManager.maxAgents}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         readonly="#{actionTournamentManager.disabled[3]}" />
-            <span id="totalTime"/>
-          </h:panelGroup>
+    <h:outputText value="Max Agents"/>
+    <h:panelGroup>
+      <h:inputText id="maxAgents"
+                   value="#{actionTournamentManager.maxAgents}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   readonly="#{actionTournamentManager.disabled[3]}"/>
+      <span id="totalTime"/>
+    </h:panelGroup>
 
-					<h:outputText value="Game 1 Size" />
-					<h:panelGroup>
-						<h:inputText id="gameSize1" value="#{actionTournamentManager.size1}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         readonly="#{actionTournamentManager.disabled[4]}"/>
-            <span id="total1"/>
-					</h:panelGroup>
+    <h:outputText value="Game 1 Size"/>
+    <h:panelGroup>
+      <h:inputText id="gameSize1" value="#{actionTournamentManager.size1}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   readonly="#{actionTournamentManager.disabled[4]}"/>
+      <span id="total1"/>
+    </h:panelGroup>
 
-          <h:outputText value="Game 1 Multiplier" />
-          <h:panelGroup>
-            <h:inputText id="multiplier1"
-                         value="#{actionTournamentManager.multiplier1}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         readonly="#{actionTournamentManager.disabled[4]}"/>
-          </h:panelGroup>
+    <h:outputText value="Game 1 Multiplier"/>
+    <h:panelGroup>
+      <h:inputText id="multiplier1"
+                   value="#{actionTournamentManager.multiplier1}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   readonly="#{actionTournamentManager.disabled[4]}"/>
+    </h:panelGroup>
 
-					<h:outputText value="Game 2 Size" />
-					<h:panelGroup>
-						<h:inputText id="gameSize2" value="#{actionTournamentManager.size2}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         readonly="#{actionTournamentManager.disabled[5]}"/>
-            <span id="total2"/>
-					</h:panelGroup>
+    <h:outputText value="Game 2 Size"/>
+    <h:panelGroup>
+      <h:inputText id="gameSize2" value="#{actionTournamentManager.size2}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   readonly="#{actionTournamentManager.disabled[5]}"/>
+      <span id="total2"/>
+    </h:panelGroup>
 
-          <h:outputText value="Game 2 Multiplier" />
-          <h:panelGroup>
-            <h:inputText id="multiplier2"
-                         value="#{actionTournamentManager.multiplier2}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         readonly="#{actionTournamentManager.disabled[5]}"/>
-          </h:panelGroup>
+    <h:outputText value="Game 2 Multiplier"/>
+    <h:panelGroup>
+      <h:inputText id="multiplier2"
+                   value="#{actionTournamentManager.multiplier2}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   readonly="#{actionTournamentManager.disabled[5]}"/>
+    </h:panelGroup>
 
-					<h:outputText value="Game 3 Size" />
-					<h:panelGroup>
-						<h:inputText id="gameSize3" value="#{actionTournamentManager.size3}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         readonly="#{actionTournamentManager.disabled[6]}"/>
-            <span id="total3"/>
-					</h:panelGroup>
+    <h:outputText value="Game 3 Size"/>
+    <h:panelGroup>
+      <h:inputText id="gameSize3" value="#{actionTournamentManager.size3}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   readonly="#{actionTournamentManager.disabled[6]}"/>
+      <span id="total3"/>
+    </h:panelGroup>
 
-          <h:outputText value="Game 3 Multiplier" />
-          <h:panelGroup>
-            <h:inputText id="multiplier3"
-                         value="#{actionTournamentManager.multiplier3}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         readonly="#{actionTournamentManager.disabled[6]}"/>
-          </h:panelGroup>
+    <h:outputText value="Game 3 Multiplier"/>
+    <h:panelGroup>
+      <h:inputText id="multiplier3"
+                   value="#{actionTournamentManager.multiplier3}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   readonly="#{actionTournamentManager.disabled[6]}"/>
+    </h:panelGroup>
 
-					<h:outputText value="StartTime UTC" />
-					<h:panelGroup>
-						<t:inputDate value="#{actionTournamentManager.startTime}" type="both"
-                         disabled="#{actionTournamentManager.disabled[7]}"
-                         ampm="false" forceId="true" />
-					</h:panelGroup>
+    <h:outputText value="StartTime UTC"/>
+    <h:panelGroup>
+      <t:inputDate value="#{actionTournamentManager.startTime}" type="both"
+                   disabled="#{actionTournamentManager.disabled[7]}"
+                   ampm="false" forceId="true"/>
+    </h:panelGroup>
 
-					<h:outputText value="Date from" />
-					<h:panelGroup>
-						<t:inputDate value="#{actionTournamentManager.dateFrom}" type="both"
-                         disabled="#{actionTournamentManager.disabled[8]}"
-                         ampm="false" forceId="true" /><br/>
-					</h:panelGroup>
+    <h:outputText value="Date from"/>
+    <h:panelGroup>
+      <t:inputDate value="#{actionTournamentManager.dateFrom}" type="both"
+                   disabled="#{actionTournamentManager.disabled[8]}"
+                   ampm="false" forceId="true"/><br/>
+    </h:panelGroup>
 
-          <h:outputText value="Date to" />
-          <h:panelGroup>
-            <t:inputDate value="#{actionTournamentManager.dateTo}" type="both"
-                         disabled="#{actionTournamentManager.disabled[9]}"
-                         ampm="false" forceId="true" />
-          </h:panelGroup>
+    <h:outputText value="Date to"/>
+    <h:panelGroup>
+      <t:inputDate value="#{actionTournamentManager.dateTo}" type="both"
+                   disabled="#{actionTournamentManager.disabled[9]}"
+                   ampm="false" forceId="true"/>
+    </h:panelGroup>
 
-          <h:outputText value="Select Pom File" />
-          <h:panelGroup>
-            <h:selectOneMenu id="poms"
-                             value="#{actionTournamentManager.selectedPom}"
-                             disabled="#{actionTournamentManager.disabled[10]}">
-              <f:selectItems value="#{actionTournamentManager.pomList}" var="p"
-                             itemValue="#{p.pomId}" itemLabel="#{p.pomName}"/>
-            </h:selectOneMenu>
-          </h:panelGroup>
+    <h:outputText value="Select Pom File"/>
+    <h:panelGroup>
+      <h:selectOneMenu id="poms"
+                       value="#{actionTournamentManager.selectedPom}"
+                       disabled="#{actionTournamentManager.disabled[10]}">
+        <f:selectItems value="#{actionTournamentManager.pomList}" var="p"
+                       itemValue="#{p.pomId}" itemLabel="#{p.pomName}"/>
+      </h:selectOneMenu>
+    </h:panelGroup>
 
-					<h:outputText value="Locations" />
-					<h:panelGroup>
-						<h:selectManyCheckbox id="locations"
-                                  value="#{actionTournamentManager.locations}"
-                                  disabled="#{actionTournamentManager.disabled[11]}" >
-							<f:selectItems value="#{actionTournamentManager.locationList}"
-                             var="L" itemValue="#{L.location}"
-                             itemLabel="#{L.location}"/>
-						</h:selectManyCheckbox>
-					</h:panelGroup>
+    <h:outputText value="Locations"/>
+    <h:panelGroup>
+      <h:selectManyCheckbox id="locations"
+                            value="#{actionTournamentManager.locations}"
+                            disabled="#{actionTournamentManager.disabled[11]}">
+        <f:selectItems value="#{actionTournamentManager.locationList}"
+                       var="L" itemValue="#{L.location}"
+                       itemLabel="#{L.location}"/>
+      </h:selectManyCheckbox>
+    </h:panelGroup>
 
-          <h:outputText value="Closed" />
-          <h:panelGroup>
-            <h:selectBooleanCheckbox id="closed"
-                                     value="#{actionTournamentManager.closed}"/>
-          </h:panelGroup>
+    <h:outputText value="Closed"/>
+    <h:panelGroup>
+      <h:selectBooleanCheckbox id="closed"
+                               value="#{actionTournamentManager.closed}"/>
+    </h:panelGroup>
 
-          <h:panelGroup> </h:panelGroup>
-          <h:commandButton value="Submit"
-                           action="#{actionTournamentManager.saveTournament()}" />
-				</h:panelGrid>
-        <h:inputHidden id="tourneyId" value="#{actionTournamentManager.tourneyId}"/>
-        <br/>
-        <h:message for="saveTournament" />
-			</h:form>
+    <h:panelGroup> </h:panelGroup>
+    <h:commandButton value="Submit"
+                     action="#{actionTournamentManager.saveTournament()}"/>
+  </h:panelGrid>
+  <h:inputHidden id="tourneyId" value="#{actionTournamentManager.tourneyId}"/>
+  <br/>
+  <h:message for="saveTournament"/>
+</h:form>
 
-      <h:form rendered="#{user.permissionId le 0}">
-        <br/>
-        <h4>If the tournament name contains 'test' (any case), short games will be created</h4>
-        <h4>It also allows deletion of the tournament</h4>
-      </h:form>
+<h:form rendered="#{user.permissionId le 0}">
+  <br/>
+  <h4>If the tournament name contains 'test' (any case), short games will be created</h4>
+  <h4>It also allows deletion of the tournament</h4>
+</h:form>
 
-			<h:form rendered="#{user.permissionId gt 0}">
-        <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
-        <meta http-equiv="REFRESH" content="10;url=login.xhtml" />
-			</h:form>
-		</ui:define>
-	</ui:composition>
+<h:form rendered="#{user.permissionId gt 0}">
+  <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
+  <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
+</h:form>
+</ui:define>
+</ui:composition>
 </h:body>
 </html>

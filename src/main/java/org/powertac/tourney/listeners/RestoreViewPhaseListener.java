@@ -17,7 +17,7 @@ public class RestoreViewPhaseListener implements PhaseListener {
 
   // Intercepts REST calls (get requests) and passes them to the Rest service
   // for parsing and returns the proper response
-  public synchronized void beforePhase (PhaseEvent pe) {
+  public synchronized void beforePhase(PhaseEvent pe) {
     HttpServletRequest request = (HttpServletRequest) pe.getFacesContext().
         getExternalContext().getRequest();
     Map<String, String[]> params = getParams(request);
@@ -29,24 +29,18 @@ public class RestoreViewPhaseListener implements PhaseListener {
       if (url.contains("serverInterface.jsp")) {
         if (request.getMethod().equals("PUT")) {
           respond(pe, rest.handleServerInterfacePUT(params, request));
-        }
-        else if (request.getMethod().equals("POST")) {
+        } else if (request.getMethod().equals("POST")) {
           respond(pe, rest.handleServerInterfacePOST(params, request));
-        }
-        else {
+        } else {
           respond(pe, rest.handleServerInterface(params, request));
         }
-      }
-      else if (url.contains("brokerLogin.jsp")) {
+      } else if (url.contains("brokerLogin.jsp")) {
         respond(pe, rest.parseBrokerLogin(params));
-      }
-      else if (url.contains("visualizerLogin.jsp")) {
+      } else if (url.contains("visualizerLogin.jsp")) {
         respond(pe, rest.parseVisualizerLogin(request, params));
-      }
-      else if (url.contains("properties.jsp")) {
+      } else if (url.contains("properties.jsp")) {
         respond(pe, rest.parseProperties(params));
-      }
-      else if (url.contains("pom.jsp")) {
+      } else if (url.contains("pom.jsp")) {
         respond(pe, rest.parsePom(params));
       }
     }
@@ -64,8 +58,7 @@ public class RestoreViewPhaseListener implements PhaseListener {
     try {
       PrintWriter pw = response.getWriter();
       pw.print(responseString);
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       throw new FacesException(ex);
     }
 
@@ -73,11 +66,11 @@ public class RestoreViewPhaseListener implements PhaseListener {
   }
 
   // Which jsf phase to intercept, in this case the Restore View Phase
-  public PhaseId getPhaseId () {
+  public PhaseId getPhaseId() {
     return PhaseId.RESTORE_VIEW;
   }
 
-  public void afterPhase (PhaseEvent arg0) {
+  public void afterPhase(PhaseEvent arg0) {
 
   }
 

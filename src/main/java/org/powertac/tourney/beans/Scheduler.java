@@ -17,8 +17,7 @@ import java.util.*;
 
 @Service("scheduler")
 @ManagedBean
-public class Scheduler implements InitializingBean
-{
+public class Scheduler implements InitializingBean {
   private static Logger log = Logger.getLogger("TMLogger");
 
   @Autowired
@@ -30,34 +29,29 @@ public class Scheduler implements InitializingBean
   private Tournament runningTournament = null;
   private long lastWatchdogRun = 0;
 
-  public Scheduler ()
-  {
+  public Scheduler() {
     super();
   }
 
-  public void afterPropertiesSet () throws Exception
-  {
+  public void afterPropertiesSet() throws Exception {
     lazyStart();
   }
 
-  private void lazyStart ()
-  {
+  private void lazyStart() {
     watchDogInterval = Integer.parseInt(properties
         .getProperty("scheduler.watchDogInterval", "120000"));
 
     Timer t = new Timer();
     TimerTask tt = new TimerTask() {
       @Override
-      public void run ()
-      {
+      public void run() {
         startWatchDog();
       }
     };
     t.schedule(tt, 3000);
   }
 
-  private synchronized void startWatchDog ()
-  {
+  private synchronized void startWatchDog() {
     if (watchDogTimer != null) {
       log.warn("Watchdog already running");
       return;
@@ -69,8 +63,7 @@ public class Scheduler implements InitializingBean
 
     TimerTask watchDog = new TimerTask() {
       @Override
-      public void run ()
-      {
+      public void run() {
         // Empty line to make logs more readable
         log.info("\n");
         try {
@@ -82,8 +75,7 @@ public class Scheduler implements InitializingBean
           checkWedgedSims();
 
           lastWatchdogRun = System.currentTimeMillis();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
           log.error("Severe error in WatchDogTimer!");
           e.printStackTrace();
         }
@@ -94,21 +86,18 @@ public class Scheduler implements InitializingBean
     watchDogTimer.schedule(watchDog, new Date(), watchDogInterval);
   }
 
-  private void stopWatchDog ()
-  {
+  private void stopWatchDog() {
     if (watchDogTimer != null) {
       watchDogTimer.cancel();
       watchDogTimer = null;
       log.info("Stopping WatchDog...");
-    }
-    else {
+    } else {
       log.warn("WatchDogTimer Already Stopped");
     }
   }
 
-  public boolean restartWatchDog ()
-  {
-    if ( (System.currentTimeMillis()-lastWatchdogRun) < 55000) {
+  public boolean restartWatchDog() {
+    if ((System.currentTimeMillis() - lastWatchdogRun) < 55000) {
       stopWatchDog();
       startWatchDog();
       return true;
@@ -117,8 +106,7 @@ public class Scheduler implements InitializingBean
     }
   }
 
-  public void loadTournament (int tourneyId)
-  {
+  public void loadTournament(int tourneyId) {
     log.info("Loading Tournament " + tourneyId);
 
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -128,22 +116,19 @@ public class Scheduler implements InitializingBean
       query.setInteger("tournamentId", tourneyId);
       runningTournament = (Tournament) query.uniqueResult();
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
     session.close();
   }
 
-  public void unloadTournament ()
-  {
+  public void unloadTournament() {
     log.info("Unloading Tournament");
     runningTournament = null;
   }
 
-  public void reloadTournament ()
-  {
+  public void reloadTournament() {
     if (runningTournament == null) {
       return;
     }
@@ -155,8 +140,7 @@ public class Scheduler implements InitializingBean
   /**
    * Check if it's time to schedule the tournament
    */
-  private void scheduleLoadedTournament ()
-  {
+  private void scheduleLoadedTournament() {
     if (isNullTourney()) {
       log.info("No multigame tournament available");
       return;
@@ -168,8 +152,7 @@ public class Scheduler implements InitializingBean
     if (runningTournament.getGameMap().size() > 0) {
       log.info("Tournament already scheduled");
       return;
-    }
-    else if (!runningTournament.isStarted()) {
+    } else if (!runningTournament.isStarted()) {
       log.info("Too early to start tournament: " +
           runningTournament.getTournamentName());
       return;
@@ -177,7 +160,7 @@ public class Scheduler implements InitializingBean
 
     // Get array of gametypes
     int[] gameTypes = {runningTournament.getSize1(),
-        runningTournament.getSize2(), runningTournament.getSize3() };
+        runningTournament.getSize2(), runningTournament.getSize3()};
     int[] multipliers = {runningTournament.getMultiplier1(),
         runningTournament.getMultiplier2(), runningTournament.getMultiplier3()};
 
@@ -185,7 +168,7 @@ public class Scheduler implements InitializingBean
     Transaction transaction = session.beginTransaction();
     try {
       List<Broker> brokers = new ArrayList<Broker>();
-      for (Broker broker: runningTournament.getBrokerMap().values()) {
+      for (Broker broker : runningTournament.getBrokerMap().values()) {
         brokers.add(broker);
       }
 
@@ -198,45 +181,42 @@ public class Scheduler implements InitializingBean
         return;
       }
 
-      for (int i=0; i < (gameTypes.length); i++) {
-        for (int j=0; j < multipliers[i]; j++) {
+      for (int i = 0; i < (gameTypes.length); i++) {
+        for (int j = 0; j < multipliers[i]; j++) {
           doTheKailash(session, gameTypes[i], i, j, brokers);
         }
       }
 
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-    }
-    finally {
+    } finally {
       session.close();
     }
 
     reloadTournament();
   }
 
-  private void doTheKailash (Session session, int gameType, int gameNumber,
-                             int multiplier, List<Broker> brokers)
-  {
+  private void doTheKailash(Session session, int gameType, int gameNumber,
+                            int multiplier, List<Broker> brokers) {
     log.info(String.format("Doing the Kailash with gameType = %s ; "
         + "maxBrokers = %s", gameType, brokers.size()));
     String brokersString = "";
-    for (Broker b: brokers) {
+    for (Broker b : brokers) {
       brokersString += b.getBrokerId() + " ";
     }
     log.info("Broker ids : " + brokersString);
 
     // No use scheduling gamesTypes > # brokers
     gameType = Math.min(gameType, brokers.size());
-    if (gameType<1 || brokers.size()<1) {
+    if (gameType < 1 || brokers.size() < 1) {
       return;
     }
 
     // Get binary string representations of games
     List<String> games = new ArrayList<String>();
-    for (int i=0; i<(int) Math.pow(2, brokers.size()); i++) {
+    for (int i = 0; i < (int) Math.pow(2, brokers.size()); i++) {
       // Write as binary + pad with leading zeros
       String gameString = Integer.toBinaryString(i);
       while (gameString.length() < brokers.size()) {
@@ -245,7 +225,7 @@ public class Scheduler implements InitializingBean
 
       // Count number of 1's, representing participating players
       int count = 0;
-      for (int j=0; j<gameString.length(); j++) {
+      for (int j = 0; j < gameString.length(); j++) {
         if (gameString.charAt(j) == '1') {
           count++;
         }
@@ -258,18 +238,18 @@ public class Scheduler implements InitializingBean
     }
 
     // Make games of every gameString
-    for (int j=0; j<games.size(); j++) {
+    for (int j = 0; j < games.size(); j++) {
       String gameString = games.get(j);
 
       String gameName = String.format("%s_%s_%s_%s",
           runningTournament.getTournamentName(),
-          (gameNumber+1), gameType, j + multiplier*games.size());
+          (gameNumber + 1), gameType, j + multiplier * games.size());
       Game game = Game.createGame(runningTournament, gameName);
       session.save(game);
 
       log.info("Created game " + game.getGameId());
 
-      for (int i=0; i<gameString.length(); i++) {
+      for (int i = 0; i < gameString.length(); i++) {
         if (gameString.charAt(i) == '1') {
           Broker broker = brokers.get(i);
           Agent agent = Agent.createAgent(broker, game);
@@ -281,11 +261,10 @@ public class Scheduler implements InitializingBean
     }
   }
 
-  private void checkWedgedBoots ()
-  {
+  private void checkWedgedBoots() {
     log.info("WatchDogTimer Looking for Wedged Bootstraps");
 
-    for (Game game: Game.getNotCompleteGamesList()) {
+    for (Game game : Game.getNotCompleteGamesList()) {
       if (!game.isBooting() || game.getReadyTime() == null) {
         continue;
       }
@@ -299,7 +278,7 @@ public class Scheduler implements InitializingBean
       if (nowStamp > minStamp && nowStamp < maxStamp) {
         String msg = String.format(
             "Bootstrapping of game %s seems to take too long : %s seconds",
-            game.getGameId(),((nowStamp - game.getReadyTime().getTime())/1000));
+            game.getGameId(), ((nowStamp - game.getReadyTime().getTime()) / 1000));
         log.error(msg);
         Utils.sendMail("Bootstrap seems stuck", msg,
             properties.getProperty("scheduler.mailRecipient"));
@@ -309,11 +288,10 @@ public class Scheduler implements InitializingBean
     log.debug("WatchDogTimer No Bootstraps seems Wedged");
   }
 
-  private void checkWedgedSims ()
-  {
+  private void checkWedgedSims() {
     log.info("WatchDogTimer Looking for Wedged Sims");
 
-    for (Game game: Game.getNotCompleteGamesList()) {
+    for (Game game : Game.getNotCompleteGamesList()) {
       if (!game.isRunning() || game.getReadyTime() == null) {
         continue;
       }
@@ -331,7 +309,7 @@ public class Scheduler implements InitializingBean
       if (nowStamp > minStamp && nowStamp < maxStamp) {
         String msg = String.format(
             "Sim of game %s seems to take too long : %s seconds",
-            game.getGameId(),((nowStamp - game.getReadyTime().getTime())/1000));
+            game.getGameId(), ((nowStamp - game.getReadyTime().getTime()) / 1000));
         log.error(msg);
         Utils.sendMail("Sim seems stuck", msg,
             properties.getProperty("scheduler.mailRecipient"));
@@ -341,29 +319,24 @@ public class Scheduler implements InitializingBean
     log.debug("WatchDogTimer No Sim seems Wedged");
   }
 
-  public boolean isNullTourney ()
-  {
+  public boolean isNullTourney() {
     return runningTournament == null;
   }
 
-  public boolean isRunning ()
-  {
+  public boolean isRunning() {
     return watchDogTimer != null;
   }
 
-  public Tournament getRunningTournament ()
-  {
+  public Tournament getRunningTournament() {
     return runningTournament;
   }
 
-  public static Scheduler getScheduler ()
-  {
+  public static Scheduler getScheduler() {
     return (Scheduler) SpringApplicationContext.getBean("scheduler");
   }
 
   @PreDestroy
-  private void cleanUp () throws Exception
-  {
+  private void cleanUp() throws Exception {
     log.info("Spring Container is destroyed! Scheduler clean up");
 
     stopWatchDog();
@@ -373,6 +346,7 @@ public class Scheduler implements InitializingBean
   public long getWatchDogInterval() {
     return watchDogInterval;
   }
+
   public void setWatchDogInterval(long watchDogInterval) {
     this.watchDogInterval = watchDogInterval;
   }
@@ -382,7 +356,7 @@ public class Scheduler implements InitializingBean
       return "";
     } else {
       return String.format(" : ran %s secs ago",
-          (int) (System.currentTimeMillis()-lastWatchdogRun)/1000 );
+          (int) (System.currentTimeMillis() - lastWatchdogRun) / 1000);
     }
   }
   //</editor-fold>

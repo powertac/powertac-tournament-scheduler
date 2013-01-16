@@ -16,43 +16,36 @@ import java.util.List;
 
 @ManagedBean
 @RequestScoped
-public class ActionOverview
-{
+public class ActionOverview {
   private static Logger log = Logger.getLogger("TMLogger");
 
   private List<Broker> brokerList = new ArrayList<Broker>();
   private List<Game> notCompleteGamesList = new ArrayList<Game>();
   private List<Tournament> notCompleteTournamentList = new ArrayList<Tournament>();
 
-  public ActionOverview()
-  {
+  public ActionOverview() {
     loadData();
   }
 
-  private void loadData ()
-  {
+  private void loadData() {
     brokerList = Broker.getBrokerList();
     notCompleteGamesList = Game.getNotCompleteGamesList();
     notCompleteTournamentList = Tournament.getNotCompleteTournamentList();
   }
 
-  public List<Broker> getBrokerList ()
-  {
+  public List<Broker> getBrokerList() {
     return brokerList;
   }
 
-  public List<Tournament> getNotCompleteTournamentList ()
-  {
+  public List<Tournament> getNotCompleteTournamentList() {
     return notCompleteTournamentList;
   }
 
-  public List<Game> getNotCompleteGamesList ()
-  {
+  public List<Game> getNotCompleteGamesList() {
     return notCompleteGamesList;
   }
 
-  public String getBrokerState (int brokerId)
-  {
+  public String getBrokerState(int brokerId) {
     if (MemStore.getBrokerState(brokerId)) {
       return "Enabled";
     } else {
@@ -60,20 +53,18 @@ public class ActionOverview
     }
   }
 
-  public void toggleState (int brokerId)
-  {
+  public void toggleState(int brokerId) {
     boolean enabled = true;
 
     try {
       enabled = MemStore.brokerState.get(brokerId);
+    } catch (Exception ignored) {
     }
-    catch (Exception ignored) {}
 
     MemStore.setBrokerState(brokerId, !enabled);
   }
 
-  public void startNow (Tournament tournament)
-  {
+  public void startNow(Tournament tournament) {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -82,14 +73,14 @@ public class ActionOverview
       session.flush();
 
       String msg =
-          "Setting tournament: "+ tournament.getTournamentId() +" to start now";
+          "Setting tournament: " + tournament.getTournamentId() + " to start now";
       log.info(msg);
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("tournamentForm", fm);
 
       // Reschedule all games of a SINGLE_GAME tournament
       if (tournament.isSingle()) {
-        for (Game game: tournament.getGameMap().values()) {
+        for (Game game : tournament.getGameMap().values()) {
           game.setStartTime(Utils.offsetDate());
           session.update(game);
           session.flush();
@@ -102,12 +93,11 @@ public class ActionOverview
       }
 
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       String msg =
-          "Failed to start tournament "+ tournament.getTournamentId() +" to now";
+          "Failed to start tournament " + tournament.getTournamentId() + " to now";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("tournamentForm", fm);
     }
@@ -121,8 +111,7 @@ public class ActionOverview
     }
   }
 
-  public void abortGame (Game game)
-  {
+  public void abortGame(Game game) {
     log.info("Trying to abort game: " + game.getGameId());
 
     new RunAbort(game.getMachine().getMachineName());
@@ -132,8 +121,7 @@ public class ActionOverview
     FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
   }
 
-  public void killGame(Game game)
-  {
+  public void killGame(Game game) {
     log.info("Trying to kill game: " + game.getGameId());
 
     int gameId = game.getGameId();
@@ -150,12 +138,11 @@ public class ActionOverview
 
         game.setStatus(Game.STATE.boot_pending.toString());
         game.removeBootFile();
-      }
-      else if (game.isRunning()) {
+      } else if (game.isRunning()) {
         log.info("Resetting sim game: " + gameId + " on machine: " + machineId);
 
         game.setStatus(Game.STATE.boot_complete.toString());
-        for (Agent agent: game.getAgentMap().values()) {
+        for (Agent agent : game.getAgentMap().values()) {
           agent.setStatus(Agent.STATE.pending.toString());
           agent.setBalance(0);
           session.update(agent);
@@ -168,8 +155,7 @@ public class ActionOverview
       Machine.delayedMachineUpdate(machine, 300);
 
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
 
@@ -177,8 +163,7 @@ public class ActionOverview
       String msg = "Error killing game : " + gameId;
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
-    }
-    finally {
+    } finally {
       session.close();
     }
 
@@ -186,8 +171,7 @@ public class ActionOverview
     new RunKill(machineName);
   }
 
-  public void restartGame (Game game)
-  {
+  public void restartGame(Game game) {
     log.info("Trying to restart game: " + game.getGameId());
 
     int gameId = game.getGameId();
@@ -204,7 +188,7 @@ public class ActionOverview
         log.info("Resetting sim game: " + gameId);
         game.setStatus(Game.STATE.boot_complete.toString());
 
-        for (Agent agent: game.getAgentMap().values()) {
+        for (Agent agent : game.getAgentMap().values()) {
           agent.setStatus(Agent.STATE.pending.toString());
           session.update(agent);
         }
@@ -214,14 +198,13 @@ public class ActionOverview
       game.setMachine(null);
       session.update(game);
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
 
       log.error("Failed to restart game: " + gameId);
       String msg = "Error restarting game : " + gameId;
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg,null);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
     }
     session.close();

@@ -19,24 +19,21 @@ import java.util.regex.Pattern;
 
 @ManagedBean
 @RequestScoped
-public class ActionAccount
-{
+public class ActionAccount {
   private String brokerName;
   private String brokerShort;
 
   private List<Broker> brokers = new ArrayList<Broker>();
 
-  public ActionAccount ()
-  {
+  public ActionAccount() {
   }
 
   @SuppressWarnings("unchecked")
-  public List<Broker> getBrokers ()
-  {
+  public List<Broker> getBrokers() {
     if (brokers.size() == 0) {
       User user = User.getCurrentUser();
 
-      for (Broker broker: user.getBrokerMap().values()) {
+      for (Broker broker : user.getBrokerMap().values()) {
         brokers.add(broker);
       }
     }
@@ -44,8 +41,7 @@ public class ActionAccount
     return brokers;
   }
 
-  public void addBroker ()
-  {
+  public void addBroker() {
     // Check if name and description not empty, and if name allowed
     if (namesEmpty(brokerName, brokerShort, "accountForm2") ||
         nameExists(brokerName, "accountForm2") ||
@@ -75,13 +71,12 @@ public class ActionAccount
       User.reloadUser(user);
     } else {
       String msg = "Error adding broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage("accountForm2", fm);
     }
   }
 
-  public void deleteBroker (Broker broker)
-  {
+  public void deleteBroker(Broker broker) {
     User user = User.getCurrentUser();
     if (user.isEditing() || !user.isLoggedIn()) {
       return;
@@ -94,21 +89,19 @@ public class ActionAccount
       User.reloadUser(user);
     } else {
       String msg = "Error deleting broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage("accountForm1", fm);
     }
   }
 
-  public void updateBroker(Broker broker)
-  {
+  public void updateBroker(Broker broker) {
     // Check if name and description not empty, and if name allowed (if changed)
     if (namesEmpty(broker.getNewName(), broker.getNewShort(), "accountForm1")) {
       return;
     }
     if (nameAllowed(broker.getNewName(), "accountForm1")) {
       return;
-    }
-    else if (!broker.getBrokerName().equals(broker.getNewName())) {
+    } else if (!broker.getBrokerName().equals(broker.getNewName())) {
       if (nameExists(broker.getNewName(), "accountForm1")) {
         return;
       }
@@ -128,13 +121,12 @@ public class ActionAccount
     boolean saved = broker.update();
     if (!saved) {
       String msg = "Error saving broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage("accountForm1", fm);
     }
   }
 
-  public void editBroker (Broker broker)
-  {
+  public void editBroker(Broker broker) {
     User user = User.getCurrentUser();
     user.setEditing(true);
 
@@ -144,15 +136,13 @@ public class ActionAccount
     broker.setNewShort(broker.getShortDescription());
   }
 
-  public void cancelBroker (Broker broker)
-  {
+  public void cancelBroker(Broker broker) {
     User user = User.getCurrentUser();
     user.setEditing(false);
     broker.setEdit(false);
   }
 
-  private boolean namesEmpty (String name, String description, String form)
-  {
+  private boolean namesEmpty(String name, String description, String form) {
     if (name == null || description == null ||
         name.trim().isEmpty() || description.trim().isEmpty()) {
       String msg = "Broker requires a Name and a Description";
@@ -163,12 +153,11 @@ public class ActionAccount
     return false;
   }
 
-  private boolean nameExists (String brokerName, String form)
-  {
+  private boolean nameExists(String brokerName, String form) {
     Broker broker = Broker.getBrokerByName(brokerName);
     if (broker != null) {
       String msg = "Brokername taken, please select a new name";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage(form, fm);
       return true;
     }
@@ -176,28 +165,25 @@ public class ActionAccount
   }
 
   // We can't allow commas, used in end-of-game message from server
-  private boolean nameAllowed (String brokerName, String form)
-  {
+  private boolean nameAllowed(String brokerName, String form) {
     Pattern ALPHANUMERIC = Pattern.compile("[A-Za-z0-9\\-\\_]+");
     Matcher m = ALPHANUMERIC.matcher(brokerName);
 
     if (!m.matches()) {
       String msg = "Brokername contains illegal characters, please select a "
           + "new name (only alphanumeric, '-' and '_' allowed)";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage(form, fm);
       return true;
     }
     return false;
   }
 
-  public List<Tournament> getAvailableTournaments (Broker b)
-  {
+  public List<Tournament> getAvailableTournaments(Broker b) {
     return b.getAvailableTournaments(true);
   }
 
-  public void register (Broker b)
-  {
+  public void register(Broker b) {
     if (!(b.getSelectedTourneyRegister() > 0)) {
       return;
     }
@@ -205,7 +191,7 @@ public class ActionAccount
     boolean registered = b.register(b.getSelectedTourneyRegister());
     if (!registered) {
       String msg = "Error registering broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,msg, null);
+      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage("accountForm0", fm);
     } else {
       brokers = new ArrayList<Broker>();
@@ -215,17 +201,19 @@ public class ActionAccount
   }
 
   //<editor-fold desc="Setters and Getters">
-  public String getBrokerShort () {
+  public String getBrokerShort() {
     return brokerShort;
   }
-  public void setBrokerShort (String brokerShort) {
+
+  public void setBrokerShort(String brokerShort) {
     this.brokerShort = brokerShort;
   }
 
-  public String getBrokerName () {
+  public String getBrokerName() {
     return brokerName;
   }
-  public void setBrokerName (String brokerName) {
+
+  public void setBrokerName(String brokerName) {
     this.brokerName = brokerName;
   }
   //</editor-fold>

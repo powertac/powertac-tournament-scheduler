@@ -12,12 +12,14 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 @ManagedBean
 @RequestScoped
-public class ActionAdmin
-{
+public class ActionAdmin {
   private static Logger log = Logger.getLogger("TMLogger");
 
   private String sortColumnPom = null;
@@ -48,16 +50,14 @@ public class ActionAdmin
 
   private List<Tournament> availableTournaments = new ArrayList<Tournament>();
 
-  public ActionAdmin ()
-  {
+  public ActionAdmin() {
     loadData();
   }
 
   //<editor-fold desc="Header stuff">
   @SuppressWarnings("unchecked")
-  private void loadData ()
-  {
-    for (Tournament tournament: Tournament.getNotCompleteTournamentList()) {
+  private void loadData() {
+    for (Tournament tournament : Tournament.getNotCompleteTournamentList()) {
       if (tournament.isMulti()) {
         availableTournaments.add(tournament);
       }
@@ -66,8 +66,7 @@ public class ActionAdmin
     Collections.sort(availableTournaments, new Utils.AlphanumComparator());
   }
 
-  public void restartWatchDog ()
-  {
+  public void restartWatchDog() {
     log.info("Restarting WatchDog");
     Scheduler scheduler = Scheduler.getScheduler();
     if (!scheduler.restartWatchDog()) {
@@ -75,51 +74,43 @@ public class ActionAdmin
     }
   }
 
-  public void loadTournament ()
-  {
+  public void loadTournament() {
     log.info("Loading Tournament " + selectedTournament);
 
     Scheduler scheduler = Scheduler.getScheduler();
     scheduler.loadTournament(selectedTournament);
   }
 
-  public void unloadTournament ()
-  {
+  public void unloadTournament() {
     log.info("Unloading Tournament");
 
     Scheduler scheduler = Scheduler.getScheduler();
     scheduler.unloadTournament();
   }
 
-  public void cleanMemStore ()
-  {
+  public void cleanMemStore() {
     new MemStore();
   }
 
-  public List<Tournament> getAvailableTournaments ()
-  {
+  public List<Tournament> getAvailableTournaments() {
     return availableTournaments;
   }
 
-  public List<String> getConfigErrors()
-  {
+  public List<String> getConfigErrors() {
     return properties.getErrorMessages();
   }
 
-  public void removeMessage (String message)
-  {
+  public void removeMessage(String message) {
     properties.removeErrorMessage(message);
   }
   //</editor-fold>
 
   //<editor-fold desc="Location stuff">
-  public List<Location> getLocationList ()
-  {
+  public List<Location> getLocationList() {
     return Location.getLocationList();
   }
 
-  public void editLocation (Location l)
-  {
+  public void editLocation(Location l) {
     locationId = l.getLocationId();
     locationName = l.getLocation();
     locationTimezone = l.getTimezone();
@@ -127,8 +118,7 @@ public class ActionAdmin
     locationEndTime = l.getToDate();
   }
 
-  public void saveLocation ()
-  {
+  public void saveLocation() {
     if (locationName.isEmpty() || locationStartTime == null || locationEndTime == null) {
       String msg = "Error: location not saved, some fields were empty!";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
@@ -143,8 +133,7 @@ public class ActionAdmin
     }
   }
 
-  public void addLocation ()
-  {
+  public void addLocation() {
     Location location = new Location();
     location.setLocation(locationName);
     location.setFromDate(locationStartTime);
@@ -156,8 +145,7 @@ public class ActionAdmin
     try {
       session.save(location);
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -169,8 +157,7 @@ public class ActionAdmin
     session.close();
   }
 
-  public void editLocation ()
-  {
+  public void editLocation() {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -182,8 +169,7 @@ public class ActionAdmin
 
       session.update(location);
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
 
@@ -199,15 +185,13 @@ public class ActionAdmin
     session.close();
   }
 
-  public void deleteLocation (Location location)
-  {
+  public void deleteLocation(Location location) {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
       session.delete(location);
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -215,7 +199,7 @@ public class ActionAdmin
     resetLocationData();
   }
 
-  private void resetLocationData () {
+  private void resetLocationData() {
     locationId = -1;
     locationName = "";
     locationTimezone = 0;
@@ -225,13 +209,11 @@ public class ActionAdmin
   //</editor-fold>
 
   //<editor-fold desc="Pom stuff">
-  public List<Pom> getPomList ()
-  {
+  public List<Pom> getPomList() {
     return Pom.getPomList();
   }
 
-  public void submitPom ()
-  {
+  public void submitPom() {
     if (pomName.isEmpty()) {
       // Show succes message.
       String msg = "Error: You need to fill in the pom name";
@@ -256,8 +238,7 @@ public class ActionAdmin
     session.beginTransaction();
     try {
       session.save(pom);
-    }
-    catch (ConstraintViolationException e) {
+    } catch (ConstraintViolationException e) {
       session.getTransaction().rollback();
       String msg = "Error: This name is already used";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
@@ -271,8 +252,7 @@ public class ActionAdmin
 
     if (pomStored) {
       session.getTransaction().commit();
-    }
-    else {
+    } else {
       session.getTransaction().rollback();
     }
     session.close();
@@ -280,29 +260,25 @@ public class ActionAdmin
   //</editor-fold>
 
   //<editor-fold desc="Machine stuff">
-  public List<Machine> getMachineList ()
-  {
+  public List<Machine> getMachineList() {
     return Machine.getMachineList();
   }
 
-  public void toggleAvailable (Machine machine)
-  {
+  public void toggleAvailable(Machine machine) {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
       machine.setAvailable(!machine.isAvailable());
       session.update(machine);
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
     session.close();
   }
 
-  public void toggleStatus (Machine machine)
-  {
+  public void toggleStatus(Machine machine) {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -313,24 +289,21 @@ public class ActionAdmin
       }
       session.update(machine);
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
     session.close();
   }
-  
-  public void editMachine (Machine m)
-  {
+
+  public void editMachine(Machine m) {
     machineId = m.getMachineId();
     machineName = m.getMachineName();
     machineUrl = m.getMachineUrl();
     machineViz = m.getVizUrl();
   }
-  
-  public void saveMachine ()
-  {
+
+  public void saveMachine() {
     machineUrl = machineUrl.replace("https://", "").replace("http://", "");
     machineViz = machineViz.replace("https://", "").replace("http://", "");
 
@@ -338,8 +311,8 @@ public class ActionAdmin
       String msg = "Error: machine not saved, some fields were empty!";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
-  	  return;
-  	}
+      return;
+    }
 
     // Make sure we get a new list of IPs
     MemStore.machineIPs = null;
@@ -353,8 +326,7 @@ public class ActionAdmin
     }
   }
 
-  public void addMachine ()
-  {
+  public void addMachine() {
     Machine machine = new Machine();
     machine.setMachineName(machineName);
     machine.setMachineUrl(machineUrl);
@@ -367,8 +339,7 @@ public class ActionAdmin
     try {
       session.save(machine);
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
 
@@ -384,8 +355,7 @@ public class ActionAdmin
     session.close();
   }
 
-  public void editMachine ()
-  {
+  public void editMachine() {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -396,8 +366,7 @@ public class ActionAdmin
 
       session.update(machine);
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
 
@@ -413,16 +382,14 @@ public class ActionAdmin
     session.close();
   }
 
-  public void deleteMachine (Machine machine)
-  {
+  public void deleteMachine(Machine machine) {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
       log.info("Deleting machine " + machine.getMachineId());
       session.delete(machine);
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
 
@@ -434,7 +401,7 @@ public class ActionAdmin
     resetMachineData();
   }
 
-  private void resetMachineData () {
+  private void resetMachineData() {
     machineId = -1;
     machineViz = "";
     machineName = "";
@@ -442,8 +409,7 @@ public class ActionAdmin
   }
   //</editor-fold>
 
-  public List<User> getUserList ()
-  {
+  public List<User> getUserList() {
     return User.getUserList();
   }
 
@@ -451,6 +417,7 @@ public class ActionAdmin
   public int getLocationId() {
     return locationId;
   }
+
   public void setLocationId(int locationId) {
     this.locationId = locationId;
   }
@@ -458,6 +425,7 @@ public class ActionAdmin
   public String getLocationName() {
     return locationName;
   }
+
   public void setLocationName(String locationName) {
     this.locationName = locationName;
   }
@@ -465,113 +433,129 @@ public class ActionAdmin
   public int getLocationTimezone() {
     return locationTimezone;
   }
+
   public void setLocationTimezone(int locationTimezone) {
     this.locationTimezone = locationTimezone;
   }
 
-  public Date getLocationStartTime () {
+  public Date getLocationStartTime() {
     return locationStartTime;
   }
-  public void setLocationStartTime (Date locationStartTime) {
+
+  public void setLocationStartTime(Date locationStartTime) {
     this.locationStartTime = locationStartTime;
   }
 
-  public Date getLocationEndTime () {
+  public Date getLocationEndTime() {
     return locationEndTime;
   }
-  public void setLocationEndTime (Date locationEndTime) {
+
+  public void setLocationEndTime(Date locationEndTime) {
     this.locationEndTime = locationEndTime;
   }
 
-  public String getPomName () {
+  public String getPomName() {
     return pomName;
   }
-  public void setPomName (String pomName) {
+
+  public void setPomName(String pomName) {
     this.pomName = pomName.trim();
   }
 
-  public UploadedFile getUploadedPom () {
+  public UploadedFile getUploadedPom() {
     return uploadedPom;
   }
-  public void setUploadedPom (UploadedFile uploadedPom)  {
+
+  public void setUploadedPom(UploadedFile uploadedPom) {
     this.uploadedPom = uploadedPom;
   }
 
-  public int getMachineId () {
+  public int getMachineId() {
     return machineId;
   }
+
   public void setMachineId(int machineId) {
     this.machineId = machineId;
   }
 
-  public String getMachineName () {
+  public String getMachineName() {
     return machineName;
   }
-  public void setMachineName (String machineName) {
+
+  public void setMachineName(String machineName) {
     this.machineName = machineName;
   }
 
-  public String getMachineUrl () {
+  public String getMachineUrl() {
     return machineUrl;
   }
-  public void setMachineUrl (String machineUrl) {
+
+  public void setMachineUrl(String machineUrl) {
     this.machineUrl = machineUrl;
   }
 
-  public String getMachineViz () {
+  public String getMachineViz() {
     return machineViz;
   }
-  public void setMachineViz (String machineViz) {
+
+  public void setMachineViz(String machineViz) {
     this.machineViz = machineViz;
   }
   //</editor-fold>
 
   //<editor-fold desc="Sorting setters and getters">
-  public boolean isSortAscendingPom () {
+  public boolean isSortAscendingPom() {
     return sortAscendingPom;
   }
-  public void setSortAscendingPom (boolean sortAscendingPom) {
+
+  public void setSortAscendingPom(boolean sortAscendingPom) {
     this.sortAscendingPom = sortAscendingPom;
   }
 
   public String getSortColumnPom() {
     return sortColumnPom;
   }
+
   public void setSortColumnPom(String sortColumnPom) {
     this.sortColumnPom = sortColumnPom;
   }
 
-  public String getSortColumnMachine () {
+  public String getSortColumnMachine() {
     return sortColumnMachine;
   }
-  public void setSortColumnMachine (String sortColumnMachine) {
+
+  public void setSortColumnMachine(String sortColumnMachine) {
     this.sortColumnMachine = sortColumnMachine;
   }
 
-  public boolean isSortAscendingMachine () {
+  public boolean isSortAscendingMachine() {
     return sortAscendingMachine;
   }
-  public void setSortAscendingMachine (boolean sortAscendingMachine) {
+
+  public void setSortAscendingMachine(boolean sortAscendingMachine) {
     this.sortAscendingMachine = sortAscendingMachine;
   }
 
-  public String getSortColumnUsers () {
+  public String getSortColumnUsers() {
     return sortColumnUsers;
   }
-  public void setSortColumnUsers (String sortColumnUsers) {
+
+  public void setSortColumnUsers(String sortColumnUsers) {
     this.sortColumnUsers = sortColumnUsers;
   }
 
-  public boolean isSortAscendingUsers () {
+  public boolean isSortAscendingUsers() {
     return sortAscendingUsers;
   }
-  public void setSortAscendingUsers (boolean sortAscendingUsers) {
+
+  public void setSortAscendingUsers(boolean sortAscendingUsers) {
     this.sortAscendingUsers = sortAscendingUsers;
   }
 
   public Integer getSelectedTournament() {
     return selectedTournament;
   }
+
   public void setSelectedTournament(Integer selectedTournament) {
     this.selectedTournament = selectedTournament;
   }

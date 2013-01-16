@@ -23,25 +23,23 @@ import org.springframework.stereotype.Service;
 /**
  * Static methods to access the Spring application context. It is set up
  * as a service so Spring will create and initialize it.
+ *
  * @author John Collins
  */
 @Service
-public class SpringApplicationContext implements ApplicationContextAware
-{
+public class SpringApplicationContext implements ApplicationContextAware {
   private static ApplicationContext context;
-  
+
   @Override
-  public void setApplicationContext (ApplicationContext appContext)
-  throws BeansException
-  {
-    context = appContext;    
+  public void setApplicationContext(ApplicationContext appContext)
+      throws BeansException {
+    context = appContext;
   }
-  
+
   /**
    * Returns the Spring bean, if any, with the given name.
    */
-  public static Object getBean (String beanName)
-  {
+  public static Object getBean(String beanName) {
     return context.getBean(beanName);
   }
 }

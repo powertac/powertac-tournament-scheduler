@@ -5,18 +5,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class RunKill
-{
+public class RunKill {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  public RunKill(String machineName)
-  {
+  public RunKill(String machineName) {
     if (machineName.isEmpty()) {
       return;
     }
 
     // Stop the job on Jenkins, only work on when host = localhost
-    for (int count=0; count<2; count++) {
+    for (int count = 0; count < 2; count++) {
       try {
         NodeList nList = JenkinsConnector.getExecutorList(machineName, count);
         Node nNode = nList.item(0);
@@ -29,12 +27,11 @@ public class RunKill
 
           try {
             JenkinsConnector.sendJob(stopUrl);
+          } catch (Exception ignored) {
           }
-          catch (Exception ignored) {}
           log.info("Stopped job on Jenkins");
         }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         e.printStackTrace();
       }
     }
@@ -47,8 +44,8 @@ public class RunKill
 
     try {
       JenkinsConnector.sendJob(killUrl);
+    } catch (Exception ignored) {
     }
-    catch (Exception ignored) {}
     log.info("Killed job on slave " + machineName);
   }
 }

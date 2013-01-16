@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
@@ -8,147 +8,109 @@
       xmlns:t="http://myfaces.apache.org/tomahawk">
 
 <h:body>
-	<ui:composition template="template.xhtml">
-		<ui:define name="content">
-      <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/css/jquery.dataTables.css"/>
-      <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
-      <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/jquery.dataTables.min.js"></script>
-      <script type="text/javascript" src="datatable.sort.js"></script>
-
-      <script type="text/javascript" charset="utf8" >
-        $(document).ready(function() {
-          $("[id$=runnning_games]").dataTable({
-            "bFilter": false,
-            "bInfo": false,
-            "sScrollY": Math.min(400, $("[id$=runnning_games]").height()) + "px",
-            "bPaginate": false,
-            "aoColumnDefs": [
-              { 'bSortable': false, 'aTargets': [2, 5] },
-              { "sType": "natural", "aTargets": [0, 1] }
-            ]
-          });
-          $("[id$=completed_games]").dataTable({
-            "bFilter": false,
-            "bInfo": false,
-            "sScrollY": Math.min(400, $("[id$=completed_games]").height()) + "px",
-            "bPaginate": false,
-            "aoColumnDefs": [
-              { 'bSortable': false, 'aTargets': [2, 4] },
-              { "sType": "natural", "aTargets": [0, 1] }
-            ]
-          });
-        });
-      </script>
-
-      <style type="text/css">
-        table.dataTable tr.odd {
-          background-color: #FFFFFF;
-        }
-        table.dataTable tr.odd td.sorting_1 {
-          background-color: #FFFFFF;
-        }
-        table.dataTable tr.even td.sorting_1 {
-          background-color: #FFFFFF;
-        }
-        textarea {
-          width: 960px;
-          height: 400px;
-        }
-      </style>
+  <ui:composition template="template.xhtml">
+    <ui:define name="content">
+      <script type="text/javascript" charset="utf8"
+              src="resources/js/datatable.sort.js"></script>
+      <script type="text/javascript" charset="utf8"
+              src="resources/js/index.js"></script>
 
       <h:outputText value="#{actionIndex.content}" escape="false"/>
 
       <h:form id="contentForm" rendered="#{user.permissionId le 0}">
         <h:inputTextarea id="contentInput"
                          rendered="#{actionIndex.editing == true}"
-                         value="#{actionIndex.content}"/>
+                         value="#{actionIndex.content}"
+                         styleClass="contentInput"/>
         <h:commandButton value="#{actionIndex.editing ? 'Save' : 'Edit'}"
                          action="#{actionIndex.edit}"/>
         <h:commandButton rendered="#{actionIndex.editing}"
                          value="Cancel" action="#{actionIndex.cancel}"/>
-        <h:message for="contentForm" />
+        <h:message for="contentForm"/>
       </h:form>
 
-			<h:form rendered="#{actionIndex.notCompleteGamesList.size() != 0}">
+      <h:form rendered="#{actionIndex.notCompleteGamesList.size() != 0}">
         <h3>Running Games and their Visualizers</h3>
-				<t:dataTable id="runnning_games" border="1"
-					style="border:1px solid black;border-collapse:collapse;text-align:center;"
-					value="#{actionIndex.notCompleteGamesList}" var="g"
-          styleClass="display dataTable" >
-					<t:column>
-						<f:facet name="header">ID</f:facet>
-            <h:outputText value="#{g.gameId}" />
-    			</t:column>
-
+        <t:dataTable id="runnning_games" border="1"
+                     style="border:1px solid black;border-collapse:collapse;text-align:center;"
+                     value="#{actionIndex.notCompleteGamesList}" var="g"
+                     styleClass="display dataTable">
           <t:column>
-						<f:facet name="header">Tournament</f:facet>
-            <h:outputText value="#{g.tournament.tournamentName}" />
+            <f:facet name="header">ID</f:facet>
+            <h:outputText value="#{g.gameId}"/>
           </t:column>
 
           <t:column>
-						<f:facet name="header">Brokers</f:facet>
-            <h:outputText value="#{g.getBrokersInGameString()}" />
+            <f:facet name="header">Tournament</f:facet>
+            <h:outputText value="#{g.tournament.tournamentName}"/>
           </t:column>
 
-					<t:column>
-						<f:facet name="header">Status</f:facet>
-            <h:outputText value="#{g.status}" />
-    				</t:column>
-
-					<t:column>
-						<f:facet name="header">Start Time</f:facet>
-            <h:outputText value="#{g.startTimeUTC()}" />
+          <t:column>
+            <f:facet name="header">Brokers</f:facet>
+            <h:outputText value="#{g.getBrokersInGameString()}"/>
           </t:column>
 
-					<t:column>
-						<f:facet name="header">Viz Link</f:facet>
+          <t:column>
+            <f:facet name="header">Status</f:facet>
+            <h:outputText value="#{g.status}"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Start Time</f:facet>
+            <h:outputText value="#{g.startTimeUTC()}"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Viz Link</f:facet>
             <h:outputText value="Not avail." rendered="#{!g.isRunning()}"/>
-            <h:panelGroup rendered="#{g.isRunning()}" >
-              <a href="http://#{g.machine.vizUrl}" target="_blank">Visualizer</a>
+            <h:panelGroup rendered="#{g.isRunning()}">
+              <a href="http://#{g.machine.vizUrl}"
+                 target="_blank">Visualizer</a>
             </h:panelGroup>
-					</t:column>
-				</t:dataTable>
-			</h:form>
+          </t:column>
+        </t:dataTable>
+      </h:form>
 
-			<h:form rendered="#{actionIndex.completeGamesList.size() != 0}" >
+      <h:form rendered="#{actionIndex.completeGamesList.size() != 0}">
         <h3>Complete Games and Logs</h3>
-				<t:dataTable id="completed_games" border="1"
-					style="border:1px solid black;border-collapse:collapse;text-align:center"
-					value="#{actionIndex.completeGamesList}" var="g"
-          styleClass="display dataTable" >
-					<t:column>
-						<f:facet name="header">ID</f:facet>
-              <h:link value="#{g.gameId}" outcome="Game">
-                <f:param name="gameId" value="#{g.gameId}" />
-              </h:link>
-    				</t:column>
+        <t:dataTable id="completed_games" border="1"
+                     style="border:1px solid black;border-collapse:collapse;text-align:center"
+                     value="#{actionIndex.completeGamesList}" var="g"
+                     styleClass="display dataTable">
+          <t:column>
+            <f:facet name="header">ID</f:facet>
+            <h:link value="#{g.gameId}" outcome="Game">
+              <f:param name="gameId" value="#{g.gameId}"/>
+            </h:link>
+          </t:column>
 
-    				<t:column>
-              <f:facet name="header">Tournament</f:facet>
-              <h:link value="#{g.tournament.tournamentName}" outcome="Tournament">
-                <f:param name="tournamentId" value="#{g.tournament.tournamentId}" />
-              </h:link>
-    				</t:column>
+          <t:column>
+            <f:facet name="header">Tournament</f:facet>
+            <h:link value="#{g.tournament.tournamentName}" outcome="Tournament">
+              <f:param name="tournamentId"
+                       value="#{g.tournament.tournamentId}"/>
+            </h:link>
+          </t:column>
 
-            <t:column>
-              <f:facet name="header">Brokers</f:facet>
-              <h:outputText value="#{g.getBrokersInGameString()}" />
-            </t:column>
+          <t:column>
+            <f:facet name="header">Brokers</f:facet>
+            <h:outputText value="#{g.getBrokersInGameString()}"/>
+          </t:column>
 
-            <t:column>
-              <f:facet name="header">Start Time</f:facet>
-              <h:outputText value="#{g.readyTimeUTC()}" />
-            </t:column>
+          <t:column>
+            <f:facet name="header">Start Time</f:facet>
+            <h:outputText value="#{g.readyTimeUTC()}"/>
+          </t:column>
 
-    				<t:column>
-						<f:facet name="header">Logs</f:facet>
-              <a href="#{actionIndex.getLogUrl(g)}">Logs</a>
-    				</t:column>
-				</t:dataTable>
-			</h:form>
+          <t:column>
+            <f:facet name="header">Logs</f:facet>
+            <a href="#{actionIndex.getLogUrl(g)}">Logs</a>
+          </t:column>
+        </t:dataTable>
+      </h:form>
 
       <br/><br/>
-		</ui:define>
-	</ui:composition>
+    </ui:define>
+  </ui:composition>
 </h:body>
 </html>

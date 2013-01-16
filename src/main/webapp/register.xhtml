@@ -1,63 +1,63 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
 
 <h:body>
-	<ui:composition template="template.xhtml">
+  <ui:composition template="template.xhtml">
 
-		<ui:define name="content">
+    <ui:define name="content">
 
-			<h2>Register for an Account</h2>
-			<h:form id="registerForm">
-				<h:panelGrid columns="2">
-					<h:outputText value="Username of Group:" />
-					<h:panelGroup>
-						<h:inputText value="#{actionRegister.username}" />
-					</h:panelGroup>
+      <h2>Register for an Account</h2>
+      <h:form id="registerForm">
+        <h:panelGrid columns="2">
+          <h:outputText value="Username of Group:"/>
+          <h:panelGroup>
+            <h:inputText value="#{actionRegister.username}"/>
+          </h:panelGroup>
 
-					<h:outputText value="Institution/Research Group:" />
-					<h:panelGroup>
-						<h:inputText value="#{actionRegister.institution}" />
-					</h:panelGroup>
+          <h:outputText value="Institution/Research Group:"/>
+          <h:panelGroup>
+            <h:inputText value="#{actionRegister.institution}"/>
+          </h:panelGroup>
 
-					<h:outputText value="Contact name:" />
-					<h:panelGroup>
-						<h:inputText value="#{actionRegister.contactName}" />
-					</h:panelGroup>
+          <h:outputText value="Contact name:"/>
+          <h:panelGroup>
+            <h:inputText value="#{actionRegister.contactName}"/>
+          </h:panelGroup>
 
-					<h:outputText value="Contact email:" />
-					<h:panelGroup>
-						<h:inputText value="#{actionRegister.contactEmail}" />
-					</h:panelGroup>
+          <h:outputText value="Contact email:"/>
+          <h:panelGroup>
+            <h:inputText value="#{actionRegister.contactEmail}"/>
+          </h:panelGroup>
 
-					<h:outputText value="Contact phone:" />
-					<h:panelGroup>
-						<h:inputText value="#{actionRegister.contactPhone}" />
-					</h:panelGroup>
+          <h:outputText value="Contact phone:"/>
+          <h:panelGroup>
+            <h:inputText value="#{actionRegister.contactPhone}"/>
+          </h:panelGroup>
 
-					<h:outputText value="Password:" />
-					<h:panelGroup>
-						<h:inputSecret value="#{actionRegister.password1}" />
-					</h:panelGroup>
+          <h:outputText value="Password:"/>
+          <h:panelGroup>
+            <h:inputSecret value="#{actionRegister.password1}"/>
+          </h:panelGroup>
 
-					<h:outputText value="Confirm Password:" />
-					<h:panelGroup>
-						<h:inputSecret value="#{actionRegister.password2}" />
-					</h:panelGroup>
+          <h:outputText value="Confirm Password:"/>
+          <h:panelGroup>
+            <h:inputSecret value="#{actionRegister.password2}"/>
+          </h:panelGroup>
 
-					<h:panelGroup>
-						<h:commandButton value="Submit Registration"
-							action="#{actionRegister.register}" />
+          <h:panelGroup>
+            <h:commandButton value="Submit Registration"
+                             action="#{actionRegister.register}"/>
             <br/>
-            <h:message for="registerForm" />
-					</h:panelGroup>
+            <h:message for="registerForm"/>
+          </h:panelGroup>
           <h:panelGroup/>
-				</h:panelGrid>
-			</h:form>
-		</ui:define>
-	</ui:composition>
+        </h:panelGrid>
+      </h:form>
+    </ui:define>
+  </ui:composition>
 </h:body>
 </html>

@@ -8,12 +8,11 @@ import javax.faces.context.FacesContext;
 import java.io.FileOutputStream;
 
 
-public class Upload
-{
+public class Upload {
   private UploadedFile uploadedFile;
   private String uploadLocation;
 
-  public boolean submit (String fileName) {
+  public boolean submit(String fileName) {
     String filePath = uploadLocation + fileName;
 
     FileOutputStream fos = null;
@@ -25,16 +24,14 @@ public class Upload
       String msg = "File upload success! " + filePath;
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
       FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       // Show error message.
       String msg = "File upload failed with I/O error. " + filePath;
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
       FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
       e.printStackTrace();
       return false;
-    }
-    finally {
+    } finally {
       IOUtils.closeQuietly(fos);
     }
 
@@ -42,10 +39,11 @@ public class Upload
   }
 
   //<editor-fold desc="Setters and Getters">
-  public void setUploadedFile (UploadedFile uploadedFile) {
+  public void setUploadedFile(UploadedFile uploadedFile) {
     this.uploadedFile = uploadedFile;
   }
-  public void setUploadLocation (String uploadLocation) {
+
+  public void setUploadLocation(String uploadLocation) {
     this.uploadLocation = uploadLocation;
   }
   //</editor-fold>

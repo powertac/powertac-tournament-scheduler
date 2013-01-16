@@ -6,65 +6,66 @@
     http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
     version="2.0">
 
-	<application>
-		<el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver</el-resolver>
-	</application>
+  <application>
+    <el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver
+    </el-resolver>
+  </application>
 
-	<!-- Listeners -->
-	<lifecycle>
-		<phase-listener>
-			org.powertac.tourney.listeners.RestoreViewPhaseListener
-		</phase-listener>
-	</lifecycle>
+  <!-- Listeners -->
+  <lifecycle>
+    <phase-listener>
+      org.powertac.tourney.listeners.RestoreViewPhaseListener
+    </phase-listener>
+  </lifecycle>
 
-	<!-- Error Code 
-	<error-page>
-    	<exception-type>javax.faces.application.ViewExpiredException</exception-type>
-    	<location>/sessionExpired.jsf</location>
-	</error-page>-->
+  <!-- Error Code
+  <error-page>
+      <exception-type>javax.faces.application.ViewExpiredException</exception-type>
+      <location>/sessionExpired.jsf</location>
+  </error-page>-->
 
-	<!-- Objects -->
+  <!-- Objects -->
 
-	<!-- Application Scoped Objects -->
+  <!-- Application Scoped Objects -->
 
-	<!-- Actions -->
-	
-	<!-- Services -->
+  <!-- Actions -->
 
-	<!-- Navigation rules -->
-	<navigation-rule>
+  <!-- Services -->
+
+  <!-- Navigation rules -->
+  <navigation-rule>
     <from-view-id>/*</from-view-id>
     <navigation-case>
-        <from-outcome>Register</from-outcome>
-        <to-view-id>/register.xhtml</to-view-id>
+      <from-outcome>Register</from-outcome>
+      <to-view-id>/register.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
-        <from-outcome>Account</from-outcome>
-        <to-view-id>/account.xhtml</to-view-id>
+      <from-outcome>Account</from-outcome>
+      <to-view-id>/account.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
-        <from-outcome>Login</from-outcome>
-        <to-view-id>/login.xhtml</to-view-id>
+      <from-outcome>Login</from-outcome>
+      <to-view-id>/login.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
-        <from-outcome>Home</from-outcome>
-        <to-view-id>/index.xhtml</to-view-id>
+      <from-outcome>Home</from-outcome>
+      <to-view-id>/index.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
-        <from-outcome>About</from-outcome>
-        <to-view-id>/about.xhtml</to-view-id>
+      <from-outcome>About</from-outcome>
+      <to-view-id>/about.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
-        <from-outcome>TournamentManager</from-outcome>
-        <to-view-id>/tournamentManager.xhtml</to-view-id>
+      <from-outcome>TournamentManager</from-outcome>
+      <to-view-id>/tournamentManager.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
-        <from-outcome>Overview</from-outcome>
-        <to-view-id>/overview.xhtml</to-view-id>
+      <from-outcome>Overview</from-outcome>
+      <to-view-id>/overview.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
-        <from-outcome>Admin</from-outcome>
-        <to-view-id>/admin.xhtml</to-view-id>
+      <from-outcome>Admin</from-outcome>
+      <to-view-id>/admin.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>Game</from-outcome>
@@ -76,53 +77,53 @@
     </navigation-case>
   </navigation-rule>
 
-    <!-- Specific Navigation rules -->
-	<navigation-rule>
-		<from-view-id>/tournamentManager.xhtml</from-view-id>
-		<navigation-case>
-			<from-outcome>Success</from-outcome>
-			<to-view-id>/tournamentManager.xhtml</to-view-id>
-		</navigation-case>
+  <!-- Specific Navigation rules -->
+  <navigation-rule>
+    <from-view-id>/tournamentManager.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>Success</from-outcome>
+      <to-view-id>/tournamentManager.xhtml</to-view-id>
+    </navigation-case>
     <navigation-case>
       <from-outcome>Error</from-outcome>
       <to-view-id>/tournamentManager.xhtml</to-view-id>
     </navigation-case>
-	</navigation-rule>
+  </navigation-rule>
 
-	<navigation-rule>
-		<from-view-id>/account.xhtml</from-view-id>
-		<navigation-case>
-			<from-outcome>Success</from-outcome>
-			<to-view-id>/account.xhtml</to-view-id>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>Failure</from-outcome>
-			<to-view-id>/account.xhtml</to-view-id>
-		</navigation-case>
-	</navigation-rule>
-	
-	<navigation-rule>
-		<from-view-id>/login.xhtml</from-view-id>
-		<navigation-case>
-			<from-outcome>Success</from-outcome>
-			<to-view-id>/account.xhtml</to-view-id>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>Failure</from-outcome>
-			<to-view-id>/login.xhtml</to-view-id>
-		</navigation-case>
-	</navigation-rule>
-	
-	<navigation-rule>
-		<from-view-id>/register.xhtml</from-view-id>
-		<navigation-case>
-			<from-outcome>Success</from-outcome>
-			<to-view-id>/login.xhtml</to-view-id>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>Failure</from-outcome>
-			<to-view-id>/register.xhtml</to-view-id>
-		</navigation-case>
-	</navigation-rule>
+  <navigation-rule>
+    <from-view-id>/account.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>Success</from-outcome>
+      <to-view-id>/account.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>Failure</from-outcome>
+      <to-view-id>/account.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/login.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>Success</from-outcome>
+      <to-view-id>/account.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>Failure</from-outcome>
+      <to-view-id>/login.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/register.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>Success</from-outcome>
+      <to-view-id>/login.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>Failure</from-outcome>
+      <to-view-id>/register.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
 
 </faces-config>

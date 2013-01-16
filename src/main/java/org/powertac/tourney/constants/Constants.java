@@ -3,10 +3,8 @@ package org.powertac.tourney.constants;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
 
-public class Constants
-{
-  public class Props
-  {
+public class Constants {
+  public class Props {
     public static final String weatherServerURL =
         "server.weatherService.serverUrl = %s\n";
     public static final String weatherLocation =
@@ -29,8 +27,7 @@ public class Constants
         "common.competition.expectedTimeslotCount = %s\n";
   }
 
-  public class Rest
-  {
+  public class Rest {
     // Possible Rest Parameters for Broker Login
     public static final String REQ_PARAM_AUTH_TOKEN = "authToken";
     public static final String REQ_PARAM_JOIN = "requestJoin";
@@ -52,8 +49,7 @@ public class Constants
     public static final String REQ_PARAM_POM_ID = "pomId";
   }
 
-  public static class HQL
-  {
+  public static class HQL {
     public static final String GET_USERS =
         "FROM User AS user ";
 
@@ -65,7 +61,7 @@ public class Constants
 
     public static final String GET_POMS =
         "FROM Pom AS pom "
-          + " LEFT JOIN FETCH pom.user ";
+            + " LEFT JOIN FETCH pom.user ";
 
     public static final String GET_LOCATIONS =
         "FROM Location AS location ";
@@ -119,7 +115,7 @@ public class Constants
             + "LEFT JOIN FETCH game.tournament AS tournament "
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH game.agentMap "
-            + "WHERE game.status='"+ Game.STATE.boot_pending.toString() +"' "
+            + "WHERE game.status='" + Game.STATE.boot_pending.toString() + "' "
             + "AND tournament.type='" + Tournament.TYPE.SINGLE_GAME + "'";
 
     public static final String GET_GAMES_MULTI_BOOT_PENDING =
@@ -127,7 +123,7 @@ public class Constants
             + "LEFT JOIN FETCH game.tournament AS tournament "
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH game.agentMap "
-            + "WHERE game.status='"+ Game.STATE.boot_pending.toString() +"' "
+            + "WHERE game.status='" + Game.STATE.boot_pending.toString() + "' "
             + "AND tournament.tournamentId =:tournamentId";
 
     public static final String GET_GAMES_SINGLE_BOOT_COMPLETE =
@@ -139,7 +135,7 @@ public class Constants
             + "LEFT JOIN FETCH broker.user "
             + "LEFT JOIN FETCH broker.agentMap "
 
-            + "WHERE game.status='"+ Game.STATE.boot_complete.toString() +"' "
+            + "WHERE game.status='" + Game.STATE.boot_complete.toString() + "' "
             + "AND game.startTime < :startTime "
             + "AND tournament.type='" + Tournament.TYPE.SINGLE_GAME + "'";
 
@@ -152,7 +148,7 @@ public class Constants
             + "LEFT JOIN FETCH broker.user "
             + "LEFT JOIN FETCH broker.agentMap "
 
-            + "WHERE game.status='"+ Game.STATE.boot_complete.toString() + "' "
+            + "WHERE game.status='" + Game.STATE.boot_complete.toString() + "' "
             + "AND game.startTime < :startTime "
             + "AND tournament.tournamentId =:tournamentId";
 
@@ -173,7 +169,7 @@ public class Constants
             + "LEFT JOIN FETCH game.agentMap agentMap "
             + "LEFT JOIN FETCH agentMap.broker as broker "
             + "LEFT JOIN FETCH broker.user "
-            + "WHERE game.status='"+ Game.STATE.game_complete.toString() + "' ";
+            + "WHERE game.status='" + Game.STATE.game_complete.toString() + "' ";
 
     public static final String GET_BROKERS =
         "FROM Broker AS broker "

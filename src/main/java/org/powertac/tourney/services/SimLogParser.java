@@ -19,16 +19,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class SimLogParser implements Runnable
-{
+public class SimLogParser implements Runnable {
   private static Logger log = Logger.getLogger("TMLogger");
 
   private int gameId;
   String logLocation;
   String fileName;
 
-  public SimLogParser(String logLocation, String fileName)
-  {
+  public SimLogParser(String logLocation, String fileName) {
     gameId = Integer.parseInt(fileName.split("-")[1]);
     this.logLocation = logLocation;
     this.fileName = fileName;
@@ -47,8 +45,7 @@ public class SimLogParser implements Runnable
       proc = runtime.exec(copyCmd);
       proc.waitFor();
       log.debug("Done copying");
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
 
@@ -57,8 +54,7 @@ public class SimLogParser implements Runnable
       proc = runtime.exec(untarCmd);
       proc.waitFor();
       log.debug("Done untarring");
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
 
@@ -69,8 +65,7 @@ public class SimLogParser implements Runnable
       log.debug("Done extracting");
       storeResults(results);
       log.debug("Done storing");
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
 
@@ -84,8 +79,7 @@ public class SimLogParser implements Runnable
     log.debug("Done cleaning");
   }
 
-  public HashMap<String, Double> extractResults (String fileName) throws Exception
-  {
+  public HashMap<String, Double> extractResults(String fileName) throws Exception {
     HashMap<String, Double> results = new HashMap<String, Double>();
     String finalBalance = "server.CompetitionControlService: Final balance";
     FileInputStream fstream = new FileInputStream(fileName);
@@ -97,14 +91,14 @@ public class SimLogParser implements Runnable
       if (strLine.contains(finalBalance)) {
         String balances = strLine.split("\\[")[1].split("\\]")[0].trim();
 
-        for (String result: balances.split(" \"")) {
+        for (String result : balances.split(" \"")) {
           Double balance = Double.parseDouble(result.split(":")[1]);
           String name = result.split(":")[0];
           if (name.startsWith("\"")) {
             name = name.substring(1);
           }
           if (name.endsWith("\"")) {
-            name = name.substring(0, name.length()-1);
+            name = name.substring(0, name.length() - 1);
           }
 
           if (name.equals("default broker")) {
@@ -123,14 +117,13 @@ public class SimLogParser implements Runnable
   }
 
   @SuppressWarnings("unchecked")
-  public void storeResults (HashMap<String, Double> results)
-  {
+  public void storeResults(HashMap<String, Double> results) {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
       Game game = (Game) session.get(Game.class, gameId);
 
-      for (Map.Entry<String, Double> entry: results.entrySet()) {
+      for (Map.Entry<String, Double> entry : results.entrySet()) {
         Broker broker = (Broker) session
             .createCriteria(Broker.class)
             .add(Restrictions.eq("brokerName", entry.getKey())).uniqueResult();
@@ -149,12 +142,10 @@ public class SimLogParser implements Runnable
         session.update(agent);
       }
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-    }
-    finally {
+    } finally {
       session.close();
     }
   }

@@ -14,23 +14,20 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 
 @Entity
-@Table(name="locations", catalog="tourney", uniqueConstraints={
-              @UniqueConstraint(columnNames="locationId")})
-public class Location
-{
+@Table(name = "locations", catalog = "tourney", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "locationId")})
+public class Location {
   private int locationId;
   private String location;
   private int timezone;
   private Date fromDate;
   private Date toDate;
 
-  public Location ()
-  {
+  public Location() {
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Location> getLocationList ()
-  {
+  public static List<Location> getLocationList() {
     List<Location> locations = new ArrayList<Location>();
 
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -39,8 +36,7 @@ public class Location
       org.hibernate.Query query = session.createQuery(Constants.HQL.GET_LOCATIONS);
       locations = (List<Location>) query.list();
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -51,46 +47,51 @@ public class Location
 
   //<editor-fold desc="Setters and Getters">
   @Id
-  @GeneratedValue(strategy=IDENTITY)
-  @Column(name="locationId", unique=true, nullable=false)
-  public int getLocationId () {
+  @GeneratedValue(strategy = IDENTITY)
+  @Column(name = "locationId", unique = true, nullable = false)
+  public int getLocationId() {
     return locationId;
   }
-  public void setLocationId (int locationId) {
+
+  public void setLocationId(int locationId) {
     this.locationId = locationId;
   }
 
-  @Column(name="location", nullable=false)
+  @Column(name = "location", nullable = false)
   public String getLocation() {
     return location;
   }
+
   public void setLocation(String location) {
     this.location = location;
   }
 
-  @Column(name="timezone", nullable=false)
+  @Column(name = "timezone", nullable = false)
   public int getTimezone() {
     return timezone;
   }
+
   public void setTimezone(int timezone) {
     this.timezone = timezone;
   }
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name="fromDate", nullable=false, length=10)
-  public Date getFromDate () {
+  @Column(name = "fromDate", nullable = false, length = 10)
+  public Date getFromDate() {
     return fromDate;
   }
-  public void setFromDate (Date fromDate) {
+
+  public void setFromDate(Date fromDate) {
     this.fromDate = fromDate;
   }
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name="toDate", nullable=false, length=10)
-  public Date getToDate () {
+  @Column(name = "toDate", nullable = false, length = 10)
+  public Date getToDate() {
     return toDate;
   }
-  public void setToDate (Date toDate){
+
+  public void setToDate(Date toDate) {
     this.toDate = toDate;
   }
   //</editor-fold>

@@ -1,40 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
 <head>
-    <title>PowerTac Tournament Scheduler 2012</title>
-    <link rel="stylesheet" type="text/css" href="style.css"/>
-    <script type="text/javascript">
-      function confirmAlert(msg)
-      {
-        return confirm(msg);
-      }
-    </script>
+  <title>PowerTac Tournament Scheduler 2012</title>
+  <link rel="stylesheet" type="text/css"
+        href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/css/jquery.dataTables.css"/>
+  <script type="text/javascript" charset="utf8"
+          src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
+  <script type="text/javascript" charset="utf8"
+          src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/jquery.dataTables.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
+  <script type="text/javascript">
+    function confirmAlert(msg) {
+      return confirm(msg);
+    }
+  </script>
 </head>
 <f:view>
-	<body>
-		<div id="page">
-			<div id="header">
-				<ui:insert name="header">
-					<ui:include src="header.xhtml" />
-				</ui:insert>
-			</div>
+  <body>
+  <div id="page">
+    <div id="header">
+      <ui:insert name="header">
+        <ui:include src="header.xhtml"/>
+      </ui:insert>
+    </div>
 
-			<div id="content">
-				<ui:insert name="content">
-				</ui:insert>
-			</div>
+    <div id="content">
+      <ui:insert name="content">
+      </ui:insert>
+    </div>
 
-			<div id="footer">
-				<ui:insert name="footer">
-				</ui:insert>
-			</div>
-		</div>
-	</body>
+    <div id="footer">
+      <ui:insert name="footer">
+      </ui:insert>
+    </div>
+  </div>
+  </body>
 
 </f:view>
 </html>

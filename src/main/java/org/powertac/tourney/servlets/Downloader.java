@@ -17,15 +17,13 @@ import java.io.IOException;
  * Servlet implementation class Downloader
  */
 @WebServlet(description = "Access to download compressed logfiles",
-            urlPatterns = { "/Downloader" })
-public class Downloader extends HttpServlet
-{
+    urlPatterns = {"/Downloader"})
+public class Downloader extends HttpServlet {
   TournamentProperties properties = TournamentProperties.getProperties();
   String absolutePath = properties.getProperty("logLocation");
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException
-	{
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
     String gameId = request.getParameter("game");
     String csvName = request.getParameter("csv");
 
@@ -34,18 +32,17 @@ public class Downloader extends HttpServlet
       response.setContentType("application/x-tar; x-gzip");
       response.addHeader("Content-Disposition", "attachment; filename=\""
           + downloadFile + "\"");
-      streamFile (response, downloadFile);
+      streamFile(response, downloadFile);
     } else if (csvName != null) {
       String downloadFile = csvName + ".csv";
       response.setContentType("text/csv");
       response.addHeader("Content-Disposition", "attachment; filename=\""
           + downloadFile + "\"");
-      streamFile (response, downloadFile);
+      streamFile(response, downloadFile);
     }
-	}
+  }
 
-  private void streamFile (HttpServletResponse response, String downloadFile)
-  {
+  private void streamFile(HttpServletResponse response, String downloadFile) {
     byte[] buf = new byte[1024];
     try {
       String realPath = absolutePath + downloadFile;
@@ -60,8 +57,7 @@ public class Downloader extends HttpServlet
       in.close();
       out.flush();
       out.close();
-    }
-    catch (Exception exc) {
+    } catch (Exception exc) {
       exc.printStackTrace();
     }
   }

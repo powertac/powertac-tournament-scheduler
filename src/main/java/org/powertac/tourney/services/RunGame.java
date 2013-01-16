@@ -9,8 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class RunGame
-{
+public class RunGame {
   private static Logger log = Logger.getLogger("TMLogger");
 
   private Game game;
@@ -20,15 +19,13 @@ public class RunGame
 
   private static boolean machinesAvailable;
 
-  public RunGame (Game game)
-  {
+  public RunGame(Game game) {
     this.game = game;
 
     run();
   }
 
-  private void run ()
-  {
+  private void run() {
     session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -55,39 +52,34 @@ public class RunGame
 
       session.update(game);
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.info("Failed to start simulation game: " + game.getGameId());
-    }
-    finally {
+    } finally {
       session.close();
     }
   }
 
-  /***
+  /**
    * Make sure a bootstrap has been run for the sim
    */
-  private boolean checkBootstrap ()
-  {
+  private boolean checkBootstrap() {
     if (game.hasBootstrap()) {
       return true;
-    }
-    else {
+    } else {
       log.info("Game: " + game.getGameId() + " reports that boot is not ready!");
       game.setStatus(Game.STATE.boot_pending.toString());
       return false;
     }
   }
 
-  /***
+  /**
    * Make sure brokers are registered for the tournament
    * Also check if participating brokers have an agent available (we don't check
    * if agents are checking in, brokers are responsible for availability).
    */
-  private boolean checkBrokers ()
-  {
+  private boolean checkBrokers() {
     if (game.getAgentMap().size() < 1) {
       log.info(String.format("Game: %s (tournament %s) reports no brokers "
           + "registered",
@@ -95,8 +87,8 @@ public class RunGame
       return false;
     }
 
-    for (Agent agent: game.getAgentMap().values()) {
-      if (! MemStore.getBrokerState(agent.getBroker().getBrokerId())) {
+    for (Agent agent : game.getAgentMap().values()) {
+      if (!MemStore.getBrokerState(agent.getBroker().getBrokerId())) {
         log.info(String.format("Not starting game %s : broker %s is disabled",
             game.getGameId(), agent.getBroker().getBrokerId()));
         return false;
@@ -110,18 +102,17 @@ public class RunGame
       }
 
       brokers += agent.getBroker().getBrokerName() + "/";
-      brokers += agent.getBrokerQueue() +",";
+      brokers += agent.getBrokerQueue() + ",";
     }
-    brokers = brokers.substring(0, brokers.length()-1);
+    brokers = brokers.substring(0, brokers.length() - 1);
     return true;
   }
 
-  /***
+  /**
    * Make sure there is a machine available for the game
    */
-  private boolean checkMachineAvailable ()
-      throws Exception
-  {
+  private boolean checkMachineAvailable()
+      throws Exception {
     try {
       log.info("Claiming free machine");
 
@@ -130,7 +121,7 @@ public class RunGame
         Scheduler scheduler = Scheduler.getScheduler();
         log.info(String.format("No machines available to run scheduled sim %s"
             + "... will retry in %s seconds",
-            game.getGameId(), scheduler.getWatchDogInterval()/1000));
+            game.getGameId(), scheduler.getWatchDogInterval() / 1000));
         return false;
       }
 
@@ -140,8 +131,7 @@ public class RunGame
       log.info(String.format("Game: %s running on machine: %s",
           game.getGameId(), game.getMachine().getMachineName()));
       return true;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       log.warn("Error claiming free machine for game " + game.getGameId());
       throw e;
     }
@@ -151,8 +141,7 @@ public class RunGame
    * If all conditions are met (we have a slave available, game is booted and
    * agents should be avalable) send job to Jenkins.
    */
-  private boolean startJob () throws Exception
-  {
+  private boolean startJob() throws Exception {
     String finalUrl =
         properties.getProperty("jenkins.location")
             + "job/start-sim-server/buildWithParameters?"
@@ -175,8 +164,7 @@ public class RunGame
           Game.STATE.game_pending.toString()));
 
       return true;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       log.error("Jenkins failure to start simulation game: " + game.getGameId());
       game.setStatus(Game.STATE.game_failed.toString());
       throw e;
@@ -189,8 +177,7 @@ public class RunGame
    * games in that tournament. If no tournament loaded, we look for games in
    * all singleGame tournaments.
   **/
-  public static void startRunnableGames(Tournament runningTournament)
-  {
+  public static void startRunnableGames(Tournament runningTournament) {
     log.info("WatchDogTimer Looking for Runnable Games");
 
     List<Game> games = new ArrayList<Game>();
@@ -201,14 +188,12 @@ public class RunGame
       if (runningTournament == null) {
         games = Game.getStartableSingleGames(session);
         log.info("WatchDog CheckForSims for SINGLE_GAME tournament games");
-      }
-      else {
+      } else {
         games = Game.getStartableMultiGames(session, runningTournament);
         log.info("WatchDog CheckForSims for MULTI_GAME tournament games");
       }
       transaction.commit();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -218,7 +203,7 @@ public class RunGame
         + "start", games.size()));
 
     machinesAvailable = true;
-    for (Game game: games) {
+    for (Game game : games) {
       log.info(String.format("Game %s will be started ...", game.getGameId()));
       new RunGame(game);
 

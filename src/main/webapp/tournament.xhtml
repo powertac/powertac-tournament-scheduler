@@ -8,253 +8,215 @@
       xmlns:t="http://myfaces.apache.org/tomahawk">
 
 <h:body>
-  <ui:composition template="template.xhtml">
-    <ui:define name="content">
-      <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/css/jquery.dataTables.css"/>
-      <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
-      <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/jquery.dataTables.min.js"></script>
-      <script type="text/javascript" src="datatable.sort.js"></script>
+<ui:composition template="template.xhtml">
+<ui:define name="content">
+<script type="text/javascript" charset="utf8"
+        src="resources/js/datatable.sort.js"></script>
+<script type="text/javascript" charset="utf8"
+        src="resources/js/tournament.js"></script>
 
-      <script type="text/javascript" charset="utf8" >
-        $(document).ready(function() {
-          $("[id$=dataresultsSingle]").dataTable({
-            "bFilter": false,
-            "bInfo": false,
-            "bPaginate": false
-          });
+<h2>Overview for tournament : #{actionTournament.tournament.getTournamentName()}</h2>
 
-          $("[id$=dataresultsMulti]").dataTable({
-            "bFilter": false,
-            "bInfo": false,
-            "bPaginate": false,
-            "aoColumnDefs": [
-              { "sType": "natural", "aTargets": [0] },
-            ]
-          });
+<t:dataList var="infoEntry" value="#{actionTournament.tournamentInfo}"
+            layout="unorderedList">
+  <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
+</t:dataList>
 
-          $("[id$=games]").dataTable({
-            "bFilter": false,
-            "bInfo": false,
-            "sScrollY": Math.min(500, $("[id$=games]").height()) + "px",
-            "bPaginate": false,
-            "aoColumnDefs": [
-              { 'bSortable': false, 'aTargets': [3, 4] },
-              { "sType": "natural", "aTargets": [0, 1, 2] }
-            ]
-          });
-        });
-      </script>
+<h:form rendered="#{user.permissionId le 0}">
+  <h:commandButton action="#{actionTournament.createCsv}"
+                   value="Create or update CSV">
+    <f:ajax execute="@form" render="@form"/>
+  </h:commandButton>
+  <input type="hidden" name="tournamentId"
+         value="#{actionTournament.tournament.tournamentId}"/>
+</h:form>
 
-      <style type="text/css">
-        table.dataTable tr.odd {
-          background-color: #FFFFFF;
-        }
-        table.dataTable tr.odd td.sorting_1 {
-          background-color: #FFFFFF;
-        }
-        table.dataTable tr.even td.sorting_1 {
-          background-color: #FFFFFF;
-        }
-      </style>
+<h:form rendered="#{actionTournament.getResultMap().size() > 0}">
+  <h3>Totals</h3>
+  <t:dataTable id="dataresultsSingle" border="1"
+               style="border:1px solid black;border-collapse:collapse;"
+               columnClasses=",right"
+               value="#{actionTournament.resultMap.keySet()}" var="key"
+               rendered="#{actionTournament.tournament.isSingle()}">
+    <t:column>
+      <f:facet name="header">Broker</f:facet>
+      <h:outputText value="#{key}"/>
+    </t:column>
 
-      <h2>Overview for tournament : #{actionTournament.tournament.getTournamentName()}</h2>
+    <t:column>
+      <f:facet name="header">Total</f:facet>
+      <h:outputText value="#{actionTournament.resultMap.get(key)[0]}">
+        <f:convertNumber minFractionDigits="4" groupingUsed="false"/>
+      </h:outputText>
+    </t:column>
+  </t:dataTable>
 
-      <t:dataList var="infoEntry" value="#{actionTournament.tournamentInfo}"
-                  layout="unorderedList">
-        <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
-      </t:dataList>
+  <t:dataTable id="dataresultsMulti" border="1"
+               style="border:1px solid black;border-collapse:collapse;"
+               columnClasses=",right,right,right,right,right,right,right,right,right,right,right,right,right,right"
+               value="#{actionTournament.resultMap.keySet()}" var="key"
+               rendered="#{actionTournament.tournament.isMulti()}">
+    <t:column>
+      <f:facet name="header">Broker</f:facet>
+      <h:outputText value="#{key.split(',')[1]}"/>
+    </t:column>
 
-      <h:form rendered="#{user.permissionId le 0}">
-        <h:commandButton action="#{actionTournament.createCsv}"
-                         value="Create or update CSV">
-          <f:ajax execute="@form" render="@form" />
-        </h:commandButton>
-        <input type="hidden" name="tournamentId"
-               value="#{actionTournament.tournament.tournamentId}" />
-      </h:form>
+    <t:column>
+      <f:facet name="header">Size 1</f:facet>
+      <h:outputText value="#{actionTournament.resultMap.get(key)[0]}">
+        <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+      </h:outputText>
+    </t:column>
+    <t:column>
+      <f:facet name="header">Size 2</f:facet>
+      <h:outputText value="#{actionTournament.resultMap.get(key)[1]}">
+        <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+      </h:outputText>
+    </t:column>
+    <t:column>
+      <f:facet name="header">Size 3</f:facet>
+      <h:outputText value="#{actionTournament.resultMap.get(key)[2]}">
+        <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+      </h:outputText>
+    </t:column>
 
-      <h:form rendered="#{actionTournament.getResultMap().size() > 0}">
-        <h3>Totals</h3>
-        <t:dataTable id="dataresultsSingle" border="1"
-                     style="border:1px solid black;border-collapse:collapse;"
-                     columnClasses=",right"
-                     value="#{actionTournament.resultMap.keySet()}" var="key"
-                     rendered="#{actionTournament.tournament.isSingle()}">
-          <t:column>
-            <f:facet name="header">Broker</f:facet>
-            <h:outputText value="#{key}" />
-          </t:column>
+    <t:column>
+      <f:facet name="header">Total (not normalized)</f:facet>
+      <h:outputText value="#{actionTournament.resultMap.get(key)[3]}">
+        <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+      </h:outputText>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Total</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(key)[0]}" >
-              <f:convertNumber minFractionDigits="4" groupingUsed="false" />
-            </h:outputText>
-          </t:column>
-        </t:dataTable>
+    <t:column>
+      <f:facet name="header">Size 1</f:facet>
+      <h:outputText value="#{actionTournament.resultMap.get(key)[10]}">
+        <f:convertNumber minFractionDigits="1" groupingUsed="false"/>
+      </h:outputText>
+    </t:column>
+    <t:column>
+      <f:facet name="header">Size 2</f:facet>
+      <h:outputText value="#{actionTournament.resultMap.get(key)[11]}">
+        <f:convertNumber minFractionDigits="1" groupingUsed="false"/>
+      </h:outputText>
+    </t:column>
+    <t:column>
+      <f:facet name="header">Size 3</f:facet>
+      <h:outputText value="#{actionTournament.resultMap.get(key)[12]}">
+        <f:convertNumber minFractionDigits="1" groupingUsed="false"/>
+      </h:outputText>
+    </t:column>
 
-        <t:dataTable id="dataresultsMulti" border="1"
-                     style="border:1px solid black;border-collapse:collapse;"
-                     columnClasses=",right,right,right,right,right,right,right,right,right,right,right,right,right,right"
-                     value="#{actionTournament.resultMap.keySet()}" var="key"
-                     rendered="#{actionTournament.tournament.isMulti()}">
-          <t:column>
-            <f:facet name="header">Broker</f:facet>
-            <h:outputText value="#{key.split(',')[1]}" />
-          </t:column>
+    <t:column>
+      <f:facet name="header">Total (normalized)</f:facet>
+      <h:outputText value="#{actionTournament.resultMap.get(key)[13]}">
+        <f:convertNumber minFractionDigits="1" groupingUsed="false"/>
+      </h:outputText>
+    </t:column>
+  </t:dataTable>
+</h:form>
 
-          <t:column>
-            <f:facet name="header">Size 1</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(key)[0]}" >
-              <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-            </h:outputText>
-          </t:column>
-          <t:column>
-            <f:facet name="header">Size 2</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(key)[1]}" >
-              <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-            </h:outputText>
-          </t:column>
-          <t:column>
-            <f:facet name="header">Size 3</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(key)[2]}" >
-              <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-            </h:outputText>
-          </t:column>
+<h:panelGroup
+    rendered="#{actionTournament.tournament.isMulti() and actionTournament.avgsAndSDs.size() > 0}">
+  <br/>
+  <table>
+    <tbody>
+    <tr>
+      <td><h4>Averages</h4></td>
+      <td class="right">
+        <h:outputText value="#{actionTournament.avgsAndSDs.get(0)}">
+          <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+        </h:outputText>
+      </td>
+      <td class="right">
+        <h:outputText value="#{actionTournament.avgsAndSDs.get(1)}">
+          <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+        </h:outputText>
+      </td>
+      <td class="right">
+        <h:outputText value="#{actionTournament.avgsAndSDs.get(2)}">
+          <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+        </h:outputText>
+      </td>
+    </tr>
+    <tr>
+      <td><h4>Standard deviations</h4></td>
+      <td class="right">
+        <h:outputText value="#{actionTournament.avgsAndSDs.get(3)}">
+          <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+        </h:outputText>
+      </td>
+      <td class="right">
+        <h:outputText value="#{actionTournament.avgsAndSDs.get(4)}">
+          <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+        </h:outputText>
+      </td>
+      <td class="right">
+        <h:outputText value="#{actionTournament.avgsAndSDs.get(5)}">
+          <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+        </h:outputText>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</h:panelGroup>
 
-          <t:column>
-            <f:facet name="header">Total (not normalized)</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(key)[3]}" >
-              <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-            </h:outputText>
-          </t:column>
+<h:panelGroup
+    rendered="#{actionTournament.tournament.isMulti() and actionTournament.avgsAndSDs.size() == 0}">
+  <h4>No game-data available yet</h4>
+</h:panelGroup>
 
-          <t:column>
-            <f:facet name="header">Size 1</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(key)[10]}" >
-              <f:convertNumber minFractionDigits="1" groupingUsed="false" />
-            </h:outputText>
-          </t:column>
-          <t:column>
-            <f:facet name="header">Size 2</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(key)[11]}" >
-              <f:convertNumber minFractionDigits="1" groupingUsed="false" />
-            </h:outputText>
-          </t:column>
-          <t:column>
-            <f:facet name="header">Size 3</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(key)[12]}" >
-              <f:convertNumber minFractionDigits="1" groupingUsed="false" />
-            </h:outputText>
-          </t:column>
+<h:form rendered="#{actionTournament.tournament.gameMap.size() > 0}">
+  <h3>Games</h3>
+  <t:dataTable id="games" border="1"
+               style="border:1px solid black;border-collapse:collapse;"
+               columnClasses=",,,,right"
+               value="#{actionTournament.tournament.gameMap.values()}"
+               var="entry">
+    <t:column>
+      <f:facet name="header">ID</f:facet>
+      <h:outputText>
+        <h:link value="#{entry.gameId}" outcome="Game">
+          <f:param name="gameId" value="#{entry.gameId}"/>
+        </h:link>
+      </h:outputText>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Total (normalized)</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(key)[13]}" >
-              <f:convertNumber minFractionDigits="1" groupingUsed="false" />
-            </h:outputText>
-          </t:column>
-        </t:dataTable>
-      </h:form>
+    <t:column>
+      <f:facet name="header">Name</f:facet>
+      <h:outputText value="#{entry.gameName}"/>
+    </t:column>
 
-      <h:panelGroup rendered="#{actionTournament.tournament.isMulti() and actionTournament.avgsAndSDs.size() > 0}">
-        <br/>
-        <table>
-          <tbody>
-            <tr>
-              <td><h4>Averages</h4></td>
-              <td class="right">
-                <h:outputText value="#{actionTournament.avgsAndSDs.get(0)}" >
-                  <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-                </h:outputText>
-              </td>
-              <td class="right">
-                <h:outputText value="#{actionTournament.avgsAndSDs.get(1)}" >
-                  <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-                </h:outputText>
-              </td>
-              <td class="right">
-                <h:outputText value="#{actionTournament.avgsAndSDs.get(2)}" >
-                  <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-                </h:outputText>
-              </td>
-            </tr>
-            <tr>
-              <td><h4>Standard deviations</h4></td>
-              <td class="right">
-                <h:outputText value="#{actionTournament.avgsAndSDs.get(3)}" >
-                  <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-                </h:outputText>
-              </td>
-              <td class="right">
-                <h:outputText value="#{actionTournament.avgsAndSDs.get(4)}" >
-                  <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-                </h:outputText>
-              </td>
-              <td class="right">
-                <h:outputText value="#{actionTournament.avgsAndSDs.get(5)}" >
-                  <f:convertNumber maxFractionDigits="0" groupingUsed="false" />
-                </h:outputText>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <t:column>
+      <f:facet name="header">Status</f:facet>
+      <h:outputText value="#{entry.status}"/>
+    </t:column>
+
+    <t:column>
+      <f:facet name="header">Brokers</f:facet>
+      <h:panelGroup>
+        <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}"
+                   var="a">
+          <b>#{a.broker.getBrokerName()}</b><br/>
+        </ui:repeat>
       </h:panelGroup>
+    </t:column>
 
-      <h:panelGroup rendered="#{actionTournament.tournament.isMulti() and actionTournament.avgsAndSDs.size() == 0}">
-        <h4>No game-data available yet</h4>
+    <t:column>
+      <f:facet name="header">Balance</f:facet>
+      <h:panelGroup>
+        <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}"
+                   var="a">
+          <h:outputText value="#{a.balance}">
+            <f:convertNumber minFractionDigits="6" groupingUsed="false"/>
+          </h:outputText><br/>
+        </ui:repeat>
       </h:panelGroup>
+    </t:column>
+  </t:dataTable>
+</h:form>
 
-      <h:form rendered="#{actionTournament.tournament.gameMap.size() > 0}">
-        <h3>Games</h3>
-        <t:dataTable id="games" border="1"
-                     style="border:1px solid black;border-collapse:collapse;"
-                     columnClasses=",,,,right"
-                     value="#{actionTournament.tournament.gameMap.values()}"
-                     var="entry">
-          <t:column>
-            <f:facet name="header">ID</f:facet>
-            <h:outputText >
-              <h:link value="#{entry.gameId}" outcome="Game">
-                <f:param name="gameId" value="#{entry.gameId}" />
-              </h:link>
-            </h:outputText>
-          </t:column>
-
-          <t:column>
-            <f:facet name="header">Name</f:facet>
-            <h:outputText value="#{entry.gameName}" />
-          </t:column>
-
-          <t:column>
-            <f:facet name="header">Status</f:facet>
-            <h:outputText value="#{entry.status}" />
-          </t:column>
-
-          <t:column>
-            <f:facet name="header">Brokers</f:facet>
-            <h:panelGroup>
-              <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}" var="a">
-                <b>#{a.broker.getBrokerName()}</b><br/>
-              </ui:repeat>
-            </h:panelGroup>
-          </t:column>
-
-          <t:column>
-            <f:facet name="header">Balance</f:facet>
-            <h:panelGroup>
-              <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}" var="a" >
-                <h:outputText value="#{a.balance}" >
-                  <f:convertNumber minFractionDigits="6" groupingUsed="false"/>
-                </h:outputText><br/>
-              </ui:repeat>
-            </h:panelGroup>
-          </t:column>
-        </t:dataTable>
-      </h:form>
-
-      <br/><br/>
-    </ui:define>
-  </ui:composition>
+<br/><br/>
+</ui:define>
+</ui:composition>
 </h:body>
 </html>

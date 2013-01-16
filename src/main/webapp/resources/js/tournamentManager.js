@@ -3,7 +3,6 @@
  * User: Govert Buijs
  * Date: 8/3/12
  * Time: 4:10 PM
- * To change this template use File | Settings | File Templates.
  */
 
 function showGamesCount() {
@@ -48,7 +47,7 @@ function showGamesCount() {
         totalGames1 = calculateGames(maxBrokers, gameType1, multiplier1);
         slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType1);
         totalTime1 = parseInt(durationOverhead * gameDuration * (totalGames1 / slaves));
-        setText("total1", "Games / duration : " + totalGames1 +" / "+ totalTime1);
+        setText("total1", "Games / duration : " + totalGames1 + " / " + totalTime1);
     }
     if ((maxBrokers > 0) && (gameType2 > 0) && (multiplier2 > 0)) {
         if (gameType2 > maxBrokers) {
@@ -58,7 +57,7 @@ function showGamesCount() {
         totalGames2 = calculateGames(maxBrokers, gameType2, multiplier2);
         slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType2);
         totalTime2 = parseInt(durationOverhead * gameDuration * (totalGames2 / slaves));
-        setText("total2", "Games / duration : " + totalGames2 +" / "+ totalTime2);
+        setText("total2", "Games / duration : " + totalGames2 + " / " + totalTime2);
     }
     if ((maxBrokers > 0) && (gameType3 > 0) && (multiplier3 > 0)) {
         if (gameType3 > maxBrokers) {
@@ -68,7 +67,7 @@ function showGamesCount() {
         totalGames3 = calculateGames(maxBrokers, gameType3, multiplier3);
         slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType3);
         totalTime3 = parseInt(durationOverhead * gameDuration * (totalGames3 / slaves));
-        setText("total3", "Games / duration : " + totalGames3 +" / "+ totalTime3);
+        setText("total3", "Games / duration : " + totalGames3 + " / " + totalTime3);
     }
 
     var total = totalGames1 + totalGames2 + totalGames3;
@@ -80,7 +79,7 @@ function showGamesCount() {
 
 function setText(fieldId, newText) {
     var el = document.getElementById(fieldId);
-    while(el.childNodes.length >= 1) {
+    while (el.childNodes.length >= 1) {
         el.removeChild(el.firstChild);
     }
     el.appendChild(el.ownerDocument.createTextNode(newText));
@@ -93,7 +92,7 @@ function calculateGames(players, gametype, multiplier) {
     if (gametype == 1) {
         return players * multiplier;
     }
-    return calculateGames(players-1, gametype, multiplier) + calculateGames(players-1, gametype-1, multiplier);
+    return calculateGames(players - 1, gametype, multiplier) + calculateGames(players - 1, gametype - 1, multiplier);
 }
 
 function typeSelected() {
@@ -122,7 +121,6 @@ function typeSelected() {
     showGamesCount();
 }
 
-window.onload = function ()
-{
+$(document).ready(function () {
     typeSelected();
-};
+});

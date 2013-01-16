@@ -1,39 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:f="http://java.sun.com/jsf/core">
-
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+    >
 
 <h:body>
-	<ui:composition template="template.xhtml">
+  <ui:composition template="template.xhtml">
 
-		<ui:define name="content">
-			<h2>About the PowerTac 2012 Tournament Scheduler</h2>
+    <ui:define name="content">
+      <h2>About the PowerTac 2012 Tournament Scheduler</h2>
 
-			<h4>Authors:</h4>
-			<a href="https://github.com/eonarheim">Erik Onarheim</a>
-			<a href="https://github.com/jedeen">Josh Edeen</a>
+      <h4>Authors:</h4>
+      <a href="https://github.com/eonarheim">Erik Onarheim</a>
+      <a href="https://github.com/jedeen">Josh Edeen</a>
       <a href="https://github.com/govertbuijs">Govert Buijs</a>
-			<br />
-			<p>
-			This web application manages brokers, servers, games, and
-			game visualizers for PowerTac competitions.
-			It is deployed with a number of available server machines
-			and corresponding visualizers. Tournaments can be composed
-			for a set of brokers, having multiple games of different
-			sizes (numbers of competing brokers), in such a way that
-			every broker sees the same number of <i>n</i>-player games.
-			Games are scheduled dynamically, since game length is 
-			indeterminate, and the schedule must respect constraints
-			on the number of available servers and the number of available
-			brokers from each team.</p>
+      <br/>
 
+      <p>
+        This web application manages brokers, servers, games, and
+        game visualizers for PowerTac competitions.
+        It is deployed with a number of available server machines
+        and corresponding visualizers. Tournaments can be composed
+        for a set of brokers, having multiple games of different
+        sizes (numbers of competing brokers), in such a way that
+        every broker sees the same number of <i>n</i>-player games.
+        Games are scheduled dynamically, since game length is
+        indeterminate, and the schedule must respect constraints
+        on the number of available servers and the number of available
+        brokers from each team.</p>
 
-
-		</ui:define>
-	</ui:composition>
+    </ui:define>
+  </ui:composition>
 </h:body>
 </html>

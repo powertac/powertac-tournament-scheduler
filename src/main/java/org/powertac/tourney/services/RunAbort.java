@@ -3,12 +3,10 @@ package org.powertac.tourney.services;
 import org.apache.log4j.Logger;
 
 
-public class RunAbort
-{
+public class RunAbort {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  public RunAbort(String machineName)
-  {
+  public RunAbort(String machineName) {
     if (machineName.isEmpty()) {
       return;
     }
@@ -22,11 +20,10 @@ public class RunAbort
     log.info("Abort url: " + abortUrl);
 
     try {
-      JenkinsConnector.sendJob (abortUrl);
+      JenkinsConnector.sendJob(abortUrl);
 
       log.info("Aborted job on slave " + machineName);
-    }
-    catch (Exception ignored) {
+    } catch (Exception ignored) {
       log.error("Failed to aborted job on slave " + machineName);
     }
   }

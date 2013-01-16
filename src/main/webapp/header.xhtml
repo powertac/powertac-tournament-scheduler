@@ -1,52 +1,51 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
 
 <body>
-	<ui:composition>
-		<div id="header"
-			style="background-color: #e4ffe3; border: 3px solid #009E18; border-radius: 15px; height: 120px; width: 1000px;">
-			<img id="logo" src="garland_logo.png" style="float: left" alt="Garland Logo"/>
-			<div id="logo_text"
-				style="position: relative; bottom: -60px; left: -130px; white-space: nowrap;">
-				<h1>Tournament Scheduler</h1>
-			</div>
-		</div>
+<ui:composition>
+  <div id="header-logo">
+    <img id="header-img" src="resources/images/garland_logo.png"
+         alt="Garland Logo"/>
 
-		<div id="nav_ribbon"
-			style="border-radius: 15px; width: 1000px; vertical-align: middle">
-			<h:form>
-        <!-- Every User permission buttons -->
-				<h:button value="Home" outcome="Home"
-					               rendered="#{user.permissionId le 4}" />
-        <h:button value="About" outcome="about.xhtml"
-                  rendered="#{user.permissionId le 4}" />
+    <div id="header-text">
+      <h1>Tournament Scheduler</h1>
+    </div>
+  </div>
 
-        <!-- Login/logout/register  buttons -->
-				<h:button value="Login" outcome="Login"
-					               rendered="#{user.permissionId == 4 }" />
-        <h:commandButton value="Logout" action="#{actionLogin.logout}"
-                         rendered="#{user.permissionId le 3}" />
-				<h:button value="Register" outcome="Register"
-                         rendered="#{user.permissionId eq 4}" />
+  <div id="nav_ribbon">
+    <h:form>
+      <!-- Every User permission buttons -->
+      <h:button value="Home" outcome="Home"
+                rendered="#{user.permissionId le 4}"/>
+      <h:button value="About" outcome="about.xhtml"
+                rendered="#{user.permissionId le 4}"/>
 
-				<!-- Normal User permission buttons -->
-				<h:button value="Account" outcome="Account"
-                         rendered="#{user.permissionId le 3}" />
+      <!-- Login/logout/register  buttons -->
+      <h:button value="Login" outcome="Login"
+                rendered="#{user.permissionId == 4 }"/>
+      <h:commandButton value="Logout" action="#{actionLogin.logout}"
+                       rendered="#{user.permissionId le 3}"/>
+      <h:button value="Register" outcome="Register"
+                rendered="#{user.permissionId eq 4}"/>
 
-				<!-- Admin Level permission buttons -->
-				<h:button value="Tournament Manager" outcome="TournamentManager"
-                         rendered="#{user.permissionId le 0}" />
-        <h:button value="Overview" outcome="Overview"
-                         rendered="#{user.permissionId le 0}" />
-				<h:button value="Admin" outcome="Admin"
-                         rendered="#{user.permissionId le 0}" />
+      <!-- Normal User permission buttons -->
+      <h:button value="Account" outcome="Account"
+                rendered="#{user.permissionId le 3}"/>
 
-			</h:form>
-		</div>
-	</ui:composition>
+      <!-- Admin Level permission buttons -->
+      <h:button value="Tournament Manager" outcome="TournamentManager"
+                rendered="#{user.permissionId le 0}"/>
+      <h:button value="Overview" outcome="Overview"
+                rendered="#{user.permissionId le 0}"/>
+      <h:button value="Admin" outcome="Admin"
+                rendered="#{user.permissionId le 0}"/>
+
+    </h:form>
+  </div>
+</ui:composition>
 </body>
 </html>

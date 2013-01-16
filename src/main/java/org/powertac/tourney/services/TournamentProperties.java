@@ -33,11 +33,11 @@ import java.util.Properties;
 
 /**
  * Central source of Properties read from tournament.properties
+ *
  * @author John Collins
  */
 @Service("tournamentProperties")
-public class TournamentProperties
-{
+public class TournamentProperties {
   private static Logger log = Logger.getLogger("TMLogger");
 
   private String resourceName = "tournament.properties";
@@ -46,50 +46,43 @@ public class TournamentProperties
   private List<String> messages = new ArrayList<String>();
 
   // delegate to props
-  public String getProperty (String key)
-  {
+  public String getProperty(String key) {
     loadIfNecessary();
     return properties.getProperty(key);
   }
 
-  public String getProperty (String key, String defaultValue)
-  {
+  public String getProperty(String key, String defaultValue) {
     loadIfNecessary();
     return properties.getProperty(key, defaultValue);
   }
 
   // lazy loader
-  private void loadIfNecessary ()
-  {
+  private void loadIfNecessary() {
     if (!loaded) {
       try {
         properties.load(TournamentProperties.class.getClassLoader()
-                   .getResourceAsStream(resourceName));
+            .getResourceAsStream(resourceName));
         appendExtraProperties();
         loaded = true;
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         log.error("Failed to load " + resourceName);
       }
     }
   }
 
-  public void addErrorMessage (String message)
-  {
+  public void addErrorMessage(String message) {
     if (!messages.contains(message)) {
       messages.add(message);
     }
   }
 
-  public void removeErrorMessage (String message)
-  {
+  public void removeErrorMessage(String message) {
     if (messages.contains(message)) {
       messages.remove(message.indexOf(message));
     }
   }
 
-  public List<String> getErrorMessages()
-  {
+  public List<String> getErrorMessages() {
     // We can't do this during startup, it fails due to race conditions
     checkJenkinsLocation();
 
@@ -119,8 +112,7 @@ public class TournamentProperties
     checkFileLocation("logLocation", fallBack);
   }
 
-  private String getTourneyUrl ()
-  {
+  private String getTourneyUrl() {
     if (!properties.getProperty("tourney.location", "").isEmpty()) {
       return properties.getProperty("tourney.location");
     }
@@ -143,8 +135,7 @@ public class TournamentProperties
           }
         }
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       messages.add("Error getting Tournament Location!");
     }
@@ -152,8 +143,7 @@ public class TournamentProperties
     return String.format(tourneyUrl, address);
   }
 
-  private void checkJenkinsLocation()
-  {
+  private void checkJenkinsLocation() {
     InputStream is = null;
     try {
       URL url = new URL(properties.getProperty("jenkins.location"));
@@ -162,15 +152,13 @@ public class TournamentProperties
       if (is == null) {
         throw new Exception("Couldn't open Jenkins Location");
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       String msg = "Jenkins Location could not be reached!";
       if (!messages.contains(msg)) {
         messages.add(msg);
       }
-    }
-    finally {
+    } finally {
       if (is != null) {
         try {
           is.close();
@@ -184,8 +172,7 @@ public class TournamentProperties
   /**
    * Make sure filelocation exists, fall back to catalina dir, we know that exists
    */
-  private void checkFileLocation (String name, String catalinaBase)
-  {
+  private void checkFileLocation(String name, String catalinaBase) {
     String directory = properties.getProperty(name);
 
     if (!directory.endsWith(File.separator)) {
@@ -194,14 +181,13 @@ public class TournamentProperties
     }
 
     File test = new File(directory);
-    if (! test.exists()) {
+    if (!test.exists()) {
       String msg = String.format("%s '%s' doesn't exist<br/>falling back on : %s",
           name, directory, catalinaBase);
       log.error(msg);
       messages.add(msg);
       properties.setProperty(name, catalinaBase);
-    }
-    else if (! test.canWrite()) {
+    } else if (!test.canWrite()) {
       String msg = String.format("%s '%s' isn't writeable<br/>falling back on : %s",
           name, directory, catalinaBase);
       log.error(msg);
@@ -210,8 +196,7 @@ public class TournamentProperties
     }
   }
 
-  public static TournamentProperties getProperties ()
-  {
+  public static TournamentProperties getProperties() {
     return (TournamentProperties) SpringApplicationContext
         .getBean("tournamentProperties");
   }
