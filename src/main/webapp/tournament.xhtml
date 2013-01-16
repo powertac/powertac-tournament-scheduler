@@ -100,7 +100,7 @@
                      rendered="#{actionTournament.tournament.isMulti()}">
           <t:column>
             <f:facet name="header">Broker</f:facet>
-            <h:outputText value="#{key}" />
+            <h:outputText value="#{key.split(',')[1]}" />
           </t:column>
 
           <t:column>

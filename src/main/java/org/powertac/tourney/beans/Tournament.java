@@ -193,7 +193,7 @@ public class Tournament
       bw.write(lineSep);
 
       if (isMulti()) {
-        Map<String, Double[]> resultMap = determineWinnerMulti(false);
+        Map<String, Double[]> resultMap = determineWinnerMulti();
 
         List<Double> avgsAndSDs = getAvgsAndSDs(resultMap);
         bw.write("Average type 1;" + avgsAndSDs.get(0) +";" + lineSep);
@@ -205,19 +205,20 @@ public class Tournament
         bw.write("Standard deviation type 3;" + avgsAndSDs.get(5) +";" + lineSep);
         bw.write(lineSep);
 
-        bw.write("brokerId;Size 1;Size 2;Size 3;Total (not normalized);" +
-            "Size 1;Size 2;Size3;Total (normalized);" + lineSep);
+        bw.write("brokerId;brokerName;Size 1;Size 2;Size 3;" +
+            "Total (not normalized);Size 1;Size 2;Size3;Total (normalized);" +
+            lineSep);
 
         for (Map.Entry<String, Double[]> entry: resultMap.entrySet()) {
           Double[] results = entry.getValue();
-          bw.write(String.format("%s;%f;%f;%f;%f;%f;%f;%f;%f;%s",
-              entry.getKey(),
+          bw.write(String.format("%s;%s;%f;%f;%f;%f;%f;%f;%f;%f;%s",
+              entry.getKey().split(",")[0], entry.getKey().split(",")[1],
               results[0],results[1],results[2],results[3],
               results[10],results[11],results[12],results[13],
               lineSep));
         }
       } else {
-        Map<String, Double[]> resultMap = determineWinnerSingle(false);
+        Map<String, Double[]> resultMap = determineWinnerSingle();
         for (Map.Entry<String, Double[]> entry: resultMap.entrySet()) {
           bw.write("brokerId;Total;" + lineSep);
           Double[] results = entry.getValue();
@@ -289,31 +290,28 @@ public class Tournament
   public Map<String, Double[]> determineWinner ()
   {
     if (isMulti()) {
-      return determineWinnerMulti(true);
+      return determineWinnerMulti();
     } else {
-      return determineWinnerSingle(true);
+      return determineWinnerSingle();
     }
   }
 
-  private Map<String, Double[]> determineWinnerSingle (boolean useName)
+  private Map<String, Double[]> determineWinnerSingle ()
   {
     Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
 
     for (Game game: getGameMap().values()) {
       for (Agent agent: game.getAgentMap().values()) {
-        if (useName) {
-          resultMap.put(agent.getBroker().getBrokerName(),
-                        new Double[] {agent.getBalance()});
-        } else {
-          resultMap.put(String.valueOf(agent.getBroker().getBrokerId()),
-              new Double[] {agent.getBalance()});
-        }
+        String brokerKey = String.format("%d,%s",
+            agent.getBroker().getBrokerId(), agent.getBroker().getBrokerName());
+
+        resultMap.put(brokerKey, new Double[] {agent.getBalance()});
       }
     }
     return resultMap;
   }
 
-  private Map<String, Double[]> determineWinnerMulti (boolean useName)
+  private Map<String, Double[]> determineWinnerMulti ()
   {
     // Col 0  = result gameType 1
     // Col 1  = result gameType 2
@@ -339,10 +337,8 @@ public class Tournament
       int gameTypeIndex = game.getGameTypeIndex();
 
       for (Agent agent: game.getAgentMap().values()) {
-        String brokerKey = String.valueOf(agent.getBroker().getBrokerId());
-        if (useName) {
-          brokerKey = agent.getBroker().getBrokerName();
-        }
+        String brokerKey = String.format("%d,%s",
+            agent.getBroker().getBrokerId(), agent.getBroker().getBrokerName());
 
         if (!resultMap.containsKey(brokerKey)) {
           resultMap.put(brokerKey, new Double[] {
