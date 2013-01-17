@@ -15,7 +15,8 @@ import java.util.List;
 /*
  *
  */
-public class RunBoot {
+public class RunBoot
+{
   private static Logger log = Logger.getLogger("TMLogger");
 
   private Game game;
@@ -24,13 +25,15 @@ public class RunBoot {
 
   private static boolean machinesAvailable;
 
-  public RunBoot(Game game) {
+  public RunBoot(Game game)
+  {
     this.game = game;
 
     run();
   }
 
-  private void run() {
+  private void run()
+  {
     session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -60,7 +63,8 @@ public class RunBoot {
    * Make sure there is a machine available for the game
    */
   private boolean checkMachineAvailable()
-      throws Exception {
+      throws Exception
+  {
     try {
       log.info("Claiming free machine");
 
@@ -88,7 +92,8 @@ public class RunBoot {
   /*
    * If all conditions are met (we have a slave available) send job to Jenkins.
    */
-  private boolean startJob() throws Exception {
+  private boolean startJob() throws Exception
+  {
     String finalUrl =
         properties.getProperty("jenkins.location")
             + "job/start-boot-server/buildWithParameters?"
@@ -122,7 +127,8 @@ public class RunBoot {
    * games in that tournament. If no tournament loaded, we look for games in
    * all singleGame tournaments.
   **/
-  public static void startBootableGames(Tournament runningTournament) {
+  public static void startBootableGames(Tournament runningTournament)
+  {
     log.info("WatchDogTimer Looking for Bootstraps To Start..");
 
     List<Game> games = new ArrayList<Game>();

@@ -19,20 +19,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class SimLogParser implements Runnable {
+public class SimLogParser implements Runnable
+{
   private static Logger log = Logger.getLogger("TMLogger");
 
   private int gameId;
   String logLocation;
   String fileName;
 
-  public SimLogParser(String logLocation, String fileName) {
+  public SimLogParser(String logLocation, String fileName)
+  {
     gameId = Integer.parseInt(fileName.split("-")[1]);
     this.logLocation = logLocation;
     this.fileName = fileName;
   }
 
-  public void run() {
+  public void run()
+  {
     String copyCmd = String.format("cp %s%s /tmp/%s",
         logLocation, fileName, fileName);
     String untarCmd = "tar -C /tmp/ -xzvf /tmp/" + fileName;
@@ -79,7 +82,8 @@ public class SimLogParser implements Runnable {
     log.debug("Done cleaning");
   }
 
-  public HashMap<String, Double> extractResults(String fileName) throws Exception {
+  public HashMap<String, Double> extractResults(String fileName) throws Exception
+  {
     HashMap<String, Double> results = new HashMap<String, Double>();
     String finalBalance = "server.CompetitionControlService: Final balance";
     FileInputStream fstream = new FileInputStream(fileName);
@@ -117,7 +121,8 @@ public class SimLogParser implements Runnable {
   }
 
   @SuppressWarnings("unchecked")
-  public void storeResults(HashMap<String, Double> results) {
+  public void storeResults(HashMap<String, Double> results)
+  {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {

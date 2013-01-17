@@ -2,18 +2,16 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:f="http://java.sun.com/jsf/core"
-        >
+<html xmlns="http://www.w3.org/1999/xhtml" >
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Properties Interface</title>
 </head>
 
 <body>
-<f:view>
-    <h2>Page for server to get the properties file with the Tournament
-        Scheduler</h2>
-</f:view>
+    <h2>
+        Page for server to get the properties file with the Tournament Scheduler
+    </h2>
 </body>
 </html>

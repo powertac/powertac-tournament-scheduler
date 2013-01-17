@@ -3,10 +3,12 @@ package org.powertac.tourney.services;
 import org.apache.log4j.Logger;
 
 
-public class RunAbort {
+public class RunAbort
+{
   private static Logger log = Logger.getLogger("TMLogger");
 
-  public RunAbort(String machineName) {
+  public RunAbort(String machineName)
+  {
     if (machineName.isEmpty()) {
       return;
     }

@@ -7,7 +7,8 @@
     version="2.0">
 
   <application>
-    <el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver
+		<el-resolver>
+      org.springframework.web.jsf.el.SpringBeanFacesELResolver
     </el-resolver>
   </application>
 

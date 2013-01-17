@@ -3,8 +3,10 @@ package org.powertac.tourney.constants;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
 
-public class Constants {
-  public class Props {
+public class Constants
+{
+  public class Props
+  {
     public static final String weatherServerURL =
         "server.weatherService.serverUrl = %s\n";
     public static final String weatherLocation =
@@ -27,7 +29,8 @@ public class Constants {
         "common.competition.expectedTimeslotCount = %s\n";
   }
 
-  public class Rest {
+  public class Rest
+  {
     // Possible Rest Parameters for Broker Login
     public static final String REQ_PARAM_AUTH_TOKEN = "authToken";
     public static final String REQ_PARAM_JOIN = "requestJoin";
@@ -49,7 +52,8 @@ public class Constants {
     public static final String REQ_PARAM_POM_ID = "pomId";
   }
 
-  public static class HQL {
+  public static class HQL
+  {
     public static final String GET_USERS =
         "FROM User AS user ";
 

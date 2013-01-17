@@ -5,10 +5,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class RunKill {
+public class RunKill
+{
   private static Logger log = Logger.getLogger("TMLogger");
 
-  public RunKill(String machineName) {
+  public RunKill(String machineName)
+  {
     if (machineName.isEmpty()) {
       return;
     }

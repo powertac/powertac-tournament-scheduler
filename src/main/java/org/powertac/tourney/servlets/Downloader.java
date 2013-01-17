@@ -18,12 +18,14 @@ import java.io.IOException;
  */
 @WebServlet(description = "Access to download compressed logfiles",
     urlPatterns = {"/Downloader"})
-public class Downloader extends HttpServlet {
+public class Downloader extends HttpServlet
+{
   TournamentProperties properties = TournamentProperties.getProperties();
   String absolutePath = properties.getProperty("logLocation");
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
+      throws ServletException, IOException
+  {
     String gameId = request.getParameter("game");
     String csvName = request.getParameter("csv");
 
@@ -42,7 +44,8 @@ public class Downloader extends HttpServlet {
     }
   }
 
-  private void streamFile(HttpServletResponse response, String downloadFile) {
+  private void streamFile(HttpServletResponse response, String downloadFile)
+  {
     byte[] buf = new byte[1024];
     try {
       String realPath = absolutePath + downloadFile;

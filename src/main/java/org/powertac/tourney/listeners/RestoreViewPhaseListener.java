@@ -13,11 +13,13 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 
-public class RestoreViewPhaseListener implements PhaseListener {
+public class RestoreViewPhaseListener implements PhaseListener
+{
 
   // Intercepts REST calls (get requests) and passes them to the Rest service
   // for parsing and returns the proper response
-  public synchronized void beforePhase(PhaseEvent pe) {
+  public synchronized void beforePhase(PhaseEvent pe)
+  {
     HttpServletRequest request = (HttpServletRequest) pe.getFacesContext().
         getExternalContext().getRequest();
     Map<String, String[]> params = getParams(request);
@@ -46,7 +48,8 @@ public class RestoreViewPhaseListener implements PhaseListener {
     }
   }
 
-  private void respond(PhaseEvent pe, String responseString) {
+  private void respond(PhaseEvent pe, String responseString)
+  {
     if (responseString.isEmpty()) {
       return;
     }
@@ -66,15 +69,18 @@ public class RestoreViewPhaseListener implements PhaseListener {
   }
 
   // Which jsf phase to intercept, in this case the Restore View Phase
-  public PhaseId getPhaseId() {
+  public PhaseId getPhaseId()
+  {
     return PhaseId.RESTORE_VIEW;
   }
 
-  public void afterPhase(PhaseEvent arg0) {
+  public void afterPhase(PhaseEvent arg0)
+  {
 
   }
 
-  private Map<String, String[]> getParams(HttpServletRequest request) {
+  private Map<String, String[]> getParams(HttpServletRequest request)
+  {
     @SuppressWarnings("unchecked")
     Map<String, String[]> params = request.getParameterMap();
     return params;

@@ -18,9 +18,11 @@ import java.net.URL;
 import java.net.URLConnection;
 
 
-public class JenkinsConnector {
+public class JenkinsConnector
+{
 
-  public static void sendJob(String jobUrl) throws Exception {
+  public static void sendJob(String jobUrl) throws Exception
+  {
     TournamentProperties properties = TournamentProperties.getProperties();
     InputStream is = null;
 
@@ -49,7 +51,8 @@ public class JenkinsConnector {
     }
   }
 
-  public static NodeList getNodeList() throws Exception {
+  public static NodeList getNodeList() throws Exception
+  {
     TournamentProperties properties = TournamentProperties.getProperties();
 
     String url = properties.getProperty("jenkins.location")
@@ -61,7 +64,8 @@ public class JenkinsConnector {
   }
 
   public static NodeList getExecutorList(String machineName, int number)
-      throws Exception {
+      throws Exception
+  {
     TournamentProperties properties = TournamentProperties.getProperties();
 
     String url = properties.getProperty("jenkins.location")

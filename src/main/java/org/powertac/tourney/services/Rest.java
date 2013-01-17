@@ -15,12 +15,14 @@ import java.io.*;
 import java.util.Map;
 
 
-public class Rest {
+public class Rest
+{
   private static Logger log = Logger.getLogger("TMLogger");
 
   private TournamentProperties properties = TournamentProperties.getProperties();
 
-  public synchronized String parseBrokerLogin(Map<String, String[]> params) {
+  public synchronized String parseBrokerLogin(Map<String, String[]> params)
+  {
     String responseType = params.get(Constants.Rest.REQ_PARAM_TYPE)[0];
     String brokerAuth = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
     String tournamentName = params.get(Constants.Rest.REQ_PARAM_JOIN)[0];
@@ -136,7 +138,8 @@ public class Rest {
    * listen on the queue named qn.
    */
   public synchronized String parseVisualizerLogin(HttpServletRequest request,
-                                                  Map<String, String[]> params) {
+                                                  Map<String, String[]> params)
+  {
     String machineName = params.get("machineName")[0];
     String head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>";
     String tail = "</message>";
@@ -193,7 +196,8 @@ public class Rest {
   }
 
   public synchronized String handleServerInterface(Map<String, String[]> params,
-                                                   HttpServletRequest request) {
+                                                   HttpServletRequest request)
+  {
     String clientAddress = request.getRemoteAddr();
     try {
       String actionString = params.get(Constants.Rest.REQ_PARAM_ACTION)[0];
@@ -224,7 +228,8 @@ public class Rest {
    * @param params :
    * @return String representing a properties file
    */
-  public String parseProperties(Map<String, String[]> params) {
+  public String parseProperties(Map<String, String[]> params)
+  {
     int gameId;
     try {
       gameId = Integer.parseInt(params.get(Constants.Rest.REQ_PARAM_GAMEID)[0]);
@@ -282,7 +287,8 @@ public class Rest {
    * @param params :
    * @return String representing a pom file
    */
-  public String parsePom(Map<String, String[]> params) {
+  public String parsePom(Map<String, String[]> params)
+  {
     try {
       String pomId = params.get(Constants.Rest.REQ_PARAM_POM_ID)[0];
       return servePom(pomId);
@@ -292,7 +298,8 @@ public class Rest {
     }
   }
 
-  private String servePom(String pomId) {
+  private String servePom(String pomId)
+  {
     String result = "";
     try {
       // Determine pom-file location
@@ -320,7 +327,8 @@ public class Rest {
     return result;
   }
 
-  private String serveBoot(String gameId) {
+  private String serveBoot(String gameId)
+  {
     String result = "";
 
     try {
@@ -349,7 +357,8 @@ public class Rest {
     return result;
   }
 
-  private synchronized String handleStatus(Map<String, String[]> params) {
+  private synchronized String handleStatus(Map<String, String[]> params)
+  {
     String statusString = params.get(Constants.Rest.REQ_PARAM_STATUS)[0];
     int gameId = Integer.parseInt(
         params.get(Constants.Rest.REQ_PARAM_GAMEID)[0]);
@@ -389,7 +398,8 @@ public class Rest {
     }
   }
 
-  public synchronized String handleHeartBeat(Map<String, String[]> params) {
+  public synchronized String handleHeartBeat(Map<String, String[]> params)
+  {
     int gameId;
 
     try {
@@ -425,7 +435,8 @@ public class Rest {
    * Handle 'PUT' to serverInterface.jsp, either boot.xml or (Boot|Sim) log
    */
   public synchronized String handleServerInterfacePUT(Map<String, String[]> params,
-                                                      HttpServletRequest request) {
+                                                      HttpServletRequest request)
+  {
     if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
       return "error";
     }
@@ -474,7 +485,8 @@ public class Rest {
    * Handle 'POST' to serverInterface.jsp, this is an end-of-game message
    */
   public synchronized String handleServerInterfacePOST(Map<String, String[]> params,
-                                                       HttpServletRequest request) {
+                                                       HttpServletRequest request)
+  {
     String remoteAddress = request.getRemoteAddr();
     if (!MemStore.checkMachineAllowed(remoteAddress)) {
       return "error";

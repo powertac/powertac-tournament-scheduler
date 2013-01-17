@@ -4,6 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:ui="http://java.sun.com/jsf/facelets">
+
 <head>
   <title>PowerTac Tournament Scheduler 2012</title>
   <link rel="stylesheet" type="text/css"
@@ -19,26 +20,26 @@
     }
   </script>
 </head>
-<f:view>
-  <body>
-  <div id="page">
-    <div id="header">
-      <ui:insert name="header">
-        <ui:include src="header.xhtml"/>
-      </ui:insert>
-    </div>
 
-    <div id="content">
-      <ui:insert name="content">
-      </ui:insert>
-    </div>
+<body>
+  <f:view>
+    <div id="page">
+      <div id="header">
+        <ui:insert name="header">
+          <ui:include src="header.xhtml"/>
+        </ui:insert>
+      </div>
 
-    <div id="footer">
-      <ui:insert name="footer">
-      </ui:insert>
-    </div>
-  </div>
-  </body>
+      <div id="content">
+        <ui:insert name="content">
+        </ui:insert>
+      </div>
 
-</f:view>
+      <div id="footer">
+        <ui:insert name="footer">
+        </ui:insert>
+      </div>
+    </div>
+  </f:view>
+</body>
 </html>

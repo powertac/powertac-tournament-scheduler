@@ -17,7 +17,8 @@ import java.util.*;
 
 @Service("scheduler")
 @ManagedBean
-public class Scheduler implements InitializingBean {
+public class Scheduler implements InitializingBean
+{
   private static Logger log = Logger.getLogger("TMLogger");
 
   @Autowired
@@ -29,29 +30,35 @@ public class Scheduler implements InitializingBean {
   private Tournament runningTournament = null;
   private long lastWatchdogRun = 0;
 
-  public Scheduler() {
+  public Scheduler()
+  {
     super();
   }
 
-  public void afterPropertiesSet() throws Exception {
+  public void afterPropertiesSet() throws Exception
+  {
     lazyStart();
   }
 
-  private void lazyStart() {
+  private void lazyStart()
+  {
     watchDogInterval = Integer.parseInt(properties
         .getProperty("scheduler.watchDogInterval", "120000"));
 
     Timer t = new Timer();
-    TimerTask tt = new TimerTask() {
+    TimerTask tt = new TimerTask()
+    {
       @Override
-      public void run() {
+      public void run()
+      {
         startWatchDog();
       }
     };
     t.schedule(tt, 3000);
   }
 
-  private synchronized void startWatchDog() {
+  private synchronized void startWatchDog()
+  {
     if (watchDogTimer != null) {
       log.warn("Watchdog already running");
       return;
@@ -61,9 +68,11 @@ public class Scheduler implements InitializingBean {
 
     lastWatchdogRun = System.currentTimeMillis();
 
-    TimerTask watchDog = new TimerTask() {
+    TimerTask watchDog = new TimerTask()
+    {
       @Override
-      public void run() {
+      public void run()
+      {
         // Empty line to make logs more readable
         log.info("\n");
         try {
@@ -86,7 +95,8 @@ public class Scheduler implements InitializingBean {
     watchDogTimer.schedule(watchDog, new Date(), watchDogInterval);
   }
 
-  private void stopWatchDog() {
+  private void stopWatchDog()
+  {
     if (watchDogTimer != null) {
       watchDogTimer.cancel();
       watchDogTimer = null;
@@ -96,7 +106,8 @@ public class Scheduler implements InitializingBean {
     }
   }
 
-  public boolean restartWatchDog() {
+  public boolean restartWatchDog()
+  {
     if ((System.currentTimeMillis() - lastWatchdogRun) < 55000) {
       stopWatchDog();
       startWatchDog();
@@ -106,7 +117,8 @@ public class Scheduler implements InitializingBean {
     }
   }
 
-  public void loadTournament(int tourneyId) {
+  public void loadTournament(int tourneyId)
+  {
     log.info("Loading Tournament " + tourneyId);
 
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -123,12 +135,14 @@ public class Scheduler implements InitializingBean {
     session.close();
   }
 
-  public void unloadTournament() {
+  public void unloadTournament()
+  {
     log.info("Unloading Tournament");
     runningTournament = null;
   }
 
-  public void reloadTournament() {
+  public void reloadTournament()
+  {
     if (runningTournament == null) {
       return;
     }
@@ -140,7 +154,8 @@ public class Scheduler implements InitializingBean {
   /**
    * Check if it's time to schedule the tournament
    */
-  private void scheduleLoadedTournament() {
+  private void scheduleLoadedTournament()
+  {
     if (isNullTourney()) {
       log.info("No multigame tournament available");
       return;
@@ -199,7 +214,8 @@ public class Scheduler implements InitializingBean {
   }
 
   private void doTheKailash(Session session, int gameType, int gameNumber,
-                            int multiplier, List<Broker> brokers) {
+                            int multiplier, List<Broker> brokers)
+  {
     log.info(String.format("Doing the Kailash with gameType = %s ; "
         + "maxBrokers = %s", gameType, brokers.size()));
     String brokersString = "";
@@ -261,7 +277,8 @@ public class Scheduler implements InitializingBean {
     }
   }
 
-  private void checkWedgedBoots() {
+  private void checkWedgedBoots()
+  {
     log.info("WatchDogTimer Looking for Wedged Bootstraps");
 
     for (Game game : Game.getNotCompleteGamesList()) {
@@ -288,7 +305,8 @@ public class Scheduler implements InitializingBean {
     log.debug("WatchDogTimer No Bootstraps seems Wedged");
   }
 
-  private void checkWedgedSims() {
+  private void checkWedgedSims()
+  {
     log.info("WatchDogTimer Looking for Wedged Sims");
 
     for (Game game : Game.getNotCompleteGamesList()) {
@@ -319,39 +337,47 @@ public class Scheduler implements InitializingBean {
     log.debug("WatchDogTimer No Sim seems Wedged");
   }
 
-  public boolean isNullTourney() {
+  public boolean isNullTourney()
+  {
     return runningTournament == null;
   }
 
-  public boolean isRunning() {
+  public boolean isRunning()
+  {
     return watchDogTimer != null;
   }
 
-  public Tournament getRunningTournament() {
+  public Tournament getRunningTournament()
+  {
     return runningTournament;
   }
 
-  public static Scheduler getScheduler() {
+  public static Scheduler getScheduler()
+  {
     return (Scheduler) SpringApplicationContext.getBean("scheduler");
   }
 
   @PreDestroy
-  private void cleanUp() throws Exception {
+  private void cleanUp() throws Exception
+  {
     log.info("Spring Container is destroyed! Scheduler clean up");
 
     stopWatchDog();
   }
 
   //<editor-fold desc="Setters and Getters">
-  public long getWatchDogInterval() {
+  public long getWatchDogInterval()
+  {
     return watchDogInterval;
   }
 
-  public void setWatchDogInterval(long watchDogInterval) {
+  public void setWatchDogInterval(long watchDogInterval)
+  {
     this.watchDogInterval = watchDogInterval;
   }
 
-  public String getLastWatchdogRun() {
+  public String getLastWatchdogRun()
+  {
     if (lastWatchdogRun == 0) {
       return "";
     } else {

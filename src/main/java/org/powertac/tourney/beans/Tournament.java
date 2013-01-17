@@ -26,7 +26,8 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "tournaments", catalog = "tourney", uniqueConstraints = {
     @UniqueConstraint(columnNames = "tourneyId")})
-public class Tournament {
+public class Tournament
+{
   private int tourneyId;
   private String tournamentName;
   private Date startTime;
@@ -49,18 +50,22 @@ public class Tournament {
   private Map<Integer, Game> gameMap = new HashMap<Integer, Game>();
   private Map<Integer, Broker> brokerMap = new HashMap<Integer, Broker>();
 
-  public static enum STATE {
+  public static enum STATE
+  {
     pending, in_progress, complete
   }
 
-  public static enum TYPE {
+  public static enum TYPE
+  {
     SINGLE_GAME, MULTI_GAME
   }
 
-  public Tournament() {
+  public Tournament()
+  {
   }
 
-  public String delete() {
+  public String delete()
+  {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -107,7 +112,8 @@ public class Tournament {
    * If a game is complete, check if it was the last one to complete
    * If so, set tournament state to complete
    */
-  public void processGameFinished(int finishedGameId) {
+  public void processGameFinished(int finishedGameId)
+  {
     boolean allDone = true;
 
     for (Game game : gameMap.values()) {
@@ -134,7 +140,8 @@ public class Tournament {
     createCsv();
   }
 
-  public void createCsv() {
+  public void createCsv()
+  {
     String lineSep = System.getProperty("line.separator");
     TournamentProperties properties = TournamentProperties.getProperties();
     String tournamentCsv = String.format("%s%s.csv",
@@ -146,7 +153,8 @@ public class Tournament {
     createGamesCsv(new File(gamesCsv), lineSep, properties);
   }
 
-  private void createTournamentCsv(File tournamentFile, String lineSep) {
+  private void createTournamentCsv(File tournamentFile, String lineSep)
+  {
     if (tournamentFile.isFile() && tournamentFile.canRead()) {
       tournamentFile.delete();
     }
@@ -226,7 +234,8 @@ public class Tournament {
   }
 
   private void createGamesCsv(File gamesFile, String lineSep,
-                              TournamentProperties properties) {
+                              TournamentProperties properties)
+  {
     if (gamesFile.isFile() && gamesFile.canRead()) {
       gamesFile.delete();
     }
@@ -276,7 +285,8 @@ public class Tournament {
   }
 
   //<editor-fold desc="Winner determination">
-  public Map<String, Double[]> determineWinner() {
+  public Map<String, Double[]> determineWinner()
+  {
     if (isMulti()) {
       return determineWinnerMulti();
     } else {
@@ -284,7 +294,8 @@ public class Tournament {
     }
   }
 
-  private Map<String, Double[]> determineWinnerSingle() {
+  private Map<String, Double[]> determineWinnerSingle()
+  {
     Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
 
     for (Game game : getGameMap().values()) {
@@ -298,7 +309,8 @@ public class Tournament {
     return resultMap;
   }
 
-  private Map<String, Double[]> determineWinnerMulti() {
+  private Map<String, Double[]> determineWinnerMulti()
+  {
     // Col 0  = result gameType 1
     // Col 1  = result gameType 2
     // Col 2  = result gameType 3
@@ -394,50 +406,61 @@ public class Tournament {
 
   //<editor-fold desc="Helper methods">
   @Transient
-  public boolean isStarted() {
+  public boolean isStarted()
+  {
     return startTime.before(Utils.offsetDate());
   }
 
   @Transient
-  public boolean isMulti() {
+  public boolean isMulti()
+  {
     return type.equals(TYPE.MULTI_GAME.toString());
   }
 
   @Transient
-  public boolean isSingle() {
+  public boolean isSingle()
+  {
     return type.equals(TYPE.SINGLE_GAME.toString());
   }
 
   @Transient
-  public boolean isComplete() {
+  public boolean isComplete()
+  {
     return stateEquals(Tournament.STATE.complete);
   }
 
-  public boolean stateEquals(STATE state) {
+  public boolean stateEquals(STATE state)
+  {
     return this.status.equals(state.toString());
   }
 
-  public String startTimeUTC() {
+  public String startTimeUTC()
+  {
     return Utils.dateFormat(startTime);
   }
 
-  public String dateFromUTC() {
+  public String dateFromUTC()
+  {
     return Utils.dateFormat(dateFrom);
   }
 
-  public String dateToUTC() {
+  public String dateToUTC()
+  {
     return Utils.dateFormat(dateTo);
   }
 
-  public void setStatusToPending() {
+  public void setStatusToPending()
+  {
     this.setStatus(STATE.pending.toString());
   }
 
-  public void setStatusToInProgress() {
+  public void setStatusToInProgress()
+  {
     this.setStatus(STATE.in_progress.toString());
   }
 
-  public void setStatusToComplete() {
+  public void setStatusToComplete()
+  {
     this.setStatus(STATE.complete.toString());
   }
   //</editor-fold>
@@ -446,11 +469,13 @@ public class Tournament {
   @OneToMany
   @JoinColumn(name = "tourneyId")
   @MapKey(name = "gameId")
-  public Map<Integer, Game> getGameMap() {
+  public Map<Integer, Game> getGameMap()
+  {
     return gameMap;
   }
 
-  public void setGameMap(Map<Integer, Game> gameMap) {
+  public void setGameMap(Map<Integer, Game> gameMap)
+  {
     this.gameMap = gameMap;
   }
 
@@ -462,16 +487,19 @@ public class Tournament {
       @JoinColumn(name = "brokerId", referencedColumnName = "brokerId")
   )
   @MapKey(name = "brokerId")
-  public Map<Integer, Broker> getBrokerMap() {
+  public Map<Integer, Broker> getBrokerMap()
+  {
     return brokerMap;
   }
 
-  public void setBrokerMap(Map<Integer, Broker> brokerMap) {
+  public void setBrokerMap(Map<Integer, Broker> brokerMap)
+  {
     this.brokerMap = brokerMap;
   }
 
   @Transient
-  public List<String> getLocationsList() {
+  public List<String> getLocationsList()
+  {
     List<String> locationList = new ArrayList<String>();
     for (String location : locations.split(",")) {
       locationList.add(location.trim());
@@ -480,7 +508,8 @@ public class Tournament {
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Tournament> getNotCompleteTournamentList() {
+  public static List<Tournament> getNotCompleteTournamentList()
+  {
     List<Tournament> tournaments = new ArrayList<Tournament>();
 
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -506,7 +535,8 @@ public class Tournament {
     return tournaments;
   }
 
-  public List<Double> getAvgsAndSDs(Map<String, Double[]> resultMap) {
+  public List<Double> getAvgsAndSDs(Map<String, Double[]> resultMap)
+  {
     List<Double> result = new ArrayList<Double>();
 
     if (resultMap.size() > 0 && isMulti()) {
@@ -522,167 +552,203 @@ public class Tournament {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   @Column(name = "tourneyId", unique = true, nullable = false)
-  public int getTournamentId() {
+  public int getTournamentId()
+  {
     return tourneyId;
   }
 
-  public void setTournamentId(int tourneyId) {
+  public void setTournamentId(int tourneyId)
+  {
     this.tourneyId = tourneyId;
   }
 
   @Column(name = "tourneyName", nullable = false)
-  public String getTournamentName() {
+  public String getTournamentName()
+  {
     return tournamentName;
   }
 
-  public void setTournamentName(String tournamentName) {
+  public void setTournamentName(String tournamentName)
+  {
     this.tournamentName = tournamentName;
   }
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "startTime", nullable = false, length = 10)
-  public Date getStartTime() {
+  public Date getStartTime()
+  {
     return startTime;
   }
 
-  public void setStartTime(Date startTime) {
+  public void setStartTime(Date startTime)
+  {
     this.startTime = startTime;
   }
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "dateFrom", nullable = false)
-  public Date getDateFrom() {
+  public Date getDateFrom()
+  {
     return dateFrom;
   }
 
-  public void setDateFrom(Date dateFrom) {
+  public void setDateFrom(Date dateFrom)
+  {
     this.dateFrom = dateFrom;
   }
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "dateTo", nullable = false)
-  public Date getDateTo() {
+  public Date getDateTo()
+  {
     return dateTo;
   }
 
-  public void setDateTo(Date dateTo) {
+  public void setDateTo(Date dateTo)
+  {
     this.dateTo = dateTo;
   }
 
   @Column(name = "maxBrokers", nullable = false)
-  public int getMaxBrokers() {
+  public int getMaxBrokers()
+  {
     return maxBrokers;
   }
 
-  public void setMaxBrokers(int maxBrokers) {
+  public void setMaxBrokers(int maxBrokers)
+  {
     this.maxBrokers = maxBrokers;
   }
 
   @Column(name = "maxAgents", nullable = false)
-  public int getMaxAgents() {
+  public int getMaxAgents()
+  {
     return maxAgents;
   }
 
-  public void setMaxAgents(int maxAgents) {
+  public void setMaxAgents(int maxAgents)
+  {
     this.maxAgents = maxAgents;
   }
 
   @Column(name = "status", nullable = false)
-  public String getStatus() {
+  public String getStatus()
+  {
     return status;
   }
 
-  public void setStatus(String status) {
+  public void setStatus(String status)
+  {
     this.status = status;
   }
 
   @Column(name = "gameSize1", nullable = false)
-  public int getSize1() {
+  public int getSize1()
+  {
     return size1;
   }
 
-  public void setSize1(int size1) {
+  public void setSize1(int size1)
+  {
     this.size1 = size1;
   }
 
   @Column(name = "gameSize2", nullable = false)
-  public int getSize2() {
+  public int getSize2()
+  {
     return size2;
   }
 
-  public void setSize2(int size2) {
+  public void setSize2(int size2)
+  {
     this.size2 = size2;
   }
 
   @Column(name = "gameSize3", nullable = false)
-  public int getSize3() {
+  public int getSize3()
+  {
     return size3;
   }
 
-  public void setSize3(int size3) {
+  public void setSize3(int size3)
+  {
     this.size3 = size3;
   }
 
   @Column(name = "multiplier1", nullable = false)
-  public int getMultiplier1() {
+  public int getMultiplier1()
+  {
     return multiplier1;
   }
 
-  public void setMultiplier1(int multiplier1) {
+  public void setMultiplier1(int multiplier1)
+  {
     this.multiplier1 = multiplier1;
   }
 
   @Column(name = "multiplier2", nullable = false)
-  public int getMultiplier2() {
+  public int getMultiplier2()
+  {
     return multiplier2;
   }
 
-  public void setMultiplier2(int multiplier2) {
+  public void setMultiplier2(int multiplier2)
+  {
     this.multiplier2 = multiplier2;
   }
 
   @Column(name = "multiplier3", nullable = false)
-  public int getMultiplier3() {
+  public int getMultiplier3()
+  {
     return multiplier3;
   }
 
-  public void setMultiplier3(int multiplier3) {
+  public void setMultiplier3(int multiplier3)
+  {
     this.multiplier3 = multiplier3;
   }
 
   @Column(name = "type", nullable = false)
-  public String getType() {
+  public String getType()
+  {
     return type;
   }
 
-  public void setType(String type) {
+  public void setType(String type)
+  {
     this.type = type;
   }
 
   @Column(name = "pomId", nullable = false)
-  public int getPomId() {
+  public int getPomId()
+  {
     return pomId;
   }
 
-  public void setPomId(int pomId) {
+  public void setPomId(int pomId)
+  {
     this.pomId = pomId;
   }
 
   @Column(name = "locations", nullable = false)
-  public String getLocations() {
+  public String getLocations()
+  {
     return locations;
   }
 
-  public void setLocations(String locations) {
+  public void setLocations(String locations)
+  {
     this.locations = locations;
   }
 
   @Column(name = "closed", nullable = false)
-  public boolean isClosed() {
+  public boolean isClosed()
+  {
     return closed;
   }
 
-  public void setClosed(boolean closed) {
+  public void setClosed(boolean closed)
+  {
     this.closed = closed;
   }
   //</editor-fold>

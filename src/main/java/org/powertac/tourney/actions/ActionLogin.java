@@ -9,27 +9,33 @@ import javax.faces.context.FacesContext;
 
 @ManagedBean
 @RequestScoped
-public class ActionLogin {
+public class ActionLogin
+{
   private String userName;
   private String password;
 
-  public String getUserName() {
+  public String getUserName()
+  {
     return this.userName;
   }
 
-  public void setUserName(String userName) {
+  public void setUserName(String userName)
+  {
     this.userName = userName;
   }
 
-  public String getPassword() {
+  public String getPassword()
+  {
     return password;
   }
 
-  public void setPassword(String password) {
+  public void setPassword(String password)
+  {
     this.password = password;
   }
 
-  public String login() {
+  public String login()
+  {
     boolean success = User.loginUser(getUserName(), getPassword());
     if (!success) {
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,
@@ -40,7 +46,8 @@ public class ActionLogin {
     return "Success";
   }
 
-  public String logout() {
+  public String logout()
+  {
     User.getCurrentUser().logout();
     return "Login";
   }

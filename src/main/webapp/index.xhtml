@@ -32,7 +32,6 @@
       <h:form rendered="#{actionIndex.notCompleteGamesList.size() != 0}">
         <h3>Running Games and their Visualizers</h3>
         <t:dataTable id="runnning_games" border="1"
-                     style="border:1px solid black;border-collapse:collapse;text-align:center;"
                      value="#{actionIndex.notCompleteGamesList}" var="g"
                      styleClass="display dataTable">
           <t:column>
@@ -74,7 +73,6 @@
       <h:form rendered="#{actionIndex.completeGamesList.size() != 0}">
         <h3>Complete Games and Logs</h3>
         <t:dataTable id="completed_games" border="1"
-                     style="border:1px solid black;border-collapse:collapse;text-align:center"
                      value="#{actionIndex.completeGamesList}" var="g"
                      styleClass="display dataTable">
           <t:column>

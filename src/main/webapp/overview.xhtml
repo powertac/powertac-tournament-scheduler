@@ -8,231 +8,228 @@
       xmlns:t="http://myfaces.apache.org/tomahawk">
 
 <h:body>
-<ui:composition template="template.xhtml">
-<ui:define name="content">
-<script type="text/javascript" charset="utf8"
-        src="resources/js/datatable.sort.js"></script>
-<script type="text/javascript" charset="utf8"
-        src="resources/js/overview.js"></script>
+  <ui:composition template="template.xhtml">
+    <ui:define name="content">
+      <script type="text/javascript" charset="utf8"
+              src="resources/js/datatable.sort.js"></script>
+      <script type="text/javascript" charset="utf8"
+              src="resources/js/overview.js"></script>
 
-<h2>Overview</h2>
+      <h2>Overview</h2>
 
-<h:form
-    rendered="#{(user.permissionId le 0) and (actionOverview.brokerList.size() > 0)}"
-    id="formDatabrokers">
-  <h3 class="withButton">Registered Brokers</h3>
-  <h:commandButton value="Refresh"/>
-  <input id="toggleSampleButton" type="button" value="Hide sample"
-         onclick="toggleSample();"/>
-  <t:dataTable id="databrokers" border="1"
-               style="border:1px solid black;border-collapse:collapse;text-align:center"
-               value="#{actionOverview.brokerList}" var="broker">
+      <h:form
+          rendered="#{(user.permissionId le 0) and (actionOverview.brokerList.size() > 0)}"
+          id="formDatabrokers">
+        <h3 class="withButton">Registered Brokers</h3>
+        <h:commandButton value="Refresh"/>
+        <input id="toggleSampleButton" type="button" value="Hide sample"
+               onclick="toggleSample();"/>
+        <t:dataTable id="databrokers" border="1"
+                     value="#{actionOverview.brokerList}" var="broker">
 
-    <t:column>
-      <f:facet name="header">ID</f:facet>
-      <h:outputText value="#{broker.brokerId}" id="id"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">ID</f:facet>
+            <h:outputText value="#{broker.brokerId}" id="id"/>
+          </t:column>
 
-    <t:column
-        styleClass="#{actionOverview.getBrokerState(broker.getBrokerId())}">
-      <f:facet name="header">Name</f:facet>
-      <h:outputLink value="mailto:#{broker.user.contactEmail}">
-        <h:outputText value="#{broker.brokerName}"/>
-      </h:outputLink>
-    </t:column>
+          <t:column
+              styleClass="#{actionOverview.getBrokerState(broker.getBrokerId())}">
+            <f:facet name="header">Name</f:facet>
+            <h:outputLink value="mailto:#{broker.user.contactEmail}">
+              <h:outputText value="#{broker.brokerName}"/>
+            </h:outputLink>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">User</f:facet>
-      <h:outputText value="#{broker.user.userName}"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">User</f:facet>
+            <h:outputText value="#{broker.user.userName}"/>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Registered</f:facet>
-      <h:outputText value="#{broker.getRegisteredString()}"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">Registered</f:facet>
+            <h:outputText value="#{broker.getRegisteredString()}"/>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">CheckIns</f:facet>
-      <t:outputText id="checkins"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">CheckIns</f:facet>
+            <t:outputText id="checkins"/>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">State</f:facet>
-      <t:outputText
-          value="#{actionOverview.getBrokerState(broker.getBrokerId())}"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">State</f:facet>
+            <t:outputText
+                value="#{actionOverview.getBrokerState(broker.getBrokerId())}"/>
+          </t:column>
 
-    <t:column>
-      <h:commandButton value="Toggle" styleClass="smallButton"
-                       action="#{actionOverview.toggleState(broker.getBrokerId())}"/>
-    </t:column>
-  </t:dataTable>
-  <h:messages for="formDatabrokers" layout=""/>
-</h:form>
-<br/>
+          <t:column>
+            <h:commandButton value="Toggle" styleClass="smallButton"
+                             action="#{actionOverview.toggleState(broker.getBrokerId())}"/>
+          </t:column>
+        </t:dataTable>
+        <h:messages for="formDatabrokers" layout=""/>
+      </h:form>
+      <br/>
 
-<h:form
-    rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteTournamentList.size() > 0)}"
-    id="tournamentForm">
-  <h3 class="withButton">Pending/Running Tournaments</h3>
-  <h:commandButton value="Refresh"/>
-  <t:dataTable id="datatourneys" border="1"
-               style="border:1px solid black;border-collapse:collapse;text-align:center"
-               value="#{actionOverview.notCompleteTournamentList}" var="t">
+      <h:form
+          rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteTournamentList.size() > 0)}"
+          id="tournamentForm">
+        <h3 class="withButton">Pending/Running Tournaments</h3>
+        <h:commandButton value="Refresh"/>
+        <t:dataTable id="datatourneys" border="1"
+                     value="#{actionOverview.notCompleteTournamentList}" var="t">
 
-    <t:column>
-      <f:facet name="header">ID</f:facet>
-      <h:outputText value="#{t.tournamentId}"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">ID</f:facet>
+            <h:outputText value="#{t.tournamentId}"/>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Name</f:facet>
-      <h:link value="#{t.tournamentName}" outcome="Tournament">
-        <f:param name="tournamentId" value="#{t.tournamentId}"/>
-      </h:link>
-    </t:column>
+          <t:column>
+            <f:facet name="header">Name</f:facet>
+            <h:link value="#{t.tournamentName}" outcome="Tournament">
+              <f:param name="tournamentId" value="#{t.tournamentId}"/>
+            </h:link>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Status</f:facet>
-      <h:outputText value="#{t.status}"/>
-      <h:outputText value=" / closed" rendered="#{t.closed}"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">Status</f:facet>
+            <h:outputText value="#{t.status}"/>
+            <h:outputText value=" / closed" rendered="#{t.closed}"/>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Type</f:facet>
-      <h:outputText value="Multi" rendered="#{t.type == 'MULTI_GAME'}"/>
-      <h:outputText value="Single" rendered="#{t.type == 'SINGLE_GAME'}"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">Type</f:facet>
+            <h:outputText value="Multi" rendered="#{t.type == 'MULTI_GAME'}"/>
+            <h:outputText value="Single" rendered="#{t.type == 'SINGLE_GAME'}"/>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Start Time</f:facet>
-      <h:outputText value="#{t.startTimeUTC()}"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">Start Time</f:facet>
+            <h:outputText value="#{t.startTimeUTC()}"/>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Reg / Max</f:facet>
-      <h:outputText value="#{t.brokerMap.size()} / #{t.maxBrokers}"/>
-      <h:outputText value=" : #{t.maxAgents}"
-                    rendered="#{t.type == 'MULTI_GAME'}"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">Reg / Max</f:facet>
+            <h:outputText value="#{t.brokerMap.size()} / #{t.maxBrokers}"/>
+            <h:outputText value=" : #{t.maxAgents}"
+                          rendered="#{t.type == 'MULTI_GAME'}"/>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Games</f:facet>
-      <h:outputText
-          value="#{t.size1} (#{t.multiplier1})  #{t.size2} (#{t.multiplier2})  #{t.size3} (#{t.multiplier3})"
-          rendered="#{t.type == 'MULTI_GAME'}"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">Games</f:facet>
+            <h:outputText
+                value="#{t.size1} (#{t.multiplier1})  #{t.size2} (#{t.multiplier2})  #{t.size3} (#{t.multiplier3})"
+                rendered="#{t.type == 'MULTI_GAME'}"/>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Pom</f:facet>
-      <a href="pom.jsp?pomId=#{t.pomId}">
-        <h:outputText value="#{t.pomId}"/>
-      </a>
-    </t:column>
+          <t:column>
+            <f:facet name="header">Pom</f:facet>
+            <a href="pom.jsp?pomId=#{t.pomId}">
+              <h:outputText value="#{t.pomId}"/>
+            </a>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Actions</f:facet>
-      <h:commandButton value="Now" action="#{actionOverview.startNow(t)}"
-                       onclick="return confirmAlert('This will start all the games in this tournament now. Proceed?');"
-                       rendered="#{!t.isStarted()}"/>
-    </t:column>
-  </t:dataTable>
+          <t:column styleClass="left">
+            <f:facet name="header">Actions</f:facet>
+            <h:commandButton value="Now" action="#{actionOverview.startNow(t)}"
+                             onclick="return confirmAlert('This will start all the games in this tournament now. Proceed?');"
+                             rendered="#{!t.isStarted()}"/>
+          </t:column>
+        </t:dataTable>
 
-  <h:messages for="tournamentForm"/>
-</h:form>
-<br/>
+        <h:messages for="tournamentForm"/>
+      </h:form>
+      <br/>
 
-<h:form
-    rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteGamesList.size() > 0)}"
-    id="gamesForm">
-  <h3 class="withButton">Pending/Running Games</h3>
-  <h:commandButton value="Refresh"/>
-  <input id="toggleActiveButton" type="button" value="Hide inactive"
-         onclick="toggleActive();"/>
-  <t:dataTable id="datagames" border="1"
-               style="border:1px solid black;border-collapse:collapse;text-align:center"
-               value="#{actionOverview.notCompleteGamesList}" var="g">
-    <t:column>
-      <f:facet name="header">ID</f:facet>
-      <h:outputText value="#{g.gameId}" id="id"/>
-    </t:column>
+      <h:form
+          rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteGamesList.size() > 0)}"
+          id="gamesForm">
+        <h3 class="withButton">Pending/Running Games</h3>
+        <h:commandButton value="Refresh"/>
+        <input id="toggleActiveButton" type="button" value="Hide inactive"
+               onclick="toggleActive();"/>
+        <t:dataTable id="datagames" border="1"
+                     value="#{actionOverview.notCompleteGamesList}" var="g">
+          <t:column>
+            <f:facet name="header">ID</f:facet>
+            <h:outputText value="#{g.gameId}" id="id"/>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Name</f:facet>
-      <h:link value="#{g.gameName}" outcome="Game">
-        <f:param name="gameId" value="#{g.gameId}"/>
-      </h:link>
-    </t:column>
+          <t:column>
+            <f:facet name="header">Name</f:facet>
+            <h:link value="#{g.gameName}" outcome="Game">
+              <f:param name="gameId" value="#{g.gameId}"/>
+            </h:link>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Status</f:facet>
-      <h:outputText value="#{g.status}"
-                    style="#{g.isRunning() ? 'font-weight:bold;' : '' }"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">Status</f:facet>
+            <h:outputText value="#{g.status}"
+                          style="#{g.isRunning() ? 'font-weight:bold;' : '' }"/>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Brokers</f:facet>
-      <h:outputText value="#{g.getBrokerIdsInGameString()}"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">Brokers</f:facet>
+            <h:outputText value="#{g.getBrokerIdsInGameString()}"/>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Heartbeat</f:facet>
-      <t:outputText id="heartbeat" rendered="#{g.isRunning()}"
-                    style="float:left; width: 110px;"/>
-    </t:column>
+          <t:column>
+            <f:facet name="header">Heartbeat</f:facet>
+            <t:outputText id="heartbeat" rendered="#{g.isRunning()}"
+                          style="float:left; width: 110px;"/>
+          </t:column>
 
-    <t:column style="text-align: left">
-      <f:facet name="header">Links</f:facet>
-      <h:panelGroup>
-        <h:outputLink value="properties.jsp?gameId=#{g.gameId}"
-                      target="_blank">Props</h:outputLink>
+          <t:column styleClass="left">
+            <f:facet name="header">Links</f:facet>
+            <h:panelGroup>
+              <h:outputLink value="properties.jsp?gameId=#{g.gameId}"
+                            target="_blank">Props</h:outputLink>
 
-        <h:outputText value=" | " rendered="#{g.hasBootstrap()}"/>
-        <h:outputLink
-            value="serverInterface.jsp?action=boot&amp;gameId=#{g.gameId}"
-            rendered="#{g.hasBootstrap()}"
-            target="_blank">Boot</h:outputLink>
+              <h:outputText value=" | " rendered="#{g.hasBootstrap()}"/>
+              <h:outputLink
+                  value="serverInterface.jsp?action=boot&amp;gameId=#{g.gameId}"
+                  rendered="#{g.hasBootstrap()}"
+                  target="_blank">Boot</h:outputLink>
 
-        <h:outputText value=" | " rendered="#{g.isRunning()}"/>
-        <h:outputLink value="http://#{g.machine.vizUrl}"
-                      rendered="#{g.isRunning()}"
-                      target="_blank">Viz</h:outputLink>
+              <h:outputText value=" | " rendered="#{g.isRunning()}"/>
+              <h:outputLink value="http://#{g.machine.vizUrl}"
+                            rendered="#{g.isRunning()}"
+                            target="_blank">Viz</h:outputLink>
 
-        <h:outputText value=" | " rendered="#{g.machine != null}"/>
-        <h:outputLink value="#{g.jenkinsMachineUrl()}"
-                      rendered="#{g.machine != null}"
-                      target="_blank">Jenkins</h:outputLink>
-      </h:panelGroup>
-    </t:column>
+              <h:outputText value=" | " rendered="#{g.machine != null}"/>
+              <h:outputLink value="#{g.jenkinsMachineUrl()}"
+                            rendered="#{g.machine != null}"
+                            target="_blank">Jenkins</h:outputLink>
+            </h:panelGroup>
+          </t:column>
 
-    <t:column>
-      <f:facet name="header">Actions</f:facet>
-      <h:panelGroup>
-        <h:commandButton value="Abort" action="#{actionOverview.abortGame(g)}"
-                         onclick="return confirmAlert('Are you sure you want to abort this game?');"
-                         rendered="#{g.machine != null and g.isRunning()}"
-                         styleClass="smallButton"/>
-        <h:commandButton value="Kill" action="#{actionOverview.killGame(g)}"
-                         onclick="return confirmAlert('Are you sure you want to kill this game?');"
-                         rendered="#{g.machine != null}"
-                         styleClass="smallButton"/>
-        <h:commandButton value="Restart"
-                         action="#{actionOverview.restartGame(g)}"
-                         rendered="#{g.isFailed()}" styleClass="smallButton"/>
-      </h:panelGroup>
-    </t:column>
-  </t:dataTable>
+          <t:column styleClass="left">
+            <f:facet name="header">Actions</f:facet>
+            <h:panelGroup>
+              <h:commandButton value="Abort" action="#{actionOverview.abortGame(g)}"
+                               onclick="return confirmAlert('Are you sure you want to abort this game?');"
+                               rendered="#{g.machine != null and g.isRunning()}"
+                               styleClass="smallButton"/>
+              <h:commandButton value="Kill" action="#{actionOverview.killGame(g)}"
+                               onclick="return confirmAlert('Are you sure you want to kill this game?');"
+                               rendered="#{g.machine != null}"
+                               styleClass="smallButton"/>
+              <h:commandButton value="Restart"
+                               action="#{actionOverview.restartGame(g)}"
+                               rendered="#{g.isFailed()}" styleClass="smallButton"/>
+            </h:panelGroup>
+          </t:column>
+        </t:dataTable>
 
-  <h:messages for="gamesForm"/>
-  <br/>
-</h:form>
+        <h:messages for="gamesForm"/>
+        <br/>
+      </h:form>
 
-<h:form rendered="#{user.permissionId gt 0}">
-  <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
-  <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
-</h:form>
+      <h:form rendered="#{user.permissionId gt 0}">
+        <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
+        <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
+      </h:form>
 
-</ui:define>
-</ui:composition>
+    </ui:define>
+  </ui:composition>
 </h:body>
 </html>

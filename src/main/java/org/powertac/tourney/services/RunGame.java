@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class RunGame {
+public class RunGame
+{
   private static Logger log = Logger.getLogger("TMLogger");
 
   private Game game;
@@ -19,13 +20,15 @@ public class RunGame {
 
   private static boolean machinesAvailable;
 
-  public RunGame(Game game) {
+  public RunGame(Game game)
+  {
     this.game = game;
 
     run();
   }
 
-  private void run() {
+  private void run()
+  {
     session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -64,7 +67,8 @@ public class RunGame {
   /**
    * Make sure a bootstrap has been run for the sim
    */
-  private boolean checkBootstrap() {
+  private boolean checkBootstrap()
+  {
     if (game.hasBootstrap()) {
       return true;
     } else {
@@ -79,7 +83,8 @@ public class RunGame {
    * Also check if participating brokers have an agent available (we don't check
    * if agents are checking in, brokers are responsible for availability).
    */
-  private boolean checkBrokers() {
+  private boolean checkBrokers()
+  {
     if (game.getAgentMap().size() < 1) {
       log.info(String.format("Game: %s (tournament %s) reports no brokers "
           + "registered",
@@ -112,7 +117,8 @@ public class RunGame {
    * Make sure there is a machine available for the game
    */
   private boolean checkMachineAvailable()
-      throws Exception {
+      throws Exception
+  {
     try {
       log.info("Claiming free machine");
 
@@ -141,7 +147,8 @@ public class RunGame {
    * If all conditions are met (we have a slave available, game is booted and
    * agents should be avalable) send job to Jenkins.
    */
-  private boolean startJob() throws Exception {
+  private boolean startJob() throws Exception
+  {
     String finalUrl =
         properties.getProperty("jenkins.location")
             + "job/start-sim-server/buildWithParameters?"
@@ -177,7 +184,8 @@ public class RunGame {
    * games in that tournament. If no tournament loaded, we look for games in
    * all singleGame tournaments.
   **/
-  public static void startRunnableGames(Tournament runningTournament) {
+  public static void startRunnableGames(Tournament runningTournament)
+  {
     log.info("WatchDogTimer Looking for Runnable Games");
 
     List<Game> games = new ArrayList<Game>();

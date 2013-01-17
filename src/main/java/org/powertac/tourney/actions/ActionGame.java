@@ -20,16 +20,19 @@ import java.util.Map;
 
 @ManagedBean
 @RequestScoped
-public class ActionGame {
+public class ActionGame
+{
   private Game game;
   private List<String> gameInfo = new ArrayList<String>();
   private List<Map.Entry<String, Double>> resultMap = new ArrayList<Map.Entry<String, Double>>();
 
-  public ActionGame() {
+  public ActionGame()
+  {
     loadData();
   }
 
-  private void loadData() {
+  private void loadData()
+  {
     int gameId = getGameId();
     if (gameId < 1) {
       return;
@@ -59,7 +62,8 @@ public class ActionGame {
     }
   }
 
-  private int getGameId() {
+  private int getGameId()
+  {
     FacesContext facesContext = FacesContext.getCurrentInstance();
     try {
       return Integer.parseInt(facesContext.getExternalContext().
@@ -70,7 +74,8 @@ public class ActionGame {
     }
   }
 
-  private void loadGameInfo() {
+  private void loadGameInfo()
+  {
     gameInfo.add("Id : " + game.getGameId());
     gameInfo.add("Name : " + game.getGameName());
     gameInfo.add("Status : " + game.getStatus());
@@ -101,7 +106,8 @@ public class ActionGame {
     gameInfo.add("SimStartTime : " + game.getSimStartTime());
   }
 
-  private void loadResultMap() {
+  private void loadResultMap()
+  {
     for (Agent agent : game.getAgentMap().values()) {
       Map.Entry<String, Double> entry2 =
           new AbstractMap.SimpleEntry<String, Double>(
@@ -111,19 +117,23 @@ public class ActionGame {
   }
 
   //<editor-fold desc="Setters and Getters">
-  public Game getGame() {
+  public Game getGame()
+  {
     return game;
   }
 
-  public void setGame(Game game) {
+  public void setGame(Game game)
+  {
     this.game = game;
   }
 
-  public List<String> getGameInfo() {
+  public List<String> getGameInfo()
+  {
     return gameInfo;
   }
 
-  public List<Map.Entry<String, Double>> getResultMap() {
+  public List<Map.Entry<String, Double>> getResultMap()
+  {
     return resultMap;
   }
   //</editor-fold>

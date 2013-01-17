@@ -14,13 +14,16 @@ import java.util.Iterator;
 
 
 @WebServlet(description = "Access to the REST API", urlPatterns = {"/Rest"})
-public class Rest extends HttpServlet {
-  public Rest() {
+public class Rest extends HttpServlet
+{
+  public Rest()
+  {
     super();
   }
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
+      throws ServletException, IOException
+  {
     String type = request.getParameter("type");
     response.setContentType("application/json");
     PrintWriter out = response.getWriter();
@@ -42,7 +45,8 @@ public class Rest extends HttpServlet {
     out.close();
   }
 
-  private String parseBrokers() {
+  private String parseBrokers()
+  {
     String result = "{ ";
 
     for (Integer i : MemStore.brokerCheckins.keySet()) {
@@ -74,7 +78,8 @@ public class Rest extends HttpServlet {
     return result;
   }
 
-  private String parseGames() {
+  private String parseGames()
+  {
     String result = "{ ";
 
     for (Integer i : MemStore.gameHeartbeats.keySet()) {
@@ -114,7 +119,8 @@ public class Rest extends HttpServlet {
     return result;
   }
 
-  private String parseVisualizers() {
+  private String parseVisualizers()
+  {
     String result = "{ ";
 
     for (String s : MemStore.vizCheckins.keySet()) {
@@ -146,7 +152,8 @@ public class Rest extends HttpServlet {
     return result;
   }
 
-  private String parseWatchdog() {
+  private String parseWatchdog()
+  {
     Scheduler scheduler = Scheduler.getScheduler();
     return "{ \"text\": \"WatchDog running "
         + scheduler.getLastWatchdogRun() + "\" }";

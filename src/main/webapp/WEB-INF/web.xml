@@ -10,7 +10,8 @@
     <param-value>/WEB-INF/applicationContext.xml</param-value>
   </context-param>
   <listener>
-    <listener-class>org.springframework.web.context.ContextLoaderListener
+    <listener-class>
+      org.springframework.web.context.ContextLoaderListener
     </listener-class>
   </listener>
   <listener>
@@ -19,7 +20,8 @@
     </listener-class>
   </listener>
   <error-page>
-    <exception-type>javax.faces.application.ViewExpiredException
+    <exception-type>
+      javax.faces.application.ViewExpiredException
     </exception-type>
     <location>/SessionExpired.jsp</location>
   </error-page>
@@ -46,21 +48,11 @@
   </context-param>
   <context-param>
     <description>
-
-      This parameter tells MyFaces if javascript code should be
-      allowed in
-      the rendered HTML output.
-      If javascript is allowed,
-      command_link anchors will have javascript
-      code
-      that submits the
-      corresponding form.
-      If javascript is not allowed, the state saving
-      info and nested
-      parameters
-      will be added as url parameters.
-      Default is
-      'true'
+      This parameter tells MyFaces if javascript code should be allowed in the
+      rendered HTML output. If javascript is allowed, command_link anchors will
+      have javascript code that submits the corresponding form. If javascript is
+      not allowed, the state saving info and nested parameters will be added as
+      url parameters. Default is 'true'.
     </description>
     <param-name>org.apache.myfaces.ALLOW_JAVASCRIPT</param-name>
     <param-value>true</param-value>
@@ -68,23 +60,16 @@
   <context-param>
     <description>
       The default suffix for extension-mapped resources that contain JSF
-      components.
-      Default is '.xhtml'.
+      components. Default is '.xhtml'.
     </description>
     <param-name>javax.faces.DEFAULT_SUFFIX</param-name>
     <param-value>.xhtml</param-value>
   </context-param>
   <context-param>
     <description>
-
-      If true, rendered HTML code will be formatted, so that it
-      is
-      'human-readable'
-      i.e. additional line separators and whitespace will
-      be written, that do
-      not
-      influence the HTML code.
-      Default is 'true'
+      If true, rendered HTML code will be formatted, so that it is
+      'human-readable' i.e. additional line separators and whitespace will be
+      written, that do not influence the HTML code. Default is 'true'
     </description>
     <param-name>org.apache.myfaces.PRETTY_HTML</param-name>
     <param-value>true</param-value>
@@ -95,19 +80,11 @@
   </context-param>
   <context-param>
     <description>
-
-      If true, a javascript function will be rendered that is
-      able to restore
-      the
-      former vertical scroll on every request. Convenient
-      feature if you have
-      pages
-      with long lists and you do not want the
-      browser page to always jump to
-      the top
-      if you trigger a link or button
-      action that stays on the same page.
-      Default is 'false'
+      If true, a javascript function will be rendered that is able to restore
+      the former vertical scroll on every request. Convenient feature if you
+      have pages with long lists and you do not want the browser page to always
+      jump to the top if you trigger a link or button action that stays on the
+      same page. Default is 'false'
     </description>
     <param-name>org.apache.myfaces.AUTO_SCROLL</param-name>
     <param-value>true</param-value>
@@ -182,12 +159,14 @@
 
   <!-- Get rid of the annoying warnings -->
   <context-param>
-    <param-name>org.apache.myfaces.RENDER_CLEAR_JAVASCRIPT_FOR_BUTTON
+    <param-name>
+      org.apache.myfaces.RENDER_CLEAR_JAVASCRIPT_FOR_BUTTON
     </param-name>
     <param-value>false</param-value>
   </context-param>
   <context-param>
-    <param-name>org.apache.myfaces.RENDER_HIDDEN_FIELDS_FOR_LINK_PARAMS
+    <param-name>
+      org.apache.myfaces.RENDER_HIDDEN_FIELDS_FOR_LINK_PARAMS
     </param-name>
     <param-value>false</param-value>
   </context-param>
@@ -234,7 +213,8 @@
     <param-value>false</param-value>
   </context-param>
   <context-param>
-    <param-name>org.apache.myfaces.WRAP_SCRIPT_CONTENT_WITH_XML_COMMENT_TAG
+    <param-name>
+      org.apache.myfaces.WRAP_SCRIPT_CONTENT_WITH_XML_COMMENT_TAG
     </param-name>
     <param-value>true</param-value>
   </context-param>
@@ -244,7 +224,8 @@
   </context-param>
   <context-param>
     <param-name>org.apache.myfaces.ADD_RESOURCE_CLASS</param-name>
-    <param-value>org.apache.myfaces.renderkit.html.util.DefaultAddResource
+    <param-value>
+      org.apache.myfaces.renderkit.html.util.DefaultAddResource
     </param-value>
   </context-param>
   <context-param>

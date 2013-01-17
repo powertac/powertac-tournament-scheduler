@@ -16,7 +16,8 @@ import java.util.Date;
 
 @ManagedBean
 @RequestScoped
-public class ActionRegister {
+public class ActionRegister
+{
   private static Logger log = Logger.getLogger("TMLogger");
 
   private String username;
@@ -27,7 +28,8 @@ public class ActionRegister {
   private String contactEmail;
   private String contactPhone;
 
-  public String register() {
+  public String register()
+  {
     if (nameExists(username)) {
       return "Failure";
     }
@@ -63,7 +65,8 @@ public class ActionRegister {
     }
   }
 
-  private boolean nameExists(String username) {
+  private boolean nameExists(String username)
+  {
     User user = User.getUserByName(username);
     if (user != null) {
       String msg = "User Name taken, please select a new name";
@@ -74,7 +77,8 @@ public class ActionRegister {
     return false;
   }
 
-  private boolean passwordMismatch(String password1, String password2) {
+  private boolean passwordMismatch(String password1, String password2)
+  {
     if (!password1.equals(password2)) {
       String msg = "Passwords do not match";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
@@ -85,59 +89,73 @@ public class ActionRegister {
   }
 
   //<editor-fold desc="Setters and Getters">
-  public String getContactName() {
+  public String getContactName()
+  {
     return contactName;
   }
 
-  public void setContactName(String contactName) {
+  public void setContactName(String contactName)
+  {
     this.contactName = contactName;
   }
 
-  public String getInstitution() {
+  public String getInstitution()
+  {
     return institution;
   }
 
-  public void setInstitution(String institution) {
+  public void setInstitution(String institution)
+  {
     this.institution = institution;
   }
 
-  public String getContactEmail() {
+  public String getContactEmail()
+  {
     return contactEmail;
   }
 
-  public void setContactEmail(String contactEmail) {
+  public void setContactEmail(String contactEmail)
+  {
     this.contactEmail = contactEmail;
   }
 
-  public String getUsername() {
+  public String getUsername()
+  {
     return username;
   }
 
-  public void setUsername(String username) {
+  public void setUsername(String username)
+  {
     this.username = username;
   }
 
-  public String getPassword1() {
+  public String getPassword1()
+  {
     return password1;
   }
 
-  public void setPassword1(String password1) {
+  public void setPassword1(String password1)
+  {
     this.password1 = password1;
   }
 
-  public String getPassword2() {
+  public String getPassword2()
+  {
     return password2;
   }
 
-  public void setPassword2(String password2) {
+  public void setPassword2(String password2)
+  {
     this.password2 = password2;
   }
 
-  public String getContactPhone() {
+  public String getContactPhone()
+  {
     return contactPhone;
   }
 
-  public void setContactPhone(String contactPhone) {
+  public void setContactPhone(String contactPhone)
+  {
     this.contactPhone = contactPhone;
   }
   //</editor-fold>

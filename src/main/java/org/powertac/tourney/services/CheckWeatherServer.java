@@ -18,7 +18,8 @@ import java.util.TimerTask;
 
 @ManagedBean
 @Service("checkWeatherServer")
-public class CheckWeatherServer implements InitializingBean {
+public class CheckWeatherServer implements InitializingBean
+{
   private static Logger log = Logger.getLogger("TMLogger");
 
   @Autowired
@@ -29,18 +30,23 @@ public class CheckWeatherServer implements InitializingBean {
   private Timer weatherServerCheckerTimer = null;
   private boolean mailed;
 
-  public CheckWeatherServer() {
+  public CheckWeatherServer()
+  {
     super();
   }
 
-  public void afterPropertiesSet() throws Exception {
+  public void afterPropertiesSet() throws Exception
+  {
     lazyStart();
   }
 
-  private void lazyStart() {
-    TimerTask weatherServerChecker = new TimerTask() {
+  private void lazyStart()
+  {
+    TimerTask weatherServerChecker = new TimerTask()
+    {
       @Override
-      public void run() {
+      public void run()
+      {
         ping();
       }
     };
@@ -49,7 +55,8 @@ public class CheckWeatherServer implements InitializingBean {
     weatherServerCheckerTimer.schedule(weatherServerChecker, new Date(), 900000);
   }
 
-  public void ping() {
+  public void ping()
+  {
     log.info("Checking WeatherService");
     InputStream is = null;
     try {
@@ -96,7 +103,8 @@ public class CheckWeatherServer implements InitializingBean {
   }
 
   @PreDestroy
-  private void cleanUp() throws Exception {
+  private void cleanUp() throws Exception
+  {
     log.info("Spring Container is destroyed! CheckWeatherServer clean up");
 
     if (weatherServerCheckerTimer != null) {
@@ -107,7 +115,8 @@ public class CheckWeatherServer implements InitializingBean {
   }
 
   //<editor-fold desc="Setters and Getters">
-  public String getWeatherServerLocation() {
+  public String getWeatherServerLocation()
+  {
     if (weatherServerLocation.equals("")) {
       setWeatherServerLocation(properties.getProperty("weatherServerLocation"));
     }
@@ -115,15 +124,18 @@ public class CheckWeatherServer implements InitializingBean {
     return weatherServerLocation;
   }
 
-  public void setWeatherServerLocation(String weatherServerLocation) {
+  public void setWeatherServerLocation(String weatherServerLocation)
+  {
     this.weatherServerLocation = weatherServerLocation;
   }
 
-  public String getStatus() {
+  public String getStatus()
+  {
     return status;
   }
 
-  public void setStatus(String newStatus) {
+  public void setStatus(String newStatus)
+  {
     status = newStatus;
   }
   //</editor-fold>

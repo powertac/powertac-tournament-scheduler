@@ -16,36 +16,43 @@ import java.util.List;
 
 @ManagedBean
 @RequestScoped
-public class ActionOverview {
+public class ActionOverview
+{
   private static Logger log = Logger.getLogger("TMLogger");
 
   private List<Broker> brokerList = new ArrayList<Broker>();
   private List<Game> notCompleteGamesList = new ArrayList<Game>();
   private List<Tournament> notCompleteTournamentList = new ArrayList<Tournament>();
 
-  public ActionOverview() {
+  public ActionOverview()
+  {
     loadData();
   }
 
-  private void loadData() {
+  private void loadData()
+  {
     brokerList = Broker.getBrokerList();
     notCompleteGamesList = Game.getNotCompleteGamesList();
     notCompleteTournamentList = Tournament.getNotCompleteTournamentList();
   }
 
-  public List<Broker> getBrokerList() {
+  public List<Broker> getBrokerList()
+  {
     return brokerList;
   }
 
-  public List<Tournament> getNotCompleteTournamentList() {
+  public List<Tournament> getNotCompleteTournamentList()
+  {
     return notCompleteTournamentList;
   }
 
-  public List<Game> getNotCompleteGamesList() {
+  public List<Game> getNotCompleteGamesList()
+  {
     return notCompleteGamesList;
   }
 
-  public String getBrokerState(int brokerId) {
+  public String getBrokerState(int brokerId)
+  {
     if (MemStore.getBrokerState(brokerId)) {
       return "Enabled";
     } else {
@@ -53,7 +60,8 @@ public class ActionOverview {
     }
   }
 
-  public void toggleState(int brokerId) {
+  public void toggleState(int brokerId)
+  {
     boolean enabled = true;
 
     try {
@@ -64,7 +72,8 @@ public class ActionOverview {
     MemStore.setBrokerState(brokerId, !enabled);
   }
 
-  public void startNow(Tournament tournament) {
+  public void startNow(Tournament tournament)
+  {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -111,7 +120,8 @@ public class ActionOverview {
     }
   }
 
-  public void abortGame(Game game) {
+  public void abortGame(Game game)
+  {
     log.info("Trying to abort game: " + game.getGameId());
 
     new RunAbort(game.getMachine().getMachineName());
@@ -121,7 +131,8 @@ public class ActionOverview {
     FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
   }
 
-  public void killGame(Game game) {
+  public void killGame(Game game)
+  {
     log.info("Trying to kill game: " + game.getGameId());
 
     int gameId = game.getGameId();
@@ -171,7 +182,8 @@ public class ActionOverview {
     new RunKill(machineName);
   }
 
-  public void restartGame(Game game) {
+  public void restartGame(Game game)
+  {
     log.info("Trying to restart game: " + game.getGameId());
 
     int gameId = game.getGameId();

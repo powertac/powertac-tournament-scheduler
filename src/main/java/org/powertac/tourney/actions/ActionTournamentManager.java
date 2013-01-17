@@ -17,7 +17,8 @@ import java.util.*;
 
 @ManagedBean
 @RequestScoped
-public class ActionTournamentManager {
+public class ActionTournamentManager
+{
   private static Logger log = Logger.getLogger("TMLogger");
 
   private boolean[] disabled = new boolean[13];
@@ -42,27 +43,33 @@ public class ActionTournamentManager {
   private List<String> locations;
   private boolean closed;
 
-  public ActionTournamentManager() {
+  public ActionTournamentManager()
+  {
     resetValues();
   }
 
-  public List<Tournament.TYPE> getTypes() {
+  public List<Tournament.TYPE> getTypes()
+  {
     return Arrays.asList(Tournament.TYPE.values());
   }
 
-  public List<Tournament> getTournamentList() {
+  public List<Tournament> getTournamentList()
+  {
     return Tournament.getNotCompleteTournamentList();
   }
 
-  public List<Pom> getPomList() {
+  public List<Pom> getPomList()
+  {
     return Pom.getPomList();
   }
 
-  public List<Location> getLocationList() {
+  public List<Location> getLocationList()
+  {
     return Location.getLocationList();
   }
 
-  public void saveTournament() {
+  public void saveTournament()
+  {
     if (tournamentName.trim().isEmpty()) {
       String msg = "The tournament name cannot be empty";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
@@ -90,7 +97,8 @@ public class ActionTournamentManager {
     }
   }
 
-  private void createTournament() {
+  private void createTournament()
+  {
     log.info("Creating " + type.toString() + " tournament");
 
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -128,7 +136,8 @@ public class ActionTournamentManager {
     }
   }
 
-  public void editTournament(Tournament tournament) {
+  public void editTournament(Tournament tournament)
+  {
     tourneyId = tournament.getTournamentId();
     tournamentName = tournament.getTournamentName();
     type = Tournament.TYPE.valueOf(tournament.getType());
@@ -167,7 +176,8 @@ public class ActionTournamentManager {
     disabled[12] = true; // closed
   }
 
-  public void saveEditedTournament() {
+  public void saveEditedTournament()
+  {
     log.info("Saving tournament " + tourneyId);
 
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -194,7 +204,8 @@ public class ActionTournamentManager {
     }
   }
 
-  public void removeTournament(Tournament tournament) {
+  public void removeTournament(Tournament tournament)
+  {
     if (!tournament.getTournamentName().toLowerCase().contains("test")) {
       log.info("Someone tried to remove a non-test Tournament!");
       String msg = "Nice try, hacker!";
@@ -212,7 +223,8 @@ public class ActionTournamentManager {
     }
   }
 
-  public void setValues(Tournament tournament) {
+  public void setValues(Tournament tournament)
+  {
     String allLocations = "";
     for (String s : locations) {
       allLocations += s + ",";
@@ -247,7 +259,8 @@ public class ActionTournamentManager {
     tournament.setClosed(closed);
   }
 
-  public void resetValues() {
+  public void resetValues()
+  {
     tourneyId = -1;
     tournamentName = "";
     type = Tournament.TYPE.SINGLE_GAME;
@@ -277,19 +290,23 @@ public class ActionTournamentManager {
     brokerList = Broker.getBrokerList();
   }
 
-  public List<Broker> getBrokerList() {
+  public List<Broker> getBrokerList()
+  {
     return brokerList;
   }
 
-  public List<Tournament> getAvailableTournaments(Broker b) {
+  public List<Tournament> getAvailableTournaments(Broker b)
+  {
     return b.getAvailableTournaments(false);
   }
 
-  public List<Tournament> getRegisteredTournaments(Broker b) {
+  public List<Tournament> getRegisteredTournaments(Broker b)
+  {
     return b.getRegisteredTournaments();
   }
 
-  public void register(Broker b) {
+  public void register(Broker b)
+  {
     if (!(b.getSelectedTourneyRegister() > 0)) {
       return;
     }
@@ -298,7 +315,7 @@ public class ActionTournamentManager {
     if (!registered) {
       String msg = "Error registering broker";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("formDatabrokers", fm);
+      FacesContext.getCurrentInstance().addMessage("tournamentRegistered", fm);
     } else {
       brokerList = Broker.getBrokerList();
       User user = User.getCurrentUser();
@@ -306,7 +323,8 @@ public class ActionTournamentManager {
     }
   }
 
-  public void unregister(Broker b) {
+  public void unregister(Broker b)
+  {
     if (!(b.getSelectedTourneyUnregister() > 0)) {
       return;
     }
@@ -315,7 +333,7 @@ public class ActionTournamentManager {
     if (!registered) {
       String msg = "Error unregistering broker";
       FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("formDatabrokers", fm);
+      FacesContext.getCurrentInstance().addMessage("tournamentRegistered", fm);
     } else {
       brokerList = Broker.getBrokerList();
       User user = User.getCurrentUser();
@@ -324,147 +342,183 @@ public class ActionTournamentManager {
   }
 
   //<editor-fold desc="Setters and getters">
-  public int getTourneyId() {
+  public int getTourneyId()
+  {
     return tourneyId;
   }
 
-  public void setTourneyId(int tourneyId) {
+  public void setTourneyId(int tourneyId)
+  {
     this.tourneyId = tourneyId;
   }
 
-  public String getTournamentName() {
+  public String getTournamentName()
+  {
     return tournamentName;
   }
 
-  public void setTournamentName(String tournamentName) {
+  public void setTournamentName(String tournamentName)
+  {
     this.tournamentName = tournamentName;
   }
 
-  public Tournament.TYPE getType() {
+  public Tournament.TYPE getType()
+  {
     return type;
   }
 
-  public void setType(Tournament.TYPE type) {
+  public void setType(Tournament.TYPE type)
+  {
     this.type = type;
   }
 
-  public int getMaxBrokers() {
+  public int getMaxBrokers()
+  {
     return maxBrokers;
   }
 
-  public void setMaxBrokers(int maxBrokers) {
+  public void setMaxBrokers(int maxBrokers)
+  {
     this.maxBrokers = maxBrokers;
   }
 
-  public int getMaxAgents() {
+  public int getMaxAgents()
+  {
     return maxAgents;
   }
 
-  public void setMaxAgents(int maxAgents) {
+  public void setMaxAgents(int maxAgents)
+  {
     this.maxAgents = maxAgents;
   }
 
-  public int getSize1() {
+  public int getSize1()
+  {
     return size1;
   }
 
-  public void setSize1(int size1) {
+  public void setSize1(int size1)
+  {
     this.size1 = size1;
   }
 
-  public int getSize2() {
+  public int getSize2()
+  {
     return size2;
   }
 
-  public void setSize2(int size2) {
+  public void setSize2(int size2)
+  {
     this.size2 = size2;
   }
 
-  public int getSize3() {
+  public int getSize3()
+  {
     return size3;
   }
 
-  public void setSize3(int size3) {
+  public void setSize3(int size3)
+  {
     this.size3 = size3;
   }
 
-  public int getMultiplier1() {
+  public int getMultiplier1()
+  {
     return multiplier1;
   }
 
-  public void setMultiplier1(int multiplier1) {
+  public void setMultiplier1(int multiplier1)
+  {
     this.multiplier1 = multiplier1;
   }
 
-  public int getMultiplier2() {
+  public int getMultiplier2()
+  {
     return multiplier2;
   }
 
-  public void setMultiplier2(int multiplier2) {
+  public void setMultiplier2(int multiplier2)
+  {
     this.multiplier2 = multiplier2;
   }
 
-  public int getMultiplier3() {
+  public int getMultiplier3()
+  {
     return multiplier3;
   }
 
-  public void setMultiplier3(int multiplier3) {
+  public void setMultiplier3(int multiplier3)
+  {
     this.multiplier3 = multiplier3;
   }
 
-  public Date getStartTime() {
+  public Date getStartTime()
+  {
     return startTime;
   }
 
-  public void setStartTime(Date startTime) {
+  public void setStartTime(Date startTime)
+  {
     this.startTime = startTime;
   }
 
-  public Date getDateFrom() {
+  public Date getDateFrom()
+  {
     return dateFrom;
   }
 
-  public void setDateFrom(Date dateFrom) {
+  public void setDateFrom(Date dateFrom)
+  {
     this.dateFrom = dateFrom;
   }
 
-  public Date getDateTo() {
+  public Date getDateTo()
+  {
     return dateTo;
   }
 
-  public void setDateTo(Date dateTo) {
+  public void setDateTo(Date dateTo)
+  {
     this.dateTo = dateTo;
   }
 
-  public int getSelectedPom() {
+  public int getSelectedPom()
+  {
     return selectedPom;
   }
 
-  public void setSelectedPom(int selectedPom) {
+  public void setSelectedPom(int selectedPom)
+  {
     this.selectedPom = selectedPom;
   }
 
-  public List<String> getLocations() {
+  public List<String> getLocations()
+  {
     return locations;
   }
 
-  public void setLocations(List<String> locations) {
+  public void setLocations(List<String> locations)
+  {
     this.locations = locations;
   }
 
-  public boolean[] getDisabled() {
+  public boolean[] getDisabled()
+  {
     return disabled;
   }
 
-  public void setDisabled(boolean[] disabled) {
+  public void setDisabled(boolean[] disabled)
+  {
     this.disabled = disabled;
   }
 
-  public boolean isClosed() {
+  public boolean isClosed()
+  {
     return closed;
   }
 
-  public void setClosed(boolean closed) {
+  public void setClosed(boolean closed)
+  {
     this.closed = closed;
   }
   //</editor-fold>

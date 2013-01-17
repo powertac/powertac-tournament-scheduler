@@ -21,7 +21,8 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "config", catalog = "tourney", uniqueConstraints = {
     @UniqueConstraint(columnNames = "configId")})
-public class Config {
+public class Config
+{
   private static Logger log = Logger.getLogger("TMLogger");
 
   private int configId;
@@ -31,34 +32,41 @@ public class Config {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   @Column(name = "configId", unique = true, nullable = false)
-  public int getConfigId() {
+  public int getConfigId()
+  {
     return configId;
   }
 
-  public void setConfigId(int configId) {
+  public void setConfigId(int configId)
+  {
     this.configId = configId;
   }
 
   @Column(name = "configKey", nullable = false)
-  public String getConfigKey() {
+  public String getConfigKey()
+  {
     return configKey;
   }
 
-  public void setConfigKey(String configKey) {
+  public void setConfigKey(String configKey)
+  {
     this.configKey = configKey;
   }
 
   @Column(name = "configValue", nullable = false)
   @Type(type = "text")
-  public String getConfigValue() {
+  public String getConfigValue()
+  {
     return configValue;
   }
 
-  public void setConfigValue(String configValue) {
+  public void setConfigValue(String configValue)
+  {
     this.configValue = configValue;
   }
 
-  public static String getIndexContent() {
+  public static String getIndexContent()
+  {
     String content;
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
@@ -88,7 +96,8 @@ public class Config {
     return content;
   }
 
-  public static boolean setIndexContent(String newContent) {
+  public static boolean setIndexContent(String newContent)
+  {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {

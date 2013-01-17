@@ -1,3 +1,8 @@
+body {
+    font-family: "Times New Roman", Times, serif;
+    font-size:16px;
+}
+
 h4 {
     margin: 0;
 }
@@ -7,12 +12,24 @@ table {
     border-collapse: collapse;
 }
 
-table.dataTable {
-    border: 1px solid black;
+th {
+    vertical-align: middle;
+    padding: 0 10px 0 10px;
+}
+
+td {
+    vertical-align: middle;
+    padding: 1px 5px 1px 5px;
+    padding-right: 10px;
     text-align: center;
 }
 
+table.dataTable {
+    border: 1px solid black;
+}
+
 table.dataTable td {
+    padding-left: 0;
     padding-right: 0;
 }
 
@@ -26,25 +43,6 @@ table.dataTable tr.odd td.sorting_1 {
 
 table.dataTable tr.even td.sorting_1 {
     background-color: #FFFFFF;
-}
-
-th {
-    vertical-align: middle;
-    padding: 0 10px 0 10px;
-}
-
-td {
-    vertical-align: middle;
-    padding: 1px 5px 1px 5px;
-    padding-right: 10px;
-}
-
-td.left {
-    text-align: left;
-}
-
-td.right {
-    text-align: right;
 }
 
 td.Disabled {
@@ -69,6 +67,14 @@ input[readonly], input[readonly="readonly"] {
 input.smallButton {
     padding: 0;
     margin: 0;
+}
+
+.left {
+    text-align: left;
+}
+
+.right {
+    text-align: right;
 }
 
 #page {
@@ -114,4 +120,20 @@ input.smallButton {
 textarea.contentInput {
     width: 960px;
     height: 400px;
+}
+
+#adminControls table td {
+    text-align: left;
+}
+#loginForm table td {
+    text-align: left;
+}
+#registerForm table td {
+    text-align: left;
+}
+#saveTournament table td {
+    text-align: left;
+}
+#saveCompetition table td {
+    text-align: left;
 }

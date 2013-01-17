@@ -23,7 +23,8 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "machines", catalog = "tourney", uniqueConstraints = {
     @UniqueConstraint(columnNames = "machineId")})
-public class Machine {
+public class Machine
+{
   private static Logger log = Logger.getLogger("TMLogger");
 
   private Integer machineId;
@@ -33,29 +34,37 @@ public class Machine {
   private boolean available;
   private String status;
 
-  public static enum STATE {idle, running}
-
-  public Machine() {
+  public static enum STATE
+  {
+    idle, running
   }
 
-  public boolean stateEquals(STATE state) {
+  public Machine()
+  {
+  }
+
+  public boolean stateEquals(STATE state)
+  {
     return this.status.equals(state.toString());
   }
 
   @Transient
-  public boolean isInProgress() {
+  public boolean isInProgress()
+  {
     return status.equals(STATE.running.toString());
   }
 
   @Transient
-  public String getJmsUrl() {
+  public String getJmsUrl()
+  {
     return "tcp://" + machineUrl + ":61616";
   }
 
   /**
    * Check the status of the Jenkins slaves against the local status
    */
-  public static void checkMachines() {
+  public static void checkMachines()
+  {
     log.info("WatchDogTimer Checking Machine States..");
 
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -120,7 +129,8 @@ public class Machine {
   }
 
   @SuppressWarnings("unchecked")
-  public static Machine getFreeMachine(Session session) {
+  public static Machine getFreeMachine(Session session)
+  {
     return (Machine) session.createCriteria(Machine.class)
         .add(Restrictions.eq("status", Machine.STATE.idle.toString()))
         .add(Restrictions.eq("available", true))
@@ -128,7 +138,8 @@ public class Machine {
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Machine> getMachineList() {
+  public static List<Machine> getMachineList()
+  {
     List<Machine> machines = new ArrayList<Machine>();
 
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -146,7 +157,8 @@ public class Machine {
     return machines;
   }
 
-  public static void delayedMachineUpdate(Machine machine, int delay) {
+  public static void delayedMachineUpdate(Machine machine, int delay)
+  {
     if (machine == null) {
       return;
     }
@@ -158,16 +170,19 @@ public class Machine {
     // some time to end the jenkins job. If the check-machines method runs
     // before the jobs end, the machine gets set to not-idle and never recover.
 
-    class updateThread implements Runnable {
+    class updateThread implements Runnable
+    {
       private int machineId;
       private int delay;
 
-      public updateThread(int machineId, int delay) {
+      public updateThread(int machineId, int delay)
+      {
         this.machineId = machineId;
         this.delay = delay;
       }
 
-      public void run() {
+      public void run()
+      {
         Utils.secondsSleep(delay);
 
         Session session = HibernateUtil.getSessionFactory().openSession();
@@ -193,56 +208,68 @@ public class Machine {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   @Column(name = "machineId", unique = true, nullable = false)
-  public Integer getMachineId() {
+  public Integer getMachineId()
+  {
     return machineId;
   }
 
-  public void setMachineId(Integer machineId) {
+  public void setMachineId(Integer machineId)
+  {
     this.machineId = machineId;
   }
 
   @Column(name = "machineName", unique = true, nullable = false)
-  public String getMachineName() {
+  public String getMachineName()
+  {
     return machineName;
   }
 
-  public void setMachineName(String machineName) {
+  public void setMachineName(String machineName)
+  {
     this.machineName = machineName;
   }
 
   @Column(name = "machineUrl", unique = true, nullable = false)
-  public String getMachineUrl() {
+  public String getMachineUrl()
+  {
     return machineUrl;
   }
 
-  public void setMachineUrl(String machineUrl) {
+  public void setMachineUrl(String machineUrl)
+  {
     this.machineUrl = machineUrl;
   }
 
   @Column(name = "visualizerUrl", unique = false, nullable = false)
-  public String getVizUrl() {
+  public String getVizUrl()
+  {
     return vizUrl;
   }
 
-  public void setVizUrl(String vizUrl) {
+  public void setVizUrl(String vizUrl)
+  {
     this.vizUrl = vizUrl;
   }
 
   @Column(name = "status", unique = false, nullable = false)
-  public String getStatus() {
+  public String getStatus()
+  {
     return status;
   }
 
-  public void setStatus(String status) {
+  public void setStatus(String status)
+  {
     this.status = status;
   }
 
   @Column(name = "available", unique = false, nullable = false)
-  public boolean isAvailable() {
+  public boolean isAvailable()
+  {
     return available;
   }
 
-  public void setAvailable(boolean available) {
+  public void setAvailable(boolean available)
+  {
     this.available = available;
   }
   //</editor-fold>

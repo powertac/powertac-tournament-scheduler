@@ -8,11 +8,13 @@ import javax.faces.context.FacesContext;
 import java.io.FileOutputStream;
 
 
-public class Upload {
+public class Upload
+{
   private UploadedFile uploadedFile;
   private String uploadLocation;
 
-  public boolean submit(String fileName) {
+  public boolean submit(String fileName)
+  {
     String filePath = uploadLocation + fileName;
 
     FileOutputStream fos = null;
@@ -39,11 +41,13 @@ public class Upload {
   }
 
   //<editor-fold desc="Setters and Getters">
-  public void setUploadedFile(UploadedFile uploadedFile) {
+  public void setUploadedFile(UploadedFile uploadedFile)
+  {
     this.uploadedFile = uploadedFile;
   }
 
-  public void setUploadLocation(String uploadLocation) {
+  public void setUploadLocation(String uploadLocation)
+  {
     this.uploadLocation = uploadLocation;
   }
   //</editor-fold>
