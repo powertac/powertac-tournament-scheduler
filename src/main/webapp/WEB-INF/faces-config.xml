@@ -57,8 +57,8 @@
       <to-view-id>/about.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>TournamentManager</from-outcome>
-      <to-view-id>/tournamentManager.xhtml</to-view-id>
+      <from-outcome>Tournaments</from-outcome>
+      <to-view-id>/tournaments.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>Overview</from-outcome>
@@ -80,14 +80,14 @@
 
   <!-- Specific Navigation rules -->
   <navigation-rule>
-    <from-view-id>/tournamentManager.xhtml</from-view-id>
+    <from-view-id>/tournaments.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>Success</from-outcome>
-      <to-view-id>/tournamentManager.xhtml</to-view-id>
+      <to-view-id>/tournaments.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>Error</from-outcome>
-      <to-view-id>/tournamentManager.xhtml</to-view-id>
+      <to-view-id>/tournaments.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 

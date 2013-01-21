@@ -1,10 +1,3 @@
-/**
- * Created with IntelliJ IDEA.
- * User: Govert Buijs
- * Date: 8/3/12
- * Time: 4:10 PM
- */
-
 function showGamesCount() {
     // Hardcoded for now. How do we get this dynamic? Input field?
     var maxSlaves = 5;
@@ -16,10 +9,10 @@ function showGamesCount() {
     var maxBrokers = parseInt(elems[2].value);
     var maxAgents = parseInt(elems[3].value);
     var gameType1 = parseInt(elems[4].value);
-    var gameType2 = parseInt(elems[6].value);
-    var gameType3 = parseInt(elems[8].value);
     var multiplier1 = parseInt(elems[5].value);
+    var gameType2 = parseInt(elems[6].value);
     var multiplier2 = parseInt(elems[7].value);
+    var gameType3 = parseInt(elems[8].value);
     var multiplier3 = parseInt(elems[9].value);
 
     setText("totalGames", "");
@@ -38,7 +31,7 @@ function showGamesCount() {
     var totalTime1 = 0;
     var totalTime2 = 0;
     var totalTime3 = 0;
-    var slaves = 0
+    var slaves = 0;
     if ((maxBrokers > 0) && (gameType1 > 0) && (multiplier1 > 0)) {
         if (gameType1 > maxBrokers) {
             elems[4].value = maxBrokers;

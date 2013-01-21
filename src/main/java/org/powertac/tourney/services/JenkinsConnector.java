@@ -1,10 +1,3 @@
-/**
- * Created by IntelliJ IDEA.
- * User: govert
- * Date: 9/27/12
- * Time: 12:48 PM
- */
-
 package org.powertac.tourney.services;
 
 import org.apache.commons.codec.binary.Base64;
@@ -21,7 +14,7 @@ import java.net.URLConnection;
 public class JenkinsConnector
 {
 
-  public static void sendJob(String jobUrl) throws Exception
+  public static void sendJob (String jobUrl) throws Exception
   {
     TournamentProperties properties = TournamentProperties.getProperties();
     InputStream is = null;
@@ -51,7 +44,7 @@ public class JenkinsConnector
     }
   }
 
-  public static NodeList getNodeList() throws Exception
+  public static NodeList getNodeList () throws Exception
   {
     TournamentProperties properties = TournamentProperties.getProperties();
 
@@ -63,7 +56,7 @@ public class JenkinsConnector
     return doc.getElementsByTagName("computer");
   }
 
-  public static NodeList getExecutorList(String machineName, int number)
+  public static NodeList getExecutorList (String machineName, int number)
       throws Exception
   {
     TournamentProperties properties = TournamentProperties.getProperties();

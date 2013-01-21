@@ -10,7 +10,8 @@
 <h:body>
   <ui:composition template="template.xhtml">
     <ui:define name="content">
-      <script type="text/javascript" charset="utf8" src="resources/js/admin.js"></script>
+<script type="text/javascript" charset="utf8"
+        src="resources/js/admin.js"></script>
 
       <h2>Admin</h2>
 
@@ -65,9 +66,9 @@
                                action="#{actionAdmin.loadTournament()}"
                                rendered="#{scheduler.nullTourney}"/>
             </h:panelGroup>
-            <h:outputText rendered="#{actionAdmin.availableTournaments.size() == 0}">
-              No tournaments availble for loading
-            </h:outputText>
+            <h:panelGroup rendered="#{actionAdmin.availableTournaments.size() == 0}">
+              <h:outputText >No tournaments availble for loading</h:outputText>
+            </h:panelGroup>
           </h:panelGroup>
 
           <h4>Weather Server Status</h4>
@@ -108,12 +109,12 @@
 
           <h:column>
             <f:facet name="header">Start Date for Data</f:facet>
-            <h:outputText value="#{l.fromDate}"/>
+            <h:outputText value="#{l.dateFrom}"/>
           </h:column>
 
           <h:column>
             <f:facet name="header">End Date for Data</f:facet>
-            <h:outputText value="#{l.toDate}"/>
+            <h:outputText value="#{l.dateTo}"/>
           </h:column>
 
           <h:column styleClass="left">
@@ -244,7 +245,7 @@
           </t:column>
           <t:column>
             <h:commandButton value="Toggle"
-                             action="#{actionAdmin.toggleStatus(m)}"
+                             action="#{actionAdmin.toggleState(m)}"
                              styleClass="smallButton"/>
           </t:column>
 

@@ -1,10 +1,3 @@
-/**
- * Created with IntelliJ IDEA.
- * User: govert
- * Date: 1/16/13
- * Time: 3:11 PM
- */
-
 function updateBrokers(data) {
     $('#accountForm0\\:brokers').find('>tbody>tr').each(function () {
         var sp = $(this).find('td:first-child span')[0];

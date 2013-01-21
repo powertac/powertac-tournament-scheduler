@@ -1,10 +1,3 @@
-/**
- * Created by IntelliJ IDEA.
- * User: Govert Buijs
- * Date: 6/29/12
- * Time: 1:07 PM
- */
-
 package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
@@ -25,7 +18,7 @@ public class Utils
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  public static void secondsSleep(int seconds)
+  public static void secondsSleep (int seconds)
   {
     try {
       Thread.sleep(seconds * 1000);
@@ -33,7 +26,7 @@ public class Utils
     }
   }
 
-  public static void sendMail(String sub, String msg, String recipient)
+  public static void sendMail (String sub, String msg, String recipient)
   {
     TournamentProperties properties = TournamentProperties.getProperties();
     final String username = properties.getProperty("gmail.username");
@@ -52,7 +45,7 @@ public class Utils
     Session session = Session.getInstance(props,
         new javax.mail.Authenticator()
         {
-          protected PasswordAuthentication getPasswordAuthentication()
+          protected PasswordAuthentication getPasswordAuthentication ()
           {
             return new PasswordAuthentication(username, password);
           }
@@ -74,7 +67,7 @@ public class Utils
     }
   }
 
-  public static void redirect()
+  public static void redirect ()
   {
     try {
       ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
@@ -85,12 +78,12 @@ public class Utils
 
   private static Random queueGenerator = new Random(new Date().getTime());
 
-  public static String createQueueName()
+  public static String createQueueName ()
   {
     return Long.toString(queueGenerator.nextLong(), 31);
   }
 
-  public static String dateFormat(Date date)
+  public static String dateFormat (Date date)
   {
     try {
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -100,12 +93,12 @@ public class Utils
     }
   }
 
-  public static Date offsetDate()
+  public static Date offsetDate ()
   {
     return offsetDate(new Date());
   }
 
-  public static Date offsetDate(Date date)
+  public static Date offsetDate (Date date)
   {
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(date);
@@ -157,7 +150,7 @@ public class Utils
    */
   public static class AlphanumComparator implements Comparator
   {
-    private boolean isDigit(char ch)
+    private boolean isDigit (char ch)
     {
       return ch >= 48 && ch <= 57;
     }
@@ -165,7 +158,7 @@ public class Utils
     /**
      * Length of string is passed in for improved efficiency (only need to calculate it once) *
      */
-    private String getChunk(String s, int slength, int marker)
+    private String getChunk (String s, int slength, int marker)
     {
       StringBuilder chunk = new StringBuilder();
       char c = s.charAt(marker);
@@ -191,7 +184,7 @@ public class Utils
       return chunk.toString();
     }
 
-    public int compare(Object o1, Object o2)
+    public int compare (Object o1, Object o2)
     {
       if (!(o1 instanceof String) || !(o2 instanceof String)) {
         return 0;

@@ -16,20 +16,19 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @ManagedBean
 @Entity
-@Table(name = "poms", catalog = "tourney", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "pomId")})
+@Table(name = "poms")
 public class Pom
 {
   private int pomId;
   private String pomName;
   private User user;
 
-  public Pom()
+  public Pom ()
   {
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Pom> getPomList()
+  public static List<Pom> getPomList ()
   {
     List<Pom> poms = new ArrayList<Pom>();
 
@@ -51,35 +50,35 @@ public class Pom
   @Id
   @GeneratedValue(strategy = IDENTITY)
   @Column(name = "pomId", unique = true, nullable = false)
-  public int getPomId()
+  public int getPomId ()
   {
     return pomId;
   }
 
-  public void setPomId(int pomId)
+  public void setPomId (int pomId)
   {
     this.pomId = pomId;
   }
 
   @Column(name = "pomName", unique = true, nullable = false)
-  public String getPomName()
+  public String getPomName ()
   {
     return pomName;
   }
 
-  public void setPomName(String pomName)
+  public void setPomName (String pomName)
   {
     this.pomName = pomName;
   }
 
   @ManyToOne
   @JoinColumn(name = "userId")
-  public User getUser()
+  public User getUser ()
   {
     return user;
   }
 
-  public void setUser(User user)
+  public void setUser (User user)
   {
     this.user = user;
   }

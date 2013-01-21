@@ -1,10 +1,3 @@
-/**
- * Created with IntelliJ IDEA.
- * User: govert
- * Date: 1/16/13
- * Time: 3:14 PM
- */
-
 function resizeTables() {
     $('[id$=runnning_games]').dataTable({
         "bFilter": false,

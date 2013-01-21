@@ -9,7 +9,7 @@ public class RunKill
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  public RunKill(String machineName)
+  public RunKill (String machineName)
   {
     if (machineName.isEmpty()) {
       return;

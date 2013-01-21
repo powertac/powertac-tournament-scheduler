@@ -21,8 +21,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 
 @Entity
-@Table(name = "games", catalog = "tourney", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "gameId")})
+@Table(name = "games")
 public class Game implements Serializable
 {
   private static Logger log = Logger.getLogger("TMLogger");
@@ -31,7 +30,7 @@ public class Game implements Serializable
   private String gameName;
   private Tournament tournament;
   private Machine machine = null;
-  private String status = STATE.boot_pending.toString();
+  private STATE state = STATE.boot_pending;
   private Date startTime;
   private Date readyTime;
   private String serverQueue = "";
@@ -48,7 +47,19 @@ public class Game implements Serializable
   public static enum STATE
   {
     boot_pending, boot_in_progress, boot_complete, boot_failed,
-    game_pending, game_ready, game_in_progress, game_complete, game_failed
+    game_pending, game_ready, game_in_progress, game_complete, game_failed;
+
+    public static final EnumSet<STATE> hasBootstrap = EnumSet.of(
+        boot_complete,
+        game_pending,
+        game_ready,
+        game_in_progress,
+        game_complete);
+
+    public static final EnumSet<STATE> isRunning = EnumSet.of(
+        game_pending,
+        game_ready,
+        game_in_progress);
   }
 
   /*
@@ -75,11 +86,11 @@ public class Game implements Serializable
     or boot-file, or when RunGame has problems sending the job to jenkins.
    */
 
-  public Game()
+  public Game ()
   {
   }
 
-  public void delete(Session session)
+  public void delete (Session session)
   {
     // Delete all agent belonging to this broker
     for (Agent agent : agentMap.values()) {
@@ -90,7 +101,7 @@ public class Game implements Serializable
   }
 
   @Transient
-  public String getBrokersInGameString()
+  public String getBrokersInGameString ()
   {
     String result = "";
 
@@ -106,7 +117,7 @@ public class Game implements Serializable
   }
 
   @Transient
-  public String getBrokerIdsInGameString()
+  public String getBrokerIdsInGameString ()
   {
     String result = "";
 
@@ -121,7 +132,7 @@ public class Game implements Serializable
     return result;
   }
 
-  public void handleStatus(Session session, String status) throws Exception
+  public void handleStatus (Session session, String status) throws Exception
   {
     STATE state;
     state = STATE.valueOf(status);
@@ -130,7 +141,7 @@ public class Game implements Serializable
       return;
     }
 
-    this.status = status;
+    this.state = STATE.valueOf(status);
     log.info(String.format("Update game: %s to %s", gameId, status));
 
     switch (state) {
@@ -146,7 +157,7 @@ public class Game implements Serializable
 
         // Reset values when a game is aborted
         for (Agent agent : getAgentMap().values()) {
-          agent.setStatus(Agent.STATE.pending.toString());
+          agent.setState(Agent.STATE.pending);
           agent.setBalance(0);
           session.update(agent);
         }
@@ -162,17 +173,17 @@ public class Game implements Serializable
         break;
 
       case game_ready:
-        tournament.setStatusToInProgress();
+        tournament.setStateToInProgress();
         readyTime = Utils.offsetDate();
         break;
 
       case game_in_progress:
-        tournament.setStatusToInProgress();
+        tournament.setStateToInProgress();
         break;
 
       case game_complete:
         for (Agent agent : agentMap.values()) {
-          agent.setStatus(Agent.STATE.complete.toString());
+          agent.setState(Agent.STATE.complete);
           session.update(agent);
         }
         log.info("Setting Agents to Complete for game: " + gameId);
@@ -186,7 +197,7 @@ public class Game implements Serializable
       case game_failed:
         log.warn("GAME " + gameId + " FAILED!");
         for (Agent agent : agentMap.values()) {
-          agent.setStatus(Agent.STATE.complete.toString());
+          agent.setState(Agent.STATE.complete);
           session.update(agent);
         }
         log.info("Setting Agents to Complete for game: " + gameId);
@@ -202,13 +213,13 @@ public class Game implements Serializable
    * This is called when the REST interface receives a heartbeat message (GET)
    * or a end-of-game message (POST)
    */
-  public String handleStandings(Session session, String standings,
-                                boolean isEndOfGame) throws Exception
+  public String handleStandings (Session session, String standings,
+                                 boolean isEndOfGame) throws Exception
   {
     log.debug("We received standings for game " + gameId);
 
     if (isEndOfGame) {
-      log.debug("Status of the game is " + status);
+      log.debug("Status of the game is " + state);
 
       if (!isRunning()) {
         session.getTransaction().rollback();
@@ -243,34 +254,23 @@ public class Game implements Serializable
   }
 
   @Transient
-  public boolean isBooting()
+  public boolean isBooting ()
   {
-    return status.equals(STATE.boot_in_progress.toString());
+    return state.equals(STATE.boot_in_progress);
   }
 
   @Transient
-  public boolean isRunning()
+  public boolean isRunning ()
   {
-    List<String> running = Arrays.asList(
-        Game.STATE.game_pending.toString(),
-        Game.STATE.game_ready.toString(),
-        Game.STATE.game_in_progress.toString());
-    return running.contains(status);
+    return STATE.isRunning.contains(state);
   }
 
-  public boolean hasBootstrap()
+  public boolean hasBootstrap ()
   {
-    List<String> hasBootStrapStates = Arrays.asList(
-        STATE.boot_complete.toString(),
-        STATE.game_pending.toString(),
-        STATE.game_ready.toString(),
-        STATE.game_in_progress.toString(),
-        STATE.game_complete.toString());
-
-    return hasBootStrapStates.contains(status);
+    return STATE.hasBootstrap.contains(state);
   }
 
-  public void removeBootFile()
+  public void removeBootFile ()
   {
     String bootLocation = properties.getProperty("bootLocation") +
         gameId + "-boot.xml";
@@ -289,53 +289,53 @@ public class Game implements Serializable
     }
   }
 
-  public String startTimeUTC()
+  public String startTimeUTC ()
   {
     return Utils.dateFormat(startTime);
   }
 
-  public String readyTimeUTC()
+  public String readyTimeUTC ()
   {
     return Utils.dateFormat(readyTime);
   }
 
-  public boolean stateEquals(STATE state)
+  public boolean stateEquals (STATE state)
   {
-    return this.status.equals(state.toString());
+    return this.state.equals(state);
   }
 
   @Transient
-  public boolean isComplete()
+  public boolean isComplete ()
   {
     return stateEquals(STATE.game_complete);
   }
 
   @Transient
-  public boolean isReady()
+  public boolean isReady ()
   {
     return stateEquals(STATE.game_ready);
   }
 
   @Transient
-  public boolean isBootFailed()
+  public boolean isBootFailed ()
   {
     return stateEquals(STATE.boot_failed);
   }
 
   @Transient
-  public boolean isGameFailed()
+  public boolean isGameFailed ()
   {
     return stateEquals(STATE.game_failed);
   }
 
   @Transient
-  public boolean isFailed()
+  public boolean isFailed ()
   {
     return isBootFailed() || isGameFailed();
   }
 
   @Transient
-  public int getGameTypeIndex()
+  public int getGameTypeIndex ()
   {
     if (tournament.isSingle()) {
       return 0;
@@ -345,7 +345,7 @@ public class Game implements Serializable
     return Integer.parseInt(parts[parts.length - 3]) - 1;
   }
 
-  public String jenkinsMachineUrl()
+  public String jenkinsMachineUrl ()
   {
     if (machine == null) {
       return "";
@@ -356,7 +356,7 @@ public class Game implements Serializable
         machine.getMachineName());
   }
 
-  private void saveStandings()
+  private void saveStandings ()
   {
     try {
       gameLength = MemStore.gameLengths.get(gameId) + 360;
@@ -365,12 +365,12 @@ public class Game implements Serializable
     }
   }
 
-  public static Game createGame(Tournament tournament, String gameName)
+  public static Game createGame (Tournament tournament, String gameName)
   {
     Game game = new Game();
     game.setGameName(gameName);
     game.setTournament(tournament);
-    game.setStatus(STATE.boot_pending.toString());
+    game.setState(STATE.boot_pending);
     game.setStartTime(tournament.getStartTime());
     game.setSimStartTime(randomSimStartTime(tournament));
     game.setLocation(randomLocation(tournament));
@@ -380,13 +380,13 @@ public class Game implements Serializable
     return game;
   }
 
-  private static String randomLocation(Tournament tournament)
+  private static String randomLocation (Tournament tournament)
   {
     double randLocation = Math.random() * tournament.getLocationsList().size();
     return tournament.getLocationsList().get((int) Math.floor(randLocation));
   }
 
-  private static String randomSimStartTime(Tournament tournament)
+  private static String randomSimStartTime (Tournament tournament)
   {
     Date starting = new Date();
 
@@ -413,7 +413,7 @@ public class Game implements Serializable
 
   //<editor-fold desc="Collections">
   @SuppressWarnings("unchecked")
-  public static List<Game> getBootableSingleGames(Session session)
+  public static List<Game> getBootableSingleGames (Session session)
   {
     return (List<Game>) session
         .createQuery(Constants.HQL.GET_GAMES_SINGLE_BOOT_PENDING)
@@ -421,7 +421,7 @@ public class Game implements Serializable
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Game> getBootableMultiGames(Session session, Tournament tournament)
+  public static List<Game> getBootableMultiGames (Session session, Tournament tournament)
   {
     return (List<Game>) session
         .createQuery(Constants.HQL.GET_GAMES_MULTI_BOOT_PENDING)
@@ -430,7 +430,7 @@ public class Game implements Serializable
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Game> getStartableSingleGames(Session session)
+  public static List<Game> getStartableSingleGames (Session session)
   {
     return (List<Game>) session
         .createQuery(Constants.HQL.GET_GAMES_SINGLE_BOOT_COMPLETE)
@@ -439,7 +439,7 @@ public class Game implements Serializable
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Game> getStartableMultiGames(Session session, Tournament tournament)
+  public static List<Game> getStartableMultiGames (Session session, Tournament tournament)
   {
     return (List<Game>) session
         .createQuery(Constants.HQL.GET_GAMES_MULTI_BOOT_COMPLETE)
@@ -449,7 +449,7 @@ public class Game implements Serializable
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Game> getNotCompleteGamesList()
+  public static List<Game> getNotCompleteGamesList ()
   {
     List<Game> games = new ArrayList<Game>();
 
@@ -470,7 +470,7 @@ public class Game implements Serializable
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Game> getCompleteGamesList()
+  public static List<Game> getCompleteGamesList ()
   {
     List<Game> games = new ArrayList<Game>();
 
@@ -493,12 +493,12 @@ public class Game implements Serializable
   @OneToMany
   @JoinColumn(name = "gameId")
   @MapKey(name = "brokerId")
-  public Map<Integer, Agent> getAgentMap()
+  public Map<Integer, Agent> getAgentMap ()
   {
     return agentMap;
   }
 
-  public void setAgentMap(Map<Integer, Agent> agentMap)
+  public void setAgentMap (Map<Integer, Agent> agentMap)
   {
     this.agentMap = agentMap;
   }
@@ -508,148 +508,136 @@ public class Game implements Serializable
   @Id
   @GeneratedValue(strategy = IDENTITY)
   @Column(name = "gameId", unique = true, nullable = false)
-  public Integer getGameId()
+  public Integer getGameId ()
   {
     return gameId;
   }
-
-  public void setGameId(Integer gameId)
+  public void setGameId (Integer gameId)
   {
     this.gameId = gameId;
   }
 
   @Column(name = "gameName")
-  public String getGameName()
+  public String getGameName ()
   {
     return gameName;
   }
-
-  public void setGameName(String gameName)
+  public void setGameName (String gameName)
   {
     this.gameName = gameName;
   }
 
   @ManyToOne
   @JoinColumn(name = "tourneyId")
-  public Tournament getTournament()
+  public Tournament getTournament ()
   {
     return tournament;
   }
-
-  public void setTournament(Tournament tournament)
+  public void setTournament (Tournament tournament)
   {
     this.tournament = tournament;
   }
 
   @ManyToOne
   @JoinColumn(name = "machineId")
-  public Machine getMachine()
+  public Machine getMachine ()
   {
     return machine;
   }
-
-  public void setMachine(Machine machine)
+  public void setMachine (Machine machine)
   {
     this.machine = machine;
   }
 
-  @Column(name = "status", nullable = false)
-  public String getStatus()
+  @Column(name = "state", nullable = false)
+  @Enumerated(EnumType.STRING)
+  public STATE getState ()
   {
-    return status;
+    return state;
   }
-
-  public void setStatus(String status)
+  public void setState (STATE state)
   {
-    this.status = status;
+    this.state = state;
   }
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "startTime")
-  public Date getStartTime()
+  public Date getStartTime ()
   {
     return startTime;
   }
-
-  public void setStartTime(Date startTime)
+  public void setStartTime (Date startTime)
   {
     this.startTime = startTime;
   }
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "readyTime")
-  public Date getReadyTime()
+  public Date getReadyTime ()
   {
     return readyTime;
   }
-
-  public void setReadyTime(Date readyTime)
+  public void setReadyTime (Date readyTime)
   {
     this.readyTime = readyTime;
   }
 
   @Column(name = "visualizerQueue")
-  public String getVisualizerQueue()
+  public String getVisualizerQueue ()
   {
     return visualizerQueue;
   }
-
-  public void setVisualizerQueue(String name)
+  public void setVisualizerQueue (String name)
   {
     this.visualizerQueue = name;
   }
 
   @Column(name = "serverQueue")
-  public String getServerQueue()
+  public String getServerQueue ()
   {
     return serverQueue;
   }
-
-  public void setServerQueue(String name)
+  public void setServerQueue (String name)
   {
     this.serverQueue = name;
   }
 
   @Column(name = "location")
-  public String getLocation()
+  public String getLocation ()
   {
     return location;
   }
-
-  public void setLocation(String location)
+  public void setLocation (String location)
   {
     this.location = location;
   }
 
   @Column(name = "simStartDate")
-  public String getSimStartTime()
+  public String getSimStartTime ()
   {
     return simStartTime;
   }
-
-  public void setSimStartTime(String simStartTime)
+  public void setSimStartTime (String simStartTime)
   {
     this.simStartTime = simStartTime;
   }
 
   @Column(name = "gameLength")
-  public Integer getGameLength()
+  public Integer getGameLength ()
   {
     return gameLength;
   }
-
-  public void setGameLength(Integer gameLength)
+  public void setGameLength (Integer gameLength)
   {
     this.gameLength = gameLength;
   }
 
   @Column(name = "lastTick")
-  public Integer getLastTick()
+  public Integer getLastTick ()
   {
     return lastTick;
   }
-
-  public void setLastTick(Integer lastTick)
+  public void setLastTick (Integer lastTick)
   {
     this.lastTick = lastTick;
   }

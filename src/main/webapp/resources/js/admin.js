@@ -1,10 +1,3 @@
-/**
- * Created with IntelliJ IDEA.
- * User: govert
- * Date: 1/16/13
- * Time: 3:13 PM
- */
-
 function updateVisualizers(data) {
     $('#machinesForm\\:machines').find('>tbody>tr').each(function () {
         var sp = $(this).find('td:first-child span')[0];

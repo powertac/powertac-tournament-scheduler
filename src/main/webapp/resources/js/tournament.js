@@ -1,10 +1,3 @@
-/**
- * Created with IntelliJ IDEA.
- * User: govert
- * Date: 1/16/13
- * Time: 3:49 PM
- */
-
 function resizeTables() {
     $("[id$=dataresultsSingle]").dataTable({
         "bFilter": false,

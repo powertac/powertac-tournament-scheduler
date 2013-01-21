@@ -31,12 +31,12 @@ public class ActionTournament
   private Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
   private List<Double> avgsAndSDs = new ArrayList<Double>();
 
-  public ActionTournament()
+  public ActionTournament ()
   {
     loadData();
   }
 
-  private void loadData()
+  private void loadData ()
   {
     int tournamentId = getTournamentId();
     if (tournamentId < 1) {
@@ -67,7 +67,7 @@ public class ActionTournament
     }
   }
 
-  private int getTournamentId()
+  private int getTournamentId ()
   {
     FacesContext facesContext = FacesContext.getCurrentInstance();
     try {
@@ -81,7 +81,7 @@ public class ActionTournament
     }
   }
 
-  private void loadMaps()
+  private void loadMaps ()
   {
     resultMap = tournament.determineWinner();
     avgsAndSDs = tournament.getAvgsAndSDs(resultMap);
@@ -97,11 +97,11 @@ public class ActionTournament
     }
   }
 
-  private void loadTournamentInfo()
+  private void loadTournamentInfo ()
   {
     tournamentInfo.add("Id : " + tournament.getTournamentId());
     tournamentInfo.add("Name : " + tournament.getTournamentName());
-    tournamentInfo.add("Status : " + tournament.getStatus());
+    tournamentInfo.add("Status : " + tournament.getState());
 
     tournamentInfo.add("StartTime : " + tournament.startTimeUTC());
     tournamentInfo.add("Date from : " + tournament.dateFromUTC());
@@ -127,7 +127,7 @@ public class ActionTournament
     addCsvLinks();
   }
 
-  private void addCsvLinks()
+  private void addCsvLinks ()
   {
     TournamentProperties properties = TournamentProperties.getProperties();
 
@@ -163,33 +163,33 @@ public class ActionTournament
     }
   }
 
-  public void createCsv()
+  public void createCsv ()
   {
     tournament.createCsv();
   }
 
   //<editor-fold desc="Setters and Getters">
-  public Tournament getTournament()
+  public Tournament getTournament ()
   {
     return tournament;
   }
 
-  public List<String> getTournamentInfo()
+  public List<String> getTournamentInfo ()
   {
     return tournamentInfo;
   }
 
-  public Map<Integer, List> getAgentsMap()
+  public Map<Integer, List> getAgentsMap ()
   {
     return agentsMap;
   }
 
-  public Map<String, Double[]> getResultMap()
+  public Map<String, Double[]> getResultMap ()
   {
     return resultMap;
   }
 
-  public List<Double> getAvgsAndSDs()
+  public List<Double> getAvgsAndSDs ()
   {
     return avgsAndSDs;
   }

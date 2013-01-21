@@ -24,34 +24,34 @@ public class ActionOverview
   private List<Game> notCompleteGamesList = new ArrayList<Game>();
   private List<Tournament> notCompleteTournamentList = new ArrayList<Tournament>();
 
-  public ActionOverview()
+  public ActionOverview ()
   {
     loadData();
   }
 
-  private void loadData()
+  private void loadData ()
   {
     brokerList = Broker.getBrokerList();
     notCompleteGamesList = Game.getNotCompleteGamesList();
     notCompleteTournamentList = Tournament.getNotCompleteTournamentList();
   }
 
-  public List<Broker> getBrokerList()
+  public List<Broker> getBrokerList ()
   {
     return brokerList;
   }
 
-  public List<Tournament> getNotCompleteTournamentList()
+  public List<Tournament> getNotCompleteTournamentList ()
   {
     return notCompleteTournamentList;
   }
 
-  public List<Game> getNotCompleteGamesList()
+  public List<Game> getNotCompleteGamesList ()
   {
     return notCompleteGamesList;
   }
 
-  public String getBrokerState(int brokerId)
+  public String getBrokerState (int brokerId)
   {
     if (MemStore.getBrokerState(brokerId)) {
       return "Enabled";
@@ -60,7 +60,7 @@ public class ActionOverview
     }
   }
 
-  public void toggleState(int brokerId)
+  public void toggleState (int brokerId)
   {
     boolean enabled = true;
 
@@ -72,7 +72,7 @@ public class ActionOverview
     MemStore.setBrokerState(brokerId, !enabled);
   }
 
-  public void startNow(Tournament tournament)
+  public void startNow (Tournament tournament)
   {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
@@ -120,7 +120,7 @@ public class ActionOverview
     }
   }
 
-  public void abortGame(Game game)
+  public void abortGame (Game game)
   {
     log.info("Trying to abort game: " + game.getGameId());
 
@@ -131,7 +131,7 @@ public class ActionOverview
     FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
   }
 
-  public void killGame(Game game)
+  public void killGame (Game game)
   {
     log.info("Trying to kill game: " + game.getGameId());
 
@@ -147,14 +147,14 @@ public class ActionOverview
       if (game.isBooting()) {
         log.info("Resetting boot game: " + gameId + " on machine: " + machineId);
 
-        game.setStatus(Game.STATE.boot_pending.toString());
+        game.setState(Game.STATE.boot_pending);
         game.removeBootFile();
       } else if (game.isRunning()) {
         log.info("Resetting sim game: " + gameId + " on machine: " + machineId);
 
-        game.setStatus(Game.STATE.boot_complete.toString());
+        game.setState(Game.STATE.boot_complete);
         for (Agent agent : game.getAgentMap().values()) {
-          agent.setStatus(Agent.STATE.pending.toString());
+          agent.setState(Agent.STATE.pending);
           agent.setBalance(0);
           session.update(agent);
         }
@@ -182,7 +182,7 @@ public class ActionOverview
     new RunKill(machineName);
   }
 
-  public void restartGame(Game game)
+  public void restartGame (Game game)
   {
     log.info("Trying to restart game: " + game.getGameId());
 
@@ -194,14 +194,14 @@ public class ActionOverview
       if (game.isBootFailed()) {
         log.info("Resetting boot game: " + gameId);
         game.removeBootFile();
-        game.setStatus(Game.STATE.boot_pending.toString());
+        game.setState(Game.STATE.boot_pending);
       }
       if (game.isGameFailed()) {
         log.info("Resetting sim game: " + gameId);
-        game.setStatus(Game.STATE.boot_complete.toString());
+        game.setState(Game.STATE.boot_complete);
 
         for (Agent agent : game.getAgentMap().values()) {
-          agent.setStatus(Agent.STATE.pending.toString());
+          agent.setState(Agent.STATE.pending);
           session.update(agent);
         }
         session.flush();

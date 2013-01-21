@@ -7,7 +7,7 @@ public class RunAbort
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  public RunAbort(String machineName)
+  public RunAbort (String machineName)
   {
     if (machineName.isEmpty()) {
       return;

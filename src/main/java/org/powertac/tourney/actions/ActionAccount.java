@@ -26,12 +26,12 @@ public class ActionAccount
 
   private List<Broker> brokers = new ArrayList<Broker>();
 
-  public ActionAccount()
+  public ActionAccount ()
   {
   }
 
   @SuppressWarnings("unchecked")
-  public List<Broker> getBrokers()
+  public List<Broker> getBrokers ()
   {
     if (brokers.size() == 0) {
       User user = User.getCurrentUser();
@@ -44,7 +44,7 @@ public class ActionAccount
     return brokers;
   }
 
-  public void addBroker()
+  public void addBroker ()
   {
     // Check if name and description not empty, and if name allowed
     if (namesEmpty(brokerName, brokerShort, "accountForm2") ||
@@ -80,7 +80,7 @@ public class ActionAccount
     }
   }
 
-  public void deleteBroker(Broker broker)
+  public void deleteBroker (Broker broker)
   {
     User user = User.getCurrentUser();
     if (user.isEditing() || !user.isLoggedIn()) {
@@ -99,7 +99,7 @@ public class ActionAccount
     }
   }
 
-  public void updateBroker(Broker broker)
+  public void updateBroker (Broker broker)
   {
     // Check if name and description not empty, and if name allowed (if changed)
     if (namesEmpty(broker.getNewName(), broker.getNewShort(), "accountForm1")) {
@@ -132,7 +132,7 @@ public class ActionAccount
     }
   }
 
-  public void editBroker(Broker broker)
+  public void editBroker (Broker broker)
   {
     User user = User.getCurrentUser();
     user.setEditing(true);
@@ -143,14 +143,14 @@ public class ActionAccount
     broker.setNewShort(broker.getShortDescription());
   }
 
-  public void cancelBroker(Broker broker)
+  public void cancelBroker (Broker broker)
   {
     User user = User.getCurrentUser();
     user.setEditing(false);
     broker.setEdit(false);
   }
 
-  private boolean namesEmpty(String name, String description, String form)
+  private boolean namesEmpty (String name, String description, String form)
   {
     if (name == null || description == null ||
         name.trim().isEmpty() || description.trim().isEmpty()) {
@@ -162,7 +162,7 @@ public class ActionAccount
     return false;
   }
 
-  private boolean nameExists(String brokerName, String form)
+  private boolean nameExists (String brokerName, String form)
   {
     Broker broker = Broker.getBrokerByName(brokerName);
     if (broker != null) {
@@ -175,7 +175,7 @@ public class ActionAccount
   }
 
   // We can't allow commas, used in end-of-game message from server
-  private boolean nameAllowed(String brokerName, String form)
+  private boolean nameAllowed (String brokerName, String form)
   {
     Pattern ALPHANUMERIC = Pattern.compile("[A-Za-z0-9\\-\\_]+");
     Matcher m = ALPHANUMERIC.matcher(brokerName);
@@ -190,12 +190,12 @@ public class ActionAccount
     return false;
   }
 
-  public List<Tournament> getAvailableTournaments(Broker b)
+  public List<Tournament> getAvailableTournaments (Broker b)
   {
     return b.getAvailableTournaments(true);
   }
 
-  public void register(Broker b)
+  public void register (Broker b)
   {
     if (!(b.getSelectedTourneyRegister() > 0)) {
       return;
@@ -214,22 +214,22 @@ public class ActionAccount
   }
 
   //<editor-fold desc="Setters and Getters">
-  public String getBrokerShort()
+  public String getBrokerShort ()
   {
     return brokerShort;
   }
 
-  public void setBrokerShort(String brokerShort)
+  public void setBrokerShort (String brokerShort)
   {
     this.brokerShort = brokerShort;
   }
 
-  public String getBrokerName()
+  public String getBrokerName ()
   {
     return brokerName;
   }
 
-  public void setBrokerName(String brokerName)
+  public void setBrokerName (String brokerName)
   {
     this.brokerName = brokerName;
   }

@@ -75,7 +75,7 @@
           id="tournamentForm">
         <h3 class="withButton">Pending/Running Tournaments</h3>
         <h:commandButton value="Refresh"/>
-        <t:dataTable id="datatourneys" border="1"
+        <t:dataTable id="dataTournaments" border="1"
                      value="#{actionOverview.notCompleteTournamentList}" var="t">
 
           <t:column>
@@ -92,7 +92,7 @@
 
           <t:column>
             <f:facet name="header">Status</f:facet>
-            <h:outputText value="#{t.status}"/>
+            <h:outputText value="#{t.state}"/>
             <h:outputText value=" / closed" rendered="#{t.closed}"/>
           </t:column>
 
@@ -147,7 +147,7 @@
         <h:commandButton value="Refresh"/>
         <input id="toggleActiveButton" type="button" value="Hide inactive"
                onclick="toggleActive();"/>
-        <t:dataTable id="datagames" border="1"
+        <t:dataTable id="dataGames" border="1"
                      value="#{actionOverview.notCompleteGamesList}" var="g">
           <t:column>
             <f:facet name="header">ID</f:facet>
@@ -163,7 +163,7 @@
 
           <t:column>
             <f:facet name="header">Status</f:facet>
-            <h:outputText value="#{g.status}"
+            <h:outputText value="#{g.state}"
                           style="#{g.isRunning() ? 'font-weight:bold;' : '' }"/>
           </t:column>
 

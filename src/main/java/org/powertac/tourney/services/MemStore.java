@@ -1,10 +1,3 @@
-/**
- * Created by IntelliJ IDEA.
- * User: govert
- * Date: 9/25/12
- * Time: 9:46 AM
- */
-
 package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
@@ -37,7 +30,7 @@ public class MemStore
 
   public static String content;
 
-  public MemStore()
+  public MemStore ()
   {
     machineIPs = null;
     vizIPs = null;
@@ -49,7 +42,7 @@ public class MemStore
     gameLengths = new HashMap<Integer, Integer>();
   }
 
-  public static void getIpAddresses()
+  public static void getIpAddresses ()
   {
     machineIPs = new HashMap<String, List<String>>();
     vizIPs = new HashMap<String, String>();
@@ -106,7 +99,7 @@ public class MemStore
     }
   }
 
-  public static boolean checkMachineAllowed(String slaveAddress)
+  public static boolean checkMachineAllowed (String slaveAddress)
   {
     //log.debug("Testing checkMachineAllowed : " + slaveAddress);
 
@@ -130,7 +123,7 @@ public class MemStore
     return false;
   }
 
-  public static boolean checkVizAllowed(String vizAddress)
+  public static boolean checkVizAllowed (String vizAddress)
   {
     //log.debug("Testing checkVizAllowed : " + vizAddress);
 
@@ -154,7 +147,7 @@ public class MemStore
     return true;
   }
 
-  public synchronized static void addBrokerCheckin(int brokerId)
+  public synchronized static void addBrokerCheckin (int brokerId)
   {
     List<Long> dates = brokerCheckins.get(brokerId);
     if (dates == null) {
@@ -170,25 +163,25 @@ public class MemStore
     brokerCheckins.put(brokerId, dates);
   }
 
-  public synchronized static void addVizCheckin(String machineName)
+  public synchronized static void addVizCheckin (String machineName)
   {
     vizCheckins.put(machineName, System.currentTimeMillis());
   }
 
-  public synchronized static void addGameHeartbeat(int gameId, String message)
+  public synchronized static void addGameHeartbeat (int gameId, String message)
   {
     gameHeartbeats.put(gameId,
         new String[]{message, System.currentTimeMillis() + ""});
   }
 
-  public synchronized static void removeGameHeartbeat(int gameId)
+  public synchronized static void removeGameHeartbeat (int gameId)
   {
     if (gameHeartbeats.containsKey(gameId)) {
       gameHeartbeats.remove(gameId);
     }
   }
 
-  public synchronized static void addGameLength(int gameId, String gameLength)
+  public synchronized static void addGameLength (int gameId, String gameLength)
   {
     try {
       gameLengths.put(gameId, Integer.parseInt(gameLength));
@@ -196,14 +189,14 @@ public class MemStore
     }
   }
 
-  public synchronized static void removeGameLength(int gameId)
+  public synchronized static void removeGameLength (int gameId)
   {
     if (gameLengths.containsKey(gameId)) {
       gameLengths.remove(gameId);
     }
   }
 
-  public static boolean getBrokerState(int brokerId)
+  public static boolean getBrokerState (int brokerId)
   {
     boolean enabled = true;
     try {
@@ -214,12 +207,12 @@ public class MemStore
     return enabled;
   }
 
-  public static void setBrokerState(int brokerId, boolean state)
+  public static void setBrokerState (int brokerId, boolean state)
   {
     brokerState.put(brokerId, state);
   }
 
-  public static String getIndexContent()
+  public static String getIndexContent ()
   {
     if (content == null || content.isEmpty()) {
       content = Config.getIndexContent();
@@ -231,7 +224,7 @@ public class MemStore
     return content;
   }
 
-  public static boolean setIndexContent(String newContent)
+  public static boolean setIndexContent (String newContent)
   {
     content = newContent;
 

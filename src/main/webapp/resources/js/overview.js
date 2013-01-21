@@ -1,10 +1,3 @@
-/**
- * Created with IntelliJ IDEA.
- * User: govert
- * Date: 1/16/13
- * Time: 2:03 PM
- */
-
 function toggleSample() {
     if ($("#toggleSampleButton").val() == "Hide sample") {
         $('#toggleSampleButton').val("Show sample");
@@ -32,7 +25,7 @@ function toggleActive() {
     if ($("#toggleActiveButton").val() == "Hide inactive") {
         $('#toggleActiveButton').val("Show inactive");
 
-        $("#gamesForm\\:datagames").find('>tbody>tr').each(function () {
+        $("#gamesForm\\:dataGames").find('>tbody>tr').each(function () {
             var sp = $(this).find('td:nth-child(3) span')[0];
             var status = $(sp).text();
 
@@ -43,7 +36,7 @@ function toggleActive() {
     } else {
         $('#toggleActiveButton').val("Hide inactive");
 
-        $("#gamesForm\\:datagames").find(">tbody>tr").each(function () {
+        $("#gamesForm\\:dataGames").find(">tbody>tr").each(function () {
             $(this).css("display", "");
         });
     }
@@ -63,14 +56,14 @@ function updateBrokers(data) {
 }
 
 function updateGames(data) {
-    $('#gamesForm\\:datagames').find('>tbody>tr').each(function () {
+    $('#gamesForm\\:dataGames').find('>tbody>tr').each(function () {
         var sp = $(this).find('td:first-child span')[0];
         var orgRowNr = $(sp).attr("id").split(":")[2];
 
         if (data[$(sp).text()] != undefined) {
-            $('#gamesForm\\:datagames\\:' + orgRowNr + '\\:heartbeat').html(data[$(sp).text()]);
+            $('#gamesForm\\:dataGames\\:' + orgRowNr + '\\:heartbeat').html(data[$(sp).text()]);
         } else {
-            $('#gamesForm\\:datagames\\:' + orgRowNr + '\\:heartbeat').html("");
+            $('#gamesForm\\:dataGames\\:' + orgRowNr + '\\:heartbeat').html("");
         }
     });
 }
@@ -97,20 +90,20 @@ function resizeTables() {
             { "sType": "natural", "aTargets": [0] }
         ]
     });
-    $('[id$=datatourneys]').dataTable({
+    $('[id$=dataTournaments]').dataTable({
         "bFilter": false,
         "bInfo": false,
-        "sScrollY": Math.min(400, $("[id$=datatourneys]").height()) + "px",
+        "sScrollY": Math.min(400, $("[id$=dataTournaments]").height()) + "px",
         "bPaginate": false,
         "aoColumnDefs": [
             { 'bSortable': false, 'aTargets': [5, 6, 7, 8] },
             { "sType": "natural", "aTargets": [0] }
         ]
     });
-    $('[id$=datagames]').dataTable({
+    $('[id$=dataGames]').dataTable({
         "bFilter": false,
         "bInfo": false,
-        "sScrollY": Math.min(400, $("[id$=datagames]").height()) + "px",
+        "sScrollY": Math.min(400, $("[id$=dataGames]").height()) + "px",
         "bPaginate": false,
         "aoColumnDefs": [
             { 'bSortable': false, 'aTargets': [3, 4, 5, 6] },

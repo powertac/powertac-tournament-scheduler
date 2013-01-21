@@ -1,6 +1,6 @@
 body {
     font-family: "Times New Roman", Times, serif;
-    font-size:16px;
+    font-size: 16px;
 }
 
 h4 {
@@ -69,6 +69,12 @@ input.smallButton {
     margin: 0;
 }
 
+input.actionButton {
+    padding: 0;
+    margin: 0;
+    width: 65px;
+}
+
 .left {
     text-align: left;
 }
@@ -76,6 +82,15 @@ input.smallButton {
 .right {
     text-align: right;
 }
+
+input[type="text"].input_wide {
+    width:200px;
+}
+input[type="text"].input_small {
+    width:50px;
+}
+
+
 
 #page {
     margin-left: auto;

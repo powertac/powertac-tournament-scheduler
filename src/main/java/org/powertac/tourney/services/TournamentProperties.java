@@ -47,20 +47,20 @@ public class TournamentProperties
   private List<String> messages = new ArrayList<String>();
 
   // delegate to props
-  public String getProperty(String key)
+  public String getProperty (String key)
   {
     loadIfNecessary();
     return properties.getProperty(key);
   }
 
-  public String getProperty(String key, String defaultValue)
+  public String getProperty (String key, String defaultValue)
   {
     loadIfNecessary();
     return properties.getProperty(key, defaultValue);
   }
 
   // lazy loader
-  private void loadIfNecessary()
+  private void loadIfNecessary ()
   {
     if (!loaded) {
       try {
@@ -74,21 +74,21 @@ public class TournamentProperties
     }
   }
 
-  public void addErrorMessage(String message)
+  public void addErrorMessage (String message)
   {
     if (!messages.contains(message)) {
       messages.add(message);
     }
   }
 
-  public void removeErrorMessage(String message)
+  public void removeErrorMessage (String message)
   {
     if (messages.contains(message)) {
       messages.remove(message.indexOf(message));
     }
   }
 
-  public List<String> getErrorMessages()
+  public List<String> getErrorMessages ()
   {
     // We can't do this during startup, it fails due to race conditions
     checkJenkinsLocation();
@@ -99,7 +99,7 @@ public class TournamentProperties
   /**
    * Check if given properties are correct (file locations) and add some more
    */
-  private void appendExtraProperties()
+  private void appendExtraProperties ()
   {
     properties.setProperty("tourneyUrl", getTourneyUrl());
 
@@ -120,7 +120,7 @@ public class TournamentProperties
     checkFileLocation("logLocation", fallBack);
   }
 
-  private String getTourneyUrl()
+  private String getTourneyUrl ()
   {
     if (!properties.getProperty("tourney.location", "").isEmpty()) {
       return properties.getProperty("tourney.location");
@@ -152,7 +152,7 @@ public class TournamentProperties
     return String.format(tourneyUrl, address);
   }
 
-  private void checkJenkinsLocation()
+  private void checkJenkinsLocation ()
   {
     InputStream is = null;
     try {
@@ -182,7 +182,7 @@ public class TournamentProperties
   /**
    * Make sure filelocation exists, fall back to catalina dir, we know that exists
    */
-  private void checkFileLocation(String name, String catalinaBase)
+  private void checkFileLocation (String name, String catalinaBase)
   {
     String directory = properties.getProperty(name);
 
@@ -207,7 +207,7 @@ public class TournamentProperties
     }
   }
 
-  public static TournamentProperties getProperties()
+  public static TournamentProperties getProperties ()
   {
     return (TournamentProperties) SpringApplicationContext
         .getBean("tournamentProperties");

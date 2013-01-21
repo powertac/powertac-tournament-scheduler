@@ -25,14 +25,14 @@ public class RunBoot
 
   private static boolean machinesAvailable;
 
-  public RunBoot(Game game)
+  public RunBoot (Game game)
   {
     this.game = game;
 
     run();
   }
 
-  private void run()
+  private void run ()
   {
     session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
@@ -62,7 +62,7 @@ public class RunBoot
   /**
    * Make sure there is a machine available for the game
    */
-  private boolean checkMachineAvailable()
+  private boolean checkMachineAvailable ()
       throws Exception
   {
     try {
@@ -78,7 +78,7 @@ public class RunBoot
       }
 
       game.setMachine(freeMachine);
-      freeMachine.setStatus(Machine.STATE.running.toString());
+      freeMachine.setState(Machine.STATE.running);
       session.update(freeMachine);
       log.info(String.format("Game: %s booting on machine: %s",
           game.getGameId(), game.getMachine().getMachineName()));
@@ -92,7 +92,7 @@ public class RunBoot
   /*
    * If all conditions are met (we have a slave available) send job to Jenkins.
    */
-  private boolean startJob() throws Exception
+  private boolean startJob () throws Exception
   {
     String finalUrl =
         properties.getProperty("jenkins.location")
@@ -108,7 +108,7 @@ public class RunBoot
       JenkinsConnector.sendJob(finalUrl);
 
       log.info("Jenkins request to bootstrap game: " + game.getGameId());
-      game.setStatus(Game.STATE.boot_in_progress.toString());
+      game.setState(Game.STATE.boot_in_progress);
       game.setReadyTime(Utils.offsetDate());
       log.debug(String.format("Update game: %s to %s", game.getGameId(),
           Game.STATE.boot_in_progress.toString()));
@@ -116,7 +116,7 @@ public class RunBoot
       return true;
     } catch (Exception e) {
       log.error("Jenkins failure to bootstrap game: " + game.getGameId());
-      game.setStatus(Game.STATE.boot_failed.toString());
+      game.setState(Game.STATE.boot_failed);
       throw e;
     }
   }
@@ -127,7 +127,7 @@ public class RunBoot
    * games in that tournament. If no tournament loaded, we look for games in
    * all singleGame tournaments.
   **/
-  public static void startBootableGames(Tournament runningTournament)
+  public static void startBootableGames (Tournament runningTournament)
   {
     log.info("WatchDogTimer Looking for Bootstraps To Start..");
 

@@ -31,7 +31,8 @@
     </p>
     <ul>
         <li>machineName=<i>{machineName}</i>
-            - name of machine this viz is fronting for</li>
+        - name of machine this viz is fronting for
+        </li>
     </ul>
 </body>
 </html>

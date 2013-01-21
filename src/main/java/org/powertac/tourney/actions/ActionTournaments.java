@@ -17,15 +17,14 @@ import java.util.*;
 
 @ManagedBean
 @RequestScoped
-public class ActionTournamentManager
+public class ActionTournaments
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private boolean[] disabled = new boolean[13];
-
+  private boolean disabled;
   private List<Broker> brokerList = new ArrayList<Broker>();
 
-  private int tourneyId = -1;
+  private int tourneyId;
   private String tournamentName;
   private Tournament.TYPE type;
   private int maxBrokers;
@@ -39,36 +38,36 @@ public class ActionTournamentManager
   private Date startTime;
   private Date dateFrom;
   private Date dateTo;
-  private int selectedPom;
   private List<String> locations;
+  private int selectedPom;
   private boolean closed;
 
-  public ActionTournamentManager()
+  public ActionTournaments ()
   {
     resetValues();
   }
 
-  public List<Tournament.TYPE> getTypes()
+  public List<Tournament.TYPE> getTypes ()
   {
     return Arrays.asList(Tournament.TYPE.values());
   }
 
-  public List<Tournament> getTournamentList()
+  public List<Tournament> getTournamentList ()
   {
     return Tournament.getNotCompleteTournamentList();
   }
 
-  public List<Pom> getPomList()
+  public List<Pom> getPomList ()
   {
     return Pom.getPomList();
   }
 
-  public List<Location> getLocationList()
+  public List<Location> getLocationList ()
   {
     return Location.getLocationList();
   }
 
-  public void saveTournament()
+  public void saveTournament ()
   {
     if (tournamentName.trim().isEmpty()) {
       String msg = "The tournament name cannot be empty";
@@ -97,7 +96,7 @@ public class ActionTournamentManager
     }
   }
 
-  private void createTournament()
+  private void createTournament ()
   {
     log.info("Creating " + type.toString() + " tournament");
 
@@ -106,7 +105,7 @@ public class ActionTournamentManager
     try {
       Tournament tournament = new Tournament();
       setValues(tournament);
-      tournament.setStatusToPending();
+      tournament.setStateToPending();
       session.save(tournament);
 
       log.info(String.format("Created %s tournament %s",
@@ -136,7 +135,7 @@ public class ActionTournamentManager
     }
   }
 
-  public void editTournament(Tournament tournament)
+  public void loadTournament (Tournament tournament)
   {
     tourneyId = tournament.getTournamentId();
     tournamentName = tournament.getTournamentName();
@@ -152,31 +151,17 @@ public class ActionTournamentManager
     startTime = tournament.getStartTime();
     dateFrom = tournament.getDateFrom();
     dateTo = tournament.getDateTo();
-    selectedPom = tournament.getPomId();
     locations = tournament.getLocationsList();
+    selectedPom = tournament.getPomId();
     closed = tournament.isClosed();
 
-    // Once scheduled, these params can't change
+    // Once scheduled, params can't change (type can never change)
     if (tournament.getGameMap().size() > 0) {
-      disabled[0] = true; // name
-      disabled[2] = true; // maxBrokers
-      disabled[3] = true; // maxAgents
-      disabled[4] = true; // size1
-      disabled[5] = true; // size2
-      disabled[6] = true; // size3
-
-
-      disabled[7] = true; // startTime
-      disabled[8] = true; // date from
-      disabled[9] = true; // date to
-      disabled[10] = true; // pom
-      disabled[11] = true; // locations
+      disabled = true;
     }
-    disabled[1] = true; // type
-    disabled[12] = true; // closed
   }
 
-  public void saveEditedTournament()
+  public void saveEditedTournament ()
   {
     log.info("Saving tournament " + tourneyId);
 
@@ -204,7 +189,7 @@ public class ActionTournamentManager
     }
   }
 
-  public void removeTournament(Tournament tournament)
+  public void removeTournament (Tournament tournament)
   {
     if (!tournament.getTournamentName().toLowerCase().contains("test")) {
       log.info("Someone tried to remove a non-test Tournament!");
@@ -223,7 +208,7 @@ public class ActionTournamentManager
     }
   }
 
-  public void setValues(Tournament tournament)
+  public void setValues (Tournament tournament)
   {
     String allLocations = "";
     for (String s : locations) {
@@ -253,13 +238,13 @@ public class ActionTournamentManager
       tournament.setStartTime(startTime);
       tournament.setDateFrom(dateFrom);
       tournament.setDateTo(dateTo);
-      tournament.setPomId(selectedPom);
       tournament.setLocations(allLocations);
+      tournament.setPomId(selectedPom);
     }
     tournament.setClosed(closed);
   }
 
-  public void resetValues()
+  public void resetValues ()
   {
     tourneyId = -1;
     tournamentName = "";
@@ -273,39 +258,33 @@ public class ActionTournamentManager
     multiplier2 = 1;
     multiplier3 = 1;
     startTime = Utils.offsetDate();
-    Calendar initTime = Calendar.getInstance();
-    initTime.set(2009, Calendar.MARCH, 3, 0, 0, 0);
-    dateFrom = new Date();
-    dateFrom.setTime(initTime.getTimeInMillis());
-    initTime.set(2011, Calendar.MARCH, 3, 0, 0, 0);
-    dateTo = new Date();
-    dateTo.setTime(initTime.getTimeInMillis());
+    Location location = new Location();
+    dateFrom = location.getDateFrom();
+    dateTo = location.getDateTo();
+    locations = Arrays.asList(location.getLocation());
     selectedPom = 0;
-    locations = new ArrayList<String>();
     closed = false;
 
-    disabled = new boolean[13];
-    Arrays.fill(disabled, Boolean.FALSE);
-
+    disabled = false;
     brokerList = Broker.getBrokerList();
   }
 
-  public List<Broker> getBrokerList()
+  public List<Broker> getBrokerList ()
   {
     return brokerList;
   }
 
-  public List<Tournament> getAvailableTournaments(Broker b)
+  public List<Tournament> getAvailableTournaments (Broker b)
   {
     return b.getAvailableTournaments(false);
   }
 
-  public List<Tournament> getRegisteredTournaments(Broker b)
+  public List<Tournament> getRegisteredTournaments (Broker b)
   {
     return b.getRegisteredTournaments();
   }
 
-  public void register(Broker b)
+  public void register (Broker b)
   {
     if (!(b.getSelectedTourneyRegister() > 0)) {
       return;
@@ -323,7 +302,7 @@ public class ActionTournamentManager
     }
   }
 
-  public void unregister(Broker b)
+  public void unregister (Broker b)
   {
     if (!(b.getSelectedTourneyUnregister() > 0)) {
       return;
@@ -342,184 +321,166 @@ public class ActionTournamentManager
   }
 
   //<editor-fold desc="Setters and getters">
-  public int getTourneyId()
+  public int getTourneyId ()
   {
     return tourneyId;
   }
-
-  public void setTourneyId(int tourneyId)
+  public void setTourneyId (int tourneyId)
   {
     this.tourneyId = tourneyId;
   }
 
-  public String getTournamentName()
+  public String getTournamentName ()
   {
     return tournamentName;
   }
-
-  public void setTournamentName(String tournamentName)
+  public void setTournamentName (String tournamentName)
   {
     this.tournamentName = tournamentName;
   }
 
-  public Tournament.TYPE getType()
+  public Tournament.TYPE getType ()
   {
     return type;
   }
-
-  public void setType(Tournament.TYPE type)
+  public void setType (Tournament.TYPE type)
   {
     this.type = type;
   }
 
-  public int getMaxBrokers()
+  public int getMaxBrokers ()
   {
     return maxBrokers;
   }
-
-  public void setMaxBrokers(int maxBrokers)
+  public void setMaxBrokers (int maxBrokers)
   {
     this.maxBrokers = maxBrokers;
   }
 
-  public int getMaxAgents()
+  public int getMaxAgents ()
   {
     return maxAgents;
   }
-
-  public void setMaxAgents(int maxAgents)
+  public void setMaxAgents (int maxAgents)
   {
     this.maxAgents = maxAgents;
   }
 
-  public int getSize1()
+  public int getSize1 ()
   {
     return size1;
   }
-
-  public void setSize1(int size1)
+  public void setSize1 (int size1)
   {
     this.size1 = size1;
   }
 
-  public int getSize2()
+  public int getSize2 ()
   {
     return size2;
   }
-
-  public void setSize2(int size2)
+  public void setSize2 (int size2)
   {
     this.size2 = size2;
   }
 
-  public int getSize3()
+  public int getSize3 ()
   {
     return size3;
   }
-
-  public void setSize3(int size3)
+  public void setSize3 (int size3)
   {
     this.size3 = size3;
   }
 
-  public int getMultiplier1()
+  public int getMultiplier1 ()
   {
     return multiplier1;
   }
-
-  public void setMultiplier1(int multiplier1)
+  public void setMultiplier1 (int multiplier1)
   {
     this.multiplier1 = multiplier1;
   }
 
-  public int getMultiplier2()
+  public int getMultiplier2 ()
   {
     return multiplier2;
   }
-
-  public void setMultiplier2(int multiplier2)
+  public void setMultiplier2 (int multiplier2)
   {
     this.multiplier2 = multiplier2;
   }
 
-  public int getMultiplier3()
+  public int getMultiplier3 ()
   {
     return multiplier3;
   }
-
-  public void setMultiplier3(int multiplier3)
+  public void setMultiplier3 (int multiplier3)
   {
     this.multiplier3 = multiplier3;
   }
 
-  public Date getStartTime()
+  public Date getStartTime ()
   {
     return startTime;
   }
-
-  public void setStartTime(Date startTime)
+  public void setStartTime (Date startTime)
   {
     this.startTime = startTime;
   }
 
-  public Date getDateFrom()
+  public Date getDateFrom ()
   {
     return dateFrom;
   }
-
-  public void setDateFrom(Date dateFrom)
+  public void setDateFrom (Date dateFrom)
   {
     this.dateFrom = dateFrom;
   }
 
-  public Date getDateTo()
+  public Date getDateTo ()
   {
     return dateTo;
   }
-
-  public void setDateTo(Date dateTo)
+  public void setDateTo (Date dateTo)
   {
     this.dateTo = dateTo;
   }
 
-  public int getSelectedPom()
-  {
-    return selectedPom;
-  }
-
-  public void setSelectedPom(int selectedPom)
-  {
-    this.selectedPom = selectedPom;
-  }
-
-  public List<String> getLocations()
+  public List<String> getLocations ()
   {
     return locations;
   }
-
-  public void setLocations(List<String> locations)
+  public void setLocations (List<String> locations)
   {
     this.locations = locations;
   }
 
-  public boolean[] getDisabled()
+  public int getSelectedPom ()
   {
-    return disabled;
+    return selectedPom;
+  }
+  public void setSelectedPom (int selectedPom)
+  {
+    this.selectedPom = selectedPom;
   }
 
-  public void setDisabled(boolean[] disabled)
-  {
-    this.disabled = disabled;
-  }
-
-  public boolean isClosed()
+  public boolean isClosed ()
   {
     return closed;
   }
-
-  public void setClosed(boolean closed)
+  public void setClosed (boolean closed)
   {
     this.closed = closed;
+  }
+
+  public boolean isDisabled ()
+  {
+    return disabled;
+  }
+  public void setDisabled (boolean disabled)
+  {
+    this.disabled = disabled;
   }
   //</editor-fold>
 }

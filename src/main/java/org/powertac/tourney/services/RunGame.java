@@ -20,14 +20,14 @@ public class RunGame
 
   private static boolean machinesAvailable;
 
-  public RunGame(Game game)
+  public RunGame (Game game)
   {
     this.game = game;
 
     run();
   }
 
-  private void run()
+  private void run ()
   {
     session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
@@ -67,13 +67,13 @@ public class RunGame
   /**
    * Make sure a bootstrap has been run for the sim
    */
-  private boolean checkBootstrap()
+  private boolean checkBootstrap ()
   {
     if (game.hasBootstrap()) {
       return true;
     } else {
       log.info("Game: " + game.getGameId() + " reports that boot is not ready!");
-      game.setStatus(Game.STATE.boot_pending.toString());
+      game.setState(Game.STATE.boot_pending);
       return false;
     }
   }
@@ -83,7 +83,7 @@ public class RunGame
    * Also check if participating brokers have an agent available (we don't check
    * if agents are checking in, brokers are responsible for availability).
    */
-  private boolean checkBrokers()
+  private boolean checkBrokers ()
   {
     if (game.getAgentMap().size() < 1) {
       log.info(String.format("Game: %s (tournament %s) reports no brokers "
@@ -116,7 +116,7 @@ public class RunGame
   /**
    * Make sure there is a machine available for the game
    */
-  private boolean checkMachineAvailable()
+  private boolean checkMachineAvailable ()
       throws Exception
   {
     try {
@@ -132,7 +132,7 @@ public class RunGame
       }
 
       game.setMachine(freeMachine);
-      freeMachine.setStatus(Machine.STATE.running.toString());
+      freeMachine.setState(Machine.STATE.running);
       session.update(freeMachine);
       log.info(String.format("Game: %s running on machine: %s",
           game.getGameId(), game.getMachine().getMachineName()));
@@ -147,7 +147,7 @@ public class RunGame
    * If all conditions are met (we have a slave available, game is booted and
    * agents should be avalable) send job to Jenkins.
    */
-  private boolean startJob() throws Exception
+  private boolean startJob () throws Exception
   {
     String finalUrl =
         properties.getProperty("jenkins.location")
@@ -165,7 +165,7 @@ public class RunGame
       JenkinsConnector.sendJob(finalUrl);
 
       log.info("Jenkins request to start sim game: " + game.getGameId());
-      game.setStatus(Game.STATE.game_pending.toString());
+      game.setState(Game.STATE.game_pending);
       game.setReadyTime(Utils.offsetDate());
       log.debug(String.format("Update game: %s to %s", game.getGameId(),
           Game.STATE.game_pending.toString()));
@@ -173,7 +173,7 @@ public class RunGame
       return true;
     } catch (Exception e) {
       log.error("Jenkins failure to start simulation game: " + game.getGameId());
-      game.setStatus(Game.STATE.game_failed.toString());
+      game.setState(Game.STATE.game_failed);
       throw e;
     }
   }
@@ -184,7 +184,7 @@ public class RunGame
    * games in that tournament. If no tournament loaded, we look for games in
    * all singleGame tournaments.
   **/
-  public static void startRunnableGames(Tournament runningTournament)
+  public static void startRunnableGames (Tournament runningTournament)
   {
     log.info("WatchDogTimer Looking for Runnable Games");
 
