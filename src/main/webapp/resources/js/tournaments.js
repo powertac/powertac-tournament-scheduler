@@ -97,18 +97,10 @@ function typeSelected() {
         table.rows[3].style.display = "";
         table.rows[4].style.display = "";
         table.rows[5].style.display = "";
-        table.rows[6].style.display = "";
-        table.rows[7].style.display = "";
-        table.rows[8].style.display = "";
-        table.rows[9].style.display = "";
     } else if (type == 'SINGLE_GAME') {
         table.rows[3].style.display = "none";
         table.rows[4].style.display = "none";
         table.rows[5].style.display = "none";
-        table.rows[6].style.display = "none";
-        table.rows[7].style.display = "none";
-        table.rows[8].style.display = "none";
-        table.rows[9].style.display = "none";
     }
 
     showGamesCount();

@@ -46,9 +46,9 @@
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 
-        touch ../start-sim-server/abort
+touch ../start-sim-server/abort
 
-        exit 0
+exit 0
       </command>
     </hudson.tasks.Shell>
   </builders>

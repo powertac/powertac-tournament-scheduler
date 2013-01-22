@@ -71,137 +71,137 @@
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 
-        ###############################################################################
-        # You might want or need to change these
-        ###############################################################################
-        LOGFILE=&quot;./log/$(date -u +%y%m%d_%H%M).log&quot;
-        MVN_CMD=&quot;mvn&quot;
-        #COMP_CMD=&quot;7za a -mx=9&quot; COMP_EXT=&quot;7z&quot;
-        #COMP_CMD=&quot;tar -cjvf&quot; #COMP_EXT=&quot;bz2&quot;
-        #COMP_CMD=&quot;zip -9&quot; #COMP_EXT=&quot;9.zip&quot;
-        #COMP_CMD=&quot;zip&quot; #COMP_EXT=&quot;zip&quot;
-        COMP_CMD=&quot;tar -czvf&quot;
-        COMP_EXT=&quot;tar.gz&quot;
+###############################################################################
+# You might want or need to change these
+###############################################################################
+LOGFILE=&quot;./log/$(date -u +%y%m%d_%H%M).log&quot;
+MVN_CMD=&quot;mvn&quot;
+#COMP_CMD=&quot;7za a -mx=9&quot; COMP_EXT=&quot;7z&quot;
+#COMP_CMD=&quot;tar -cjvf&quot; #COMP_EXT=&quot;bz2&quot;
+#COMP_CMD=&quot;zip -9&quot; #COMP_EXT=&quot;9.zip&quot;
+#COMP_CMD=&quot;zip&quot; #COMP_EXT=&quot;zip&quot;
+COMP_CMD=&quot;tar -czvf&quot;
+COMP_EXT=&quot;tar.gz&quot;
 
-        interfacePath=&quot;faces/serverInterface.jsp&quot;
-        pomPath=&quot;faces/pom.jsp&quot;
-        LOGFILE=&quot;./log/sim.$(date -u +%y%m%d_%H%M).log&quot;
-
-
-        ###############################################################################
-        # No need to change anything below this line
-        ###############################################################################
-
-        function log () {
-        if [ &quot;$1&quot; == &apos;nl&apos; ]; then
-        echo -e &quot;\n$2&quot; | tee -a $LOGFILE
-        else
-        echo -e &quot;$1&quot; | tee -a $LOGFILE
-        fi
-        }
-
-        function cleanup () {
-        # TODO Enable below
-        #log nl &quot;Cleaning up&quot;
-        #rm -fr ./log/init*
-        #rm -fr ./log/powertac*
-        #rm -fr ./game*
-        #rm -f ./pom.xml
-        #rm -f ./properties
-
-        log nl &quot;Not cleaning up, need to enable this&quot;
-        }
-
-        function get_pom () {
-        wget -O pom.xml $pomUrl
-        SIZE=$(stat -c%s &quot;pom.xml&quot;)
-        if [ $SIZE -le 10 ] ; then
-        log nl &quot;Error getting pom : $pomUrl&quot;
-        log nl &quot;Notify TM we&apos;re game_failed&quot;
-        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_failed&quot;
-        cleanup
-        exit 1
-        else
-        log &quot;Pom retrieved&quot;
-        fi
-        }
+interfacePath=&quot;faces/serverInterface.jsp&quot;
+pomPath=&quot;faces/pom.jsp&quot;
+LOGFILE=&quot;./log/sim.$(date -u +%y%m%d_%H%M).log&quot;
 
 
-        ###############################################################################
-        # Here we go!
-        ###############################################################################
+###############################################################################
+# No need to change anything below this line
+###############################################################################
 
-        # Some intermediate variables
-        interfaceUrl=&quot;$tourneyUrl$interfacePath&quot;
-        pomUrl=&quot;$tourneyUrl$pomPath?pomId=$pomId&quot;
-        simName=&quot;game-$gameId-sim&quot;
-        suffix=&quot;sim-&quot;
+function log () {
+if [ &quot;$1&quot; == &apos;nl&apos; ]; then
+echo -e &quot;\n$2&quot; | tee -a $LOGFILE
+else
+echo -e &quot;$1&quot; | tee -a $LOGFILE
+fi
+}
 
-        # Make sure logdir exists
-        DIRECTORY=&quot;log&quot;
-        if [ ! -d &quot;$DIRECTORY&quot; ]; then
-        mkdir $DIRECTORY
-        fi
+function cleanup () {
+# TODO Enable below
+#log nl &quot;Cleaning up&quot;
+#rm -fr ./log/init*
+#rm -fr ./log/powertac*
+#rm -fr ./game*
+#rm -f ./pom.xml
+#rm -f ./properties
 
-        log &quot;&quot;
-        StartTime=$(date +%s)
-        log &quot;StartTime : $(date -u +%F\ %H:%M:%S)&quot;
-        log &quot;Nodename : $NODE_NAME&quot;
-        log &quot;BuildNumber : $BUILD_NUMBER&quot;
-        log &quot;Account : ${USER}&quot;
-        log &quot;GameId : $gameId&quot;
-        log &quot;PomId : $pomId&quot;
-        log &quot;TourneyUrl : $tourneyUrl&quot;
-        log &quot;Brokers : $brokers&quot;
-        log &quot;serverQueue : $serverQueue&quot;
-        log &quot;MVN_CMD : $MVN_CMD&quot;
-        log &quot;COMP_CMD : $COMP_CMD&quot;
-        log &quot;COMP_EXT : $COMP_EXT&quot;
-        log &quot;interfacePath : $interfacePath&quot;
-        log &quot;interfaceUrl : $interfaceUrl&quot;
-        log &quot;pomPath : $pomPath&quot;
-        log &quot;pomUrl : $pomUrl&quot;
-        log &quot;simName : $simName&quot;
+log nl &quot;Not cleaning up, need to enable this&quot;
+}
 
-        log nl &quot;Get the pom file from $pomUrl&quot;
-        get_pom
+function get_pom () {
+wget -O pom.xml $pomUrl
+SIZE=$(stat -c%s &quot;pom.xml&quot;)
+if [ $SIZE -le 10 ] ; then
+log nl &quot;Error getting pom : $pomUrl&quot;
+log nl &quot;Notify TM we&apos;re game_failed&quot;
+wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_failed&quot;
+cleanup
+exit 1
+else
+log &quot;Pom retrieved&quot;
+fi
+}
 
-        CMD=&quot;$MVN_CMD -U -Pcli -Dexec.args=\&quot;-sim --game-id $gameId
-        --control $tourneyUrl --log-suffix $suffix$gameId --brokers $brokers
-        --input-queue $serverQueue\&quot;&quot;
-        log nl &quot;Run maven : $CMD \n&quot;
-        eval $CMD
 
-        COUNT=$(grep -c &apos;Abort file detected - shutting down&apos;
-        log/powertac-sim-$gameId.trace)
-        if [ $COUNT -eq 1 ] ; then
-        log nl &quot;We detected an abort&quot;
-        log nl &quot;Notify TM we&apos;re boot_complete&quot;
-        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_complete&quot;
-        cleanup
-        exit 1
-        fi
+###############################################################################
+# Here we go!
+###############################################################################
 
-        EndTime=$(date +%s)
-        ((RunningTime=EndTime-StartTime))
-        H=$(($RunningTime / 3600))
-        M=$((($RunningTime-3600*$H) / 60))
-        S=$(($RunningTime % 60))
-        log nl &quot;Game took (H:M:S) $H:$M:$S&quot;
+# Some intermediate variables
+interfaceUrl=&quot;$tourneyUrl$interfacePath&quot;
+pomUrl=&quot;$tourneyUrl$pomPath?pomId=$pomId&quot;
+simName=&quot;game-$gameId-sim&quot;
+suffix=&quot;sim-&quot;
 
-        log nl &quot;Compressing log files&quot;
-        $COMP_CMD &quot;$simName-logs.$COMP_EXT&quot;
-        log/powertac-$suffix$gameId.* log/init.*
+# Make sure logdir exists
+DIRECTORY=&quot;log&quot;
+if [ ! -d &quot;$DIRECTORY&quot; ]; then
+mkdir $DIRECTORY
+fi
 
-        log nl &quot;Sending log file&quot;
-        curl --upload-file &quot;$simName-logs.$COMP_EXT&quot; &quot;$interfaceUrl?fileName=$simName-logs.$COMP_EXT&quot;
+log &quot;&quot;
+StartTime=$(date +%s)
+log &quot;StartTime : $(date -u +%F\ %H:%M:%S)&quot;
+log &quot;Nodename : $NODE_NAME&quot;
+log &quot;BuildNumber : $BUILD_NUMBER&quot;
+log &quot;Account : ${USER}&quot;
+log &quot;GameId : $gameId&quot;
+log &quot;PomId : $pomId&quot;
+log &quot;TourneyUrl : $tourneyUrl&quot;
+log &quot;Brokers : $brokers&quot;
+log &quot;serverQueue : $serverQueue&quot;
+log &quot;MVN_CMD : $MVN_CMD&quot;
+log &quot;COMP_CMD : $COMP_CMD&quot;
+log &quot;COMP_EXT : $COMP_EXT&quot;
+log &quot;interfacePath : $interfacePath&quot;
+log &quot;interfaceUrl : $interfaceUrl&quot;
+log &quot;pomPath : $pomPath&quot;
+log &quot;pomUrl : $pomUrl&quot;
+log &quot;simName : $simName&quot;
 
-        cleanup
+log nl &quot;Get the pom file from $pomUrl&quot;
+get_pom
 
-        log nl &quot;Notify TM we&apos;re game_complete&quot;
-        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_complete&quot;
+CMD=&quot;$MVN_CMD -U -Pcli -Dexec.args=\&quot;-sim --game-id $gameId
+--control $tourneyUrl --log-suffix $suffix$gameId --brokers $brokers
+--input-queue $serverQueue\&quot;&quot;
+log nl &quot;Run maven : $CMD \n&quot;
+eval $CMD
 
-        exit 0
+COUNT=$(grep -c &apos;Abort file detected - shutting down&apos;
+log/powertac-sim-$gameId.trace)
+if [ $COUNT -eq 1 ] ; then
+log nl &quot;We detected an abort&quot;
+log nl &quot;Notify TM we&apos;re boot_complete&quot;
+wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_complete&quot;
+cleanup
+exit 1
+fi
+
+EndTime=$(date +%s)
+((RunningTime=EndTime-StartTime))
+H=$(($RunningTime / 3600))
+M=$((($RunningTime-3600*$H) / 60))
+S=$(($RunningTime % 60))
+log nl &quot;Game took (H:M:S) $H:$M:$S&quot;
+
+log nl &quot;Compressing log files&quot;
+$COMP_CMD &quot;$simName-logs.$COMP_EXT&quot;
+log/powertac-$suffix$gameId.* log/init.*
+
+log nl &quot;Sending log file&quot;
+curl --upload-file &quot;$simName-logs.$COMP_EXT&quot; &quot;$interfaceUrl?fileName=$simName-logs.$COMP_EXT&quot;
+
+cleanup
+
+log nl &quot;Notify TM we&apos;re game_complete&quot;
+wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_complete&quot;
+
+exit 0
       </command>
     </hudson.tasks.Shell>
   </builders>

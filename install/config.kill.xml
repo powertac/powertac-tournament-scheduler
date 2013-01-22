@@ -46,40 +46,40 @@
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 
-        PIDS=$(ps ax | grep start-server-instance | grep -v grep | awk &apos;{print
-        $1}&apos;)
-        echo &quot;PIDS : $PIDS&quot;
-        if [ &quot;$PIDS&quot; != &quot;&quot; ]; then
-        for PID in $PIDS
-        do
-        echo &quot;killing $PID&quot;
-        kill -9 &quot;$PID&quot;
-        done
-        fi
+PIDS=$(ps ax | grep start-server-instance | grep -v grep | awk &apos;{print
+$1}&apos;)
+echo &quot;PIDS : $PIDS&quot;
+if [ &quot;$PIDS&quot; != &quot;&quot; ]; then
+for PID in $PIDS
+do
+echo &quot;killing $PID&quot;
+kill -9 &quot;$PID&quot;
+done
+fi
 
-        PIDS=$(ps ax | grep start-boot-server | grep -v grep | awk &apos;{print
-        $1}&apos;)
-        echo &quot;PIDS : $PIDS&quot;
-        if [ &quot;$PIDS&quot; != &quot;&quot; ]; then
-        for PID in $PIDS
-        do
-        echo &quot;killing $PID&quot;
-        kill -9 &quot;$PID&quot;
-        done
-        fi
+PIDS=$(ps ax | grep start-boot-server | grep -v grep | awk &apos;{print
+$1}&apos;)
+echo &quot;PIDS : $PIDS&quot;
+if [ &quot;$PIDS&quot; != &quot;&quot; ]; then
+for PID in $PIDS
+do
+echo &quot;killing $PID&quot;
+kill -9 &quot;$PID&quot;
+done
+fi
 
-        PIDS=$(ps ax | grep start-sim-server | grep -v grep | awk &apos;{print
-        $1}&apos;)
-        echo &quot;PIDS : $PIDS&quot;
-        if [ &quot;$PIDS&quot; != &quot;&quot; ]; then
-        for PID in $PIDS
-        do
-        echo &quot;killing $PID&quot;
-        kill -9 &quot;$PID&quot;
-        done
-        fi
+PIDS=$(ps ax | grep start-sim-server | grep -v grep | awk &apos;{print
+$1}&apos;)
+echo &quot;PIDS : $PIDS&quot;
+if [ &quot;$PIDS&quot; != &quot;&quot; ]; then
+for PID in $PIDS
+do
+echo &quot;killing $PID&quot;
+kill -9 &quot;$PID&quot;
+done
+fi
 
-        exit 0
+exit 0
       </command>
     </hudson.tasks.Shell>
   </builders>
