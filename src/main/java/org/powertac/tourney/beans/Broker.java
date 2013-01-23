@@ -131,25 +131,7 @@ public class Broker
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Tournament tournament =
-          (Tournament) session.get(Tournament.class, tourneyId);
-      Registration registration = new Registration();
-      registration.setBroker(this);
-      registration.setTournament(tournament);
-      session.save(registration);
-      log.info(String.format("Registering broker: %s with tournament: %s",
-          brokerId, tournament.getTournamentId()));
-
-      // Only for single game, the scheduler handles multigame tourneys
-      if (tournament.isSingle()) {
-        for (Game game : tournament.getGameMap().values()) {
-          Agent agent = Agent.createAgent(this, game);
-          session.save(agent);
-          log.info(String.format("Registering broker: %s with game: %s",
-              brokerId, game.getGameId()));
-        }
-      }
-
+      register(session, tourneyId);
       transaction.commit();
       return true;
     } catch (Exception e) {
@@ -158,6 +140,28 @@ public class Broker
       return false;
     } finally {
       session.close();
+    }
+  }
+
+  public void register (Session session, int tourneyId)
+  {
+    Tournament tournament =
+        (Tournament) session.get(Tournament.class, tourneyId);
+    Registration registration = new Registration();
+    registration.setBroker(this);
+    registration.setTournament(tournament);
+    session.save(registration);
+    log.info(String.format("Registering broker: %s with tournament: %s",
+        brokerId, tournament.getTournamentId()));
+
+    // Only for single game, the scheduler handles multigame tourneys
+    if (tournament.isSingle()) {
+      for (Game game : tournament.getGameMap().values()) {
+        Agent agent = Agent.createAgent(this, game);
+        session.save(agent);
+        log.info(String.format("Registering broker: %s with game: %s",
+            brokerId, game.getGameId()));
+      }
     }
   }
 

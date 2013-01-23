@@ -47,9 +47,9 @@ public class ActionAccount
   public void addBroker ()
   {
     // Check if name and description not empty, and if name allowed
-    if (namesEmpty(brokerName, brokerShort, "accountForm2") ||
-        nameExists(brokerName, "accountForm2") ||
-        nameAllowed(brokerName, "accountForm2")) {
+    if (namesEmpty(brokerName, brokerShort, 2) ||
+        nameExists(brokerName, 2) ||
+        nameAllowed(brokerName, 2)) {
       return;
     }
 
@@ -74,9 +74,7 @@ public class ActionAccount
       brokers = new ArrayList<Broker>();
       User.reloadUser(user);
     } else {
-      String msg = "Error adding broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("accountForm2", fm);
+      message(2, "Error adding broker");
     }
   }
 
@@ -93,22 +91,20 @@ public class ActionAccount
     if (deleted) {
       User.reloadUser(user);
     } else {
-      String msg = "Error deleting broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("accountForm1", fm);
+      message(1, "Error deleting broker");
     }
   }
 
   public void updateBroker (Broker broker)
   {
     // Check if name and description not empty, and if name allowed (if changed)
-    if (namesEmpty(broker.getNewName(), broker.getNewShort(), "accountForm1")) {
+    if (namesEmpty(broker.getNewName(), broker.getNewShort(), 1)) {
       return;
     }
-    if (nameAllowed(broker.getNewName(), "accountForm1")) {
+    if (nameAllowed(broker.getNewName(), 1)) {
       return;
     } else if (!broker.getBrokerName().equals(broker.getNewName())) {
-      if (nameExists(broker.getNewName(), "accountForm1")) {
+      if (nameExists(broker.getNewName(), 1)) {
         return;
       }
     }
@@ -126,9 +122,7 @@ public class ActionAccount
 
     boolean saved = broker.update();
     if (!saved) {
-      String msg = "Error saving broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("accountForm1", fm);
+      message(1, "Error saving broker");
     }
   }
 
@@ -150,41 +144,35 @@ public class ActionAccount
     broker.setEdit(false);
   }
 
-  private boolean namesEmpty (String name, String description, String form)
+  private boolean namesEmpty (String name, String description, int field)
   {
     if (name == null || description == null ||
         name.trim().isEmpty() || description.trim().isEmpty()) {
-      String msg = "Broker requires a Name and a Description";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage(form, fm);
+      message(field, "Broker requires a Name and a Description");
       return true;
     }
     return false;
   }
 
-  private boolean nameExists (String brokerName, String form)
+  private boolean nameExists (String brokerName, int field)
   {
     Broker broker = Broker.getBrokerByName(brokerName);
     if (broker != null) {
-      String msg = "Brokername taken, please select a new name";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage(form, fm);
+      message(field, "Brokername taken, please select a new name");
       return true;
     }
     return false;
   }
 
   // We can't allow commas, used in end-of-game message from server
-  private boolean nameAllowed (String brokerName, String form)
+  private boolean nameAllowed (String brokerName, int field)
   {
     Pattern ALPHANUMERIC = Pattern.compile("[A-Za-z0-9\\-\\_]+");
     Matcher m = ALPHANUMERIC.matcher(brokerName);
 
     if (!m.matches()) {
-      String msg = "Brokername contains illegal characters, please select a "
-          + "new name (only alphanumeric, '-' and '_' allowed)";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage(form, fm);
+      message(field, "Brokername contains illegal characters, please select a "
+          + "new name (only alphanumeric, '-' and '_' allowed)");
       return true;
     }
     return false;
@@ -203,13 +191,23 @@ public class ActionAccount
 
     boolean registered = b.register(b.getSelectedTourneyRegister());
     if (!registered) {
-      String msg = "Error registering broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("accountForm0", fm);
+      message(0, "Error registering broker");
     } else {
       brokers = new ArrayList<Broker>();
       User user = User.getCurrentUser();
       User.reloadUser(user);
+    }
+  }
+
+  private void message (int field, String msg)
+  {
+    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+    if (field == 0) {
+      FacesContext.getCurrentInstance().addMessage("accountForm0", fm);
+    } else if (field == 1) {
+      FacesContext.getCurrentInstance().addMessage("accountForm1", fm);
+    } else if (field == 2) {
+      FacesContext.getCurrentInstance().addMessage("accountForm2", fm);
     }
   }
 

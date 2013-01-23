@@ -38,9 +38,7 @@ public class ActionLogin
   {
     boolean success = User.loginUser(getUserName(), getPassword());
     if (!success) {
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO,
-          "Login Failure", null);
-      FacesContext.getCurrentInstance().addMessage("loginForm", fm);
+      message(0, "Login Failure");
       return "Failure";
     }
     return "Success";
@@ -50,5 +48,13 @@ public class ActionLogin
   {
     User.getCurrentUser().logout();
     return "Login";
+  }
+
+  private void message (int field, String msg)
+  {
+    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+    if (field == 0) {
+      FacesContext.getCurrentInstance().addMessage("loginForm", fm);
+    }
   }
 }

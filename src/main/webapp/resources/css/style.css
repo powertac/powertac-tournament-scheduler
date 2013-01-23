@@ -75,6 +75,12 @@ input.actionButton {
     width: 65px;
 }
 
+input.bigButton {
+    margin: 2px;
+    padding: 1px 6px 1px 6px;
+    width: 150px;
+}
+
 .left {
     text-align: left;
 }

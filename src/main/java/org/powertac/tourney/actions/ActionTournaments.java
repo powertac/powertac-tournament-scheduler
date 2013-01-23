@@ -23,6 +23,7 @@ public class ActionTournaments
 
   private boolean disabled;
   private List<Broker> brokerList = new ArrayList<Broker>();
+  private int slavesCount;
 
   private int tourneyId;
   private String tournamentName;
@@ -70,9 +71,7 @@ public class ActionTournaments
   public void saveTournament ()
   {
     if (tournamentName.trim().isEmpty()) {
-      String msg = "The tournament name cannot be empty";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
+      message(2, "The tournament name cannot be empty");
       if (tourneyId != -1) {
         resetValues();
       }
@@ -80,9 +79,7 @@ public class ActionTournaments
     }
 
     if ((locations.size() < 1) && (tourneyId == -1 || selectedPom != 0)) {
-      String msg = "Choose at least one location";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
+      message(2, "Choose at least one location");
       if (tourneyId != -1) {
         resetValues();
       }
@@ -120,9 +117,7 @@ public class ActionTournaments
       transaction.commit();
     } catch (ConstraintViolationException ignored) {
       transaction.rollback();
-      String msg = "The tournament name already exists";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
+      message(2, "The tournament name already exists");
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
@@ -135,7 +130,7 @@ public class ActionTournaments
     }
   }
 
-  public void loadTournament (Tournament tournament)
+  public String loadTournament (Tournament tournament)
   {
     tourneyId = tournament.getTournamentId();
     tournamentName = tournament.getTournamentName();
@@ -159,6 +154,8 @@ public class ActionTournaments
     if (tournament.getGameMap().size() > 0) {
       disabled = true;
     }
+
+    return "Success";
   }
 
   public void saveEditedTournament ()
@@ -174,9 +171,7 @@ public class ActionTournaments
       transaction.commit();
     } catch (ConstraintViolationException ignored) {
       transaction.rollback();
-      String msg = "The tournament name already exists";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
+      message(2, "The tournament name already exists");
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
@@ -193,9 +188,7 @@ public class ActionTournaments
   {
     if (!tournament.getTournamentName().toLowerCase().contains("test")) {
       log.info("Someone tried to remove a non-test Tournament!");
-      String msg = "Nice try, hacker!";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_WARN, msg, null);
-      FacesContext.getCurrentInstance().addMessage("runningTournaments", fm);
+      message(0, "Nice try, hacker!");
       return;
     }
 
@@ -203,8 +196,7 @@ public class ActionTournaments
     if (!msg.isEmpty()) {
       log.info(String.format("Something went wrong with removing tournament "
           + "%s\n%s", tournament.getTournamentName(), msg));
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_WARN, msg, null);
-      FacesContext.getCurrentInstance().addMessage("runningTournaments", fm);
+      message(0, msg);
     }
   }
 
@@ -267,6 +259,7 @@ public class ActionTournaments
 
     disabled = false;
     brokerList = Broker.getBrokerList();
+    slavesCount = Machine.getMachineList().size();
   }
 
   public List<Broker> getBrokerList ()
@@ -292,9 +285,7 @@ public class ActionTournaments
 
     boolean registered = b.register(b.getSelectedTourneyRegister());
     if (!registered) {
-      String msg = "Error registering broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("tournamentRegistered", fm);
+      message(1, "Error registering broker");
     } else {
       brokerList = Broker.getBrokerList();
       User user = User.getCurrentUser();
@@ -310,13 +301,28 @@ public class ActionTournaments
 
     boolean registered = b.unregister(b.getSelectedTourneyUnregister());
     if (!registered) {
-      String msg = "Error unregistering broker";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("tournamentRegistered", fm);
+      message(1, "Error unregistering broker");
     } else {
       brokerList = Broker.getBrokerList();
       User user = User.getCurrentUser();
       User.reloadUser(user);
+    }
+  }
+
+  public boolean allowEdit (Tournament tournament)
+  {
+    return tourneyId == -1 && tournament.stateEquals(Tournament.STATE.pending);
+  }
+
+  private void message (int field, String msg)
+  {
+    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+    if (field == 0) {
+      FacesContext.getCurrentInstance().addMessage("runningTournaments", fm);
+    } else if (field == 1) {
+      FacesContext.getCurrentInstance().addMessage("tournamentRegistered", fm);
+    } else if (field == 2) {
+      FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
     }
   }
 
@@ -478,9 +484,10 @@ public class ActionTournaments
   {
     return disabled;
   }
-  public void setDisabled (boolean disabled)
+
+  public int getSlavesCount ()
   {
-    this.disabled = disabled;
+    return slavesCount;
   }
   //</editor-fold>
 }

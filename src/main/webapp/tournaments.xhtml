@@ -14,7 +14,7 @@
       <script type="text/javascript" charset="utf8"
               src="resources/js/tournaments.js"></script>
 
-      <h:form rendered="#{user.permissionId le 0}" id="runningTournaments">
+      <h:form rendered="#{user.permissionId le 0  and actionTournaments.tournamentList.size() > 0}" id="runningTournaments">
         <h2>Tournament Manager</h2>
 
         <h3 class="withButton">Pending/Running Tournaments</h3>
@@ -81,7 +81,7 @@
                              onclick="return confirmAlert('Are you sure you want to delete this tournament?');"
                              styleClass="smallButton"/>
             <h:commandButton value="Edit"
-                             rendered="#{actionTournaments.tourneyId == -1}"
+                             rendered="#{actionTournaments.allowEdit(t)}"
                              action="#{actionTournaments.loadTournament(t)}"
                              styleClass="smallButton"/>
             <h:commandButton value="Cancel"
@@ -90,7 +90,7 @@
                              styleClass="smallButton"/>
           </t:column>
         </t:dataTable>
-        <h:message for="runningTournaments"/>
+        <h:messages for="runningTournaments"/>
       </h:form>
 
       <br/>
@@ -289,7 +289,7 @@
         </h:panelGrid>
         <h:inputHidden id="tourneyId" value="#{actionTournaments.tourneyId}"/>
         <br/>
-        <h:message for="saveTournament"/>
+        <h:messages for="saveTournament"/>
       </h:form>
 
       <h:form rendered="#{user.permissionId le 0}">
@@ -302,6 +302,8 @@
         <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
         <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
       </h:form>
+
+      <h:inputHidden id="slavesCount" value="#{actionTournaments.slavesCount}"/>
     </ui:define>
   </ui:composition>
 </h:body>

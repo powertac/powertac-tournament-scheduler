@@ -1,6 +1,7 @@
 package org.powertac.tourney.services;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
 import javax.faces.application.FacesMessage;
@@ -10,6 +11,8 @@ import java.io.FileOutputStream;
 
 public class Upload
 {
+  private static Logger log = Logger.getLogger("TMLogger");
+
   private UploadedFile uploadedFile;
   private String uploadLocation;
 
@@ -21,16 +24,10 @@ public class Upload
     try {
       fos = new FileOutputStream(filePath);
       IOUtils.copy(uploadedFile.getInputStream(), fos);
-
-      // Show succes message.
-      String msg = "File upload success! " + filePath;
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
+      message(0, "File upload success! " + filePath);
     } catch (Exception e) {
-      // Show error message.
-      String msg = "File upload failed with I/O error. " + filePath;
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
+      message(0, "File upload failed with I/O error. " + filePath);
+      log.error("File upload failed with I/O error. " + filePath);
       e.printStackTrace();
       return false;
     } finally {
@@ -38,6 +35,14 @@ public class Upload
     }
 
     return true;
+  }
+
+  private void message (int field, String msg)
+  {
+    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+    if (field == 0) {
+      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
+    }
   }
 
   //<editor-fold desc="Setters and Getters">

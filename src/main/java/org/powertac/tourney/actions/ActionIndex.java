@@ -61,9 +61,7 @@ public class ActionIndex
   {
     if (editing) {
       if (!MemStore.setIndexContent(content)) {
-        String msg = "Error saving to DB";
-        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-        FacesContext.getCurrentInstance().addMessage("contentForm", fm);
+        message(0, "Error saving to DB");
         return;
       }
     }
@@ -88,5 +86,13 @@ public class ActionIndex
   public void setContent (String content)
   {
     this.content = content;
+  }
+
+  private void message (int field, String msg)
+  {
+    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+    if (field == 0) {
+      FacesContext.getCurrentInstance().addMessage("contentForm", fm);
+    }
   }
 }

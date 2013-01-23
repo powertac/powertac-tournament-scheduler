@@ -81,11 +81,10 @@ public class ActionOverview
       session.update(tournament);
       session.flush();
 
-      String msg =
-          "Setting tournament: " + tournament.getTournamentId() + " to start now";
+      String msg = "Setting tournament: " + tournament.getTournamentId()
+          + " to start now";
       log.info(msg);
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("tournamentForm", fm);
+      message(1, msg);
 
       // Reschedule all games of a SINGLE_GAME tournament
       if (tournament.isSingle()) {
@@ -96,8 +95,7 @@ public class ActionOverview
 
           msg = "Setting game: " + game.getGameId() + " to start now";
           log.info(msg);
-          fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-          FacesContext.getCurrentInstance().addMessage("tournamentForm", fm);
+          message(1, msg);
         }
       }
 
@@ -105,10 +103,7 @@ public class ActionOverview
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      String msg =
-          "Failed to start tournament " + tournament.getTournamentId() + " to now";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("tournamentForm", fm);
+      message(1, "Failed to start tournament " + tournament.getTournamentId() + " to now");
     }
     session.close();
 
@@ -126,9 +121,7 @@ public class ActionOverview
 
     new RunAbort(game.getMachine().getMachineName());
 
-    String msg = "Aborting games takes some time, please wait";
-    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-    FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+    message(2, "Aborting games takes some time, please wait");
   }
 
   public void killGame (Game game)
@@ -171,9 +164,7 @@ public class ActionOverview
       e.printStackTrace();
 
       log.error("Failed to completely kill game: " + gameId);
-      String msg = "Error killing game : " + gameId;
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+      message(2, "Error killing game : " + gameId);
     } finally {
       session.close();
     }
@@ -215,10 +206,20 @@ public class ActionOverview
       e.printStackTrace();
 
       log.error("Failed to restart game: " + gameId);
-      String msg = "Error restarting game : " + gameId;
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+      message(2, "Error restarting game : " + gameId);
     }
     session.close();
+  }
+
+  private void message (int field, String msg)
+  {
+    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+    if (field == 0) {
+      FacesContext.getCurrentInstance().addMessage("formDatabrokers", fm);
+    } else if (field == 1) {
+      FacesContext.getCurrentInstance().addMessage("tournamentForm", fm);
+    } else if (field == 2) {
+      FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
+    }
   }
 }

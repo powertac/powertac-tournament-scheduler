@@ -69,9 +69,7 @@ public class ActionRegister
   {
     User user = User.getUserByName(username);
     if (user != null) {
-      String msg = "User Name taken, please select a new name";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("registerForm", fm);
+      message(0, "User Name taken, please select a new name");
       return true;
     }
     return false;
@@ -80,12 +78,18 @@ public class ActionRegister
   private boolean passwordMismatch (String password1, String password2)
   {
     if (!password1.equals(password2)) {
-      String msg = "Passwords do not match";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-      FacesContext.getCurrentInstance().addMessage("registerForm", fm);
+      message(0, "Passwords do not match");
       return true;
     }
     return false;
+  }
+
+  private void message (int field, String msg)
+  {
+    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+    if (field == 0) {
+      FacesContext.getCurrentInstance().addMessage("registerForm", fm);
+    }
   }
 
   //<editor-fold desc="Setters and Getters">

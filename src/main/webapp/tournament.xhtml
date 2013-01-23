@@ -23,8 +23,14 @@
       </t:dataList>
 
       <h:form rendered="#{user.permissionId le 0}">
+        <h:commandButton value="Edit this tournament"
+                         rendered="#{actionTournaments.allowEdit(actionTournament.tournament)}"
+                         action="#{actionTournaments.loadTournament(actionTournament.tournament)}"
+                         styleClass="bigButton"/>
+        <br/>
         <h:commandButton action="#{actionTournament.createCsv}"
-                         value="Create or update CSV">
+                         value="Create or update CSV"
+                         styleClass="bigButton">
           <f:ajax execute="@form" render="@form"/>
         </h:commandButton>
         <input type="hidden" name="tournamentId"
@@ -162,6 +168,7 @@
 
       <h:panelGroup
           rendered="#{actionTournament.tournament.isMulti() and actionTournament.avgsAndSDs.size() == 0}">
+        <br/>
         <h4>No game-data available yet</h4>
       </h:panelGroup>
 

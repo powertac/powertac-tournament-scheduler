@@ -147,7 +147,7 @@
                            action="#{actionAdmin.saveLocation}"/>
           <h:panelGroup/>
         </h:panelGrid>
-        <h:message for="saveLocation"/>
+        <h:messages for="saveLocation"/>
         <h:inputHidden id="locationId" value="#{actionAdmin.locationId}"/>
       </h:form>
 
@@ -198,7 +198,7 @@
           <br/>
           <h:commandButton value="Submit Pom"
                            action="#{actionAdmin.submitPom}"/>
-          <h:message for="pomUploadForm"/>
+          <h:messages for="pomUploadForm"/>
         </h:form>
       </h:panelGrid>
 
@@ -285,7 +285,7 @@
           <h:inputText value="#{actionAdmin.machineViz}"/>
         </h:panelGrid>
         <h:commandButton value="Save" action="#{actionAdmin.saveMachine()}"/>
-        <h:message for="saveMachine"/>
+        <h:messages for="saveMachine"/>
         <h:inputHidden id="machineId" value="#{actionAdmin.machineId}"/>
       </h:form>
 

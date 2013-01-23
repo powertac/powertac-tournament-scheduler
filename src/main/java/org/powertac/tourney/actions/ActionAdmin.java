@@ -128,9 +128,7 @@ public class ActionAdmin
   public void saveLocation ()
   {
     if (locationName.isEmpty() || locationStartTime == null || locationEndTime == null) {
-      String msg = "Error: location not saved, some fields were empty!";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("saveLocation", fm);
+      message(0, "Error: location not saved, some fields were empty!");
       return;
     }
 
@@ -182,10 +180,7 @@ public class ActionAdmin
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-
-      String msg = "Error : location not edited " + e.getMessage();
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("saveLocation", fm);
+      message(0, "Error : location not edited " + e.getMessage());
     }
     if (transaction.wasCommitted()) {
       log.info("Edited location " + locationName);
@@ -230,16 +225,12 @@ public class ActionAdmin
   {
     if (pomName.isEmpty()) {
       // Show succes message.
-      String msg = "Error: You need to fill in the pom name";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
+      message(1, "Error: You need to fill in the pom name");
       return;
     }
 
     if (uploadedPom == null) {
-      String msg = "Error: You need to choose a pom file";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
+      message(1, "Error: You need to choose a pom file");
       return;
     }
 
@@ -254,9 +245,7 @@ public class ActionAdmin
       session.save(pom);
     } catch (ConstraintViolationException e) {
       session.getTransaction().rollback();
-      String msg = "Error: This name is already used";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
+      message(1, "Error: This name is already used");
       return;
     }
 
@@ -327,9 +316,7 @@ public class ActionAdmin
     machineViz = machineViz.replace("https://", "").replace("http://", "");
 
     if (machineName.isEmpty() || machineUrl.isEmpty() || machineViz.isEmpty()) {
-      String msg = "Error: machine not saved, some fields were empty!";
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
+      message(2, "Error: machine not saved, some fields were empty!");
       return;
     }
 
@@ -363,9 +350,7 @@ public class ActionAdmin
       transaction.rollback();
       e.printStackTrace();
 
-      String msg = "Error : machine not added " + e.getMessage();
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
+      message(2, "Error : machine not added " + e.getMessage());
     }
     if (transaction.wasCommitted()) {
       log.info("Added new machine " + machineName);
@@ -390,10 +375,7 @@ public class ActionAdmin
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-
-      String msg = "Error : machine not edited " + e.getMessage();
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
+      message(2, "Error : machine not edited " + e.getMessage());
     }
     if (transaction.wasCommitted()) {
       log.info("Edited machine " + machineName);
@@ -415,9 +397,7 @@ public class ActionAdmin
       transaction.rollback();
       e.printStackTrace();
 
-      String msg = "Error : machine not deleted " + e.getMessage();
-      FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, null);
-      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
+      message(2, "Error : machine not deleted " + e.getMessage());
     }
     session.close();
     resetMachineData();
@@ -435,6 +415,18 @@ public class ActionAdmin
   public List<User> getUserList ()
   {
     return User.getUserList();
+  }
+
+  private void message (int field, String msg)
+  {
+    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
+    if (field == 0) {
+      FacesContext.getCurrentInstance().addMessage("saveLocation", fm);
+    } else if (field == 1) {
+      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
+    } else if (field == 2) {
+      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
+    }
   }
 
   //<editor-fold desc="Setters and Getters">
