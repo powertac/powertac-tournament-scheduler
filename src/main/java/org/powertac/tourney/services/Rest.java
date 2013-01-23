@@ -55,57 +55,16 @@ public class Rest
       log.debug("Broker id is : " + broker.getBrokerId());
 
       // Check if tournament exists
-      query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_NAME);
-      query.setString("tournamentName", tournamentName);
-      Tournament tournament = (Tournament) query.uniqueResult();
+      Tournament tournament = getRunningTournament(session, tournamentName, broker);
       if (tournament == null) {
-        log.info("Tournament doesn't exists : " + tournamentName);
         transaction.commit();
         return doneResponse;
       }
-
-      // Check if tournament is finished
-      if (tournament.isComplete()) {
-        log.info("Tournament is finished, we're done : " + tournamentName);
-        transaction.commit();
-        return doneResponse;
-      }
-
-      // Check if broker is registered for this tournament
-      if (!broker.getTournamentMap().keySet().contains(tournament.getTournamentId())) {
-        log.info(String.format("Broker not registered for tournament " +
-            tournament.getTournamentName()));
-        transaction.commit();
-        return doneResponse;
-      }
-
-      long readyDeadline = 2 * 60 * 1000;
-      long nowStamp = Utils.offsetDate().getTime();
 
       // Check if any ready games that are more than X minutes ready (to allow Viz Login)
-      for (Game game : tournament.getGameMap().values()) {
-        if (!game.isReady()) {
-          continue;
-        }
+      Game game = getReadyGame(session, tournament, broker);
+      if (game != null) {
         Agent agent = game.getAgentMap().get(broker.getBrokerId());
-        if (agent == null || !agent.stateEquals(Agent.STATE.pending)) {
-          continue;
-        }
-
-        log.debug("Game " + game.getGameId() + " is ready");
-
-        long diff = nowStamp - game.getReadyTime().getTime();
-        if (diff < readyDeadline) {
-          log.debug("Broker needs to wait for the viz timeout : " +
-              (readyDeadline - diff) / 1000);
-          continue;
-        }
-
-        agent.setState(Agent.STATE.in_progress);
-        session.update(agent);
-        log.info(String.format("Sending login to broker %s : %s, %s, %s",
-            broker.getBrokerName(), game.getMachine().getJmsUrl(),
-            agent.getBrokerQueue(), game.getServerQueue()));
         transaction.commit();
         return String.format(loginResponse, game.getMachine().getJmsUrl(),
             agent.getBrokerQueue(), game.getServerQueue());
@@ -124,6 +83,69 @@ public class Rest
     } finally {
       session.close();
     }
+  }
+
+  private Tournament getRunningTournament (Session session, String name,
+                                           Broker broker)
+  {
+    Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_NAME);
+    query.setString("tournamentName", name);
+    Tournament tournament = (Tournament) query.uniqueResult();
+
+    if (tournament == null) {
+      log.info("Tournament doesn't exists : " + name);
+      return null;
+    }
+
+    // Check if tournament is finished
+    if (tournament.isComplete()) {
+      log.info("Tournament is finished, we're done : " + name);
+      return null;
+    }
+
+    // Check if broker is registered for this tournament
+    if (!broker.getTournamentMap().keySet().contains(tournament.getTournamentId())) {
+      log.info(String.format("Broker not registered for tournament " +
+          tournament.getTournamentName()));
+      return null;
+    }
+
+    return tournament;
+  }
+
+  private Game getReadyGame (Session session, Tournament tournament,
+                               Broker broker)
+  {
+    long readyDeadline = 2 * 60 * 1000;
+    long nowStamp = Utils.offsetDate().getTime();
+
+    for (Game game : tournament.getGameMap().values()) {
+      if (!game.isReady()) {
+        continue;
+      }
+      Agent agent = game.getAgentMap().get(broker.getBrokerId());
+      if (agent == null || !agent.stateEquals(Agent.STATE.pending)) {
+        continue;
+      }
+
+      log.debug("Game " + game.getGameId() + " is ready");
+
+      long diff = nowStamp - game.getReadyTime().getTime();
+      if (diff < readyDeadline) {
+        log.debug("Broker needs to wait for the viz timeout : " +
+            (readyDeadline - diff) / 1000);
+        continue;
+      }
+
+      agent.setState(Agent.STATE.in_progress);
+      session.update(agent);
+      log.info(String.format("Sending login to broker %s : %s, %s, %s",
+          broker.getBrokerName(), game.getMachine().getJmsUrl(),
+          agent.getBrokerQueue(), game.getServerQueue()));
+      return game;
+    }
+
+    return null;
   }
 
   /**
