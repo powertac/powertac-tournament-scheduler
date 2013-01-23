@@ -28,7 +28,7 @@ CREATE TABLE `tourney`.`brokers` (
   `brokerAuth`  VARCHAR(32)         NOT NULL,
   `brokerShort` VARCHAR(256)        NOT NULL,
   PRIMARY KEY (`brokerId`),
-  CONSTRAINT userId_refs FOREIGN KEY (`userId`) REFERENCES `tourney`.`users` (`userId`)
+  CONSTRAINT broker_refs FOREIGN KEY (`userId`) REFERENCES `tourney`.`users` (`userId`)
 )
   ENGINE = InnoDB;
 
@@ -53,16 +53,16 @@ CREATE TABLE `tourney`.`tournaments` (
   `startTime`   DATETIME            NOT NULL,
   `dateFrom`    DATETIME            NOT NULL,
   `dateTo`      DATETIME            NOT NULL,
-  `maxBrokers`  INTEGER             NOT NULL,
-  `maxAgents`   INTEGER             NOT NULL DEFAULT 2,
+  `maxBrokers`  INT(11)             NOT NULL,
+  `maxAgents`   INT(11)             NOT NULL DEFAULT 2,
   `state`       VARCHAR(32)         NOT NULL,
-  `gameSize1`   INTEGER             NOT NULL,
-  `gameSize2`   INTEGER             NOT NULL,
-  `gameSize3`   INTEGER             NOT NULL,
+  `gameSize1`   INT(11)             NOT NULL,
+  `gameSize2`   INT(11)             NOT NULL,
+  `gameSize3`   INT(11)             NOT NULL,
   `multiplier1` INT(11)             NOT NULL,
   `multiplier2` INT(11)             NOT NULL,
   `multiplier3` INT(11)             NOT NULL,
-  `type`        VARCHAR(32)         NOT NULL, /* Type is either multi-game or single game if single game ignore the gameSize params */
+  `type`        VARCHAR(32)         NOT NULL, /* Type is either MULTI_GAME or SINGLE_GAME. If single ignore gameSize params */
   `pomId`       INT(11)             NOT NULL, /* This will be a foreign key to poms.pomId */
   `locations`   VARCHAR(256)        NOT NULL, /* This will be a comma delimited list for now */
   `closed`      TINYINT(1)          NOT NULL,
@@ -77,9 +77,9 @@ CREATE TABLE `tourney`.`registrations` (
   `registrationId` INT(11) NOT NULL AUTO_INCREMENT,
   `tourneyId`      INT(11) NOT NULL,
   `brokerId`       INT(11) NOT NULL,
-  CONSTRAINT tourneyId_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` (`tourneyId`),
-  CONSTRAINT brokerId_refs FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`),
-  PRIMARY KEY (`registrationId`)
+  PRIMARY KEY (`registrationId`),
+  CONSTRAINT registration_refs1 FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` (`tourneyId`),
+  CONSTRAINT registration_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`)
 )
   ENGINE = InnoDB;
 
@@ -103,7 +103,7 @@ CREATE TABLE `tourney`.`games` (
   `gameId`          INT(11)      NOT NULL AUTO_INCREMENT,
   `gameName`        VARCHAR(256) NOT NULL,
   `tourneyId`       INT(11)      NOT NULL,
-  `machineId`       INT(11),
+  `machineId`       INT(11)      NULL,
   `state`           VARCHAR(32)  NOT NULL,
   `startTime`       DATETIME     NOT NULL,
   `readyTime`       DATETIME     NULL,
@@ -114,8 +114,8 @@ CREATE TABLE `tourney`.`games` (
   `gameLength`      INT(11) DEFAULT NULL,
   `lastTick`        INT(11) DEFAULT NULL,
   PRIMARY KEY (`gameId`),
-  CONSTRAINT tourneyId2_refs FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` (`tourneyId`),
-  CONSTRAINT machineId2_refs FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` (`machineId`)
+  CONSTRAINT game_refs1 FOREIGN KEY (`tourneyId`) REFERENCES `tourney`.`tournaments` (`tourneyId`),
+  CONSTRAINT game_refs2 FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` (`machineId`)
 )
   ENGINE = InnoDB;
 
@@ -124,15 +124,15 @@ DROP TABLE IF EXISTS `tourney`.`locations`;
 CREATE TABLE `tourney`.`locations` (
   `locationId` INT(11)      NOT NULL AUTO_INCREMENT,
   `location`   VARCHAR(256) NOT NULL,
-  `timezone`   INTEGER      NOT NULL,
-  `dateFrom`   DATETIME     NOT NULL,
-  `dateTo`     DATETIME     NOT NULL,
+  `timezone`   INT(11)      NOT NULL,
+  `fromDate`   DATETIME     NOT NULL,
+  `toDate`     DATETIME     NOT NULL,
   PRIMARY KEY (`locationId`)
 )
   ENGINE = InnoDB;
 
 INSERT INTO `tourney`.`locations`
-(`locationId`, `location`, `timezone`, `dateFrom`, `dateTo`) VALUES
+(`locationId`, `location`, `timezone`, `fromDate`, `toDate`) VALUES
 (1, 'rotterdam', 1, '2009-01-01 00:00:00', '2009-06-01 00:00:00');
 
 
@@ -141,18 +141,18 @@ CREATE TABLE `tourney`.`agents` (
   `agentId`     INT(11)     NOT NULL AUTO_INCREMENT,
   `gameId`      INT(11)     NOT NULL,
   `brokerId`    INT(11)     NOT NULL,
-  `brokerQueue` VARCHAR(64),
+  `brokerQueue` VARCHAR(64) NULL,
   `state`       VARCHAR(32) NOT NULL,
-  `balance`     DOUBLE      NOT NULL DEFAULT '0',
-  CONSTRAINT brokerId_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`),
-  CONSTRAINT gameId_refs2 FOREIGN KEY (`gameId`) REFERENCES `tourney`.`games` (`gameId`),
-  PRIMARY KEY (`agentId`)
+  `balance`     DOUBLE      NOT NULL DEFAULT '-1',
+  PRIMARY KEY (`agentId`),
+  CONSTRAINT agent_refs1 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`),
+  CONSTRAINT agent_refs2 FOREIGN KEY (`gameId`) REFERENCES `tourney`.`games` (`gameId`)
 )
   ENGINE = InnoDB;
 
 
 DROP TABLE IF EXISTS `tourney`.`config`;
-CREATE TABLE IF NOT EXISTS `tourney``config` (
+CREATE TABLE IF NOT EXISTS `tourney`.`config` (
   `configId`    INT(11)             NOT NULL AUTO_INCREMENT,
   `configKey`   VARCHAR(256) UNIQUE NOT NULL,
   `configValue` LONGTEXT,
