@@ -39,7 +39,7 @@ public class Tournament
   private int multiplier1;
   private int multiplier2;
   private int multiplier3;
-  private String type;
+  private TYPE type;
   private int pomId;
   private String locations;
   private boolean closed;
@@ -411,24 +411,25 @@ public class Tournament
   @Transient
   public boolean isMulti ()
   {
-    return type.equals(TYPE.MULTI_GAME.toString());
+    return type.equals(TYPE.MULTI_GAME);
   }
 
   @Transient
   public boolean isSingle ()
   {
-    return type.equals(TYPE.SINGLE_GAME.toString());
+    return type.equals(TYPE.SINGLE_GAME);
+  }
+
+  @Transient
+  public boolean isPending ()
+  {
+    return state.equals(STATE.pending);
   }
 
   @Transient
   public boolean isComplete ()
   {
-    return stateEquals(Tournament.STATE.complete);
-  }
-
-  public boolean stateEquals (STATE state)
-  {
-    return this.state.equals(state);
+    return state.equals(STATE.complete);
   }
 
   public String startTimeUTC ()
@@ -553,7 +554,6 @@ public class Tournament
   {
     return tourneyId;
   }
-
   public void setTournamentId (int tourneyId)
   {
     this.tourneyId = tourneyId;
@@ -564,7 +564,6 @@ public class Tournament
   {
     return tournamentName;
   }
-
   public void setTournamentName (String tournamentName)
   {
     this.tournamentName = tournamentName;
@@ -576,7 +575,6 @@ public class Tournament
   {
     return startTime;
   }
-
   public void setStartTime (Date startTime)
   {
     this.startTime = startTime;
@@ -588,7 +586,6 @@ public class Tournament
   {
     return dateFrom;
   }
-
   public void setDateFrom (Date dateFrom)
   {
     this.dateFrom = dateFrom;
@@ -600,7 +597,6 @@ public class Tournament
   {
     return dateTo;
   }
-
   public void setDateTo (Date dateTo)
   {
     this.dateTo = dateTo;
@@ -611,7 +607,6 @@ public class Tournament
   {
     return maxBrokers;
   }
-
   public void setMaxBrokers (int maxBrokers)
   {
     this.maxBrokers = maxBrokers;
@@ -622,7 +617,6 @@ public class Tournament
   {
     return maxAgents;
   }
-
   public void setMaxAgents (int maxAgents)
   {
     this.maxAgents = maxAgents;
@@ -644,7 +638,6 @@ public class Tournament
   {
     return size1;
   }
-
   public void setSize1 (int size1)
   {
     this.size1 = size1;
@@ -655,7 +648,6 @@ public class Tournament
   {
     return size2;
   }
-
   public void setSize2 (int size2)
   {
     this.size2 = size2;
@@ -666,7 +658,6 @@ public class Tournament
   {
     return size3;
   }
-
   public void setSize3 (int size3)
   {
     this.size3 = size3;
@@ -677,7 +668,6 @@ public class Tournament
   {
     return multiplier1;
   }
-
   public void setMultiplier1 (int multiplier1)
   {
     this.multiplier1 = multiplier1;
@@ -688,7 +678,6 @@ public class Tournament
   {
     return multiplier2;
   }
-
   public void setMultiplier2 (int multiplier2)
   {
     this.multiplier2 = multiplier2;
@@ -699,19 +688,18 @@ public class Tournament
   {
     return multiplier3;
   }
-
   public void setMultiplier3 (int multiplier3)
   {
     this.multiplier3 = multiplier3;
   }
 
   @Column(name = "type", nullable = false)
-  public String getType ()
+  @Enumerated(EnumType.STRING)
+  public TYPE getType ()
   {
     return type;
   }
-
-  public void setType (String type)
+  public void setType (TYPE type)
   {
     this.type = type;
   }
@@ -721,7 +709,6 @@ public class Tournament
   {
     return pomId;
   }
-
   public void setPomId (int pomId)
   {
     this.pomId = pomId;
@@ -732,7 +719,6 @@ public class Tournament
   {
     return locations;
   }
-
   public void setLocations (String locations)
   {
     this.locations = locations;
@@ -743,7 +729,6 @@ public class Tournament
   {
     return closed;
   }
-
   public void setClosed (boolean closed)
   {
     this.closed = closed;

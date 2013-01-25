@@ -81,6 +81,7 @@ public class Constants
     public static final String GET_TOURNAMENT_BY_ID =
         "FROM Tournament AS tournament "
             + "LEFT JOIN FETCH tournament.gameMap AS gameMap "
+            + "LEFT JOIN FETCH gameMap.agentMap AS agentMap "
             + "LEFT JOIN FETCH tournament.brokerMap AS brokerMap "
             + "LEFT JOIN FETCH brokerMap.user "
             + "WHERE tournament.tournamentId =:tournamentId";

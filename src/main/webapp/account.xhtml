@@ -11,13 +11,9 @@
       <script type="text/javascript" charset="utf8"
               src="resources/js/account.js"></script>
 
-      <h:panelGroup rendered="#{user.permissionId == 4}">
-        <meta http-equiv="REFRESH" content="0;url=login.xhtml"/>
-      </h:panelGroup>
-
       <h2>Account for user: #{user.userName}</h2>
 
-      <h:form id="accountForm0" rendered="#{user.permissionId le 3}">
+      <h:form id="accountForm0" rendered="#{user.isLoggedIn()}">
         <h4>Brokers in Tournaments</h4>
         <h:dataTable border="1" id="brokers"
                      value="#{actionAccount.brokers}" var="broker">
@@ -61,7 +57,7 @@
         <h:messages for="accountForm0"/>
       </h:form>
 
-      <h:form id="accountForm1" rendered="#{user.permissionId le 3}">
+      <h:form id="accountForm1" rendered="#{user.isLoggedIn()}">
         <br/>
         <h4>Manage Brokers</h4>
         <h:dataTable border="1" value="#{actionAccount.brokers}" var="broker">
@@ -108,7 +104,7 @@
         <h:messages for="accountForm1"/>
       </h:form>
 
-      <h:form id="accountForm2" rendered="#{user.permissionId le 3}">
+      <h:form id="accountForm2" rendered="#{user.isLoggedIn()}">
         <br/>
         <h4>Add Broker Name/Description</h4>
         <h:panelGrid columns="1">
@@ -122,7 +118,7 @@
         <h:messages for="accountForm2"/>
       </h:form>
 
-      <h:form rendered="#{user.permissionId gt 3}">
+      <h:form rendered="#{user.isGuest()}">
         <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
         <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
       </h:form>

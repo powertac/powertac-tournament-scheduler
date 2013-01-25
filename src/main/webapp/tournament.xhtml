@@ -22,7 +22,7 @@
         <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
       </t:dataList>
 
-      <h:form rendered="#{user.permissionId le 0}">
+      <h:form rendered="#{user.isAdmin()}">
         <h:commandButton value="Edit this tournament"
                          rendered="#{actionTournaments.allowEdit(actionTournament.tournament)}"
                          action="#{actionTournaments.loadTournament(actionTournament.tournament)}"

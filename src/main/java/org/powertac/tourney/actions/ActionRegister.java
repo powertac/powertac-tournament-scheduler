@@ -45,7 +45,7 @@ public class ActionRegister
     user.setContactEmail(contactEmail);
     user.setContactPhone(contactPhone);
     user.setInstitution(institution);
-    user.setPermissionId(User.Permission.BROKER);
+    user.setPermission(User.PERMISSION.broker);
     user.setPassword(DigestUtils.md5Hex(password1 + genSalt));
     user.setSalt(genSalt);
 

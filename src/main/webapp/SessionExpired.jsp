@@ -5,8 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <meta http-equiv="Refresh"
-          content="0; URL=/TournamentScheduler/faces/login.xhtml"/>
+    <meta http-equiv="Refresh" content="0; URL=/TournamentScheduler/faces/login.xhtml"/>
     <title>Session Expired</title>
 </head>
 

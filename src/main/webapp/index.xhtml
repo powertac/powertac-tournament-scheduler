@@ -17,7 +17,7 @@
 
       <h:outputText value="#{actionIndex.content}" escape="false"/>
 
-      <h:form id="contentForm" rendered="#{user.permissionId le 0}">
+      <h:form id="contentForm" rendered="#{user.isAdmin()}">
         <h:inputTextarea id="contentInput"
                          rendered="#{actionIndex.editing == true}"
                          value="#{actionIndex.content}"

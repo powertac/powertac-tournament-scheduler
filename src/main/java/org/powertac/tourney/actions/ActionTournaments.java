@@ -134,7 +134,7 @@ public class ActionTournaments
   {
     tourneyId = tournament.getTournamentId();
     tournamentName = tournament.getTournamentName();
-    type = Tournament.TYPE.valueOf(tournament.getType());
+    type = tournament.getType();
     maxBrokers = tournament.getMaxBrokers();
     maxAgents = tournament.getMaxAgents();
     size1 = tournament.getSize1();
@@ -217,7 +217,7 @@ public class ActionTournaments
     if (tournament.getGameMap().size() < 1) {
       tournament.setTournamentName(tournamentName);
       if (type != null) {
-        tournament.setType(type.toString());
+        tournament.setType(type);
       }
       tournament.setMaxBrokers(maxBrokers);
       tournament.setMaxAgents(tournament.isMulti() ? maxAgents : 0);
@@ -311,7 +311,7 @@ public class ActionTournaments
 
   public boolean allowEdit (Tournament tournament)
   {
-    return tourneyId == -1 && tournament.stateEquals(Tournament.STATE.pending);
+    return tourneyId == -1 && tournament.isPending();
   }
 
   private void message (int field, String msg)

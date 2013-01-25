@@ -74,7 +74,7 @@ public class Scheduler implements InitializingBean
       public void run ()
       {
         // Empty line to make logs more readable
-        log.info("\n");
+        log.info(System.getProperty("line.separator"));
         try {
           Machine.checkMachines();
           scheduleLoadedTournament();

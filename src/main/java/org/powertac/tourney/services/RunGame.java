@@ -125,8 +125,8 @@ public class RunGame
       Machine freeMachine = Machine.getFreeMachine(session);
       if (freeMachine == null) {
         Scheduler scheduler = Scheduler.getScheduler();
-        log.info(String.format("No machines available to run scheduled sim %s"
-            + "... will retry in %s seconds",
+        log.info(String.format(
+            "No machine available for scheduled sim %s, retry in %s seconds",
             game.getGameId(), scheduler.getWatchDogInterval() / 1000));
         return false;
       }

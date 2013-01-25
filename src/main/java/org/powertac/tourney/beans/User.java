@@ -33,11 +33,19 @@ public class User
   private String contactPhone;
   private String salt;
   private String password = "";
-  private int permissionId = Permission.GUEST;
+  private PERMISSION permission = PERMISSION.guest;
 
   private Map<Integer, Broker> brokerMap = new HashMap<Integer, Broker>();
 
   private boolean isEditing;
+
+  public static enum PERMISSION {
+    admin,
+    researcher,
+    organizer,
+    broker,
+    guest
+  }
 
   public User ()
   {
@@ -51,7 +59,7 @@ public class User
     userId = -1;
     userName = "Guest";
     password = "";
-    permissionId = Permission.GUEST;
+    permission = PERMISSION.guest;
   }
 
   public static User getCurrentUser ()
@@ -148,7 +156,6 @@ public class User
   {
     return userId;
   }
-
   public void setUserId (int userId)
   {
     this.userId = userId;
@@ -159,7 +166,6 @@ public class User
   {
     return userName;
   }
-
   public void setUserName (String userName)
   {
     this.userName = userName;
@@ -170,7 +176,6 @@ public class User
   {
     return institution;
   }
-
   public void setInstitution (String institution)
   {
     this.institution = institution;
@@ -181,7 +186,6 @@ public class User
   {
     return contactName;
   }
-
   public void setContactName (String contactName)
   {
     this.contactName = contactName;
@@ -192,7 +196,6 @@ public class User
   {
     return contactEmail;
   }
-
   public void setContactEmail (String contactEmail)
   {
     this.contactEmail = contactEmail;
@@ -203,7 +206,6 @@ public class User
   {
     return contactPhone;
   }
-
   public void setContactPhone (String contactPhone)
   {
     this.contactPhone = contactPhone;
@@ -214,7 +216,6 @@ public class User
   {
     return salt;
   }
-
   public void setSalt (String salt)
   {
     this.salt = salt;
@@ -225,21 +226,20 @@ public class User
   {
     return password;
   }
-
   public void setPassword (String password)
   {
     this.password = password;
   }
 
-  @Column(name = "permissionId", nullable = false)
-  public int getPermissionId ()
+  @Column(name = "permission", nullable = false)
+  @Enumerated(EnumType.STRING)
+  public PERMISSION getPermission ()
   {
-    return permissionId;
+    return permission;
   }
-
-  public void setPermissionId (int permissionId)
+  public void setPermission (PERMISSION permission)
   {
-    this.permissionId = permissionId;
+    this.permission = permission;
   }
   //</editor-fold>
 
@@ -249,25 +249,27 @@ public class User
   {
     return isEditing;
   }
-
   public void setEditing (boolean editing)
   {
     isEditing = editing;
   }
 
   @Transient
+  public boolean isGuest ()
+  {
+    return permission.compareTo(PERMISSION.broker) > 0 || userId == -1;
+  }
+
+  @Transient
   public boolean isLoggedIn ()
   {
-    return (permissionId < 4 && userId != -1);
+    return permission.compareTo(PERMISSION.broker) <= 0 && userId != -1;
+  }
+
+  @Transient
+  public boolean isAdmin ()
+  {
+    return permission == PERMISSION.admin && userId != -1;
   }
   //</editor-fold>
-
-  public static class Permission
-  {
-    public static int ADMIN = 0;
-    public static int RESEARCHER = 1;
-    public static int ORGANIZER = 2;
-    public static int BROKER = 3;
-    public static int GUEST = 4;
-  }
 }

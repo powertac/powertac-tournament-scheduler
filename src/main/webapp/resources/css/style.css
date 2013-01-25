@@ -45,7 +45,7 @@ table.dataTable tr.even td.sorting_1 {
     background-color: #FFFFFF;
 }
 
-td.Disabled {
+td.disabled {
     background-color: #FF0000;
 }
 

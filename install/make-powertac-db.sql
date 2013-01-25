@@ -12,7 +12,7 @@ CREATE TABLE `tourney`.`users` (
   `contactPhone` VARCHAR(256)       NULL,
   `salt`         VARCHAR(45)        NOT NULL,
   `password`     VARCHAR(45)        NOT NULL,
-  `permissionId` INT(11)            NOT NULL,
+  `permission`   VARCHAR(32)        NOT NULL,
   PRIMARY KEY (`userId`),
   UNIQUE KEY `userName` (`userName`)
 )

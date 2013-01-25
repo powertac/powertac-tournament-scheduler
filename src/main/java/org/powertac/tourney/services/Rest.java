@@ -4,10 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.powertac.tourney.beans.Agent;
-import org.powertac.tourney.beans.Broker;
-import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Tournament;
+import org.powertac.tourney.beans.*;
 import org.powertac.tourney.constants.Constants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -416,7 +413,7 @@ public class Rest
     }
   }
 
-  public synchronized String handleHeartBeat (Map<String, String[]> params)
+  private synchronized String handleHeartBeat (Map<String, String[]> params)
   {
     int gameId;
 

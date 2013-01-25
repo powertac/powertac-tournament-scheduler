@@ -80,12 +80,24 @@ public class SimLogParser implements Runnable
   {
     HashMap<String, Double> results = new HashMap<String, Double>();
     String finalBalance = "server.CompetitionControlService: Final balance";
+    String gameLength = "server.CompetitionControlService: game-length";
+    String lastTick = "server.CompetitionControlService: Wait for tick";
     FileInputStream fstream = new FileInputStream(fileName);
     DataInputStream in = new DataInputStream(fstream);
     BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
     String strLine;
     while ((strLine = br.readLine()) != null) {
+      if (strLine.contains(gameLength)) {
+        String length = strLine.split("game-length ")[1].split("\\(")[0];
+        results.put("gameLength###", Double.parseDouble(length));
+      }
+
+      if (strLine.contains(lastTick)) {
+        String tick = strLine.split("Wait for tick ")[1].split("\\(")[0];
+        results.put("lastTick###", Double.parseDouble(tick));
+      }
+
       if (strLine.contains(finalBalance)) {
         String balances = strLine.split("\\[")[1].split("\\]")[0].trim();
 
@@ -123,6 +135,23 @@ public class SimLogParser implements Runnable
       Game game = (Game) session.get(Game.class, gameId);
 
       for (Map.Entry<String, Double> entry : results.entrySet()) {
+        if (entry.getKey().equals("gameLength###")) {
+          // Check if gameLength not already recieved
+          if (game.getGameLength() == 0) {
+            game.setGameLength(entry.getValue().intValue());
+            session.update(game);
+          }
+          continue;
+        }
+        if (entry.getKey().equals("lastTick###")) {
+          // Check if lastTick not already recieved
+          if (game.getLastTick() == 0) {
+            game.setLastTick(entry.getValue().intValue());
+            session.update(game);
+          }
+          continue;
+        }
+
         Broker broker = (Broker) session
             .createCriteria(Broker.class)
             .add(Restrictions.eq("brokerName", entry.getKey())).uniqueResult();
@@ -131,14 +160,11 @@ public class SimLogParser implements Runnable
             .add(Restrictions.eq("broker", broker))
             .add(Restrictions.eq("game", game)).uniqueResult();
 
-        // Apperantly the end-of-game message has already been recieved
-        if (agent.getBalance() != 0) {
-          transaction.rollback();
-          return;
+        // Check if balance not already recieved
+        if (agent.getBalance() == 0) {
+          agent.setBalance(entry.getValue());
+          session.update(agent);
         }
-
-        agent.setBalance(entry.getValue());
-        session.update(agent);
       }
       transaction.commit();
     } catch (Exception e) {

@@ -18,7 +18,7 @@
       <h2>Overview</h2>
 
       <h:form
-          rendered="#{(user.permissionId le 0) and (actionOverview.brokerList.size() > 0)}"
+          rendered="#{(user.isAdmin()) and (actionOverview.brokerList.size() > 0)}"
           id="formDatabrokers">
         <h3 class="withButton">Registered Brokers</h3>
         <h:commandButton value="Refresh"/>
@@ -71,7 +71,7 @@
       <br/>
 
       <h:form
-          rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteTournamentList.size() > 0)}"
+          rendered="#{(user.isAdmin()) and (actionOverview.notCompleteTournamentList.size() > 0)}"
           id="tournamentForm">
         <h3 class="withButton">Pending/Running Tournaments</h3>
         <h:commandButton value="Refresh"/>
@@ -98,8 +98,8 @@
 
           <t:column>
             <f:facet name="header">Type</f:facet>
-            <h:outputText value="Multi" rendered="#{t.type == 'MULTI_GAME'}"/>
-            <h:outputText value="Single" rendered="#{t.type == 'SINGLE_GAME'}"/>
+            <h:outputText value="Multi" rendered="#{t.isMulti()}"/>
+            <h:outputText value="Single" rendered="#{t.isSingle()}"/>
           </t:column>
 
           <t:column>
@@ -111,14 +111,14 @@
             <f:facet name="header">Reg / Max</f:facet>
             <h:outputText value="#{t.brokerMap.size()} / #{t.maxBrokers}"/>
             <h:outputText value=" : #{t.maxAgents}"
-                          rendered="#{t.type == 'MULTI_GAME'}"/>
+                          rendered="#{t.isMulti()}"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">Games</f:facet>
             <h:outputText
                 value="#{t.size1} (#{t.multiplier1})  #{t.size2} (#{t.multiplier2})  #{t.size3} (#{t.multiplier3})"
-                rendered="#{t.type == 'MULTI_GAME'}"/>
+                rendered="#{t.isMulti()}"/>
           </t:column>
 
           <t:column>
@@ -141,7 +141,7 @@
       <br/>
 
       <h:form
-          rendered="#{(user.permissionId le 0) and (actionOverview.notCompleteGamesList.size() > 0)}"
+          rendered="#{(user.isAdmin()) and (actionOverview.notCompleteGamesList.size() > 0)}"
           id="gamesForm">
         <h3 class="withButton">Pending/Running Games</h3>
         <h:commandButton value="Refresh"/>
@@ -224,7 +224,7 @@
         <br/>
       </h:form>
 
-      <h:form rendered="#{user.permissionId gt 0}">
+      <h:form rendered="#{!user.isAdmin()}">
         <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
         <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
       </h:form>

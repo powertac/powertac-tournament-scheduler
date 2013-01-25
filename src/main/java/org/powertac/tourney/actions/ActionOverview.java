@@ -54,9 +54,9 @@ public class ActionOverview
   public String getBrokerState (int brokerId)
   {
     if (MemStore.getBrokerState(brokerId)) {
-      return "Enabled";
+      return "enabled";
     } else {
-      return "Disabled";
+      return "disabled";
     }
   }
 
@@ -93,9 +93,8 @@ public class ActionOverview
           session.update(game);
           session.flush();
 
-          msg = "Setting game: " + game.getGameId() + " to start now";
-          log.info(msg);
-          message(1, msg);
+          log.info("Setting game: " + game.getGameId() + " to start now");
+          message(1, "Setting game: " + game.getGameId() + " to start now");
         }
       }
 
@@ -103,14 +102,15 @@ public class ActionOverview
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      message(1, "Failed to start tournament " + tournament.getTournamentId() + " to now");
+      message(1, "Failed to start now : " + tournament.getTournamentId());
     }
     session.close();
 
     // If a MULTI_GAME tournament is loaded, just reload
     Scheduler scheduler = Scheduler.getScheduler();
     if (!scheduler.isNullTourney() &&
-        tournament.getTournamentId() == scheduler.getRunningTournament().getTournamentId()) {
+        tournament.getTournamentId() ==
+            scheduler.getRunningTournament().getTournamentId()) {
       scheduler.reloadTournament();
     }
   }

@@ -14,7 +14,8 @@
       <script type="text/javascript" charset="utf8"
               src="resources/js/tournaments.js"></script>
 
-      <h:form rendered="#{user.permissionId le 0  and actionTournaments.tournamentList.size() > 0}" id="runningTournaments">
+      <h:form rendered="#{user.isAdmin() and actionTournaments.tournamentList.size() > 0}"
+              id="runningTournaments">
         <h2>Tournament Manager</h2>
 
         <h3 class="withButton">Pending/Running Tournaments</h3>
@@ -42,8 +43,8 @@
 
           <t:column>
             <f:facet name="header">Type</f:facet>
-            <h:outputText value="Multi" rendered="#{t.type == 'MULTI_GAME'}"/>
-            <h:outputText value="Single" rendered="#{t.type == 'SINGLE_GAME'}"/>
+            <h:outputText value="Multi" rendered="#{t.isMulti()}"/>
+            <h:outputText value="Single" rendered="#{t.isSingle()}"/>
           </t:column>
 
           <t:column>
@@ -55,7 +56,7 @@
             <f:facet name="header">Reg / Max</f:facet>
             <h:outputText value="#{t.brokerMap.size()} / #{t.maxBrokers}"/>
             <h:outputText value=" : #{t.maxAgents}"
-                          rendered="#{t.type == 'MULTI_GAME'}"/>
+                          rendered="#{t.isMulti()}"/>
           </t:column>
 
           <t:column>
@@ -63,7 +64,7 @@
             <h:outputText
                 value="#{t.size1} (#{t.multiplier1})  #{t.size2} (#{t.multiplier2})  #{t.size3} (#{t.multiplier3})"
                 escape="false"
-                rendered="#{t.type == 'MULTI_GAME'}"/>
+                rendered="#{t.isMulti()}"/>
           </t:column>
 
           <t:column>
@@ -95,7 +96,7 @@
 
       <br/>
       <h:form
-          rendered="#{(user.permissionId le 0) and (actionTournaments.brokerList.size() > 0)}"
+          rendered="#{user.isAdmin() and (actionTournaments.brokerList.size() > 0)}"
           id="tournamentRegistered">
         <h3 class="withButton">Registered Brokers</h3>
         <h:commandButton value="Refresh"/>
@@ -150,7 +151,7 @@
         <h:messages for="tournamentRegistered" layout=""/>
       </h:form>
 
-      <h:form enctype="multipart/form-data" rendered="#{user.permissionId le 0}"
+      <h:form enctype="multipart/form-data" rendered="#{user.isAdmin()}"
               id="saveTournament">
         <h:panelGroup rendered="#{actionTournaments.tourneyId == -1}">
           <h3>Create Tournament</h3>
@@ -292,13 +293,13 @@
         <h:messages for="saveTournament"/>
       </h:form>
 
-      <h:form rendered="#{user.permissionId le 0}">
+      <h:form rendered="#{user.isAdmin()}">
         <br/>
         <h4>If the tournament name contains 'test' (any case), short games will be created</h4>
         <h4>It also allows deletion of the tournament</h4>
       </h:form>
 
-      <h:form rendered="#{user.permissionId gt 0}">
+      <h:form rendered="#{!user.isAdmin()}">
         <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
         <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
       </h:form>

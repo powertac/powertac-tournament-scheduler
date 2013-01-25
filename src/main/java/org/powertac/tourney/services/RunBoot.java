@@ -71,8 +71,8 @@ public class RunBoot
       Machine freeMachine = Machine.getFreeMachine(session);
       if (freeMachine == null) {
         Scheduler scheduler = Scheduler.getScheduler();
-        log.info(String.format("No machines available to run scheduled boot %s"
-            + "... will retry in %s seconds",
+        log.info(String.format(
+            "No machine available for scheduled boot %s, retry in %s seconds",
             game.getGameId(), scheduler.getWatchDogInterval() / 1000));
         return false;
       }

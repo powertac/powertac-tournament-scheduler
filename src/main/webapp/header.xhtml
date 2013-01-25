@@ -19,30 +19,28 @@
   <div id="nav_ribbon">
     <h:form>
       <!-- Every User permission buttons -->
-      <h:button value="Home" outcome="Home"
-                rendered="#{user.permissionId le 4}"/>
-      <h:button value="About" outcome="about.xhtml"
-                rendered="#{user.permissionId le 4}"/>
+      <h:button value="Home" outcome="Home"/>
+      <h:button value="About" outcome="about.xhtml"/>
 
       <!-- Login/logout/register  buttons -->
       <h:button value="Login" outcome="Login"
-                rendered="#{user.permissionId == 4 }"/>
+                rendered="#{user.isGuest() }"/>
       <h:commandButton value="Logout" action="#{actionLogin.logout}"
-                       rendered="#{user.permissionId le 3}"/>
+                       rendered="#{user.isLoggedIn()}"/>
       <h:button value="Register" outcome="Register"
-                rendered="#{user.permissionId eq 4}"/>
+                rendered="#{user.isGuest()}"/>
 
       <!-- Normal User permission buttons -->
       <h:button value="Account" outcome="Account"
-                rendered="#{user.permissionId le 3}"/>
+                rendered="#{user.isLoggedIn()}"/>
 
       <!-- Admin Level permission buttons -->
       <h:button value="Tournaments" outcome="Tournaments"
-                rendered="#{user.permissionId le 0}"/>
+                rendered="#{user.isAdmin()}"/>
       <h:button value="Overview" outcome="Overview"
-                rendered="#{user.permissionId le 0}"/>
+                rendered="#{user.isAdmin()}"/>
       <h:button value="Admin" outcome="Admin"
-                rendered="#{user.permissionId le 0}"/>
+                rendered="#{user.isAdmin()}"/>
 
     </h:form>
   </div>
