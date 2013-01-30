@@ -28,7 +28,7 @@ public class MemStore
 
   public static HashMap<Integer, Boolean> brokerState = new HashMap<Integer, Boolean>();
 
-  public static String content;
+  public static String indexContent;
 
   public MemStore ()
   {
@@ -48,7 +48,7 @@ public class MemStore
     vizIPs = new HashMap<String, String>();
     localIPs = new HashMap<String, String>();
 
-    for (Machine m : Machine.getMachineList()) {
+    for (Machine m: Machine.getMachineList()) {
       try {
         String machineIP = InetAddress.getByName(m.getMachineUrl()).toString();
         if (machineIP.contains("/")) {
@@ -214,19 +214,19 @@ public class MemStore
 
   public static String getIndexContent ()
   {
-    if (content == null || content.isEmpty()) {
-      content = Config.getIndexContent();
-      if (content == null) {
+    if (indexContent == null || indexContent.isEmpty()) {
+      indexContent = Config.getIndexContent();
+      if (indexContent == null) {
         return "Error connecting to DB";
       }
     }
 
-    return content;
+    return indexContent;
   }
 
   public static boolean setIndexContent (String newContent)
   {
-    content = newContent;
+    indexContent = newContent;
 
     return Config.setIndexContent(newContent);
   }

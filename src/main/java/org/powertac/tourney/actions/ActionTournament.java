@@ -86,10 +86,10 @@ public class ActionTournament
     resultMap = tournament.determineWinner();
     avgsAndSDs = tournament.getAvgsAndSDs(resultMap);
 
-    for (Game game : tournament.getGameMap().values()) {
+    for (Game game: tournament.getGameMap().values()) {
       List<Agent> agents = new ArrayList<Agent>();
 
-      for (Agent agent : game.getAgentMap().values()) {
+      for (Agent agent: game.getAgentMap().values()) {
         agents.add(agent);
       }
 

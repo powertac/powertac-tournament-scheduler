@@ -93,7 +93,7 @@ public class Broker
           .setInteger("brokerId", brokerId).uniqueResult();
 
       // Delete all agent belonging to this broker
-      for (Agent agent : broker.agentMap.values()) {
+      for (Agent agent: broker.agentMap.values()) {
         // Don't allow deleting brokers with agents in running games
         if (agent.getGame().isRunning()) {
           transaction.rollback();
@@ -156,7 +156,7 @@ public class Broker
 
     // Only for single game, the scheduler handles multigame tourneys
     if (tournament.isSingle()) {
-      for (Game game : tournament.getGameMap().values()) {
+      for (Game game: tournament.getGameMap().values()) {
         Agent agent = Agent.createAgent(this, game);
         session.save(agent);
         log.info(String.format("Registering broker: %s with game: %s",
@@ -186,13 +186,13 @@ public class Broker
       session.delete(registration);
 
       List<Integer> deleteAgents = new ArrayList<Integer>();
-      for (Agent agent : agentMap.values()) {
+      for (Agent agent: agentMap.values()) {
         if (agent.getGame().getTournament().getTournamentId() == tourneyId) {
           deleteAgents.add(agent.getAgentId());
         }
       }
 
-      for (Integer agentId : deleteAgents) {
+      for (Integer agentId: deleteAgents) {
         Agent agent = (Agent) session.load(Agent.class, agentId);
         session.delete(agent);
         session.flush();
@@ -222,7 +222,7 @@ public class Broker
     }
 
     int count = 0;
-    for (Agent agent : agentMap.values()) {
+    for (Agent agent: agentMap.values()) {
       if (agent.getGame().isRunning()) {
         count++;
       }
@@ -236,7 +236,7 @@ public class Broker
   {
     String result = "";
 
-    for (Tournament tournament : tournamentMap.values()) {
+    for (Tournament tournament: tournamentMap.values()) {
       if (!tournament.isComplete()) {
         result += tournament.getTournamentName() + ", ";
       }
@@ -280,7 +280,7 @@ public class Broker
     long nowStamp = Utils.offsetDate().getTime();
 
     Outer:
-    for (Tournament tournament : Tournament.getNotCompleteTournamentList()) {
+    for (Tournament tournament: Tournament.getNotCompleteTournamentList()) {
       // Check if maxNofBrokers reached
       if (tournament.getBrokerMap().size() >= tournament.getMaxBrokers()) {
         continue;
@@ -291,7 +291,7 @@ public class Broker
         continue;
       }
       // Check if already registered
-      for (Tournament t : tournamentMap.values()) {
+      for (Tournament t: tournamentMap.values()) {
         // Check if already registered
         if (t.getTournamentId() == tournament.getTournamentId()) {
           continue Outer;
@@ -314,7 +314,7 @@ public class Broker
   {
     List<Tournament> registeredTournaments = new ArrayList<Tournament>();
 
-    for (Tournament tournament : tournamentMap.values()) {
+    for (Tournament tournament: tournamentMap.values()) {
       if (tournament.isComplete()) {
         continue;
       }

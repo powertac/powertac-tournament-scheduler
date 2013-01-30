@@ -92,7 +92,7 @@ public class RunGame
       return false;
     }
 
-    for (Agent agent : game.getAgentMap().values()) {
+    for (Agent agent: game.getAgentMap().values()) {
       if (!MemStore.getBrokerState(agent.getBroker().getBrokerId())) {
         log.info(String.format("Not starting game %s : broker %s is disabled",
             game.getGameId(), agent.getBroker().getBrokerId()));
@@ -211,7 +211,7 @@ public class RunGame
         + "start", games.size()));
 
     machinesAvailable = true;
-    for (Game game : games) {
+    for (Game game: games) {
       log.info(String.format("Game %s will be started ...", game.getGameId()));
       new RunGame(game);
 

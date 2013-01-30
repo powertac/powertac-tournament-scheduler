@@ -60,7 +60,7 @@ public class ActionAdmin
   @SuppressWarnings("unchecked")
   private void loadData ()
   {
-    for (Tournament tournament : Tournament.getNotCompleteTournamentList()) {
+    for (Tournament tournament: Tournament.getNotCompleteTournamentList()) {
       if (tournament.isMulti()) {
         availableTournaments.add(tournament);
       }

@@ -154,7 +154,7 @@ public class RunBoot
         + "start", games.size()));
 
     machinesAvailable = true;
-    for (Game game : games) {
+    for (Game game: games) {
       log.info(String.format("Boot %s will be started ...", game.getGameId()));
       new RunBoot(game);
 

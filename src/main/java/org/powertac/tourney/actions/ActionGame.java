@@ -108,7 +108,7 @@ public class ActionGame
 
   private void loadResultMap ()
   {
-    for (Agent agent : game.getAgentMap().values()) {
+    for (Agent agent: game.getAgentMap().values()) {
       Map.Entry<String, Double> entry2 =
           new AbstractMap.SimpleEntry<String, Double>(
               agent.getBroker().getBrokerName(), agent.getBalance());

@@ -98,6 +98,14 @@ public class Utils
     return offsetDate(new Date());
   }
 
+  public static Date offsetDate (int extraOffset)
+  {
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(new Date());
+    calendar.add(Calendar.HOUR, extraOffset);
+    return offsetDate(calendar.getTime());
+  }
+
   public static Date offsetDate (Date date)
   {
     Calendar calendar = Calendar.getInstance();

@@ -36,6 +36,7 @@ function showGamesCount() {
             elems[4].value = maxBrokers;
             gameType1 = maxBrokers;
         }
+        recSafety = 2500;
         totalGames1 = calculateGames(maxBrokers, gameType1, multiplier1);
         slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType1, totalGames1);
         totalTime1 = durationOverhead * gameDuration * (totalGames1 / slaves);
@@ -46,6 +47,7 @@ function showGamesCount() {
             elems[6].value = maxBrokers;
             gameType2 = maxBrokers;
         }
+        recSafety = 2500;
         totalGames2 = calculateGames(maxBrokers, gameType2, multiplier2);
         slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType2, totalGames2);
         totalTime2 = durationOverhead * gameDuration * (totalGames2 / slaves);
@@ -56,6 +58,7 @@ function showGamesCount() {
             elems[8].value = maxBrokers;
             gameType3 = maxBrokers;
         }
+        recSafety = 2500;
         totalGames3 = calculateGames(maxBrokers, gameType3, multiplier3);
         slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType3, totalGames3);
         totalTime3 = durationOverhead * gameDuration * (totalGames3 / slaves);
@@ -64,7 +67,10 @@ function showGamesCount() {
 
     var total = totalGames1 + totalGames2 + totalGames3;
     var duration = Math.floor((totalTime1 + totalTime2 + totalTime3) * 10) / 10;
-    if (total > 0) {
+    if (isNaN(total)) {
+        setText("totalGames", "To many games (> 2500) to estimate duration. Try decreasing the number of games.");
+    }
+    else if (total > 0) {
         setText("totalGames", "Total games / estimated duration : " + total + " / " + duration + " hours");
     }
 }
@@ -77,6 +83,7 @@ function setText(fieldId, newText) {
     el.appendChild(el.ownerDocument.createTextNode(newText));
 }
 
+var recSafety = 0;
 function calculateGames(players, gametype, multiplier) {
     if (players == gametype) {
         return multiplier;
@@ -84,6 +91,12 @@ function calculateGames(players, gametype, multiplier) {
     if (gametype == 1) {
         return players * multiplier;
     }
+
+    // Poor mans recursion validation
+    if (recSafety++ > 2500) {
+        return Number.NaN;
+    }
+
     return calculateGames(players - 1, gametype, multiplier) + calculateGames(players - 1, gametype - 1, multiplier);
 }
 

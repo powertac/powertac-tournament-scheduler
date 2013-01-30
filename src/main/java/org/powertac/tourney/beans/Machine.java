@@ -71,6 +71,8 @@ public class Machine
     try {
       NodeList nList = JenkinsConnector.getNodeList();
 
+      boolean dirty = false; // Session.isDirty() doesn't seem to work
+
       for (int temp = 0; temp < nList.getLength(); temp++) {
         try {
           Node nNode = nList.item(temp);
@@ -98,28 +100,30 @@ public class Machine
 
             if (machine.isAvailable() && offline.equals("true")) {
               machine.setAvailable(false);
+              dirty = true;
               log.warn(String.format("Machine %s is set available, but "
                   + "Jenkins reports offline", displayName));
             }
 
             if (machine.stateEquals(Machine.STATE.idle) && idle.equals("false")) {
               machine.setState(STATE.running);
+              dirty = true;
               log.warn(String.format("Machine %s has status 'idle', but "
                   + "Jenkins reports 'not idle'", displayName));
             }
-
-            session.update(machine);
+            session.saveOrUpdate(machine);
           }
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
 
-      if (session.isDirty()) {
+      if (dirty) {
         transaction.commit();
       }
     } catch (IOException ioe) {
       transaction.rollback();
+      ioe.printStackTrace();
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();

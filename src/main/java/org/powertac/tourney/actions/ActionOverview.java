@@ -88,7 +88,7 @@ public class ActionOverview
 
       // Reschedule all games of a SINGLE_GAME tournament
       if (tournament.isSingle()) {
-        for (Game game : tournament.getGameMap().values()) {
+        for (Game game: tournament.getGameMap().values()) {
           game.setStartTime(Utils.offsetDate());
           session.update(game);
           session.flush();
@@ -146,7 +146,7 @@ public class ActionOverview
         log.info("Resetting sim game: " + gameId + " on machine: " + machineId);
 
         game.setState(Game.STATE.boot_complete);
-        for (Agent agent : game.getAgentMap().values()) {
+        for (Agent agent: game.getAgentMap().values()) {
           agent.setState(Agent.STATE.pending);
           agent.setBalance(0);
           session.update(agent);
@@ -191,7 +191,7 @@ public class ActionOverview
         log.info("Resetting sim game: " + gameId);
         game.setState(Game.STATE.boot_complete);
 
-        for (Agent agent : game.getAgentMap().values()) {
+        for (Agent agent: game.getAgentMap().values()) {
           agent.setState(Agent.STATE.pending);
           session.update(agent);
         }

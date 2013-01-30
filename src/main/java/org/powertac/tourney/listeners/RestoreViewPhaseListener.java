@@ -76,7 +76,6 @@ public class RestoreViewPhaseListener implements PhaseListener
 
   public void afterPhase(PhaseEvent arg0)
   {
-
   }
 
   private Map<String, String[]> getParams(HttpServletRequest request)

@@ -93,7 +93,7 @@ public class Game implements Serializable
   public void delete (Session session)
   {
     // Delete all agent belonging to this broker
-    for (Agent agent : agentMap.values()) {
+    for (Agent agent: agentMap.values()) {
       session.delete(agent);
       session.flush();
     }
@@ -105,7 +105,7 @@ public class Game implements Serializable
   {
     String result = "";
 
-    for (Agent agent : agentMap.values()) {
+    for (Agent agent: agentMap.values()) {
       result += agent.getBroker().getBrokerName() + ", ";
     }
 
@@ -121,7 +121,7 @@ public class Game implements Serializable
   {
     String result = "";
 
-    for (Agent agent : agentMap.values()) {
+    for (Agent agent: agentMap.values()) {
       result += agent.getBroker().getBrokerId() + ", ";
     }
 
@@ -156,7 +156,7 @@ public class Game implements Serializable
         log.debug("Freeing Machines for game: " + gameId);
 
         // Reset values when a game is aborted
-        for (Agent agent : getAgentMap().values()) {
+        for (Agent agent: getAgentMap().values()) {
           agent.setState(Agent.STATE.pending);
           agent.setBalance(0);
           session.update(agent);
@@ -182,7 +182,7 @@ public class Game implements Serializable
         break;
 
       case game_complete:
-        for (Agent agent : agentMap.values()) {
+        for (Agent agent: agentMap.values()) {
           agent.setState(Agent.STATE.complete);
           session.update(agent);
         }
@@ -196,7 +196,7 @@ public class Game implements Serializable
 
       case game_failed:
         log.warn("GAME " + gameId + " FAILED!");
-        for (Agent agent : agentMap.values()) {
+        for (Agent agent: agentMap.values()) {
           agent.setState(Agent.STATE.complete);
           session.update(agent);
         }
@@ -231,7 +231,7 @@ public class Game implements Serializable
     }
 
     HashMap<String, Double> results = new HashMap<String, Double>();
-    for (String result : standings.split(",")) {
+    for (String result: standings.split(",")) {
       Double balance = Double.parseDouble(result.split(":")[1]);
       String name = result.split(":")[0];
       if (name.equals("default broker")) {
@@ -240,7 +240,7 @@ public class Game implements Serializable
       results.put(name, balance);
     }
 
-    for (Agent agent : agentMap.values()) {
+    for (Agent agent: agentMap.values()) {
       Double balance = results.get(agent.getBroker().getBrokerName());
       if (balance == null || balance == Double.NaN) {
         continue;

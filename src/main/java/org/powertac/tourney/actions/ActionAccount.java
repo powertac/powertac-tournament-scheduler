@@ -36,7 +36,7 @@ public class ActionAccount
     if (brokers.size() == 0) {
       User user = User.getCurrentUser();
 
-      for (Broker broker : user.getBrokerMap().values()) {
+      for (Broker broker: user.getBrokerMap().values()) {
         brokers.add(broker);
       }
     }

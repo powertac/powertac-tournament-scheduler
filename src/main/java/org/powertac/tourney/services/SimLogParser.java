@@ -101,7 +101,7 @@ public class SimLogParser implements Runnable
       if (strLine.contains(finalBalance)) {
         String balances = strLine.split("\\[")[1].split("\\]")[0].trim();
 
-        for (String result : balances.split(" \"")) {
+        for (String result: balances.split(" \"")) {
           Double balance = Double.parseDouble(result.split(":")[1]);
           String name = result.split(":")[0];
           if (name.startsWith("\"")) {
@@ -134,7 +134,7 @@ public class SimLogParser implements Runnable
     try {
       Game game = (Game) session.get(Game.class, gameId);
 
-      for (Map.Entry<String, Double> entry : results.entrySet()) {
+      for (Map.Entry<String, Double> entry: results.entrySet()) {
         if (entry.getKey().equals("gameLength###")) {
           // Check if gameLength not already recieved
           if (game.getGameLength() == 0) {

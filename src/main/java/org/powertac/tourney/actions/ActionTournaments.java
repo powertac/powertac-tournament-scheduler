@@ -130,7 +130,7 @@ public class ActionTournaments
     }
   }
 
-  public String loadTournament (Tournament tournament)
+  public void loadTournament (Tournament tournament)
   {
     tourneyId = tournament.getTournamentId();
     tournamentName = tournament.getTournamentName();
@@ -154,8 +154,6 @@ public class ActionTournaments
     if (tournament.getGameMap().size() > 0) {
       disabled = true;
     }
-
-    return "Success";
   }
 
   public void saveEditedTournament ()
@@ -203,7 +201,7 @@ public class ActionTournaments
   public void setValues (Tournament tournament)
   {
     String allLocations = "";
-    for (String s : locations) {
+    for (String s: locations) {
       allLocations += s + ",";
     }
 
@@ -249,7 +247,7 @@ public class ActionTournaments
     multiplier1 = 1;
     multiplier2 = 1;
     multiplier3 = 1;
-    startTime = Utils.offsetDate();
+    startTime = Utils.offsetDate(2);
     Location location = new Location();
     dateFrom = location.getDateFrom();
     dateTo = location.getDateTo();

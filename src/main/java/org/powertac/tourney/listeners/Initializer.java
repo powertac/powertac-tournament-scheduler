@@ -8,12 +8,8 @@ import java.util.Enumeration;
 
 public class Initializer implements ServletContextListener
 {
-  public void contextDestroyed(ServletContextEvent e)
+  public void contextDestroyed (ServletContextEvent e)
   {
-    // e.getServletContext().getAttribute(Games.getKey());
-    // e.getServletContext().getAttribute(Tournaments.getKey());
-    // e.getServletContext().getAttribute(Machines.getKey());
-
     Enumeration<Driver> drivers = DriverManager.getDrivers();
     while (drivers.hasMoreElements()) {
       Driver driver = drivers.nextElement();
@@ -24,7 +20,7 @@ public class Initializer implements ServletContextListener
     }
   }
 
-  public void contextInitialized(ServletContextEvent e)
+  public void contextInitialized (ServletContextEvent e)
   {
   }
 }

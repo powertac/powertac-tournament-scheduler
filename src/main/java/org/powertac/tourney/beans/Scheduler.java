@@ -183,7 +183,7 @@ public class Scheduler implements InitializingBean
     Transaction transaction = session.beginTransaction();
     try {
       List<Broker> brokers = new ArrayList<Broker>();
-      for (Broker broker : runningTournament.getBrokerMap().values()) {
+      for (Broker broker: runningTournament.getBrokerMap().values()) {
         brokers.add(broker);
       }
 
@@ -219,7 +219,7 @@ public class Scheduler implements InitializingBean
     log.info(String.format("Doing the Kailash with gameType = %s ; "
         + "maxBrokers = %s", gameType, brokers.size()));
     String brokersString = "";
-    for (Broker b : brokers) {
+    for (Broker b: brokers) {
       brokersString += b.getBrokerId() + " ";
     }
     log.info("Broker ids : " + brokersString);
@@ -281,7 +281,7 @@ public class Scheduler implements InitializingBean
   {
     log.info("WatchDogTimer Looking for Wedged Bootstraps");
 
-    for (Game game : Game.getNotCompleteGamesList()) {
+    for (Game game: Game.getNotCompleteGamesList()) {
       if (!game.isBooting() || game.getReadyTime() == null) {
         continue;
       }
@@ -309,7 +309,7 @@ public class Scheduler implements InitializingBean
   {
     log.info("WatchDogTimer Looking for Wedged Sims");
 
-    for (Game game : Game.getNotCompleteGamesList()) {
+    for (Game game: Game.getNotCompleteGamesList()) {
       if (!game.isRunning() || game.getReadyTime() == null) {
         continue;
       }
