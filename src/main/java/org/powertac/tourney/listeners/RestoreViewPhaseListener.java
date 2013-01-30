@@ -1,6 +1,8 @@
 package org.powertac.tourney.listeners;
 
-import org.powertac.tourney.services.Rest;
+import org.powertac.tourney.services.RestBroker;
+import org.powertac.tourney.services.RestServer;
+import org.powertac.tourney.services.RestVisualizer;
 
 import javax.faces.FacesException;
 import javax.faces.event.PhaseEvent;
@@ -15,40 +17,47 @@ import java.util.Map;
 
 public class RestoreViewPhaseListener implements PhaseListener
 {
+  private static final Object BROKER_LOGIN_LOCK = new Object();
+  private static final Object SERVER_INTERFACE_LOCK = new Object();
 
-  // Intercepts REST calls (get requests) and passes them to the Rest service
-  // for parsing and returns the proper response
-  public synchronized void beforePhase(PhaseEvent pe)
+  // Intercepts REST calls
+  public void beforePhase (PhaseEvent pe)
   {
     HttpServletRequest request = (HttpServletRequest) pe.getFacesContext().
         getExternalContext().getRequest();
     Map<String, String[]> params = getParams(request);
 
     if (params.size() != 0) {
-      Rest rest = new Rest();
+      RestServer restServer = new RestServer();
+      RestVisualizer restVisualizer = new RestVisualizer();
+      RestBroker restBroker = new RestBroker();
       String url = request.getRequestURL().toString();
 
       if (url.contains("serverInterface.jsp")) {
-        if (request.getMethod().equals("PUT")) {
-          respond(pe, rest.handleServerInterfacePUT(params, request));
-        } else if (request.getMethod().equals("POST")) {
-          respond(pe, rest.handleServerInterfacePOST(params, request));
-        } else {
-          respond(pe, rest.handleServerInterface(params, request));
+        synchronized (SERVER_INTERFACE_LOCK) {
+          if (request.getMethod().equals("PUT")) {
+            respond(pe, restServer.handlePUT(params, request));
+          } else if (request.getMethod().equals("POST")) {
+            respond(pe, restServer.handlePOST(params, request));
+          } else {
+            respond(pe, restServer.handleGet(params, request));
+          }
         }
       } else if (url.contains("brokerLogin.jsp")) {
-        respond(pe, rest.parseBrokerLogin(params));
+        synchronized (BROKER_LOGIN_LOCK) {
+          respond(pe, restBroker.parseBrokerLogin(params));
+        }
       } else if (url.contains("visualizerLogin.jsp")) {
-        respond(pe, rest.parseVisualizerLogin(request, params));
+        respond(pe, restVisualizer.parseVisualizerLogin(request, params));
       } else if (url.contains("properties.jsp")) {
-        respond(pe, rest.parseProperties(params));
+        respond(pe, restServer.parseProperties(params));
       } else if (url.contains("pom.jsp")) {
-        respond(pe, rest.parsePom(params));
+        respond(pe, restServer.parsePom(params));
       }
     }
   }
 
-  private void respond(PhaseEvent pe, String responseString)
+  private void respond (PhaseEvent pe, String responseString)
   {
     if (responseString.isEmpty()) {
       return;
@@ -69,16 +78,16 @@ public class RestoreViewPhaseListener implements PhaseListener
   }
 
   // Which jsf phase to intercept, in this case the Restore View Phase
-  public PhaseId getPhaseId()
+  public PhaseId getPhaseId ()
   {
     return PhaseId.RESTORE_VIEW;
   }
 
-  public void afterPhase(PhaseEvent arg0)
+  public void afterPhase (PhaseEvent arg0)
   {
   }
 
-  private Map<String, String[]> getParams(HttpServletRequest request)
+  private Map<String, String[]> getParams (HttpServletRequest request)
   {
     @SuppressWarnings("unchecked")
     Map<String, String[]> params = request.getParameterMap();
