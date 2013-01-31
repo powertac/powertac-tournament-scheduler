@@ -50,6 +50,7 @@ DROP TABLE IF EXISTS `tourney`.`tournaments`;
 CREATE TABLE `tourney`.`tournaments` (
   `tourneyId`   INT(11)             NOT NULL AUTO_INCREMENT,
   `tourneyName` VARCHAR(256) UNIQUE NOT NULL,
+  `roundId`     INT(11)             DEFAULT NULL,
   `startTime`   DATETIME            NOT NULL,
   `dateFrom`    DATETIME            NOT NULL,
   `dateTo`      DATETIME            NOT NULL,
@@ -67,7 +68,8 @@ CREATE TABLE `tourney`.`tournaments` (
   `locations`   VARCHAR(256)        NOT NULL, /* This will be a comma delimited list for now */
   `closed`      TINYINT(1)          NOT NULL,
   PRIMARY KEY (`tourneyId`),
-  CONSTRAINT tournament_refs1 FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`)
+  CONSTRAINT tournament_refs1 FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`),
+  CONSTRAINT tournament_refs2 FOREIGN KEY (`roundId`) REFERENCES `tourney`.`rounds` (`roundId`)
 )
   ENGINE = InnoDB;
 
@@ -157,6 +159,32 @@ CREATE TABLE IF NOT EXISTS `tourney`.`config` (
   `configKey`   VARCHAR(256) UNIQUE NOT NULL,
   `configValue` LONGTEXT,
   PRIMARY KEY (`configId`)
+)
+  ENGINE = InnoDB;
+
+DROP TABLE IF EXISTS `tourney`.`competitions`;
+CREATE TABLE `tourney`.`competitions` (
+  `competitionId`   INT(11)              NOT NULL AUTO_INCREMENT,
+  `competitionName` VARCHAR(256) UNIQUE  NOT NULL,
+  `state`           VARCHAR(32)          NOT NULL,
+  `pomId`           INT(11)              NOT NULL,
+  PRIMARY KEY (`competitionId`),
+  CONSTRAINT competition_refs FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`)
+)
+  ENGINE = InnoDB;
+
+
+DROP TABLE IF EXISTS `tourney`.`rounds`;
+CREATE TABLE `tourney`.`rounds` (
+  `roundId`        INT(11)      NOT NULL AUTO_INCREMENT,
+  `roundName`      VARCHAR(256) NOT NULL,
+  `competitionId`  INT(11)      NOT NULL,
+  `roundNr`        INT(11)      NOT NULL,
+  `nofTournaments` INT(11)      NOT NULL,
+  `nofWinners`     INT(11)      NOT NULL,
+  `startTime`      DATETIME     NOT NULL,
+  PRIMARY KEY (`roundId`),
+  CONSTRAINT round_refs FOREIGN KEY (`competitionId`) REFERENCES `tourney`.`competitions` (`competitionId`)
 )
   ENGINE = InnoDB;
 

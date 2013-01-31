@@ -1,5 +1,6 @@
 package org.powertac.tourney.constants;
 
+import org.powertac.tourney.beans.Competition;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
 
@@ -77,6 +78,27 @@ public class Constants
 
     public static final String GET_MACHINES =
         "FROM Machine AS machine ";
+
+    public static final String GET_COMPETITION_BY_ID =
+        "FROM Competition AS competition "
+            + "LEFT JOIN FETCH competition.roundMap AS roundMap "
+            + "LEFT JOIN FETCH roundMap.tournamentMap AS tournamentMap "
+            + "LEFT JOIN FETCH tournamentMap.brokerMap AS brokerMap "
+            + "WHERE competition.competitionId =:competitionId";
+
+    public static final String GET_COMPETITION_BY_NAME =
+        "FROM Competition AS competition "
+            + "LEFT JOIN FETCH competition.roundMap AS roundMap "
+            + "LEFT JOIN FETCH roundMap.tournamentMap AS tournamentMap "
+            + "WHERE competition.competitionName =:competitionName";
+
+    public static final String GET_COMPETITION_NOT_COMPLETE =
+        "FROM Competition AS competition "
+            + "LEFT JOIN FETCH competition.roundMap AS roundMap "
+            + "LEFT JOIN FETCH roundMap.tournamentMap AS tournamentMap "
+            + "LEFT JOIN FETCH tournamentMap.gameMap as gameMap "
+            + "LEFT JOIN FETCH gameMap.agentMap as agentMap "
+            + "WHERE NOT competition.state='" + Competition.STATE.complete + "'";
 
     public static final String GET_TOURNAMENT_BY_ID =
         "FROM Tournament AS tournament "

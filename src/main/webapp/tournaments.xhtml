@@ -36,6 +36,13 @@
           </t:column>
 
           <t:column>
+            <f:facet name="header">Comp</f:facet>
+            <h:link value="#{t.round.competitionId}" outcome="Competition">
+              <f:param name="competitionId" value="#{t.round.competitionId}"/>
+            </h:link>
+          </t:column>
+
+          <t:column>
             <f:facet name="header">Status</f:facet>
             <h:outputText value="#{t.state  }"/>
             <h:outputText value=" / closed" rendered="#{t.closed}"/>

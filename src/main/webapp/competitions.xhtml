@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:t="http://myfaces.apache.org/tomahawk"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<h:body>
+  <ui:composition template="template.xhtml">
+    <ui:define name="content">
+
+      <h:form rendered="#{user.isAdmin() and actionCompetitions.competitionList.size() > 0}"
+              id="runningCompetitions">
+        <h2>Competition Manager</h2>
+
+        <h3 class="withButton">Pending/Running Competitions</h3>
+        <h:commandButton value="Refresh"/>
+        <t:dataTable id="dataCompetitions" border="1"
+                     value="#{actionCompetitions.competitionList}" var="c">
+
+          <t:column>
+            <f:facet name="header">ID</f:facet>
+            <h:outputText value="#{c.competitionId}"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Name</f:facet>
+            <h:link value="#{c.competitionName}" outcome="Competition">
+              <f:param name="competitionId" value="#{c.competitionId}"/>
+            </h:link>
+          </t:column>
+
+          <t:column styleClass="#{actionCompetitions.getCompetitionRound(c, 0)}">
+            <f:facet name="header" >Round 0</f:facet>
+            <h:outputText value="#{actionCompetitions.getRoundInfo(c).get(0)}"
+                          escape="false"/>
+          </t:column>
+
+          <t:column styleClass="#{actionCompetitions.getCompetitionRound(c, 1)}">
+            <f:facet name="header">Round 1</f:facet>
+            <h:outputText value="#{actionCompetitions.getRoundInfo(c).get(1)}"
+                          escape="false"/>
+          </t:column>
+
+          <t:column styleClass="#{actionCompetitions.getCompetitionRound(c, 2)}">
+            <f:facet name="header">Round 2</f:facet>
+            <h:outputText value="#{actionCompetitions.getRoundInfo(c).get(2)}"
+                          escape="false"/>
+          </t:column>
+
+          <t:column styleClass="#{actionCompetitions.getCompetitionRound(c, 3)}">
+            <f:facet name="header">Round 3</f:facet>
+            <h:outputText value="#{actionCompetitions.getRoundInfo(c).get(3)}"
+                          escape="false"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Pom</f:facet>
+            <a href="pom.jsp?pomId=#{c.pomId}">
+              <h:outputText value="#{c.pomId}"/>
+            </a>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Status</f:facet>
+            <h:outputText value="#{c.state}"/>
+          </t:column>
+
+          <t:column styleClass="left">
+            <f:facet name="header">Actions</f:facet>
+            <h:commandButton value="Close"
+                             action="#{actionCompetitions.closeCompetition(c)}"
+                             rendered="#{actionCompetitions.closingAllowed(c)}"
+                             styleClass="actionButton"/>
+            <h:commandButton value="Schedule"
+                             action="#{actionCompetitions.scheduleCompetition(c)}"
+                             rendered="#{actionCompetitions.schedulingAllowed(c)}"
+                             styleClass="actionButton"/>
+            <h:commandButton value="Complete"
+                             action="#{actionCompetitions.completingCompetition(c)}"
+                             rendered="#{actionCompetitions.completingAllowed(c)}"
+                             styleClass="actionButton"/>
+
+            <h:commandButton value="Edit"
+                             action="#{actionCompetitions.loadCompetition(c)}"
+                             rendered="#{actionCompetitions.editingAllowed(c)}"
+                             styleClass="actionButton"/>
+            <h:commandButton value="Cancel"
+                             action="#{actionCompetitions.resetValues()}"
+                             rendered="#{actionCompetitions.competitionId == c.competitionId}"
+                             styleClass="actionButton"/>
+          </t:column>
+        </t:dataTable>
+
+        <h:messages for="runningCompetitions"/>
+      </h:form>
+
+      <h:form enctype="multipart/form-data" rendered="#{user.isAdmin()}"
+              id="saveCompetition">
+        <h:panelGroup rendered="#{actionCompetitions.competitionId == -1}">
+          <h3>Create Competition</h3>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{actionCompetitions.competitionId != -1}">
+          <h3>Edit Competition</h3>
+        </h:panelGroup>
+
+        <h:panelGrid columns="2" id="competitionTable">
+          <h:outputText value="Competition Name"/>
+          <h:inputText value="#{actionCompetitions.competitionName}"
+                       readonly="#{actionCompetitions.disabledArray[0]}"
+                       styleClass="input_wide"/>
+
+          <h:outputText value="Select Pom File"/>
+          <h:panelGroup>
+            <h:selectOneMenu id="poms"
+                             disabled="#{actionCompetitions.disabledArray[0]}"
+                             value="#{actionCompetitions.selectedPom}">
+              <f:selectItems value="#{actionCompetitions.pomList}" var="p"
+                             itemValue="#{p.pomId}" itemLabel="#{p.pomName}"/>
+            </h:selectOneMenu>
+          </h:panelGroup>
+
+          <h:panelGroup/>
+          <h:panelGroup><br/></h:panelGroup>
+
+          <ui:repeat value="#{actionCompetitions.rounds}" var="r">
+            <tr>
+              <td><h:outputText value="Round #{r.roundNr} name"/></td>
+              <td><h:inputText value="#{r.roundName}"
+                               styleClass="input_wide"
+                               disabled="#{actionCompetitions.disabledArray[r.roundNr]}"/></td>
+            </tr>
+            <tr>
+              <td><h:outputText value="Tournaments / winners" /></td>
+              <td>
+                <h:panelGroup>
+                  <h:inputText value="#{r.nofTournaments}"
+                               styleClass="input_small"
+                               readonly="#{actionCompetitions.disabledArray[r.roundNr]
+                                  or r.roundNr == (actionCompetitions.getRounds().size()-1)}"/>
+                  <h:inputText value="#{r.nofWinners}"
+                               styleClass="input_small"
+                               readonly="#{actionCompetitions.disabledArray[r.roundNr+1]
+                                  or r.roundNr == (actionCompetitions.getRounds().size()-1)}"/>
+                </h:panelGroup>
+              </td>
+            </tr>
+            <tr>
+              <td><h:outputText value="StartTime UTC"/></td>
+              <td>
+                <h:panelGroup>
+                  <t:inputDate value="#{r.startTime}"
+                               readonly="#{actionCompetitions.disabledArray[r.roundNr]}"
+                               id="roundStartTime" ampm="false" type="both"/>
+                </h:panelGroup>
+              </td>
+            </tr>
+
+            <tr>
+              <td><br/></td>
+              <td/>
+            </tr>
+          </ui:repeat>
+
+          <h:panelGroup> </h:panelGroup>
+          <h:commandButton value="Submit"
+                           action="#{actionCompetitions.saveCompetition()}"/>
+        </h:panelGrid>
+        <h:inputHidden id="competitionId"
+                       value="#{actionCompetitions.competitionId}"/>
+        <br/>
+        <h:messages for="saveCompetition"/>
+      </h:form>
+
+      <h:form rendered="#{!user.isAdmin()}">
+        <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
+        <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
+      </h:form>
+    </ui:define>
+  </ui:composition>
+</h:body>
+</html>

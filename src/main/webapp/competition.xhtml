@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:t="http://myfaces.apache.org/tomahawk">
+
+<h:body>
+  <ui:composition template="template.xhtml">
+    <ui:define name="content">
+      <script type="text/javascript" charset="utf8">
+        function updateSummary() {
+          var newContent = contentForm.elements["contentForm:contentInput"];
+          var summary = document.getElementById('summary');
+          summary.innerHTML = newContent.value;
+        }
+
+        function updateButtons(buttonId) {
+          window.setTimeout(function (buttonId) {
+            var element = document.getElementById(buttonId);
+            element.parentNode.removeChild(element);
+          }, 100, buttonId);
+        }
+
+        function test(data) {
+          console.log("foo bar" + data +" "+ data.id +" "+ data.value);
+        }
+      </script>
+
+      <h2>Overview for competition : #{actionCompetition.competition.competitionName}</h2>
+
+      <h:outputText id="summary" value="#{actionCompetition.content}"
+                    escape="false"/>
+
+      <h:form id="contentForm" rendered="#{user.isAdmin()}">
+        <h:inputTextarea id="contentInput"
+                         rendered="#{actionCompetition.editing == true}"
+                         value="#{actionCompetition.content}"
+                         styleClass="contentInput"/>
+        <h:commandButton value="#{actionCompetition.editing ? 'Save' : 'Edit'}"
+                         action="#{actionCompetition.edit}"
+                         onclick="#{actionCompetition.editing ? 'updateSummary()' : ''}">
+          <f:ajax execute="@form" render="@form" />
+        </h:commandButton>
+        <h:commandButton rendered="#{actionCompetition.editing}"
+                         value="Cancel" action="#{actionCompetition.cancel}">
+          <f:ajax execute="@form" render="@form"/>
+        </h:commandButton>
+
+        <input type="hidden" name="competitionId"
+               value="#{actionCompetition.competition.competitionId}"/>
+
+        <h:messages for="contentForm"/>
+      </h:form>
+
+      <h:form id="registerForm"
+              rendered="#{actionCompetition.getAllowedBrokers().size() > 0}">
+        <br/>
+        Register your brokers for this competition : <br/>
+        <ui:repeat value="#{actionCompetition.getAllowedBrokers()}" var="b">
+          <h:commandButton value="#{b.brokerName}"
+                           action="#{actionCompetition.register(b)}">
+            <f:ajax execute="registerForm" render="registerForm"/>
+          </h:commandButton>
+        </ui:repeat>
+
+        <input type="hidden" name="competitionId"
+               value="#{actionCompetition.competition.competitionId}"/>
+
+        <h:messages for="registerForm"/>
+      </h:form>
+
+      <t:dataList var="infoEntry" value="#{actionCompetition.competitionInfo}"
+                  layout="unorderedList">
+        <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
+      </t:dataList>
+
+    </ui:define>
+  </ui:composition>
+</h:body>
+</html>

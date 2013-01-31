@@ -30,6 +30,8 @@ public class MemStore
 
   public static String indexContent;
 
+  public static HashMap<Integer, String> competitionContent = new HashMap<Integer, String>();
+
   public MemStore ()
   {
     machineIPs = null;
@@ -229,5 +231,27 @@ public class MemStore
     indexContent = newContent;
 
     return Config.setIndexContent(newContent);
+  }
+
+  public static String getCompetitionContent (int competitionId)
+  {
+    if (competitionContent.get(competitionId) == null ||
+        competitionContent.get(competitionId).isEmpty()) {
+      competitionContent.put(competitionId,
+          Config.getCompetitionContent(competitionId));
+      if (competitionContent.get(competitionId) == null) {
+        return "Error connecting to DB";
+      }
+    }
+
+    return competitionContent.get(competitionId);
+  }
+
+  public static boolean setCompetitionContent (String newContent,
+                                               int competitionId)
+  {
+    competitionContent.put(competitionId, newContent);
+
+    return Config.setCompetitionContent(newContent, competitionId);
   }
 }

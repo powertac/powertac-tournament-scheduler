@@ -27,6 +27,7 @@ public class Tournament
 {
   private int tourneyId;
   private String tournamentName;
+  private CompetitionRound round;
   private Date startTime;
   private Date dateFrom;
   private Date dateTo;
@@ -71,7 +72,7 @@ public class Tournament
           .setInteger("tournamentId", tourneyId).uniqueResult();
 
       // Disallow removal when games booting or running
-      for (Game game : tournament.gameMap.values()) {
+      for (Game game: tournament.gameMap.values()) {
         if (game.isBooting() || game.isRunning()) {
           transaction.rollback();
           return String.format("Game %s can not be removed, state = %s",
@@ -83,12 +84,12 @@ public class Tournament
       List<Registration> registrations = (List<Registration>) session
           .createCriteria(Registration.class)
           .add(Restrictions.eq("tournament", tournament)).list();
-      for (Registration registration : registrations) {
+      for (Registration registration: registrations) {
         session.delete(registration);
       }
       session.flush();
 
-      for (Game game : tournament.gameMap.values()) {
+      for (Game game: tournament.gameMap.values()) {
         game.delete(session);
       }
       session.flush();
@@ -113,7 +114,7 @@ public class Tournament
   {
     boolean allDone = true;
 
-    for (Game game : gameMap.values()) {
+    for (Game game: gameMap.values()) {
       // The state of the finished game isn't in the db yet.
       if (game.getGameId() == finishedGameId) {
         continue;
@@ -206,7 +207,7 @@ public class Tournament
             "Total (not normalized);Size 1;Size 2;Size3;Total (normalized);" +
             lineSep);
 
-        for (Map.Entry<String, Double[]> entry : resultMap.entrySet()) {
+        for (Map.Entry<String, Double[]> entry: resultMap.entrySet()) {
           Double[] results = entry.getValue();
           bw.write(String.format("%s;%s;%f;%f;%f;%f;%f;%f;%f;%f;%s",
               entry.getKey().split(",")[0], entry.getKey().split(",")[1],
@@ -216,7 +217,7 @@ public class Tournament
         }
       } else {
         Map<String, Double[]> resultMap = determineWinnerSingle();
-        for (Map.Entry<String, Double[]> entry : resultMap.entrySet()) {
+        for (Map.Entry<String, Double[]> entry: resultMap.entrySet()) {
           bw.write("brokerId;Total;" + lineSep);
           Double[] results = entry.getValue();
           bw.write(String.format("%s;%f;%s",
@@ -251,7 +252,7 @@ public class Tournament
       String tourneyUrl = properties.getProperty("tourneyUrl");
       String baseUrl = properties.getProperty("actionIndex.logUrl",
           "download?game=%d");
-      for (Map.Entry<Integer, Game> entry : getGameMap().entrySet()) {
+      for (Map.Entry<Integer, Game> entry: getGameMap().entrySet()) {
         Game game = entry.getValue();
 
         String logUrl = "";
@@ -267,7 +268,7 @@ public class Tournament
             game.getGameId(), game.getGameName(), game.getState(),
             game.getAgentMap().size(), game.getGameLength(), game.getLastTick(),
             game.getLocation(), game.getSimStartTime(), logUrl);
-        for (Agent agent : game.getAgentMap().values()) {
+        for (Agent agent: game.getAgentMap().values()) {
           content = String.format("%s%d;%f;", content,
               agent.getBrokerId(), agent.getBalance());
         }
@@ -295,8 +296,8 @@ public class Tournament
   {
     Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
 
-    for (Game game : getGameMap().values()) {
-      for (Agent agent : game.getAgentMap().values()) {
+    for (Game game: getGameMap().values()) {
+      for (Agent agent: game.getAgentMap().values()) {
         String brokerKey = String.format("%d,%s",
             agent.getBroker().getBrokerId(), agent.getBroker().getBrokerName());
 
@@ -328,10 +329,10 @@ public class Tournament
     Double[] SD = new Double[]{0.0, 0.0, 0.0};
 
     // Get the not-normalized results into the map
-    for (Game game : gameMap.values()) {
+    for (Game game: gameMap.values()) {
       int gameTypeIndex = game.getGameTypeIndex();
 
-      for (Agent agent : game.getAgentMap().values()) {
+      for (Agent agent: game.getAgentMap().values()) {
         String brokerKey = String.format("%d,%s",
             agent.getBroker().getBrokerId(), agent.getBroker().getBrokerName());
 
@@ -353,7 +354,7 @@ public class Tournament
     averages[2] = averages[2] / resultMap.size();
 
     // Put averages in map, calculate SD
-    for (String brokerName : resultMap.keySet()) {
+    for (String brokerName: resultMap.keySet()) {
       Double[] results = resultMap.get(brokerName);
       results[4] = averages[0];
       results[5] = averages[1];
@@ -370,7 +371,7 @@ public class Tournament
     SD[2] = Math.sqrt(SD[2] / resultMap.size());
 
     // Put SDs in map, calculate normalized results and total
-    for (String brokerName : resultMap.keySet()) {
+    for (String brokerName: resultMap.keySet()) {
       Double[] results = resultMap.get(brokerName);
       results[7] = SD[0];
       results[8] = SD[1];
@@ -499,7 +500,7 @@ public class Tournament
   public List<String> getLocationsList ()
   {
     List<String> locationList = new ArrayList<String>();
-    for (String location : locations.split(",")) {
+    for (String location: locations.split(",")) {
       locationList.add(location.trim());
     }
     return locationList;
@@ -517,8 +518,8 @@ public class Tournament
           .createQuery(Constants.HQL.GET_TOURNAMENTS_NOT_COMPLETE)
           .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
-      for (Tournament tournament : tournaments) {
-        for (Game game : tournament.getGameMap().values()) {
+      for (Tournament tournament: tournaments) {
+        for (Game game: tournament.getGameMap().values()) {
           game.getAgentMap().size();
         }
       }
@@ -567,6 +568,17 @@ public class Tournament
   public void setTournamentName (String tournamentName)
   {
     this.tournamentName = tournamentName;
+  }
+
+  @ManyToOne
+  @JoinColumn(name = "roundId", nullable = true)
+  public CompetitionRound getRound ()
+  {
+    return round;
+  }
+  public void setRound (CompetitionRound round)
+  {
+    this.round = round;
   }
 
   @Temporal(TemporalType.TIMESTAMP)

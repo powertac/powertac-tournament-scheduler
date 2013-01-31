@@ -49,6 +49,10 @@ td.disabled {
     background-color: #FF0000;
 }
 
+td.running {
+    background-color: #FFFF00;
+}
+
 h3 {
     margin: 30px 0 5px 0;
 }

@@ -111,4 +111,57 @@ public class Config
     return true;
   }
 
+  public static boolean setCompetitionContent (String newContent, int competitionId)
+  {
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      org.hibernate.Query query = session.createQuery(Constants.HQL.GET_CONFIG);
+      query.setString("configKey", "competition_content_" + competitionId);
+      Config config = (Config) query.uniqueResult();
+      config.setConfigValue(newContent);
+      session.update(config);
+      transaction.commit();
+    } catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+      log.error("Error, setting competition content " + competitionId);
+      return false;
+    } finally {
+      session.close();
+    }
+
+    return true;
+  }
+
+  public static String getCompetitionContent (int competitionId)
+  {
+    String content;
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      org.hibernate.Query query = session.createQuery(Constants.HQL.GET_CONFIG);
+      query.setString("configKey", "competition_content_" + competitionId);
+      Config config = (Config) query.uniqueResult();
+
+      if (config == null) {
+        config = new Config();
+        config.setConfigKey("competition_content_" + competitionId);
+        config.setConfigValue("");
+        session.save(config);
+      }
+
+      content = config.getConfigValue();
+      transaction.commit();
+    } catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+      log.error("Error, getting competition content " + competitionId);
+      return null;
+    } finally {
+      session.close();
+    }
+
+    return content;
+  }
 }
