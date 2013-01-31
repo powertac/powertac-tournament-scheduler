@@ -23,11 +23,6 @@
       </t:dataList>
 
       <h:form rendered="#{user.isAdmin()}">
-        <h:commandButton value="Edit this tournament"
-                         rendered="#{actionTournaments.allowEdit(actionTournament.tournament)}"
-                         action="#{actionTournaments.loadTournament(actionTournament.tournament)}"
-                         styleClass="bigButton"/>
-        <br/>
         <h:commandButton action="#{actionTournament.createCsv}"
                          value="Create or update CSV"
                          styleClass="bigButton">

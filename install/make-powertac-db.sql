@@ -67,7 +67,7 @@ CREATE TABLE `tourney`.`tournaments` (
   `locations`   VARCHAR(256)        NOT NULL, /* This will be a comma delimited list for now */
   `closed`      TINYINT(1)          NOT NULL,
   PRIMARY KEY (`tourneyId`),
-  CONSTRAINT tourney_refs FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`)
+  CONSTRAINT tournament_refs1 FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`)
 )
   ENGINE = InnoDB;
 
@@ -133,7 +133,7 @@ CREATE TABLE `tourney`.`locations` (
 
 INSERT INTO `tourney`.`locations`
 (`locationId`, `location`, `timezone`, `fromDate`, `toDate`) VALUES
-(1, 'rotterdam', 1, '2009-01-01 00:00:00', '2009-06-01 00:00:00');
+(1, 'rotterdam', 1, '2009-01-01 00:00:00', '2011-06-01 00:00:00');
 
 
 DROP TABLE IF EXISTS `tourney`.`agents`;
@@ -143,7 +143,7 @@ CREATE TABLE `tourney`.`agents` (
   `brokerId`    INT(11)     NOT NULL,
   `brokerQueue` VARCHAR(64) NULL,
   `state`       VARCHAR(32) NOT NULL,
-  `balance`     DOUBLE      NOT NULL DEFAULT '-1',
+  `balance`     DOUBLE      NOT NULL DEFAULT '0',
   PRIMARY KEY (`agentId`),
   CONSTRAINT agent_refs1 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`),
   CONSTRAINT agent_refs2 FOREIGN KEY (`gameId`) REFERENCES `tourney`.`games` (`gameId`)

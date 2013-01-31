@@ -69,9 +69,13 @@ public class Utils
 
   public static void redirect ()
   {
+    redirect("index.xhtml");
+  }
+  public static void redirect (String url)
+  {
     try {
       ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-      externalContext.redirect("index.xhtml");
+      externalContext.redirect(url);
     } catch (Exception ignored) {
     }
   }

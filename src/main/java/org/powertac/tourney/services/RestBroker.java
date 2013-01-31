@@ -112,9 +112,10 @@ public class RestBroker
 
   /*
    * Ugly hack : returns
-   * - tourneyId : broker is registered to running tourney (always > 0)
-   * - 0 : broker is registered to competition, but no tourneys available
-   * - -1 : broker isn't registered to competition
+   *  tourneyId : broker is registered to running tourney (always > 0)
+   *  0 : broker is registered to competition, but no tourneys available
+   *  -1 : broker isn't registered to competition
+   *  -2 : there's no competition with joinName
    */
   private int isRunningCompetition(Session session,
                                    String joinName, Broker broker)
