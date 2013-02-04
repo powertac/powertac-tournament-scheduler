@@ -10,10 +10,15 @@
 <h:body>
   <ui:composition template="template.xhtml">
     <ui:define name="content">
-<script type="text/javascript" charset="utf8"
+      <script type="text/javascript" charset="utf8"
         src="resources/js/admin.js"></script>
 
       <h2>Admin</h2>
+
+      <h:form rendered="#{!user.isAdmin()}">
+        <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
+        <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
+      </h:form>
 
       <h:form>
         <h:panelGroup rendered="#{!actionAdmin.getConfigErrors().isEmpty()}">
@@ -128,79 +133,74 @@
         </h:dataTable>
       </h:form>
 
+      <br/>
       <h:form rendered="#{user.isAdmin()}" id="saveLocation">
-        <br/>
-        <h:panelGrid columns="2">
+        <h:panelGrid columns="4">
           <h:outputText value="Name:"/>
           <h:inputText value="#{actionAdmin.locationName}"/>
-
-          <h:outputText value="Timezone:"/>
-          <h:inputText value="#{actionAdmin.locationTimezone}"/>
 
           <h:outputText value="Start Date:"/>
           <t:inputDate value="#{actionAdmin.locationStartTime}"/>
 
+          <h:outputText value="Timezone:"/>
+          <h:inputText value="#{actionAdmin.locationTimezone}"/>
+
           <h:outputText value="End Date:"/>
           <t:inputDate value="#{actionAdmin.locationEndTime}"/>
-
-          <h:commandButton value="Save"
-                           action="#{actionAdmin.saveLocation}"/>
-          <h:panelGroup/>
         </h:panelGrid>
+        <h:commandButton value="Save"
+                         action="#{actionAdmin.saveLocation}"/>
         <h:messages for="saveLocation"/>
         <h:inputHidden id="locationId" value="#{actionAdmin.locationId}"/>
       </h:form>
 
-      <h:panelGrid columns="2">
-        <h:form rendered="#{user.isAdmin()}">
-          <h3>Available Poms</h3>
-          <t:dataTable id="datausers" border="1" sortable="true"
-                       sortColumn="#{actionAdmin.sortColumnPom}"
-                       sortAscending="#{actionAdmin.sortAscendingPom}"
-                       preserveSort="true"
-                       styleClass="dataTable"
-                       value="#{actionAdmin.pomList}" var="p">
+      <h:form rendered="#{user.isAdmin()}">
+        <h3>Available Poms</h3>
+        <t:dataTable id="datausers" border="1" sortable="true"
+                     sortColumn="#{actionAdmin.sortColumnPom}"
+                     sortAscending="#{actionAdmin.sortAscendingPom}"
+                     preserveSort="true"
+                     styleClass="dataTable"
+                     value="#{actionAdmin.pomList}" var="p">
 
-            <t:column defaultSorted="true">
-              <f:facet name="header">
-                <h:outputText value="Pom Name"/>
-              </f:facet>
-              <a href="pom.jsp?pomId=#{p.pomId}">
-                <h:outputText value="#{p.pomName}"/>
-              </a>
-            </t:column>
+          <t:column defaultSorted="true">
+            <f:facet name="header">
+              <h:outputText value="Pom Name"/>
+            </f:facet>
+            <a href="pom.jsp?pomId=#{p.pomId}">
+              <h:outputText value="#{p.pomName}"/>
+            </a>
+          </t:column>
 
-            <t:column defaultSorted="true">
-              <f:facet name="header">
-                <h:outputText value="Pom Id"/>
-              </f:facet>
-              <h:outputText value="#{p.pomId}"/>
-            </t:column>
+          <t:column defaultSorted="true">
+            <f:facet name="header">
+              <h:outputText value="Pom Id"/>
+            </f:facet>
+            <h:outputText value="#{p.pomId}"/>
+          </t:column>
 
-            <t:column defaultSorted="true">
-              <f:facet name="header">
-                <h:outputText value="Uploading User"/>
-              </f:facet>
-              <h:outputText value="#{p.user.getUserName()}"/>
-            </t:column>
-          </t:dataTable>
-        </h:form>
+          <t:column defaultSorted="true">
+            <f:facet name="header">
+              <h:outputText value="Uploading User"/>
+            </f:facet>
+            <h:outputText value="#{p.user.getUserName()}"/>
+          </t:column>
+        </t:dataTable>
+      </h:form>
 
-        <h:form rendered="#{user.isAdmin()}" enctype="multipart/form-data"
-                id="pomUploadForm" styleClass="left">
-          <br/>
-          <h4>Upload Pom File</h4>
+      <br/>
+      <h:form rendered="#{user.isAdmin()}" enctype="multipart/form-data"
+              id="pomUploadForm" styleClass="left">
+        <h:panelGrid columns="3">
           <h:outputText value="Pom Name"/>
           <h:inputText value="#{actionAdmin.pomName}"/>
-          <br/>
           <t:inputFileUpload disabled="false" value="#{actionAdmin.uploadedPom}"
                              accept="mime-type" storage="file"/>
-          <br/>
-          <h:commandButton value="Submit Pom"
-                           action="#{actionAdmin.submitPom}"/>
-          <h:messages for="pomUploadForm"/>
-        </h:form>
-      </h:panelGrid>
+        </h:panelGrid>
+        <h:commandButton value="Submit Pom"
+                         action="#{actionAdmin.submitPom}"/>
+        <h:messages for="pomUploadForm"/>
+      </h:form>
 
       <br/>
       <h:form rendered="#{user.isAdmin()}" id="machinesForm">
@@ -272,16 +272,16 @@
         </t:dataTable>
       </h:form>
 
+      <br/>
       <h:form rendered="#{user.isAdmin()}" id="saveMachine">
-        <br/>
-        <h:panelGrid columns="2">
-          <h:outputText value="Machine Name:"/>
+        <h:panelGrid columns="6">
+          <h:outputText value="Name:"/>
           <h:inputText value="#{actionAdmin.machineName}"/>
 
-          <h:outputText value="Machine Url:"/>
+          <h:outputText value="Hostname:"/>
           <h:inputText value="#{actionAdmin.machineUrl}"/>
 
-          <h:outputText value="Visualizer Url:"/>
+          <h:outputText value="Viz Url:"/>
           <h:inputText value="#{actionAdmin.machineViz}"/>
         </h:panelGrid>
         <h:commandButton value="Save" action="#{actionAdmin.saveMachine()}"/>
@@ -311,18 +311,23 @@
             <h:outputText value="#{u.userName}"/>
           </t:column>
 
-          <t:column defaultSorted="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Permission"/>
             </f:facet>
             <h:outputText value="#{u.permission}"/>
           </t:column>
-        </t:dataTable>
-      </h:form>
 
-      <h:form rendered="#{!user.isAdmin()}">
-        <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
-        <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
+          <t:column defaultSorted="false">
+            <f:facet name="header">
+              <h:outputText value="Actions"/>
+            </f:facet>
+            <h:commandButton value="Increase" styleClass="smallButton"
+                             action="#{actionAdmin.increasePermissions(u)}"/>
+            <h:commandButton value="Decrease" styleClass="smallButton"
+                             action="#{actionAdmin.decreasePermissions(u)}"/>
+          </t:column>
+        </t:dataTable>
       </h:form>
 
       <br/><br/>

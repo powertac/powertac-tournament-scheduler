@@ -157,7 +157,7 @@ public class Game implements Serializable
 
         // Reset values when a game is aborted
         for (Agent agent: getAgentMap().values()) {
-          agent.setState(Agent.STATE.pending);
+          agent.setStatePending();
           agent.setBalance(0);
           session.update(agent);
         }
@@ -183,7 +183,7 @@ public class Game implements Serializable
 
       case game_complete:
         for (Agent agent: agentMap.values()) {
-          agent.setState(Agent.STATE.complete);
+          agent.setStateComplete();
           session.update(agent);
         }
         log.info("Setting Agents to Complete for game: " + gameId);
@@ -197,7 +197,7 @@ public class Game implements Serializable
       case game_failed:
         log.warn("GAME " + gameId + " FAILED!");
         for (Agent agent: agentMap.values()) {
-          agent.setState(Agent.STATE.complete);
+          agent.setStateComplete();
           session.update(agent);
         }
         log.info("Setting Agents to Complete for game: " + gameId);

@@ -39,12 +39,24 @@ public class User
 
   private boolean isEditing;
 
-  public static enum PERMISSION {
+  private static enum PERMISSION {
     admin,
     researcher,
     organizer,
     broker,
-    guest
+    guest;
+
+    public PERMISSION getDecreased() {
+      return this.ordinal() < PERMISSION.values().length - 1
+          ? PERMISSION.values()[this.ordinal() + 1]
+          : this;
+    }
+
+    public PERMISSION getIncreased() {
+      return this.ordinal() == 0
+          ? this
+          : PERMISSION.values()[this.ordinal() - 1];
+    }
   }
 
   public User ()
@@ -60,6 +72,16 @@ public class User
     userName = "Guest";
     password = "";
     permission = PERMISSION.guest;
+  }
+
+  public void increasePermission ()
+  {
+    permission = permission.getIncreased();
+  }
+
+  public void decreasePermission ()
+  {
+    permission = permission.getDecreased();
   }
 
   public static User getCurrentUser ()
@@ -121,7 +143,6 @@ public class User
   {
     return brokerMap;
   }
-
   public void setBrokerMap (Map<Integer, Broker> brokerMap)
   {
     this.brokerMap = brokerMap;
@@ -270,6 +291,11 @@ public class User
   public boolean isAdmin ()
   {
     return permission == PERMISSION.admin && userId != -1;
+  }
+
+  public void setPermissionBroker ()
+  {
+    permission = PERMISSION.broker;
   }
   //</editor-fold>
 }

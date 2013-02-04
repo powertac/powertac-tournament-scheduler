@@ -24,7 +24,7 @@ public class Agent
   private STATE state;
   private double balance;
 
-  public static enum STATE
+  private static enum STATE
   {
     pending, in_progress, complete
   }
@@ -45,10 +45,28 @@ public class Agent
     return agent;
   }
 
-  public boolean stateEquals (STATE state)
+  //<editor-fold desc="State methods">
+  @Transient
+  public boolean isPending ()
   {
     return this.state.equals(state);
   }
+
+  public void setStatePending ()
+  {
+    setState(STATE.pending);
+  }
+
+  public void setStateInProgress ()
+  {
+    setState(STATE.in_progress);
+  }
+
+  public void setStateComplete ()
+  {
+    setState(STATE.complete);
+  }
+  //</editor-fold>
 
   //<editor-fold desc="Getters and Setters">
   @Id

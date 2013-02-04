@@ -147,7 +147,7 @@ public class ActionOverview
 
         game.setState(Game.STATE.boot_complete);
         for (Agent agent: game.getAgentMap().values()) {
-          agent.setState(Agent.STATE.pending);
+          agent.setStatePending();
           agent.setBalance(0);
           session.update(agent);
         }
@@ -192,7 +192,7 @@ public class ActionOverview
         game.setState(Game.STATE.boot_complete);
 
         for (Agent agent: game.getAgentMap().values()) {
-          agent.setState(Agent.STATE.pending);
+          agent.setStatePending();
           session.update(agent);
         }
         session.flush();

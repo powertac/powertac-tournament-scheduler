@@ -192,7 +192,7 @@ public class RestBroker
         continue;
       }
       Agent agent = game.getAgentMap().get(broker.getBrokerId());
-      if (agent == null || !agent.stateEquals(Agent.STATE.pending)) {
+      if (agent == null || !agent.isPending()) {
         continue;
       }
 
@@ -205,7 +205,7 @@ public class RestBroker
         continue;
       }
 
-      agent.setState(Agent.STATE.in_progress);
+      agent.setStateInProgress();
       session.update(agent);
       log.info(String.format("Sending login to broker %s : %s, %s, %s",
           broker.getBrokerName(), game.getMachine().getJmsUrl(),

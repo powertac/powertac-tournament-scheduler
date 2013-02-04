@@ -417,6 +417,46 @@ public class ActionAdmin
     return User.getUserList();
   }
 
+  public void increasePermissions (User user)
+  {
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      user.increasePermission();
+      session.update(user);
+      transaction.commit();
+    } catch (Exception e) {
+      transaction.rollback();
+      log.warn("Error increasing permissions for : " + user.getUserId());
+      e.printStackTrace();
+    }
+    if (transaction.wasCommitted()) {
+      log.info("Increased permissions for : " + user.getUserName());
+    }
+
+    session.close();
+  }
+
+  public void decreasePermissions (User user)
+  {
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      user.decreasePermission();
+      session.update(user);
+      transaction.commit();
+    } catch (Exception e) {
+      transaction.rollback();
+      log.warn("Error decreasing permissions for : " + user.getUserId());
+      e.printStackTrace();
+    }
+    if (transaction.wasCommitted()) {
+      log.info("decreased permissions for : " + user.getUserName());
+    }
+
+    session.close();
+  }
+
   private void message (int field, String msg)
   {
     FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
