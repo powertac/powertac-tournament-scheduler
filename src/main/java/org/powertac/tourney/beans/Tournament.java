@@ -490,7 +490,6 @@ public class Tournament
   {
     return brokerMap;
   }
-
   public void setBrokerMap (Map<Integer, Broker> brokerMap)
   {
     this.brokerMap = brokerMap;

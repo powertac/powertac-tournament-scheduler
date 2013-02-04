@@ -26,8 +26,8 @@ public class RestVisualizer
    * or queueName(qn) to tell the visualizer to connect to its machine and
    * listen on the queue named qn.
    */
-  public String parseVisualizerLogin (HttpServletRequest request,
-                                      Map<String, String[]> params)
+  public String parseVisualizerLogin (Map<String, String[]> params,
+                                      HttpServletRequest request)
   {
     String machineName = params.get("machineName")[0];
     String head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>";

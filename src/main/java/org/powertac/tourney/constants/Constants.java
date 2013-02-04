@@ -98,6 +98,7 @@ public class Constants
             + "LEFT JOIN FETCH roundMap.tournamentMap AS tournamentMap "
             + "LEFT JOIN FETCH tournamentMap.gameMap as gameMap "
             + "LEFT JOIN FETCH gameMap.agentMap as agentMap "
+            + "LEFT JOIN FETCH tournamentMap.brokerMap as brokerMap "
             + "WHERE NOT competition.state='" + Competition.STATE.complete + "'";
 
     public static final String GET_TOURNAMENT_BY_ID =

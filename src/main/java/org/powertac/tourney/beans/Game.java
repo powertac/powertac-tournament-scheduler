@@ -372,8 +372,8 @@ public class Game implements Serializable
     game.setTournament(tournament);
     game.setState(STATE.boot_pending);
     game.setStartTime(tournament.getStartTime());
-    game.setSimStartTime(randomSimStartTime(tournament));
     game.setLocation(randomLocation(tournament));
+    game.setSimStartTime(randomSimStartTime(tournament));
     game.setServerQueue(Utils.createQueueName());
     game.setVisualizerQueue(Utils.createQueueName());
 
@@ -388,6 +388,9 @@ public class Game implements Serializable
 
   private static String randomSimStartTime (Tournament tournament)
   {
+    // TODO We need to check if dates are valid for location
+    // Only usefull with multiple weather locations with different periods
+
     Date starting = new Date();
 
     // Number of msecs in a year divided by 4
@@ -401,7 +404,7 @@ public class Game implements Serializable
       starting = tournament.getDateFrom();
     } else {
       long start = tournament.getDateFrom().getTime();
-      long end = tournament.getDateFrom().getTime() - msLength;
+      long end = tournament.getDateTo().getTime() - msLength;
       long startTime = (long) (Math.random() * (end - start) + start);
 
       starting.setTime(startTime);

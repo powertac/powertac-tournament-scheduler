@@ -70,16 +70,7 @@ public class ActionTournaments
 
   public void saveTournament ()
   {
-    if (tournamentName.trim().isEmpty()) {
-      message(2, "The tournament name cannot be empty");
-      if (tourneyId != -1) {
-        resetValues();
-      }
-      return;
-    }
-
-    if ((locations.size() < 1) && (tourneyId == -1 || selectedPom != 0)) {
-      message(2, "Choose at least one location");
+    if (!inputsValidated()) {
       if (tourneyId != -1) {
         resetValues();
       }
@@ -310,6 +301,29 @@ public class ActionTournaments
   public boolean allowEdit (Tournament tournament)
   {
     return tourneyId == -1 && tournament.isPending();
+  }
+
+  private boolean inputsValidated ()
+  {
+    List<String> messages = new ArrayList<String>();
+
+    if (tournamentName.trim().isEmpty()) {
+      messages.add("The tournament name cannot be empty");
+    }
+
+    if ((locations.size() < 1) && (tourneyId == -1 || selectedPom != 0)) {
+      messages.add("Choose at least one location");
+    }
+
+    if (dateFrom.after(dateTo)) {
+      messages.add("End date should be after start date");
+    }
+
+    for (String msg: messages) {
+      message(2, msg);
+    }
+
+    return messages.size() == 0;
   }
 
   private void message (int field, String msg)

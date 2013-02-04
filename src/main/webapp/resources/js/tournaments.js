@@ -36,7 +36,7 @@ function showGamesCount() {
             elems[4].value = maxBrokers;
             gameType1 = maxBrokers;
         }
-        recSafety = 2500;
+        recSafety = 0;
         totalGames1 = calculateGames(maxBrokers, gameType1, multiplier1);
         slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType1, totalGames1);
         totalTime1 = durationOverhead * gameDuration * (totalGames1 / slaves);
@@ -47,7 +47,7 @@ function showGamesCount() {
             elems[6].value = maxBrokers;
             gameType2 = maxBrokers;
         }
-        recSafety = 2500;
+        recSafety = 0;
         totalGames2 = calculateGames(maxBrokers, gameType2, multiplier2);
         slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType2, totalGames2);
         totalTime2 = durationOverhead * gameDuration * (totalGames2 / slaves);
@@ -58,7 +58,7 @@ function showGamesCount() {
             elems[8].value = maxBrokers;
             gameType3 = maxBrokers;
         }
-        recSafety = 2500;
+        recSafety = 0;
         totalGames3 = calculateGames(maxBrokers, gameType3, multiplier3);
         slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType3, totalGames3);
         totalTime3 = durationOverhead * gameDuration * (totalGames3 / slaves);

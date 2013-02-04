@@ -28,10 +28,10 @@ public class Location
   {
     // TODO Get this from some config
     Calendar initTime = Calendar.getInstance();
-    initTime.set(2009, Calendar.MARCH, 3, 0, 0, 0);
+    initTime.set(2009, Calendar.JANUARY, 1, 0, 0, 0);
     dateFrom = new Date();
     dateFrom.setTime(initTime.getTimeInMillis());
-    initTime.set(2011, Calendar.MARCH, 3, 0, 0, 0);
+    initTime.set(2011, Calendar.JULY, 1, 0, 0, 0);
     dateTo = new Date();
     dateTo.setTime(initTime.getTimeInMillis());
     location = "rotterdam";

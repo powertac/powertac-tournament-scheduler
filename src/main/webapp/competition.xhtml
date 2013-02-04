@@ -10,24 +10,8 @@
 <h:body>
   <ui:composition template="template.xhtml">
     <ui:define name="content">
-      <script type="text/javascript" charset="utf8">
-        function updateSummary() {
-          var newContent = contentForm.elements["contentForm:contentInput"];
-          var summary = document.getElementById('summary');
-          summary.innerHTML = newContent.value;
-        }
-
-        function updateButtons(buttonId) {
-          window.setTimeout(function (buttonId) {
-            var element = document.getElementById(buttonId);
-            element.parentNode.removeChild(element);
-          }, 100, buttonId);
-        }
-
-        function test(data) {
-          console.log("foo bar" + data +" "+ data.id +" "+ data.value);
-        }
-      </script>
+      <script type="text/javascript" charset="utf8"
+              src="resources/js/competition.js"></script>
 
       <h2>Overview for competition : #{actionCompetition.competition.competitionName}</h2>
 

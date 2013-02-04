@@ -48,9 +48,9 @@ public class RestoreViewPhaseListener implements PhaseListener
           respond(pe, restBroker.parseBrokerLogin(params));
         }
       } else if (url.contains("visualizerLogin.jsp")) {
-        respond(pe, restVisualizer.parseVisualizerLogin(request, params));
+        respond(pe, restVisualizer.parseVisualizerLogin(params, request));
       } else if (url.contains("properties.jsp")) {
-        respond(pe, restServer.parseProperties(params));
+        respond(pe, restServer.parseProperties(params, request));
       } else if (url.contains("pom.jsp")) {
         respond(pe, restServer.parsePom(params));
       }

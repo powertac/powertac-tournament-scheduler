@@ -92,8 +92,14 @@ public class Competition
     int maxBrokers = 100; // Let all pass first round
     if (round.getRoundNr() > 0) {
       CompetitionRound previousRound = getPreviousRound();
-      maxBrokers = previousRound.getNofWinners() / round.getNofTournaments();
+      maxBrokers =
+          Math.min(previousRound.getNofBrokers(), previousRound.getNofWinners())
+              / round.getNofTournaments();
     }
+
+    int size1 = round.getRoundNr() == 0 ? 1 : maxBrokers;
+    int size2 = round.getRoundNr() == 0 ? 1 : Math.max(maxBrokers / 2, 2);
+    int size3 = round.getRoundNr() == 0 ? 1 : Math.min(maxBrokers, 2);
     Date startDate = round.getStartTime();
     if (startDate.compareTo(Utils.offsetDate()) < 0) {
       startDate = Utils.offsetDate(1);
@@ -105,9 +111,9 @@ public class Competition
     tournament.setType(Tournament.TYPE.MULTI_GAME);
     tournament.setMaxBrokers(maxBrokers);
     tournament.setMaxAgents(2);
-    tournament.setSize1(Math.min(maxBrokers, 2));
-    tournament.setSize2(Math.max(maxBrokers / 2, 2));
-    tournament.setSize3(maxBrokers);
+    tournament.setSize1(size1);
+    tournament.setSize2(size2);
+    tournament.setSize3(size3);
     tournament.setMultiplier1(1);
     tournament.setMultiplier2(1);
     tournament.setMultiplier3(1);
@@ -217,7 +223,7 @@ public class Competition
     if (state == STATE.closed) {
       state = STATE.scheduled0;
       // Tournaments are already scheduled during competition creation
-      // Brokers are already scheduled via registering for tournament(s)
+      // Brokers are already scheduled via registering for the competition
     }
     else if (state == STATE.completed0) {
       state = STATE.scheduled1;

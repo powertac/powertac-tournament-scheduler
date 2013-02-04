@@ -1,6 +1,5 @@
 package org.powertac.tourney.beans;
 
-import javax.faces.bean.ManagedBean;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,7 +8,6 @@ import java.util.Map;
 import static javax.persistence.GenerationType.IDENTITY;
 
 
-@ManagedBean
 @Entity
 @Table(name = "rounds")
 public class CompetitionRound
@@ -38,6 +36,16 @@ public class CompetitionRound
   public void setTournamentMap (Map<Integer, Tournament> tournamentMap)
   {
     this.tournamentMap = tournamentMap;
+  }
+
+  @Transient
+  public int getNofBrokers ()
+  {
+    int nofBrokers = 0;
+    for (Tournament tournament: tournamentMap.values()) {
+      nofBrokers += tournament.getBrokerMap().size();
+    }
+    return nofBrokers;
   }
 
   //<editor-fold desc="Setters and Getters">

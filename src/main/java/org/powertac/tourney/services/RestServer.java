@@ -27,11 +27,10 @@ public class RestServer
   public String handleGet (Map<String, String[]> params,
                            HttpServletRequest request)
   {
-    String clientAddress = request.getRemoteAddr();
     try {
       String actionString = params.get(Constants.Rest.REQ_PARAM_ACTION)[0];
       if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_STATUS)) {
-        if (!MemStore.checkMachineAllowed(clientAddress)) {
+        if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
           return "error";
         }
 
@@ -40,7 +39,7 @@ public class RestServer
         String gameId = params.get(Constants.Rest.REQ_PARAM_GAMEID)[0];
         return serveBoot(gameId);
       } else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_HEARTBEAT)) {
-        if (!MemStore.checkMachineAllowed(clientAddress)) {
+        if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
           return "error";
         }
 
@@ -55,7 +54,7 @@ public class RestServer
    * Handle 'PUT' to serverInterface.jsp, either boot.xml or (Boot|Sim) log
    */
   public String handlePUT (Map<String, String[]> params,
-                                          HttpServletRequest request)
+                           HttpServletRequest request)
   {
     if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
       return "error";
@@ -107,8 +106,7 @@ public class RestServer
   public String handlePOST (Map<String, String[]> params,
                             HttpServletRequest request)
   {
-    String remoteAddress = request.getRemoteAddr();
-    if (!MemStore.checkMachineAllowed(remoteAddress)) {
+    if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
       return "error";
     }
 
@@ -152,8 +150,13 @@ public class RestServer
    * @param params :
    * @return String representing a properties file
    */
-  public String parseProperties (Map<String, String[]> params)
+  public String parseProperties (Map<String, String[]> params,
+                                 HttpServletRequest request)
   {
+    if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
+      return "error";
+    }
+
     int gameId;
     try {
       gameId = Integer.parseInt(params.get(Constants.Rest.REQ_PARAM_GAMEID)[0]);
@@ -175,6 +178,11 @@ public class RestServer
       session.close();
     }
 
+    return getPropertiesString(game);
+  }
+
+  private String getPropertiesString (Game game)
+  {
     TournamentProperties properties = TournamentProperties.getProperties();
 
     String result = "";
