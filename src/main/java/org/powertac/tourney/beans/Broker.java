@@ -6,6 +6,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.exception.ConstraintViolationException;
 import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.HibernateUtil;
 import org.powertac.tourney.services.TournamentProperties;
@@ -66,18 +67,21 @@ public class Broker
     }
   }
 
-  public boolean update ()
+  public String update ()
   {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
       session.update(this);
       transaction.commit();
-      return true;
+      return null;
+    } catch (ConstraintViolationException cve) {
+      transaction.rollback();
+      return cve.getMessage();
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      return false;
+      return "Error updating broker";
     } finally {
       session.close();
     }
@@ -248,6 +252,23 @@ public class Broker
     return result;
   }
 
+  @Transient
+  public String getRunningString ()
+  {
+    String result = "";
+
+    for (Agent agent: getAgentMap().values()) {
+      if (agent.isInProgress()) {
+        result += agent.getGameId() + ", ";
+      }
+    }
+    if (!result.isEmpty()) {
+      result = result.substring(0, result.length() - 2);
+    }
+
+    return result;
+  }
+
   @SuppressWarnings("unchecked")
   public static List<Broker> getBrokerList ()
   {
@@ -353,7 +374,6 @@ public class Broker
   {
     return agentMap;
   }
-
   public void setAgentMap (Map<Integer, Agent> agentMap)
   {
     this.agentMap = agentMap;
@@ -371,7 +391,6 @@ public class Broker
   {
     return tournamentMap;
   }
-
   public void setTournamentMap (Map<Integer, Tournament> tournamentMap)
   {
     this.tournamentMap = tournamentMap;
@@ -385,7 +404,6 @@ public class Broker
   {
     return brokerId;
   }
-
   public void setBrokerId (Integer brokerId)
   {
     this.brokerId = brokerId;
@@ -397,7 +415,6 @@ public class Broker
   {
     return user;
   }
-
   public void setUser (User user)
   {
     this.user = user;
@@ -408,7 +425,6 @@ public class Broker
   {
     return brokerName;
   }
-
   public void setBrokerName (String brokerName)
   {
     this.brokerName = brokerName;
@@ -419,7 +435,6 @@ public class Broker
   {
     return brokerAuth;
   }
-
   public void setBrokerAuth (String brokerAuth)
   {
     this.brokerAuth = brokerAuth;
@@ -430,7 +445,6 @@ public class Broker
   {
     return shortDescription;
   }
-
   public void setShortDescription (String shortDescription)
   {
     this.shortDescription = shortDescription;
@@ -443,7 +457,6 @@ public class Broker
   {
     return edit;
   }
-
   public void setEdit (boolean edit)
   {
     this.edit = edit;
@@ -454,7 +467,6 @@ public class Broker
   {
     return newName;
   }
-
   public void setNewName (String newName)
   {
     this.newName = newName;
@@ -465,7 +477,6 @@ public class Broker
   {
     return newAuth;
   }
-
   public void setNewAuth (String newAuth)
   {
     this.newAuth = newAuth;
@@ -476,7 +487,6 @@ public class Broker
   {
     return newShort;
   }
-
   public void setNewShort (String newShort)
   {
     this.newShort = newShort;
@@ -487,7 +497,6 @@ public class Broker
   {
     return selectedTourneyRegister;
   }
-
   public void setSelectedTourneyRegister (int selectedTourneyRegister)
   {
     this.selectedTourneyRegister = selectedTourneyRegister;
@@ -498,7 +507,6 @@ public class Broker
   {
     return selectedTourneyUnregister;
   }
-
   public void setSelectedTourneyUnregister (int selectedTourneyUnregister)
   {
     this.selectedTourneyUnregister = selectedTourneyUnregister;

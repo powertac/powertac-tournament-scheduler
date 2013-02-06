@@ -73,7 +73,7 @@
             <f:facet name="header">Broker Auth Token</f:facet>
             <h:outputText value="#{broker.brokerAuth}"
                           rendered="#{!broker.edit}"/>
-            <h:inputText value="#{broker.newAuth}"
+            <h:inputText value="#{broker.newAuth}" styleClass="input_wide"
                          rendered="#{broker.edit}" maxlength="32"/>
           </h:column>
 
@@ -101,6 +101,11 @@
                              rendered="#{broker.edit}"/>
           </h:column>
         </h:dataTable>
+
+        <h:commandButton value="Random auth" type="button"
+                         onclick="randomAuth();"/>
+        <span id="randomAuthSpan"/>
+
         <h:messages for="accountForm1"/>
       </h:form>
 
@@ -109,8 +114,6 @@
         <h4>Add Broker Name/Description</h4>
         <h:panelGrid columns="1">
           <h:inputText value="#{actionAccount.brokerName}" maxlength="45"/>
-          <h:inputTextarea value="#{actionAccount.brokerShort}"
-                           maxlength="256"/>
           <h:commandButton value="Add Broker"
                            action="#{actionAccount.addBroker}"/>
           <br/>

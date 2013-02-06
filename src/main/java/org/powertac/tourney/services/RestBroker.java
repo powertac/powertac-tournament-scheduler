@@ -191,6 +191,8 @@ public class RestBroker
       if (!game.isReady()) {
         continue;
       }
+
+      // Check if an other agent already checked in
       Agent agent = game.getAgentMap().get(broker.getBrokerId());
       if (agent == null || !agent.isPending()) {
         continue;

@@ -18,6 +18,20 @@ function updateTables() {
     });
 }
 
+function randomAuth() {
+    var md5 = '';
+    var chars = '0123456789abcdef';
+    for (var i = 0; i < 32; i++) {
+        md5 += chars[Math.round(Math.random() * (chars.length - 1))];
+    }
+
+    var element = document.getElementById("randomAuthSpan");
+    while (element.childNodes.length >= 1) {
+        element.removeChild(element.firstChild);
+    }
+    element.appendChild(element.ownerDocument.createTextNode(md5));
+}
+
 $(document).ready(function () {
     updateTables();
     setInterval(updateTables, 3000);

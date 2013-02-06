@@ -49,7 +49,13 @@ public class Agent
   @Transient
   public boolean isPending ()
   {
-    return this.state.equals(state);
+    return this.state.equals(STATE.pending);
+  }
+
+  @Transient
+  public boolean isInProgress ()
+  {
+    return this.state.equals(STATE.in_progress);
   }
 
   public void setStatePending ()

@@ -147,6 +147,9 @@ public class ActionOverview
 
         game.setState(Game.STATE.boot_complete);
         for (Agent agent: game.getAgentMap().values()) {
+          if (!agent.isPending()) {
+            MemStore.setBrokerState(agent.getBrokerId(), false);
+          }
           agent.setStatePending();
           agent.setBalance(0);
           session.update(agent);

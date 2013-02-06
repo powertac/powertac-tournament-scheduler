@@ -41,6 +41,11 @@
           </t:column>
 
           <t:column>
+            <h:commandButton value="Toggle" styleClass="smallButton"
+                             action="#{actionOverview.toggleState(broker.getBrokerId())}"/>
+          </t:column>
+
+          <t:column>
             <f:facet name="header">User</f:facet>
             <h:outputText value="#{broker.user.userName}"/>
           </t:column>
@@ -51,20 +56,15 @@
           </t:column>
 
           <t:column>
+            <f:facet name="header">Running</f:facet>
+            <h:outputText value="#{broker.getRunningString()}"/>
+          </t:column>
+
+          <t:column>
             <f:facet name="header">CheckIns</f:facet>
             <t:outputText id="checkins"/>
           </t:column>
 
-          <t:column>
-            <f:facet name="header">State</f:facet>
-            <t:outputText
-                value="#{actionOverview.getBrokerState(broker.getBrokerId())}"/>
-          </t:column>
-
-          <t:column>
-            <h:commandButton value="Toggle" styleClass="smallButton"
-                             action="#{actionOverview.toggleState(broker.getBrokerId())}"/>
-          </t:column>
         </t:dataTable>
         <h:messages for="formDatabrokers" layout=""/>
       </h:form>

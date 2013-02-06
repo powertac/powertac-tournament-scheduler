@@ -94,7 +94,7 @@ input.bigButton {
 }
 
 input[type="text"].input_wide {
-    width:200px;
+    width:250px;
 }
 input[type="text"].input_small {
     width:50px;

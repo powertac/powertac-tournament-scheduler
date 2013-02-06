@@ -116,13 +116,19 @@ public class ActionAccount
     user.setEditing(false);
 
     broker.setEdit(false);
+    String orgName = broker.getBrokerName();
+    String orgShort = broker.getShortDescription();
+    String orgAuth = broker.getBrokerAuth();
     broker.setBrokerName(broker.getNewName());
     broker.setShortDescription(broker.getNewShort());
     broker.setBrokerAuth(broker.getNewAuth());
 
-    boolean saved = broker.update();
-    if (!saved) {
-      message(1, "Error saving broker");
+    String errorMessage = broker.update();
+    if (errorMessage != null) {
+      message(1, errorMessage);
+      broker.setBrokerName(orgName);
+      broker.setShortDescription(orgShort);
+      broker.setBrokerAuth(orgAuth);
     }
   }
 
