@@ -38,10 +38,7 @@
             <h:outputLink value="mailto:#{broker.user.contactEmail}">
               <h:outputText value="#{broker.brokerName}"/>
             </h:outputLink>
-          </t:column>
-
-          <t:column>
-            <h:commandButton value="Toggle" styleClass="smallButton"
+            <h:commandButton value="Toggle" styleClass="smallButton float_right"
                              action="#{actionOverview.toggleState(broker.getBrokerId())}"/>
           </t:column>
 

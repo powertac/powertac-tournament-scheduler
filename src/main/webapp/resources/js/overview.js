@@ -86,7 +86,7 @@ function resizeTables() {
         "sScrollY": Math.min(400, $("[id$=databrokers]").height()) + "px",
         "bPaginate": false,
         "aoColumnDefs": [
-            { 'bSortable': false, 'aTargets': [4, 6] },
+            { 'bSortable': false, 'aTargets': [3, 4, 5] },
             { "sType": "natural", "aTargets": [0] }
         ]
     });

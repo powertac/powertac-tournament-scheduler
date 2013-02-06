@@ -93,6 +93,10 @@ input.bigButton {
     text-align: right;
 }
 
+.float_right {
+    float: right;
+}
+
 input[type="text"].input_wide {
     width:250px;
 }
