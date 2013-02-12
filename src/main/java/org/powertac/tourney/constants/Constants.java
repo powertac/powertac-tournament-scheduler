@@ -72,6 +72,9 @@ public class Constants
     public static final String GET_LOCATIONS =
         "FROM Location AS location ";
 
+    public static final String GET_LOCATION_BY_NAME =
+        "FROM Location AS location WHERE location.location =:locationName ";
+
     public static final String GET_MACHINE_BY_MACHINENAME =
         "FROM Machine AS machine "
             + " WHERE machine.machineName =:machineName ";

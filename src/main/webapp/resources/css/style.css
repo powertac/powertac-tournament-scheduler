@@ -166,3 +166,9 @@ textarea.contentInput {
 #saveCompetition table td {
     text-align: left;
 }
+
+.monospaced {
+    font-family: Consolas, Monaco, Lucida Console, Liberation Mono,
+        DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+    font-size: 14px;
+}

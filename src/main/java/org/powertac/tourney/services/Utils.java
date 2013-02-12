@@ -87,13 +87,33 @@ public class Utils
     return Long.toString(queueGenerator.nextLong(), 31);
   }
 
-  public static String dateFormat (Date date)
+  public static String dateToStringFull (Date date)
   {
     try {
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
       return sdf.format(date);
     } catch (Exception e) {
       return "";
+    }
+  }
+
+  public static String dateToStringSmall (Date date)
+  {
+    try {
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+      return sdf.format(date);
+    } catch (Exception e) {
+      return "";
+    }
+  }
+
+  public static Date stringToDateMedium (String dateString)
+  {
+    try {
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+      return sdf.parse(dateString);
+    } catch (Exception e) {
+      return null;
     }
   }
 

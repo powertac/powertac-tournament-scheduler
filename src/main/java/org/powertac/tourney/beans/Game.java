@@ -14,7 +14,6 @@ import org.powertac.tourney.services.Utils;
 import javax.persistence.*;
 import java.io.File;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -291,12 +290,12 @@ public class Game implements Serializable
 
   public String startTimeUTC ()
   {
-    return Utils.dateFormat(startTime);
+    return Utils.dateToStringFull(startTime);
   }
 
   public String readyTimeUTC ()
   {
-    return Utils.dateFormat(readyTime);
+    return Utils.dateToStringFull(readyTime);
   }
 
   public boolean stateEquals (STATE state)
@@ -373,7 +372,7 @@ public class Game implements Serializable
     game.setState(STATE.boot_pending);
     game.setStartTime(tournament.getStartTime());
     game.setLocation(randomLocation(tournament));
-    game.setSimStartTime(randomSimStartTime(tournament));
+    game.setSimStartTime(randomSimStartTime(game.getLocation()));
     game.setServerQueue(Utils.createQueueName());
     game.setVisualizerQueue(Utils.createQueueName());
 
@@ -386,12 +385,11 @@ public class Game implements Serializable
     return tournament.getLocationsList().get((int) Math.floor(randLocation));
   }
 
-  private static String randomSimStartTime (Tournament tournament)
+  private static String randomSimStartTime (String locationString)
   {
-    // TODO We need to check if dates are valid for location
-    // Only usefull with multiple weather locations with different periods
-
-    Date starting = new Date();
+    Location location = Location.getLocationByName(locationString);
+    long dateTo = location.getDateTo().getTime();
+    long dateFrom = location.getDateFrom().getTime();
 
     // Number of msecs in a year divided by 4
     double gameLength = (3.1556926 * Math.pow(10, 10)) / 4;
@@ -399,19 +397,17 @@ public class Game implements Serializable
     // Max amount of time between the fromTime to the toTime to start a game
     long msLength = (long) gameLength;
 
-    if (tournament.getDateTo().getTime() - tournament.getDateFrom().getTime() < msLength) {
+    Date starting = new Date();
+    if ( (dateTo - dateFrom) < msLength) {
       // Use fromTime in all games in the tournament as the start time
-      starting = tournament.getDateFrom();
+      starting.setTime(dateFrom);
     } else {
-      long start = tournament.getDateFrom().getTime();
-      long end = tournament.getDateTo().getTime() - msLength;
-      long startTime = (long) (Math.random() * (end - start) + start);
-
+      long end = dateTo - msLength;
+      long startTime = (long) (Math.random() * (end - dateFrom) + dateFrom);
       starting.setTime(startTime);
     }
 
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    return format.format(starting);
+    return Utils.dateToStringSmall(starting);
   }
 
   //<editor-fold desc="Collections">

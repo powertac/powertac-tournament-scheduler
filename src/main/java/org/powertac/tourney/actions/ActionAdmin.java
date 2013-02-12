@@ -12,10 +12,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @ManagedBean
 @RequestScoped
@@ -74,7 +71,7 @@ public class ActionAdmin
     log.info("Restarting WatchDog");
     Scheduler scheduler = Scheduler.getScheduler();
     if (!scheduler.restartWatchDog()) {
-      log.info("Not restarting WatchDog, to close");
+      log.info("Not restarting WatchDog, too close");
     }
   }
 
@@ -114,6 +111,32 @@ public class ActionAdmin
   public List<Location> getLocationList ()
   {
     return Location.getLocationList();
+  }
+
+  public List<Location> getPossibleLocationList ()
+  {
+    List<Location> possibleLocations = MemStore.getAvailableLocations();
+
+    for (Location location: getLocationList()) {
+      Iterator<Location> iter = possibleLocations.iterator();
+      while (iter.hasNext()) {
+        if (iter.next().getLocation().equals(location.getLocation())) {
+          iter.remove();
+        }
+      }
+    }
+
+    MemStore.setAvailableLocations(possibleLocations);
+
+    return possibleLocations;
+  }
+
+  public void addLocation (Location l)
+  {
+    locationName = l.getLocation();
+    locationTimezone = l.getTimezone();
+    locationStartTime = l.getDateFrom();
+    locationEndTime = l.getDateTo();
   }
 
   public void editLocation (Location l)
@@ -203,6 +226,10 @@ public class ActionAdmin
     }
     session.close();
     resetLocationData();
+
+    CheckWeatherServer checkWeatherServer =
+        (CheckWeatherServer) SpringApplicationContext.getBean("checkWeatherServer");
+    checkWeatherServer.loadExtraLocations();
   }
 
   private void resetLocationData ()

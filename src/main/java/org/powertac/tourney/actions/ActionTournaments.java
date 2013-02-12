@@ -239,10 +239,27 @@ public class ActionTournaments
     multiplier2 = 1;
     multiplier3 = 1;
     startTime = Utils.offsetDate(2);
-    Location location = new Location();
-    dateFrom = location.getDateFrom();
-    dateTo = location.getDateTo();
-    locations = Arrays.asList(location.getLocation());
+
+    if (getLocationList().size() == 1) {
+      Location location = getLocationList().get(0);
+      dateFrom = location.getDateFrom();
+      dateTo = location.getDateTo();
+      locations = Arrays.asList(location.getLocation());
+    }
+    else {
+      dateFrom = new Date();
+      dateTo = new Date();
+      dateTo.setTime(0);
+      for (Location loc: getLocationList()) {
+        if (loc.getDateFrom().before(dateFrom)) {
+          dateFrom = loc.getDateFrom();
+        }
+        if (loc.getDateTo().after(dateTo)) {
+          dateTo = loc.getDateTo();
+        }
+      }
+    }
+
     selectedPom = 0;
     closed = false;
 

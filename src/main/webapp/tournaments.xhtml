@@ -252,26 +252,26 @@
 
           <h:outputText value="Date from"/>
           <h:panelGroup>
-            <t:inputDate value="#{actionTournaments.dateFrom}" type="both"
-                         disabled="#{actionTournaments.disabled}"
-                         ampm="false" forceId="true"/><br/>
+            <t:inputDate value="#{actionTournaments.dateFrom}" forceId="true"
+                         disabled="#{actionTournaments.disabled}" ampm="false"/>
           </h:panelGroup>
 
           <h:outputText value="Date to"/>
           <h:panelGroup>
-            <t:inputDate value="#{actionTournaments.dateTo}" type="both"
-                         disabled="#{actionTournaments.disabled}"
-                         ampm="false" forceId="true"/>
+            <t:inputDate value="#{actionTournaments.dateTo}" forceId="true"
+                         disabled="#{actionTournaments.disabled}" ampm="false"/>
           </h:panelGroup>
 
           <h:outputText value="Locations"/>
           <h:panelGroup>
-            <h:selectManyCheckbox id="locations"
+            <h:selectManyCheckbox id="locations" styleClass="monospaced"
                                   value="#{actionTournaments.locations}"
-                                  disabled="#{actionTournaments.disabled}">
+                                  disabled="#{actionTournaments.disabled}"
+                                  layout="pageDirection">
               <f:selectItems value="#{actionTournaments.locationList}"
                              var="L" itemValue="#{L.location}"
-                             itemLabel="#{L.location}"/>
+                             itemLabel="#{L.fullString}"
+                             itemLabelEscaped="false"/>
             </h:selectManyCheckbox>
           </h:panelGroup>
 

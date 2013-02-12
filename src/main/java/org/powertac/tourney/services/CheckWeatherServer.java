@@ -1,19 +1,23 @@
 package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
+import org.powertac.tourney.beans.Location;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 
 @ManagedBean
@@ -42,6 +46,9 @@ public class CheckWeatherServer implements InitializingBean
 
   private void lazyStart ()
   {
+    loadExtraLocations();
+
+    // Check the status of the weather server every 15 minutes
     TimerTask weatherServerChecker = new TimerTask()
     {
       @Override
@@ -99,6 +106,41 @@ public class CheckWeatherServer implements InitializingBean
           e.printStackTrace();
         }
       }
+    }
+  }
+
+  public void loadExtraLocations ()
+  {
+    // Check the available weather locations at startup
+    try {
+      String url = getWeatherServerLocation() + "?type=showLocations";
+
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilder docB = dbf.newDocumentBuilder();
+      Document doc = docB.parse(new URL(url).openStream());
+      NodeList nodeList = doc.getElementsByTagName("location");
+
+      List<Location> availableLocations = new ArrayList<Location>();
+      for (int i = 0; i < nodeList.getLength(); i++) {
+        try {
+          Element element = (Element) nodeList.item(i);
+          Location location = new Location();
+          location.setLocation(element.getAttribute("name"));
+          location.setDateFrom(
+              Utils.stringToDateMedium(element.getAttribute("minDate")));
+          location.setDateTo(
+              Utils.stringToDateMedium(element.getAttribute("maxDate")));
+          availableLocations.add(location);
+        }
+        catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+
+      MemStore.setAvailableLocations(availableLocations);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
     }
   }
 

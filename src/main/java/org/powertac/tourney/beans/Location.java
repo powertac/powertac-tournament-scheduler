@@ -1,7 +1,6 @@
 package org.powertac.tourney.beans;
 
-import org.hibernate.Session;
-import org.hibernate.Transaction;
+import org.hibernate.*;
 import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.HibernateUtil;
 
@@ -55,6 +54,35 @@ public class Location
     session.close();
 
     return locations;
+  }
+
+  public static Location getLocationByName (String name)
+  {
+    Location location = null;
+
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      org.hibernate.Query query = session.
+          createQuery(Constants.HQL.GET_LOCATION_BY_NAME);
+      query.setString("locationName", name);
+      location = (Location) query.uniqueResult();
+      transaction.commit();
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+    }
+    session.close();
+    return location;
+  }
+
+  @Transient
+  public String getFullString ()
+  {
+    String fullString = String.format("%-16s : %s - %s", location,
+      dateFrom.toString().substring(0, 10), dateTo.toString().substring(0, 10));
+    return fullString.replace(" ", "&nbsp;");
   }
 
   //<editor-fold desc="Setters and Getters">

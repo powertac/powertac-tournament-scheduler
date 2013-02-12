@@ -2,6 +2,7 @@ package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
 import org.powertac.tourney.beans.Config;
+import org.powertac.tourney.beans.Location;
 import org.powertac.tourney.beans.Machine;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,8 @@ public class MemStore
   public static String indexContent;
 
   public static HashMap<Integer, String> competitionContent = new HashMap<Integer, String>();
+
+  public static List<Location> availableLocations = new ArrayList<Location>();
 
   public MemStore ()
   {
@@ -253,5 +256,14 @@ public class MemStore
     competitionContent.put(competitionId, newContent);
 
     return Config.setCompetitionContent(newContent, competitionId);
+  }
+
+  public static List<Location> getAvailableLocations ()
+  {
+    return availableLocations;
+  }
+  public static void setAvailableLocations (List<Location> availableLocations)
+  {
+    MemStore.availableLocations = availableLocations;
   }
 }

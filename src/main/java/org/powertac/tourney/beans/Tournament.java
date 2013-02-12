@@ -435,17 +435,17 @@ public class Tournament
 
   public String startTimeUTC ()
   {
-    return Utils.dateFormat(startTime);
+    return Utils.dateToStringFull(startTime);
   }
 
   public String dateFromUTC ()
   {
-    return Utils.dateFormat(dateFrom);
+    return Utils.dateToStringFull(dateFrom);
   }
 
   public String dateToUTC ()
   {
-    return Utils.dateFormat(dateTo);
+    return Utils.dateToStringFull(dateTo);
   }
 
   public void setStateToPending ()

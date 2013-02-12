@@ -131,10 +131,34 @@
                              styleClass="smallButton"/>
           </h:column>
         </h:dataTable>
+
+        <h:panelGroup rendered="#{actionAdmin.possibleLocationList.size() > 0}">
+          <h3 style="margin-top: 5px;" >Extra Locations Available:</h3>
+        </h:panelGroup>
+        <h:dataTable border="1" styleClass="dataTable"
+                     value="#{actionAdmin.possibleLocationList}" var="l"
+                     rendered="#{actionAdmin.possibleLocationList.size() > 0}">
+          <h:column>
+            <h:outputText value="#{l.location}"/>
+          </h:column>
+
+          <h:column>
+            <h:outputText value="#{l.dateFrom}"/>
+          </h:column>
+
+          <h:column>
+            <h:outputText value="#{l.dateTo}"/>
+          </h:column>
+
+          <h:column styleClass="left">
+            <h:commandButton value="Add" action="#{actionAdmin.addLocation(l)}"
+                             styleClass="smallButton"/>
+          </h:column>
+        </h:dataTable>
       </h:form>
 
-      <br/>
       <h:form rendered="#{user.isAdmin()}" id="saveLocation">
+        <br/>
         <h:panelGrid columns="4">
           <h:outputText value="Name:"/>
           <h:inputText value="#{actionAdmin.locationName}"/>
