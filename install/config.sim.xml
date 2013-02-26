@@ -192,7 +192,8 @@ cleanup
 log nl &quot;Notify TM we&apos;re game_complete&quot;
 wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_complete&quot;
 
-exit 0</command>
+exit 0
+      </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

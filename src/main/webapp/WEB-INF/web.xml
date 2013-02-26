@@ -131,13 +131,6 @@
     <servlet-class>org.powertac.tourney.servlets.Downloader</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
-  <!--
-  <servlet>
-    <servlet-name>Rest</servlet-name>
-    <servlet-class>org.powertac.tourney.servlets.Rest</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-  -->
   <servlet-mapping>
     <servlet-name>Faces Servlet</servlet-name>
     <url-pattern>/faces/*</url-pattern>
@@ -150,12 +143,6 @@
     <servlet-name>Downloader</servlet-name>
     <url-pattern>/download</url-pattern>
   </servlet-mapping>
-  <!--
-  <servlet-mapping>
-    <servlet-name>Rest</servlet-name>
-    <url-pattern>/Rest</url-pattern>
-  </servlet-mapping>
-  -->
   <welcome-file-list>
     <welcome-file>welcome.jsp</welcome-file>
   </welcome-file-list>
@@ -239,5 +226,4 @@
     <param-name>org.apache.myfaces.CHECK_EXTENSIONS_FILTER</param-name>
     <param-value>false</param-value>
   </context-param>
-
 </web-app>

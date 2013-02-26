@@ -1,3 +1,5 @@
+log4j.rootLogger=FATAL
+
 # Print only messages of level WARN or above in framework packages.
 log4j.logger.org.apache=WARN
 

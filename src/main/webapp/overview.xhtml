@@ -64,8 +64,11 @@
 
         </t:dataTable>
         <h:messages for="formDatabrokers" layout=""/>
+        <br/>
+
+        <h:inputHidden id="hideSample" value="#{actionOverview.hideSample}"/>
+        <h:inputHidden id="hideInactive" value="#{actionOverview.hideInactive}"/>
       </h:form>
-      <br/>
 
       <h:form
           rendered="#{(user.isAdmin()) and (actionOverview.notCompleteTournamentList.size() > 0)}"
@@ -134,8 +137,11 @@
         </t:dataTable>
 
         <h:messages for="tournamentForm"/>
+        <br/>
+
+        <h:inputHidden id="hideSample" value="#{actionOverview.hideSample}"/>
+        <h:inputHidden id="hideInactive" value="#{actionOverview.hideInactive}"/>
       </h:form>
-      <br/>
 
       <h:form
           rendered="#{(user.isAdmin()) and (actionOverview.notCompleteGamesList.size() > 0)}"
@@ -219,6 +225,9 @@
 
         <h:messages for="gamesForm"/>
         <br/>
+
+        <h:inputHidden id="hideSample" value="#{actionOverview.hideSample}"/>
+        <h:inputHidden id="hideInactive" value="#{actionOverview.hideInactive}"/>
       </h:form>
 
       <h:form rendered="#{!user.isAdmin()}">

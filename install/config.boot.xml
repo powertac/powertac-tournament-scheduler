@@ -189,7 +189,8 @@ else
     wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_complete&quot;
 fi
 
-exit 0</command>
+exit 0
+      </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

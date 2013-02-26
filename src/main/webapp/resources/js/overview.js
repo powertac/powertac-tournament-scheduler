@@ -10,13 +10,24 @@ function toggleSample() {
                 $(this).css("display", "none");
             }
         });
+
+        $('#formDatabrokers\\:hideSample').val('true');
+        $('#tournamentForm\\:hideSample').val('true');
+        $('#gamesForm\\:hideSample').val('true');
     } else {
         $('#toggleSampleButton').val("Hide sample");
 
         $("#formDatabrokers\\:databrokers").find(">tbody>tr").each(function () {
             $(this).css("display", "");
         });
+
+        $('#formDatabrokers\\:hideSample').val('false');
+        $('#tournamentForm\\:hideSample').val('false');
+        $('#gamesForm\\:hideSample').val('false');
     }
+
+    var newHeight = Math.min(400, $("[id$=databrokers]").height()) + "px";
+    $('#formDatabrokers\\:databrokers').parent().height( newHeight );
 }
 
 function toggleActive() {
@@ -33,13 +44,24 @@ function toggleActive() {
                 $(this).css("display", "none");
             }
         });
+
+        $('#formDatabrokers\\:hideInactive').val('true');
+        $('#tournamentForm\\:hideInactive').val('true');
+        $('#gamesForm\\:hideInactive').val('true');
     } else {
         $('#toggleActiveButton').val("Hide inactive");
 
         $("#gamesForm\\:dataGames").find(">tbody>tr").each(function () {
             $(this).css("display", "");
         });
+
+        $('#formDatabrokers\\:hideInactive').val('false');
+        $('#tournamentForm\\:hideInactive').val('false');
+        $('#gamesForm\\:hideInactive').val('false');
     }
+
+    var newHeight = Math.min(400, $("[id$=dataGames]").height()) + "px";
+    $('#gamesForm\\:dataGames').parent().height( newHeight );
 }
 
 function updateBrokers(data) {
@@ -114,7 +136,15 @@ function resizeTables() {
 
 $(document).ready(function () {
     resizeTables();
-    toggleActive();
+
+    if ($('#formDatabrokers\\:hideSample').val() == 'true') {
+        toggleSample();
+    }
+
+    if ($('#formDatabrokers\\:hideInactive').val() == 'true') {
+        toggleActive();
+    }
+
     updateTables();
     setInterval(updateTables, 3000);
 });

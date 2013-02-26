@@ -12,6 +12,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tourney.beans.Game;
+import org.powertac.tourney.beans.Location;
 import org.powertac.tourney.constants.Constants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -209,6 +210,10 @@ public class RestServer
       result += String.format(Constants.Props.minTimeslot, 1380);
       result += String.format(Constants.Props.expectedTimeslot, 1440);
     }
+
+    Location location = Location.getLocationByName(game.getLocation());
+    result += String.format(Constants.Props.timezoneOffset,
+        location.getTimezone());
 
     return result;
   }

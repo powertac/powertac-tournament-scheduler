@@ -24,6 +24,9 @@ public class ActionOverview
   private List<Game> notCompleteGamesList = new ArrayList<Game>();
   private List<Tournament> notCompleteTournamentList = new ArrayList<Tournament>();
 
+  private boolean hideSample = false;
+  private boolean hideInactive = true;
+
   public ActionOverview ()
   {
     loadData();
@@ -224,5 +227,23 @@ public class ActionOverview
     } else if (field == 2) {
       FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
     }
+  }
+
+  public boolean isHideSample ()
+  {
+    return hideSample;
+  }
+  public void setHideSample (boolean hideSample)
+  {
+    this.hideSample = hideSample;
+  }
+
+  public boolean isHideInactive ()
+  {
+    return hideInactive;
+  }
+  public void setHideInactive (boolean hideInactive)
+  {
+    this.hideInactive = hideInactive;
   }
 }

@@ -97,6 +97,10 @@ input.bigButton {
     float: right;
 }
 
+.nowrap {
+    white-space: nowrap;
+}
+
 input[type="text"].input_wide {
     width:250px;
 }
