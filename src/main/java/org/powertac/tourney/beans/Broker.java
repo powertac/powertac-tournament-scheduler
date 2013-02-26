@@ -396,6 +396,27 @@ public class Broker
     this.tournamentMap = tournamentMap;
   }
 
+  @SuppressWarnings("unchecked")
+  public static Map<Integer, Integer> getBrokerOccupancy (Session session)
+  {
+    Map<Integer, Integer> result = new HashMap<Integer, Integer>();
+
+    List<Broker> brokers = (List<Broker>) session
+        .createQuery(Constants.HQL.GET_BROKERS).list();
+
+    for (Broker broker: brokers) {
+      result.put(broker.getBrokerId(), 0);
+
+      for (Agent agent: broker.getAgentMap().values()) {
+        if (agent.isInProgress()) {
+          result.put(broker.getBrokerId(),
+              result.get(broker.getBrokerId()) + 1);
+        }
+      }
+    }
+    return result;
+  }
+
   //<editor-fold desc="Bean Setters and Getters">
   @Id
   @GeneratedValue(strategy = IDENTITY)

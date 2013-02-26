@@ -420,12 +420,33 @@ public class Game implements Serializable
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Game> getBootableMultiGames (Session session, Tournament tournament)
+  public static List<Game> getBootableMultiGames (Session session,
+                                                  Tournament tournament)
   {
-    return (List<Game>) session
+    List<Game> fullList = (List<Game>) session
         .createQuery(Constants.HQL.GET_GAMES_MULTI_BOOT_PENDING)
         .setInteger("tournamentId", tournament.getTournamentId())
         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+
+    Map<Integer, Integer> occupancy = Broker.getBrokerOccupancy(session);
+    List<Game> result = new ArrayList<Game>();
+
+    outherLoop: for (Game game: fullList) {
+      for (Agent agent: game.getAgentMap().values()) {
+        Broker broker = agent.getBroker();
+        if (occupancy.get(broker.getBrokerId()) >= tournament.getMaxAgents()) {
+          continue outherLoop;
+        }
+      }
+      result.add(game);
+    }
+
+    if (result.size() > 0) {
+      return result;
+    }
+    else {
+      return fullList;
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -438,13 +459,29 @@ public class Game implements Serializable
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Game> getStartableMultiGames (Session session, Tournament tournament)
+  public static List<Game> getStartableMultiGames (Session session,
+                                                   Tournament tournament)
   {
-    return (List<Game>) session
+    List<Game> fullList = (List<Game>) session
         .createQuery(Constants.HQL.GET_GAMES_MULTI_BOOT_COMPLETE)
         .setInteger("tournamentId", tournament.getTournamentId())
         .setTimestamp("startTime", Utils.offsetDate())
         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+
+    Map<Integer, Integer> occupancy = Broker.getBrokerOccupancy(session);
+    List<Game> result = new ArrayList<Game>();
+
+    outherLoop: for (Game game: fullList) {
+      for (Agent agent: game.getAgentMap().values()) {
+        Broker broker = agent.getBroker();
+        if (occupancy.get(broker.getBrokerId()) >= tournament.getMaxAgents()) {
+          continue outherLoop;
+        }
+      }
+      result.add(game);
+    }
+
+    return result;
   }
 
   @SuppressWarnings("unchecked")
@@ -501,6 +538,7 @@ public class Game implements Serializable
   {
     this.agentMap = agentMap;
   }
+
   //</editor-fold>
 
   //<editor-fold desc="Setter and getters">

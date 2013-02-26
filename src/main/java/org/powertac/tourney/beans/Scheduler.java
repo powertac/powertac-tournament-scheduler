@@ -99,6 +99,7 @@ public class Scheduler implements InitializingBean
   {
     if (watchDogTimer != null) {
       watchDogTimer.cancel();
+      watchDogTimer.purge();
       watchDogTimer = null;
       log.info("Stopping WatchDog...");
     } else {

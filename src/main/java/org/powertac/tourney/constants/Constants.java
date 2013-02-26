@@ -28,6 +28,8 @@ public class Constants
         "common.competition.minimumTimeslotCount = %s\n";
     public static final String expectedTimeslot =
         "common.competition.expectedTimeslotCount = %s\n";
+    public static final String timezoneOffset =
+        "common.competition.timezoneOffset = %s\n";
   }
 
   public class Rest

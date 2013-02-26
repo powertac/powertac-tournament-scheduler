@@ -93,12 +93,15 @@ public class RunGame
     }
 
     for (Agent agent: game.getAgentMap().values()) {
+      // Check if any broker is disabled in the interface
       if (!MemStore.getBrokerState(agent.getBroker().getBrokerId())) {
         log.info(String.format("Not starting game %s : broker %s is disabled",
             game.getGameId(), agent.getBroker().getBrokerId()));
         return false;
       }
 
+      // TODO This shouldn't be necessary with the 'occupancy' check
+      // Check if any broker is already running the maxAgent nof agents
       if (!agent.getBroker().agentsAvailable()) {
         log.info(String.format("Not starting game %s : broker %s doesn't have "
             + "enough available agents",

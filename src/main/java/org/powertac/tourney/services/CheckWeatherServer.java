@@ -151,6 +151,7 @@ public class CheckWeatherServer implements InitializingBean
 
     if (weatherServerCheckerTimer != null) {
       weatherServerCheckerTimer.cancel();
+      weatherServerCheckerTimer.purge();
       weatherServerCheckerTimer = null;
       log.info("Stopping weatherServerCheckerTimer ...");
     }
