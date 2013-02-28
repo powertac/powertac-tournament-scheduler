@@ -7,6 +7,7 @@ import org.powertac.tourney.beans.Agent;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.constants.Constants;
+import org.powertac.tourney.services.CSV;
 import org.powertac.tourney.services.HibernateUtil;
 import org.powertac.tourney.services.TournamentProperties;
 import org.powertac.tourney.services.Utils;
@@ -143,7 +144,7 @@ public class ActionTournament
     File gamesFile = new File(String.format("%s%s",
         properties.getProperty("logLocation"), gamesCsv));
 
-    if (tournamentFile.isFile()) {
+    if (tournamentFile.exists()) {
       if (baseUrl.endsWith("?")) {
         tournamentCsv = "csv=" + tournament.getTournamentName();
       } else if (!baseUrl.endsWith("/")) {
@@ -165,7 +166,7 @@ public class ActionTournament
 
   public void createCsv ()
   {
-    tournament.createCsv();
+    CSV.createCsv(tournament);
   }
 
   //<editor-fold desc="Setters and Getters">

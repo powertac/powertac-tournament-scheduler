@@ -291,13 +291,12 @@ public class Broker
   }
 
   @Transient
-  public List<Tournament> getAvailableTournaments (Boolean checkClosed)
+  public List<Tournament> getAvailableTournaments (Boolean accountPage)
   {
     List<Tournament> registrableTournaments = new ArrayList<Tournament>();
 
     TournamentProperties properties = TournamentProperties.getProperties();
-    long loginDeadline =
-        Integer.parseInt(properties.getProperty("loginDeadline", "3600000"));
+    long loginDeadline = properties.getPropertyInt("loginDeadline", "3600000");
     long nowStamp = Utils.offsetDate().getTime();
 
     Outer:
@@ -319,7 +318,12 @@ public class Broker
         }
       }
       // Check if not closed
-      if (checkClosed && tournament.isClosed()) {
+      if (accountPage && tournament.isClosed()) {
+        continue;
+      }
+
+      // Check if not part of a competition
+      if (accountPage && tournament.getRound() != null) {
         continue;
       }
 

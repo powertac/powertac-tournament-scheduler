@@ -5,16 +5,12 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.powertac.tourney.constants.Constants;
+import org.powertac.tourney.services.CSV;
 import org.powertac.tourney.services.HibernateUtil;
-import org.powertac.tourney.services.TournamentProperties;
 import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import javax.persistence.*;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -135,151 +131,7 @@ public class Tournament
     }
 
     // Always generate new CSVs
-    createCsv();
-  }
-
-  public void createCsv ()
-  {
-    String lineSep = System.getProperty("line.separator");
-    TournamentProperties properties = TournamentProperties.getProperties();
-    String tournamentCsv = String.format("%s%s.csv",
-        properties.getProperty("logLocation"), tournamentName);
-    String gamesCsv = String.format("%s%s.games.csv",
-        properties.getProperty("logLocation"), tournamentName);
-
-    createTournamentCsv(new File(tournamentCsv), lineSep);
-    createGamesCsv(new File(gamesCsv), lineSep, properties);
-  }
-
-  private void createTournamentCsv (File tournamentFile, String lineSep)
-  {
-    if (tournamentFile.isFile() && tournamentFile.canRead()) {
-      tournamentFile.delete();
-    }
-
-    // Create new CSVs
-    try {
-      tournamentFile.createNewFile();
-
-      FileWriter fw = new FileWriter(tournamentFile.getAbsoluteFile());
-      BufferedWriter bw = new BufferedWriter(fw);
-
-      bw.write("tournamentId;" + tourneyId + ";" + lineSep);
-      bw.write("tournamentName;" + tournamentName + ";" + lineSep);
-      bw.write("status;" + state + ";" + lineSep);
-
-      bw.write("StartTime;" + startTimeUTC() + ";" + lineSep);
-      bw.write("Date from;" + dateFromUTC() + ";" + lineSep);
-      bw.write("Date to;" + dateToUTC() + ";" + lineSep);
-
-      bw.write("MaxBrokers;" + maxBrokers + ";" + lineSep);
-      bw.write("Registered Brokers;" + getBrokerMap().size() + ";" + lineSep);
-      bw.write("MaxAgents;" + maxAgents + ";" + lineSep);
-
-      bw.write("type;" + type + ";" + lineSep);
-      if (isMulti()) {
-        bw.write("size1;" + size1 + ";" + lineSep);
-        bw.write("multiplier1;" + multiplier1 + ";" + lineSep);
-        bw.write("size2;" + size2 + ";" + lineSep);
-        bw.write("multiplier2;" + multiplier2 + ";" + lineSep);
-        bw.write("size3;" + size3 + ";" + lineSep);
-        bw.write("multiplier3;" + multiplier3 + ";" + lineSep);
-      }
-
-      bw.write("pomId;" + pomId + ";" + lineSep);
-      bw.write("Locations;" + locations + ";" + lineSep);
-      bw.write(lineSep);
-
-      if (isMulti()) {
-        Map<String, Double[]> resultMap = determineWinnerMulti();
-
-        List<Double> avgsAndSDs = getAvgsAndSDs(resultMap);
-        bw.write("Average type 1;" + avgsAndSDs.get(0) + ";" + lineSep);
-        bw.write("Average type 2;" + avgsAndSDs.get(1) + ";" + lineSep);
-        bw.write("Average type 3;" + avgsAndSDs.get(2) + ";" + lineSep);
-
-        bw.write("Standard deviation type 1;" + avgsAndSDs.get(3) + ";" + lineSep);
-        bw.write("Standard deviation type 2;" + avgsAndSDs.get(4) + ";" + lineSep);
-        bw.write("Standard deviation type 3;" + avgsAndSDs.get(5) + ";" + lineSep);
-        bw.write(lineSep);
-
-        bw.write("brokerId;brokerName;Size 1;Size 2;Size 3;" +
-            "Total (not normalized);Size 1;Size 2;Size3;Total (normalized);" +
-            lineSep);
-
-        for (Map.Entry<String, Double[]> entry: resultMap.entrySet()) {
-          Double[] results = entry.getValue();
-          bw.write(String.format("%s;%s;%f;%f;%f;%f;%f;%f;%f;%f;%s",
-              entry.getKey().split(",")[0], entry.getKey().split(",")[1],
-              results[0], results[1], results[2], results[3],
-              results[10], results[11], results[12], results[13],
-              lineSep));
-        }
-      } else {
-        Map<String, Double[]> resultMap = determineWinnerSingle();
-        for (Map.Entry<String, Double[]> entry: resultMap.entrySet()) {
-          bw.write("brokerId;Total;" + lineSep);
-          Double[] results = entry.getValue();
-          bw.write(String.format("%s;%f;%s",
-              entry.getKey(), results[0], lineSep));
-        }
-      }
-
-      bw.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void createGamesCsv (File gamesFile, String lineSep,
-                               TournamentProperties properties)
-  {
-    if (gamesFile.isFile() && gamesFile.canRead()) {
-      gamesFile.delete();
-    }
-
-    try {
-      gamesFile.createNewFile();
-
-      FileWriter fw = new FileWriter(gamesFile.getAbsoluteFile());
-      BufferedWriter bw = new BufferedWriter(fw);
-
-      bw.write(
-          "gameId;gameName;status;gameSize;gameLength;lastTick;" +
-              "weatherLocation;weatherDate;logUrl;brokerId;brokerBalance;"
-              + lineSep);
-
-      String tourneyUrl = properties.getProperty("tourneyUrl");
-      String baseUrl = properties.getProperty("actionIndex.logUrl",
-          "download?game=%d");
-      for (Map.Entry<Integer, Game> entry: getGameMap().entrySet()) {
-        Game game = entry.getValue();
-
-        String logUrl = "";
-        if (game.isComplete()) {
-          if (baseUrl.startsWith("http://")) {
-            logUrl = String.format(baseUrl, game.getGameId());
-          } else {
-            logUrl = tourneyUrl + String.format(baseUrl, game.getGameId());
-          }
-        }
-
-        String content = String.format("%d;%s;%s;%d;%d;%d;%s;%s;%s;",
-            game.getGameId(), game.getGameName(), game.getState(),
-            game.getAgentMap().size(), game.getGameLength(), game.getLastTick(),
-            game.getLocation(), game.getSimStartTime(), logUrl);
-        for (Agent agent: game.getAgentMap().values()) {
-          content = String.format("%s%d;%f;", content,
-              agent.getBrokerId(), agent.getBalance());
-        }
-
-        bw.write(content + lineSep);
-      }
-
-      bw.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    CSV.createCsv(this);
   }
 
   //<editor-fold desc="Winner determination">

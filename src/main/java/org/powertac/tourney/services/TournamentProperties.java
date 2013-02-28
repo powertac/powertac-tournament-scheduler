@@ -59,6 +59,12 @@ public class TournamentProperties
     return properties.getProperty(key, defaultValue);
   }
 
+  public int getPropertyInt (String key, String defaultValue)
+  {
+    loadIfNecessary();
+    return Integer.parseInt(properties.getProperty(key, defaultValue));
+  }
+
   // lazy loader
   private void loadIfNecessary ()
   {

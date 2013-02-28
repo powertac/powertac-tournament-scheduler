@@ -100,7 +100,6 @@ public class RunGame
         return false;
       }
 
-      // TODO This shouldn't be necessary with the 'occupancy' check
       // Check if any broker is already running the maxAgent nof agents
       if (!agent.getBroker().agentsAvailable()) {
         log.info(String.format("Not starting game %s : broker %s doesn't have "

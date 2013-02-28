@@ -201,15 +201,18 @@ public class RestServer
     result += String.format(Constants.Props.remote, true);
     result += String.format(Constants.Props.vizQ, game.getVisualizerQueue());
 
+    int minTimeslotCount =
+        properties.getPropertyInt("competition.minimumTimeslotCount", "1400");
+    int expTimeslotCount =
+        properties.getPropertyInt("competition.expectedTimeslotCount", "1440");
     if (game.getGameName().toLowerCase().contains("test")) {
-      result += String.format(Constants.Props.minTimeslot,
-          properties.getProperty("test.minTimeslot", "200"));
-      result += String.format(Constants.Props.expectedTimeslot,
-          properties.getProperty("test.expectedTimeslot", "220"));
-    } else {
-      result += String.format(Constants.Props.minTimeslot, 1380);
-      result += String.format(Constants.Props.expectedTimeslot, 1440);
+      minTimeslotCount =
+          properties.getPropertyInt("test.minimumTimeslotCount", "200");
+      expTimeslotCount =
+          properties.getPropertyInt("test.expectedTimeslotCount", "220");
     }
+    result += String.format(Constants.Props.minTimeslot, minTimeslotCount);
+    result += String.format(Constants.Props.expectedTimeslot, expTimeslotCount);
 
     Location location = Location.getLocationByName(game.getLocation());
     result += String.format(Constants.Props.timezoneOffset,

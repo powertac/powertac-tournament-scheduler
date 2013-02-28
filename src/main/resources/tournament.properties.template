@@ -38,3 +38,9 @@ scheduler.watchDogInterval = 60000
 
 # Deadline (ms) for registering brokers before tournament-starttime
 loginDeadline = 3600000
+
+# Overwrite the default gamelengths here
+competition.minimumTimeslotCount = 1400
+competition.expectedTimeslotCount = 1440
+test.minimumTimeslotCount = 200
+test.expectedTimeslotCount = 220
