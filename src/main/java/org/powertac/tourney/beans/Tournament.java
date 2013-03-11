@@ -44,7 +44,7 @@ public class Tournament
   private Map<Integer, Game> gameMap = new HashMap<Integer, Game>();
   private Map<Integer, Broker> brokerMap = new HashMap<Integer, Broker>();
 
-  public static enum STATE
+  private static enum STATE
   {
     pending, in_progress, complete
   }
@@ -132,6 +132,11 @@ public class Tournament
 
     // Always generate new CSVs
     CSV.createCsv(this);
+  }
+
+  public static String getStateComplete ()
+  {
+    return STATE.complete.toString();
   }
 
   //<editor-fold desc="Winner determination">

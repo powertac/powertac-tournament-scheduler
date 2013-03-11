@@ -78,7 +78,7 @@ public class RunBoot
       }
 
       game.setMachine(freeMachine);
-      freeMachine.setState(Machine.STATE.running);
+      freeMachine.setStateRunning();
       session.update(freeMachine);
       log.info(String.format("Game: %s booting on machine: %s",
           game.getGameId(), game.getMachine().getMachineName()));
@@ -108,15 +108,15 @@ public class RunBoot
       JenkinsConnector.sendJob(finalUrl);
 
       log.info("Jenkins request to bootstrap game: " + game.getGameId());
-      game.setState(Game.STATE.boot_in_progress);
+      game.setStateBootInProgress();
       game.setReadyTime(Utils.offsetDate());
       log.debug(String.format("Update game: %s to %s", game.getGameId(),
-          Game.STATE.boot_in_progress.toString()));
+          Game.getStateBootInProgress()));
 
       return true;
     } catch (Exception e) {
       log.error("Jenkins failure to bootstrap game: " + game.getGameId());
-      game.setState(Game.STATE.boot_failed);
+      game.setStateBootFailed();
       throw e;
     }
   }

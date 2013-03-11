@@ -104,7 +104,7 @@ public class Constants
             + "LEFT JOIN FETCH tournamentMap.gameMap as gameMap "
             + "LEFT JOIN FETCH gameMap.agentMap as agentMap "
             + "LEFT JOIN FETCH tournamentMap.brokerMap as brokerMap "
-            + "WHERE NOT competition.state='" + Competition.STATE.complete + "'";
+            + "WHERE NOT competition.state='" + Competition.getStateComplete() + "'";
 
     public static final String GET_TOURNAMENT_BY_ID =
         "FROM Tournament AS tournament "
@@ -133,7 +133,7 @@ public class Constants
             + "LEFT JOIN FETCH agentMap.game "
             + "LEFT JOIN FETCH tournament.brokerMap AS brokerMap "
             + "LEFT JOIN FETCH brokerMap.user "
-            + "WHERE NOT tournament.state='" + Tournament.STATE.complete + "'";
+            + "WHERE NOT tournament.state='" + Tournament.getStateComplete() + "'";
 
     public static final String GET_GAME_BY_ID =
         "FROM Game AS game "
@@ -149,7 +149,7 @@ public class Constants
             + "LEFT JOIN FETCH game.tournament AS tournament "
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH game.agentMap "
-            + "WHERE game.state='" + Game.STATE.boot_pending + "' "
+            + "WHERE game.state='" + Game.getStateBootPending() + "' "
             + "AND tournament.type='" + Tournament.TYPE.SINGLE_GAME + "'";
 
     public static final String GET_GAMES_MULTI_BOOT_PENDING =
@@ -157,7 +157,7 @@ public class Constants
             + "LEFT JOIN FETCH game.tournament AS tournament "
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH game.agentMap "
-            + "WHERE game.state='" + Game.STATE.boot_pending + "' "
+            + "WHERE game.state='" + Game.getStateBootPending() + "' "
             + "AND tournament.tournamentId =:tournamentId";
 
     public static final String GET_GAMES_SINGLE_BOOT_COMPLETE =
@@ -169,7 +169,7 @@ public class Constants
             + "LEFT JOIN FETCH broker.user "
             + "LEFT JOIN FETCH broker.agentMap "
 
-            + "WHERE game.state='" + Game.STATE.boot_complete + "' "
+            + "WHERE game.state='" + Game.getStateBootComplete() + "' "
             + "AND game.startTime < :startTime "
             + "AND tournament.type='" + Tournament.TYPE.SINGLE_GAME + "'";
 
@@ -182,7 +182,7 @@ public class Constants
             + "LEFT JOIN FETCH broker.user "
             + "LEFT JOIN FETCH broker.agentMap "
 
-            + "WHERE game.state='" + Game.STATE.boot_complete + "' "
+            + "WHERE game.state='" + Game.getStateBootComplete() + "' "
             + "AND game.startTime < :startTime "
             + "AND tournament.tournamentId =:tournamentId";
 
@@ -194,7 +194,7 @@ public class Constants
             + "LEFT JOIN FETCH agentMap.broker as broker "
             + "LEFT JOIN FETCH broker.user "
             + "WHERE NOT game.state='"
-            + Game.STATE.game_complete + "' ";
+            + Game.getStateGameComplete() + "' ";
 
     public static final String GET_GAMES_COMPLETE =
         "FROM Game AS game "
@@ -203,7 +203,7 @@ public class Constants
             + "LEFT JOIN FETCH game.agentMap agentMap "
             + "LEFT JOIN FETCH agentMap.broker as broker "
             + "LEFT JOIN FETCH broker.user "
-            + "WHERE game.state='" + Game.STATE.game_complete + "' ";
+            + "WHERE game.state='" + Game.getStateGameComplete() + "' ";
 
     public static final String GET_BROKERS =
         "FROM Broker AS broker "

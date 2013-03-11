@@ -316,9 +316,9 @@ public class ActionAdmin
     Transaction transaction = session.beginTransaction();
     try {
       if (machine.isInProgress()) {
-        machine.setState(Machine.STATE.idle);
+        machine.setStateIdle();
       } else {
-        machine.setState(Machine.STATE.running);
+        machine.setStateRunning();
       }
       session.update(machine);
       transaction.commit();
@@ -365,7 +365,7 @@ public class ActionAdmin
     machine.setMachineName(machineName);
     machine.setMachineUrl(machineUrl);
     machine.setVizUrl(machineViz);
-    machine.setState(Machine.STATE.idle);
+    machine.setStateIdle();
     machine.setAvailable(false);
 
     Session session = HibernateUtil.getSessionFactory().openSession();

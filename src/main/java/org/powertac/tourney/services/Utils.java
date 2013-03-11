@@ -1,6 +1,7 @@
 package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
+import org.powertac.tourney.beans.Agent;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -141,6 +142,20 @@ public class Utils
     calendar.add(Calendar.MILLISECOND, -1 * tz.getRawOffset());
 
     return calendar.getTime();
+  }
+
+  public static class agentIdComparator implements Comparator<Agent> {
+    public int compare (Agent agent1, Agent agent2) {
+      return agent1.getAgentId() - agent2.getAgentId();
+    }
+  }
+
+  public static class brokerResultComparator
+      implements Comparator <Map.Entry<Integer, Double>> {
+    public int compare(Map.Entry<Integer, Double> e1,
+                       Map.Entry<Integer, Double> e2) {
+      return e2.getValue().compareTo(e1.getValue());
+    }
   }
 
   /*

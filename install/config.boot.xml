@@ -150,7 +150,7 @@ log &quot;bootName      : $bootName&quot;
 log nl &quot;Get the pom file from $pomUrl&quot;
 get_pom
 
-CMD=&quot;$MVN_CMD -U -Pcli -Dexec.args=\&quot;--boot $bootName.xml --config=$propUrl --log-suffix $suffix$gameId\&quot;&quot;
+CMD=&quot;$MVN_CMD -U -Pcli -Dexec.args=\&quot;--boot $bootName.xml --game-id $gameId --control $tourneyUrl --log-suffix $suffix$gameId\&quot;&quot;
 log nl &quot;Run maven : $CMD \n&quot;
 eval $CMD
 

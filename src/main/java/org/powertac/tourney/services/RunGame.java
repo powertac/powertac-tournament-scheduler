@@ -73,7 +73,7 @@ public class RunGame
       return true;
     } else {
       log.info("Game: " + game.getGameId() + " reports that boot is not ready!");
-      game.setState(Game.STATE.boot_pending);
+      game.setStateBootPending();
       return false;
     }
   }
@@ -134,7 +134,7 @@ public class RunGame
       }
 
       game.setMachine(freeMachine);
-      freeMachine.setState(Machine.STATE.running);
+      freeMachine.setStateRunning();
       session.update(freeMachine);
       log.info(String.format("Game: %s running on machine: %s",
           game.getGameId(), game.getMachine().getMachineName()));
@@ -167,15 +167,15 @@ public class RunGame
       JenkinsConnector.sendJob(finalUrl);
 
       log.info("Jenkins request to start sim game: " + game.getGameId());
-      game.setState(Game.STATE.game_pending);
+      game.setStateGamePending();
       game.setReadyTime(Utils.offsetDate());
       log.debug(String.format("Update game: %s to %s", game.getGameId(),
-          Game.STATE.game_pending.toString()));
+          Game.getStateGamePending()));
 
       return true;
     } catch (Exception e) {
       log.error("Jenkins failure to start simulation game: " + game.getGameId());
-      game.setState(Game.STATE.game_failed);
+      game.setStateGameFailed();
       throw e;
     }
   }

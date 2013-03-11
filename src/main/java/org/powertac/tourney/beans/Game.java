@@ -43,7 +43,7 @@ public class Game implements Serializable
 
   private Map<Integer, Agent> agentMap = new HashMap<Integer, Agent>();
 
-  public static enum STATE
+  private static enum STATE
   {
     boot_pending, boot_in_progress, boot_complete, boot_failed,
     game_pending, game_ready, game_in_progress, game_complete, game_failed;
@@ -252,23 +252,6 @@ public class Game implements Serializable
     return "success";
   }
 
-  @Transient
-  public boolean isBooting ()
-  {
-    return state.equals(STATE.boot_in_progress);
-  }
-
-  @Transient
-  public boolean isRunning ()
-  {
-    return STATE.isRunning.contains(state);
-  }
-
-  public boolean hasBootstrap ()
-  {
-    return STATE.hasBootstrap.contains(state);
-  }
-
   public void removeBootFile ()
   {
     String bootLocation = properties.getProperty("bootLocation") +
@@ -298,9 +281,51 @@ public class Game implements Serializable
     return Utils.dateToStringFull(readyTime);
   }
 
+  //<editor-fold desc="State methods">
   public boolean stateEquals (STATE state)
   {
     return this.state.equals(state);
+  }
+
+  @Transient
+  public boolean isBooting ()
+  {
+    return state.equals(STATE.boot_in_progress);
+  }
+
+  @Transient
+  public boolean isRunning ()
+  {
+    return STATE.isRunning.contains(state);
+  }
+
+  public boolean hasBootstrap ()
+  {
+    return STATE.hasBootstrap.contains(state);
+  }
+
+  public void setStateBootPending () {
+    this.state = STATE.boot_pending;
+  }
+
+  public void setStateBootInProgress () {
+    this.state = STATE.boot_in_progress;
+  }
+
+  public void setStateBootComplete () {
+    this.state = STATE.boot_complete;
+  }
+
+  public void setStateBootFailed () {
+    this.state = STATE.boot_failed;
+  }
+
+  public void setStateGamePending () {
+    this.state = STATE.game_pending;
+  }
+
+  public void setStateGameFailed () {
+    this.state = STATE.game_failed;
   }
 
   @Transient
@@ -332,6 +357,27 @@ public class Game implements Serializable
   {
     return isBootFailed() || isGameFailed();
   }
+
+  public static String getStateBootPending () {
+    return STATE.boot_pending.toString();
+  }
+
+  public static String getStateBootInProgress () {
+    return STATE.boot_in_progress.toString();
+  }
+
+  public static String getStateBootComplete () {
+    return STATE.boot_complete.toString();
+  }
+
+  public static String getStateGamePending () {
+    return STATE.game_pending.toString();
+  }
+
+  public static String getStateGameComplete () {
+    return STATE.game_complete.toString();
+  }
+  //</editor-fold>
 
   @Transient
   public int getGameTypeIndex ()

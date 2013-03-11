@@ -143,12 +143,12 @@ public class ActionOverview
       if (game.isBooting()) {
         log.info("Resetting boot game: " + gameId + " on machine: " + machineId);
 
-        game.setState(Game.STATE.boot_pending);
+        game.setStateBootPending();
         game.removeBootFile();
       } else if (game.isRunning()) {
         log.info("Resetting sim game: " + gameId + " on machine: " + machineId);
 
-        game.setState(Game.STATE.boot_complete);
+        game.setStateBootComplete();
         for (Agent agent: game.getAgentMap().values()) {
           if (!agent.isPending()) {
             MemStore.setBrokerState(agent.getBrokerId(), false);
@@ -191,11 +191,11 @@ public class ActionOverview
       if (game.isBootFailed()) {
         log.info("Resetting boot game: " + gameId);
         game.removeBootFile();
-        game.setState(Game.STATE.boot_pending);
+        game.setStateBootPending();
       }
       if (game.isGameFailed()) {
         log.info("Resetting sim game: " + gameId);
-        game.setState(Game.STATE.boot_complete);
+        game.setStateBootComplete();
 
         for (Agent agent: game.getAgentMap().values()) {
           agent.setStatePending();

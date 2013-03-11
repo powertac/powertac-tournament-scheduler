@@ -14,10 +14,7 @@ import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -253,11 +250,14 @@ public class Broker
   }
 
   @Transient
+  @SuppressWarnings("unchecked")
   public String getRunningString ()
   {
-    String result = "";
+    List<Agent> agents = new ArrayList(getAgentMap().values());
+    Collections.sort(agents, new Utils.agentIdComparator());
 
-    for (Agent agent: getAgentMap().values()) {
+    String result = "";
+    for (Agent agent: agents) {
       if (agent.isInProgress()) {
         result += agent.getGameId() + ", ";
       }

@@ -33,7 +33,7 @@ public class Machine
   private STATE state;
   private boolean available;
 
-  public static enum STATE
+  private static enum STATE
   {
     idle, running
   }
@@ -42,9 +42,20 @@ public class Machine
   {
   }
 
-  public boolean stateEquals (STATE state)
+  @Transient
+  public boolean isStateIdle ()
   {
-    return this.state.equals(state);
+    return state.equals(STATE.idle);
+  }
+
+  public void setStateRunning ()
+  {
+    this.state = STATE.running;
+  }
+
+  public void setStateIdle ()
+  {
+    this.state = STATE.idle;
   }
 
   @Transient
@@ -105,8 +116,8 @@ public class Machine
                   + "Jenkins reports offline", displayName));
             }
 
-            if (machine.stateEquals(Machine.STATE.idle) && idle.equals("false")) {
-              machine.setState(STATE.running);
+            if (machine.isStateIdle() && idle.equals("false")) {
+              machine.setStateRunning();
               dirty = true;
               log.warn(String.format("Machine %s has status 'idle', but "
                   + "Jenkins reports 'not idle'", displayName));
@@ -193,7 +204,7 @@ public class Machine
         try {
           log.info("Setting machine " + machineId + " to idle");
           Machine machine = (Machine) session.get(Machine.class, machineId);
-          machine.setState(Machine.STATE.idle);
+          machine.setStateIdle();
           transaction.commit();
         } catch (Exception e) {
           transaction.rollback();

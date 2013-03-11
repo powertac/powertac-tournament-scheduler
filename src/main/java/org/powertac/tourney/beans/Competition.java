@@ -30,7 +30,7 @@ public class Competition
   private Map<Integer, CompetitionRound> roundMap =
       new HashMap<Integer, CompetitionRound>();
 
-  public static enum STATE
+  private static enum STATE
   {
     open,         // This is the initial state. Accepts registrations.
     closed,       // No more registrations. Adjustments still allowed.
@@ -142,13 +142,7 @@ public class Competition
     // Loop through brokers, list them in result order
     SortedSet<Map.Entry<Integer, Double>> brokerSet =
         new TreeSet<Map.Entry<Integer, Double>>(
-            new Comparator<Map.Entry<Integer, Double>>() {
-              @Override
-              public int compare(Map.Entry<Integer, Double> e1,
-                                 Map.Entry<Integer, Double> e2) {
-                return e2.getValue().compareTo(e1.getValue());
-              }
-            });
+            new Utils.brokerResultComparator());
     SortedMap<Integer, Double> brokerMap = new TreeMap<Integer, Double>();
     List<Map.Entry<Integer, Double>> brokerList =
         new ArrayList<Map.Entry<Integer, Double>>();
@@ -334,6 +328,11 @@ public class Competition
     }
 
     return 3;
+  }
+
+  public static String getStateComplete ()
+  {
+    return STATE.complete.toString();
   }
   //</editor-fold>
 
