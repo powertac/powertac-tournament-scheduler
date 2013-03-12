@@ -23,6 +23,7 @@ public class ActionCompetition
 {
   private Competition competition;
   private List<String> competitionInfo = new ArrayList<String>();
+  private List<String> participantInfo = new ArrayList<String>();
 
   private static boolean editing;
   private String content;
@@ -53,6 +54,7 @@ public class ActionCompetition
       }
 
       loadCompetitionInfo();
+      loadParticipantInfo();
       transaction.commit();
     } catch (Exception e) {
       transaction.rollback();
@@ -103,6 +105,26 @@ public class ActionCompetition
       int last = competitionInfo.size() - 1;
       competitionInfo.set(last, competitionInfo.get(last) + "<br/><br/>");
     }
+  }
+
+  private void loadParticipantInfo ()
+  {
+    for (CompetitionRound round: competition.getRoundMap().values()) {
+      if (round.getRoundNr() != 0) {
+        continue;
+      }
+
+      for (Tournament tournament: round.getTournamentMap().values()) {
+        for (Broker broker: tournament.getBrokerMap().values()) {
+          User participant = broker.getUser();
+          participantInfo.add(String.format("%s, %s, %s",
+              broker.getBrokerName(),
+              participant.getInstitution(),participant.getContactName()));
+        }
+      }
+    }
+
+    java.util.Collections.sort(participantInfo);
   }
 
   public List<Broker> getAllowedBrokers ()
@@ -235,6 +257,11 @@ public class ActionCompetition
   public List<String> getCompetitionInfo ()
   {
     return competitionInfo;
+  }
+
+  public List<String> getParticipantInfo ()
+  {
+    return participantInfo;
   }
   //</editor-fold>
 }

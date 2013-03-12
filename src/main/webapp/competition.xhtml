@@ -61,6 +61,14 @@
         <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
       </t:dataList>
 
+      <h:panelGroup rendered="#{actionCompetition.participantInfo.size() > 0}">
+        <h4>Participants</h4>
+        <t:dataList var="infoEntry" value="#{actionCompetition.participantInfo}"
+                    layout="unorderedList">
+          <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
+        </t:dataList>
+      </h:panelGroup>
+
     </ui:define>
   </ui:composition>
 </h:body>

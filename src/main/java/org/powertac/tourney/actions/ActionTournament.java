@@ -3,9 +3,7 @@ package org.powertac.tourney.actions;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.powertac.tourney.beans.Agent;
-import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Tournament;
+import org.powertac.tourney.beans.*;
 import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.CSV;
 import org.powertac.tourney.services.HibernateUtil;
@@ -28,6 +26,8 @@ public class ActionTournament
 {
   private Tournament tournament;
   private List<String> tournamentInfo = new ArrayList<String>();
+  private List<String> participantInfo = new ArrayList<String>();
+  private List<String> csvLinks = new ArrayList<String>();
   private Map<Integer, List> agentsMap = new HashMap<Integer, List>();
   private Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
   private List<Double> avgsAndSDs = new ArrayList<Double>();
@@ -58,6 +58,8 @@ public class ActionTournament
       }
 
       loadTournamentInfo();
+      loadParticipantInfo();
+      addCsvLinks();
       loadMaps();
       transaction.commit();
     } catch (Exception e) {
@@ -124,8 +126,17 @@ public class ActionTournament
 
     tournamentInfo.add("Pom Id : " + tournament.getPomId());
     tournamentInfo.add("Locations : " + tournament.getLocations());
+  }
 
-    addCsvLinks();
+  private void loadParticipantInfo ()
+  {
+    for (Broker broker: tournament.getBrokerMap().values()) {
+      User participant = broker.getUser();
+      participantInfo.add(String.format("%s, %s, %s",
+          broker.getBrokerName(),
+          participant.getInstitution(),participant.getContactName()));
+    }
+    java.util.Collections.sort(participantInfo);
   }
 
   private void addCsvLinks ()
@@ -150,7 +161,7 @@ public class ActionTournament
       } else if (!baseUrl.endsWith("/")) {
         baseUrl += "/";
       }
-      tournamentInfo.add(String.format(
+      csvLinks.add(String.format(
           "Tournament csv : <a href=\"%s\">link</a>", baseUrl + tournamentCsv));
     }
     if (gamesFile.exists()) {
@@ -159,7 +170,7 @@ public class ActionTournament
       } else if (!baseUrl.endsWith("/")) {
         baseUrl += "/";
       }
-      tournamentInfo.add(String.format(
+      csvLinks.add(String.format(
           "Games csv : <a href=\"%s\">link</a>", baseUrl + gamesCsv));
     }
   }
@@ -178,6 +189,16 @@ public class ActionTournament
   public List<String> getTournamentInfo ()
   {
     return tournamentInfo;
+  }
+
+  public List<String> getParticipantInfo ()
+  {
+    return participantInfo;
+  }
+
+  public List<String> getCsvLinks ()
+  {
+    return csvLinks;
   }
 
   public Map<Integer, List> getAgentsMap ()
