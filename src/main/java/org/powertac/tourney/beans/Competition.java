@@ -89,8 +89,8 @@ public class Competition
   {
     log.info("Creating tournament : " + name);
 
-    int maxBrokers = 100; // Let all pass first round
-    if (round.getRoundNr() > 0) {
+    int maxBrokers = (int) Math.ceil(100 / round.getNofTournaments());
+    if (round.getRoundNr() != 0) {
       CompetitionRound previousRound = getPreviousRound();
       maxBrokers =
           Math.min(previousRound.getNofBrokers(), previousRound.getNofWinners())

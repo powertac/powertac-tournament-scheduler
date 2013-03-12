@@ -131,6 +131,12 @@ public class ActionCompetition
   {
     List<Broker> allowedBrokers = new ArrayList<Broker>();
 
+    // Check if max allowed brokers reached
+    if (competition.getRoundMap().get(0).getNofBrokers() >=
+        competition.getRoundMap().get(0).getMaxBrokers()) {
+      return allowedBrokers;
+    }
+
     // Check if we have an authorized user
     User user = User.getCurrentUser();
     if (user == null || !user.isLoggedIn()) {
@@ -180,7 +186,7 @@ public class ActionCompetition
     CompetitionRound round = competition.getRoundMap().get(0);
     for (Tournament tournament: round.getTournamentMap().values()) {
       if (leastFilledTournament == null ||
-          leastFilledTournament.getBrokerMap().size() <
+          leastFilledTournament.getBrokerMap().size() >
               tournament.getBrokerMap().size()) {
         leastFilledTournament = tournament;
       }

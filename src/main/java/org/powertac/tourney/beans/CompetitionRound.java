@@ -26,16 +26,14 @@ public class CompetitionRound
   {
   }
 
-  @OneToMany
-  @JoinColumn(name = "roundId")
-  @MapKey(name = "tournamentId")
-  public Map<Integer, Tournament> getTournamentMap ()
+  @Transient
+  public int getMaxBrokers ()
   {
-    return tournamentMap;
-  }
-  public void setTournamentMap (Map<Integer, Tournament> tournamentMap)
-  {
-    this.tournamentMap = tournamentMap;
+    int total = 0;
+    for (Tournament tournament: tournamentMap.values()) {
+      total += tournament.getMaxBrokers();
+    }
+    return total;
   }
 
   @Transient
@@ -46,6 +44,18 @@ public class CompetitionRound
       nofBrokers += tournament.getBrokerMap().size();
     }
     return nofBrokers;
+  }
+
+  @OneToMany
+  @JoinColumn(name = "roundId")
+  @MapKey(name = "tournamentId")
+  public Map<Integer, Tournament> getTournamentMap ()
+  {
+    return tournamentMap;
+  }
+  public void setTournamentMap (Map<Integer, Tournament> tournamentMap)
+  {
+    this.tournamentMap = tournamentMap;
   }
 
   //<editor-fold desc="Setters and Getters">
