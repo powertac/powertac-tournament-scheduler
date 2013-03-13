@@ -276,26 +276,31 @@ public class ActionCompetitions
   {
     for (CompetitionRound posted: rounds) {
       CompetitionRound round = competition.getRoundMap().get(posted.getRoundNr());
-      if (round != null) {
+
+      if (round.getRoundNr() > competition.getCurrentRoundNr()) {
         round.setRoundName(posted.getRoundName());
         round.setNofTournaments(posted.getNofTournaments());
         round.setNofWinners(posted.getNofWinners());
         round.setStartTime(posted.getStartTime());
-        session.saveOrUpdate(round);
       }
+      else {
+        round.setNofTournaments(round.getTournamentMap().size());
+        round.setRoundName(posted.getRoundName());
+        round.setNofWinners(round.getMaxBrokers());
+      }
+
+      session.saveOrUpdate(round);
     }
   }
 
   private void createRounds (Session session, Competition competition)
   {
     for (CompetitionRound round: rounds) {
-      if (!round.getRoundName().isEmpty()) {
-        log.info("Creating round " + round.getRoundNr()
-            + " : " + round.getRoundName());
-        round.setCompetitionId(competition.getCompetitionId());
-        session.save(round);
-        competition.getRoundMap().put(round.getRoundNr(), round);
-      }
+      log.info("Creating round " + round.getRoundNr()
+          + " : " + round.getRoundName());
+      round.setCompetitionId(competition.getCompetitionId());
+      session.save(round);
+      competition.getRoundMap().put(round.getRoundNr(), round);
     }
   }
 
@@ -321,9 +326,6 @@ public class ActionCompetitions
     rounds.get(0).setRoundName("qualifying");
     rounds.get(0).setNofTournaments(1);
     rounds.get(0).setNofWinners(100);
-    rounds.get(1).setRoundName("seeding");
-    rounds.get(3).setNofTournaments(1);
-    rounds.get(3).setNofWinners(1);
   }
 
   public boolean editingAllowed (Competition competition)
@@ -354,16 +356,25 @@ public class ActionCompetitions
       messages.add("The competition name cannot be empty");
     }
 
-    int previousRound = -1;
     int previousWinners = -1;
+    boolean previousUsed = false;
     for (CompetitionRound round: rounds) {
-      if (round.getRoundNr() == 0 && round.getRoundName().isEmpty()) {
+      int roundNr = round.getRoundNr();
+      String roundName = round.getRoundName();
+
+      if (roundNr == 0 && roundName.isEmpty()) {
         messages.add("A competition needs at least round 0");
       }
 
-      if (!round.getRoundName().isEmpty()) {
-        int roundNr = round.getRoundNr();
-
+      if (roundName.isEmpty()) {
+        if (round.getNofTournaments() != 0) {
+          messages.add("Round " + roundNr + " has tournaments, but no name");
+        }
+        if (round.getNofWinners() != 0)  {
+          messages.add("Round " + roundNr + " has winners, but no name");
+        }
+      }
+      else if (!roundName.isEmpty()) {
         if (round.getNofTournaments() < 1) {
           messages.add("The # tournaments of round " + roundNr + " is smaller than 1");
         }
@@ -372,27 +383,29 @@ public class ActionCompetitions
         }
 
         if (roundNr > 0) {
-          //if (!roundNumbers.contains(roundNr - 1)) {
-          if (previousRound != (roundNr - 1)) {
+          if (!previousUsed) {
             messages.add("Round " + roundNr +
                 " can't be used if round " + (roundNr - 1)  + " is unused");
           }
+          else {
+            if (previousWinners < round.getNofWinners()) {
+              messages.add("The # winners of round " + (roundNr-1) +
+                  " is smaller than the NOF winners of round " + roundNr);
+            }
 
-          if (previousWinners < round.getNofWinners()) {
-            messages.add("The # winners of round " + (roundNr-1) +
-                " is smaller than the NOF winners of round " + roundNr);
-          }
-
-          if (round.getNofTournaments() > 0 &&
-              (previousWinners % round.getNofTournaments()) != 0) {
-            messages.add("The # tournaments of round " + roundNr + " must be "
-                + "a multiple of the # of winners of round " + (roundNr-1));
+            if (round.getNofTournaments() > 0 &&
+                (previousWinners % round.getNofTournaments()) != 0) {
+              messages.add("The # tournaments of round " + roundNr + " must be "
+                  + "a multiple of the # of winners of round " + (roundNr-1));
+            }
           }
         }
-
-        previousRound = roundNr;
-        previousWinners = round.getNofWinners();
       }
+
+      previousWinners = round.getNofWinners();
+      previousUsed = (!roundName.isEmpty() &&
+                      round.getNofTournaments() > 0 &&
+                      round.getNofWinners() > 0);
     }
 
     for (String msg: messages) {

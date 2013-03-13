@@ -131,21 +131,19 @@
             <tr>
               <td><h:outputText value="Round #{r.roundNr} name"/></td>
               <td><h:inputText value="#{r.roundName}"
-                               styleClass="input_wide"
-                               disabled="#{actionCompetitions.disabledArray[r.roundNr]}"/></td>
+                               disabled="#{actionCompetitions.disabledArray[r.roundNr]}"
+                               styleClass="input_wide" /></td>
             </tr>
             <tr>
               <td><h:outputText value="Tournaments / winners" /></td>
               <td>
                 <h:panelGroup>
                   <h:inputText value="#{r.nofTournaments}"
-                               styleClass="input_small"
-                               readonly="#{actionCompetitions.disabledArray[r.roundNr]
-                                  or r.roundNr == (actionCompetitions.getRounds().size()-1)}"/>
+                               readonly="#{actionCompetitions.disabledArray[r.roundNr]}"
+                               styleClass="input_small" />
                   <h:inputText value="#{r.nofWinners}"
-                               styleClass="input_small"
-                               readonly="#{actionCompetitions.disabledArray[r.roundNr+1]
-                                  or r.roundNr == (actionCompetitions.getRounds().size()-1)}"/>
+                               readonly="#{actionCompetitions.disabledArray[r.roundNr]}"
+                               styleClass="input_small" />
                 </h:panelGroup>
               </td>
             </tr>
@@ -155,6 +153,7 @@
                 <h:panelGroup>
                   <t:inputDate value="#{r.startTime}"
                                readonly="#{actionCompetitions.disabledArray[r.roundNr]}"
+                               disabled="#{actionCompetitions.disabledArray[r.roundNr]}"
                                id="roundStartTime" ampm="false" type="both"/>
                 </h:panelGroup>
               </td>
