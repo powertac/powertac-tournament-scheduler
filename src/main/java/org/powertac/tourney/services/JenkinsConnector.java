@@ -24,9 +24,9 @@ public class JenkinsConnector
       URLConnection conn = url.openConnection();
 
       String user = properties.getProperty("jenkins.username", "");
-      String pass = properties.getProperty("jenkins.password", "");
-      if (!user.isEmpty() && !pass.isEmpty()) {
-        String userpass = String.format("%s:%s", user, pass);
+      String token = properties.getProperty("jenkins.token", "");
+      if (!user.isEmpty() && !token.isEmpty()) {
+        String userpass = String.format("%s:%s", user, token);
         String basicAuth = "Basic " +
             new String(new Base64().encode(userpass.getBytes()));
         conn.setRequestProperty("Authorization", basicAuth);
