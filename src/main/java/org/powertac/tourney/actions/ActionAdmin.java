@@ -267,11 +267,13 @@ public class ActionAdmin
     pom.setUser(currentUser);
 
     Session session = HibernateUtil.getSessionFactory().openSession();
-    session.beginTransaction();
+    Transaction transaction = session.beginTransaction();
     try {
       session.save(pom);
-    } catch (ConstraintViolationException e) {
-      session.getTransaction().rollback();
+    }
+    catch (ConstraintViolationException e) {
+      transaction.rollback();
+      session.close();
       message(1, "Error: This name is already used");
       return;
     }
@@ -281,9 +283,9 @@ public class ActionAdmin
     boolean pomStored = upload.submit("pom." + pom.getPomId() + ".xml");
 
     if (pomStored) {
-      session.getTransaction().commit();
+      transaction.commit();
     } else {
-      session.getTransaction().rollback();
+      transaction.rollback();
     }
     session.close();
   }

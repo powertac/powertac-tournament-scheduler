@@ -13,7 +13,9 @@
         <property name="show_sql">false</property>
 
         <!-- c3p0 config http://www.hibernate.org/214.html -->
-        <property name="connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
+        <property name="connection.provider_class">
+            org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider
+        </property>
         <property name="hibernate.c3p0.acquire_increment">1</property>
         <property name="hibernate.c3p0.idle_test_period">60</property>
         <property name="hibernate.c3p0.min_size">1</property>
