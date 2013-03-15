@@ -97,7 +97,7 @@ public class ActionCompetition
         competitionInfo.add("Tournament : " +
             String.format(base,
                 tournament.getTournamentId(), tournament.getTournamentName())
-            + "<br/>StartTime : " + tournament.getStartTime()
+            + "<br/>StartTime (UTC) : " + tournament.startTimeUTC().substring(0, 16)
             + "<br/>Status : " + tournament.getState()
         );
       }

@@ -146,7 +146,7 @@
       <h:form
           rendered="#{(user.isAdmin()) and (actionOverview.notCompleteGamesList.size() > 0)}"
           id="gamesForm">
-        <h3 class="withButton">Pending/Running Games</h3>
+        <h3 class="withButton" id="gamesFormHeader">Pending/Running Games</h3>
         <h:commandButton value="Refresh"/>
         <input id="toggleActiveButton" type="button" value="Hide inactive"
                onclick="toggleActive();"/>

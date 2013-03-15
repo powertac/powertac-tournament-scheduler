@@ -7,7 +7,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>Powertac 2012</title>
+    <title>Powertac Tournament Scheduler</title>
 </head>
 
 <body>

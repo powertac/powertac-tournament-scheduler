@@ -55,8 +55,11 @@
           </t:column>
 
           <t:column styleClass="nowrap">
-            <f:facet name="header">Start Time</f:facet>
-            <h:outputText value="#{g.startTimeUTC()}"/>
+            <f:facet name="header">Start Time (UTC)</f:facet>
+            <h:outputText value="#{g.startTimeUTC()}"
+                          rendered="#{g.readyTime == null}" />
+            <h:outputText value="#{g.readyTimeUTC()}"
+                          rendered="#{g.readyTime != null}" />
           </t:column>
 
           <t:column>

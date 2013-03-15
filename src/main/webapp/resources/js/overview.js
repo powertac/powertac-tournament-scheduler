@@ -78,7 +78,8 @@ function updateBrokers(data) {
 }
 
 function updateGames(data) {
-    $('#gamesForm\\:dataGames').find('>tbody>tr').each(function () {
+    var allRows = $('#gamesForm\\:dataGames').find('>tbody>tr');
+    allRows.each(function () {
         var sp = $(this).find('td:first-child span')[0];
         var orgRowNr = $(sp).attr("id").split(":")[2];
 
@@ -88,6 +89,8 @@ function updateGames(data) {
             $('#gamesForm\\:dataGames\\:' + orgRowNr + '\\:heartbeat').html("");
         }
     });
+
+    $('#gamesFormHeader').text('Pending/Running Games (' + allRows.length + ')');
 }
 
 function updateTables() {

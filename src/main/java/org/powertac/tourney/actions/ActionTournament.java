@@ -106,9 +106,9 @@ public class ActionTournament
     tournamentInfo.add("Name : " + tournament.getTournamentName());
     tournamentInfo.add("Status : " + tournament.getState());
 
-    tournamentInfo.add("StartTime : " + tournament.startTimeUTC());
-    tournamentInfo.add("Date from : " + tournament.dateFromUTC());
-    tournamentInfo.add("Date to : " + tournament.dateToUTC());
+    tournamentInfo.add("StartTime (UTC) : " + tournament.startTimeUTC().substring(0, 16));
+    tournamentInfo.add("Date from : " + tournament.dateFromUTC().substring(0, 10));
+    tournamentInfo.add("Date to : " + tournament.dateToUTC().substring(0, 10));
 
     tournamentInfo.add("MaxBrokers : " + tournament.getMaxBrokers());
     tournamentInfo.add("Registered Brokers : " + tournament.getBrokerMap().size());
