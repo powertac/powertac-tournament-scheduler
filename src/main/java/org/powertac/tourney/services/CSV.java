@@ -8,6 +8,7 @@
 package org.powertac.tourney.services;
 
 import org.powertac.tourney.beans.Agent;
+import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Tournament;
 
@@ -36,6 +37,11 @@ public class CSV
 
     if (tournamentCSV.isFile() && tournamentCSV.canRead()) {
       tournamentCSV.delete();
+    }
+
+    Map<Broker, Double[]> resultMap = t.determineWinner();
+    if (resultMap.size() == 0) {
+      return;
     }
 
     // Create new CSVs
@@ -71,7 +77,6 @@ public class CSV
       bw.write("Locations;" + t.getLocations() + sep);
       bw.write(sep);
 
-      Map<String, Double[]> resultMap = t.determineWinner();
       if (t.isMulti()) {
         List<Double> avgsAndSDs = t.getAvgsAndSDs(resultMap);
         bw.write("Average type 1;" + avgsAndSDs.get(0) + sep);
@@ -87,16 +92,16 @@ public class CSV
             "Total (not normalized);Size 1;Size 2;Size3;Total (normalized)" +
             sep);
 
-        for (Map.Entry<String, Double[]> entry: resultMap.entrySet()) {
+        for (Map.Entry<Broker, Double[]> entry: resultMap.entrySet()) {
           Double[] results = entry.getValue();
           bw.write(String.format("%s;%s;%f;%f;%f;%f;%f;%f;%f;%f%s",
-              entry.getKey().split(",")[0], entry.getKey().split(",")[1],
+              entry.getKey().getBrokerId(), entry.getKey().getBrokerName(),
               results[0], results[1], results[2], results[3],
               results[10], results[11], results[12], results[13],
               sep));
         }
       } else {
-        for (Map.Entry<String, Double[]> entry: resultMap.entrySet()) {
+        for (Map.Entry<Broker, Double[]> entry: resultMap.entrySet()) {
           bw.write("brokerId;Total" + sep);
           Double[] results = entry.getValue();
           bw.write(String.format("%s;%f;%s",
@@ -107,7 +112,7 @@ public class CSV
       bw.close();
 
       copyFile(tournamentCSV, String.format(name, t.getTournamentId()));
-    } catch (IOException e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
   }
@@ -120,6 +125,10 @@ public class CSV
 
     if (gamesCSV.isFile() && gamesCSV.canRead()) {
       gamesCSV.delete();
+    }
+
+    if (t.getGameMap().size() == 0) {
+      return;
     }
 
     try {

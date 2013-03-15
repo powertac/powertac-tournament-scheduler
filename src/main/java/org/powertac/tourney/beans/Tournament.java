@@ -140,7 +140,7 @@ public class Tournament
   }
 
   //<editor-fold desc="Winner determination">
-  public Map<String, Double[]> determineWinner ()
+  public Map<Broker, Double[]> determineWinner ()
   {
     if (isMulti()) {
       return determineWinnerMulti();
@@ -149,22 +149,19 @@ public class Tournament
     }
   }
 
-  private Map<String, Double[]> determineWinnerSingle ()
+  private Map<Broker, Double[]> determineWinnerSingle ()
   {
-    Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
+    Map<Broker, Double[]> resultMap = new HashMap<Broker, Double[]>();
 
     for (Game game: getGameMap().values()) {
       for (Agent agent: game.getAgentMap().values()) {
-        String brokerKey = String.format("%d,%s",
-            agent.getBroker().getBrokerId(), agent.getBroker().getBrokerName());
-
-        resultMap.put(brokerKey, new Double[]{agent.getBalance()});
+        resultMap.put(agent.getBroker(), new Double[]{agent.getBalance()});
       }
     }
     return resultMap;
   }
 
-  private Map<String, Double[]> determineWinnerMulti ()
+  private Map<Broker, Double[]> determineWinnerMulti ()
   {
     // Col 0  = result gameType 1
     // Col 1  = result gameType 2
@@ -181,7 +178,7 @@ public class Tournament
     // Col 12 = normalized result gameType 3
     // Col 13 = total normalized
 
-    Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
+    Map<Broker, Double[]> resultMap = new HashMap<Broker, Double[]>();
     Double[] averages = new Double[]{0.0, 0.0, 0.0};
     Double[] SD = new Double[]{0.0, 0.0, 0.0};
 
@@ -190,19 +187,17 @@ public class Tournament
       int gameTypeIndex = game.getGameTypeIndex();
 
       for (Agent agent: game.getAgentMap().values()) {
-        String brokerKey = String.format("%d,%s",
-            agent.getBroker().getBrokerId(), agent.getBroker().getBrokerName());
-
-        if (!resultMap.containsKey(brokerKey)) {
-          resultMap.put(brokerKey, new Double[]{
-              0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+        if (!resultMap.containsKey(agent.getBroker())) {
+          resultMap.put(agent.getBroker(), new Double[]{
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
         }
 
-        Double[] results = resultMap.get(brokerKey);
+        Double[] results = resultMap.get(agent.getBroker());
         results[gameTypeIndex] += agent.getBalance();
         averages[gameTypeIndex] += agent.getBalance();
         results[3] = results[0] + results[1] + results[2];
-        resultMap.put(brokerKey, results);
+        resultMap.put(agent.getBroker(), results);
       }
     }
 
@@ -211,12 +206,12 @@ public class Tournament
     averages[2] = averages[2] / resultMap.size();
 
     // Put averages in map, calculate SD
-    for (String brokerName: resultMap.keySet()) {
-      Double[] results = resultMap.get(brokerName);
+    for (Broker broker: resultMap.keySet()) {
+      Double[] results = resultMap.get(broker);
       results[4] = averages[0];
       results[5] = averages[1];
       results[6] = averages[2];
-      resultMap.put(brokerName, results);
+      resultMap.put(broker, results);
 
       SD[0] += Math.pow((averages[0] - results[0]), 2);
       SD[1] += Math.pow((averages[1] - results[1]), 2);
@@ -228,8 +223,8 @@ public class Tournament
     SD[2] = Math.sqrt(SD[2] / resultMap.size());
 
     // Put SDs in map, calculate normalized results and total
-    for (String brokerName: resultMap.keySet()) {
-      Double[] results = resultMap.get(brokerName);
+    for (Broker broker: resultMap.keySet()) {
+      Double[] results = resultMap.get(broker);
       results[7] = SD[0];
       results[8] = SD[1];
       results[9] = SD[2];
@@ -252,10 +247,26 @@ public class Tournament
 
       results[13] = results[10] + results[11] + results[12];
 
-      resultMap.put(brokerName, results);
+      resultMap.put(broker, results);
     }
 
     return resultMap;
+  }
+
+  public List<Broker> rankList ()
+  {
+    final Map<Broker, Double[]> winnersMap = determineWinner();
+
+    class CustomComparator implements Comparator<Broker> {
+      @Override
+      public int compare(Broker b1, Broker b2) {
+        return winnersMap.get(b2)[13].compareTo(winnersMap.get(b1)[13]);
+      }
+    }
+
+    List<Broker> result = new ArrayList<Broker>(winnersMap.keySet());
+    Collections.sort(result, new CustomComparator());
+    return result;
   }
   //</editor-fold>
 
@@ -390,12 +401,12 @@ public class Tournament
     return tournaments;
   }
 
-  public List<Double> getAvgsAndSDs (Map<String, Double[]> resultMap)
+  public List<Double> getAvgsAndSDs (Map<Broker, Double[]> resultMap)
   {
     List<Double> result = new ArrayList<Double>();
 
     if (resultMap.size() > 0 && isMulti()) {
-      Map.Entry<String, Double[]> entry = resultMap.entrySet().iterator().next();
+      Map.Entry<Broker, Double[]> entry = resultMap.entrySet().iterator().next();
       result.addAll(Arrays.asList(entry.getValue()).subList(4, 10));
     }
 

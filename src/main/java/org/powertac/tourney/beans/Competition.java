@@ -89,13 +89,12 @@ public class Competition
   {
     log.info("Creating tournament : " + name);
 
-    int maxBrokers = (int) Math.ceil(100 / round.getNofTournaments());
+    int nofBrokers = Math.max(100, round.getNofWinners());
     if (round.getRoundNr() != 0) {
-      CompetitionRound previousRound = getPreviousRound();
-      maxBrokers =
-          Math.min(previousRound.getNofBrokers(), previousRound.getNofWinners())
-              / round.getNofTournaments();
+      nofBrokers = Math.min(getPreviousRound().getNofBrokers(),
+                            getPreviousRound().getNofWinners());
     }
+    int maxBrokers = (int) Math.ceil(nofBrokers / round.getNofTournaments());
 
     int size1 = round.getRoundNr() == 0 ? 1 : maxBrokers;
     int size2 = round.getRoundNr() == 0 ? 1 : Math.max(maxBrokers / 2, 2);
@@ -139,47 +138,21 @@ public class Competition
 
     log.info("Scheduling brokers for round " + round.getRoundNr());
 
-    // Loop through brokers, list them in result order
-    SortedSet<Map.Entry<Integer, Double>> brokerSet =
-        new TreeSet<Map.Entry<Integer, Double>>(
-            new Utils.brokerResultComparator());
-    SortedMap<Integer, Double> brokerMap = new TreeMap<Integer, Double>();
-    List<Map.Entry<Integer, Double>> brokerList =
-        new ArrayList<Map.Entry<Integer, Double>>();
-    List<Map.Entry<Integer, Double>> brokerListTemp =
-        new ArrayList<Map.Entry<Integer, Double>>();
-
+    // Loop through tournaments, pick top winners
     int winnersPerTournament =
         previousRound.getNofWinners() / round.getNofTournaments();
-
-    // Loop through tournaments, pick top winners
+    List<Broker> winners = new ArrayList<Broker>();
     for (Tournament tournament: previousRound.getTournamentMap().values()) {
-      for (Game game: tournament.getGameMap().values()) {
-        for (Agent agent: game.getAgentMap().values()) {
-          if (!brokerMap.containsKey(agent.getBroker().getBrokerId())) {
-            brokerMap.put(agent.getBroker().getBrokerId(), agent.getBalance());
-          } else {
-            brokerMap.put(agent.getBroker().getBrokerId(),
-                brokerMap.get(agent.getBroker().getBrokerId()) + agent.getBalance());
-          }
-        }
-      }
-
-      // Select winners for this tournament
-      brokerSet.clear();
-      brokerSet.addAll(brokerMap.entrySet());
-      brokerMap.clear();
-      brokerListTemp.clear();
-      brokerListTemp.addAll(brokerSet);
-      winnersPerTournament = Math.min(winnersPerTournament, brokerListTemp.size());
-      brokerList.addAll( brokerListTemp.subList(0, winnersPerTournament) );
+      List<Broker> tournamentWinners = tournament.rankList();
+      winners.addAll(tournamentWinners.subList(0,
+          Math.min(winnersPerTournament, tournamentWinners.size())));
     }
 
-    log.debug("Winners from previous round : " + brokerList);
+    log.debug("Winners from previous round : " + winners);
 
     // Randomly shuffle picked brokers into tournaments via registering
     Random randomGenerator = new Random();
-    int winnerCount = Math.min(previousRound.getNofWinners(), brokerList.size());
+    int winnerCount = Math.min(previousRound.getNofWinners(), winners.size());
     int brokersPerTournament = winnerCount / round.getNofTournaments();
 
     log.debug("winnerCount /  brokersPerTournament " +
@@ -188,10 +161,7 @@ public class Competition
     for (Tournament tournament: round.getTournamentMap().values()) {
       log.debug("Tournament : " + tournament.getTournamentName());
       for (int i = 0; i < brokersPerTournament; i++) {
-        Map.Entry<Integer, Double> entry =
-            brokerList.remove(randomGenerator.nextInt(brokerList.size()));
-        log.debug(i + " = " + entry.getKey() +" / "+ entry.getValue());
-        Broker broker = (Broker) session.get(Broker.class, entry.getKey());
+        Broker broker = winners.remove(randomGenerator.nextInt(winners.size()));
         broker.register(session, tournament.getTournamentId());
       }
     }

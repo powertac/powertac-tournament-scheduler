@@ -29,7 +29,7 @@ public class ActionTournament
   private List<String> participantInfo = new ArrayList<String>();
   private List<String> csvLinks = new ArrayList<String>();
   private Map<Integer, List> agentsMap = new HashMap<Integer, List>();
-  private Map<String, Double[]> resultMap = new HashMap<String, Double[]>();
+  private Map<Broker, Double[]> resultMap = new HashMap<Broker, Double[]>();
   private List<Double> avgsAndSDs = new ArrayList<Double>();
 
   public ActionTournament ()
@@ -206,7 +206,7 @@ public class ActionTournament
     return agentsMap;
   }
 
-  public Map<String, Double[]> getResultMap ()
+  public Map<Broker, Double[]> getResultMap ()
   {
     return resultMap;
   }

@@ -150,14 +150,6 @@ public class Utils
     }
   }
 
-  public static class brokerResultComparator
-      implements Comparator <Map.Entry<Integer, Double>> {
-    public int compare(Map.Entry<Integer, Double> e1,
-                       Map.Entry<Integer, Double> e2) {
-      return e2.getValue().compareTo(e1.getValue());
-    }
-  }
-
   /*
   * The Alphanum Algorithm is an improved sorting algorithm for strings
   * containing numbers.  Instead of sorting numbers in ASCII order like
