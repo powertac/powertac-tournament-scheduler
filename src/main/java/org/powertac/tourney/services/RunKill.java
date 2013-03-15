@@ -28,7 +28,7 @@ public class RunKill
           log.info("Stop url: " + stopUrl);
 
           try {
-            JenkinsConnector.sendJob(stopUrl);
+            JenkinsConnector.sendJob(stopUrl, true);
           } catch (Exception ignored) {
           }
           log.info("Stopped job on Jenkins");
@@ -39,13 +39,14 @@ public class RunKill
     }
 
     // Actually kill the job on the slave, it doesn't always get done above
-    String killUrl = "http://localhost:8080/jenkins/"
+    TournamentProperties properties = TournamentProperties.getProperties();
+    String killUrl = properties.getProperty("jenkins.location")
         + "job/kill-server-instance/buildWithParameters?"
         + "machine=" + machineName;
     log.info("Kill url: " + killUrl);
 
     try {
-      JenkinsConnector.sendJob(killUrl);
+      JenkinsConnector.sendJob(killUrl, false);
     } catch (Exception ignored) {
     }
     log.info("Killed job on slave " + machineName);

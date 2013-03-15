@@ -9,6 +9,9 @@ function toggleSample() {
             if (name.toLowerCase().indexOf("sample") > -1) {
                 $(this).css("display", "none");
             }
+            if (name == "MinneTAC-power") {
+                $(this).css("display", "none");
+            }
         });
 
         $('#formDatabrokers\\:hideSample').val('true');

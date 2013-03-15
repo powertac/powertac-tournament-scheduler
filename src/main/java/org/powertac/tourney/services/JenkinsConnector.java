@@ -7,21 +7,26 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 
 
 public class JenkinsConnector
 {
 
-  public static void sendJob (String jobUrl) throws Exception
+  public static void sendJob (String jobUrl, boolean usePOST) throws Exception
   {
     TournamentProperties properties = TournamentProperties.getProperties();
     InputStream is = null;
 
     try {
       URL url = new URL(jobUrl);
-      URLConnection conn = url.openConnection();
+      HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+      if (usePOST) {
+        conn.setInstanceFollowRedirects(false);
+        conn.setRequestMethod("POST");
+      }
 
       String user = properties.getProperty("jenkins.username", "");
       String token = properties.getProperty("jenkins.token", "");
