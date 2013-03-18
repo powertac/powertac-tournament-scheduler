@@ -2,10 +2,7 @@ package org.powertac.tourney.actions;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.powertac.tourney.beans.User;
-import org.powertac.tourney.services.HibernateUtil;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -49,20 +46,8 @@ public class ActionRegister
     user.setPassword(DigestUtils.md5Hex(password1 + genSalt));
     user.setSalt(genSalt);
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      log.info("Registring user " + username);
-      session.save(user);
-      transaction.commit();
-      return "Success";
-    } catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-      return "Failure";
-    } finally {
-      session.close();
-    }
+    log.info("Registring user " + username);
+    return user.save();
   }
 
   private boolean nameExists (String username)

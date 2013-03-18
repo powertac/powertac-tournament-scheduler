@@ -37,7 +37,8 @@ public class User
 
   private Map<Integer, Broker> brokerMap = new HashMap<Integer, Broker>();
 
-  private boolean isEditing;
+  private boolean isEditingBroker;
+  private boolean isEditingDetails;
 
   private static enum PERMISSION {
     admin,
@@ -133,6 +134,24 @@ public class User
     User newUser = User.getUserByName(user.getUserName());
     FacesContext.getCurrentInstance().getExternalContext()
         .getSessionMap().put("user", newUser);
+  }
+
+  public String save ()
+  {
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      session.saveOrUpdate(this);
+      transaction.commit();
+      return "Success";
+    } catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+      return "Failure";
+    }
+    finally {
+      session.close();
+    }
   }
 
   //<editor-fold desc="Collections">
@@ -266,13 +285,23 @@ public class User
 
   //<editor-fold desc="Web Setters and Getters">
   @Transient
-  public boolean isEditing ()
+  public boolean isEditingBroker ()
   {
-    return isEditing;
+    return isEditingBroker;
   }
-  public void setEditing (boolean editing)
+  public void setEditingBroker (boolean editing)
   {
-    isEditing = editing;
+    isEditingBroker = editing;
+  }
+
+  @Transient
+  public boolean isEditingDetails ()
+  {
+    return isEditingDetails;
+  }
+  public void setEditingDetails (boolean editingDetails)
+  {
+    isEditingDetails = editingDetails;
   }
 
   @Transient

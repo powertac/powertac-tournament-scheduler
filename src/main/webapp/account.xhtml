@@ -13,6 +13,51 @@
 
       <h2>Account for user: #{user.userName}</h2>
 
+      <h:form id="accountForm3" rendered="#{user.isLoggedIn()}">
+        <h4>Details</h4>
+
+        <h:panelGrid columns="2" styleClass="left fixed_height">
+          <h:outputText value="Institution"/>
+          <h:outputText value="#{actionAccount.user.institution}"
+                        rendered="#{!actionAccount.user.editingDetails}" />
+          <h:inputText value="#{actionAccount.user.institution}"
+                       maxlength="256"
+                       rendered="#{actionAccount.user.editingDetails}" />
+
+          <h:outputText value="Contact name" />
+          <h:outputText value="#{actionAccount.user.contactName}"
+                        rendered="#{!actionAccount.user.editingDetails}" />
+          <h:inputText value="#{actionAccount.user.contactName}"
+                       maxlength="256"
+                       rendered="#{actionAccount.user.editingDetails}" />
+
+          <h:outputText value="Contact email"/>
+          <h:outputText value="#{actionAccount.user.contactEmail}"
+                        rendered="#{!actionAccount.user.editingDetails}" />
+          <h:inputText value="#{actionAccount.user.contactEmail}"
+                       maxlength="256"
+                       rendered="#{actionAccount.user.editingDetails}" />
+
+          <h:outputText value="Contact phone"/>
+          <h:outputText value="#{actionAccount.user.contactPhone}"
+                        rendered="#{!actionAccount.user.editingDetails}" />
+          <h:inputText value="#{actionAccount.user.contactPhone}"
+                       maxlength="256"
+                       rendered="#{actionAccount.user.editingDetails}" />
+
+          <h:commandButton value="Edit"
+                           rendered="#{!actionAccount.user.editingDetails}"
+                           action="#{actionAccount.editUserDetails()}" />
+          <h:commandButton value="Save"
+                           rendered="#{actionAccount.user.editingDetails}"
+                           action="#{actionAccount.saveUserDetails()}" />
+          <h:panelGroup/>
+
+          <br/>
+        </h:panelGrid>
+        <h:messages for="accountForm3"/>
+      </h:form>
+
       <h:form id="accountForm0" rendered="#{user.isLoggedIn()}">
         <h4>Brokers in Tournaments</h4>
         <h:dataTable border="1" id="brokers"

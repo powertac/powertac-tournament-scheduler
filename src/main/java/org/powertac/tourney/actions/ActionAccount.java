@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 @RequestScoped
 public class ActionAccount
 {
+  private User user = User.getCurrentUser();
   private String brokerName;
   private String brokerShort;
 
@@ -34,8 +35,6 @@ public class ActionAccount
   public List<Broker> getBrokers ()
   {
     if (brokers.size() == 0) {
-      User user = User.getCurrentUser();
-
       for (Broker broker: user.getBrokerMap().values()) {
         brokers.add(broker);
       }
@@ -53,8 +52,7 @@ public class ActionAccount
       return;
     }
 
-    User user = User.getCurrentUser();
-    if (user.isEditing() || !user.isLoggedIn()) {
+    if (user.isEditingBroker() || !user.isLoggedIn()) {
       return;
     }
 
@@ -81,7 +79,7 @@ public class ActionAccount
   public void deleteBroker (Broker broker)
   {
     User user = User.getCurrentUser();
-    if (user.isEditing() || !user.isLoggedIn()) {
+    if (user.isEditingBroker() || !user.isLoggedIn()) {
       return;
     }
 
@@ -113,7 +111,7 @@ public class ActionAccount
     if (!user.isLoggedIn()) {
       return;
     }
-    user.setEditing(false);
+    user.setEditingBroker(false);
 
     broker.setEdit(false);
     String orgName = broker.getBrokerName();
@@ -135,7 +133,7 @@ public class ActionAccount
   public void editBroker (Broker broker)
   {
     User user = User.getCurrentUser();
-    user.setEditing(true);
+    user.setEditingBroker(true);
 
     broker.setEdit(true);
     broker.setNewAuth(broker.getBrokerAuth());
@@ -146,7 +144,7 @@ public class ActionAccount
   public void cancelBroker (Broker broker)
   {
     User user = User.getCurrentUser();
-    user.setEditing(false);
+    user.setEditingBroker(false);
     broker.setEdit(false);
   }
 
@@ -205,6 +203,17 @@ public class ActionAccount
     }
   }
 
+  public void editUserDetails ()
+  {
+    user.setEditingDetails(true);
+  }
+
+  public void saveUserDetails ()
+  {
+    user.save();
+    user.setEditingDetails(false);
+  }
+
   private void message (int field, String msg)
   {
     FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
@@ -236,6 +245,16 @@ public class ActionAccount
   public void setBrokerName (String brokerName)
   {
     this.brokerName = brokerName;
+  }
+
+  public User getUser ()
+  {
+    return user;
+  }
+
+  public void setUser (User user)
+  {
+    this.user = user;
   }
   //</editor-fold>
 }

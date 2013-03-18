@@ -85,8 +85,15 @@ input.bigButton {
     width: 150px;
 }
 
+table.left td {
+    text-align: left;
+}
 .left {
     text-align: left;
+}
+
+table.fixed_height td {
+    height: 26px;
 }
 
 .right {
