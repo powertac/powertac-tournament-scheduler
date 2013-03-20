@@ -176,7 +176,25 @@ public class Competition
   @Transient
   private CompetitionRound getPreviousRound ()
   {
+    int currentRoundNr = getCurrentRoundNr();
+
+    if (currentRoundNr == 0) {
+      return null;
+    }
+
     return roundMap.get(getCurrentRoundNr() - 1);
+  }
+
+  @Transient
+  private CompetitionRound getNextRound ()
+  {
+    int currentRoundNr = getCurrentRoundNr();
+
+    if (currentRoundNr == roundMap.size()) {
+      return null;
+    }
+
+    return roundMap.get(getCurrentRoundNr() + 1);
   }
 
   //<editor-fold desc="State methods">
@@ -205,10 +223,10 @@ public class Competition
       scheduleBrokers(session);
     }
     else {
-      log.error("ScheduleNextRound : This shouldn't happen!!!!!");
+      log.error("ScheduleNextRound : This shouldn't happen!");
       return false;
     }
-    log.info(String.format("Changing state from %s to %s", oldState, getState()));
+    log.info(String.format("Changing state from %s to %s", oldState, state));
     return true;
   }
 
@@ -226,13 +244,20 @@ public class Competition
       state = STATE.completed2;
     }
     else if (state == STATE.scheduled3) {
-      state = STATE.complete;
+      state = STATE.completed3;
     }
     else {
-      log.error("CloseRound : This shouldn't happen!!!!!");
+      log.error("CloseRound : This shouldn't happen!");
       return false;
     }
-    log.info(String.format("Changing state from %s to %s", oldState, getState()));
+
+    CompetitionRound nextRound = getNextRound();
+    if (nextRound == null ||
+        nextRound.getNofTournaments() == 0 || nextRound.getNofWinners() == 0) {
+      state = STATE.complete;
+    }
+
+    log.info(String.format("Changing state from %s to %s", oldState, state));
     return true;
   }
 
