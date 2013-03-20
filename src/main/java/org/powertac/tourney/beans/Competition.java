@@ -42,7 +42,7 @@ public class Competition
     completed2,
     scheduled3,
     completed3,
-    complete;     // All the tournaments are done ( == completed3).
+    complete;     // All the tournaments are done.
 
     public static final EnumSet<STATE> editingAllowed = EnumSet.of(
         open,
