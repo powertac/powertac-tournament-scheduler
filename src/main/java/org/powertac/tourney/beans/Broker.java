@@ -253,7 +253,7 @@ public class Broker
   @SuppressWarnings("unchecked")
   public String getRunningString ()
   {
-    List<Agent> agents = new ArrayList(getAgentMap().values());
+    List<Agent> agents = new ArrayList(agentMap.values());
     Collections.sort(agents, new Utils.agentIdComparator());
 
     String result = "";
@@ -262,6 +262,7 @@ public class Broker
         result += agent.getGameId() + ", ";
       }
     }
+
     if (!result.isEmpty()) {
       result = result.substring(0, result.length() - 2);
     }

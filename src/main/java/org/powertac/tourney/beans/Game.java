@@ -116,11 +116,14 @@ public class Game implements Serializable
   }
 
   @Transient
+  @SuppressWarnings("unchecked")
   public String getBrokerIdsInGameString ()
   {
-    String result = "";
+    List<Agent> agents = new ArrayList(agentMap.values());
+    Collections.sort(agents, new Utils.agentIdComparator());
 
-    for (Agent agent: agentMap.values()) {
+    String result = "";
+    for (Agent agent: agents) {
       result += agent.getBroker().getBrokerId() + ", ";
     }
 
