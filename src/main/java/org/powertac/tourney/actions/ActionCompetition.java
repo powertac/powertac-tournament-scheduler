@@ -87,13 +87,13 @@ public class ActionCompetition
     competitionInfo.add("Status : " + competition.getState());
     competitionInfo.add("Pom Id : " + competition.getPomId() +"<br/><br/>");
 
-    for (CompetitionRound round: competition.getRoundMap().values()) {
-      competitionInfo.add("Round " + round.getRoundNr()
-          + " : " + round.getRoundName());
+    for (Level level : competition.getLevelMap().values()) {
+      competitionInfo.add("Level " + level.getLevelNr()
+          + " : " + level.getLevelName());
       competitionInfo.add("Tournaments / winners : "
-          + round.getNofTournaments() + " / " + round.getNofWinners());
+          + level.getNofTournaments() + " / " + level.getNofWinners());
 
-      for (Tournament tournament: round.getTournamentMap().values()) {
+      for (Tournament tournament: level.getTournamentMap().values()) {
         competitionInfo.add("Tournament : " +
             String.format(base,
                 tournament.getTournamentId(), tournament.getTournamentName())
@@ -109,12 +109,12 @@ public class ActionCompetition
 
   private void loadParticipantInfo ()
   {
-    for (CompetitionRound round: competition.getRoundMap().values()) {
-      if (round.getRoundNr() != 0) {
+    for (Level level : competition.getLevelMap().values()) {
+      if (level.getLevelNr() != 0) {
         continue;
       }
 
-      for (Tournament tournament: round.getTournamentMap().values()) {
+      for (Tournament tournament: level.getTournamentMap().values()) {
         for (Broker broker: tournament.getBrokerMap().values()) {
           User participant = broker.getUser();
           participantInfo.add(String.format("%s, %s, %s",
@@ -132,8 +132,8 @@ public class ActionCompetition
     List<Broker> allowedBrokers = new ArrayList<Broker>();
 
     // Check if max allowed brokers reached
-    if (competition.getRoundMap().get(0).getNofBrokers() >=
-        competition.getRoundMap().get(0).getMaxBrokers()) {
+    if (competition.getLevelMap().get(0).getNofBrokers() >=
+        competition.getLevelMap().get(0).getMaxBrokers()) {
       return allowedBrokers;
     }
 
@@ -150,8 +150,8 @@ public class ActionCompetition
 
     // Find before-deadline tournaments
     List<Tournament> tournaments = new ArrayList<Tournament>();
-    for (CompetitionRound round: competition.getRoundMap().values()) {
-      for (Tournament tournament: round.getTournamentMap().values()) {
+    for (Level level : competition.getLevelMap().values()) {
+      for (Tournament tournament: level.getTournamentMap().values()) {
         if (tournament.getStartTime().before(Utils.offsetDate(-2))) {
           continue;
         }
@@ -183,8 +183,8 @@ public class ActionCompetition
   {
     // Find least filled tournament
     Tournament leastFilledTournament = null;
-    CompetitionRound round = competition.getRoundMap().get(0);
-    for (Tournament tournament: round.getTournamentMap().values()) {
+    Level level = competition.getLevelMap().get(0);
+    for (Tournament tournament: level.getTournamentMap().values()) {
       if (leastFilledTournament == null ||
           leastFilledTournament.getBrokerMap().size() >
               tournament.getBrokerMap().size()) {

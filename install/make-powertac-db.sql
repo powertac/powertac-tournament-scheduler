@@ -56,17 +56,17 @@ CREATE TABLE `tourney`.`competitions` (
   ENGINE = InnoDB;
 
 
-DROP TABLE IF EXISTS `tourney`.`rounds`;
-CREATE TABLE `tourney`.`rounds` (
-  `roundId`        INT(11)      NOT NULL AUTO_INCREMENT,
-  `roundName`      VARCHAR(256) NOT NULL,
+DROP TABLE IF EXISTS `tourney`.`levels`;
+CREATE TABLE `tourney`.`levels` (
+  `levelId`        INT(11)      NOT NULL AUTO_INCREMENT,
+  `levelName`      VARCHAR(256) NOT NULL,
   `competitionId`  INT(11)      NOT NULL,
-  `roundNr`        INT(11)      NOT NULL,
+  `levelNr`        INT(11)      NOT NULL,
   `nofTournaments` INT(11)      NOT NULL,
   `nofWinners`     INT(11)      NOT NULL,
   `startTime`      DATETIME     NOT NULL,
-  PRIMARY KEY (`roundId`),
-  CONSTRAINT round_refs FOREIGN KEY (`competitionId`) REFERENCES `tourney`.`competitions` (`competitionId`)
+  PRIMARY KEY (`levelId`),
+  CONSTRAINT level_refs FOREIGN KEY (`competitionId`) REFERENCES `tourney`.`competitions` (`competitionId`)
 )
   ENGINE = InnoDB;
 
@@ -76,7 +76,7 @@ DROP TABLE IF EXISTS `tourney`.`tournaments`;
 CREATE TABLE `tourney`.`tournaments` (
   `tourneyId`   INT(11)                                    NOT NULL AUTO_INCREMENT,
   `tourneyName` VARCHAR(256) UNIQUE                        NOT NULL,
-  `roundId`     INT(11) DEFAULT NULL,
+  `levelId`     INT(11) DEFAULT NULL,
   `startTime`   DATETIME                                   NOT NULL,
   `dateFrom`    DATETIME                                   NOT NULL,
   `dateTo`      DATETIME                                   NOT NULL,
@@ -95,7 +95,7 @@ CREATE TABLE `tourney`.`tournaments` (
   `closed`      TINYINT(1)                                 NOT NULL,
   PRIMARY KEY (`tourneyId`),
   CONSTRAINT tournament_refs1 FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`),
-  CONSTRAINT tournament_refs2 FOREIGN KEY (`roundId`) REFERENCES `tourney`.`rounds` (`roundId`)
+  CONSTRAINT tournament_refs2 FOREIGN KEY (`levelId`) REFERENCES `tourney`.`levels` (`levelId`)
 )
   ENGINE = InnoDB;
 

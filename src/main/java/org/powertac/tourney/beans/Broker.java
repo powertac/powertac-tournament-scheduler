@@ -324,7 +324,7 @@ public class Broker
       }
 
       // Check if not part of a competition
-      if (accountPage && tournament.getRound() != null) {
+      if (accountPage && tournament.getLevel() != null) {
         continue;
       }
 

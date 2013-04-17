@@ -23,7 +23,7 @@ public class Tournament
 {
   private int tourneyId;
   private String tournamentName;
-  private CompetitionRound round;
+  private Level level;
   private Date startTime;
   private Date dateFrom;
   private Date dateTo;
@@ -444,14 +444,14 @@ public class Tournament
   }
 
   @ManyToOne
-  @JoinColumn(name = "roundId", nullable = true)
-  public CompetitionRound getRound ()
+  @JoinColumn(name = "levelId", nullable = true)
+  public Level getLevel ()
   {
-    return round;
+    return level;
   }
-  public void setRound (CompetitionRound round)
+  public void setLevel (Level level)
   {
-    this.round = round;
+    this.level = level;
   }
 
   @Temporal(TemporalType.TIMESTAMP)

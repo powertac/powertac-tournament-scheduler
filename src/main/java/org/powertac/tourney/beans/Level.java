@@ -9,20 +9,20 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 
 @Entity
-@Table(name = "rounds")
-public class CompetitionRound
+@Table(name = "levels")
+public class Level
 {
-  private int roundId;
-  private String roundName;
+  private int levelId;
+  private String levelName;
   private int competitionId;
-  private int roundNr;
+  private int levelNr;
   private int nofTournaments;
   private int nofWinners;
   private Date startTime;
 
   private Map<Integer, Tournament> tournamentMap = new HashMap<Integer, Tournament>();
 
-  public CompetitionRound ()
+  public Level ()
   {
   }
 
@@ -47,7 +47,7 @@ public class CompetitionRound
   }
 
   @OneToMany
-  @JoinColumn(name = "roundId")
+  @JoinColumn(name = "levelId")
   @MapKey(name = "tournamentId")
   public Map<Integer, Tournament> getTournamentMap ()
   {
@@ -61,24 +61,24 @@ public class CompetitionRound
   //<editor-fold desc="Setters and Getters">
   @Id
   @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "roundId", unique = true, nullable = false)
-  public int getRoundId ()
+  @Column(name = "levelId", unique = true, nullable = false)
+  public int getLevelId ()
   {
-    return roundId;
+    return levelId;
   }
-  public void setRoundId (int roundId)
+  public void setLevelId (int levelId)
   {
-    this.roundId = roundId;
+    this.levelId = levelId;
   }
 
-  @Column(name = "roundName")
-  public String getRoundName ()
+  @Column(name = "levelName")
+  public String getLevelName ()
   {
-    return roundName;
+    return levelName;
   }
-  public void setRoundName (String roundName)
+  public void setLevelName (String levelName)
   {
-    this.roundName = roundName;
+    this.levelName = levelName;
   }
 
   @Column(name = "competitionId")
@@ -91,14 +91,14 @@ public class CompetitionRound
     this.competitionId = competitionId;
   }
 
-  @Column(name = "roundNr")
-  public int getRoundNr ()
+  @Column(name = "levelNr")
+  public int getLevelNr ()
   {
-    return roundNr;
+    return levelNr;
   }
-  public void setRoundNr (int roundNr)
+  public void setLevelNr (int levelNr)
   {
-    this.roundNr = roundNr;
+    this.levelNr = levelNr;
   }
 
   @Column(name = "nofTournaments")

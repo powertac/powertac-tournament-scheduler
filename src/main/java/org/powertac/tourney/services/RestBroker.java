@@ -135,8 +135,8 @@ public class RestBroker
       return -1;
     }
 
-    for (CompetitionRound round: competition.getRoundMap().values()) {
-      for (Tournament tournament: round.getTournamentMap().values()) {
+    for (Level level : competition.getLevelMap().values()) {
+      for (Tournament tournament: level.getTournamentMap().values()) {
         if (broker.getTournamentMap().get(tournament.getTournamentId())==null) {
           continue;
         }

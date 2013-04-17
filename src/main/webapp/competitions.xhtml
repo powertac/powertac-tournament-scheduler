@@ -34,27 +34,27 @@
             </h:link>
           </t:column>
 
-          <t:column styleClass="#{actionCompetitions.getCompetitionRound(c, 0)}">
-            <f:facet name="header" >Round 0</f:facet>
-            <h:outputText value="#{actionCompetitions.getRoundInfo(c).get(0)}"
+          <t:column styleClass="#{actionCompetitions.getLevelStyle(c, 0)}">
+            <f:facet name="header" >Level 0</f:facet>
+            <h:outputText value="#{actionCompetitions.getLevelInfo(c).get(0)}"
                           escape="false"/>
           </t:column>
 
-          <t:column styleClass="#{actionCompetitions.getCompetitionRound(c, 1)}">
-            <f:facet name="header">Round 1</f:facet>
-            <h:outputText value="#{actionCompetitions.getRoundInfo(c).get(1)}"
+          <t:column styleClass="#{actionCompetitions.getLevelStyle(c, 1)}">
+            <f:facet name="header">Level 1</f:facet>
+            <h:outputText value="#{actionCompetitions.getLevelInfo(c).get(1)}"
                           escape="false"/>
           </t:column>
 
-          <t:column styleClass="#{actionCompetitions.getCompetitionRound(c, 2)}">
-            <f:facet name="header">Round 2</f:facet>
-            <h:outputText value="#{actionCompetitions.getRoundInfo(c).get(2)}"
+          <t:column styleClass="#{actionCompetitions.getLevelStyle(c, 2)}">
+            <f:facet name="header">Level 2</f:facet>
+            <h:outputText value="#{actionCompetitions.getLevelInfo(c).get(2)}"
                           escape="false"/>
           </t:column>
 
-          <t:column styleClass="#{actionCompetitions.getCompetitionRound(c, 3)}">
-            <f:facet name="header">Round 3</f:facet>
-            <h:outputText value="#{actionCompetitions.getRoundInfo(c).get(3)}"
+          <t:column styleClass="#{actionCompetitions.getLevelStyle(c, 3)}">
+            <f:facet name="header">Level 3</f:facet>
+            <h:outputText value="#{actionCompetitions.getLevelInfo(c).get(3)}"
                           escape="false"/>
           </t:column>
 
@@ -126,11 +126,11 @@
           <h:panelGroup/>
           <h:panelGroup><br/></h:panelGroup>
 
-          <ui:repeat value="#{actionCompetitions.rounds}" var="r">
+          <ui:repeat value="#{actionCompetitions.levels}" var="r">
             <tr>
-              <td><h:outputText value="Round #{r.roundNr} name"/></td>
-              <td><h:inputText value="#{r.roundName}"
-                               disabled="#{actionCompetitions.disabledArray[r.roundNr]}"
+              <td><h:outputText value="Level #{r.levelNr} name"/></td>
+              <td><h:inputText value="#{r.levelName}"
+                               disabled="#{actionCompetitions.disabledArray[r.levelNr]}"
                                styleClass="input_wide" /></td>
             </tr>
             <tr>
@@ -138,10 +138,10 @@
               <td>
                 <h:panelGroup>
                   <h:inputText value="#{r.nofTournaments}"
-                               readonly="#{actionCompetitions.disabledArray[r.roundNr]}"
+                               readonly="#{actionCompetitions.disabledArray[r.levelNr]}"
                                styleClass="input_small" />
                   <h:inputText value="#{r.nofWinners}"
-                               readonly="#{actionCompetitions.disabledArray[r.roundNr]}"
+                               readonly="#{actionCompetitions.disabledArray[r.levelNr]}"
                                styleClass="input_small" />
                 </h:panelGroup>
               </td>
@@ -151,9 +151,9 @@
               <td>
                 <h:panelGroup>
                   <t:inputDate value="#{r.startTime}"
-                               readonly="#{actionCompetitions.disabledArray[r.roundNr]}"
-                               disabled="#{actionCompetitions.disabledArray[r.roundNr]}"
-                               id="roundStartTime" ampm="false" type="both"/>
+                               readonly="#{actionCompetitions.disabledArray[r.levelNr]}"
+                               disabled="#{actionCompetitions.disabledArray[r.levelNr]}"
+                               id="levelStartTime" ampm="false" type="both"/>
                 </h:panelGroup>
               </td>
             </tr>

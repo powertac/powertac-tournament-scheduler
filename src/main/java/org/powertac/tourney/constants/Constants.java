@@ -86,21 +86,21 @@ public class Constants
 
     public static final String GET_COMPETITION_BY_ID =
         "FROM Competition AS competition "
-            + "LEFT JOIN FETCH competition.roundMap AS roundMap "
-            + "LEFT JOIN FETCH roundMap.tournamentMap AS tournamentMap "
+            + "LEFT JOIN FETCH competition.levelMap AS levelMap "
+            + "LEFT JOIN FETCH levelMap.tournamentMap AS tournamentMap "
             + "LEFT JOIN FETCH tournamentMap.brokerMap AS brokerMap "
             + "WHERE competition.competitionId =:competitionId";
 
     public static final String GET_COMPETITION_BY_NAME =
         "FROM Competition AS competition "
-            + "LEFT JOIN FETCH competition.roundMap AS roundMap "
-            + "LEFT JOIN FETCH roundMap.tournamentMap AS tournamentMap "
+            + "LEFT JOIN FETCH competition.levelMap AS levelMap "
+            + "LEFT JOIN FETCH levelMap.tournamentMap AS tournamentMap "
             + "WHERE competition.competitionName =:competitionName";
 
     public static final String GET_COMPETITION_NOT_COMPLETE =
         "FROM Competition AS competition "
-            + "LEFT JOIN FETCH competition.roundMap AS roundMap "
-            + "LEFT JOIN FETCH roundMap.tournamentMap AS tournamentMap "
+            + "LEFT JOIN FETCH competition.levelMap AS levelMap "
+            + "LEFT JOIN FETCH levelMap.tournamentMap AS tournamentMap "
             + "LEFT JOIN FETCH tournamentMap.gameMap as gameMap "
             + "LEFT JOIN FETCH gameMap.agentMap as agentMap "
             + "LEFT JOIN FETCH tournamentMap.brokerMap as brokerMap "
