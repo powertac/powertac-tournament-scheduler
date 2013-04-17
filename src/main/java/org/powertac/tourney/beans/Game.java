@@ -284,8 +284,14 @@ public class Game implements Serializable
     return Utils.dateToStringFull(readyTime);
   }
 
+  @Transient
+  public int getSize()
+  {
+    return agentMap.size();
+  }
+
   //<editor-fold desc="State methods">
-  public boolean stateEquals (STATE state)
+  private boolean stateEquals (STATE state)
   {
     return this.state.equals(state);
   }
@@ -477,25 +483,11 @@ public class Game implements Serializable
         .setInteger("tournamentId", tournament.getTournamentId())
         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
-    Map<Integer, Integer> occupancy = Broker.getBrokerOccupancy(session);
-    List<Game> result = new ArrayList<Game>();
-
-    outherLoop: for (Game game: fullList) {
-      for (Agent agent: game.getAgentMap().values()) {
-        Broker broker = agent.getBroker();
-        if (occupancy.get(broker.getBrokerId()) >= tournament.getMaxAgents()) {
-          continue outherLoop;
-        }
-      }
-      result.add(game);
-    }
-
-    if (result.size() > 0) {
-      return result;
-    }
-    else {
-      return fullList;
-    }
+    // Get availability for participating brokers
+    Map<Integer, Integer> availability =
+        Broker.getBrokerAvailability(session, tournament.getMaxAgents());
+    Collections.sort(fullList, new customGameComparator(availability));
+    return fullList;
   }
 
   @SuppressWarnings("unchecked")
@@ -517,15 +509,27 @@ public class Game implements Serializable
         .setTimestamp("startTime", Utils.offsetDate())
         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
-    Map<Integer, Integer> occupancy = Broker.getBrokerOccupancy(session);
-    List<Game> result = new ArrayList<Game>();
+    // Get availability for participating brokers
+    Map<Integer, Integer> availability =
+        Broker.getBrokerAvailability(session, tournament.getMaxAgents());
 
-    outherLoop: for (Game game: fullList) {
-      for (Agent agent: game.getAgentMap().values()) {
-        Broker broker = agent.getBroker();
-        if (occupancy.get(broker.getBrokerId()) >= tournament.getMaxAgents()) {
-          continue outherLoop;
+    // We have do an extra loop, starting of games changes availability
+    List<Game> result = new ArrayList<Game>();
+    outerloop: while (fullList.size() > 0) {
+      Collections.sort(fullList, new customGameComparator(availability));
+
+      Game game = fullList.remove(0);
+
+      // Ignore if game is not runnable
+      for (int brokerId: game.getAgentMap().keySet()) {
+        if (availability.get(brokerId) < 1) {
+          continue outerloop;
         }
+      }
+
+      // Change availability
+      for (int brokerId: game.getAgentMap().keySet()) {
+        availability.put(brokerId, availability.get(brokerId) - 1);
       }
       result.add(game);
     }
@@ -728,4 +732,68 @@ public class Game implements Serializable
     this.lastTick = lastTick;
   }
   //</editor-fold>
+
+  static class customGameComparator implements Comparator<Game> {
+    private Map<Integer, Integer> availability;
+
+    public customGameComparator (Map<Integer, Integer> availability)
+    {
+      super();
+      this.availability = availability;
+    }
+
+    public int compare (Game game1, Game game2) {
+      // Total of free agents for all brokers in this game
+      int total1Free = 0;
+      int total2Free = 0;
+      // Total of free agents for this game
+      int game1Free = 0;
+      int game2Free = 0;
+
+      for (Agent agent: game1.getAgentMap().values()) {
+        int freeAgents = availability.get(agent.getBrokerId());
+        total1Free += freeAgents;
+        game1Free += Math.min(1, freeAgents);
+      }
+      for (Agent agent: game2.getAgentMap().values()) {
+        int freeAgents = availability.get(agent.getBrokerId());
+        total2Free += freeAgents;
+        game2Free += Math.min(1, freeAgents);
+      }
+
+      // Let the game that has all brokers available start first
+      if (game1Free == game1.getSize() && game2Free != game2.getSize()) {
+        return -1;
+      }
+      else if (game1Free != game1.getSize() && game2Free == game2.getSize()) {
+        return 1;
+      }
+
+      // Both games can start or both can't, let's start with biggest game
+      if (game1.getSize() > game2.getSize()) {
+        return -1;
+      }
+      else if (game2.getSize() > game1.getSize()) {
+        return 1;
+      }
+
+      // Games have equal size, start with biggest # total free agents
+      if (total1Free > total2Free) {
+        return -1;
+      }
+      else if (total2Free > total1Free) {
+         return 1;
+      }
+
+      // Equal # of (total) free agents, start with biggest # free in this game
+      if (game1Free > game2Free) {
+        return -1;
+      }
+      else if (game2Free > game1Free) {
+        return 1;
+      }
+
+      return 0;
+    }
+  }
 }

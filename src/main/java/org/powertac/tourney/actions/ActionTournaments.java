@@ -142,7 +142,7 @@ public class ActionTournaments
     closed = tournament.isClosed();
 
     // Once scheduled, params can't change (type can never change)
-    if (tournament.getGameMap().size() > 0) {
+    if (tournament.getSize() > 0) {
       disabled = true;
     }
   }
@@ -203,7 +203,7 @@ public class ActionTournaments
     Arrays.sort(gameTypes, Collections.reverseOrder());
     maxBrokers = Math.max(maxBrokers, tournament.getBrokerMap().size());
 
-    if (tournament.getGameMap().size() < 1) {
+    if (tournament.getSize() < 1) {
       tournament.setTournamentName(tournamentName);
       if (type != null) {
         tournament.setType(type);

@@ -139,6 +139,12 @@ public class Tournament
     return STATE.complete.toString();
   }
 
+  @Transient
+  public int getSize()
+  {
+    return gameMap.size();
+  }
+
   //<editor-fold desc="Winner determination">
   public Map<Broker, Double[]> determineWinner ()
   {
@@ -387,7 +393,7 @@ public class Tournament
 
       for (Tournament tournament: tournaments) {
         for (Game game: tournament.getGameMap().values()) {
-          game.getAgentMap().size();
+          game.getSize();
         }
       }
 

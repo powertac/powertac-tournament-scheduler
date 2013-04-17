@@ -3,10 +3,7 @@ package org.powertac.tourney.services;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Machine;
-import org.powertac.tourney.beans.Scheduler;
-import org.powertac.tourney.beans.Tournament;
+import org.powertac.tourney.beans.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,7 +126,7 @@ public class RunBoot
   **/
   public static void startBootableGames (Tournament runningTournament)
   {
-    log.info("WatchDogTimer Looking for Bootstraps To Start..");
+    log.info("Looking for Bootstraps To Start..");
 
     List<Game> games = new ArrayList<Game>();
 
@@ -138,10 +135,10 @@ public class RunBoot
     try {
       if (runningTournament == null) {
         games = Game.getBootableSingleGames(session);
-        log.info("WatchDog CheckForBoots for SINGLE_GAME tournament boots");
+        log.info("CheckForBoots for SINGLE_GAME tournament boots");
       } else {
         games = Game.getBootableMultiGames(session, runningTournament);
-        log.info("WatchDog CheckForBoots for MULTI_GAME tournament boots");
+        log.info("CheckForBoots for MULTI_GAME tournament boots");
       }
       transaction.commit();
     } catch (Exception e) {
@@ -150,8 +147,7 @@ public class RunBoot
     }
     session.close();
 
-    log.info(String.format("WatchDogTimer reports %s boots are ready to "
-        + "start", games.size()));
+    log.info(String.format("Found %s boots ready to start", games.size()));
 
     machinesAvailable = true;
     for (Game game: games) {
@@ -159,7 +155,7 @@ public class RunBoot
       new RunBoot(game);
 
       if (!machinesAvailable) {
-        log.info("WatchDog No free machines, stop looking for Bootable Games");
+        log.info("No free machines, stop looking for Bootable Games");
         break;
       }
     }

@@ -165,7 +165,7 @@ public class Scheduler implements InitializingBean
     log.info("Multigame tournament available "
         + runningTournament.getTournamentName());
 
-    if (runningTournament.getGameMap().size() > 0) {
+    if (runningTournament.getSize() > 0) {
       log.info("Tournament already scheduled");
       return;
     } else if (!runningTournament.isStarted()) {

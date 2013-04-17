@@ -9,6 +9,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.ConstraintViolationException;
 import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.HibernateUtil;
+import org.powertac.tourney.services.MemStore;
 import org.powertac.tourney.services.TournamentProperties;
 import org.powertac.tourney.services.Utils;
 
@@ -210,26 +211,25 @@ public class Broker
     }
   }
 
-  // Check if not more than maxBrokers are running (only multi_game tourneys)
-  public boolean agentsAvailable ()
+  // Check if not more than maxBrokers are running
+  public boolean hasAgentsAvailable ()
   {
     Scheduler scheduler = Scheduler.getScheduler();
     Tournament runningTournament = scheduler.getRunningTournament();
 
-    // When no tournament loaded (thus only SINGLE_GAMES will be run),
-    // assume enough agents ready
+    // When running SINGLE_GAMES tournaments, always assume true
     if (runningTournament == null) {
       return true;
     }
 
-    int count = 0;
+    int freeAgents = runningTournament.getMaxAgents();
     for (Agent agent: agentMap.values()) {
       if (agent.getGame().isRunning()) {
-        count++;
+        freeAgents--;
       }
     }
 
-    return count < runningTournament.getMaxAgents();
+    return freeAgents > 0;
   }
 
   @Transient
@@ -401,8 +401,10 @@ public class Broker
     this.tournamentMap = tournamentMap;
   }
 
+  // This creates a map with brokerId <--> # of free agents
   @SuppressWarnings("unchecked")
-  public static Map<Integer, Integer> getBrokerOccupancy (Session session)
+  public static Map<Integer, Integer> getBrokerAvailability (Session session,
+                                                             int maxAgents)
   {
     Map<Integer, Integer> result = new HashMap<Integer, Integer>();
 
@@ -410,15 +412,20 @@ public class Broker
         .createQuery(Constants.HQL.GET_BROKERS).list();
 
     for (Broker broker: brokers) {
-      result.put(broker.getBrokerId(), 0);
+      int brokerId = broker.getBrokerId();
+      if (!MemStore.getBrokerState(brokerId)) {
+        result.put(brokerId, 0);
+        continue;
+      }
 
+      result.put(brokerId, maxAgents);
       for (Agent agent: broker.getAgentMap().values()) {
-        if (agent.isInProgress()) {
-          result.put(broker.getBrokerId(),
-              result.get(broker.getBrokerId()) + 1);
+        if (agent.getGame().isRunning()) {
+          result.put(brokerId, result.get(brokerId) - 1);
         }
       }
     }
+
     return result;
   }
 

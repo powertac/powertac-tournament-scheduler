@@ -127,7 +127,7 @@ public class CSV
       gamesCSV.delete();
     }
 
-    if (t.getGameMap().size() == 0) {
+    if (t.getSize() == 0) {
       return;
     }
 
@@ -157,7 +157,7 @@ public class CSV
 
         String content = String.format("%d;%s;%s;%d;%d;%d;%s;%s;%s;",
             game.getGameId(), game.getGameName(), game.getState(),
-            game.getAgentMap().size(), game.getGameLength(), game.getLastTick(),
+            game.getSize(), game.getGameLength(), game.getLastTick(),
             game.getLocation(), game.getSimStartTime(), logUrl);
         for (Agent agent: game.getAgentMap().values()) {
           content = String.format("%s%d;%f;", content,

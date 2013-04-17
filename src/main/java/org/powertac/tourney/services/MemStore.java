@@ -27,7 +27,8 @@ public class MemStore
   public static HashMap<Integer, String[]> gameHeartbeats;
   public static HashMap<Integer, Integer> gameLengths;
 
-  public static HashMap<Integer, Boolean> brokerState = new HashMap<Integer, Boolean>();
+  public static HashMap<Integer, Boolean> brokerState =
+      new HashMap<Integer, Boolean>();
 
   public static String indexContent;
 

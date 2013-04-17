@@ -93,23 +93,23 @@ public class RunGame
     }
 
     for (Agent agent: game.getAgentMap().values()) {
+      Broker broker = agent.getBroker();
       // Check if any broker is disabled in the interface
-      if (!MemStore.getBrokerState(agent.getBroker().getBrokerId())) {
+      if (!MemStore.getBrokerState(broker.getBrokerId())) {
         log.info(String.format("Not starting game %s : broker %s is disabled",
-            game.getGameId(), agent.getBroker().getBrokerId()));
+            game.getGameId(), broker.getBrokerId()));
         return false;
       }
 
       // Check if any broker is already running the maxAgent nof agents
-      if (!agent.getBroker().agentsAvailable()) {
+      if (!broker.hasAgentsAvailable()) {
         log.info(String.format("Not starting game %s : broker %s doesn't have "
             + "enough available agents",
-            game.getGameId(), agent.getBroker().getBrokerId()));
+            game.getGameId(), broker.getBrokerId()));
         return false;
       }
 
-      brokers += agent.getBroker().getBrokerName() + "/";
-      brokers += agent.getBrokerQueue() + ",";
+      brokers += broker.getBrokerName() + "/" + agent.getBrokerQueue() + ",";
     }
     brokers = brokers.substring(0, brokers.length() - 1);
     return true;
@@ -188,7 +188,7 @@ public class RunGame
   **/
   public static void startRunnableGames (Tournament runningTournament)
   {
-    log.info("WatchDogTimer Looking for Runnable Games");
+    log.info("Looking for Runnable Games");
 
     List<Game> games = new ArrayList<Game>();
 
@@ -197,10 +197,10 @@ public class RunGame
     try {
       if (runningTournament == null) {
         games = Game.getStartableSingleGames(session);
-        log.info("WatchDog CheckForSims for SINGLE_GAME tournament games");
+        log.info("CheckForSims for SINGLE_GAME tournament games");
       } else {
         games = Game.getStartableMultiGames(session, runningTournament);
-        log.info("WatchDog CheckForSims for MULTI_GAME tournament games");
+        log.info("CheckForSims for MULTI_GAME tournament games");
       }
       transaction.commit();
     } catch (Exception e) {
@@ -209,8 +209,7 @@ public class RunGame
     }
     session.close();
 
-    log.info(String.format("WatchDogTimer reports %s game(s) are ready to "
-        + "start", games.size()));
+    log.info(String.format("Found %s game(s) ready to start", games.size()));
 
     machinesAvailable = true;
     for (Game game: games) {
@@ -218,7 +217,7 @@ public class RunGame
       new RunGame(game);
 
       if (!machinesAvailable) {
-        log.info("WatchDog No free machines, stop looking for Startable Games");
+        log.info("No free machines, stop looking for Startable Games");
         break;
       }
     }
