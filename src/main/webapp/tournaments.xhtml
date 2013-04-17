@@ -6,55 +6,54 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:t="http://myfaces.apache.org/tomahawk"
-      xmlns:c="http://java.sun.com/jsp/jstl/core">
+      xmlns:t="http://myfaces.apache.org/tomahawk">
 
 <h:body>
   <ui:composition template="template.xhtml">
     <ui:define name="content">
 
-      <h:form rendered="#{user.isAdmin() and actionCompetitions.competitionList.size() > 0}"
-              id="runningCompetitions">
-        <h2>Competition Manager</h2>
+      <h:form rendered="#{user.isAdmin() and actionTournaments.tournamentList.size() > 0}"
+              id="runningTournaments">
+        <h2>Tournament Manager</h2>
 
-        <h3 class="withButton">Pending/Running Competitions</h3>
+        <h3 class="withButton">Pending/Running Tournaments</h3>
         <h:commandButton value="Refresh"/>
-        <t:dataTable id="dataCompetitions" border="1"
-                     value="#{actionCompetitions.competitionList}" var="c">
+        <t:dataTable id="dataTournaments" border="1"
+                     value="#{actionTournaments.tournamentList}" var="c">
 
           <t:column>
             <f:facet name="header">ID</f:facet>
-            <h:outputText value="#{c.competitionId}"/>
+            <h:outputText value="#{c.tournamentId}"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">Name</f:facet>
-            <h:link value="#{c.competitionName}" outcome="Competition">
-              <f:param name="competitionId" value="#{c.competitionId}"/>
+            <h:link value="#{c.tournamentName}" outcome="Tournament">
+              <f:param name="tournamentId" value="#{c.tournamentId}"/>
             </h:link>
           </t:column>
 
-          <t:column styleClass="#{actionCompetitions.getLevelStyle(c, 0)}">
+          <t:column styleClass="#{actionTournaments.getLevelStyle(c, 0)}">
             <f:facet name="header" >Level 0</f:facet>
-            <h:outputText value="#{actionCompetitions.getLevelInfo(c).get(0)}"
+            <h:outputText value="#{actionTournaments.getLevelInfo(c).get(0)}"
                           escape="false"/>
           </t:column>
 
-          <t:column styleClass="#{actionCompetitions.getLevelStyle(c, 1)}">
+          <t:column styleClass="#{actionTournaments.getLevelStyle(c, 1)}">
             <f:facet name="header">Level 1</f:facet>
-            <h:outputText value="#{actionCompetitions.getLevelInfo(c).get(1)}"
+            <h:outputText value="#{actionTournaments.getLevelInfo(c).get(1)}"
                           escape="false"/>
           </t:column>
 
-          <t:column styleClass="#{actionCompetitions.getLevelStyle(c, 2)}">
+          <t:column styleClass="#{actionTournaments.getLevelStyle(c, 2)}">
             <f:facet name="header">Level 2</f:facet>
-            <h:outputText value="#{actionCompetitions.getLevelInfo(c).get(2)}"
+            <h:outputText value="#{actionTournaments.getLevelInfo(c).get(2)}"
                           escape="false"/>
           </t:column>
 
-          <t:column styleClass="#{actionCompetitions.getLevelStyle(c, 3)}">
+          <t:column styleClass="#{actionTournaments.getLevelStyle(c, 3)}">
             <f:facet name="header">Level 3</f:facet>
-            <h:outputText value="#{actionCompetitions.getLevelInfo(c).get(3)}"
+            <h:outputText value="#{actionTournaments.getLevelInfo(c).get(3)}"
                           escape="false"/>
           </t:column>
 
@@ -73,52 +72,52 @@
           <t:column styleClass="left">
             <f:facet name="header">Actions</f:facet>
             <h:commandButton value="Close"
-                             action="#{actionCompetitions.closeCompetition(c)}"
-                             rendered="#{actionCompetitions.closingAllowed(c)}"
+                             action="#{actionTournaments.closeTournament(c)}"
+                             rendered="#{actionTournaments.closingAllowed(c)}"
                              styleClass="actionButton"/>
             <h:commandButton value="Schedule"
-                             action="#{actionCompetitions.scheduleCompetition(c)}"
-                             rendered="#{actionCompetitions.schedulingAllowed(c)}"
+                             action="#{actionTournaments.scheduleTournament(c)}"
+                             rendered="#{actionTournaments.schedulingAllowed(c)}"
                              styleClass="actionButton"/>
             <h:commandButton value="Complete"
-                             action="#{actionCompetitions.completingCompetition(c)}"
-                             rendered="#{actionCompetitions.completingAllowed(c)}"
+                             action="#{actionTournaments.completingTournament(c)}"
+                             rendered="#{actionTournaments.completingAllowed(c)}"
                              styleClass="actionButton"/>
 
             <h:commandButton value="Edit"
-                             action="#{actionCompetitions.loadCompetition(c)}"
-                             rendered="#{actionCompetitions.editingAllowed(c)}"
+                             action="#{actionTournaments.loadTournament(c)}"
+                             rendered="#{actionTournaments.editingAllowed(c)}"
                              styleClass="actionButton"/>
             <h:commandButton value="Cancel"
-                             action="#{actionCompetitions.resetValues()}"
-                             rendered="#{actionCompetitions.competitionId == c.competitionId}"
+                             action="#{actionTournaments.resetValues()}"
+                             rendered="#{actionTournaments.tournamentId == c.tournamentId}"
                              styleClass="actionButton"/>
           </t:column>
         </t:dataTable>
       </h:form>
-      <h:messages for="runningCompetitions"/>
+      <h:messages for="runningTournaments"/>
 
       <h:form enctype="multipart/form-data" rendered="#{user.isAdmin()}"
-              id="saveCompetition">
-        <h:panelGroup rendered="#{actionCompetitions.competitionId == -1}">
-          <h3>Create Competition</h3>
+              id="saveTournament">
+        <h:panelGroup rendered="#{actionTournaments.tournamentId == -1}">
+          <h3>Create Tournament</h3>
         </h:panelGroup>
-        <h:panelGroup rendered="#{actionCompetitions.competitionId != -1}">
-          <h3>Edit Competition</h3>
+        <h:panelGroup rendered="#{actionTournaments.tournamentId != -1}">
+          <h3>Edit Tournament</h3>
         </h:panelGroup>
 
-        <h:panelGrid columns="2" id="competitionTable">
-          <h:outputText value="Competition Name"/>
-          <h:inputText value="#{actionCompetitions.competitionName}"
-                       readonly="#{actionCompetitions.disabledArray[0]}"
+        <h:panelGrid columns="2" id="tournamentTable">
+          <h:outputText value="Tournament Name"/>
+          <h:inputText value="#{actionTournaments.tournamentName}"
+                       readonly="#{actionTournaments.disabledArray[0]}"
                        styleClass="input_wide"/>
 
           <h:outputText value="Select Pom File"/>
           <h:panelGroup>
             <h:selectOneMenu id="poms"
-                             disabled="#{actionCompetitions.disabledArray[0]}"
-                             value="#{actionCompetitions.selectedPom}">
-              <f:selectItems value="#{actionCompetitions.pomList}" var="p"
+                             disabled="#{actionTournaments.disabledArray[0]}"
+                             value="#{actionTournaments.selectedPom}">
+              <f:selectItems value="#{actionTournaments.pomList}" var="p"
                              itemValue="#{p.pomId}" itemLabel="#{p.pomName}"/>
             </h:selectOneMenu>
           </h:panelGroup>
@@ -126,11 +125,11 @@
           <h:panelGroup/>
           <h:panelGroup><br/></h:panelGroup>
 
-          <ui:repeat value="#{actionCompetitions.levels}" var="r">
+          <ui:repeat value="#{actionTournaments.levels}" var="r">
             <tr>
               <td><h:outputText value="Level #{r.levelNr} name"/></td>
               <td><h:inputText value="#{r.levelName}"
-                               disabled="#{actionCompetitions.disabledArray[r.levelNr]}"
+                               disabled="#{actionTournaments.disabledArray[r.levelNr]}"
                                styleClass="input_wide" /></td>
             </tr>
             <tr>
@@ -138,10 +137,10 @@
               <td>
                 <h:panelGroup>
                   <h:inputText value="#{r.nofRounds}"
-                               readonly="#{actionCompetitions.disabledArray[r.levelNr]}"
+                               readonly="#{actionTournaments.disabledArray[r.levelNr]}"
                                styleClass="input_small" />
                   <h:inputText value="#{r.nofWinners}"
-                               readonly="#{actionCompetitions.disabledArray[r.levelNr]}"
+                               readonly="#{actionTournaments.disabledArray[r.levelNr]}"
                                styleClass="input_small" />
                 </h:panelGroup>
               </td>
@@ -151,8 +150,8 @@
               <td>
                 <h:panelGroup>
                   <t:inputDate value="#{r.startTime}"
-                               readonly="#{actionCompetitions.disabledArray[r.levelNr]}"
-                               disabled="#{actionCompetitions.disabledArray[r.levelNr]}"
+                               readonly="#{actionTournaments.disabledArray[r.levelNr]}"
+                               disabled="#{actionTournaments.disabledArray[r.levelNr]}"
                                id="levelStartTime" ampm="false" type="both"/>
                 </h:panelGroup>
               </td>
@@ -165,12 +164,12 @@
           </ui:repeat>
 
           <h:commandButton value="Submit"
-                           action="#{actionCompetitions.saveCompetition()}"/>
+                           action="#{actionTournaments.saveTournament()}"/>
         </h:panelGrid>
-        <h:inputHidden id="competitionId"
-                       value="#{actionCompetitions.competitionId}"/>
+        <h:inputHidden id="tournamentId"
+                       value="#{actionTournaments.tournamentId}"/>
         <br/>
-        <h:messages for="saveCompetition"/>
+        <h:messages for="saveTournament"/>
       </h:form>
 
       <h:form rendered="#{!user.isAdmin()}">

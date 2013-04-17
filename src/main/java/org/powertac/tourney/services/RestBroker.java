@@ -53,34 +53,34 @@ public class RestBroker
       }
       log.debug("Broker id is : " + broker.getBrokerId());
 
-      // Check if the broker registered for a running competition
+      // Check if the broker registered for a running tournament
       Round round;
-      int runningRoundId = isRunningCompetition(session, joinName, broker);
+      int runningRoundId = isRunningTournament(session, joinName, broker);
 
-      // Broker not registered to competition with joinName, check tourneys
+      // Broker not registered to tournament with joinName, check rounds
       if (runningRoundId == -2) {
         round = getRunningRound(session, joinName, broker);
       }
-      // Broker not registered to competition with joinName, check tourneys
+      // Broker not registered to tournament with joinName, check rounds
       else if (runningRoundId == -1) {
         transaction.commit();
         return doneResponse;
       }
-      // Broker registered to competition, but no tourneys available
+      // Broker registered to tournament, but no rounds available
       else if (runningRoundId == 0) {
         // TODO Should we check tourney with same name?
-        log.debug("No round is ready for competition : " + joinName);
+        log.debug("No round is ready for tournament : " + joinName);
         MemStore.addBrokerCheckin(broker.getBrokerId());
         return String.format(retryResponse, 60);
       }
-      // We found running round in competition + broker is registered
+      // We found running round in tournament + broker is registered
       else {
         query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
         query.setInteger("roundId", runningRoundId);
         round = (Round) query.uniqueResult();
       }
 
-      // No competition-round or round found
+      // No tournament-round or round found
       if (round == null) {
         transaction.commit();
         return doneResponse;
@@ -112,42 +112,42 @@ public class RestBroker
 
   /*
    * Ugly hack : returns
-   *  tourneyId : broker is registered to running tourney (always > 0)
-   *  0 : broker is registered to competition, but no tourneys available
-   *  -1 : broker isn't registered to competition
-   *  -2 : there's no competition with joinName
+   * roundId : broker is registered to running round (always > 0)
+   *  0 : broker is registered to tournament, but no rounds available
+   *  -1 : broker isn't registered to tournament
+   *  -2 : there's no tournament with joinName
    */
-  private int isRunningCompetition(Session session,
+  private int isRunningTournament (Session session,
                                    String joinName, Broker broker)
   {
-    Query query = session.createQuery(Constants.HQL.GET_COMPETITION_BY_NAME);
-    query.setString("competitionName", joinName);
-    Competition competition = (Competition) query.uniqueResult();
+    Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_NAME);
+    query.setString("tournamentName", joinName);
+    Tournament tournament = (Tournament) query.uniqueResult();
     int result = -2;
 
-    if (competition == null) {
-      log.debug("Competition doesn't exists : " + joinName);
+    if (tournament == null) {
+      log.debug("Tournament doesn't exists : " + joinName);
       return -2;
     }
 
-    if (competition.isComplete()) {
-      log.debug("Competition is finished, we're done : " + joinName);
+    if (tournament.isComplete()) {
+      log.debug("Tournament is finished, we're done : " + joinName);
       return -1;
     }
 
-    for (Level level : competition.getLevelMap().values()) {
+    for (Level level : tournament.getLevelMap().values()) {
       for (Round round : level.getRoundMap().values()) {
         if (broker.getRoundMap().get(round.getRoundId())==null) {
           continue;
         }
 
-        // We now know broker is registered for competition
+        // We now know broker is registered for tournament
         if (round.isComplete()) {
           result = 0;
           continue;
         }
 
-        // Found a running tourney in competition that broker is registered for
+        // Found a running tourney in tournament that broker is registered for
         return round.getRoundId();
       }
     }
@@ -163,17 +163,17 @@ public class RestBroker
     Round round = (Round) query.uniqueResult();
 
     if (round == null) {
-      log.debug("Competition doesn't exists : " + joinName);
+      log.debug("Tournament doesn't exists : " + joinName);
       return null;
     }
 
     if (round.isComplete()) {
-      log.debug("Competition is finished, we're done : " + joinName);
+      log.debug("Tournament is finished, we're done : " + joinName);
       return null;
     }
 
     if (broker.getRoundMap().get(round.getRoundId()) == null) {
-      log.debug(String.format("Broker not registered for competition " +
+      log.debug(String.format("Broker not registered for tournament " +
           round.getRoundName()));
       return null;
     }

@@ -51,7 +51,7 @@
                           style="color:red;"
                           rendered="#{scheduler.nullRound}"/>
             <h:outputText
-                value="Round &lt;b&gt;#{scheduler.runningRound().roundName}&lt;/b&gt; Loaded"
+                value="Round &lt;b&gt;#{scheduler.getRunningRound().roundName}&lt;/b&gt; Loaded"
                 style="color:green;" escape="false"
                 rendered="#{!scheduler.nullRound}"/>
           </h:panelGroup>

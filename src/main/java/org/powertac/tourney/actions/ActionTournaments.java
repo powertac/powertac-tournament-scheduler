@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
-import org.powertac.tourney.beans.Competition;
+import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.beans.Level;
 import org.powertac.tourney.beans.Pom;
 import org.powertac.tourney.beans.Round;
@@ -21,26 +21,26 @@ import java.util.List;
 
 @ManagedBean
 @RequestScoped
-public class ActionCompetitions
+public class ActionTournaments
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private int competitionId;
-  private String competitionName;
+  private int tournamentId;
+  private String tournamentName;
   private int selectedPom;
 
   private int nofLevels = 4;
   private List<Level> levels;
   private boolean[] disabledArray;
 
-  public ActionCompetitions ()
+  public ActionTournaments ()
   {
     resetValues();
   }
 
-  public List<Competition> getCompetitionList ()
+  public List<Tournament> getTournamentList ()
   {
-    return Competition.getNotCompleteCompetitionList();
+    return Tournament.getNotCompleteTournamentList();
   }
 
   public List<Pom> getPomList ()
@@ -48,12 +48,12 @@ public class ActionCompetitions
     return Pom.getPomList();
   }
 
-  public List<String> getLevelInfo (Competition competition)
+  public List<String> getLevelInfo (Tournament tournament)
   {
     List<String> results = new ArrayList<String>();
     String base = "<a href=\"round.xhtml?roundId=%d\">%d</a> ";
 
-    for (Level level: competition.getLevelMap().values()) {
+    for (Level level: tournament.getLevelMap().values()) {
       String links = level.getNofRounds() + " / "+ level.getNofWinners();
       if (level.getRoundMap().size() != 0) {
         links += " | ";
@@ -72,27 +72,27 @@ public class ActionCompetitions
     return results;
   }
 
-  public String getLevelStyle (Competition competition, int levelNr)
+  public String getLevelStyle (Tournament tournament, int levelNr)
   {
-    if (competition.getCurrentLevelNr() == levelNr) {
+    if (tournament.getCurrentLevelNr() == levelNr) {
       return "left running";
     } else {
       return "left";
     }
   }
 
-  public void closeCompetition (Competition competition)
+  public void closeTournament (Tournament tournament)
   {
-    log.info("Closing competition : " + competition.getCompetitionId());
+    log.info("Closing tournament : " + tournament.getTournamentId());
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      competition.setStateToClosed();
-      session.saveOrUpdate(competition);
+      tournament.setStateToClosed();
+      session.saveOrUpdate(tournament);
 
       // Also close round(s) of first level
-      Level level = competition.getLevelMap().get(0);
+      Level level = tournament.getLevelMap().get(0);
       for (Round round : level.getRoundMap().values()) {
         round.setClosed(true);
         session.update(round);
@@ -101,24 +101,24 @@ public class ActionCompetitions
       transaction.commit();
     } catch (Exception e) {
       transaction.rollback();
-      log.error("Error closing competition " + competition.getCompetitionId());
+      log.error("Error closing tournament " + tournament.getTournamentId());
       e.printStackTrace();
-      message(0, "Error closing the competition");
+      message(0, "Error closing the tournament");
     } finally {
-      message(0, "Competition closed, schedule next level when done editing");
+      message(0, "Tournament closed, schedule next level when done editing");
       session.close();
     }
   }
 
-  public void scheduleCompetition (Competition competition)
+  public void scheduleTournament (Tournament tournament)
   {
-    log.info("Scheduling competition : " + competition.getCompetitionId());
+    log.info("Scheduling tournament : " + tournament.getTournamentId());
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      if (competition.scheduleNextLevel(session)) {
-        session.saveOrUpdate(competition);
+      if (tournament.scheduleNextLevel(session)) {
+        session.saveOrUpdate(tournament);
         transaction.commit();
       }
       else {
@@ -127,12 +127,12 @@ public class ActionCompetitions
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      log.error("Error scheduling next competition level");
-      message(0, "Error scheduling next competition level");
+      log.error("Error scheduling next tournament level");
+      message(0, "Error scheduling next tournament level");
     } finally {
       if (transaction.wasCommitted()) {
-        log.info("Next level scheduled for competition "
-            + competition.getCompetitionId());
+        log.info("Next level scheduled for tournament "
+            + tournament.getTournamentId());
         message(0, "Level scheduled, manually load the rounds(s)");
         resetValues();
       }
@@ -140,15 +140,15 @@ public class ActionCompetitions
     }
   }
 
-  public void completingCompetition (Competition competition)
+  public void completingTournament (Tournament tournament)
   {
-    log.info("Completing competition : " + competition.getCompetitionId());
+    log.info("Completing tournament : " + tournament.getTournamentId());
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      if (competition.completeLevel()) {
-        session.saveOrUpdate(competition);
+      if (tournament.completeLevel()) {
+        session.saveOrUpdate(tournament);
         transaction.commit();
       }
       else {
@@ -157,13 +157,13 @@ public class ActionCompetitions
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      log.error("Error completing competition level");
+      log.error("Error completing tournament level");
     } finally {
       if (transaction.wasCommitted()) {
-        log.info(String.format("Level completed for competition %s",
-            competition.getCompetitionId()));
-        if (competition.isComplete()) {
-          message(0, "Level completed. Last level so competition completed.");
+        log.info(String.format("Level completed for tournament %s",
+            tournament.getTournamentId()));
+        if (tournament.isComplete()) {
+          message(0, "Level completed. Last level so tournament completed.");
         }
         else {
           message(0, "Level completed, schedule next level when done editing");
@@ -174,63 +174,63 @@ public class ActionCompetitions
     }
   }
 
-  public void saveCompetition ()
+  public void saveTournament ()
   {
     if (!inputsValidated()) {
-      if (competitionId != -1) {
+      if (tournamentId != -1) {
         resetValues();
       }
       return;
     }
 
-    if (competitionId != -1) {
-      updateCompetition();
+    if (tournamentId != -1) {
+      updateTournament();
     } else {
-      createCompetition();
+      createTournament();
     }
   }
 
-  private void createCompetition ()
+  private void createTournament ()
   {
-    log.info("Creating competition");
+    log.info("Creating tournament");
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
-    Competition competition = new Competition();
+    Tournament tournament = new Tournament();
     try {
-      setValues(session, competition);
-      createLevels(session, competition);
+      setValues(session, tournament);
+      createLevels(session, tournament);
       // Create first round(s) so brokers can register
-      competition.scheduleRounds(session);
+      tournament.scheduleRounds(session);
       transaction.commit();
     } catch (ConstraintViolationException ignored) {
       transaction.rollback();
-      message(1, "The competition name already exists");
+      message(1, "The tournament name already exists");
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      log.error("Error creating competition");
+      log.error("Error creating tournament");
     } finally {
       if (transaction.wasCommitted()) {
-        log.info(String.format("Created competition %s",
-            competition.getCompetitionId()));
+        log.info(String.format("Created tournament %s",
+            tournament.getTournamentId()));
         resetValues();
       }
       session.close();
     }
   }
 
-  public void loadCompetition (Competition competition)
+  public void loadTournament (Tournament tournament)
   {
-    competitionId = competition.getCompetitionId();
-    competitionName = competition.getCompetitionName();
-    selectedPom = competition.getPomId();
-    int currentLevel = competition.getCurrentLevelNr();
+    tournamentId = tournament.getTournamentId();
+    tournamentName = tournament.getTournamentName();
+    selectedPom = tournament.getPomId();
+    int currentLevel = tournament.getCurrentLevelNr();
 
-    disabledArray = new boolean[competition.getLevelMap().size()];
+    disabledArray = new boolean[tournament.getLevelMap().size()];
 
     levels = new ArrayList<Level>();
-    for (Level level: competition.getLevelMap().values()) {
+    for (Level level: tournament.getLevelMap().values()) {
       levels.add(level);
 
       if (currentLevel >= level.getLevelNr()) {
@@ -239,22 +239,22 @@ public class ActionCompetitions
     }
   }
 
-  public void updateCompetition ()
+  public void updateTournament ()
   {
-    log.info("Saving competition " + competitionId);
+    log.info("Saving tournament " + tournamentId);
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Competition competition = (Competition) session.get(Competition.class, competitionId);
-      setValues(session, competition);
-      updateLevels(session, competition);
+      Tournament tournament = (Tournament) session.get(Tournament.class, tournamentId);
+      setValues(session, tournament);
+      updateLevels(session, tournament);
       transaction.commit();
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      log.error("Error updating competition");
-      message(1, "Error updating competition");
+      log.error("Error updating tournament");
+      message(1, "Error updating tournament");
     } finally {
       if (transaction.wasCommitted()) {
         resetValues();
@@ -263,21 +263,21 @@ public class ActionCompetitions
     }
   }
 
-  private void setValues (Session session, Competition competition)
+  private void setValues (Session session, Tournament tournament)
   {
-    if (competitionId == -1) {
-      competition.setCompetitionName(competitionName);
-      competition.setPomId(selectedPom);
-      session.saveOrUpdate(competition);
+    if (tournamentId == -1) {
+      tournament.setTournamentName(tournamentName);
+      tournament.setPomId(selectedPom);
+      session.saveOrUpdate(tournament);
     }
   }
 
-  private void updateLevels (Session session, Competition competition)
+  private void updateLevels (Session session, Tournament tournament)
   {
     for (Level posted: levels) {
-      Level level = competition.getLevelMap().get(posted.getLevelNr());
+      Level level = tournament.getLevelMap().get(posted.getLevelNr());
 
-      if (level.getLevelNr() > competition.getCurrentLevelNr()) {
+      if (level.getLevelNr() > tournament.getCurrentLevelNr()) {
         level.setLevelName(posted.getLevelName());
         level.setNofRounds(posted.getNofRounds());
         level.setNofWinners(posted.getNofWinners());
@@ -293,21 +293,21 @@ public class ActionCompetitions
     }
   }
 
-  private void createLevels (Session session, Competition competition)
+  private void createLevels (Session session, Tournament tournament)
   {
     for (Level level: levels) {
       log.info("Creating level " + level.getLevelNr()
           + " : " + level.getLevelName());
-      level.setCompetitionId(competition.getCompetitionId());
+      level.setTournamentId(tournament.getTournamentId());
       session.save(level);
-      competition.getLevelMap().put(level.getLevelNr(), level);
+      tournament.getLevelMap().put(level.getLevelNr(), level);
     }
   }
 
   public void resetValues ()
   {
-    competitionId = -1;
-    competitionName = "";
+    tournamentId = -1;
+    tournamentName = "";
     selectedPom = 0;
 
     disabledArray = new boolean[nofLevels];
@@ -328,32 +328,32 @@ public class ActionCompetitions
     levels.get(0).setNofWinners(100);
   }
 
-  public boolean editingAllowed (Competition competition)
+  public boolean editingAllowed (Tournament tournament)
   {
-    return competition.editingAllowed() && competitionId == -1;
+    return tournament.editingAllowed() && tournamentId == -1;
   }
 
-  public boolean closingAllowed (Competition competition)
+  public boolean closingAllowed (Tournament tournament)
   {
-    return competition.closingAllowed() && competitionId == -1;
+    return tournament.closingAllowed() && tournamentId == -1;
   }
 
-  public boolean schedulingAllowed (Competition competition)
+  public boolean schedulingAllowed (Tournament tournament)
   {
-    return competition.schedulingAllowed() && competitionId == -1;
+    return tournament.schedulingAllowed() && tournamentId == -1;
   }
 
-  public boolean completingAllowed (Competition competition)
+  public boolean completingAllowed (Tournament tournament)
   {
-    return competition.completingAllowed() && competitionId == -1;
+    return tournament.completingAllowed() && tournamentId == -1;
   }
 
   private boolean inputsValidated ()
   {
     List<String> messages = new ArrayList<String>();
 
-    if (competitionName.trim().isEmpty()) {
-      messages.add("The competition name cannot be empty");
+    if (tournamentName.trim().isEmpty()) {
+      messages.add("The tournament name cannot be empty");
     }
 
     int previousWinners = -1;
@@ -363,7 +363,7 @@ public class ActionCompetitions
       String levelName = level.getLevelName();
 
       if (levelNr == 0 && levelName.isEmpty()) {
-        messages.add("A competition needs at least level 0");
+        messages.add("A tournament needs at least level 0");
       }
 
       if (levelName.isEmpty()) {
@@ -419,29 +419,29 @@ public class ActionCompetitions
   {
     FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
     if (field == 0) {
-      FacesContext.getCurrentInstance().addMessage("runningCompetitions", fm);
+      FacesContext.getCurrentInstance().addMessage("runningTournaments", fm);
     } else if (field == 1) {
-      FacesContext.getCurrentInstance().addMessage("saveCompetition", fm);
+      FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
     }
   }
 
   //<editor-fold desc="Setters and Getters">
-  public int getCompetitionId ()
+  public int getTournamentId ()
   {
-    return competitionId;
+    return tournamentId;
   }
-  public void setCompetitionId (int competitionId)
+  public void setTournamentId (int tournamentId)
   {
-    this.competitionId = competitionId;
+    this.tournamentId = tournamentId;
   }
 
-  public String getCompetitionName ()
+  public String getTournamentName ()
   {
-    return competitionName;
+    return tournamentName;
   }
-  public void setCompetitionName (String competitionName)
+  public void setTournamentName (String tournamentName)
   {
-    this.competitionName = competitionName;
+    this.tournamentName = tournamentName;
   }
 
   public int getSelectedPom ()

@@ -37,9 +37,9 @@
 
           <t:column>
             <f:facet name="header">Comp</f:facet>
-            <h:link value="#{t.level.competitionId}" outcome="Competition"
-                    rendered="#{t.level.competitionId != null}">
-              <f:param name="competitionId" value="#{t.level.competitionId}"/>
+            <h:link value="#{t.level.tournamentId}" outcome="Tournament"
+                    rendered="#{t.level.tournamentId != null}">
+              <f:param name="tournamentId" value="#{t.level.tournamentId}"/>
             </h:link>
           </t:column>
 

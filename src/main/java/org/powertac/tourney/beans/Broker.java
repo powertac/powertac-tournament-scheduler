@@ -110,7 +110,7 @@ public class Broker
       for (Round round : broker.getRoundMap().values()) {
         Registration registration = (Registration) session
             .createCriteria(Registration.class)
-            .add(Restrictions.eq("getRound", round))
+            .add(Restrictions.eq("round", round))
             .add(Restrictions.eq("broker", broker)).uniqueResult();
         session.delete(registration);
         session.flush();
@@ -183,7 +183,7 @@ public class Broker
 
       Registration registration = (Registration) session
           .createCriteria(Registration.class)
-          .add(Restrictions.eq("getRound", round))
+          .add(Restrictions.eq("round", round))
           .add(Restrictions.eq("broker", this)).uniqueResult();
       session.delete(registration);
 
@@ -323,7 +323,7 @@ public class Broker
         continue;
       }
 
-      // Check if not part of a competition
+      // Check if not part of a tournament
       if (accountPage && round.getLevel() != null) {
         continue;
       }

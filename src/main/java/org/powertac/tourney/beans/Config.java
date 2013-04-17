@@ -111,13 +111,14 @@ public class Config
     return true;
   }
 
-  public static boolean setCompetitionContent (String newContent, int competitionId)
+  public static boolean setTournamentContent (String newContent,
+                                              int tournamentId)
   {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
       org.hibernate.Query query = session.createQuery(Constants.HQL.GET_CONFIG);
-      query.setString("configKey", "competition_content_" + competitionId);
+      query.setString("configKey", "tournament_content_" + tournamentId);
       Config config = (Config) query.uniqueResult();
       config.setConfigValue(newContent);
       session.update(config);
@@ -125,7 +126,7 @@ public class Config
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      log.error("Error, setting competition content " + competitionId);
+      log.error("Error, setting tournament content " + tournamentId);
       return false;
     } finally {
       session.close();
@@ -134,19 +135,19 @@ public class Config
     return true;
   }
 
-  public static String getCompetitionContent (int competitionId)
+  public static String getTournamentContent (int tournamentId)
   {
     String content;
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
       org.hibernate.Query query = session.createQuery(Constants.HQL.GET_CONFIG);
-      query.setString("configKey", "competition_content_" + competitionId);
+      query.setString("configKey", "tournament_content_" + tournamentId);
       Config config = (Config) query.uniqueResult();
 
       if (config == null) {
         config = new Config();
-        config.setConfigKey("competition_content_" + competitionId);
+        config.setConfigKey("tournament_content_" + tournamentId);
         config.setConfigValue("");
         session.save(config);
       }
@@ -156,7 +157,7 @@ public class Config
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      log.error("Error, getting competition content " + competitionId);
+      log.error("Error, getting tournament content " + tournamentId);
       return null;
     } finally {
       session.close();

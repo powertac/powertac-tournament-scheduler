@@ -19,41 +19,41 @@ import java.util.List;
 
 @ManagedBean
 @RequestScoped
-public class ActionCompetition
+public class ActionTournament
 {
-  private Competition competition;
-  private List<String> competitionInfo = new ArrayList<String>();
+  private Tournament tournament;
+  private List<String> tournamentInfo = new ArrayList<String>();
   private List<String> participantInfo = new ArrayList<String>();
 
   private static boolean editing;
   private String content;
 
-  public ActionCompetition ()
+  public ActionTournament ()
   {
     loadData();
   }
 
   private void loadData ()
   {
-    int competitionId = getCompetitionId();
-    if (competitionId < 1) {
+    int tournamentId = getTournamentId();
+    if (tournamentId < 1) {
       return;
     }
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Query query = session.createQuery(Constants.HQL.GET_COMPETITION_BY_ID);
-      query.setInteger("competitionId", competitionId);
-      competition = (Competition) query.uniqueResult();
+      Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID);
+      query.setInteger("tournamentId", tournamentId);
+      tournament = (Tournament) query.uniqueResult();
 
-      if (competition == null) {
+      if (tournament == null) {
         transaction.rollback();
         Utils.redirect();
         return;
       }
 
-      loadCompetitionInfo();
+      loadTournamentInfo();
       loadParticipantInfo();
       transaction.commit();
     } catch (Exception e) {
@@ -64,12 +64,12 @@ public class ActionCompetition
     }
   }
 
-  private int getCompetitionId ()
+  private int getTournamentId ()
   {
     FacesContext facesContext = FacesContext.getCurrentInstance();
     try {
       return Integer.parseInt(facesContext.getExternalContext().
-          getRequestParameterMap().get("competitionId"));
+          getRequestParameterMap().get("tournamentId"));
     } catch (NumberFormatException ignored) {
       if (!FacesContext.getCurrentInstance().isPostback()) {
         Utils.redirect();
@@ -78,23 +78,23 @@ public class ActionCompetition
     }
   }
 
-  private void loadCompetitionInfo ()
+  private void loadTournamentInfo ()
   {
     String base = "<a href=\"round.xhtml?roundId=%s\">%s</a>";
 
-    competitionInfo.add("Id : " + competition.getCompetitionId());
-    competitionInfo.add("Name : " + competition.getCompetitionName());
-    competitionInfo.add("Status : " + competition.getState());
-    competitionInfo.add("Pom Id : " + competition.getPomId() +"<br/><br/>");
+    tournamentInfo.add("Id : " + tournament.getTournamentId());
+    tournamentInfo.add("Name : " + tournament.getTournamentName());
+    tournamentInfo.add("Status : " + tournament.getState());
+    tournamentInfo.add("Pom Id : " + tournament.getPomId() + "<br/><br/>");
 
-    for (Level level : competition.getLevelMap().values()) {
-      competitionInfo.add("Level " + level.getLevelNr()
+    for (Level level : tournament.getLevelMap().values()) {
+      tournamentInfo.add("Level " + level.getLevelNr()
           + " : " + level.getLevelName());
-      competitionInfo.add("Rounds / winners : "
+      tournamentInfo.add("Rounds / winners : "
           + level.getNofRounds() + " / " + level.getNofWinners());
 
       for (Round round : level.getRoundMap().values()) {
-        competitionInfo.add("Round : " +
+        tournamentInfo.add("Round : " +
             String.format(base,
                 round.getRoundId(), round.getRoundName())
             + "<br/>StartTime (UTC) : " + round.startTimeUTC().substring(0, 16)
@@ -102,14 +102,14 @@ public class ActionCompetition
         );
       }
 
-      int last = competitionInfo.size() - 1;
-      competitionInfo.set(last, competitionInfo.get(last) + "<br/><br/>");
+      int last = tournamentInfo.size() - 1;
+      tournamentInfo.set(last, tournamentInfo.get(last) + "<br/><br/>");
     }
   }
 
   private void loadParticipantInfo ()
   {
-    for (Level level : competition.getLevelMap().values()) {
+    for (Level level : tournament.getLevelMap().values()) {
       if (level.getLevelNr() != 0) {
         continue;
       }
@@ -131,9 +131,14 @@ public class ActionCompetition
   {
     List<Broker> allowedBrokers = new ArrayList<Broker>();
 
+    if (tournament == null) {
+      Utils.redirect();
+      return allowedBrokers;
+    }
+
     // Check if max allowed brokers reached
-    if (competition.getLevelMap().get(0).getNofBrokers() >=
-        competition.getLevelMap().get(0).getMaxBrokers()) {
+    if (tournament.getLevelMap().get(0).getNofBrokers() >=
+        tournament.getLevelMap().get(0).getMaxBrokers()) {
       return allowedBrokers;
     }
 
@@ -143,15 +148,14 @@ public class ActionCompetition
       return allowedBrokers;
     }
 
-    // Check if we have an open competition
-    // TODO Check this
-    if (competition == null || !competition.isOpen()) {
+    // Check if we have an open tournament
+    if (!tournament.isOpen()) {
       return allowedBrokers;
     }
 
     // Find before-deadline round
     List<Round> rounds = new ArrayList<Round>();
-    for (Level level : competition.getLevelMap().values()) {
+    for (Level level : tournament.getLevelMap().values()) {
       for (Round round : level.getRoundMap().values()) {
         if (round.getStartTime().before(Utils.offsetDate(-2))) {
           continue;
@@ -184,7 +188,7 @@ public class ActionCompetition
   {
     // Find least filled round
     Round leastFilledRound = null;
-    Level level = competition.getLevelMap().get(0);
+    Level level = tournament.getLevelMap().get(0);
     for (Round round : level.getRoundMap().values()) {
       if (leastFilledRound == null ||
           leastFilledRound.getBrokerMap().size() >
@@ -199,20 +203,25 @@ public class ActionCompetition
     }
 
     if (leastFilledRound.getBrokerMap().get(broker.getBrokerId()) != null){
-      message(1, "Registering failed, already registered for this competition");
+      message(1, "Registering failed, already registered for this tournament");
       return;
     }
 
     broker.register(leastFilledRound.getRoundId());
 
-    Utils.redirect("competition.xhtml?competitionId=" + getCompetitionId());
+    Utils.redirect("tournament.xhtml?tournamentId=" + getTournamentId());
   }
 
   //<editor-fold desc="Edit content">
   public void edit ()
   {
+    int tournamentId = getTournamentId();
+    if (tournamentId < 1) {
+      return;
+    }
+
     if (editing) {
-      if (!MemStore.setCompetitionContent(content, getCompetitionId())) {
+      if (!MemStore.setTournamentContent(content, tournamentId)) {
         message(0, "Error saving to DB");
         return;
       }
@@ -233,7 +242,7 @@ public class ActionCompetition
   public String getContent ()
   {
     if (content == null) {
-      return MemStore.getCompetitionContent(getCompetitionId());
+      return MemStore.getTournamentContent(getTournamentId());
     }
     return content;
   }
@@ -256,14 +265,14 @@ public class ActionCompetition
   }
 
   //<editor-fold desc="Setters and Getters">
-  public Competition getCompetition ()
+  public Tournament getTournament ()
   {
-    return competition;
+    return tournament;
   }
 
-  public List<String> getCompetitionInfo ()
+  public List<String> getTournamentInfo ()
   {
-    return competitionInfo;
+    return tournamentInfo;
   }
 
   public List<String> getParticipantInfo ()

@@ -32,7 +32,7 @@ public class MemStore
 
   public static String indexContent;
 
-  public static HashMap<Integer, String> competitionContent = new HashMap<Integer, String>();
+  public static HashMap<Integer, String> tournamentContent = new HashMap<Integer, String>();
 
   public static List<Location> availableLocations = new ArrayList<Location>();
 
@@ -237,26 +237,26 @@ public class MemStore
     return Config.setIndexContent(newContent);
   }
 
-  public static String getCompetitionContent (int competitionId)
+  public static String getTournamentContent (int tournamentId)
   {
-    if (competitionContent.get(competitionId) == null ||
-        competitionContent.get(competitionId).isEmpty()) {
-      competitionContent.put(competitionId,
-          Config.getCompetitionContent(competitionId));
-      if (competitionContent.get(competitionId) == null) {
+    if (tournamentContent.get(tournamentId) == null ||
+        tournamentContent.get(tournamentId).isEmpty()) {
+      tournamentContent.put(tournamentId,
+          Config.getTournamentContent(tournamentId));
+      if (tournamentContent.get(tournamentId) == null) {
         return "Error connecting to DB";
       }
     }
 
-    return competitionContent.get(competitionId);
+    return tournamentContent.get(tournamentId);
   }
 
-  public static boolean setCompetitionContent (String newContent,
-                                               int competitionId)
+  public static boolean setTournamentContent (String newContent,
+                                              int tournamentId)
   {
-    competitionContent.put(competitionId, newContent);
+    tournamentContent.put(tournamentId, newContent);
 
-    return Config.setCompetitionContent(newContent, competitionId);
+    return Config.setTournamentContent(newContent, tournamentId);
   }
 
   public static List<Location> getAvailableLocations ()

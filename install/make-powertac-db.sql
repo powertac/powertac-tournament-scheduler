@@ -44,14 +44,14 @@ CREATE TABLE `tourney`.`poms` (
   ENGINE = InnoDB;
 
 
-DROP TABLE IF EXISTS `tourney`.`competitions`;
-CREATE TABLE `tourney`.`competitions` (
-  `competitionId`   INT(11)                                                                                                                                            NOT NULL AUTO_INCREMENT,
-  `competitionName` VARCHAR(256) UNIQUE                                                                                                                                NOT NULL,
+DROP TABLE IF EXISTS `tourney`.`tournaments`;
+CREATE TABLE `tourney`.`tournaments` (
+  `tournamentId`    INT(11)                                                                                                                                            NOT NULL AUTO_INCREMENT,
+  `tournamentName`  VARCHAR(256) UNIQUE                                                                                                                                NOT NULL,
   `state`           ENUM('open', 'closed', 'scheduled0', 'completed0', 'scheduled1', 'completed1', 'scheduled2', 'completed2', 'scheduled3', 'completed3', 'complete') NOT NULL,
   `pomId`           INT(11)                                                                                                                                            NOT NULL,
-  PRIMARY KEY (`competitionId`),
-  CONSTRAINT competition_refs FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`)
+  PRIMARY KEY (`tournamentId`),
+  CONSTRAINT tournament_refs FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`)
 )
   ENGINE = InnoDB;
 
@@ -60,13 +60,13 @@ DROP TABLE IF EXISTS `tourney`.`levels`;
 CREATE TABLE `tourney`.`levels` (
   `levelId`        INT(11)      NOT NULL AUTO_INCREMENT,
   `levelName`      VARCHAR(256) NOT NULL,
-  `competitionId`  INT(11)      NOT NULL,
+  `tournamentId`   INT(11)      NOT NULL,
   `levelNr`        INT(11)      NOT NULL,
   `nofRounds`      INT(11)      NOT NULL,
   `nofWinners`     INT(11)      NOT NULL,
   `startTime`      DATETIME     NOT NULL,
   PRIMARY KEY (`levelId`),
-  CONSTRAINT level_refs FOREIGN KEY (`competitionId`) REFERENCES `tourney`.`competitions` (`competitionId`)
+  CONSTRAINT level_refs FOREIGN KEY (`tournamentId`) REFERENCES `tourney`.`tournaments` (`tournamentId`)
 )
   ENGINE = InnoDB;
 

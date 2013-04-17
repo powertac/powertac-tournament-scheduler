@@ -1,6 +1,6 @@
 package org.powertac.tourney.constants;
 
-import org.powertac.tourney.beans.Competition;
+import org.powertac.tourney.beans.Tournament;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Round;
 
@@ -84,27 +84,27 @@ public class Constants
     public static final String GET_MACHINES =
         "FROM Machine AS machine ";
 
-    public static final String GET_COMPETITION_BY_ID =
-        "FROM Competition AS competition "
-            + "LEFT JOIN FETCH competition.levelMap AS levelMap "
+    public static final String GET_TOURNAMENT_BY_ID =
+        "FROM Tournament AS tournament "
+            + "LEFT JOIN FETCH tournament.levelMap AS levelMap "
             + "LEFT JOIN FETCH levelMap.roundMap AS roundMap "
             + "LEFT JOIN FETCH roundMap.brokerMap AS brokerMap "
-            + "WHERE competition.competitionId =:competitionId";
+            + "WHERE tournament.tournamentId =:tournamentId";
 
-    public static final String GET_COMPETITION_BY_NAME =
-        "FROM Competition AS competition "
-            + "LEFT JOIN FETCH competition.levelMap AS levelMap "
+    public static final String GET_TOURNAMENT_BY_NAME =
+        "FROM Tournament AS tournament "
+            + "LEFT JOIN FETCH tournament.levelMap AS levelMap "
             + "LEFT JOIN FETCH levelMap.roundMap AS roundMap "
-            + "WHERE competition.competitionName =:competitionName";
+            + "WHERE tournament.tournamentName =:tournamentName";
 
-    public static final String GET_COMPETITION_NOT_COMPLETE =
-        "FROM Competition AS competition "
-            + "LEFT JOIN FETCH competition.levelMap AS levelMap "
+    public static final String GET_TOURNAMENT_NOT_COMPLETE =
+        "FROM Tournament AS tournament "
+            + "LEFT JOIN FETCH tournament.levelMap AS levelMap "
             + "LEFT JOIN FETCH levelMap.roundMap AS roundMap "
             + "LEFT JOIN FETCH roundMap.gameMap as gameMap "
             + "LEFT JOIN FETCH gameMap.agentMap as agentMap "
             + "LEFT JOIN FETCH roundMap.brokerMap as brokerMap "
-            + "WHERE NOT competition.state='" + Competition.getStateComplete() + "'";
+            + "WHERE NOT tournament.state='" + Tournament.getStateComplete() + "'";
 
     public static final String GET_ROUND_BY_ID =
         "FROM Round AS round "

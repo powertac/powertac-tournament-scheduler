@@ -17,13 +17,13 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @ManagedBean
 @Entity
-@Table(name = "competitions")
-public class Competition
+@Table(name = "tournaments")
+public class Tournament
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private int competitionId;
-  private String competitionName;
+  private int tournamentId;
+  private String tournamentName;
   private STATE state;
   private int pomId;
 
@@ -64,7 +64,7 @@ public class Competition
         scheduled3);
   }
 
-  public Competition ()
+  public Tournament ()
   {
     state = STATE.open;
   }
@@ -76,7 +76,7 @@ public class Competition
     log.info("Scheduling rounds for level " + level.getLevelNr());
 
     for (int i=0; i < level.getNofRounds(); i++) {
-      String roundName = competitionName +"_"+ level.getLevelName();
+      String roundName = tournamentName +"_"+ level.getLevelName();
       if (level.getNofRounds() != 1) {
         roundName += "_" + i;
       }
@@ -204,8 +204,8 @@ public class Competition
 
     if (state == STATE.closed) {
       state = STATE.scheduled0;
-      // Rounds are already scheduled during competition creation
-      // Brokers are already scheduled via registering for the competition
+      // Rounds are already scheduled during tournament creation
+      // Brokers are already scheduled via registering for the tournament
     }
     else if (state == STATE.completed0) {
       state = STATE.scheduled1;
@@ -333,15 +333,15 @@ public class Competition
 
   //<editor-fold desc="Collections">
   @SuppressWarnings("unchecked")
-  public static List<Competition> getNotCompleteCompetitionList ()
+  public static List<Tournament> getNotCompleteTournamentList ()
   {
-    List<Competition> competitions = new ArrayList<Competition>();
+    List<Tournament> tournaments = new ArrayList<Tournament>();
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      competitions = (List<Competition>) session
-          .createQuery(Constants.HQL.GET_COMPETITION_NOT_COMPLETE)
+      tournaments = (List<Tournament>) session
+          .createQuery(Constants.HQL.GET_TOURNAMENT_NOT_COMPLETE)
           .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
       transaction.commit();
     } catch (Exception e) {
@@ -350,11 +350,11 @@ public class Competition
     }
     session.close();
 
-    return competitions;
+    return tournaments;
   }
 
   @OneToMany
-  @JoinColumn(name = "competitionId")
+  @JoinColumn(name = "tournamentId")
   @MapKey(name = "levelNr")
   public Map<Integer, Level> getLevelMap ()
   {
@@ -369,24 +369,24 @@ public class Competition
   //<editor-fold desc="Setters and Getters">
   @Id
   @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "competitionId", unique = true, nullable = false)
-  public int getCompetitionId ()
+  @Column(name = "tournamentId", unique = true, nullable = false)
+  public int getTournamentId ()
   {
-    return competitionId;
+    return tournamentId;
   }
-  public void setCompetitionId (int competitionId)
+  public void setTournamentId (int tournamentId)
   {
-    this.competitionId = competitionId;
+    this.tournamentId = tournamentId;
   }
 
-  @Column(name = "competitionName", nullable = false)
-  public String getCompetitionName ()
+  @Column(name = "tournamentName", nullable = false)
+  public String getTournamentName ()
   {
-    return competitionName;
+    return tournamentName;
   }
-  public void setCompetitionName (String competitionName)
+  public void setTournamentName (String tournamentName)
   {
-    this.competitionName = competitionName;
+    this.tournamentName = tournamentName;
   }
 
   @Column(name = "state", nullable = false)

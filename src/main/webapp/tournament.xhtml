@@ -11,59 +11,59 @@
   <ui:composition template="template.xhtml">
     <ui:define name="content">
       <script type="text/javascript" charset="utf8"
-              src="resources/js/competition.js"></script>
+              src="resources/js/tournament.js"></script>
 
-      <h2>Overview for competition : #{actionCompetition.competition.competitionName}</h2>
+      <h2>Overview for tournament : #{actionTournament.tournament.tournamentName}</h2>
 
-      <h:outputText id="summary" value="#{actionCompetition.content}"
+      <h:outputText id="summary" value="#{actionTournament.content}"
                     escape="false"/>
 
       <h:form id="contentForm" rendered="#{user.isAdmin()}">
         <h:inputTextarea id="contentInput"
-                         rendered="#{actionCompetition.editing == true}"
-                         value="#{actionCompetition.content}"
+                         rendered="#{actionTournament.editing == true}"
+                         value="#{actionTournament.content}"
                          styleClass="contentInput"/>
-        <h:commandButton value="#{actionCompetition.editing ? 'Save' : 'Edit'}"
-                         action="#{actionCompetition.edit}"
-                         onclick="#{actionCompetition.editing ? 'updateSummary()' : ''}">
+        <h:commandButton value="#{actionTournament.editing ? 'Save' : 'Edit'}"
+                         action="#{actionTournament.edit}"
+                         onclick="#{actionTournament.editing ? 'updateSummary()' : ''}">
           <f:ajax execute="@form" render="@form" />
         </h:commandButton>
-        <h:commandButton rendered="#{actionCompetition.editing}"
-                         value="Cancel" action="#{actionCompetition.cancel}">
+        <h:commandButton rendered="#{actionTournament.editing}"
+                         value="Cancel" action="#{actionTournament.cancel}">
           <f:ajax execute="@form" render="@form"/>
         </h:commandButton>
 
-        <input type="hidden" name="competitionId"
-               value="#{actionCompetition.competition.competitionId}"/>
+        <input type="hidden" name="tournamentId"
+               value="#{actionTournament.tournament.tournamentId}"/>
 
         <h:messages for="contentForm"/>
       </h:form>
 
       <h:form id="registerForm"
-              rendered="#{actionCompetition.getAllowedBrokers().size() > 0}">
+              rendered="#{actionTournament.getAllowedBrokers().size() > 0}">
         <br/>
-        Register your brokers for this competition : <br/>
-        <ui:repeat value="#{actionCompetition.getAllowedBrokers()}" var="b">
+        Register your brokers for this tournament : <br/>
+        <ui:repeat value="#{actionTournament.getAllowedBrokers()}" var="b">
           <h:commandButton value="#{b.brokerName}"
-                           action="#{actionCompetition.register(b)}">
+                           action="#{actionTournament.register(b)}">
             <f:ajax execute="registerForm" render="registerForm"/>
           </h:commandButton>
         </ui:repeat>
 
-        <input type="hidden" name="competitionId"
-               value="#{actionCompetition.competition.competitionId}"/>
+        <input type="hidden" name="tournamentId"
+               value="#{actionTournament.tournament.tournamentId}"/>
 
         <h:messages for="registerForm"/>
       </h:form>
 
-      <t:dataList var="infoEntry" value="#{actionCompetition.competitionInfo}"
+      <t:dataList var="infoEntry" value="#{actionTournament.tournamentInfo}"
                   layout="unorderedList">
         <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
       </t:dataList>
 
-      <h:panelGroup rendered="#{actionCompetition.participantInfo.size() > 0}">
+      <h:panelGroup rendered="#{actionTournament.participantInfo.size() > 0}">
         <h4>Participants</h4>
-        <t:dataList var="infoEntry" value="#{actionCompetition.participantInfo}"
+        <t:dataList var="infoEntry" value="#{actionTournament.participantInfo}"
                     layout="unorderedList">
           <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
         </t:dataList>

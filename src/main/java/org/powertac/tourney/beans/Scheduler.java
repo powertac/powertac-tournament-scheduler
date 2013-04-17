@@ -211,6 +211,9 @@ public class Scheduler implements InitializingBean
       session.close();
     }
 
+    // No more editing of this round
+    runningRound.setStateToInProgress();
+
     reloadRound();
   }
 

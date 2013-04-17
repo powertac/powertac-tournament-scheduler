@@ -57,8 +57,8 @@
       <to-view-id>/about.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>Competitions</from-outcome>
-      <to-view-id>/competitions.xhtml</to-view-id>
+      <from-outcome>Tournaments</from-outcome>
+      <to-view-id>/tournaments.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>Rounds</from-outcome>
@@ -81,8 +81,8 @@
       <to-view-id>/round.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>Competition</from-outcome>
-      <to-view-id>/competition.xhtml</to-view-id>
+      <from-outcome>Tournament</from-outcome>
+      <to-view-id>/tournament.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
