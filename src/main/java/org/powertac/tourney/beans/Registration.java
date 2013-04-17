@@ -9,7 +9,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @ManagedBean
 @Entity
 @Table(name = "registrations", uniqueConstraints =
-    @UniqueConstraint(columnNames = {"tourneyId", "brokerId"}))
+    @UniqueConstraint(columnNames = {"tournamentId", "brokerId"}))
 public class Registration
 {
   private int registrationId;
@@ -21,7 +21,7 @@ public class Registration
   }
 
   @ManyToOne
-  @JoinColumn(name = "tourneyId")
+  @JoinColumn(name = "tournamentId")
   public Tournament getTournament ()
   {
     return tournament;

@@ -21,7 +21,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Table(name = "tournaments")
 public class Tournament
 {
-  private int tourneyId;
+  private int tournamentId;
   private String tournamentName;
   private Level level;
   private Date startTime;
@@ -65,7 +65,7 @@ public class Tournament
     try {
       Tournament tournament = (Tournament) session
           .createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID)
-          .setInteger("tournamentId", tourneyId).uniqueResult();
+          .setInteger("tournamentId", tournamentId).uniqueResult();
 
       // Disallow removal when games booting or running
       for (Game game: tournament.gameMap.values()) {
@@ -125,7 +125,7 @@ public class Tournament
 
       Scheduler scheduler = Scheduler.getScheduler();
       if (scheduler.getRunningTournament() != null &&
-          scheduler.getRunningTournament().getTournamentId() == tourneyId) {
+          scheduler.getRunningTournament().getTournamentId() == tournamentId) {
         scheduler.unloadTournament();
       }
     }
@@ -340,7 +340,7 @@ public class Tournament
 
   //<editor-fold desc="Collections">
   @OneToMany
-  @JoinColumn(name = "tourneyId")
+  @JoinColumn(name = "tournamentId")
   @MapKey(name = "gameId")
   public Map<Integer, Game> getGameMap ()
   {
@@ -355,7 +355,7 @@ public class Tournament
   @ManyToMany
   @JoinTable(name = "registrations",
       joinColumns =
-      @JoinColumn(name = "tourneyId", referencedColumnName = "tourneyId"),
+      @JoinColumn(name = "tournamentId", referencedColumnName = "tournamentId"),
       inverseJoinColumns =
       @JoinColumn(name = "brokerId", referencedColumnName = "brokerId")
   )
@@ -423,14 +423,14 @@ public class Tournament
   //<editor-fold desc="Getters and setters">
   @Id
   @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "tourneyId", unique = true, nullable = false)
+  @Column(name = "tournamentId", unique = true, nullable = false)
   public int getTournamentId ()
   {
-    return tourneyId;
+    return tournamentId;
   }
-  public void setTournamentId (int tourneyId)
+  public void setTournamentId (int tournamentId)
   {
-    this.tourneyId = tourneyId;
+    this.tournamentId = tournamentId;
   }
 
   @Column(name = "tourneyName", nullable = false)

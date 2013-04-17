@@ -25,7 +25,7 @@ public class ActionTournaments
   private List<Broker> brokerList = new ArrayList<Broker>();
   private int slavesCount;
 
-  private int tourneyId;
+  private int tournamentId;
   private String tournamentName;
   private Tournament.TYPE type;
   private int maxBrokers;
@@ -71,13 +71,13 @@ public class ActionTournaments
   public void saveTournament ()
   {
     if (!inputsValidated()) {
-      if (tourneyId != -1) {
+      if (tournamentId != -1) {
         resetValues();
       }
       return;
     }
 
-    if (tourneyId != -1) {
+    if (tournamentId != -1) {
       saveEditedTournament();
     } else {
       createTournament();
@@ -123,7 +123,7 @@ public class ActionTournaments
 
   public void loadTournament (Tournament tournament)
   {
-    tourneyId = tournament.getTournamentId();
+    tournamentId = tournament.getTournamentId();
     tournamentName = tournament.getTournamentName();
     type = tournament.getType();
     maxBrokers = tournament.getMaxBrokers();
@@ -149,12 +149,12 @@ public class ActionTournaments
 
   public void saveEditedTournament ()
   {
-    log.info("Saving tournament " + tourneyId);
+    log.info("Saving tournament " + tournamentId);
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Tournament tournament = (Tournament) session.get(Tournament.class, tourneyId);
+      Tournament tournament = (Tournament) session.get(Tournament.class, tournamentId);
       setValues(tournament);
       session.saveOrUpdate(tournament);
       transaction.commit();
@@ -227,7 +227,7 @@ public class ActionTournaments
 
   public void resetValues ()
   {
-    tourneyId = -1;
+    tournamentId = -1;
     tournamentName = "";
     type = Tournament.TYPE.SINGLE_GAME;
     maxBrokers = 0;
@@ -285,11 +285,11 @@ public class ActionTournaments
 
   public void register (Broker b)
   {
-    if (!(b.getSelectedTourneyRegister() > 0)) {
+    if (!(b.getSelectedTournamentRegister() > 0)) {
       return;
     }
 
-    boolean registered = b.register(b.getSelectedTourneyRegister());
+    boolean registered = b.register(b.getSelectedTournamentRegister());
     if (!registered) {
       message(1, "Error registering broker");
     } else {
@@ -301,11 +301,11 @@ public class ActionTournaments
 
   public void unregister (Broker b)
   {
-    if (!(b.getSelectedTourneyUnregister() > 0)) {
+    if (!(b.getSelectedTournamentUnregister() > 0)) {
       return;
     }
 
-    boolean registered = b.unregister(b.getSelectedTourneyUnregister());
+    boolean registered = b.unregister(b.getSelectedTournamentUnregister());
     if (!registered) {
       message(1, "Error unregistering broker");
     } else {
@@ -317,7 +317,7 @@ public class ActionTournaments
 
   public boolean allowEdit (Tournament tournament)
   {
-    return tourneyId == -1 && tournament.isPending();
+    return tournamentId == -1 && tournament.isPending();
   }
 
   private boolean inputsValidated ()
@@ -328,7 +328,7 @@ public class ActionTournaments
       messages.add("The tournament name cannot be empty");
     }
 
-    if ((locations.size() < 1) && (tourneyId == -1 || selectedPom != 0)) {
+    if ((locations.size() < 1) && (tournamentId == -1 || selectedPom != 0)) {
       messages.add("Choose at least one location");
     }
 
@@ -356,13 +356,13 @@ public class ActionTournaments
   }
 
   //<editor-fold desc="Setters and getters">
-  public int getTourneyId ()
+  public int getTournamentId ()
   {
-    return tourneyId;
+    return tournamentId;
   }
-  public void setTourneyId (int tourneyId)
+  public void setTournamentId (int tournamentId)
   {
-    this.tourneyId = tourneyId;
+    this.tournamentId = tournamentId;
   }
 
   public String getTournamentName ()

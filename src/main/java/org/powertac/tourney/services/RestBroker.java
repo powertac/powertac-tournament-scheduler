@@ -55,19 +55,19 @@ public class RestBroker
 
       // Check if the broker registered for a running competition
       Tournament tournament;
-      int runningTourneyId = isRunningCompetition(session, joinName, broker);
+      int runningTournamentId = isRunningCompetition(session, joinName, broker);
 
       // Broker not registered to competition with joinName, check tourneys
-      if (runningTourneyId == -2) {
+      if (runningTournamentId == -2) {
         tournament = getRunningTournament(session, joinName, broker);
       }
       // Broker not registered to competition with joinName, check tourneys
-      else if (runningTourneyId == -1) {
+      else if (runningTournamentId == -1) {
         transaction.commit();
         return doneResponse;
       }
       // Broker registered to competition, but no tourneys available
-      else if (runningTourneyId == 0) {
+      else if (runningTournamentId == 0) {
         // TODO Should we check tourney with same name?
         log.debug("No tournament is ready for competition : " + joinName);
         MemStore.addBrokerCheckin(broker.getBrokerId());
@@ -76,7 +76,7 @@ public class RestBroker
       // We found running tournament in competition + broker is registered
       else {
         query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID);
-        query.setInteger("tournamentId", runningTourneyId);
+        query.setInteger("tournamentId", runningTournamentId);
         tournament = (Tournament) query.uniqueResult();
       }
 

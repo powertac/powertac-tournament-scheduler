@@ -79,7 +79,7 @@
 
           <h:column>
             <f:facet name="header">Available</f:facet>
-            <h:selectOneMenu value="#{broker.selectedTourneyRegister}"
+            <h:selectOneMenu value="#{broker.selectedTournamentRegister}"
                              styleClass="smallButton">
               <f:selectItems value="#{actionAccount.getAvailableTournaments(broker)}"
                              var="t" itemValue="#{t.tournamentId}"

@@ -189,11 +189,11 @@ public class ActionAccount
 
   public void register (Broker b)
   {
-    if (!(b.getSelectedTourneyRegister() > 0)) {
+    if (!(b.getSelectedTournamentRegister() > 0)) {
       return;
     }
 
-    boolean registered = b.register(b.getSelectedTourneyRegister());
+    boolean registered = b.register(b.getSelectedTournamentRegister());
     if (!registered) {
       message(0, "Error registering broker");
     } else {

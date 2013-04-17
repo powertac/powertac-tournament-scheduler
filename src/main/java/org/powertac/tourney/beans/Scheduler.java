@@ -118,15 +118,15 @@ public class Scheduler implements InitializingBean
     }
   }
 
-  public void loadTournament (int tourneyId)
+  public void loadTournament (int tournamentId)
   {
-    log.info("Loading Tournament " + tourneyId);
+    log.info("Loading Tournament " + tournamentId);
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID);
-      query.setInteger("tournamentId", tourneyId);
+      query.setInteger("tournamentId", tournamentId);
       runningTournament = (Tournament) query.uniqueResult();
       transaction.commit();
     } catch (Exception e) {
@@ -157,7 +157,7 @@ public class Scheduler implements InitializingBean
    */
   private void scheduleLoadedTournament ()
   {
-    if (isNullTourney()) {
+    if (isNullTournament()) {
       log.info("No multigame tournament available");
       return;
     }
@@ -338,7 +338,7 @@ public class Scheduler implements InitializingBean
     log.debug("WatchDogTimer No Sim seems Wedged");
   }
 
-  public boolean isNullTourney ()
+  public boolean isNullTournament ()
   {
     return runningTournament == null;
   }

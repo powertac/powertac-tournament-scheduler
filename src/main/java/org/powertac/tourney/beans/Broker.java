@@ -41,8 +41,8 @@ public class Broker
   private String newAuth;
   private String newShort;
   // For registration, web interface
-  private int selectedTourneyRegister;
-  private int selectedTourneyUnregister;
+  private int selectedTournamentRegister;
+  private int selectedTournamentUnregister;
 
   public Broker ()
   {
@@ -128,12 +128,12 @@ public class Broker
     }
   }
 
-  public boolean register (int tourneyId)
+  public boolean register (int tournamentId)
   {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      register(session, tourneyId);
+      register(session, tournamentId);
       transaction.commit();
       return true;
     } catch (Exception e) {
@@ -145,10 +145,10 @@ public class Broker
     }
   }
 
-  public void register (Session session, int tourneyId)
+  public void register (Session session, int tournamentId)
   {
     Tournament tournament =
-        (Tournament) session.get(Tournament.class, tourneyId);
+        (Tournament) session.get(Tournament.class, tournamentId);
     Registration registration = new Registration();
     registration.setBroker(this);
     registration.setTournament(tournament);
@@ -167,13 +167,13 @@ public class Broker
     }
   }
 
-  public boolean unregister (int tourneyId)
+  public boolean unregister (int tournamentId)
   {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
       Tournament tournament =
-          (Tournament) session.get(Tournament.class, tourneyId);
+          (Tournament) session.get(Tournament.class, tournamentId);
 
       // Can't unregister from games that already started (or should have)
       if (tournament.isStarted()) {
@@ -189,7 +189,7 @@ public class Broker
 
       List<Integer> deleteAgents = new ArrayList<Integer>();
       for (Agent agent: agentMap.values()) {
-        if (agent.getGame().getTournament().getTournamentId() == tourneyId) {
+        if (agent.getGame().getTournament().getTournamentId() == tournamentId) {
           deleteAgents.add(agent.getAgentId());
         }
       }
@@ -389,7 +389,7 @@ public class Broker
       joinColumns =
       @JoinColumn(name = "brokerId", referencedColumnName = "brokerId"),
       inverseJoinColumns =
-      @JoinColumn(name = "tourneyId", referencedColumnName = "tourneyId")
+      @JoinColumn(name = "tournamentId", referencedColumnName = "tournamentId")
   )
   @MapKey(name = "tournamentId")
   public Map<Integer, Tournament> getTournamentMap ()
@@ -526,23 +526,23 @@ public class Broker
   }
 
   @Transient
-  public int getSelectedTourneyRegister ()
+  public int getSelectedTournamentRegister ()
   {
-    return selectedTourneyRegister;
+    return selectedTournamentRegister;
   }
-  public void setSelectedTourneyRegister (int selectedTourneyRegister)
+  public void setSelectedTournamentRegister (int selectedTourneyRegister)
   {
-    this.selectedTourneyRegister = selectedTourneyRegister;
+    this.selectedTournamentRegister = selectedTourneyRegister;
   }
 
   @Transient
-  public int getSelectedTourneyUnregister ()
+  public int getSelectedTournamentUnregister ()
   {
-    return selectedTourneyUnregister;
+    return selectedTournamentUnregister;
   }
-  public void setSelectedTourneyUnregister (int selectedTourneyUnregister)
+  public void setSelectedTournamentUnregister (int selectedTournamentUnregister)
   {
-    this.selectedTourneyUnregister = selectedTourneyUnregister;
+    this.selectedTournamentUnregister = selectedTournamentUnregister;
   }
   //</editor-fold>
 }

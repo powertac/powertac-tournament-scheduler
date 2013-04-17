@@ -95,7 +95,7 @@
                              styleClass="smallButton"/>
             <h:commandButton value="Cancel"
                              action="#{actionTournaments.resetValues()}"
-                             rendered="#{actionTournaments.tourneyId == t.tournamentId}"
+                             rendered="#{actionTournaments.tournamentId == t.tournamentId}"
                              styleClass="smallButton"/>
           </t:column>
         </t:dataTable>
@@ -128,7 +128,7 @@
 
           <t:column style="text-align: right">
             <f:facet name="header">Add</f:facet>
-            <h:selectOneMenu value="#{broker.selectedTourneyRegister}"
+            <h:selectOneMenu value="#{broker.selectedTournamentRegister}"
                              styleClass="smallButton">
               <f:selectItems
                   value="#{actionTournaments.getAvailableTournaments(broker)}"
@@ -143,7 +143,7 @@
 
           <t:column style="text-align: right">
             <f:facet name="header">Remove</f:facet>
-            <h:selectOneMenu value="#{broker.selectedTourneyUnregister}"
+            <h:selectOneMenu value="#{broker.selectedTournamentUnregister}"
                              styleClass="smallButton">
               <f:selectItems
                   value="#{actionTournaments.getRegisteredTournaments(broker)}"
@@ -161,10 +161,10 @@
 
       <h:form enctype="multipart/form-data" rendered="#{user.isAdmin()}"
               id="saveTournament">
-        <h:panelGroup rendered="#{actionTournaments.tourneyId == -1}">
+        <h:panelGroup rendered="#{actionTournaments.tournamentId == -1}">
           <h3>Create Tournament</h3>
         </h:panelGroup>
-        <h:panelGroup rendered="#{actionTournaments.tourneyId != -1}">
+        <h:panelGroup rendered="#{actionTournaments.tournamentId != -1}">
           <h3>Edit Tournament</h3>
         </h:panelGroup>
 
@@ -181,7 +181,7 @@
           <h:panelGroup>
             <h:selectOneMenu value="#{actionTournaments.type}"
                              onchange="typeSelected()"
-                             disabled="#{actionTournaments.tourneyId != -1}">
+                             disabled="#{actionTournaments.tournamentId != -1}">
               <f:selectItems value="#{actionTournaments.types}" var="t"
                              itemValues="#{t}" itemLabel="#{t.toString()}"/>
             </h:selectOneMenu>
@@ -296,7 +296,7 @@
           <h:commandButton value="Submit"
                            action="#{actionTournaments.saveTournament()}"/>
         </h:panelGrid>
-        <h:inputHidden id="tourneyId" value="#{actionTournaments.tourneyId}"/>
+        <h:inputHidden id="tournamentId" value="#{actionTournaments.tournamentId}"/>
         <br/>
         <h:messages for="saveTournament"/>
       </h:form>

@@ -47,21 +47,21 @@
 
           <h4>Tournament Status</h4>
           <h:panelGroup>
-            <h:outputText value="Tourney not Loaded"
+            <h:outputText value="Tournament not Loaded"
                           style="color:red;"
-                          rendered="#{scheduler.nullTourney}"/>
+                          rendered="#{scheduler.nullTournament}"/>
             <h:outputText
-                value="Tourney &lt;b&gt;#{scheduler.getRunningTournament().tournamentName}&lt;/b&gt; Loaded"
+                value="Tournament &lt;b&gt;#{scheduler.getRunningTournament().tournamentName}&lt;/b&gt; Loaded"
                 style="color:green;" escape="false"
-                rendered="#{!scheduler.nullTourney}"/>
+                rendered="#{!scheduler.nullTournament}"/>
           </h:panelGroup>
           <h:panelGroup>
             <h:commandButton value="Unload"
                              action="#{actionAdmin.unloadTournament()}"
-                             rendered="#{!scheduler.nullTourney}"/>
+                             rendered="#{!scheduler.nullTournament}"/>
             <h:panelGroup rendered="#{actionAdmin.availableTournaments.size() > 0}">
               <h:selectOneMenu value="#{actionAdmin.selectedTournament}"
-                               rendered="#{scheduler.nullTourney}"
+                               rendered="#{scheduler.nullTournament}"
                                style="border:1px solid grey;height:22px;padding:1px;margin:2px;">
                 <f:selectItems value="#{actionAdmin.availableTournaments}" var="t"
                                itemValue="#{t.tournamentId}"
@@ -69,7 +69,7 @@
               </h:selectOneMenu>
               <h:commandButton value="Load"
                                action="#{actionAdmin.loadTournament()}"
-                               rendered="#{scheduler.nullTourney}"/>
+                               rendered="#{scheduler.nullTournament}"/>
             </h:panelGroup>
             <h:panelGroup rendered="#{actionAdmin.availableTournaments.size() == 0}">
               <h:outputText >No tournaments availble for loading</h:outputText>

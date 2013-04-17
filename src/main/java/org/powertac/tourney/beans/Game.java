@@ -618,7 +618,7 @@ public class Game implements Serializable
   }
 
   @ManyToOne
-  @JoinColumn(name = "tourneyId")
+  @JoinColumn(name = "tournamentId")
   public Tournament getTournament ()
   {
     return tournament;

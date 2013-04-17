@@ -111,7 +111,7 @@ public class ActionOverview
 
     // If a MULTI_GAME tournament is loaded, just reload
     Scheduler scheduler = Scheduler.getScheduler();
-    if (!scheduler.isNullTourney() &&
+    if (!scheduler.isNullTournament() &&
         tournament.getTournamentId() ==
             scheduler.getRunningTournament().getTournamentId()) {
       scheduler.reloadTournament();
