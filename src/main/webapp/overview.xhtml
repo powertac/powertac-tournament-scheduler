@@ -19,7 +19,7 @@
 
       <h:form
           rendered="#{(user.isAdmin()) and (actionOverview.brokerList.size() > 0)}"
-          id="formDatabrokers">
+          id="brokersForm">
         <h3 class="withButton">Registered Brokers</h3>
         <h:commandButton value="Refresh"/>
         <input id="toggleSampleButton" type="button" value="Hide sample"
@@ -63,7 +63,7 @@
           </t:column>
 
         </t:dataTable>
-        <h:messages for="formDatabrokers" layout=""/>
+        <h:messages for="brokersForm" layout=""/>
         <br/>
 
         <h:inputHidden id="hideSample" value="#{actionOverview.hideSample}"/>
@@ -71,22 +71,22 @@
       </h:form>
 
       <h:form
-          rendered="#{(user.isAdmin()) and (actionOverview.notCompleteTournamentList.size() > 0)}"
-          id="tournamentForm">
-        <h3 class="withButton">Pending/Running Tournaments</h3>
+          rendered="#{(user.isAdmin()) and (actionOverview.notCompleteRoundList.size() > 0)}"
+          id="roundForm">
+        <h3 class="withButton">Pending/Running Rounds</h3>
         <h:commandButton value="Refresh"/>
-        <t:dataTable id="dataTournaments" border="1"
-                     value="#{actionOverview.notCompleteTournamentList}" var="t">
+        <t:dataTable id="dataRounds" border="1"
+                     value="#{actionOverview.notCompleteRoundList}" var="t">
 
           <t:column>
             <f:facet name="header">ID</f:facet>
-            <h:outputText value="#{t.tournamentId}"/>
+            <h:outputText value="#{t.roundId}"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">Name</f:facet>
-            <h:link value="#{t.tournamentName}" outcome="Tournament">
-              <f:param name="tournamentId" value="#{t.tournamentId}"/>
+            <h:link value="#{t.roundName}" outcome="Round">
+              <f:param name="roundId" value="#{t.roundId}"/>
             </h:link>
           </t:column>
 
@@ -131,12 +131,12 @@
           <t:column styleClass="left">
             <f:facet name="header">Actions</f:facet>
             <h:commandButton value="Now" action="#{actionOverview.startNow(t)}"
-                             onclick="return confirmAlert('This will start all the games in this tournament now. Proceed?');"
+                             onclick="return confirmAlert('This will start all the games in this round now. Proceed?');"
                              rendered="#{!t.isStarted()}"/>
           </t:column>
         </t:dataTable>
 
-        <h:messages for="tournamentForm"/>
+        <h:messages for="roundForm"/>
         <br/>
 
         <h:inputHidden id="hideSample" value="#{actionOverview.hideSample}"/>

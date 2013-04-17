@@ -47,32 +47,32 @@
 
           <h4>Tournament Status</h4>
           <h:panelGroup>
-            <h:outputText value="Tournament not Loaded"
+            <h:outputText value="Round not Loaded"
                           style="color:red;"
-                          rendered="#{scheduler.nullTournament}"/>
+                          rendered="#{scheduler.nullRound}"/>
             <h:outputText
-                value="Tournament &lt;b&gt;#{scheduler.getRunningTournament().tournamentName}&lt;/b&gt; Loaded"
+                value="Round &lt;b&gt;#{scheduler.runningRound().roundName}&lt;/b&gt; Loaded"
                 style="color:green;" escape="false"
-                rendered="#{!scheduler.nullTournament}"/>
+                rendered="#{!scheduler.nullRound}"/>
           </h:panelGroup>
           <h:panelGroup>
             <h:commandButton value="Unload"
-                             action="#{actionAdmin.unloadTournament()}"
-                             rendered="#{!scheduler.nullTournament}"/>
-            <h:panelGroup rendered="#{actionAdmin.availableTournaments.size() > 0}">
-              <h:selectOneMenu value="#{actionAdmin.selectedTournament}"
-                               rendered="#{scheduler.nullTournament}"
+                             action="#{actionAdmin.unloadRound()}"
+                             rendered="#{!scheduler.nullRound}"/>
+            <h:panelGroup rendered="#{actionAdmin.availableRounds.size() > 0}">
+              <h:selectOneMenu value="#{actionAdmin.selectedRound}"
+                               rendered="#{scheduler.nullRound}"
                                style="border:1px solid grey;height:22px;padding:1px;margin:2px;">
-                <f:selectItems value="#{actionAdmin.availableTournaments}" var="t"
-                               itemValue="#{t.tournamentId}"
-                               itemLabel="#{t.tournamentName}"/>
+                <f:selectItems value="#{actionAdmin.availableRounds}" var="t"
+                               itemValue="#{t.roundId}"
+                               itemLabel="#{t.roundName}"/>
               </h:selectOneMenu>
               <h:commandButton value="Load"
-                               action="#{actionAdmin.loadTournament()}"
-                               rendered="#{scheduler.nullTournament}"/>
+                               action="#{actionAdmin.loadRound()}"
+                               rendered="#{scheduler.nullRound}"/>
             </h:panelGroup>
-            <h:panelGroup rendered="#{actionAdmin.availableTournaments.size() == 0}">
-              <h:outputText >No tournaments availble for loading</h:outputText>
+            <h:panelGroup rendered="#{actionAdmin.availableRounds.size() == 0}">
+              <h:outputText >No rounds availble for loading</h:outputText>
             </h:panelGroup>
           </h:panelGroup>
 

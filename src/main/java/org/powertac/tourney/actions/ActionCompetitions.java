@@ -7,7 +7,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.powertac.tourney.beans.Competition;
 import org.powertac.tourney.beans.Level;
 import org.powertac.tourney.beans.Pom;
-import org.powertac.tourney.beans.Tournament;
+import org.powertac.tourney.beans.Round;
 import org.powertac.tourney.services.HibernateUtil;
 import org.powertac.tourney.services.Utils;
 
@@ -51,16 +51,16 @@ public class ActionCompetitions
   public List<String> getLevelInfo (Competition competition)
   {
     List<String> results = new ArrayList<String>();
-    String base = "<a href=\"tournament.xhtml?tournamentId=%d\">%d</a> ";
+    String base = "<a href=\"round.xhtml?roundId=%d\">%d</a> ";
 
     for (Level level: competition.getLevelMap().values()) {
-      String links = level.getNofTournaments() + " / "+ level.getNofWinners();
-      if (level.getTournamentMap().size() != 0) {
+      String links = level.getNofRounds() + " / "+ level.getNofWinners();
+      if (level.getRoundMap().size() != 0) {
         links += " | ";
       }
-      for (Tournament tournament: level.getTournamentMap().values()) {
-        links += String.format(base, tournament.getTournamentId(),
-            tournament.getTournamentId());
+      for (Round round : level.getRoundMap().values()) {
+        links += String.format(base, round.getRoundId(),
+            round.getRoundId());
       }
       results.add(links);
     }
@@ -91,11 +91,11 @@ public class ActionCompetitions
       competition.setStateToClosed();
       session.saveOrUpdate(competition);
 
-      // Also close tournaments of first level
+      // Also close round(s) of first level
       Level level = competition.getLevelMap().get(0);
-      for (Tournament tournament: level.getTournamentMap().values()) {
-        tournament.setClosed(true);
-        session.update(tournament);
+      for (Round round : level.getRoundMap().values()) {
+        round.setClosed(true);
+        session.update(round);
       }
 
       transaction.commit();
@@ -133,7 +133,7 @@ public class ActionCompetitions
       if (transaction.wasCommitted()) {
         log.info("Next level scheduled for competition "
             + competition.getCompetitionId());
-        message(0, "Level scheduled, manually load the tournament(s)");
+        message(0, "Level scheduled, manually load the rounds(s)");
         resetValues();
       }
       session.close();
@@ -200,8 +200,8 @@ public class ActionCompetitions
     try {
       setValues(session, competition);
       createLevels(session, competition);
-      // Create first tournament(s) so brokers can register
-      competition.scheduleTournaments(session);
+      // Create first round(s) so brokers can register
+      competition.scheduleRounds(session);
       transaction.commit();
     } catch (ConstraintViolationException ignored) {
       transaction.rollback();
@@ -279,12 +279,12 @@ public class ActionCompetitions
 
       if (level.getLevelNr() > competition.getCurrentLevelNr()) {
         level.setLevelName(posted.getLevelName());
-        level.setNofTournaments(posted.getNofTournaments());
+        level.setNofRounds(posted.getNofRounds());
         level.setNofWinners(posted.getNofWinners());
         level.setStartTime(posted.getStartTime());
       }
       else {
-        level.setNofTournaments(level.getTournamentMap().size());
+        level.setNofRounds(level.getRoundMap().size());
         level.setLevelName(posted.getLevelName());
         level.setNofWinners(level.getMaxBrokers());
       }
@@ -316,7 +316,7 @@ public class ActionCompetitions
     for (int i = 0; i < nofLevels; i++) {
       Level level = new Level();
       level.setLevelName("");
-      level.setNofTournaments(0);
+      level.setNofRounds(0);
       level.setNofWinners(0);
       level.setLevelNr(i);
       level.setStartTime(Utils.offsetDate(2));
@@ -324,7 +324,7 @@ public class ActionCompetitions
     }
 
     levels.get(0).setLevelName("qualifying");
-    levels.get(0).setNofTournaments(1);
+    levels.get(0).setNofRounds(1);
     levels.get(0).setNofWinners(100);
   }
 
@@ -367,16 +367,16 @@ public class ActionCompetitions
       }
 
       if (levelName.isEmpty()) {
-        if (level.getNofTournaments() != 0) {
-          messages.add("Level " + levelNr + " has tournaments, but no name");
+        if (level.getNofRounds() != 0) {
+          messages.add("Level " + levelNr + " has rounds, but no name");
         }
         if (level.getNofWinners() != 0)  {
           messages.add("Level " + levelNr + " has winners, but no name");
         }
       }
       else if (!levelName.isEmpty()) {
-        if (level.getNofTournaments() < 1) {
-          messages.add("The # tournaments of level " + levelNr + " is smaller than 1");
+        if (level.getNofRounds() < 1) {
+          messages.add("The # rounds of level " + levelNr + " is smaller than 1");
         }
         if (level.getNofWinners() < 1)  {
           messages.add("The # winners of level " + levelNr + "  is smaller than 1");
@@ -393,9 +393,9 @@ public class ActionCompetitions
                   " is smaller than the NOF winners of level " + levelNr);
             }
 
-            if (level.getNofTournaments() > 0 &&
-                (previousWinners % level.getNofTournaments()) != 0) {
-              messages.add("The # tournaments of level " + levelNr + " must be "
+            if (level.getNofRounds() > 0 &&
+                (previousWinners % level.getNofRounds()) != 0) {
+              messages.add("The # rounds of level " + levelNr + " must be "
                   + "a multiple of the # of winners of level " + (levelNr-1));
             }
           }
@@ -404,7 +404,7 @@ public class ActionCompetitions
 
       previousWinners = level.getNofWinners();
       previousUsed = (!levelName.isEmpty() &&
-                      level.getNofTournaments() > 0 &&
+                      level.getNofRounds() > 0 &&
                       level.getNofWinners() > 0);
     }
 

@@ -2,7 +2,7 @@ package org.powertac.tourney.constants;
 
 import org.powertac.tourney.beans.Competition;
 import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Tournament;
+import org.powertac.tourney.beans.Round;
 
 public class Constants
 {
@@ -63,7 +63,7 @@ public class Constants
     public static final String GET_USER_BY_NAME =
         "FROM User AS user "
             + "LEFT JOIN FETCH user.brokerMap AS brokerMap "
-            + "LEFT JOIN FETCH brokerMap.tournamentMap AS tournamentMap "
+            + "LEFT JOIN FETCH brokerMap.roundMap AS roundMap "
             + "WHERE user.userName =:userName ";
 
     public static final String GET_POMS =
@@ -87,57 +87,57 @@ public class Constants
     public static final String GET_COMPETITION_BY_ID =
         "FROM Competition AS competition "
             + "LEFT JOIN FETCH competition.levelMap AS levelMap "
-            + "LEFT JOIN FETCH levelMap.tournamentMap AS tournamentMap "
-            + "LEFT JOIN FETCH tournamentMap.brokerMap AS brokerMap "
+            + "LEFT JOIN FETCH levelMap.roundMap AS roundMap "
+            + "LEFT JOIN FETCH roundMap.brokerMap AS brokerMap "
             + "WHERE competition.competitionId =:competitionId";
 
     public static final String GET_COMPETITION_BY_NAME =
         "FROM Competition AS competition "
             + "LEFT JOIN FETCH competition.levelMap AS levelMap "
-            + "LEFT JOIN FETCH levelMap.tournamentMap AS tournamentMap "
+            + "LEFT JOIN FETCH levelMap.roundMap AS roundMap "
             + "WHERE competition.competitionName =:competitionName";
 
     public static final String GET_COMPETITION_NOT_COMPLETE =
         "FROM Competition AS competition "
             + "LEFT JOIN FETCH competition.levelMap AS levelMap "
-            + "LEFT JOIN FETCH levelMap.tournamentMap AS tournamentMap "
-            + "LEFT JOIN FETCH tournamentMap.gameMap as gameMap "
+            + "LEFT JOIN FETCH levelMap.roundMap AS roundMap "
+            + "LEFT JOIN FETCH roundMap.gameMap as gameMap "
             + "LEFT JOIN FETCH gameMap.agentMap as agentMap "
-            + "LEFT JOIN FETCH tournamentMap.brokerMap as brokerMap "
+            + "LEFT JOIN FETCH roundMap.brokerMap as brokerMap "
             + "WHERE NOT competition.state='" + Competition.getStateComplete() + "'";
 
-    public static final String GET_TOURNAMENT_BY_ID =
-        "FROM Tournament AS tournament "
-            + "LEFT JOIN FETCH tournament.gameMap AS gameMap "
+    public static final String GET_ROUND_BY_ID =
+        "FROM Round AS round "
+            + "LEFT JOIN FETCH round.gameMap AS gameMap "
             + "LEFT JOIN FETCH gameMap.agentMap AS agentMap "
-            + "LEFT JOIN FETCH tournament.brokerMap AS brokerMap "
+            + "LEFT JOIN FETCH round.brokerMap AS brokerMap "
             + "LEFT JOIN FETCH brokerMap.user "
-            + "WHERE tournament.tournamentId =:tournamentId";
+            + "WHERE round.roundId =:roundId";
 
-    public static final String GET_TOURNAMENT_BY_NAME =
-        "FROM Tournament AS tournament "
-            + "LEFT JOIN FETCH tournament.gameMap AS gameMap "
+    public static final String GET_ROUND_BY_NAME =
+        "FROM Round AS round "
+            + "LEFT JOIN FETCH round.gameMap AS gameMap "
             + "LEFT JOIN FETCH gameMap.agentMap AS agentMap "
             + "LEFT JOIN FETCH agentMap.broker "
             + "LEFT JOIN FETCH agentMap.game "
-            + "LEFT JOIN FETCH tournament.brokerMap AS brokerMap "
+            + "LEFT JOIN FETCH round.brokerMap AS brokerMap "
             + "LEFT JOIN FETCH brokerMap.user "
-            + "WHERE tournament.tournamentName =:tournamentName";
+            + "WHERE round.roundName =:roundName";
 
-    public static final String GET_TOURNAMENTS_NOT_COMPLETE =
-        "FROM Tournament AS tournament "
-            + "LEFT JOIN FETCH tournament.gameMap as gameMap "
+    public static final String GET_ROUNDS_NOT_COMPLETE =
+        "FROM Round AS round "
+            + "LEFT JOIN FETCH round.gameMap as gameMap "
             + "LEFT JOIN FETCH gameMap.agentMap AS agentMap "
             + "LEFT JOIN FETCH gameMap.machine "
             + "LEFT JOIN FETCH agentMap.broker "
             + "LEFT JOIN FETCH agentMap.game "
-            + "LEFT JOIN FETCH tournament.brokerMap AS brokerMap "
+            + "LEFT JOIN FETCH round.brokerMap AS brokerMap "
             + "LEFT JOIN FETCH brokerMap.user "
-            + "WHERE NOT tournament.state='" + Tournament.getStateComplete() + "'";
+            + "WHERE NOT round.state='" + Round.getStateComplete() + "'";
 
     public static final String GET_GAME_BY_ID =
         "FROM Game AS game "
-            + "LEFT JOIN FETCH game.tournament "
+            + "LEFT JOIN FETCH game.round "
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH game.agentMap as agentMap "
             + "LEFT JOIN FETCH agentMap.broker as broker "
@@ -146,23 +146,23 @@ public class Constants
 
     public static final String GET_GAMES_SINGLE_BOOT_PENDING =
         "FROM Game AS game "
-            + "LEFT JOIN FETCH game.tournament AS tournament "
+            + "LEFT JOIN FETCH game.round AS round "
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH game.agentMap "
             + "WHERE game.state='" + Game.getStateBootPending() + "' "
-            + "AND tournament.type='" + Tournament.TYPE.SINGLE_GAME + "'";
+            + "AND round.type='" + Round.TYPE.SINGLE_GAME + "'";
 
     public static final String GET_GAMES_MULTI_BOOT_PENDING =
         "FROM Game AS game "
-            + "LEFT JOIN FETCH game.tournament AS tournament "
+            + "LEFT JOIN FETCH game.round AS round "
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH game.agentMap "
             + "WHERE game.state='" + Game.getStateBootPending() + "' "
-            + "AND tournament.tournamentId =:tournamentId";
+            + "AND round.roundId =:roundId";
 
     public static final String GET_GAMES_SINGLE_BOOT_COMPLETE =
         "FROM Game AS game "
-            + "LEFT JOIN FETCH game.tournament AS tournament "
+            + "LEFT JOIN FETCH game.round AS round "
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH game.agentMap AS agentMap "
             + "LEFT JOIN FETCH agentMap.broker AS broker "
@@ -171,11 +171,11 @@ public class Constants
 
             + "WHERE game.state='" + Game.getStateBootComplete() + "' "
             + "AND game.startTime < :startTime "
-            + "AND tournament.type='" + Tournament.TYPE.SINGLE_GAME + "'";
+            + "AND round.type='" + Round.TYPE.SINGLE_GAME + "'";
 
     public static final String GET_GAMES_MULTI_BOOT_COMPLETE =
         "FROM Game AS game "
-            + "LEFT JOIN FETCH game.tournament AS tournament "
+            + "LEFT JOIN FETCH game.round AS round "
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH game.agentMap AS agentMap "
             + "LEFT JOIN FETCH agentMap.broker AS broker "
@@ -184,11 +184,11 @@ public class Constants
 
             + "WHERE game.state='" + Game.getStateBootComplete() + "' "
             + "AND game.startTime < :startTime "
-            + "AND tournament.tournamentId =:tournamentId";
+            + "AND round.roundId =:roundId";
 
     public static final String GET_GAMES_NOT_COMPLETE =
         "FROM Game AS game "
-            + "LEFT JOIN FETCH game.tournament "
+            + "LEFT JOIN FETCH game.round "
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH game.agentMap agentMap "
             + "LEFT JOIN FETCH agentMap.broker as broker "
@@ -198,7 +198,7 @@ public class Constants
 
     public static final String GET_GAMES_COMPLETE =
         "FROM Game AS game "
-            + "LEFT JOIN FETCH game.tournament "
+            + "LEFT JOIN FETCH game.round "
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH game.agentMap agentMap "
             + "LEFT JOIN FETCH agentMap.broker as broker "
@@ -207,14 +207,14 @@ public class Constants
 
     public static final String GET_BROKERS =
         "FROM Broker AS broker "
-            + "LEFT JOIN FETCH broker.tournamentMap "
+            + "LEFT JOIN FETCH broker.roundMap "
             + "LEFT JOIN FETCH broker.user "
             + "LEFT JOIN FETCH broker.agentMap as agentMap ";
 
     public static final String GET_BROKER_BY_ID =
         "FROM Broker AS broker "
             + "LEFT JOIN FETCH broker.user "
-            + "LEFT JOIN FETCH broker.tournamentMap "
+            + "LEFT JOIN FETCH broker.roundMap "
             + "LEFT JOIN FETCH broker.agentMap as agentMap "
             + "LEFT JOIN FETCH agentMap.game "
             + "LEFT JOIN FETCH agentMap.broker as broker2 "
@@ -229,10 +229,10 @@ public class Constants
     public static final String GET_BROKER_BY_BROKERAUTH =
         "FROM Broker AS broker "
             + "LEFT JOIN FETCH broker.user "
-            + "LEFT JOIN FETCH broker.tournamentMap "
+            + "LEFT JOIN FETCH broker.roundMap "
             + "LEFT JOIN FETCH broker.agentMap as agentMap "
             + "LEFT JOIN FETCH agentMap.game as game "
-            + "LEFT JOIN FETCH game.tournament "
+            + "LEFT JOIN FETCH game.round "
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH agentMap.broker as broker2 "
             + "LEFT JOIN FETCH broker2.user "

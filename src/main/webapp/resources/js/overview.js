@@ -2,7 +2,7 @@ function toggleSample() {
     if ($("#toggleSampleButton").val() == "Hide sample") {
         $('#toggleSampleButton').val("Show sample");
 
-        $("#formDatabrokers\\:databrokers").find('>tbody>tr').each(function () {
+        $("#brokersForm\\:databrokers").find('>tbody>tr').each(function () {
             var sp = $(this).find('td:nth-child(2) a')[0];
             var name = $(sp).text();
 
@@ -14,23 +14,23 @@ function toggleSample() {
             }
         });
 
-        $('#formDatabrokers\\:hideSample').val('true');
-        $('#tournamentForm\\:hideSample').val('true');
+        $('#brokersForm\\:hideSample').val('true');
+        $('#roundForm\\:hideSample').val('true');
         $('#gamesForm\\:hideSample').val('true');
     } else {
         $('#toggleSampleButton').val("Hide sample");
 
-        $("#formDatabrokers\\:databrokers").find(">tbody>tr").each(function () {
+        $("#brokersForm\\:databrokers").find(">tbody>tr").each(function () {
             $(this).css("display", "");
         });
 
-        $('#formDatabrokers\\:hideSample').val('false');
-        $('#tournamentForm\\:hideSample').val('false');
+        $('#brokersForm\\:hideSample').val('false');
+        $('#roundForm\\:hideSample').val('false');
         $('#gamesForm\\:hideSample').val('false');
     }
 
     var newHeight = Math.min(400, $("[id$=databrokers]").height()) + "px";
-    $('#formDatabrokers\\:databrokers').parent().height( newHeight );
+    $('#brokersForm\\:databrokers').parent().height( newHeight );
 }
 
 function toggleActive() {
@@ -48,8 +48,8 @@ function toggleActive() {
             }
         });
 
-        $('#formDatabrokers\\:hideInactive').val('true');
-        $('#tournamentForm\\:hideInactive').val('true');
+        $('#brokersForm\\:hideInactive').val('true');
+        $('#brokersForm\\:hideInactive').val('true');
         $('#gamesForm\\:hideInactive').val('true');
     } else {
         $('#toggleActiveButton').val("Hide inactive");
@@ -58,8 +58,8 @@ function toggleActive() {
             $(this).css("display", "");
         });
 
-        $('#formDatabrokers\\:hideInactive').val('false');
-        $('#tournamentForm\\:hideInactive').val('false');
+        $('#brokersForm\\:hideInactive').val('false');
+        $('#brokersForm\\:hideInactive').val('false');
         $('#gamesForm\\:hideInactive').val('false');
     }
 
@@ -68,14 +68,14 @@ function toggleActive() {
 }
 
 function updateBrokers(data) {
-    $('#formDatabrokers\\:databrokers').find('>tbody>tr').each(function () {
+    $('#brokersForm\\:databrokers').find('>tbody>tr').each(function () {
         var sp = $(this).find('td:first-child span')[0];
         var orgRowNr = $(sp).attr("id").split(":")[2];
 
         if (data[$(sp).text()] != undefined) {
-            $('#formDatabrokers\\:databrokers\\:' + orgRowNr + '\\:checkins').html(data[$(sp).text()]);
+            $('#brokersForm\\:databrokers\\:' + orgRowNr + '\\:checkins').html(data[$(sp).text()]);
         } else {
-            $('#formDatabrokers\\:databrokers\\:' + orgRowNr + '\\:checkins').html("");
+            $('#brokersForm\\:databrokers\\:' + orgRowNr + '\\:checkins').html("");
         }
     });
 }
@@ -118,10 +118,10 @@ function resizeTables() {
             { "sType": "natural", "aTargets": [0] }
         ]
     });
-    $('[id$=dataTournaments]').dataTable({
+    $('[id$=dataRounds]').dataTable({
         "bFilter": false,
         "bInfo": false,
-        "sScrollY": Math.min(400, $("[id$=dataTournaments]").height()) + "px",
+        "sScrollY": Math.min(400, $("[id$=dataRounds]").height()) + "px",
         "bPaginate": false,
         "aoColumnDefs": [
             { 'bSortable': false, 'aTargets': [5, 6, 7, 8] },
@@ -143,11 +143,11 @@ function resizeTables() {
 $(document).ready(function () {
     resizeTables();
 
-    if ($('#formDatabrokers\\:hideSample').val() == 'true') {
+    if ($('#brokersForm\\:hideSample').val() == 'true') {
         toggleSample();
     }
 
-    if ($('#formDatabrokers\\:hideInactive').val() == 'true') {
+    if ($('#brokersForm\\:hideInactive').val() == 'true') {
         toggleActive();
     }
 

@@ -91,9 +91,9 @@ public class ActionGame
       gameInfo.add("Last tick : " + game.getLastTick());
     }
 
-    gameInfo.add("Tournament : <a href=\"tournament.xhtml?tournamentId=" +
-        +game.getTournament().getTournamentId() + "\">"
-        + game.getTournament().getTournamentName() + "</a>");
+    gameInfo.add("Round : <a href=\"round.xhtml?roundId=" +
+        +game.getRound().getRoundId() + "\">"
+        + game.getRound().getRoundName() + "</a>");
 
     if (game.getMachine() != null) {
       gameInfo.add("Running on : " + game.getMachine().getMachineName());

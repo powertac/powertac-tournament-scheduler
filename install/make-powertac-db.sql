@@ -62,7 +62,7 @@ CREATE TABLE `tourney`.`levels` (
   `levelName`      VARCHAR(256) NOT NULL,
   `competitionId`  INT(11)      NOT NULL,
   `levelNr`        INT(11)      NOT NULL,
-  `nofTournaments` INT(11)      NOT NULL,
+  `nofRounds`      INT(11)      NOT NULL,
   `nofWinners`     INT(11)      NOT NULL,
   `startTime`      DATETIME     NOT NULL,
   PRIMARY KEY (`levelId`),
@@ -71,11 +71,11 @@ CREATE TABLE `tourney`.`levels` (
   ENGINE = InnoDB;
 
 
-/* Create top level tournament list */
-DROP TABLE IF EXISTS `tourney`.`tournaments`;
-CREATE TABLE `tourney`.`tournaments` (
-  `tournamentId`   INT(11)                                    NOT NULL AUTO_INCREMENT,
-  `tourneyName` VARCHAR(256) UNIQUE                        NOT NULL,
+/* Create top level round list */
+DROP TABLE IF EXISTS `tourney`.`rounds`;
+CREATE TABLE `tourney`.`rounds` (
+  `roundId`     INT(11)                                    NOT NULL AUTO_INCREMENT,
+  `roundName`   VARCHAR(256) UNIQUE                        NOT NULL,
   `levelId`     INT(11) DEFAULT NULL,
   `startTime`   DATETIME                                   NOT NULL,
   `dateFrom`    DATETIME                                   NOT NULL,
@@ -93,9 +93,9 @@ CREATE TABLE `tourney`.`tournaments` (
   `pomId`       INT(11)                                    NOT NULL, /* This will be a foreign key to poms.pomId */
   `locations`   VARCHAR(256)                               NOT NULL, /* This will be a comma delimited list for now */
   `closed`      TINYINT(1)                                 NOT NULL,
-  PRIMARY KEY (`tournamentId`),
-  CONSTRAINT tournament_refs1 FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`),
-  CONSTRAINT tournament_refs2 FOREIGN KEY (`levelId`) REFERENCES `tourney`.`levels` (`levelId`)
+  PRIMARY KEY (`roundId`),
+  CONSTRAINT round_refs1 FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`),
+  CONSTRAINT round_refs2 FOREIGN KEY (`levelId`) REFERENCES `tourney`.`levels` (`levelId`)
 )
   ENGINE = InnoDB;
 
@@ -103,10 +103,10 @@ CREATE TABLE `tourney`.`tournaments` (
 DROP TABLE IF EXISTS `tourney`.`registrations`;
 CREATE TABLE `tourney`.`registrations` (
   `registrationId` INT(11) NOT NULL AUTO_INCREMENT,
-  `tournamentId`      INT(11) NOT NULL,
+  `roundId`        INT(11) NOT NULL,
   `brokerId`       INT(11) NOT NULL,
   PRIMARY KEY (`registrationId`),
-  CONSTRAINT registration_refs1 FOREIGN KEY (`tournamentId`) REFERENCES `tourney`.`tournaments` (`tournamentId`),
+  CONSTRAINT registration_refs1 FOREIGN KEY (`roundId`) REFERENCES `tourney`.`rounds` (`roundId`),
   CONSTRAINT registration_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`)
 )
   ENGINE = InnoDB;
@@ -125,12 +125,12 @@ CREATE TABLE `tourney`.`machines` (
   ENGINE = InnoDB;
 
 
-/* Create top level tournament list */
+/* Create top level games list */
 DROP TABLE IF EXISTS `tourney`.`games`;
 CREATE TABLE `tourney`.`games` (
   `gameId`          INT(11)                                                                                                                                                    NOT NULL AUTO_INCREMENT,
   `gameName`        VARCHAR(256)                                                                                                                                               NOT NULL,
-  `tournamentId`       INT(11)                                                                                                                                                    NOT NULL,
+  `roundId`         INT(11)                                                                                                                                                    NOT NULL,
   `machineId`       INT(11)                                                                                                                                                    NULL,
   `state`           ENUM('boot_pending', 'boot_in_progress', 'boot_complete', 'boot_failed', 'game_pending', 'game_ready', 'game_in_progress', 'game_complete', 'game_failed') NOT NULL,
   `startTime`       DATETIME                                                                                                                                                   NOT NULL,
@@ -142,7 +142,7 @@ CREATE TABLE `tourney`.`games` (
   `gameLength`      INT(11) DEFAULT NULL,
   `lastTick`        INT(11) DEFAULT NULL,
   PRIMARY KEY (`gameId`),
-  CONSTRAINT game_refs1 FOREIGN KEY (`tournamentId`) REFERENCES `tourney`.`tournaments` (`tournamentId`),
+  CONSTRAINT game_refs1 FOREIGN KEY (`roundId`) REFERENCES `tourney`.`rounds` (`roundId`),
   CONSTRAINT game_refs2 FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` (`machineId`)
 )
   ENGINE = InnoDB;

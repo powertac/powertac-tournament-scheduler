@@ -59,7 +59,7 @@
       </h:form>
 
       <h:form id="accountForm0" rendered="#{user.isLoggedIn()}">
-        <h4>Brokers in Tournaments</h4>
+        <h4>Brokers in Rounds</h4>
         <h:dataTable border="1" id="brokers"
                      value="#{actionAccount.brokers}" var="broker">
           <h:column>
@@ -73,17 +73,17 @@
           </h:column>
 
           <h:column>
-            <f:facet name="header">Tournaments</f:facet>
+            <f:facet name="header">Rounds</f:facet>
             <h:outputText value="#{broker.getRegisteredString()}"/>
           </h:column>
 
           <h:column>
             <f:facet name="header">Available</f:facet>
-            <h:selectOneMenu value="#{broker.selectedTournamentRegister}"
+            <h:selectOneMenu value="#{broker.selectedRoundRegister}"
                              styleClass="smallButton">
-              <f:selectItems value="#{actionAccount.getAvailableTournaments(broker)}"
-                             var="t" itemValue="#{t.tournamentId}"
-                             itemLabel="#{t.tournamentName}"
+              <f:selectItems value="#{actionAccount.getAvailableRounds(broker)}"
+                             var="t" itemValue="#{t.roundId}"
+                             itemLabel="#{t.roundName}"
                              rendered="{(t.maxBrokers != t.numberRegistered)}"/>
             </h:selectOneMenu>
           </h:column>

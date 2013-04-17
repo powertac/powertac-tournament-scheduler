@@ -10,7 +10,7 @@ package org.powertac.tourney.services;
 import org.powertac.tourney.beans.Agent;
 import org.powertac.tourney.beans.Broker;
 import org.powertac.tourney.beans.Game;
-import org.powertac.tourney.beans.Tournament;
+import org.powertac.tourney.beans.Round;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -19,24 +19,24 @@ import java.util.Map;
 
 public class CSV
 {
-  public static void createCsv (Tournament tournament)
+  public static void createCsv (Round round)
   {
     TournamentProperties properties = TournamentProperties.getProperties();
     String logLocation = properties.getProperty("logLocation");
     String name1 = logLocation + "%s.csv";
     String name2 = logLocation + "%s.games.csv";
 
-    createTournamentCsv(tournament, name1);
-    createGamesCsv(tournament, name2, properties);
+    createRoundCsv(round, name1);
+    createGamesCsv(round, name2, properties);
   }
 
-  private static void createTournamentCsv (Tournament t, String name)
+  private static void createRoundCsv (Round t, String name)
   {
     String sep = ";" + System.getProperty("line.separator");
-    File tournamentCSV = new File(String.format(name, t.getTournamentName()));
+    File roundCSV = new File(String.format(name, t.getRoundName()));
 
-    if (tournamentCSV.isFile() && tournamentCSV.canRead()) {
-      tournamentCSV.delete();
+    if (roundCSV.isFile() && roundCSV.canRead()) {
+      roundCSV.delete();
     }
 
     Map<Broker, Double[]> resultMap = t.determineWinner();
@@ -46,13 +46,13 @@ public class CSV
 
     // Create new CSVs
     try {
-      tournamentCSV.createNewFile();
+      roundCSV.createNewFile();
 
-      FileWriter fw = new FileWriter(tournamentCSV.getAbsoluteFile());
+      FileWriter fw = new FileWriter(roundCSV.getAbsoluteFile());
       BufferedWriter bw = new BufferedWriter(fw);
 
-      bw.write("tournamentId;" + t.getTournamentId() + sep);
-      bw.write("tournamentName;" + t.getTournamentName() + sep);
+      bw.write("roundId;" + t.getRoundId() + sep);
+      bw.write("roundName;" + t.getRoundName() + sep);
       bw.write("status;" + t.getState() + sep);
 
       bw.write("StartTime;" + Utils.dateToStringFull(t.getStartTime()) + sep);
@@ -111,17 +111,17 @@ public class CSV
 
       bw.close();
 
-      copyFile(tournamentCSV, String.format(name, t.getTournamentId()));
+      copyFile(roundCSV, String.format(name, t.getRoundId()));
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-  private static void createGamesCsv (Tournament t, String name,
+  private static void createGamesCsv (Round t, String name,
                                       TournamentProperties properties)
   {
     String sep = System.getProperty("line.separator");
-    File gamesCSV = new File(String.format(name, t.getTournamentName()));
+    File gamesCSV = new File(String.format(name, t.getRoundName()));
 
     if (gamesCSV.isFile() && gamesCSV.canRead()) {
       gamesCSV.delete();
@@ -169,7 +169,7 @@ public class CSV
 
       bw.close();
 
-      copyFile(gamesCSV, String.format(name, t.getTournamentId()));
+      copyFile(gamesCSV, String.format(name, t.getRoundId()));
     } catch (IOException e) {
       e.printStackTrace();
     }

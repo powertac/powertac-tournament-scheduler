@@ -42,11 +42,11 @@ public class ActionAdmin
   private UploadedFile uploadedPom;
   private String pomName;
 
-  private Integer selectedTournament;
+  private Integer selectedRound;
 
   private TournamentProperties properties = TournamentProperties.getProperties();
 
-  private List<Tournament> availableTournaments = new ArrayList<Tournament>();
+  private List<Round> availableRounds = new ArrayList<Round>();
 
   public ActionAdmin ()
   {
@@ -57,13 +57,13 @@ public class ActionAdmin
   @SuppressWarnings("unchecked")
   private void loadData ()
   {
-    for (Tournament tournament: Tournament.getNotCompleteTournamentList()) {
-      if (tournament.isMulti()) {
-        availableTournaments.add(tournament);
+    for (Round round : Round.getNotCompleteRoundList()) {
+      if (round.isMulti()) {
+        availableRounds.add(round);
       }
     }
 
-    Collections.sort(availableTournaments, new Utils.AlphanumComparator());
+    Collections.sort(availableRounds, new Utils.AlphanumComparator());
   }
 
   public void restartWatchDog ()
@@ -75,25 +75,25 @@ public class ActionAdmin
     }
   }
 
-  public void loadTournament ()
+  public void loadRound ()
   {
-    log.info("Loading Tournament " + selectedTournament);
+    log.info("Loading Round " + selectedRound);
 
     Scheduler scheduler = Scheduler.getScheduler();
-    scheduler.loadTournament(selectedTournament);
+    scheduler.loadRound(selectedRound);
   }
 
-  public void unloadTournament ()
+  public void unloadRound ()
   {
-    log.info("Unloading Tournament");
+    log.info("Unloading Round");
 
     Scheduler scheduler = Scheduler.getScheduler();
-    scheduler.unloadTournament();
+    scheduler.Round();
   }
 
-  public List<Tournament> getAvailableTournaments ()
+  public List<Round> getAvailableRounds ()
   {
-    return availableTournaments;
+    return availableRounds;
   }
 
   public List<String> getConfigErrors ()
@@ -671,14 +671,14 @@ public class ActionAdmin
     this.sortAscendingUsers = sortAscendingUsers;
   }
 
-  public Integer getSelectedTournament ()
+  public Integer getSelectedRound ()
   {
-    return selectedTournament;
+    return selectedRound;
   }
 
-  public void setSelectedTournament (Integer selectedTournament)
+  public void setSelectedRound (Integer selectedRound)
   {
-    this.selectedTournament = selectedTournament;
+    this.selectedRound = selectedRound;
   }
   //</editor-fold>
 }

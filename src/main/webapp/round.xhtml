@@ -13,48 +13,48 @@
       <script type="text/javascript" charset="utf8"
               src="resources/js/datatable.sort.js"></script>
       <script type="text/javascript" charset="utf8"
-              src="resources/js/tournament.js"></script>
+              src="resources/js/round.js"></script>
 
-      <h2>Overview for tournament : #{actionTournament.tournament.getTournamentName()}</h2>
+      <h2>Overview for round : #{actionRound.round.roundName()}</h2>
 
-      <t:dataList var="infoEntry" value="#{actionTournament.tournamentInfo}"
+      <t:dataList var="infoEntry" value="#{actionRound.roundInfo}"
                   layout="unorderedList">
         <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
       </t:dataList>
 
-      <h:panelGroup rendered="#{actionTournament.participantInfo.size() > 0}">
+      <h:panelGroup rendered="#{actionRound.participantInfo.size() > 0}">
         <h4>Participants</h4>
-        <t:dataList var="infoEntry" value="#{actionTournament.participantInfo}"
+        <t:dataList var="infoEntry" value="#{actionRound.participantInfo}"
                     layout="unorderedList">
           <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
         </t:dataList>
       </h:panelGroup>
 
-      <h:panelGroup rendered="#{actionTournament.csvLinks.size() > 0}">
+      <h:panelGroup rendered="#{actionRound.csvLinks.size() > 0}">
         <h4>CSV</h4>
-        <t:dataList var="infoEntry" value="#{actionTournament.csvLinks}"
+        <t:dataList var="infoEntry" value="#{actionRound.csvLinks}"
                     layout="unorderedList">
           <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
         </t:dataList>
       </h:panelGroup>
 
       <h:form rendered="#{user.isAdmin()}">
-        <h:commandButton action="#{actionTournament.createCsv}"
+        <h:commandButton action="#{actionRound.createCsv}"
                          value="Create or update CSV"
                          styleClass="bigButton">
           <f:ajax execute="@form" render="@form"/>
         </h:commandButton>
-        <input type="hidden" name="tournamentId"
-               value="#{actionTournament.tournament.tournamentId}"/>
+        <input type="hidden" name="roundId"
+               value="#{actionRound.round.roundId}"/>
       </h:form>
 
-      <h:form rendered="#{actionTournament.getResultMap().size() > 0}">
+      <h:form rendered="#{actionRound.getResultMap().size() > 0}">
         <h3>Totals</h3>
         <t:dataTable id="dataresultsSingle" border="1"
                      style="border:1px solid black;border-collapse:collapse;"
                      columnClasses=",right"
-                     value="#{actionTournament.resultMap.keySet()}" var="broker"
-                     rendered="#{actionTournament.tournament.isSingle()}">
+                     value="#{actionRound.resultMap.keySet()}" var="broker"
+                     rendered="#{actionRound.round.isSingle()}">
           <t:column>
             <f:facet name="header">Broker</f:facet>
             <h:outputText value="#{broker.brokerName}"/>
@@ -62,7 +62,7 @@
 
           <t:column>
             <f:facet name="header">Total</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(broker)[0]}">
+            <h:outputText value="#{actionRound.resultMap.get(broker)[0]}">
               <f:convertNumber minFractionDigits="4" groupingUsed="false"/>
             </h:outputText>
           </t:column>
@@ -71,8 +71,8 @@
         <t:dataTable id="dataresultsMulti" border="1"
                      style="border:1px solid black;border-collapse:collapse;"
                      columnClasses=",right,right,right,right,right,right,right,right,right,right,right,right,right,right"
-                     value="#{actionTournament.resultMap.keySet()}" var="broker"
-                     rendered="#{actionTournament.tournament.isMulti()}">
+                     value="#{actionRound.resultMap.keySet()}" var="broker"
+                     rendered="#{actionRound.round.isMulti()}">
           <t:column>
             <f:facet name="header">Broker</f:facet>
             <h:outputText value="#{broker.getBrokerName()}"/>
@@ -80,52 +80,52 @@
 
           <t:column>
             <f:facet name="header">Size 1</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(broker)[0]}">
+            <h:outputText value="#{actionRound.resultMap.get(broker)[0]}">
               <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
             </h:outputText>
           </t:column>
           <t:column>
             <f:facet name="header">Size 2</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(broker)[1]}">
+            <h:outputText value="#{actionRound.resultMap.get(broker)[1]}">
               <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
             </h:outputText>
           </t:column>
           <t:column>
             <f:facet name="header">Size 3</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(broker)[2]}">
+            <h:outputText value="#{actionRound.resultMap.get(broker)[2]}">
               <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
             </h:outputText>
           </t:column>
 
           <t:column>
             <f:facet name="header">Total (not normalized)</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(broker)[3]}">
+            <h:outputText value="#{actionRound.resultMap.get(broker)[3]}">
               <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
             </h:outputText>
           </t:column>
 
           <t:column>
             <f:facet name="header">Size 1</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(broker)[10]}">
+            <h:outputText value="#{actionRound.resultMap.get(broker)[10]}">
               <f:convertNumber minFractionDigits="1" groupingUsed="false"/>
             </h:outputText>
           </t:column>
           <t:column>
             <f:facet name="header">Size 2</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(broker)[11]}">
+            <h:outputText value="#{actionRound.resultMap.get(broker)[11]}">
               <f:convertNumber minFractionDigits="1" groupingUsed="false"/>
             </h:outputText>
           </t:column>
           <t:column>
             <f:facet name="header">Size 3</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(broker)[12]}">
+            <h:outputText value="#{actionRound.resultMap.get(broker)[12]}">
               <f:convertNumber minFractionDigits="1" groupingUsed="false"/>
             </h:outputText>
           </t:column>
 
           <t:column>
             <f:facet name="header">Total (normalized)</f:facet>
-            <h:outputText value="#{actionTournament.resultMap.get(broker)[13]}">
+            <h:outputText value="#{actionRound.resultMap.get(broker)[13]}">
               <f:convertNumber minFractionDigits="1" groupingUsed="false"/>
             </h:outputText>
           </t:column>
@@ -133,24 +133,24 @@
       </h:form>
 
       <h:panelGroup
-          rendered="#{actionTournament.tournament.isMulti() and actionTournament.avgsAndSDs.size() > 0}">
+          rendered="#{actionRound.round.isMulti() and actionRound.avgsAndSDs.size() > 0}">
         <br/>
         <table>
           <tbody>
           <tr>
             <td><h4>Averages</h4></td>
             <td class="right">
-              <h:outputText value="#{actionTournament.avgsAndSDs.get(0)}">
+              <h:outputText value="#{actionRound.avgsAndSDs.get(0)}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
               </h:outputText>
             </td>
             <td class="right">
-              <h:outputText value="#{actionTournament.avgsAndSDs.get(1)}">
+              <h:outputText value="#{actionRound.avgsAndSDs.get(1)}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
               </h:outputText>
             </td>
             <td class="right">
-              <h:outputText value="#{actionTournament.avgsAndSDs.get(2)}">
+              <h:outputText value="#{actionRound.avgsAndSDs.get(2)}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
               </h:outputText>
             </td>
@@ -158,17 +158,17 @@
           <tr>
             <td><h4>Standard deviations</h4></td>
             <td class="right">
-              <h:outputText value="#{actionTournament.avgsAndSDs.get(3)}">
+              <h:outputText value="#{actionRound.avgsAndSDs.get(3)}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
               </h:outputText>
             </td>
             <td class="right">
-              <h:outputText value="#{actionTournament.avgsAndSDs.get(4)}">
+              <h:outputText value="#{actionRound.avgsAndSDs.get(4)}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
               </h:outputText>
             </td>
             <td class="right">
-              <h:outputText value="#{actionTournament.avgsAndSDs.get(5)}">
+              <h:outputText value="#{actionRound.avgsAndSDs.get(5)}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
               </h:outputText>
             </td>
@@ -178,17 +178,17 @@
       </h:panelGroup>
 
       <h:panelGroup
-          rendered="#{actionTournament.tournament.isMulti() and actionTournament.avgsAndSDs.size() == 0}">
+          rendered="#{actionRound.round.isMulti() and actionRound.avgsAndSDs.size() == 0}">
         <br/>
         <h4>No game-data available yet</h4>
       </h:panelGroup>
 
-      <h:form rendered="#{actionTournament.tournament.gameMap.size() > 0}">
+      <h:form rendered="#{actionRound.round.gameMap.size() > 0}">
         <h3>Games</h3>
         <t:dataTable id="games" border="1"
                      style="border:1px solid black;border-collapse:collapse;"
                      columnClasses=",,,,right"
-                     value="#{actionTournament.tournament.gameMap.values()}"
+                     value="#{actionRound.round.gameMap.values()}"
                      var="entry">
           <t:column>
             <f:facet name="header">ID</f:facet>
@@ -212,7 +212,7 @@
           <t:column>
             <f:facet name="header">Brokers</f:facet>
             <h:panelGroup>
-              <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}"
+              <ui:repeat value="#{actionRound.agentsMap.get(entry.gameId)}"
                          var="a">
                 <b>#{a.broker.getBrokerName()}</b><br/>
               </ui:repeat>
@@ -222,7 +222,7 @@
           <t:column>
             <f:facet name="header">Balance</f:facet>
             <h:panelGroup>
-              <ui:repeat value="#{actionTournament.agentsMap.get(entry.gameId)}"
+              <ui:repeat value="#{actionRound.agentsMap.get(entry.gameId)}"
                          var="a">
                 <h:outputText value="#{a.balance}">
                   <f:convertNumber minFractionDigits="6" groupingUsed="false"/>

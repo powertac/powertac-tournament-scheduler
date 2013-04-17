@@ -95,7 +95,7 @@ public class RunBoot
         properties.getProperty("jenkins.location")
             + "job/start-boot-server/buildWithParameters?"
             + "tourneyUrl=" + properties.getProperty("tourneyUrl")
-            + "&pomId=" + game.getTournament().getPomId()
+            + "&pomId=" + game.getRound().getPomId()
             + "&gameId=" + game.getGameId()
             + "&machine=" + game.getMachine().getMachineName();
 
@@ -120,11 +120,11 @@ public class RunBoot
 
   /*
    * Look for bootable games. This means games that are 'boot_pending'.
-   * If a tournament is loaded (runningTournament != null) we only look for
-   * games in that tournament. If no tournament loaded, we look for games in
-   * all singleGame tournaments.
+   * If a round is loaded (runningRound != null) we only look for
+   * games in that round. If no round loaded, we look for games in
+   * all singleGame rounds.
   **/
-  public static void startBootableGames (Tournament runningTournament)
+  public static void startBootableGames (Round runningRound)
   {
     log.info("Looking for Bootstraps To Start..");
 
@@ -133,12 +133,12 @@ public class RunBoot
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      if (runningTournament == null) {
+      if (runningRound == null) {
         games = Game.getBootableSingleGames(session);
-        log.info("CheckForBoots for SINGLE_GAME tournament boots");
+        log.info("CheckForBoots for SINGLE_GAME round boots");
       } else {
-        games = Game.getBootableMultiGames(session, runningTournament);
-        log.info("CheckForBoots for MULTI_GAME tournament boots");
+        games = Game.getBootableMultiGames(session, runningRound);
+        log.info("CheckForBoots for MULTI_GAME round boots");
       }
       transaction.commit();
     } catch (Exception e) {

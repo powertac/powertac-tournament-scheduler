@@ -61,8 +61,8 @@
       <to-view-id>/competitions.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>Tournaments</from-outcome>
-      <to-view-id>/tournaments.xhtml</to-view-id>
+      <from-outcome>Rounds</from-outcome>
+      <to-view-id>/rounds.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>Overview</from-outcome>
@@ -77,8 +77,8 @@
       <to-view-id>/game.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>Tournament</from-outcome>
-      <to-view-id>/tournament.xhtml</to-view-id>
+      <from-outcome>Round</from-outcome>
+      <to-view-id>/round.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>Competition</from-outcome>
@@ -88,22 +88,22 @@
 
   <!-- Specific Navigation rules -->
   <navigation-rule>
-    <from-view-id>/tournaments.xhtml</from-view-id>
+    <from-view-id>/rounds.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>Success</from-outcome>
-      <to-view-id>/tournaments.xhtml</to-view-id>
+      <to-view-id>/rounds.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>Error</from-outcome>
-      <to-view-id>/tournaments.xhtml</to-view-id>
+      <to-view-id>/rounds.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
   <navigation-rule>
-    <from-view-id>/tournament.xhtml</from-view-id>
+    <from-view-id>/round.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>Success</from-outcome>
-      <to-view-id>/tournaments.xhtml</to-view-id>
+      <to-view-id>/rounds.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 

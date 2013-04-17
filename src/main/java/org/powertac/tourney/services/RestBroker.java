@@ -54,41 +54,41 @@ public class RestBroker
       log.debug("Broker id is : " + broker.getBrokerId());
 
       // Check if the broker registered for a running competition
-      Tournament tournament;
-      int runningTournamentId = isRunningCompetition(session, joinName, broker);
+      Round round;
+      int runningRoundId = isRunningCompetition(session, joinName, broker);
 
       // Broker not registered to competition with joinName, check tourneys
-      if (runningTournamentId == -2) {
-        tournament = getRunningTournament(session, joinName, broker);
+      if (runningRoundId == -2) {
+        round = getRunningRound(session, joinName, broker);
       }
       // Broker not registered to competition with joinName, check tourneys
-      else if (runningTournamentId == -1) {
+      else if (runningRoundId == -1) {
         transaction.commit();
         return doneResponse;
       }
       // Broker registered to competition, but no tourneys available
-      else if (runningTournamentId == 0) {
+      else if (runningRoundId == 0) {
         // TODO Should we check tourney with same name?
-        log.debug("No tournament is ready for competition : " + joinName);
+        log.debug("No round is ready for competition : " + joinName);
         MemStore.addBrokerCheckin(broker.getBrokerId());
         return String.format(retryResponse, 60);
       }
-      // We found running tournament in competition + broker is registered
+      // We found running round in competition + broker is registered
       else {
-        query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID);
-        query.setInteger("tournamentId", runningTournamentId);
-        tournament = (Tournament) query.uniqueResult();
+        query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
+        query.setInteger("roundId", runningRoundId);
+        round = (Round) query.uniqueResult();
       }
 
-      // No competition-tournament or tournament found
-      if (tournament == null) {
+      // No competition-round or round found
+      if (round == null) {
         transaction.commit();
         return doneResponse;
       }
 
       // Check if any ready games that are more than X minutes ready
       // This allows the Viz to Login first
-      Game game = getReadyGame(session, tournament, broker);
+      Game game = getReadyGame(session, round, broker);
       if (game != null) {
         Agent agent = game.getAgentMap().get(broker.getBrokerId());
         transaction.commit();
@@ -96,7 +96,7 @@ public class RestBroker
             agent.getBrokerQueue(), game.getServerQueue());
       }
 
-      log.debug("No games ready to start for tournament : " + joinName);
+      log.debug("No games ready to start for round : " + joinName);
       MemStore.addBrokerCheckin(broker.getBrokerId());
       transaction.commit();
       return String.format(retryResponse, 60);
@@ -136,58 +136,58 @@ public class RestBroker
     }
 
     for (Level level : competition.getLevelMap().values()) {
-      for (Tournament tournament: level.getTournamentMap().values()) {
-        if (broker.getTournamentMap().get(tournament.getTournamentId())==null) {
+      for (Round round : level.getRoundMap().values()) {
+        if (broker.getRoundMap().get(round.getRoundId())==null) {
           continue;
         }
 
         // We now know broker is registered for competition
-        if (tournament.isComplete()) {
+        if (round.isComplete()) {
           result = 0;
           continue;
         }
 
         // Found a running tourney in competition that broker is registered for
-        return tournament.getTournamentId();
+        return round.getRoundId();
       }
     }
 
     return result;
   }
 
-  private Tournament getRunningTournament (Session session, String joinName,
-                                           Broker broker)
+  private Round getRunningRound (Session session, String joinName,
+                                 Broker broker)
   {
-    Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_NAME);
-    query.setString("tournamentName", joinName);
-    Tournament tournament = (Tournament) query.uniqueResult();
+    Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_NAME);
+    query.setString("roundName", joinName);
+    Round round = (Round) query.uniqueResult();
 
-    if (tournament == null) {
-      log.debug("Tournament doesn't exists : " + joinName);
+    if (round == null) {
+      log.debug("Competition doesn't exists : " + joinName);
       return null;
     }
 
-    if (tournament.isComplete()) {
-      log.debug("Tournament is finished, we're done : " + joinName);
+    if (round.isComplete()) {
+      log.debug("Competition is finished, we're done : " + joinName);
       return null;
     }
 
-    if (broker.getTournamentMap().get(tournament.getTournamentId()) == null) {
-      log.debug(String.format("Broker not registered for tournament " +
-          tournament.getTournamentName()));
+    if (broker.getRoundMap().get(round.getRoundId()) == null) {
+      log.debug(String.format("Broker not registered for competition " +
+          round.getRoundName()));
       return null;
     }
 
-    return tournament;
+    return round;
   }
 
-  private Game getReadyGame (Session session, Tournament tournament,
+  private Game getReadyGame (Session session, Round round,
                              Broker broker)
   {
     long readyDeadline = 2 * 60 * 1000;
     long nowStamp = Utils.offsetDate().getTime();
 
-    for (Game game: tournament.getGameMap().values()) {
+    for (Game game: round.getGameMap().values()) {
       if (!game.isReady()) {
         continue;
       }

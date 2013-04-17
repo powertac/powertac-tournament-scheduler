@@ -16,11 +16,11 @@ public class Level
   private String levelName;
   private int competitionId;
   private int levelNr;
-  private int nofTournaments;
+  private int nofRounds;
   private int nofWinners;
   private Date startTime;
 
-  private Map<Integer, Tournament> tournamentMap = new HashMap<Integer, Tournament>();
+  private Map<Integer, Round> roundMap = new HashMap<Integer, Round>();
 
   public Level ()
   {
@@ -30,8 +30,8 @@ public class Level
   public int getMaxBrokers ()
   {
     int total = 0;
-    for (Tournament tournament: tournamentMap.values()) {
-      total += tournament.getMaxBrokers();
+    for (Round round : roundMap.values()) {
+      total += round.getMaxBrokers();
     }
     return total;
   }
@@ -40,22 +40,22 @@ public class Level
   public int getNofBrokers ()
   {
     int nofBrokers = 0;
-    for (Tournament tournament: tournamentMap.values()) {
-      nofBrokers += tournament.getBrokerMap().size();
+    for (Round round : roundMap.values()) {
+      nofBrokers += round.getBrokerMap().size();
     }
     return nofBrokers;
   }
 
   @OneToMany
   @JoinColumn(name = "levelId")
-  @MapKey(name = "tournamentId")
-  public Map<Integer, Tournament> getTournamentMap ()
+  @MapKey(name = "roundId")
+  public Map<Integer, Round> getRoundMap ()
   {
-    return tournamentMap;
+    return roundMap;
   }
-  public void setTournamentMap (Map<Integer, Tournament> tournamentMap)
+  public void setRoundMap (Map<Integer, Round> roundMap)
   {
-    this.tournamentMap = tournamentMap;
+    this.roundMap = roundMap;
   }
 
   //<editor-fold desc="Setters and Getters">
@@ -101,14 +101,14 @@ public class Level
     this.levelNr = levelNr;
   }
 
-  @Column(name = "nofTournaments")
-  public int getNofTournaments ()
+  @Column(name = "nofRounds")
+  public int getNofRounds ()
   {
-    return nofTournaments;
+    return nofRounds;
   }
-  public void setNofTournaments (int nofTournaments)
+  public void setNofRounds (int nofRounds)
   {
-    this.nofTournaments = nofTournaments;
+    this.nofRounds = nofRounds;
   }
 
   @Column(name = "nofWinners")

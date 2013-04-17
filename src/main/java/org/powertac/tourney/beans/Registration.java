@@ -9,11 +9,11 @@ import static javax.persistence.GenerationType.IDENTITY;
 @ManagedBean
 @Entity
 @Table(name = "registrations", uniqueConstraints =
-    @UniqueConstraint(columnNames = {"tournamentId", "brokerId"}))
+    @UniqueConstraint(columnNames = {"roundId", "brokerId"}))
 public class Registration
 {
   private int registrationId;
-  private Tournament tournament;
+  private Round round;
   private Broker broker;
 
   public Registration ()
@@ -21,15 +21,15 @@ public class Registration
   }
 
   @ManyToOne
-  @JoinColumn(name = "tournamentId")
-  public Tournament getTournament ()
+  @JoinColumn(name = "roundId")
+  public Round getRound ()
   {
-    return tournament;
+    return round;
   }
 
-  public void setTournament (Tournament tournament)
+  public void setRound (Round round)
   {
-    this.tournament = tournament;
+    this.round = round;
   }
 
   @ManyToOne

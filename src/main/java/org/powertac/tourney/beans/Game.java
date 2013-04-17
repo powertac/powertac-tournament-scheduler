@@ -27,7 +27,7 @@ public class Game implements Serializable
 
   private Integer gameId = 0;
   private String gameName;
-  private Tournament tournament;
+  private Round round;
   private Machine machine = null;
   private STATE state = STATE.boot_pending;
   private Date startTime;
@@ -175,12 +175,12 @@ public class Game implements Serializable
         break;
 
       case game_ready:
-        tournament.setStateToInProgress();
+        round.setStateToInProgress();
         readyTime = Utils.offsetDate();
         break;
 
       case game_in_progress:
-        tournament.setStateToInProgress();
+        round.setStateToInProgress();
         break;
 
       case game_complete:
@@ -192,8 +192,8 @@ public class Game implements Serializable
         Machine.delayedMachineUpdate(machine, 10);
         machine = null;
         log.debug("Freeing Machines for game: " + gameId);
-        // If all games of tournament are complete, set tournament complete
-        tournament.processGameFinished(gameId);
+        // If all games of round are complete, set round complete
+        round.processGameFinished(gameId);
         break;
 
       case game_failed:
@@ -391,7 +391,7 @@ public class Game implements Serializable
   @Transient
   public int getGameTypeIndex ()
   {
-    if (tournament.isSingle()) {
+    if (round.isSingle()) {
       return 0;
     }
 
@@ -419,14 +419,14 @@ public class Game implements Serializable
     }
   }
 
-  public static Game createGame (Tournament tournament, String gameName)
+  public static Game createGame (Round round, String gameName)
   {
     Game game = new Game();
     game.setGameName(gameName);
-    game.setTournament(tournament);
+    game.setRound(round);
     game.setState(STATE.boot_pending);
-    game.setStartTime(tournament.getStartTime());
-    game.setLocation(randomLocation(tournament));
+    game.setStartTime(round.getStartTime());
+    game.setLocation(randomLocation(round));
     game.setSimStartTime(randomSimStartTime(game.getLocation()));
     game.setServerQueue(Utils.createQueueName());
     game.setVisualizerQueue(Utils.createQueueName());
@@ -434,10 +434,10 @@ public class Game implements Serializable
     return game;
   }
 
-  private static String randomLocation (Tournament tournament)
+  private static String randomLocation (Round round)
   {
-    double randLocation = Math.random() * tournament.getLocationsList().size();
-    return tournament.getLocationsList().get((int) Math.floor(randLocation));
+    double randLocation = Math.random() * round.getLocationsList().size();
+    return round.getLocationsList().get((int) Math.floor(randLocation));
   }
 
   private static String randomSimStartTime (String locationString)
@@ -454,7 +454,7 @@ public class Game implements Serializable
 
     Date starting = new Date();
     if ( (dateTo - dateFrom) < msLength) {
-      // Use fromTime in all games in the tournament as the start time
+      // Use fromTime in all games in the round as the start time
       starting.setTime(dateFrom);
     } else {
       long end = dateTo - msLength;
@@ -476,16 +476,16 @@ public class Game implements Serializable
 
   @SuppressWarnings("unchecked")
   public static List<Game> getBootableMultiGames (Session session,
-                                                  Tournament tournament)
+                                                  Round round)
   {
     List<Game> fullList = (List<Game>) session
         .createQuery(Constants.HQL.GET_GAMES_MULTI_BOOT_PENDING)
-        .setInteger("tournamentId", tournament.getTournamentId())
+        .setInteger("roundId", round.getRoundId())
         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
     // Get availability for participating brokers
     Map<Integer, Integer> availability =
-        Broker.getBrokerAvailability(session, tournament.getMaxAgents());
+        Broker.getBrokerAvailability(session, round.getMaxAgents());
     Collections.sort(fullList, new customGameComparator(availability));
     return fullList;
   }
@@ -501,17 +501,17 @@ public class Game implements Serializable
 
   @SuppressWarnings("unchecked")
   public static List<Game> getStartableMultiGames (Session session,
-                                                   Tournament tournament)
+                                                   Round round)
   {
     List<Game> fullList = (List<Game>) session
         .createQuery(Constants.HQL.GET_GAMES_MULTI_BOOT_COMPLETE)
-        .setInteger("tournamentId", tournament.getTournamentId())
+        .setInteger("roundId", round.getRoundId())
         .setTimestamp("startTime", Utils.offsetDate())
         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
     // Get availability for participating brokers
     Map<Integer, Integer> availability =
-        Broker.getBrokerAvailability(session, tournament.getMaxAgents());
+        Broker.getBrokerAvailability(session, round.getMaxAgents());
 
     // We have do an extra loop, starting of games changes availability
     List<Game> result = new ArrayList<Game>();
@@ -618,14 +618,14 @@ public class Game implements Serializable
   }
 
   @ManyToOne
-  @JoinColumn(name = "tournamentId")
-  public Tournament getTournament ()
+  @JoinColumn(name = "roundId")
+  public Round getRound ()
   {
-    return tournament;
+    return round;
   }
-  public void setTournament (Tournament tournament)
+  public void setRound (Round round)
   {
-    this.tournament = tournament;
+    this.round = round;
   }
 
   @ManyToOne

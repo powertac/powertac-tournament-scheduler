@@ -17,7 +17,7 @@ import java.util.*;
 
 @ManagedBean
 @RequestScoped
-public class ActionTournaments
+public class ActionRounds
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
@@ -25,9 +25,9 @@ public class ActionTournaments
   private List<Broker> brokerList = new ArrayList<Broker>();
   private int slavesCount;
 
-  private int tournamentId;
-  private String tournamentName;
-  private Tournament.TYPE type;
+  private int roundId;
+  private String roundName;
+  private Round.TYPE type;
   private int maxBrokers;
   private int maxAgents;
   private int size1;
@@ -43,19 +43,19 @@ public class ActionTournaments
   private int selectedPom;
   private boolean closed;
 
-  public ActionTournaments ()
+  public ActionRounds ()
   {
     resetValues();
   }
 
-  public List<Tournament.TYPE> getTypes ()
+  public List<Round.TYPE> getTypes ()
   {
-    return Arrays.asList(Tournament.TYPE.values());
+    return Arrays.asList(Round.TYPE.values());
   }
 
-  public List<Tournament> getTournamentList ()
+  public List<Round> getRoundList ()
   {
-    return Tournament.getNotCompleteTournamentList();
+    return Round.getNotCompleteRoundList();
   }
 
   public List<Pom> getPomList ()
@@ -68,39 +68,39 @@ public class ActionTournaments
     return Location.getLocationList();
   }
 
-  public void saveTournament ()
+  public void saveRound ()
   {
     if (!inputsValidated()) {
-      if (tournamentId != -1) {
+      if (roundId != -1) {
         resetValues();
       }
       return;
     }
 
-    if (tournamentId != -1) {
-      saveEditedTournament();
+    if (roundId != -1) {
+      saveEditedRound();
     } else {
-      createTournament();
+      createRound();
     }
   }
 
-  private void createTournament ()
+  private void createRound ()
   {
-    log.info("Creating " + type.toString() + " tournament");
+    log.info("Creating " + type.toString() + " round");
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Tournament tournament = new Tournament();
-      setValues(tournament);
-      tournament.setStateToPending();
-      session.save(tournament);
+      Round round = new Round();
+      setValues(round);
+      round.setStateToPending();
+      session.save(round);
 
-      log.info(String.format("Created %s tournament %s",
-          type.toString(), tournament.getTournamentId()));
+      log.info(String.format("Created %s round %s",
+          type.toString(), round.getRoundId()));
 
-      if (type == Tournament.TYPE.SINGLE_GAME) {
-        Game game = Game.createGame(tournament, tournamentName);
+      if (type == Round.TYPE.SINGLE_GAME) {
+        Game game = Game.createGame(round, roundName);
         session.save(game);
         log.info("Created game " + game.getGameId());
       }
@@ -108,11 +108,11 @@ public class ActionTournaments
       transaction.commit();
     } catch (ConstraintViolationException ignored) {
       transaction.rollback();
-      message(2, "The tournament name already exists");
+      message(2, "The round name already exists");
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      log.error("Error creating tournament");
+      log.error("Error creating round");
     } finally {
       if (transaction.wasCommitted()) {
         resetValues();
@@ -121,50 +121,50 @@ public class ActionTournaments
     }
   }
 
-  public void loadTournament (Tournament tournament)
+  public void loadRound (Round round)
   {
-    tournamentId = tournament.getTournamentId();
-    tournamentName = tournament.getTournamentName();
-    type = tournament.getType();
-    maxBrokers = tournament.getMaxBrokers();
-    maxAgents = tournament.getMaxAgents();
-    size1 = tournament.getSize1();
-    size2 = tournament.getSize2();
-    size3 = tournament.getSize3();
-    multiplier1 = tournament.getMultiplier1();
-    multiplier2 = tournament.getMultiplier2();
-    multiplier3 = tournament.getMultiplier3();
-    startTime = tournament.getStartTime();
-    dateFrom = tournament.getDateFrom();
-    dateTo = tournament.getDateTo();
-    locations = tournament.getLocationsList();
-    selectedPom = tournament.getPomId();
-    closed = tournament.isClosed();
+    roundId = round.getRoundId();
+    roundName = round.getRoundName();
+    type = round.getType();
+    maxBrokers = round.getMaxBrokers();
+    maxAgents = round.getMaxAgents();
+    size1 = round.getSize1();
+    size2 = round.getSize2();
+    size3 = round.getSize3();
+    multiplier1 = round.getMultiplier1();
+    multiplier2 = round.getMultiplier2();
+    multiplier3 = round.getMultiplier3();
+    startTime = round.getStartTime();
+    dateFrom = round.getDateFrom();
+    dateTo = round.getDateTo();
+    locations = round.getLocationsList();
+    selectedPom = round.getPomId();
+    closed = round.isClosed();
 
     // Once scheduled, params can't change (type can never change)
-    if (tournament.getSize() > 0) {
+    if (round.getSize() > 0) {
       disabled = true;
     }
   }
 
-  public void saveEditedTournament ()
+  public void saveEditedRound ()
   {
-    log.info("Saving tournament " + tournamentId);
+    log.info("Saving round " + roundId);
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Tournament tournament = (Tournament) session.get(Tournament.class, tournamentId);
-      setValues(tournament);
-      session.saveOrUpdate(tournament);
+      Round round = (Round) session.get(Round.class, roundId);
+      setValues(round);
+      session.saveOrUpdate(round);
       transaction.commit();
     } catch (ConstraintViolationException ignored) {
       transaction.rollback();
-      message(2, "The tournament name already exists");
+      message(2, "The round name already exists");
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      log.error("Error saving tournament");
+      log.error("Error saving round");
     } finally {
       if (transaction.wasCommitted()) {
         resetValues();
@@ -173,23 +173,23 @@ public class ActionTournaments
     }
   }
 
-  public void removeTournament (Tournament tournament)
+  public void removeRound (Round round)
   {
-    if (!tournament.getTournamentName().toLowerCase().contains("test")) {
-      log.info("Someone tried to remove a non-test Tournament!");
+    if (!round.getRoundName().toLowerCase().contains("test")) {
+      log.info("Someone tried to remove a non-test Round!");
       message(0, "Nice try, hacker!");
       return;
     }
 
-    String msg = tournament.delete();
+    String msg = round.delete();
     if (!msg.isEmpty()) {
-      log.info(String.format("Something went wrong with removing tournament "
-          + "%s\n%s", tournament.getTournamentName(), msg));
+      log.info(String.format("Something went wrong with removing round "
+          + "%s\n%s", round.getRoundName(), msg));
       message(0, msg);
     }
   }
 
-  public void setValues (Tournament tournament)
+  public void setValues (Round round)
   {
     String allLocations = "";
     for (String s: locations) {
@@ -201,35 +201,35 @@ public class ActionTournaments
     Integer[] multipliers = {Math.max(0, multiplier1), Math.max(0, multiplier2),
         Math.max(0, multiplier3)};
     Arrays.sort(gameTypes, Collections.reverseOrder());
-    maxBrokers = Math.max(maxBrokers, tournament.getBrokerMap().size());
+    maxBrokers = Math.max(maxBrokers, round.getBrokerMap().size());
 
-    if (tournament.getSize() < 1) {
-      tournament.setTournamentName(tournamentName);
+    if (round.getSize() < 1) {
+      round.setRoundName(roundName);
       if (type != null) {
-        tournament.setType(type);
+        round.setType(type);
       }
-      tournament.setMaxBrokers(maxBrokers);
-      tournament.setMaxAgents(tournament.isMulti() ? maxAgents : 0);
-      tournament.setSize1(tournament.isMulti() ? gameTypes[0] : 0);
-      tournament.setSize2(tournament.isMulti() ? gameTypes[1] : 0);
-      tournament.setSize3(tournament.isMulti() ? gameTypes[2] : 0);
-      tournament.setMultiplier1(tournament.isMulti() ? multipliers[0] : 0);
-      tournament.setMultiplier2(tournament.isMulti() ? multipliers[1] : 0);
-      tournament.setMultiplier3(tournament.isMulti() ? multipliers[2] : 0);
-      tournament.setStartTime(startTime);
-      tournament.setDateFrom(dateFrom);
-      tournament.setDateTo(dateTo);
-      tournament.setLocations(allLocations);
-      tournament.setPomId(selectedPom);
+      round.setMaxBrokers(maxBrokers);
+      round.setMaxAgents(round.isMulti() ? maxAgents : 0);
+      round.setSize1(round.isMulti() ? gameTypes[0] : 0);
+      round.setSize2(round.isMulti() ? gameTypes[1] : 0);
+      round.setSize3(round.isMulti() ? gameTypes[2] : 0);
+      round.setMultiplier1(round.isMulti() ? multipliers[0] : 0);
+      round.setMultiplier2(round.isMulti() ? multipliers[1] : 0);
+      round.setMultiplier3(round.isMulti() ? multipliers[2] : 0);
+      round.setStartTime(startTime);
+      round.setDateFrom(dateFrom);
+      round.setDateTo(dateTo);
+      round.setLocations(allLocations);
+      round.setPomId(selectedPom);
     }
-    tournament.setClosed(closed);
+    round.setClosed(closed);
   }
 
   public void resetValues ()
   {
-    tournamentId = -1;
-    tournamentName = "";
-    type = Tournament.TYPE.SINGLE_GAME;
+    roundId = -1;
+    roundName = "";
+    type = Round.TYPE.SINGLE_GAME;
     maxBrokers = 0;
     maxAgents = 2;
     size1 = 8;
@@ -273,23 +273,23 @@ public class ActionTournaments
     return brokerList;
   }
 
-  public List<Tournament> getAvailableTournaments (Broker b)
+  public List<Round> getAvailableRounds (Broker b)
   {
-    return b.getAvailableTournaments(false);
+    return b.getAvailableRounds(false);
   }
 
-  public List<Tournament> getRegisteredTournaments (Broker b)
+  public List<Round> getRegisteredRounds (Broker b)
   {
-    return b.getRegisteredTournaments();
+    return b.getRegisteredRounds();
   }
 
   public void register (Broker b)
   {
-    if (!(b.getSelectedTournamentRegister() > 0)) {
+    if (!(b.getSelectedRoundRegister() > 0)) {
       return;
     }
 
-    boolean registered = b.register(b.getSelectedTournamentRegister());
+    boolean registered = b.register(b.getSelectedRoundRegister());
     if (!registered) {
       message(1, "Error registering broker");
     } else {
@@ -301,11 +301,11 @@ public class ActionTournaments
 
   public void unregister (Broker b)
   {
-    if (!(b.getSelectedTournamentUnregister() > 0)) {
+    if (!(b.getSelectedRoundUnregister() > 0)) {
       return;
     }
 
-    boolean registered = b.unregister(b.getSelectedTournamentUnregister());
+    boolean registered = b.unregister(b.getSelectedRoundUnregister());
     if (!registered) {
       message(1, "Error unregistering broker");
     } else {
@@ -315,20 +315,20 @@ public class ActionTournaments
     }
   }
 
-  public boolean allowEdit (Tournament tournament)
+  public boolean allowEdit (Round round)
   {
-    return tournamentId == -1 && tournament.isPending();
+    return roundId == -1 && round.isPending();
   }
 
   private boolean inputsValidated ()
   {
     List<String> messages = new ArrayList<String>();
 
-    if (tournamentName.trim().isEmpty()) {
-      messages.add("The tournament name cannot be empty");
+    if (roundName.trim().isEmpty()) {
+      messages.add("The round name cannot be empty");
     }
 
-    if ((locations.size() < 1) && (tournamentId == -1 || selectedPom != 0)) {
+    if ((locations.size() < 1) && (roundId == -1 || selectedPom != 0)) {
       messages.add("Choose at least one location");
     }
 
@@ -347,38 +347,38 @@ public class ActionTournaments
   {
     FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
     if (field == 0) {
-      FacesContext.getCurrentInstance().addMessage("runningTournaments", fm);
+      FacesContext.getCurrentInstance().addMessage("runningRounds", fm);
     } else if (field == 1) {
-      FacesContext.getCurrentInstance().addMessage("tournamentRegistered", fm);
+      FacesContext.getCurrentInstance().addMessage("roundRegistered", fm);
     } else if (field == 2) {
-      FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
+      FacesContext.getCurrentInstance().addMessage("saveRound", fm);
     }
   }
 
   //<editor-fold desc="Setters and getters">
-  public int getTournamentId ()
+  public int getRoundId ()
   {
-    return tournamentId;
+    return roundId;
   }
-  public void setTournamentId (int tournamentId)
+  public void setRoundId (int roundId)
   {
-    this.tournamentId = tournamentId;
-  }
-
-  public String getTournamentName ()
-  {
-    return tournamentName;
-  }
-  public void setTournamentName (String tournamentName)
-  {
-    this.tournamentName = tournamentName;
+    this.roundId = roundId;
   }
 
-  public Tournament.TYPE getType ()
+  public String getRoundName ()
+  {
+    return roundName;
+  }
+  public void setRoundName (String roundName)
+  {
+    this.roundName = roundName;
+  }
+
+  public Round.TYPE getType ()
   {
     return type;
   }
-  public void setType (Tournament.TYPE type)
+  public void setType (Round.TYPE type)
   {
     this.type = type;
   }

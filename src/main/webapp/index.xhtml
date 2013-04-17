@@ -40,8 +40,8 @@
           </t:column>
 
           <t:column>
-            <f:facet name="header">Tournament</f:facet>
-            <h:outputText value="#{g.tournament.tournamentName}"/>
+            <f:facet name="header">Round</f:facet>
+            <h:outputText value="#{g.round.roundName}"/>
           </t:column>
 
           <t:column>
@@ -86,10 +86,10 @@
           </t:column>
 
           <t:column>
-            <f:facet name="header">Tournament</f:facet>
-            <h:link value="#{g.tournament.tournamentName}" outcome="Tournament">
-              <f:param name="tournamentId"
-                       value="#{g.tournament.tournamentId}"/>
+            <f:facet name="header">Round</f:facet>
+            <h:link value="#{g.round.roundName}" outcome="Round">
+              <f:param name="roundId"
+                       value="#{g.round.roundId}"/>
             </h:link>
           </t:column>
 

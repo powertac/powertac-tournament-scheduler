@@ -184,8 +184,6 @@ public class RestServer
 
   private String getPropertiesString (Game game)
   {
-    TournamentProperties properties = TournamentProperties.getProperties();
-
     String result = "";
     result += String.format(Constants.Props.weatherServerURL,
         properties.getProperty("weatherServerLocation"));

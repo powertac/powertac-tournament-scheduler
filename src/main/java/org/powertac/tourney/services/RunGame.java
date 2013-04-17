@@ -79,16 +79,16 @@ public class RunGame
   }
 
   /**
-   * Make sure brokers are registered for the tournament
+   * Make sure brokers are registered for the round
    * Also check if participating brokers have an agent available (we don't check
    * if agents are checking in, brokers are responsible for availability).
    */
   private boolean checkBrokers ()
   {
     if (game.getAgentMap().size() < 1) {
-      log.info(String.format("Game: %s (tournament %s) reports no brokers "
+      log.info(String.format("Game: %s (round %s) reports no brokers "
           + "registered",
-          game.getGameId(), game.getTournament().getTournamentId()));
+          game.getGameId(), game.getRound().getRoundId()));
       return false;
     }
 
@@ -155,7 +155,7 @@ public class RunGame
         properties.getProperty("jenkins.location")
             + "job/start-sim-server/buildWithParameters?"
             + "tourneyUrl=" + properties.getProperty("tourneyUrl")
-            + "&pomId=" + game.getTournament().getPomId()
+            + "&pomId=" + game.getRound().getPomId()
             + "&gameId=" + game.getGameId()
             + "&machine=" + game.getMachine().getMachineName()
             + "&brokers=" + brokers
@@ -182,11 +182,11 @@ public class RunGame
 
   /*
    * Look for runnable games. This means games that are 'game_pending'.
-   * If a tournament is loaded (runningTournament != null) we only look for
-   * games in that tournament. If no tournament loaded, we look for games in
-   * all singleGame tournaments.
+   * If a round is loaded (runningRound != null) we only look for
+   * games in that round. If no round loaded, we look for games in
+   * all singleGame rounds.
   **/
-  public static void startRunnableGames (Tournament runningTournament)
+  public static void startRunnableGames (Round runningRound)
   {
     log.info("Looking for Runnable Games");
 
@@ -195,12 +195,12 @@ public class RunGame
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      if (runningTournament == null) {
+      if (runningRound == null) {
         games = Game.getStartableSingleGames(session);
-        log.info("CheckForSims for SINGLE_GAME tournament games");
+        log.info("CheckForSims for SINGLE_GAME round games");
       } else {
-        games = Game.getStartableMultiGames(session, runningTournament);
-        log.info("CheckForSims for MULTI_GAME tournament games");
+        games = Game.getStartableMultiGames(session, runningRound);
+        log.info("CheckForSims for MULTI_GAME round games");
       }
       transaction.commit();
     } catch (Exception e) {

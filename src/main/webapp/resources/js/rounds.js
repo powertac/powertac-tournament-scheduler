@@ -2,7 +2,7 @@ function showGamesCount() {
     var maxSlaves = document.getElementById("slavesCount").value;
     var durationOverhead = 1.1;
 
-    var elems = saveTournament.elements;
+    var elems = saveRound.elements;
     var gameName = elems[0].value;
     var type = elems[1].value;
     var maxBrokers = parseInt(elems[2].value);
@@ -101,9 +101,9 @@ function calculateGames(players, gametype, multiplier) {
 }
 
 function typeSelected() {
-    var elems = saveTournament.elements;
+    var elems = saveRound.elements;
     var type = elems[1].value;
-    var table = document.getElementById("saveTournament:tournamentTable");
+    var table = document.getElementById("saveRound:roundTable");
 
     if (type == 'MULTI_GAME') {
         table.rows[3].style.display = "";

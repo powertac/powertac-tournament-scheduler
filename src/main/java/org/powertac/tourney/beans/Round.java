@@ -18,11 +18,11 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @ManagedBean
 @Entity
-@Table(name = "tournaments")
-public class Tournament
+@Table(name = "rounds")
+public class Round
 {
-  private int tournamentId;
-  private String tournamentName;
+  private int roundId;
+  private String roundName;
   private Level level;
   private Date startTime;
   private Date dateFrom;
@@ -54,7 +54,7 @@ public class Tournament
     SINGLE_GAME, MULTI_GAME
   }
 
-  public Tournament ()
+  public Round ()
   {
   }
 
@@ -63,12 +63,12 @@ public class Tournament
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Tournament tournament = (Tournament) session
-          .createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID)
-          .setInteger("tournamentId", tournamentId).uniqueResult();
+      Round round = (Round) session
+          .createQuery(Constants.HQL.GET_ROUND_BY_ID)
+          .setInteger("roundId", roundId).uniqueResult();
 
       // Disallow removal when games booting or running
-      for (Game game: tournament.gameMap.values()) {
+      for (Game game: round.gameMap.values()) {
         if (game.isBooting() || game.isRunning()) {
           transaction.rollback();
           return String.format("Game %s can not be removed, state = %s",
@@ -79,24 +79,24 @@ public class Tournament
       @SuppressWarnings("unchecked")
       List<Registration> registrations = (List<Registration>) session
           .createCriteria(Registration.class)
-          .add(Restrictions.eq("tournament", tournament)).list();
+          .add(Restrictions.eq("getRound", round)).list();
       for (Registration registration: registrations) {
         session.delete(registration);
       }
       session.flush();
 
-      for (Game game: tournament.gameMap.values()) {
+      for (Game game: round.gameMap.values()) {
         game.delete(session);
       }
       session.flush();
 
-      session.delete(tournament);
+      session.delete(round);
       transaction.commit();
       return "";
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      return "Error deleting tournament";
+      return "Error deleting round";
     } finally {
       session.close();
     }
@@ -104,7 +104,7 @@ public class Tournament
 
   /**
    * If a game is complete, check if it was the last one to complete
-   * If so, set tournament state to complete
+   * If so, set round state to complete
    */
   public void processGameFinished (int finishedGameId)
   {
@@ -124,9 +124,9 @@ public class Tournament
       state = STATE.complete;
 
       Scheduler scheduler = Scheduler.getScheduler();
-      if (scheduler.getRunningTournament() != null &&
-          scheduler.getRunningTournament().getTournamentId() == tournamentId) {
-        scheduler.unloadTournament();
+      if (scheduler.getRunningRound() != null &&
+          scheduler.getRunningRound().getRoundId() == roundId) {
+        scheduler.Round();
       }
     }
 
@@ -340,7 +340,7 @@ public class Tournament
 
   //<editor-fold desc="Collections">
   @OneToMany
-  @JoinColumn(name = "tournamentId")
+  @JoinColumn(name = "roundId")
   @MapKey(name = "gameId")
   public Map<Integer, Game> getGameMap ()
   {
@@ -355,7 +355,7 @@ public class Tournament
   @ManyToMany
   @JoinTable(name = "registrations",
       joinColumns =
-      @JoinColumn(name = "tournamentId", referencedColumnName = "tournamentId"),
+      @JoinColumn(name = "roundId", referencedColumnName = "roundId"),
       inverseJoinColumns =
       @JoinColumn(name = "brokerId", referencedColumnName = "brokerId")
   )
@@ -380,19 +380,19 @@ public class Tournament
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Tournament> getNotCompleteTournamentList ()
+  public static List<Round> getNotCompleteRoundList ()
   {
-    List<Tournament> tournaments = new ArrayList<Tournament>();
+    List<Round> rounds = new ArrayList<Round>();
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      tournaments = (List<Tournament>) session
-          .createQuery(Constants.HQL.GET_TOURNAMENTS_NOT_COMPLETE)
+      rounds = (List<Round>) session
+          .createQuery(Constants.HQL.GET_ROUNDS_NOT_COMPLETE)
           .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
-      for (Tournament tournament: tournaments) {
-        for (Game game: tournament.getGameMap().values()) {
+      for (Round round : rounds) {
+        for (Game game: round.getGameMap().values()) {
           game.getSize();
         }
       }
@@ -404,7 +404,7 @@ public class Tournament
     }
     session.close();
 
-    return tournaments;
+    return rounds;
   }
 
   public List<Double> getAvgsAndSDs (Map<Broker, Double[]> resultMap)
@@ -423,24 +423,24 @@ public class Tournament
   //<editor-fold desc="Getters and setters">
   @Id
   @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "tournamentId", unique = true, nullable = false)
-  public int getTournamentId ()
+  @Column(name = "roundId", unique = true, nullable = false)
+  public int getRoundId ()
   {
-    return tournamentId;
+    return roundId;
   }
-  public void setTournamentId (int tournamentId)
+  public void setRoundId (int roundId)
   {
-    this.tournamentId = tournamentId;
+    this.roundId = roundId;
   }
 
-  @Column(name = "tourneyName", nullable = false)
-  public String getTournamentName ()
+  @Column(name = "roundName", nullable = false)
+  public String getRoundName ()
   {
-    return tournamentName;
+    return roundName;
   }
-  public void setTournamentName (String tournamentName)
+  public void setRoundName (String roundName)
   {
-    this.tournamentName = tournamentName;
+    this.roundName = roundName;
   }
 
   @ManyToOne

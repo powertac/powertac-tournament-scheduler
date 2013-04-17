@@ -22,42 +22,42 @@ import java.util.Map;
 
 @ManagedBean
 @RequestScoped
-public class ActionTournament
+public class ActionRound
 {
-  private Tournament tournament;
-  private List<String> tournamentInfo = new ArrayList<String>();
+  private Round round;
+  private List<String> roundInfo = new ArrayList<String>();
   private List<String> participantInfo = new ArrayList<String>();
   private List<String> csvLinks = new ArrayList<String>();
   private Map<Integer, List> agentsMap = new HashMap<Integer, List>();
   private Map<Broker, Double[]> resultMap = new HashMap<Broker, Double[]>();
   private List<Double> avgsAndSDs = new ArrayList<Double>();
 
-  public ActionTournament ()
+  public ActionRound ()
   {
     loadData();
   }
 
   private void loadData ()
   {
-    int tournamentId = getTournamentId();
-    if (tournamentId < 1) {
+    int roundId = getRoundId();
+    if (roundId < 1) {
       return;
     }
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID);
-      query.setInteger("tournamentId", tournamentId);
-      tournament = (Tournament) query.uniqueResult();
+      Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
+      query.setInteger("roundId", roundId);
+      round = (Round) query.uniqueResult();
 
-      if (tournament == null) {
+      if (round == null) {
         transaction.rollback();
         Utils.redirect();
         return;
       }
 
-      loadTournamentInfo();
+      loadRoundInfo();
       loadParticipantInfo();
       addCsvLinks();
       loadMaps();
@@ -70,12 +70,12 @@ public class ActionTournament
     }
   }
 
-  private int getTournamentId ()
+  private int getRoundId ()
   {
     FacesContext facesContext = FacesContext.getCurrentInstance();
     try {
       return Integer.parseInt(facesContext.getExternalContext().
-          getRequestParameterMap().get("tournamentId"));
+          getRequestParameterMap().get("roundId"));
     } catch (NumberFormatException ignored) {
       if (!FacesContext.getCurrentInstance().isPostback()) {
         Utils.redirect();
@@ -86,10 +86,10 @@ public class ActionTournament
 
   private void loadMaps ()
   {
-    resultMap = tournament.determineWinner();
-    avgsAndSDs = tournament.getAvgsAndSDs(resultMap);
+    resultMap = round.determineWinner();
+    avgsAndSDs = round.getAvgsAndSDs(resultMap);
 
-    for (Game game: tournament.getGameMap().values()) {
+    for (Game game: round.getGameMap().values()) {
       List<Agent> agents = new ArrayList<Agent>();
 
       for (Agent agent: game.getAgentMap().values()) {
@@ -100,37 +100,37 @@ public class ActionTournament
     }
   }
 
-  private void loadTournamentInfo ()
+  private void loadRoundInfo ()
   {
-    tournamentInfo.add("Id : " + tournament.getTournamentId());
-    tournamentInfo.add("Name : " + tournament.getTournamentName());
-    tournamentInfo.add("Status : " + tournament.getState());
+    roundInfo.add("Id : " + round.getRoundId());
+    roundInfo.add("Name : " + round.getRoundName());
+    roundInfo.add("Status : " + round.getState());
 
-    tournamentInfo.add("StartTime (UTC) : " + tournament.startTimeUTC().substring(0, 16));
-    tournamentInfo.add("Date from : " + tournament.dateFromUTC().substring(0, 10));
-    tournamentInfo.add("Date to : " + tournament.dateToUTC().substring(0, 10));
+    roundInfo.add("StartTime (UTC) : " + round.startTimeUTC().substring(0, 16));
+    roundInfo.add("Date from : " + round.dateFromUTC().substring(0, 10));
+    roundInfo.add("Date to : " + round.dateToUTC().substring(0, 10));
 
-    tournamentInfo.add("MaxBrokers : " + tournament.getMaxBrokers());
-    tournamentInfo.add("Registered Brokers : " + tournament.getBrokerMap().size());
-    tournamentInfo.add("MaxAgents : " + tournament.getMaxAgents());
+    roundInfo.add("MaxBrokers : " + round.getMaxBrokers());
+    roundInfo.add("Registered Brokers : " + round.getBrokerMap().size());
+    roundInfo.add("MaxAgents : " + round.getMaxAgents());
 
-    tournamentInfo.add("Type : " + tournament.getType());
-    if (tournament.isMulti()) {
-      tournamentInfo.add(String.format("Size / multiplier 1 : %s / %s",
-          tournament.getSize1(), tournament.getMultiplier1()));
-      tournamentInfo.add(String.format("Size / multiplier 2 : %s / %s",
-          tournament.getSize2(), tournament.getMultiplier2()));
-      tournamentInfo.add(String.format("Size / multiplier 3 : %s / %s",
-          tournament.getSize3(), tournament.getMultiplier3()));
+    roundInfo.add("Type : " + round.getType());
+    if (round.isMulti()) {
+      roundInfo.add(String.format("Size / multiplier 1 : %s / %s",
+          round.getSize1(), round.getMultiplier1()));
+      roundInfo.add(String.format("Size / multiplier 2 : %s / %s",
+          round.getSize2(), round.getMultiplier2()));
+      roundInfo.add(String.format("Size / multiplier 3 : %s / %s",
+          round.getSize3(), round.getMultiplier3()));
     }
 
-    tournamentInfo.add("Pom Id : " + tournament.getPomId());
-    tournamentInfo.add("Locations : " + tournament.getLocations());
+    roundInfo.add("Pom Id : " + round.getPomId());
+    roundInfo.add("Locations : " + round.getLocations());
   }
 
   private void loadParticipantInfo ()
   {
-    for (Broker broker: tournament.getBrokerMap().values()) {
+    for (Broker broker: round.getBrokerMap().values()) {
       User participant = broker.getUser();
       participantInfo.add(String.format("%s, %s, %s",
           broker.getBrokerName(),
@@ -147,26 +147,26 @@ public class ActionTournament
         "download?game=%d");
     baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("game"));
 
-    String tournamentCsv = tournament.getTournamentName() + ".csv";
-    String gamesCsv = tournament.getTournamentName() + ".games.csv";
+    String roundCsv = round.getRoundName() + ".csv";
+    String gamesCsv = round.getRoundName() + ".games.csv";
 
-    File tournamentFile = new File(String.format("%s%s",
-        properties.getProperty("logLocation"), tournamentCsv));
+    File roundFile = new File(String.format("%s%s",
+        properties.getProperty("logLocation"), roundCsv));
     File gamesFile = new File(String.format("%s%s",
         properties.getProperty("logLocation"), gamesCsv));
 
-    if (tournamentFile.exists()) {
+    if (roundFile.exists()) {
       if (baseUrl.endsWith("?")) {
-        tournamentCsv = "csv=" + tournament.getTournamentName();
+        roundCsv = "csv=" + round.getRoundName();
       } else if (!baseUrl.endsWith("/")) {
         baseUrl += "/";
       }
       csvLinks.add(String.format(
-          "Tournament csv : <a href=\"%s\">link</a>", baseUrl + tournamentCsv));
+          "Round csv : <a href=\"%s\">link</a>", baseUrl + roundCsv));
     }
     if (gamesFile.exists()) {
       if (baseUrl.endsWith("?")) {
-        gamesCsv = "csv=" + tournament.getTournamentName() + ".games";
+        gamesCsv = "csv=" + round.getRoundName() + ".games";
       } else if (!baseUrl.endsWith("/")) {
         baseUrl += "/";
       }
@@ -177,18 +177,18 @@ public class ActionTournament
 
   public void createCsv ()
   {
-    CSV.createCsv(tournament);
+    CSV.createCsv(round);
   }
 
   //<editor-fold desc="Setters and Getters">
-  public Tournament getTournament ()
+  public Round getRound ()
   {
-    return tournament;
+    return round;
   }
 
-  public List<String> getTournamentInfo ()
+  public List<String> getRoundInfo ()
   {
-    return tournamentInfo;
+    return roundInfo;
   }
 
   public List<String> getParticipantInfo ()

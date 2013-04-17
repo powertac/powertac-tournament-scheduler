@@ -22,7 +22,7 @@ public class ActionOverview
 
   private List<Broker> brokerList = new ArrayList<Broker>();
   private List<Game> notCompleteGamesList = new ArrayList<Game>();
-  private List<Tournament> notCompleteTournamentList = new ArrayList<Tournament>();
+  private List<Round> notCompleteRoundList = new ArrayList<Round>();
 
   private boolean hideSample = false;
   private boolean hideInactive = true;
@@ -36,7 +36,7 @@ public class ActionOverview
   {
     brokerList = Broker.getBrokerList();
     notCompleteGamesList = Game.getNotCompleteGamesList();
-    notCompleteTournamentList = Tournament.getNotCompleteTournamentList();
+    notCompleteRoundList = Round.getNotCompleteRoundList();
   }
 
   public List<Broker> getBrokerList ()
@@ -44,9 +44,9 @@ public class ActionOverview
     return brokerList;
   }
 
-  public List<Tournament> getNotCompleteTournamentList ()
+  public List<Round> getNotCompleteRoundList ()
   {
-    return notCompleteTournamentList;
+    return notCompleteRoundList;
   }
 
   public List<Game> getNotCompleteGamesList ()
@@ -75,23 +75,23 @@ public class ActionOverview
     MemStore.setBrokerState(brokerId, !enabled);
   }
 
-  public void startNow (Tournament tournament)
+  public void startNow (Round round)
   {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      tournament.setStartTime(Utils.offsetDate());
-      session.update(tournament);
+      round.setStartTime(Utils.offsetDate());
+      session.update(round);
       session.flush();
 
-      String msg = "Setting tournament: " + tournament.getTournamentId()
+      String msg = "Setting round: " + round.getRoundId()
           + " to start now";
       log.info(msg);
       message(1, msg);
 
-      // Reschedule all games of a SINGLE_GAME tournament
-      if (tournament.isSingle()) {
-        for (Game game: tournament.getGameMap().values()) {
+      // Reschedule all games of a SINGLE_GAME round
+      if (round.isSingle()) {
+        for (Game game: round.getGameMap().values()) {
           game.setStartTime(Utils.offsetDate());
           session.update(game);
           session.flush();
@@ -105,16 +105,16 @@ public class ActionOverview
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      message(1, "Failed to start now : " + tournament.getTournamentId());
+      message(1, "Failed to start now : " + round.getRoundId());
     }
     session.close();
 
-    // If a MULTI_GAME tournament is loaded, just reload
+    // If a MULTI_GAME round is loaded, just reload
     Scheduler scheduler = Scheduler.getScheduler();
-    if (!scheduler.isNullTournament() &&
-        tournament.getTournamentId() ==
-            scheduler.getRunningTournament().getTournamentId()) {
-      scheduler.reloadTournament();
+    if (!scheduler.isNullRound() &&
+        round.getRoundId() ==
+            scheduler.getRunningRound().getRoundId()) {
+      scheduler.reloadRound();
     }
   }
 
@@ -221,9 +221,9 @@ public class ActionOverview
   {
     FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
     if (field == 0) {
-      FacesContext.getCurrentInstance().addMessage("formDatabrokers", fm);
+      FacesContext.getCurrentInstance().addMessage("brokersForm", fm);
     } else if (field == 1) {
-      FacesContext.getCurrentInstance().addMessage("tournamentForm", fm);
+      FacesContext.getCurrentInstance().addMessage("roundForm", fm);
     } else if (field == 2) {
       FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
     }

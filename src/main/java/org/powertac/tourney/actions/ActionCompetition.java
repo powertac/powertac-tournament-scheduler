@@ -80,7 +80,7 @@ public class ActionCompetition
 
   private void loadCompetitionInfo ()
   {
-    String base = "<a href=\"tournament.xhtml?tournamentId=%s\">%s</a>";
+    String base = "<a href=\"round.xhtml?roundId=%s\">%s</a>";
 
     competitionInfo.add("Id : " + competition.getCompetitionId());
     competitionInfo.add("Name : " + competition.getCompetitionName());
@@ -90,15 +90,15 @@ public class ActionCompetition
     for (Level level : competition.getLevelMap().values()) {
       competitionInfo.add("Level " + level.getLevelNr()
           + " : " + level.getLevelName());
-      competitionInfo.add("Tournaments / winners : "
-          + level.getNofTournaments() + " / " + level.getNofWinners());
+      competitionInfo.add("Rounds / winners : "
+          + level.getNofRounds() + " / " + level.getNofWinners());
 
-      for (Tournament tournament: level.getTournamentMap().values()) {
-        competitionInfo.add("Tournament : " +
+      for (Round round : level.getRoundMap().values()) {
+        competitionInfo.add("Round : " +
             String.format(base,
-                tournament.getTournamentId(), tournament.getTournamentName())
-            + "<br/>StartTime (UTC) : " + tournament.startTimeUTC().substring(0, 16)
-            + "<br/>Status : " + tournament.getState()
+                round.getRoundId(), round.getRoundName())
+            + "<br/>StartTime (UTC) : " + round.startTimeUTC().substring(0, 16)
+            + "<br/>Status : " + round.getState()
         );
       }
 
@@ -114,8 +114,8 @@ public class ActionCompetition
         continue;
       }
 
-      for (Tournament tournament: level.getTournamentMap().values()) {
-        for (Broker broker: tournament.getBrokerMap().values()) {
+      for (Round round : level.getRoundMap().values()) {
+        for (Broker broker: round.getBrokerMap().values()) {
           User participant = broker.getUser();
           participantInfo.add(String.format("%s, %s, %s",
               broker.getBrokerName(),
@@ -144,30 +144,31 @@ public class ActionCompetition
     }
 
     // Check if we have an open competition
+    // TODO Check this
     if (competition == null || !competition.isOpen()) {
       return allowedBrokers;
     }
 
-    // Find before-deadline tournaments
-    List<Tournament> tournaments = new ArrayList<Tournament>();
+    // Find before-deadline round
+    List<Round> rounds = new ArrayList<Round>();
     for (Level level : competition.getLevelMap().values()) {
-      for (Tournament tournament: level.getTournamentMap().values()) {
-        if (tournament.getStartTime().before(Utils.offsetDate(-2))) {
+      for (Round round : level.getRoundMap().values()) {
+        if (round.getStartTime().before(Utils.offsetDate(-2))) {
           continue;
         }
-        tournaments.add(tournament);
+        rounds.add(round);
       }
     }
-    // No tournaments found
-    if (tournaments.size() == 0) {
+    // No rounds found
+    if (rounds.size() == 0) {
       return allowedBrokers;
     }
 
     // Find non-registered brokers
     for (Broker broker: user.getBrokerMap().values()) {
       boolean brokerRegistered = false;
-      for (Tournament tournament: tournaments) {
-        if (tournament.getBrokerMap().get(broker.getBrokerId()) != null) {
+      for (Round round : rounds) {
+        if (round.getBrokerMap().get(broker.getBrokerId()) != null) {
           brokerRegistered = true;
         }
       }
@@ -181,28 +182,28 @@ public class ActionCompetition
 
   public void register (Broker broker)
   {
-    // Find least filled tournament
-    Tournament leastFilledTournament = null;
+    // Find least filled round
+    Round leastFilledRound = null;
     Level level = competition.getLevelMap().get(0);
-    for (Tournament tournament: level.getTournamentMap().values()) {
-      if (leastFilledTournament == null ||
-          leastFilledTournament.getBrokerMap().size() >
-              tournament.getBrokerMap().size()) {
-        leastFilledTournament = tournament;
+    for (Round round : level.getRoundMap().values()) {
+      if (leastFilledRound == null ||
+          leastFilledRound.getBrokerMap().size() >
+              round.getBrokerMap().size()) {
+        leastFilledRound = round;
       }
     }
 
-    if (leastFilledTournament == null) {
+    if (leastFilledRound == null) {
       message(1, "Registering failed, try again or contact the game master");
       return;
     }
 
-    if (leastFilledTournament.getBrokerMap().get(broker.getBrokerId()) != null){
+    if (leastFilledRound.getBrokerMap().get(broker.getBrokerId()) != null){
       message(1, "Registering failed, already registered for this competition");
       return;
     }
 
-    broker.register(leastFilledTournament.getTournamentId());
+    broker.register(leastFilledRound.getRoundId());
 
     Utils.redirect("competition.xhtml?competitionId=" + getCompetitionId());
   }

@@ -33,7 +33,7 @@ public class Broker
   private String shortDescription;
 
   private Map<Integer, Agent> agentMap = new HashMap<Integer, Agent>();
-  private Map<Integer, Tournament> tournamentMap = new HashMap<Integer, Tournament>();
+  private Map<Integer, Round> roundMap = new HashMap<Integer, Round>();
 
   // For edit mode, web interface
   private boolean edit;
@@ -41,8 +41,8 @@ public class Broker
   private String newAuth;
   private String newShort;
   // For registration, web interface
-  private int selectedTournamentRegister;
-  private int selectedTournamentUnregister;
+  private int selectedRoundRegister;
+  private int selectedRoundUnregister;
 
   public Broker ()
   {
@@ -107,10 +107,10 @@ public class Broker
       }
 
       // Delete all registrations to this broker
-      for (Tournament tournament : broker.getTournamentMap().values()) {
+      for (Round round : broker.getRoundMap().values()) {
         Registration registration = (Registration) session
             .createCriteria(Registration.class)
-            .add(Restrictions.eq("tournament", tournament))
+            .add(Restrictions.eq("getRound", round))
             .add(Restrictions.eq("broker", broker)).uniqueResult();
         session.delete(registration);
         session.flush();
@@ -128,12 +128,12 @@ public class Broker
     }
   }
 
-  public boolean register (int tournamentId)
+  public boolean register (int roundId)
   {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      register(session, tournamentId);
+      register(session, roundId);
       transaction.commit();
       return true;
     } catch (Exception e) {
@@ -145,20 +145,20 @@ public class Broker
     }
   }
 
-  public void register (Session session, int tournamentId)
+  public void register (Session session, int roundId)
   {
-    Tournament tournament =
-        (Tournament) session.get(Tournament.class, tournamentId);
+    Round round =
+        (Round) session.get(Round.class, roundId);
     Registration registration = new Registration();
     registration.setBroker(this);
-    registration.setTournament(tournament);
+    registration.setRound(round);
     session.save(registration);
-    log.info(String.format("Registering broker: %s with tournament: %s",
-        brokerId, tournament.getTournamentId()));
+    log.info(String.format("Registering broker: %s with round: %s",
+        brokerId, round.getRoundId()));
 
     // Only for single game, the scheduler handles multigame tourneys
-    if (tournament.isSingle()) {
-      for (Game game: tournament.getGameMap().values()) {
+    if (round.isSingle()) {
+      for (Game game: round.getGameMap().values()) {
         Agent agent = Agent.createAgent(this, game);
         session.save(agent);
         log.info(String.format("Registering broker: %s with game: %s",
@@ -167,29 +167,29 @@ public class Broker
     }
   }
 
-  public boolean unregister (int tournamentId)
+  public boolean unregister (int roundId)
   {
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Tournament tournament =
-          (Tournament) session.get(Tournament.class, tournamentId);
+      Round round =
+          (Round) session.get(Round.class, roundId);
 
       // Can't unregister from games that already started (or should have)
-      if (tournament.isStarted()) {
+      if (round.isStarted()) {
         transaction.rollback();
         return false;
       }
 
       Registration registration = (Registration) session
           .createCriteria(Registration.class)
-          .add(Restrictions.eq("tournament", tournament))
+          .add(Restrictions.eq("getRound", round))
           .add(Restrictions.eq("broker", this)).uniqueResult();
       session.delete(registration);
 
       List<Integer> deleteAgents = new ArrayList<Integer>();
       for (Agent agent: agentMap.values()) {
-        if (agent.getGame().getTournament().getTournamentId() == tournamentId) {
+        if (agent.getGame().getRound().getRoundId() == roundId) {
           deleteAgents.add(agent.getAgentId());
         }
       }
@@ -215,14 +215,14 @@ public class Broker
   public boolean hasAgentsAvailable ()
   {
     Scheduler scheduler = Scheduler.getScheduler();
-    Tournament runningTournament = scheduler.getRunningTournament();
+    Round runningRound = scheduler.getRunningRound();
 
-    // When running SINGLE_GAMES tournaments, always assume true
-    if (runningTournament == null) {
+    // When running SINGLE_GAMES rounds, always assume true
+    if (runningRound == null) {
       return true;
     }
 
-    int freeAgents = runningTournament.getMaxAgents();
+    int freeAgents = runningRound.getMaxAgents();
     for (Agent agent: agentMap.values()) {
       if (agent.getGame().isRunning()) {
         freeAgents--;
@@ -237,9 +237,9 @@ public class Broker
   {
     String result = "";
 
-    for (Tournament tournament: tournamentMap.values()) {
-      if (!tournament.isComplete()) {
-        result += tournament.getTournamentName() + ", ";
+    for (Round round : roundMap.values()) {
+      if (!round.isComplete()) {
+        result += round.getRoundName() + ", ";
       }
     }
     if (!result.isEmpty()) {
@@ -292,66 +292,66 @@ public class Broker
   }
 
   @Transient
-  public List<Tournament> getAvailableTournaments (Boolean accountPage)
+  public List<Round> getAvailableRounds (Boolean accountPage)
   {
-    List<Tournament> registrableTournaments = new ArrayList<Tournament>();
+    List<Round> registrableRounds = new ArrayList<Round>();
 
     TournamentProperties properties = TournamentProperties.getProperties();
     long loginDeadline = properties.getPropertyInt("loginDeadline", "3600000");
     long nowStamp = Utils.offsetDate().getTime();
 
     Outer:
-    for (Tournament tournament: Tournament.getNotCompleteTournamentList()) {
+    for (Round round : Round.getNotCompleteRoundList()) {
       // Check if maxNofBrokers reached
-      if (tournament.getBrokerMap().size() >= tournament.getMaxBrokers()) {
+      if (round.getBrokerMap().size() >= round.getMaxBrokers()) {
         continue;
       }
       // Check if after deadline
-      long diff = tournament.getStartTime().getTime() - nowStamp;
+      long diff = round.getStartTime().getTime() - nowStamp;
       if (diff < loginDeadline) {
         continue;
       }
       // Check if already registered
-      for (Tournament t: tournamentMap.values()) {
+      for (Round t: roundMap.values()) {
         // Check if already registered
-        if (t.getTournamentId() == tournament.getTournamentId()) {
+        if (t.getRoundId() == round.getRoundId()) {
           continue Outer;
         }
       }
       // Check if not closed
-      if (accountPage && tournament.isClosed()) {
+      if (accountPage && round.isClosed()) {
         continue;
       }
 
       // Check if not part of a competition
-      if (accountPage && tournament.getLevel() != null) {
+      if (accountPage && round.getLevel() != null) {
         continue;
       }
 
       // No reason not to be able to register
-      registrableTournaments.add(tournament);
+      registrableRounds.add(round);
     }
 
-    return registrableTournaments;
+    return registrableRounds;
   }
 
   @Transient
-  public List<Tournament> getRegisteredTournaments ()
+  public List<Round> getRegisteredRounds ()
   {
-    List<Tournament> registeredTournaments = new ArrayList<Tournament>();
+    List<Round> registeredRounds = new ArrayList<Round>();
 
-    for (Tournament tournament: tournamentMap.values()) {
-      if (tournament.isComplete()) {
+    for (Round round : roundMap.values()) {
+      if (round.isComplete()) {
         continue;
       }
-      if (tournament.isStarted()) {
+      if (round.isStarted()) {
         continue;
       }
 
-      registeredTournaments.add(tournament);
+      registeredRounds.add(round);
     }
 
-    return registeredTournaments;
+    return registeredRounds;
   }
 
   public static Broker getBrokerByName (String brokerName)
@@ -389,16 +389,16 @@ public class Broker
       joinColumns =
       @JoinColumn(name = "brokerId", referencedColumnName = "brokerId"),
       inverseJoinColumns =
-      @JoinColumn(name = "tournamentId", referencedColumnName = "tournamentId")
+      @JoinColumn(name = "roundId", referencedColumnName = "roundId")
   )
-  @MapKey(name = "tournamentId")
-  public Map<Integer, Tournament> getTournamentMap ()
+  @MapKey(name = "roundId")
+  public Map<Integer, Round> getRoundMap ()
   {
-    return tournamentMap;
+    return roundMap;
   }
-  public void setTournamentMap (Map<Integer, Tournament> tournamentMap)
+  public void setRoundMap (Map<Integer, Round> roundMap)
   {
-    this.tournamentMap = tournamentMap;
+    this.roundMap = roundMap;
   }
 
   // This creates a map with brokerId <--> # of free agents
@@ -526,23 +526,23 @@ public class Broker
   }
 
   @Transient
-  public int getSelectedTournamentRegister ()
+  public int getSelectedRoundRegister ()
   {
-    return selectedTournamentRegister;
+    return selectedRoundRegister;
   }
-  public void setSelectedTournamentRegister (int selectedTourneyRegister)
+  public void setSelectedRoundRegister (int selectedTourneyRegister)
   {
-    this.selectedTournamentRegister = selectedTourneyRegister;
+    this.selectedRoundRegister = selectedTourneyRegister;
   }
 
   @Transient
-  public int getSelectedTournamentUnregister ()
+  public int getSelectedRoundUnregister ()
   {
-    return selectedTournamentUnregister;
+    return selectedRoundUnregister;
   }
-  public void setSelectedTournamentUnregister (int selectedTournamentUnregister)
+  public void setSelectedRoundUnregister (int selectedRoundUnregister)
   {
-    this.selectedTournamentUnregister = selectedTournamentUnregister;
+    this.selectedRoundUnregister = selectedRoundUnregister;
   }
   //</editor-fold>
 }

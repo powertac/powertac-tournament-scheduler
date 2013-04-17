@@ -27,7 +27,7 @@ public class Scheduler implements InitializingBean
   private Timer watchDogTimer = null;
   private long watchDogInterval;
 
-  private Tournament runningTournament = null;
+  private Round runningRound = null;
   private long lastWatchdogRun = 0;
 
   public Scheduler ()
@@ -77,9 +77,9 @@ public class Scheduler implements InitializingBean
         log.info(System.getProperty("line.separator"));
         try {
           Machine.checkMachines();
-          scheduleLoadedTournament();
-          RunGame.startRunnableGames(runningTournament);
-          RunBoot.startBootableGames(runningTournament);
+          scheduleLoadedRound();
+          RunGame.startRunnableGames(runningRound);
+          RunBoot.startBootableGames(runningRound);
           checkWedgedBoots();
           checkWedgedSims();
 
@@ -118,16 +118,16 @@ public class Scheduler implements InitializingBean
     }
   }
 
-  public void loadTournament (int tournamentId)
+  public void loadRound (int roundId)
   {
-    log.info("Loading Tournament " + tournamentId);
+    log.info("Loading Round " + roundId);
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID);
-      query.setInteger("tournamentId", tournamentId);
-      runningTournament = (Tournament) query.uniqueResult();
+      Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
+      query.setInteger("roundId", roundId);
+      runningRound = (Round) query.uniqueResult();
       transaction.commit();
     } catch (Exception e) {
       transaction.rollback();
@@ -136,63 +136,63 @@ public class Scheduler implements InitializingBean
     session.close();
   }
 
-  public void unloadTournament ()
+  public void Round ()
   {
-    log.info("Unloading Tournament");
-    runningTournament = null;
+    log.info("Unloading Round");
+    runningRound = null;
   }
 
-  public void reloadTournament ()
+  public void reloadRound ()
   {
-    if (runningTournament == null) {
+    if (runningRound == null) {
       return;
     }
-    int runningId = runningTournament.getTournamentId();
-    unloadTournament();
-    loadTournament(runningId);
+    int runningId = runningRound.getRoundId();
+    Round();
+    loadRound(runningId);
   }
 
   /**
-   * Check if it's time to schedule the tournament
+   * Check if it's time to schedule the round
    */
-  private void scheduleLoadedTournament ()
+  private void scheduleLoadedRound ()
   {
-    if (isNullTournament()) {
-      log.info("No multigame tournament available");
+    if (isNullRound()) {
+      log.info("No multigame round available");
       return;
     }
 
-    log.info("Multigame tournament available "
-        + runningTournament.getTournamentName());
+    log.info("Multigame round available "
+        + runningRound.getRoundName());
 
-    if (runningTournament.getSize() > 0) {
-      log.info("Tournament already scheduled");
+    if (runningRound.getSize() > 0) {
+      log.info("Round already scheduled");
       return;
-    } else if (!runningTournament.isStarted()) {
-      log.info("Too early to start tournament: " +
-          runningTournament.getTournamentName());
+    } else if (!runningRound.isStarted()) {
+      log.info("Too early to start round: " +
+          runningRound.getRoundName());
       return;
     }
 
     // Get array of gametypes
-    int[] gameTypes = {runningTournament.getSize1(),
-        runningTournament.getSize2(), runningTournament.getSize3()};
-    int[] multipliers = {runningTournament.getMultiplier1(),
-        runningTournament.getMultiplier2(), runningTournament.getMultiplier3()};
+    int[] gameTypes = {runningRound.getSize1(),
+        runningRound.getSize2(), runningRound.getSize3()};
+    int[] multipliers = {runningRound.getMultiplier1(),
+        runningRound.getMultiplier2(), runningRound.getMultiplier3()};
 
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
       List<Broker> brokers = new ArrayList<Broker>();
-      for (Broker broker: runningTournament.getBrokerMap().values()) {
+      for (Broker broker: runningRound.getBrokerMap().values()) {
         brokers.add(broker);
       }
 
       if (brokers.size() == 0) {
-        log.info("Tournament has no brokers registered, setting to complete");
-        runningTournament.setStateToComplete();
-        session.update(runningTournament);
-        unloadTournament();
+        log.info("Round has no brokers registered, setting to complete");
+        runningRound.setStateToComplete();
+        session.update(runningRound);
+        Round();
         transaction.commit();
         return;
       }
@@ -211,7 +211,7 @@ public class Scheduler implements InitializingBean
       session.close();
     }
 
-    reloadTournament();
+    reloadRound();
   }
 
   private void doTheKailash (Session session, int gameType, int gameNumber,
@@ -259,9 +259,9 @@ public class Scheduler implements InitializingBean
       String gameString = games.get(j);
 
       String gameName = String.format("%s_%s_%s_%s",
-          runningTournament.getTournamentName(),
+          runningRound.getRoundName(),
           (gameNumber + 1), gameType, j + multiplier * games.size());
-      Game game = Game.createGame(runningTournament, gameName);
+      Game game = Game.createGame(runningRound, gameName);
       session.save(game);
 
       log.info("Created game " + game.getGameId());
@@ -338,9 +338,9 @@ public class Scheduler implements InitializingBean
     log.debug("WatchDogTimer No Sim seems Wedged");
   }
 
-  public boolean isNullTournament ()
+  public boolean isNullRound ()
   {
-    return runningTournament == null;
+    return runningRound == null;
   }
 
   public boolean isRunning ()
@@ -348,9 +348,9 @@ public class Scheduler implements InitializingBean
     return watchDogTimer != null;
   }
 
-  public Tournament getRunningTournament ()
+  public Round getRunningRound ()
   {
-    return runningTournament;
+    return runningRound;
   }
 
   public static Scheduler getScheduler ()

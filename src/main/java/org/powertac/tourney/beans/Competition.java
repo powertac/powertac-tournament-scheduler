@@ -34,15 +34,15 @@ public class Competition
   {
     open,         // This is the initial state. Accepts registrations.
     closed,       // No more registrations. Adjustments still allowed.
-    scheduled0,   // Tournaments for level 1 created, no more editing.
-    completed0,   // Tournaments for level 1 completed.
+    scheduled0,   // Rounds for level 1 created, no more editing.
+    completed0,   // Rounds for level 1 completed.
     scheduled1,
     completed1,
     scheduled2,
     completed2,
     scheduled3,
     completed3,
-    complete;     // All the tournaments are done.
+    complete;     // All the levels are done.
 
     public static final EnumSet<STATE> editingAllowed = EnumSet.of(
         open,
@@ -69,32 +69,32 @@ public class Competition
     state = STATE.open;
   }
 
-  public void scheduleTournaments (Session session)
+  public void scheduleRounds (Session session)
   {
     Level level = getCurrentLevel();
 
-    log.info("Scheduling tournaments for level " + level.getLevelNr());
+    log.info("Scheduling rounds for level " + level.getLevelNr());
 
-    for (int i=0; i < level.getNofTournaments(); i++) {
-      String tournamentName = competitionName +"_"+ level.getLevelName();
-      if (level.getNofTournaments() != 1) {
-        tournamentName += "_" + i;
+    for (int i=0; i < level.getNofRounds(); i++) {
+      String roundName = competitionName +"_"+ level.getLevelName();
+      if (level.getNofRounds() != 1) {
+        roundName += "_" + i;
       }
-      scheduleTournament(session, tournamentName, level);
+      scheduleRound(session, roundName, level);
     }
   }
 
-  private void scheduleTournament (Session session, String name,
-                                   Level level)
+  private void scheduleRound (Session session, String name,
+                              Level level)
   {
-    log.info("Creating tournament : " + name);
+    log.info("Creating round : " + name);
 
     int nofBrokers = Math.max(100, level.getNofWinners());
     if (level.getLevelNr() != 0) {
       nofBrokers = Math.min(getPreviousLevel().getNofBrokers(),
                             getPreviousLevel().getNofWinners());
     }
-    int maxBrokers = (int) Math.ceil(nofBrokers / level.getNofTournaments());
+    int maxBrokers = (int) Math.ceil(nofBrokers / level.getNofRounds());
 
     int size1 = level.getLevelNr() == 0 ? 1 : maxBrokers;
     int size2 = level.getLevelNr() == 0 ? 1 : Math.max(maxBrokers / 2, 2);
@@ -104,31 +104,31 @@ public class Competition
       startDate = Utils.offsetDate(1);
     }
 
-    Tournament tournament = new Tournament();
-    tournament.setTournamentName(name);
-    tournament.setLevel(level);
-    tournament.setType(Tournament.TYPE.MULTI_GAME);
-    tournament.setMaxBrokers(maxBrokers);
-    tournament.setMaxAgents(2);
-    tournament.setSize1(size1);
-    tournament.setSize2(size2);
-    tournament.setSize3(size3);
-    tournament.setMultiplier1(1);
-    tournament.setMultiplier2(1);
-    tournament.setMultiplier3(1);
-    tournament.setStartTime(startDate);
+    Round round = new Round();
+    round.setRoundName(name);
+    round.setLevel(level);
+    round.setType(Round.TYPE.MULTI_GAME);
+    round.setMaxBrokers(maxBrokers);
+    round.setMaxAgents(2);
+    round.setSize1(size1);
+    round.setSize2(size2);
+    round.setSize3(size3);
+    round.setMultiplier1(1);
+    round.setMultiplier2(1);
+    round.setMultiplier3(1);
+    round.setStartTime(startDate);
     Location location = new Location();
-    tournament.setDateFrom(location.getDateFrom());
-    tournament.setDateTo(location.getDateTo());
-    tournament.setLocations(location.getLocation() + ",");
-    tournament.setPomId(pomId);
-    tournament.setClosed(level.getLevelNr() != 0);
-    tournament.setStateToPending();
-    session.save(tournament);
+    round.setDateFrom(location.getDateFrom());
+    round.setDateTo(location.getDateTo());
+    round.setLocations(location.getLocation() + ",");
+    round.setPomId(pomId);
+    round.setClosed(level.getLevelNr() != 0);
+    round.setStateToPending();
+    session.save(round);
 
-    level.getTournamentMap().put(tournament.getTournamentId(), tournament);
+    level.getRoundMap().put(round.getRoundId(), round);
 
-    log.debug("Tournament created : " + tournament.getTournamentId());
+    log.debug("Round created : " + round.getRoundId());
   }
 
   private void scheduleBrokers (Session session)
@@ -138,31 +138,31 @@ public class Competition
 
     log.info("Scheduling brokers for level " + level.getLevelNr());
 
-    // Loop through tournaments, pick top winners
-    int winnersPerTournament =
-        previousLevel.getNofWinners() / level.getNofTournaments();
+    // Loop through rounds, pick top winners
+    int winnersPerRound =
+        previousLevel.getNofWinners() / level.getNofRounds();
     List<Broker> winners = new ArrayList<Broker>();
-    for (Tournament tournament: previousLevel.getTournamentMap().values()) {
-      List<Broker> tournamentWinners = tournament.rankList();
-      winners.addAll(tournamentWinners.subList(0,
-          Math.min(winnersPerTournament, tournamentWinners.size())));
+    for (Round round : previousLevel.getRoundMap().values()) {
+      List<Broker> roundWinners = round.rankList();
+      winners.addAll(roundWinners.subList(0,
+          Math.min(winnersPerRound, roundWinners.size())));
     }
 
     log.debug("Winners from previous level : " + winners);
 
-    // Randomly shuffle picked brokers into tournaments via registering
+    // Randomly shuffle picked brokers into rounds via registering
     Random randomGenerator = new Random();
     int winnerCount = Math.min(previousLevel.getNofWinners(), winners.size());
-    int brokersPerTournament = winnerCount / level.getNofTournaments();
+    int brokersPerRound = winnerCount / level.getNofRounds();
 
-    log.debug("winnerCount /  brokersPerTournament " +
-        winnerCount + " / " + brokersPerTournament);
+    log.debug("winnerCount /  brokersPerRound " +
+        winnerCount + " / " + brokersPerRound);
 
-    for (Tournament tournament: level.getTournamentMap().values()) {
-      log.debug("Tournament : " + tournament.getTournamentName());
-      for (int i = 0; i < brokersPerTournament; i++) {
+    for (Round round : level.getRoundMap().values()) {
+      log.debug("Round : " + round.getRoundName());
+      for (int i = 0; i < brokersPerRound; i++) {
         Broker broker = winners.remove(randomGenerator.nextInt(winners.size()));
-        broker.register(session, tournament.getTournamentId());
+        broker.register(session, round.getRoundId());
       }
     }
   }
@@ -204,22 +204,22 @@ public class Competition
 
     if (state == STATE.closed) {
       state = STATE.scheduled0;
-      // Tournaments are already scheduled during competition creation
+      // Rounds are already scheduled during competition creation
       // Brokers are already scheduled via registering for the competition
     }
     else if (state == STATE.completed0) {
       state = STATE.scheduled1;
-      scheduleTournaments(session);
+      scheduleRounds(session);
       scheduleBrokers(session);
     }
     else if (state == STATE.completed1) {
       state = STATE.scheduled2;
-      scheduleTournaments(session);
+      scheduleRounds(session);
       scheduleBrokers(session);
     }
     else if (state == STATE.completed2) {
       state = STATE.scheduled3;
-      scheduleTournaments(session);
+      scheduleRounds(session);
       scheduleBrokers(session);
     }
     else {
@@ -253,7 +253,7 @@ public class Competition
 
     Level nextLevel = getNextLevel();
     if (nextLevel == null ||
-        nextLevel.getNofTournaments() == 0 || nextLevel.getNofWinners() == 0) {
+        nextLevel.getNofRounds() == 0 || nextLevel.getNofWinners() == 0) {
       state = STATE.complete;
     }
 
@@ -289,8 +289,8 @@ public class Competition
 
     // Loop over tourneys, check all complete
     Level level = getCurrentLevel();
-    for (Tournament tournament: level.getTournamentMap().values()) {
-      if (!tournament.isComplete()) {
+    for (Round round : level.getRoundMap().values()) {
+      if (!round.isComplete()) {
         return false;
       }
     }
