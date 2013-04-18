@@ -41,9 +41,20 @@ public class Level
   {
     int nofBrokers = 0;
     for (Round round : roundMap.values()) {
-      nofBrokers += round.getBrokerMap().size();
+      nofBrokers += round.getNofBrokers();
     }
     return nofBrokers;
+  }
+
+  @Transient
+  public boolean isStarted ()
+  {
+    for (Round round: roundMap.values()) {
+      if (round.isStarted()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @OneToMany

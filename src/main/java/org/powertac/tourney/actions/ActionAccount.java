@@ -2,7 +2,6 @@ package org.powertac.tourney.actions;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.powertac.tourney.beans.Broker;
-import org.powertac.tourney.beans.Round;
 import org.powertac.tourney.beans.User;
 import org.powertac.tourney.services.Utils;
 
@@ -180,27 +179,6 @@ public class ActionAccount
       return true;
     }
     return false;
-  }
-
-  public List<Round> getAvailableRounds (Broker b)
-  {
-    return b.getAvailableRounds(true);
-  }
-
-  public void register (Broker b)
-  {
-    if (!(b.getSelectedRoundRegister() > 0)) {
-      return;
-    }
-
-    boolean registered = b.register(b.getSelectedRoundRegister());
-    if (!registered) {
-      message(0, "Error registering broker");
-    } else {
-      brokers = new ArrayList<Broker>();
-      User user = User.getCurrentUser();
-      User.reloadUser(user);
-    }
   }
 
   public void editUserDetails ()

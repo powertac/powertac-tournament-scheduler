@@ -99,10 +99,10 @@
                              styleClass="smallButton"/>
           </t:column>
         </t:dataTable>
+        <br/>
         <h:messages for="runningRounds"/>
       </h:form>
 
-      <br/>
       <h:form
           rendered="#{user.isAdmin() and (actionRounds.brokerList.size() > 0)}"
           id="roundRegistered">
@@ -123,12 +123,12 @@
 
           <t:column>
             <f:facet name="header">Registered</f:facet>
-            <h:outputText value="#{broker.getRegisteredString()}"/>
+            <h:outputText value="#{broker.getRoundsString()}"/>
           </t:column>
 
           <t:column style="text-align: right">
             <f:facet name="header">Add</f:facet>
-            <h:selectOneMenu value="#{broker.selectedRoundRegister}"
+            <h:selectOneMenu value="#{broker.registerRoundId}"
                              styleClass="smallButton">
               <f:selectItems
                   value="#{actionRounds.getAvailableRounds(broker)}"
@@ -143,7 +143,7 @@
 
           <t:column style="text-align: right">
             <f:facet name="header">Remove</f:facet>
-            <h:selectOneMenu value="#{broker.selectedRoundUnregister}"
+            <h:selectOneMenu value="#{broker.unregisterRoundId}"
                              styleClass="smallButton">
               <f:selectItems
                   value="#{actionRounds.getRegisteredRounds(broker)}"
@@ -159,14 +159,9 @@
         <h:messages for="roundRegistered" layout=""/>
       </h:form>
 
-      <h:form enctype="multipart/form-data" rendered="#{user.isAdmin()}"
-              id="saveRound">
-        <h:panelGroup rendered="#{actionRounds.roundId == -1}">
-          <h3>Create Round</h3>
-        </h:panelGroup>
-        <h:panelGroup rendered="#{actionRounds.roundId != -1}">
-          <h3>Edit Round</h3>
-        </h:panelGroup>
+      <h:form enctype="multipart/form-data" id="saveRound"
+              rendered="#{user.isAdmin() and actionRounds.roundId != -1}">
+        <h3>Edit Round</h3>
 
         <h:panelGrid columns="2" id="roundTable">
           <h:outputText value="Round Name"/>

@@ -100,14 +100,26 @@ CREATE TABLE `tourney`.`rounds` (
   ENGINE = InnoDB;
 
 
-DROP TABLE IF EXISTS `tourney`.`registrations`;
-CREATE TABLE `tourney`.`registrations` (
-  `registrationId` INT(11) NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `tourney`.`round_brokers`;
+CREATE TABLE `tourney`.`round_brokers` (
+  `roundBrokerId`  INT(11) NOT NULL AUTO_INCREMENT,
   `roundId`        INT(11) NOT NULL,
   `brokerId`       INT(11) NOT NULL,
-  PRIMARY KEY (`registrationId`),
-  CONSTRAINT registration_refs1 FOREIGN KEY (`roundId`) REFERENCES `tourney`.`rounds` (`roundId`),
-  CONSTRAINT registration_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`)
+  PRIMARY KEY (`roundBrokerId`),
+  CONSTRAINT round_broker_refs1 FOREIGN KEY (`roundId`) REFERENCES `tourney`.`rounds` (`roundId`),
+  CONSTRAINT round_broker_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`)
+)
+  ENGINE = InnoDB;
+
+
+DROP TABLE IF EXISTS `tourney`.`tournament_brokers`;
+CREATE TABLE `tourney`.`tournament_brokers` (
+  `tournamentBrokerId`  INT(11) NOT NULL AUTO_INCREMENT,
+  `tournamentId`        INT(11) NOT NULL,
+  `brokerId`            INT(11) NOT NULL,
+  PRIMARY KEY (tournamentBrokerId),
+  CONSTRAINT tournament_broker_refs1 FOREIGN KEY (`tournamentId`) REFERENCES `tourney`.`tournaments` (`tournamentId`),
+  CONSTRAINT tournament_broker_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`)
 )
   ENGINE = InnoDB;
 

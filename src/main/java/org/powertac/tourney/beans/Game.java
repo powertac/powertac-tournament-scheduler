@@ -383,6 +383,10 @@ public class Game implements Serializable
     return STATE.game_pending.toString();
   }
 
+  public static String getStateGameReady () {
+    return STATE.game_ready.toString();
+  }
+
   public static String getStateGameComplete () {
     return STATE.game_complete.toString();
   }

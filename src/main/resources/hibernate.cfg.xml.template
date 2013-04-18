@@ -34,7 +34,8 @@
         <mapping class="org.powertac.tourney.beans.Game" />
         <mapping class="org.powertac.tourney.beans.Broker" />
         <mapping class="org.powertac.tourney.beans.Agent" />
-        <mapping class="org.powertac.tourney.beans.Registration" />
+        <mapping class="org.powertac.tourney.beans.TournamentBroker" />
+        <mapping class="org.powertac.tourney.beans.RoundBroker" />
         <mapping class="org.powertac.tourney.beans.Location" />
         <mapping class="org.powertac.tourney.beans.Config" />
     </session-factory>

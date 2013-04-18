@@ -94,8 +94,65 @@
                              styleClass="actionButton"/>
           </t:column>
         </t:dataTable>
+        <br/>
+        <h:messages for="runningTournaments"/>
       </h:form>
-      <h:messages for="runningTournaments"/>
+
+      <h:form rendered="#{user.isAdmin() and (actionTournaments.brokerList.size() > 0)}"
+              id="tournamentRegistered">
+        <h3 class="withButton">Registered Brokers</h3>
+        <h:commandButton value="Refresh"/>
+        <t:dataTable id="databrokers" border="1"
+                     value="#{actionTournaments.brokerList}" var="broker">
+
+            <t:column>
+                <f:facet name="header">ID</f:facet>
+                <h:outputText value="#{broker.brokerId}"/>
+            </t:column>
+
+            <t:column>
+                <f:facet name="header">Name</f:facet>
+                <h:outputText value="#{broker.brokerName}"/>
+            </t:column>
+
+            <t:column>
+                <f:facet name="header">Registered</f:facet>
+                <h:outputText value="#{broker.getTournamentsString()}"/>
+            </t:column>
+
+            <t:column style="text-align: right">
+                <f:facet name="header">Add</f:facet>
+                <h:selectOneMenu value="#{broker.registerTournamentId}"
+                                 styleClass="smallButton">
+                    <f:selectItems
+                            value="#{actionTournaments.getAvailableTournaments(broker)}"
+                            var="t"
+                            itemValue="#{t.tournamentId}"
+                            itemLabel="#{t.tournamentName}"
+                            rendered="{(t.maxBrokers != t.numberRegistered)}"/>
+                </h:selectOneMenu>
+                <h:commandButton value="Register" styleClass="smallButton"
+                                 action="#{actionTournaments.register(broker)}"/>
+            </t:column>
+
+            <t:column style="text-align: right">
+                <f:facet name="header">Remove</f:facet>
+                <h:selectOneMenu value="#{broker.unregisterTournamentId}"
+                                 styleClass="smallButton">
+                    <f:selectItems
+                            value="#{actionTournaments.getRegisteredTournaments(broker)}"
+                            var="t"
+                            itemValue="#{t.tournamentId}"
+                            itemLabel="#{t.tournamentName}"
+                            rendered="{(t.maxBrokers != t.numberRegistered)}"/>
+                </h:selectOneMenu>
+                <h:commandButton value="Unregister" styleClass="smallButton"
+                                 action="#{actionTournaments.unregister(broker)}"/>
+            </t:column>
+        </t:dataTable>
+        <h:messages for="tournamentRegistered" layout=""/>
+        <br/>
+      </h:form>
 
       <h:form enctype="multipart/form-data" rendered="#{user.isAdmin()}"
               id="saveTournament">

@@ -275,7 +275,7 @@ public class ActionRounds
 
   public List<Round> getAvailableRounds (Broker b)
   {
-    return b.getAvailableRounds(false);
+    return b.getAvailableRounds();
   }
 
   public List<Round> getRegisteredRounds (Broker b)
@@ -285,11 +285,11 @@ public class ActionRounds
 
   public void register (Broker b)
   {
-    if (!(b.getSelectedRoundRegister() > 0)) {
+    if (!(b.getRegisterRoundId() > 0)) {
       return;
     }
 
-    boolean registered = b.register(b.getSelectedRoundRegister());
+    boolean registered = b.registerForRound(b.getRegisterRoundId());
     if (!registered) {
       message(1, "Error registering broker");
     } else {
@@ -301,11 +301,11 @@ public class ActionRounds
 
   public void unregister (Broker b)
   {
-    if (!(b.getSelectedRoundUnregister() > 0)) {
+    if (!(b.getUnregisterRoundId() > 0)) {
       return;
     }
 
-    boolean registered = b.unregister(b.getSelectedRoundUnregister());
+    boolean registered = b.unregisterFromRound(b.getUnregisterRoundId());
     if (!registered) {
       message(1, "Error unregistering broker");
     } else {

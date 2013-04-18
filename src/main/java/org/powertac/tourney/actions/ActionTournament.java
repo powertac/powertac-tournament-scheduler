@@ -184,30 +184,40 @@ public class ActionTournament
     return allowedBrokers;
   }
 
+  // Registers a brokers for a tournament, and places it in one of the rounds
   public void register (Broker broker)
   {
+    // Register for the tournament
+    broker.registerForTournament(tournament.getTournamentId());
+
     // Find least filled round
-    Round leastFilledRound = null;
+    Round leastFilled = null;
     Level level = tournament.getLevelMap().get(0);
     for (Round round : level.getRoundMap().values()) {
-      if (leastFilledRound == null ||
-          leastFilledRound.getBrokerMap().size() >
-              round.getBrokerMap().size()) {
-        leastFilledRound = round;
+      // This round can't accept another broker
+      if (round.getBrokerMap().size() >= round.getMaxBrokers()) {
+        continue;
+      }
+
+      // Pick least filled round
+      if (leastFilled == null ||
+          leastFilled.getBrokerMap().size() > round.getBrokerMap().size()) {
+        leastFilled = round;
       }
     }
 
-    if (leastFilledRound == null) {
+    if (leastFilled == null) {
       message(1, "Registering failed, try again or contact the game master");
       return;
     }
 
-    if (leastFilledRound.getBrokerMap().get(broker.getBrokerId()) != null){
+    if (leastFilled.getBrokerMap().get(broker.getBrokerId()) != null){
       message(1, "Registering failed, already registered for this tournament");
       return;
     }
 
-    broker.register(leastFilledRound.getRoundId());
+    // Register for the round (in first level)
+    broker.registerForRound(leastFilled.getRoundId());
 
     Utils.redirect("tournament.xhtml?tournamentId=" + getTournamentId());
   }

@@ -8,12 +8,14 @@
 package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tourney.beans.*;
 import org.powertac.tourney.constants.Constants;
 
+import java.util.List;
 import java.util.Map;
 
 public class RestBroker
@@ -54,141 +56,74 @@ public class RestBroker
       log.debug("Broker id is : " + broker.getBrokerId());
 
       // Check if the broker registered for a running tournament
-      Round round;
-      int runningRoundId = isRunningTournament(session, joinName, broker);
+      Tournament tournament = getTournament(session, broker, joinName);
 
-      // Broker not registered to tournament with joinName, check rounds
-      if (runningRoundId == -2) {
-        round = getRunningRound(session, joinName, broker);
-      }
-      // Broker not registered to tournament with joinName, check rounds
-      else if (runningRoundId == -1) {
-        transaction.commit();
-        return doneResponse;
-      }
-      // Broker registered to tournament, but no rounds available
-      else if (runningRoundId == 0) {
-        // TODO Should we check tourney with same name?
-        log.debug("No round is ready for tournament : " + joinName);
-        MemStore.addBrokerCheckin(broker.getBrokerId());
-        return String.format(retryResponse, 60);
-      }
-      // We found running round in tournament + broker is registered
-      else {
-        query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
-        query.setInteger("roundId", runningRoundId);
-        round = (Round) query.uniqueResult();
-      }
-
-      // No tournament-round or round found
-      if (round == null) {
+      // Tournament doesn't exist, is finished or broker not registered
+      if (tournament == null) {
         transaction.commit();
         return doneResponse;
       }
 
-      // Check if any ready games that are more than X minutes ready
-      // This allows the Viz to Login first
-      Game game = getReadyGame(session, round, broker);
-      if (game != null) {
-        Agent agent = game.getAgentMap().get(broker.getBrokerId());
+      // Only games more than X minutes ready, allowing the Viz to Login first
+      String readyString = getReadyString (session, broker, loginResponse,
+                                           tournament.getTournamentId());
+      if (readyString != null) {
         transaction.commit();
-        return String.format(loginResponse, game.getMachine().getJmsUrl(),
-            agent.getBrokerQueue(), game.getServerQueue());
+        return readyString;
       }
 
-      log.debug("No games ready to start for round : " + joinName);
+      log.debug("No games ready to start for tournament : " + joinName);
       MemStore.addBrokerCheckin(broker.getBrokerId());
       transaction.commit();
       return String.format(retryResponse, 60);
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      log.error("Error, sending done response");
-      return doneResponse;
+      log.error("Error, sending retry response");
+      return String.format(retryResponse, 60);
     } finally {
       session.close();
     }
   }
 
-  /*
-   * Ugly hack : returns
-   * roundId : broker is registered to running round (always > 0)
-   *  0 : broker is registered to tournament, but no rounds available
-   *  -1 : broker isn't registered to tournament
-   *  -2 : there's no tournament with joinName
-   */
-  private int isRunningTournament (Session session,
-                                   String joinName, Broker broker)
+  private Tournament getTournament (Session session, Broker broker,
+                                    String joinName)
   {
     Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_NAME);
     query.setString("tournamentName", joinName);
     Tournament tournament = (Tournament) query.uniqueResult();
-    int result = -2;
 
     if (tournament == null) {
       log.debug("Tournament doesn't exists : " + joinName);
-      return -2;
+      return null;
     }
 
     if (tournament.isComplete()) {
       log.debug("Tournament is finished, we're done : " + joinName);
-      return -1;
+      return null;
     }
 
-    for (Level level : tournament.getLevelMap().values()) {
-      for (Round round : level.getRoundMap().values()) {
-        if (broker.getRoundMap().get(round.getRoundId())==null) {
-          continue;
-        }
-
-        // We now know broker is registered for tournament
-        if (round.isComplete()) {
-          result = 0;
-          continue;
-        }
-
-        // Found a running tourney in tournament that broker is registered for
-        return round.getRoundId();
-      }
+    if (tournament.getBrokerMap().get(broker.getBrokerId()) == null) {
+      log.debug("Tournament exists, but broker isn't registered : " + joinName);
+      return null;
     }
 
-    return result;
+    return tournament;
   }
 
-  private Round getRunningRound (Session session, String joinName,
-                                 Broker broker)
-  {
-    Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_NAME);
-    query.setString("roundName", joinName);
-    Round round = (Round) query.uniqueResult();
-
-    if (round == null) {
-      log.debug("Tournament doesn't exists : " + joinName);
-      return null;
-    }
-
-    if (round.isComplete()) {
-      log.debug("Tournament is finished, we're done : " + joinName);
-      return null;
-    }
-
-    if (broker.getRoundMap().get(round.getRoundId()) == null) {
-      log.debug(String.format("Broker not registered for tournament " +
-          round.getRoundName()));
-      return null;
-    }
-
-    return round;
-  }
-
-  private Game getReadyGame (Session session, Round round,
-                             Broker broker)
+  @SuppressWarnings("unchecked")
+  private String getReadyString (Session session, Broker broker,
+                                 String loginResponse, int tournamentId)
   {
     long readyDeadline = 2 * 60 * 1000;
     long nowStamp = Utils.offsetDate().getTime();
 
-    for (Game game: round.getGameMap().values()) {
-      if (!game.isReady()) {
+    Query query = session.createQuery(Constants.HQL.GET_GAMES_READY);
+    List<Game> games = (List<Game>) query.
+        setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+
+    for (Game game: games) {
+      if (game.getRound().getLevel().getTournamentId() != tournamentId) {
         continue;
       }
 
@@ -209,10 +144,12 @@ public class RestBroker
 
       agent.setStateInProgress();
       session.update(agent);
+
       log.info(String.format("Sending login to broker %s : %s, %s, %s",
           broker.getBrokerName(), game.getMachine().getJmsUrl(),
           agent.getBrokerQueue(), game.getServerQueue()));
-      return game;
+      return String.format(loginResponse, game.getMachine().getJmsUrl(),
+          agent.getBrokerQueue(), game.getServerQueue());
     }
 
     return null;

@@ -4,10 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
-import org.powertac.tourney.beans.Tournament;
-import org.powertac.tourney.beans.Level;
-import org.powertac.tourney.beans.Pom;
-import org.powertac.tourney.beans.Round;
+import org.powertac.tourney.beans.*;
 import org.powertac.tourney.services.HibernateUtil;
 import org.powertac.tourney.services.Utils;
 
@@ -32,6 +29,7 @@ public class ActionTournaments
   private int nofLevels = 4;
   private List<Level> levels;
   private boolean[] disabledArray;
+  private List<Broker> brokerList = new ArrayList<Broker>();
 
   public ActionTournaments ()
   {
@@ -47,6 +45,57 @@ public class ActionTournaments
   {
     return Pom.getPomList();
   }
+
+  public List<Broker> getBrokerList ()
+  {
+    return brokerList;
+  }
+
+  public List<Tournament> getAvailableTournaments (Broker b)
+  {
+    return b.getAvailableTournaments();
+  }
+
+  public List<Tournament> getRegisteredTournaments (Broker b)
+  {
+    return b.getRegisteredTournaments();
+  }
+
+  public void register (Broker b)
+  {
+    if (!(b.getRegisterRoundId() > 0)) {
+      return;
+    }
+
+    boolean registered = b.registerForTournament(b.getRegisterTournamentId());
+    if (!registered) {
+      message(1, "Error registering broker");
+    } else {
+      brokerList = Broker.getBrokerList();
+      User user = User.getCurrentUser();
+      User.reloadUser(user);
+    }
+  }
+
+  public void unregister (Broker b)
+  {
+    if (!(b.getUnregisterRoundId() > 0)) {
+      return;
+    }
+
+    boolean registered = b.unRegisterFromTournament(b.getUnregisterTournamentId());
+    if (!registered) {
+      message(1, "Error unregistering broker");
+    } else {
+      brokerList = Broker.getBrokerList();
+      User user = User.getCurrentUser();
+      User.reloadUser(user);
+    }
+  }
+
+
+
+
 
   public List<String> getLevelInfo (Tournament tournament)
   {
@@ -228,7 +277,6 @@ public class ActionTournaments
     int currentLevel = tournament.getCurrentLevelNr();
 
     disabledArray = new boolean[tournament.getLevelMap().size()];
-
     levels = new ArrayList<Level>();
     for (Level level: tournament.getLevelMap().values()) {
       levels.add(level);
@@ -326,6 +374,8 @@ public class ActionTournaments
     levels.get(0).setLevelName("qualifying");
     levels.get(0).setNofRounds(1);
     levels.get(0).setNofWinners(100);
+
+    brokerList = Broker.getBrokerList();
   }
 
   public boolean editingAllowed (Tournament tournament)

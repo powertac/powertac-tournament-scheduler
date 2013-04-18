@@ -8,11 +8,15 @@
 package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tourney.beans.Game;
+import org.powertac.tourney.constants.Constants;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 public class RestVisualizer
@@ -26,6 +30,7 @@ public class RestVisualizer
    * or queueName(qn) to tell the visualizer to connect to its machine and
    * listen on the queue named qn.
    */
+  @SuppressWarnings("unchecked")
   public String parseVisualizerLogin (Map<String, String[]> params,
                                       HttpServletRequest request)
   {
@@ -46,10 +51,16 @@ public class RestVisualizer
     // Wait 30 seconds, game is set ready before it actually starts
     long readyDeadline = 30 * 1000;
     long nowStamp = Utils.offsetDate().getTime();
+
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
+
     try {
-      for (Game game: Game.getNotCompleteGamesList()) {
+      Query query = session.createQuery(Constants.HQL.GET_GAMES_READY);
+      List<Game> games = (List<Game>) query.
+          setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+
+      for (Game game: games) {
         if (game.getMachine() == null) {
           continue;
         }

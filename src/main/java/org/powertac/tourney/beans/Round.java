@@ -77,11 +77,11 @@ public class Round
       }
 
       @SuppressWarnings("unchecked")
-      List<Registration> registrations = (List<Registration>) session
-          .createCriteria(Registration.class)
-          .add(Restrictions.eq("getRound", round)).list();
-      for (Registration registration: registrations) {
-        session.delete(registration);
+      List<RoundBroker> roundBrokers = (List<RoundBroker>) session
+          .createCriteria(RoundBroker.class)
+          .add(Restrictions.eq("round", round)).list();
+      for (RoundBroker roundBroker : roundBrokers) {
+        session.delete(roundBroker);
       }
       session.flush();
 
@@ -140,9 +140,15 @@ public class Round
   }
 
   @Transient
-  public int getSize()
+  public int getSize ()
   {
     return gameMap.size();
+  }
+
+  @Transient
+  public int getNofBrokers ()
+  {
+    return brokerMap.size();
   }
 
   //<editor-fold desc="Winner determination">
@@ -276,7 +282,7 @@ public class Round
   }
   //</editor-fold>
 
-  //<editor-fold desc="Helper methods">
+  //<editor-fold desc="State methods">
   @Transient
   public boolean isStarted ()
   {
@@ -353,7 +359,7 @@ public class Round
   }
 
   @ManyToMany
-  @JoinTable(name = "registrations",
+  @JoinTable(name = "round_brokers",
       joinColumns =
       @JoinColumn(name = "roundId", referencedColumnName = "roundId"),
       inverseJoinColumns =
@@ -444,7 +450,7 @@ public class Round
   }
 
   @ManyToOne
-  @JoinColumn(name = "levelId", nullable = true)
+  @JoinColumn(name = "levelId")
   public Level getLevel ()
   {
     return level;

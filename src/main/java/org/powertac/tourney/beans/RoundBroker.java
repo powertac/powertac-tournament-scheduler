@@ -8,15 +8,15 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @ManagedBean
 @Entity
-@Table(name = "registrations", uniqueConstraints =
+@Table(name = "round_brokers", uniqueConstraints =
     @UniqueConstraint(columnNames = {"roundId", "brokerId"}))
-public class Registration
+public class RoundBroker
 {
-  private int registrationId;
+  private int roundBrokerId;
   private Round round;
   private Broker broker;
 
-  public Registration ()
+  public RoundBroker ()
   {
   }
 
@@ -46,14 +46,14 @@ public class Registration
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "registrationId", unique = true, nullable = false)
-  public int getRegistrationId ()
+  @Column(name = "roundBrokerId", unique = true, nullable = false)
+  public int getRoundBrokerId ()
   {
-    return registrationId;
+    return roundBrokerId;
   }
 
-  public void setRegistrationId (int registrationId)
+  public void setRoundBrokerId (int roundBrokerId)
   {
-    this.registrationId = registrationId;
+    this.roundBrokerId = roundBrokerId;
   }
 }

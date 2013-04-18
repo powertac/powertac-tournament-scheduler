@@ -64,6 +64,7 @@ public class Constants
         "FROM User AS user "
             + "LEFT JOIN FETCH user.brokerMap AS brokerMap "
             + "LEFT JOIN FETCH brokerMap.roundMap AS roundMap "
+            + "LEFT JOIN FETCH brokerMap.tournamentMap AS tournamentMap "
             + "WHERE user.userName =:userName ";
 
     public static final String GET_POMS =
@@ -113,16 +114,6 @@ public class Constants
             + "LEFT JOIN FETCH round.brokerMap AS brokerMap "
             + "LEFT JOIN FETCH brokerMap.user "
             + "WHERE round.roundId =:roundId";
-
-    public static final String GET_ROUND_BY_NAME =
-        "FROM Round AS round "
-            + "LEFT JOIN FETCH round.gameMap AS gameMap "
-            + "LEFT JOIN FETCH gameMap.agentMap AS agentMap "
-            + "LEFT JOIN FETCH agentMap.broker "
-            + "LEFT JOIN FETCH agentMap.game "
-            + "LEFT JOIN FETCH round.brokerMap AS brokerMap "
-            + "LEFT JOIN FETCH brokerMap.user "
-            + "WHERE round.roundName =:roundName";
 
     public static final String GET_ROUNDS_NOT_COMPLETE =
         "FROM Round AS round "
@@ -193,8 +184,15 @@ public class Constants
             + "LEFT JOIN FETCH game.agentMap agentMap "
             + "LEFT JOIN FETCH agentMap.broker as broker "
             + "LEFT JOIN FETCH broker.user "
-            + "WHERE NOT game.state='"
-            + Game.getStateGameComplete() + "' ";
+            + "WHERE NOT game.state='" + Game.getStateGameComplete() + "' ";
+
+    public static final String GET_GAMES_READY =
+        "FROM Game AS game "
+            + "LEFT JOIN FETCH game.round "
+            + "LEFT JOIN FETCH game.machine "
+            + "LEFT JOIN FETCH game.agentMap agentMap "
+            + "LEFT JOIN FETCH agentMap.broker as broker "
+            + "WHERE game.state='" + Game.getStateGameReady() + "' ";
 
     public static final String GET_GAMES_COMPLETE =
         "FROM Game AS game "
@@ -208,6 +206,7 @@ public class Constants
     public static final String GET_BROKERS =
         "FROM Broker AS broker "
             + "LEFT JOIN FETCH broker.roundMap "
+            + "LEFT JOIN FETCH broker.tournamentMap "
             + "LEFT JOIN FETCH broker.user "
             + "LEFT JOIN FETCH broker.agentMap as agentMap ";
 

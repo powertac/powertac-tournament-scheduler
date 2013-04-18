@@ -27,8 +27,8 @@ public class Tournament
   private STATE state;
   private int pomId;
 
-  private Map<Integer, Level> levelMap =
-      new HashMap<Integer, Level>();
+  private Map<Integer, Level> levelMap = new HashMap<Integer, Level>();
+  private Map<Integer, Broker> brokerMap = new HashMap<Integer, Broker>();
 
   private static enum STATE
   {
@@ -162,7 +162,7 @@ public class Tournament
       log.debug("Round : " + round.getRoundName());
       for (int i = 0; i < brokersPerRound; i++) {
         Broker broker = winners.remove(randomGenerator.nextInt(winners.size()));
-        broker.register(session, round.getRoundId());
+        broker.registerForRound(session, round.getRoundId());
       }
     }
   }
@@ -197,7 +197,35 @@ public class Tournament
     return levelMap.get(getCurrentLevelNr() + 1);
   }
 
+  @Transient
+  public int getMaxBrokers ()
+  {
+    int maxBrokers = Math.max(100, levelMap.get(0).getNofWinners());
+    if (levelMap.get(0).getLevelNr() != 0) {
+      maxBrokers = Math.min(getPreviousLevel().getNofBrokers(),
+          getPreviousLevel().getNofWinners());
+    }
+    return maxBrokers;
+  }
+
+  @Transient
+  public int getNofBrokers ()
+  {
+    int nofBrokers = 0;
+    for (Round round: levelMap.get(0).getRoundMap().values()) {
+      nofBrokers += round.getBrokerMap().size();
+    }
+    return nofBrokers;
+  }
+
   //<editor-fold desc="State methods">
+  @Transient
+  public boolean isStarted ()
+  {
+    Level firstLevel = levelMap.get(0);
+    return firstLevel.isStarted();
+  }
+
   public boolean scheduleNextLevel (Session session)
   {
     STATE oldState = state;
@@ -363,6 +391,23 @@ public class Tournament
   public void setLevelMap (Map<Integer, Level> levelMap)
   {
     this.levelMap = levelMap;
+  }
+
+  @ManyToMany
+  @JoinTable(name = "tournament_brokers",
+      joinColumns =
+      @JoinColumn(name = "tournamentId", referencedColumnName = "tournamentId"),
+      inverseJoinColumns =
+      @JoinColumn(name = "brokerId", referencedColumnName = "brokerId")
+  )
+  @MapKey(name = "brokerId")
+  public Map<Integer, Broker> getBrokerMap ()
+  {
+    return brokerMap;
+  }
+  public void setBrokerMap (Map<Integer, Broker> brokerMap)
+  {
+    this.brokerMap = brokerMap;
   }
   //</editor-fold>
 
