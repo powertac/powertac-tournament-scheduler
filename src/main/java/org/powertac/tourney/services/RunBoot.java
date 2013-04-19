@@ -126,6 +126,11 @@ public class RunBoot
   **/
   public static void startBootableGames (Round runningRound)
   {
+    if (runningRound == null) {
+      log.info("No round available for bootable games");
+      return;
+    }
+
     log.info("Looking for Bootstraps To Start..");
 
     List<Game> games = new ArrayList<Game>();
@@ -133,13 +138,8 @@ public class RunBoot
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      if (runningRound == null) {
-        games = Game.getBootableSingleGames(session);
-        log.info("CheckForBoots for SINGLE_GAME round boots");
-      } else {
-        games = Game.getBootableMultiGames(session, runningRound);
-        log.info("CheckForBoots for MULTI_GAME round boots");
-      }
+      games = Game.getBootableGames(session, runningRound);
+      log.info("CheckForBoots for bootable games");
       transaction.commit();
     } catch (Exception e) {
       transaction.rollback();

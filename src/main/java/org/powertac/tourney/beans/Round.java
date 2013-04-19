@@ -36,10 +36,8 @@ public class Round
   private int multiplier1;
   private int multiplier2;
   private int multiplier3;
-  private TYPE type;
   private int pomId;
   private String locations;
-  private boolean closed;
 
   private Map<Integer, Game> gameMap = new HashMap<Integer, Game>();
   private Map<Integer, Broker> brokerMap = new HashMap<Integer, Broker>();
@@ -47,11 +45,6 @@ public class Round
   private static enum STATE
   {
     pending, in_progress, complete
-  }
-
-  public static enum TYPE
-  {
-    SINGLE_GAME, MULTI_GAME
   }
 
   public Round ()
@@ -66,6 +59,9 @@ public class Round
       Round round = (Round) session
           .createQuery(Constants.HQL.GET_ROUND_BY_ID)
           .setInteger("roundId", roundId).uniqueResult();
+
+      Level level = round.getLevel();
+      level.setNofRounds(level.getNofRounds() - 1);
 
       // Disallow removal when games booting or running
       for (Game game: round.gameMap.values()) {
@@ -126,7 +122,7 @@ public class Round
       Scheduler scheduler = Scheduler.getScheduler();
       if (scheduler.getRunningRound() != null &&
           scheduler.getRunningRound().getRoundId() == roundId) {
-        scheduler.Round();
+        scheduler.unloadRound();
       }
     }
 
@@ -153,27 +149,6 @@ public class Round
 
   //<editor-fold desc="Winner determination">
   public Map<Broker, Double[]> determineWinner ()
-  {
-    if (isMulti()) {
-      return determineWinnerMulti();
-    } else {
-      return determineWinnerSingle();
-    }
-  }
-
-  private Map<Broker, Double[]> determineWinnerSingle ()
-  {
-    Map<Broker, Double[]> resultMap = new HashMap<Broker, Double[]>();
-
-    for (Game game: getGameMap().values()) {
-      for (Agent agent: game.getAgentMap().values()) {
-        resultMap.put(agent.getBroker(), new Double[]{agent.getBalance()});
-      }
-    }
-    return resultMap;
-  }
-
-  private Map<Broker, Double[]> determineWinnerMulti ()
   {
     // Col 0  = result gameType 1
     // Col 1  = result gameType 2
@@ -290,18 +265,6 @@ public class Round
   }
 
   @Transient
-  public boolean isMulti ()
-  {
-    return type.equals(TYPE.MULTI_GAME);
-  }
-
-  @Transient
-  public boolean isSingle ()
-  {
-    return type.equals(TYPE.SINGLE_GAME);
-  }
-
-  @Transient
   public boolean isPending ()
   {
     return state.equals(STATE.pending);
@@ -315,7 +278,7 @@ public class Round
 
   public String startTimeUTC ()
   {
-    return Utils.dateToStringFull(startTime);
+    return Utils.dateToStringMedium(startTime);
   }
 
   public String dateFromUTC ()
@@ -417,7 +380,7 @@ public class Round
   {
     List<Double> result = new ArrayList<Double>();
 
-    if (resultMap.size() > 0 && isMulti()) {
+    if (resultMap.size() > 0) {
       Map.Entry<Broker, Double[]> entry = resultMap.entrySet().iterator().next();
       result.addAll(Arrays.asList(entry.getValue()).subList(4, 10));
     }
@@ -584,17 +547,6 @@ public class Round
     this.multiplier3 = multiplier3;
   }
 
-  @Column(name = "type", nullable = false)
-  @Enumerated(EnumType.STRING)
-  public TYPE getType ()
-  {
-    return type;
-  }
-  public void setType (TYPE type)
-  {
-    this.type = type;
-  }
-
   @Column(name = "pomId", nullable = false)
   public int getPomId ()
   {
@@ -613,16 +565,6 @@ public class Round
   public void setLocations (String locations)
   {
     this.locations = locations;
-  }
-
-  @Column(name = "closed", nullable = false)
-  public boolean isClosed ()
-  {
-    return closed;
-  }
-  public void setClosed (boolean closed)
-  {
-    this.closed = closed;
   }
   //</editor-fold>
 }

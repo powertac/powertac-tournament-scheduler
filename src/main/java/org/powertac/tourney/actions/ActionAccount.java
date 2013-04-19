@@ -28,17 +28,20 @@ public class ActionAccount
 
   public ActionAccount ()
   {
+    User.reloadUser (user);
   }
 
   @SuppressWarnings("unchecked")
   public List<Broker> getBrokers ()
   {
     if (brokers.size() == 0) {
-      for (Broker broker: user.getBrokerMap().values()) {
+      brokers.addAll(user.getBrokerMap().values());
+      /*for (Broker broker: user.getBrokerMap().values()) {
         brokers.add(broker);
-      }
+      }*/
+
+      Collections.sort(brokers, new Utils.AlphanumComparator());
     }
-    Collections.sort(brokers, new Utils.AlphanumComparator());
     return brokers;
   }
 

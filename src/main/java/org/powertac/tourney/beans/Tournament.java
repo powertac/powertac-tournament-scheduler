@@ -99,6 +99,7 @@ public class Tournament
     int size1 = level.getLevelNr() == 0 ? 1 : maxBrokers;
     int size2 = level.getLevelNr() == 0 ? 1 : Math.max(maxBrokers / 2, 2);
     int size3 = level.getLevelNr() == 0 ? 1 : Math.min(maxBrokers, 2);
+
     Date startDate = level.getStartTime();
     if (startDate.compareTo(Utils.offsetDate()) < 0) {
       startDate = Utils.offsetDate(1);
@@ -107,7 +108,6 @@ public class Tournament
     Round round = new Round();
     round.setRoundName(name);
     round.setLevel(level);
-    round.setType(Round.TYPE.MULTI_GAME);
     round.setMaxBrokers(maxBrokers);
     round.setMaxAgents(2);
     round.setSize1(size1);
@@ -122,7 +122,6 @@ public class Tournament
     round.setDateTo(location.getDateTo());
     round.setLocations(location.getLocation() + ",");
     round.setPomId(pomId);
-    round.setClosed(level.getLevelNr() != 0);
     round.setStateToPending();
     session.save(round);
 

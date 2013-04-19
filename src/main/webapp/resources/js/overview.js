@@ -1,15 +1,12 @@
-function toggleSample() {
-    if ($("#toggleSampleButton").val() == "Hide sample") {
-        $('#toggleSampleButton').val("Show sample");
+function toggleActiveBrokers() {
+    if ($("#toggleSampleButton").val() == "Hide inactive") {
+        $('#toggleSampleButton').val("Show active");
 
         $("#brokersForm\\:databrokers").find('>tbody>tr').each(function () {
-            var sp = $(this).find('td:nth-child(2) a')[0];
-            var name = $(sp).text();
+            var sp = $(this).find('td:nth-child(4)')[0];
+            var tournaments = $(sp).text();
 
-            if (name.toLowerCase().indexOf("sample") > -1) {
-                $(this).css("display", "none");
-            }
-            if (name == "MinneTAC-power") {
+            if (tournaments.length == 0) {
                 $(this).css("display", "none");
             }
         });
@@ -18,7 +15,7 @@ function toggleSample() {
         $('#roundForm\\:hideSample').val('true');
         $('#gamesForm\\:hideSample').val('true');
     } else {
-        $('#toggleSampleButton').val("Hide sample");
+        $('#toggleSampleButton').val("Hide inactive");
 
         $("#brokersForm\\:databrokers").find(">tbody>tr").each(function () {
             $(this).css("display", "");
@@ -33,7 +30,7 @@ function toggleSample() {
     $('#brokersForm\\:databrokers').parent().height( newHeight );
 }
 
-function toggleActive() {
+function toggleActiveGames() {
     var active_statuses = new Array('boot_in_progress', 'game_pending', 'game_ready', 'game_in_progress');
 
     if ($("#toggleActiveButton").val() == "Hide inactive") {
@@ -49,7 +46,7 @@ function toggleActive() {
         });
 
         $('#brokersForm\\:hideInactive').val('true');
-        $('#brokersForm\\:hideInactive').val('true');
+        $('#roundForm\\:hideInactive').val('true');
         $('#gamesForm\\:hideInactive').val('true');
     } else {
         $('#toggleActiveButton').val("Hide inactive");
@@ -59,7 +56,7 @@ function toggleActive() {
         });
 
         $('#brokersForm\\:hideInactive').val('false');
-        $('#brokersForm\\:hideInactive').val('false');
+        $('#roundForm\\:hideInactive').val('false');
         $('#gamesForm\\:hideInactive').val('false');
     }
 
@@ -124,7 +121,7 @@ function resizeTables() {
         "sScrollY": Math.min(400, $("[id$=dataRounds]").height()) + "px",
         "bPaginate": false,
         "aoColumnDefs": [
-            { 'bSortable': false, 'aTargets': [5, 6, 7, 8] },
+            { 'bSortable': false, 'aTargets': [4, 5, 6] },
             { "sType": "natural", "aTargets": [0] }
         ]
     });
@@ -144,11 +141,11 @@ $(document).ready(function () {
     resizeTables();
 
     if ($('#brokersForm\\:hideSample').val() == 'true') {
-        toggleSample();
+        toggleActiveBrokers();
     }
 
     if ($('#brokersForm\\:hideInactive').val() == 'true') {
-        toggleActive();
+        toggleActiveBrokers();
     }
 
     updateTables();

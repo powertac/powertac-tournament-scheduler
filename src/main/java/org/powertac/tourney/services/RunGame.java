@@ -188,6 +188,11 @@ public class RunGame
   **/
   public static void startRunnableGames (Round runningRound)
   {
+    if (runningRound == null) {
+      log.info("No round available for runnable games");
+      return;
+    }
+
     log.info("Looking for Runnable Games");
 
     List<Game> games = new ArrayList<Game>();
@@ -195,13 +200,8 @@ public class RunGame
     Session session = HibernateUtil.getSessionFactory().openSession();
     Transaction transaction = session.beginTransaction();
     try {
-      if (runningRound == null) {
-        games = Game.getStartableSingleGames(session);
-        log.info("CheckForSims for SINGLE_GAME round games");
-      } else {
-        games = Game.getStartableMultiGames(session, runningRound);
-        log.info("CheckForSims for MULTI_GAME round games");
-      }
+      games = Game.getStartableGames(session, runningRound);
+      log.info("CheckForSims for startable games");
       transaction.commit();
     } catch (Exception e) {
       transaction.rollback();

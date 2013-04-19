@@ -75,49 +75,6 @@ public class ActionOverview
     MemStore.setBrokerState(brokerId, !enabled);
   }
 
-  public void startNow (Round round)
-  {
-    Session session = HibernateUtil.getSessionFactory().openSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      round.setStartTime(Utils.offsetDate());
-      session.update(round);
-      session.flush();
-
-      String msg = "Setting round: " + round.getRoundId()
-          + " to start now";
-      log.info(msg);
-      message(1, msg);
-
-      // Reschedule all games of a SINGLE_GAME round
-      if (round.isSingle()) {
-        for (Game game: round.getGameMap().values()) {
-          game.setStartTime(Utils.offsetDate());
-          session.update(game);
-          session.flush();
-
-          log.info("Setting game: " + game.getGameId() + " to start now");
-          message(1, "Setting game: " + game.getGameId() + " to start now");
-        }
-      }
-
-      transaction.commit();
-    } catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-      message(1, "Failed to start now : " + round.getRoundId());
-    }
-    session.close();
-
-    // If a MULTI_GAME round is loaded, just reload
-    Scheduler scheduler = Scheduler.getScheduler();
-    if (!scheduler.isNullRound() &&
-        round.getRoundId() ==
-            scheduler.getRunningRound().getRoundId()) {
-      scheduler.reloadRound();
-    }
-  }
-
   public void abortGame (Game game)
   {
     log.info("Trying to abort game: " + game.getGameId());

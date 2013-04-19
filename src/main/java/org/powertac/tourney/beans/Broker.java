@@ -159,16 +159,6 @@ public class Broker
     session.save(roundBroker);
     log.info(String.format("Registering broker: %s with round: %s",
         brokerId, round.getRoundId()));
-
-    // Only for single game, the scheduler handles multigame tourneys
-    if (round.isSingle()) {
-      for (Game game: round.getGameMap().values()) {
-        Agent agent = Agent.createAgent(this, game);
-        session.save(agent);
-        log.info(String.format("Registering broker: %s with game: %s",
-            brokerId, game.getGameId()));
-      }
-    }
   }
 
   public boolean unregisterFromRound (int roundId)
@@ -263,7 +253,9 @@ public class Broker
           .createCriteria(TournamentBroker.class)
           .add(Restrictions.eq("tournament", tournament))
           .add(Restrictions.eq("broker", this)).uniqueResult();
-      session.delete(tournamentBroker);
+      if (tournamentBroker != null) {
+        session.delete(tournamentBroker);
+      }
 
       List<Integer> deleteAgents = new ArrayList<Integer>();
       for (Level level: tournament.getLevelMap().values()) {
@@ -273,7 +265,10 @@ public class Broker
               .createCriteria(RoundBroker.class)
               .add(Restrictions.eq("round", round))
               .add(Restrictions.eq("broker", this)).uniqueResult();
-          session.delete(roundBroker);
+
+          if (roundBroker != null) {
+            session.delete(roundBroker);
+          }
 
           // Delete link between brokers agent and game
           for (Game game: round.getGameMap().values()) {
@@ -309,9 +304,9 @@ public class Broker
     Scheduler scheduler = Scheduler.getScheduler();
     Round runningRound = scheduler.getRunningRound();
 
-    // When running SINGLE_GAMES rounds, always assume true
+    // Shouldn't happen (no games should start when no round loaded)
     if (runningRound == null) {
-      return true;
+      return false;
     }
 
     int freeAgents = runningRound.getMaxAgents();
@@ -325,13 +320,18 @@ public class Broker
   }
 
   @Transient
-  public String getTournamentsString ()
+  public String getTournamentsString (boolean useId)
   {
     String result = "";
 
     for (Tournament tournament : tournamentMap.values()) {
       if (!tournament.isComplete()) {
-        result += tournament.getTournamentName() + ", ";
+        if (useId) {
+          result += tournament.getTournamentId() + ", ";
+        }
+        else {
+          result += tournament.getTournamentName() + ", ";
+        }
       }
     }
     if (!result.isEmpty()) {
@@ -342,13 +342,18 @@ public class Broker
   }
 
   @Transient
-  public String getRoundsString ()
+  public String getRoundsString (boolean useId)
   {
     String result = "";
 
     for (Round round : roundMap.values()) {
       if (!round.isComplete()) {
-        result += round.getRoundName() + ", ";
+        if (useId) {
+          result += round.getRoundId() + ", ";
+        }
+        else {
+          result += round.getRoundName() + ", ";
+        }
       }
     }
     if (!result.isEmpty()) {
@@ -360,7 +365,7 @@ public class Broker
 
   @Transient
   @SuppressWarnings("unchecked")
-  public String getRunningString ()
+  public String getRunningGamesString ()
   {
     List<Agent> agents = new ArrayList(agentMap.values());
     Collections.sort(agents, new Utils.agentIdComparator());
@@ -467,7 +472,7 @@ public class Broker
       }
 
       // Check if maxNofBrokers reached
-      if (tournament.getMaxBrokers() >= tournament.getNofBrokers()) {
+      if (tournament.getNofBrokers() >= tournament.getMaxBrokers()) {
         continue;
       }
 

@@ -21,13 +21,11 @@ public class ActionRounds
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private boolean disabled;
   private List<Broker> brokerList = new ArrayList<Broker>();
   private int slavesCount;
 
   private int roundId;
   private String roundName;
-  private Round.TYPE type;
   private int maxBrokers;
   private int maxAgents;
   private int size1;
@@ -41,16 +39,15 @@ public class ActionRounds
   private Date dateTo;
   private List<String> locations;
   private int selectedPom;
-  private boolean closed;
 
   public ActionRounds ()
   {
     resetValues();
   }
 
-  public List<Round.TYPE> getTypes ()
+  public List<Broker> getBrokerList ()
   {
-    return Arrays.asList(Round.TYPE.values());
+    return brokerList;
   }
 
   public List<Round> getRoundList ()
@@ -68,64 +65,33 @@ public class ActionRounds
     return Location.getLocationList();
   }
 
-  public void saveRound ()
+  public boolean allowEdit (Round round)
   {
-    if (!inputsValidated()) {
-      if (roundId != -1) {
-        resetValues();
-      }
-      return;
-    }
-
-    if (roundId != -1) {
-      saveEditedRound();
-    } else {
-      createRound();
-    }
+    return roundId == -1 && round.isPending();
   }
 
-  private void createRound ()
+  public boolean allowDelete (Round round)
   {
-    log.info("Creating " + type.toString() + " round");
-
-    Session session = HibernateUtil.getSessionFactory().openSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      Round round = new Round();
-      setValues(round);
-      round.setStateToPending();
-      session.save(round);
-
-      log.info(String.format("Created %s round %s",
-          type.toString(), round.getRoundId()));
-
-      if (type == Round.TYPE.SINGLE_GAME) {
-        Game game = Game.createGame(round, roundName);
-        session.save(game);
-        log.info("Created game " + game.getGameId());
-      }
-
-      transaction.commit();
-    } catch (ConstraintViolationException ignored) {
-      transaction.rollback();
-      message(2, "The round name already exists");
-    } catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-      log.error("Error creating round");
-    } finally {
-      if (transaction.wasCommitted()) {
-        resetValues();
-      }
-      session.close();
+    if (!round.isPending()) {
+      return false;
     }
+
+    // Never allow last round to be removed
+    if (round.getLevel().getNofRounds() <= 1) {
+      return false;
+    }
+
+    if (!round.getRoundName().toLowerCase().contains("test")) {
+      return false;
+    }
+
+    return true;
   }
 
   public void loadRound (Round round)
   {
     roundId = round.getRoundId();
     roundName = round.getRoundName();
-    type = round.getType();
     maxBrokers = round.getMaxBrokers();
     maxAgents = round.getMaxAgents();
     size1 = round.getSize1();
@@ -139,11 +105,19 @@ public class ActionRounds
     dateTo = round.getDateTo();
     locations = round.getLocationsList();
     selectedPom = round.getPomId();
-    closed = round.isClosed();
+  }
 
-    // Once scheduled, params can't change (type can never change)
-    if (round.getSize() > 0) {
-      disabled = true;
+  public void saveRound ()
+  {
+    if (!inputsValidated()) {
+      if (roundId != -1) {
+        resetValues();
+      }
+      return;
+    }
+
+    if (roundId != -1) {
+      saveEditedRound();
     }
   }
 
@@ -173,7 +147,7 @@ public class ActionRounds
     }
   }
 
-  public void removeRound (Round round)
+  public void deleteRound (Round round)
   {
     if (!round.getRoundName().toLowerCase().contains("test")) {
       log.info("Someone tried to remove a non-test Round!");
@@ -186,6 +160,40 @@ public class ActionRounds
       log.info(String.format("Something went wrong with removing round "
           + "%s\n%s", round.getRoundName(), msg));
       message(0, msg);
+    }
+    else {
+      log.info("Removed round : " + round.getRoundName());
+      message(0, "Removed round : " + round.getRoundName());
+    }
+  }
+
+  public void startNow (Round round)
+  {
+    Session session = HibernateUtil.getSessionFactory().openSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      round.setStartTime(Utils.offsetDate());
+      session.update(round);
+      session.flush();
+
+      String msg = "Setting round: " + round.getRoundId() + " to start now";
+      log.info(msg);
+      message(1, msg);
+
+      transaction.commit();
+    } catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+      message(1, "Failed to start now : " + round.getRoundId());
+    }
+    session.close();
+
+    // If a round is loaded, just reload
+    Scheduler scheduler = Scheduler.getScheduler();
+    if (!scheduler.isNullRound() &&
+        round.getRoundId() ==
+            scheduler.getRunningRound().getRoundId()) {
+      scheduler.reloadRound();
     }
   }
 
@@ -205,31 +213,26 @@ public class ActionRounds
 
     if (round.getSize() < 1) {
       round.setRoundName(roundName);
-      if (type != null) {
-        round.setType(type);
-      }
       round.setMaxBrokers(maxBrokers);
-      round.setMaxAgents(round.isMulti() ? maxAgents : 0);
-      round.setSize1(round.isMulti() ? gameTypes[0] : 0);
-      round.setSize2(round.isMulti() ? gameTypes[1] : 0);
-      round.setSize3(round.isMulti() ? gameTypes[2] : 0);
-      round.setMultiplier1(round.isMulti() ? multipliers[0] : 0);
-      round.setMultiplier2(round.isMulti() ? multipliers[1] : 0);
-      round.setMultiplier3(round.isMulti() ? multipliers[2] : 0);
+      round.setMaxAgents(maxAgents);
+      round.setSize1(gameTypes[0]);
+      round.setSize2(gameTypes[1]);
+      round.setSize3(gameTypes[2]);
+      round.setMultiplier1(multipliers[0]);
+      round.setMultiplier2(multipliers[1]);
+      round.setMultiplier3(multipliers[2]);
       round.setStartTime(startTime);
       round.setDateFrom(dateFrom);
       round.setDateTo(dateTo);
       round.setLocations(allLocations);
       round.setPomId(selectedPom);
     }
-    round.setClosed(closed);
   }
 
   public void resetValues ()
   {
     roundId = -1;
     roundName = "";
-    type = Round.TYPE.SINGLE_GAME;
     maxBrokers = 0;
     maxAgents = 2;
     size1 = 8;
@@ -261,26 +264,9 @@ public class ActionRounds
     }
 
     selectedPom = 0;
-    closed = false;
 
-    disabled = false;
     brokerList = Broker.getBrokerList();
     slavesCount = Machine.getMachineList().size();
-  }
-
-  public List<Broker> getBrokerList ()
-  {
-    return brokerList;
-  }
-
-  public List<Round> getAvailableRounds (Broker b)
-  {
-    return b.getAvailableRounds();
-  }
-
-  public List<Round> getRegisteredRounds (Broker b)
-  {
-    return b.getRegisteredRounds();
   }
 
   public void register (Broker b)
@@ -313,11 +299,6 @@ public class ActionRounds
       User user = User.getCurrentUser();
       User.reloadUser(user);
     }
-  }
-
-  public boolean allowEdit (Round round)
-  {
-    return roundId == -1 && round.isPending();
   }
 
   private boolean inputsValidated ()
@@ -372,15 +353,6 @@ public class ActionRounds
   public void setRoundName (String roundName)
   {
     this.roundName = roundName;
-  }
-
-  public Round.TYPE getType ()
-  {
-    return type;
-  }
-  public void setType (Round.TYPE type)
-  {
-    this.type = type;
   }
 
   public int getMaxBrokers ()
@@ -498,20 +470,6 @@ public class ActionRounds
   public void setSelectedPom (int selectedPom)
   {
     this.selectedPom = selectedPom;
-  }
-
-  public boolean isClosed ()
-  {
-    return closed;
-  }
-  public void setClosed (boolean closed)
-  {
-    this.closed = closed;
-  }
-
-  public boolean isDisabled ()
-  {
-    return disabled;
   }
 
   public int getSlavesCount ()

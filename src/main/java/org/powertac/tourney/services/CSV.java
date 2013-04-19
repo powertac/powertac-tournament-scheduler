@@ -63,50 +63,38 @@ public class CSV
       bw.write("Registered Brokers;" + t.getBrokerMap().size() + sep);
       bw.write("MaxAgents;" + t.getMaxAgents() + sep);
 
-      bw.write("type;" + t.getType() + sep);
-      if (t.isMulti()) {
-        bw.write("size1;" + t.getSize1() + sep);
-        bw.write("multiplier1;" + t.getMultiplier1() + sep);
-        bw.write("size2;" + t.getSize2() + sep);
-        bw.write("multiplier2;" + t.getMultiplier2() + sep);
-        bw.write("size3;" + t.getSize3() + sep);
-        bw.write("multiplier3;" + t.getMultiplier3() + sep);
-      }
+      bw.write("size1;" + t.getSize1() + sep);
+      bw.write("multiplier1;" + t.getMultiplier1() + sep);
+      bw.write("size2;" + t.getSize2() + sep);
+      bw.write("multiplier2;" + t.getMultiplier2() + sep);
+      bw.write("size3;" + t.getSize3() + sep);
+      bw.write("multiplier3;" + t.getMultiplier3() + sep);
 
       bw.write("pomId;" + t.getPomId() + sep);
       bw.write("Locations;" + t.getLocations() + sep);
       bw.write(sep);
 
-      if (t.isMulti()) {
-        List<Double> avgsAndSDs = t.getAvgsAndSDs(resultMap);
-        bw.write("Average type 1;" + avgsAndSDs.get(0) + sep);
-        bw.write("Average type 2;" + avgsAndSDs.get(1) + sep);
-        bw.write("Average type 3;" + avgsAndSDs.get(2) + sep);
+      List<Double> avgsAndSDs = t.getAvgsAndSDs(resultMap);
+      bw.write("Average type 1;" + avgsAndSDs.get(0) + sep);
+      bw.write("Average type 2;" + avgsAndSDs.get(1) + sep);
+      bw.write("Average type 3;" + avgsAndSDs.get(2) + sep);
 
-        bw.write("Standard deviation type 1;" + avgsAndSDs.get(3) + sep);
-        bw.write("Standard deviation type 2;" + avgsAndSDs.get(4) + sep);
-        bw.write("Standard deviation type 3;" + avgsAndSDs.get(5) + sep);
-        bw.write(sep);
+      bw.write("Standard deviation type 1;" + avgsAndSDs.get(3) + sep);
+      bw.write("Standard deviation type 2;" + avgsAndSDs.get(4) + sep);
+      bw.write("Standard deviation type 3;" + avgsAndSDs.get(5) + sep);
+      bw.write(sep);
 
-        bw.write("brokerId;brokerName;Size 1;Size 2;Size 3;" +
-            "Total (not normalized);Size 1;Size 2;Size3;Total (normalized)" +
-            sep);
+      bw.write("brokerId;brokerName;Size 1;Size 2;Size 3;" +
+          "Total (not normalized);Size 1;Size 2;Size3;Total (normalized)" +
+          sep);
 
-        for (Map.Entry<Broker, Double[]> entry: resultMap.entrySet()) {
-          Double[] results = entry.getValue();
-          bw.write(String.format("%s;%s;%f;%f;%f;%f;%f;%f;%f;%f%s",
-              entry.getKey().getBrokerId(), entry.getKey().getBrokerName(),
-              results[0], results[1], results[2], results[3],
-              results[10], results[11], results[12], results[13],
-              sep));
-        }
-      } else {
-        for (Map.Entry<Broker, Double[]> entry: resultMap.entrySet()) {
-          bw.write("brokerId;Total" + sep);
-          Double[] results = entry.getValue();
-          bw.write(String.format("%s;%f;%s",
-              entry.getKey(), results[0], sep));
-        }
+      for (Map.Entry<Broker, Double[]> entry: resultMap.entrySet()) {
+        Double[] results = entry.getValue();
+        bw.write(String.format("%s;%s;%f;%f;%f;%f;%f;%f;%f;%f%s",
+            entry.getKey().getBrokerId(), entry.getKey().getBrokerName(),
+            results[0], results[1], results[2], results[3],
+            results[10], results[11], results[12], results[13],
+            sep));
       }
 
       bw.close();

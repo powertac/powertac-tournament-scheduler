@@ -114,15 +114,12 @@ public class ActionRound
     roundInfo.add("Registered Brokers : " + round.getBrokerMap().size());
     roundInfo.add("MaxAgents : " + round.getMaxAgents());
 
-    roundInfo.add("Type : " + round.getType());
-    if (round.isMulti()) {
-      roundInfo.add(String.format("Size / multiplier 1 : %s / %s",
-          round.getSize1(), round.getMultiplier1()));
-      roundInfo.add(String.format("Size / multiplier 2 : %s / %s",
-          round.getSize2(), round.getMultiplier2()));
-      roundInfo.add(String.format("Size / multiplier 3 : %s / %s",
-          round.getSize3(), round.getMultiplier3()));
-    }
+    roundInfo.add(String.format("Size / multiplier 1 : %s / %s",
+        round.getSize1(), round.getMultiplier1()));
+    roundInfo.add(String.format("Size / multiplier 2 : %s / %s",
+        round.getSize2(), round.getMultiplier2()));
+    roundInfo.add(String.format("Size / multiplier 3 : %s / %s",
+        round.getSize3(), round.getMultiplier3()));
 
     roundInfo.add("Pom Id : " + round.getPomId());
     roundInfo.add("Locations : " + round.getLocations());

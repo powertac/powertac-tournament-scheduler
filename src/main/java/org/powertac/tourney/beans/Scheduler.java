@@ -136,7 +136,7 @@ public class Scheduler implements InitializingBean
     session.close();
   }
 
-  public void Round ()
+  public void unloadRound ()
   {
     log.info("Unloading Round");
     runningRound = null;
@@ -148,7 +148,7 @@ public class Scheduler implements InitializingBean
       return;
     }
     int runningId = runningRound.getRoundId();
-    Round();
+    unloadRound();
     loadRound(runningId);
   }
 
@@ -158,21 +158,18 @@ public class Scheduler implements InitializingBean
   private void scheduleLoadedRound ()
   {
     if (isNullRound()) {
-      log.info("No multigame round available");
+      log.info("No round available for scheduling");
       return;
     }
-
-    log.info("Multigame round available "
-        + runningRound.getRoundName());
-
-    if (runningRound.getSize() > 0) {
-      log.info("Round already scheduled");
-      return;
-    } else if (!runningRound.isStarted()) {
-      log.info("Too early to start round: " +
-          runningRound.getRoundName());
+    else if (runningRound.getSize() > 0) {
+      log.info("Round already scheduled : " + runningRound.getRoundName());
       return;
     }
+    else if (!runningRound.isStarted()) {
+      log.info("Round not ready : " + runningRound.getRoundName());
+      return;
+    }
+    log.info("Round available : "+ runningRound.getRoundName());
 
     // Get array of gametypes
     int[] gameTypes = {runningRound.getSize1(),
@@ -192,7 +189,7 @@ public class Scheduler implements InitializingBean
         log.info("Round has no brokers registered, setting to complete");
         runningRound.setStateToComplete();
         session.update(runningRound);
-        Round();
+        unloadRound();
         transaction.commit();
         return;
       }
@@ -203,6 +200,9 @@ public class Scheduler implements InitializingBean
         }
       }
 
+      runningRound.setStateToInProgress();
+      session.update(runningRound);
+
       transaction.commit();
     } catch (Exception e) {
       transaction.rollback();
@@ -210,9 +210,6 @@ public class Scheduler implements InitializingBean
     } finally {
       session.close();
     }
-
-    // No more editing of this round
-    runningRound.setStateToInProgress();
 
     reloadRound();
   }

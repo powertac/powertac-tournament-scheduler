@@ -34,27 +34,27 @@
           </t:column>
 
           <t:column styleClass="#{actionTournaments.getLevelStyle(c, 0)}">
-            <f:facet name="header" >Level 0</f:facet>
-            <h:outputText value="#{actionTournaments.getLevelInfo(c).get(0)}"
-                          escape="false"/>
+              <f:facet name="header" >Level 0</f:facet>
+              <h:outputText value="#{actionTournaments.getLevelInfo(c).get(0)}"
+                            escape="false"/>
           </t:column>
 
           <t:column styleClass="#{actionTournaments.getLevelStyle(c, 1)}">
-            <f:facet name="header">Level 1</f:facet>
-            <h:outputText value="#{actionTournaments.getLevelInfo(c).get(1)}"
-                          escape="false"/>
+              <f:facet name="header">Level 1</f:facet>
+              <h:outputText value="#{actionTournaments.getLevelInfo(c).get(1)}"
+                            escape="false"/>
           </t:column>
 
           <t:column styleClass="#{actionTournaments.getLevelStyle(c, 2)}">
-            <f:facet name="header">Level 2</f:facet>
-            <h:outputText value="#{actionTournaments.getLevelInfo(c).get(2)}"
-                          escape="false"/>
+              <f:facet name="header">Level 2</f:facet>
+              <h:outputText value="#{actionTournaments.getLevelInfo(c).get(2)}"
+                            escape="false"/>
           </t:column>
 
           <t:column styleClass="#{actionTournaments.getLevelStyle(c, 3)}">
-            <f:facet name="header">Level 3</f:facet>
-            <h:outputText value="#{actionTournaments.getLevelInfo(c).get(3)}"
-                          escape="false"/>
+              <f:facet name="header">Level 3</f:facet>
+              <h:outputText value="#{actionTournaments.getLevelInfo(c).get(3)}"
+                            escape="false"/>
           </t:column>
 
           <t:column>
@@ -94,8 +94,8 @@
                              styleClass="actionButton"/>
           </t:column>
         </t:dataTable>
-        <br/>
         <h:messages for="runningTournaments"/>
+        <br/>
       </h:form>
 
       <h:form rendered="#{user.isAdmin() and (actionTournaments.brokerList.size() > 0)}"
@@ -105,50 +105,48 @@
         <t:dataTable id="databrokers" border="1"
                      value="#{actionTournaments.brokerList}" var="broker">
 
-            <t:column>
-                <f:facet name="header">ID</f:facet>
-                <h:outputText value="#{broker.brokerId}"/>
-            </t:column>
+          <t:column>
+              <f:facet name="header">ID</f:facet>
+              <h:outputText value="#{broker.brokerId}"/>
+          </t:column>
 
-            <t:column>
-                <f:facet name="header">Name</f:facet>
-                <h:outputText value="#{broker.brokerName}"/>
-            </t:column>
+          <t:column>
+              <f:facet name="header">Name</f:facet>
+              <h:outputText value="#{broker.brokerName}"/>
+          </t:column>
 
-            <t:column>
-                <f:facet name="header">Registered</f:facet>
-                <h:outputText value="#{broker.getTournamentsString()}"/>
-            </t:column>
+          <t:column>
+              <f:facet name="header">Registered</f:facet>
+              <h:outputText value="#{broker.getTournamentsString(false)}"/>
+          </t:column>
 
-            <t:column style="text-align: right">
-                <f:facet name="header">Add</f:facet>
-                <h:selectOneMenu value="#{broker.registerTournamentId}"
-                                 styleClass="smallButton">
-                    <f:selectItems
-                            value="#{actionTournaments.getAvailableTournaments(broker)}"
-                            var="t"
-                            itemValue="#{t.tournamentId}"
-                            itemLabel="#{t.tournamentName}"
-                            rendered="{(t.maxBrokers != t.numberRegistered)}"/>
-                </h:selectOneMenu>
-                <h:commandButton value="Register" styleClass="smallButton"
-                                 action="#{actionTournaments.register(broker)}"/>
-            </t:column>
+          <t:column style="text-align: right">
+              <f:facet name="header">Add</f:facet>
+              <h:selectOneMenu value="#{broker.registerTournamentId}"
+                               styleClass="smallButton">
+                  <f:selectItems
+                          value="#{broker.getAvailableTournaments()}"
+                          var="t"
+                          itemValue="#{t.tournamentId}"
+                          itemLabel="#{t.tournamentName}"/>
+              </h:selectOneMenu>
+              <h:commandButton value="Register" styleClass="smallButton"
+                               action="#{actionTournaments.register(broker)}"/>
+          </t:column>
 
-            <t:column style="text-align: right">
-                <f:facet name="header">Remove</f:facet>
-                <h:selectOneMenu value="#{broker.unregisterTournamentId}"
-                                 styleClass="smallButton">
-                    <f:selectItems
-                            value="#{actionTournaments.getRegisteredTournaments(broker)}"
-                            var="t"
-                            itemValue="#{t.tournamentId}"
-                            itemLabel="#{t.tournamentName}"
-                            rendered="{(t.maxBrokers != t.numberRegistered)}"/>
-                </h:selectOneMenu>
-                <h:commandButton value="Unregister" styleClass="smallButton"
-                                 action="#{actionTournaments.unregister(broker)}"/>
-            </t:column>
+          <t:column style="text-align: right">
+              <f:facet name="header">Remove</f:facet>
+              <h:selectOneMenu value="#{broker.unregisterTournamentId}"
+                               styleClass="smallButton">
+                  <f:selectItems
+                          value="#{broker.getRegisteredTournaments()}"
+                          var="t"
+                          itemValue="#{t.tournamentId}"
+                          itemLabel="#{t.tournamentName}"/>
+              </h:selectOneMenu>
+              <h:commandButton value="Unregister" styleClass="smallButton"
+                               action="#{actionTournaments.unregister(broker)}"/>
+          </t:column>
         </t:dataTable>
         <h:messages for="tournamentRegistered" layout=""/>
         <br/>
@@ -182,22 +180,22 @@
           <h:panelGroup/>
           <h:panelGroup><br/></h:panelGroup>
 
-          <ui:repeat value="#{actionTournaments.levels}" var="r">
+          <ui:repeat value="#{actionTournaments.levels}" var="t">
             <tr>
-              <td><h:outputText value="Level #{r.levelNr} name"/></td>
-              <td><h:inputText value="#{r.levelName}"
-                               disabled="#{actionTournaments.disabledArray[r.levelNr]}"
+              <td><h:outputText value="Level #{t.levelNr} name"/></td>
+              <td><h:inputText value="#{t.levelName}"
+                               disabled="#{actionTournaments.disabledArray[t.levelNr]}"
                                styleClass="input_wide" /></td>
             </tr>
             <tr>
               <td><h:outputText value="Rounds / winners" /></td>
               <td>
                 <h:panelGroup>
-                  <h:inputText value="#{r.nofRounds}"
-                               readonly="#{actionTournaments.disabledArray[r.levelNr]}"
+                  <h:inputText value="#{t.nofRounds}"
+                               readonly="#{actionTournaments.disabledArray[t.levelNr]}"
                                styleClass="input_small" />
-                  <h:inputText value="#{r.nofWinners}"
-                               readonly="#{actionTournaments.disabledArray[r.levelNr]}"
+                  <h:inputText value="#{t.nofWinners}"
+                               readonly="#{actionTournaments.disabledArray[t.levelNr]}"
                                styleClass="input_small" />
                 </h:panelGroup>
               </td>
@@ -206,9 +204,9 @@
               <td><h:outputText value="StartTime UTC"/></td>
               <td>
                 <h:panelGroup>
-                  <t:inputDate value="#{r.startTime}"
-                               readonly="#{actionTournaments.disabledArray[r.levelNr]}"
-                               disabled="#{actionTournaments.disabledArray[r.levelNr]}"
+                  <t:inputDate value="#{t.startTime}"
+                               readonly="#{actionTournaments.disabledArray[t.levelNr]}"
+                               disabled="#{actionTournaments.disabledArray[t.levelNr]}"
                                id="levelStartTime" ampm="false" type="both"/>
                 </h:panelGroup>
               </td>

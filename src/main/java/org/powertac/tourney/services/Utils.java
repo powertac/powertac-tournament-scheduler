@@ -98,6 +98,16 @@ public class Utils
     }
   }
 
+  public static String dateToStringMedium (Date date)
+  {
+    try {
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+      return sdf.format(date);
+    } catch (Exception e) {
+      return "";
+    }
+  }
+
   public static String dateToStringSmall (Date date)
   {
     try {

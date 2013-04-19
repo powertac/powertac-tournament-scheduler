@@ -1,11 +1,5 @@
 function resizeTables() {
-    $("[id$=dataresultsSingle]").dataTable({
-        "bFilter": false,
-        "bInfo": false,
-        "bPaginate": false
-    });
-
-    $("[id$=dataresultsMulti]").dataTable({
+    $("[id$=dataResults]").dataTable({
         "bFilter": false,
         "bInfo": false,
         "bPaginate": false,

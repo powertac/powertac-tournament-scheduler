@@ -82,17 +82,15 @@ CREATE TABLE `tourney`.`rounds` (
   `dateTo`      DATETIME                                   NOT NULL,
   `maxBrokers`  INT(11)                                    NOT NULL,
   `maxAgents`   INT(11)                                    NOT NULL DEFAULT 2,
-  `state`       ENUM('pending', 'in_progress', 'complete') NOT NULL,
   `gameSize1`   INT(11)                                    NOT NULL,
   `gameSize2`   INT(11)                                    NOT NULL,
   `gameSize3`   INT(11)                                    NOT NULL,
   `multiplier1` INT(11)                                    NOT NULL,
   `multiplier2` INT(11)                                    NOT NULL,
   `multiplier3` INT(11)                                    NOT NULL,
-  `type`        ENUM('SINGLE_GAME', 'MULTI_GAME')          NOT NULL, /* Type is either MULTI_GAME or SINGLE_GAME. If single ignore gameSize params */
-  `pomId`       INT(11)                                    NOT NULL, /* This will be a foreign key to poms.pomId */
-  `locations`   VARCHAR(256)                               NOT NULL, /* This will be a comma delimited list for now */
-  `closed`      TINYINT(1)                                 NOT NULL,
+  `pomId`       INT(11)                                    NOT NULL,
+  `locations`   VARCHAR(256)                               NOT NULL,
+  `state`       ENUM('pending', 'in_progress', 'complete') NOT NULL,
   PRIMARY KEY (`roundId`),
   CONSTRAINT round_refs1 FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`),
   CONSTRAINT round_refs2 FOREIGN KEY (`levelId`) REFERENCES `tourney`.`levels` (`levelId`)

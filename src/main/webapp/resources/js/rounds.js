@@ -4,24 +4,19 @@ function showGamesCount() {
 
     var elems = saveRound.elements;
     var gameName = elems[0].value;
-    var type = elems[1].value;
-    var maxBrokers = parseInt(elems[2].value);
-    var maxAgents = parseInt(elems[3].value);
-    var gameType1 = parseInt(elems[4].value);
-    var multiplier1 = parseInt(elems[5].value);
-    var gameType2 = parseInt(elems[6].value);
-    var multiplier2 = parseInt(elems[7].value);
-    var gameType3 = parseInt(elems[8].value);
-    var multiplier3 = parseInt(elems[9].value);
+    var maxBrokers = parseInt(elems[1].value);
+    var maxAgents = parseInt(elems[2].value);
+    var gameType1 = parseInt(elems[3].value);
+    var multiplier1 = parseInt(elems[4].value);
+    var gameType2 = parseInt(elems[5].value);
+    var multiplier2 = parseInt(elems[6].value);
+    var gameType3 = parseInt(elems[7].value);
+    var multiplier3 = parseInt(elems[8].value);
 
     setText("totalGames", "");
     setText("total1", "");
     setText("total2", "");
     setText("total3", "");
-
-    if (type == 'SINGLE_GAME') {
-        return;
-    }
 
     var gameDuration = (gameName.toLowerCase().indexOf("test") > -1) ? 0.4 : 2;
     var totalGames1 = 0;
@@ -99,25 +94,3 @@ function calculateGames(players, gametype, multiplier) {
 
     return calculateGames(players - 1, gametype, multiplier) + calculateGames(players - 1, gametype - 1, multiplier);
 }
-
-function typeSelected() {
-    var elems = saveRound.elements;
-    var type = elems[1].value;
-    var table = document.getElementById("saveRound:roundTable");
-
-    if (type == 'MULTI_GAME') {
-        table.rows[3].style.display = "";
-        table.rows[4].style.display = "";
-        table.rows[5].style.display = "";
-    } else if (type == 'SINGLE_GAME') {
-        table.rows[3].style.display = "none";
-        table.rows[4].style.display = "none";
-        table.rows[5].style.display = "none";
-    }
-
-    showGamesCount();
-}
-
-$(document).ready(function () {
-    typeSelected();
-});

@@ -175,12 +175,10 @@ public class Game implements Serializable
         break;
 
       case game_ready:
-        round.setStateToInProgress();
         readyTime = Utils.offsetDate();
         break;
 
       case game_in_progress:
-        round.setStateToInProgress();
         break;
 
       case game_complete:
@@ -395,10 +393,6 @@ public class Game implements Serializable
   @Transient
   public int getGameTypeIndex ()
   {
-    if (round.isSingle()) {
-      return 0;
-    }
-
     String[] parts = gameName.split("_");
     return Integer.parseInt(parts[parts.length - 3]) - 1;
   }
@@ -471,19 +465,10 @@ public class Game implements Serializable
 
   //<editor-fold desc="Collections">
   @SuppressWarnings("unchecked")
-  public static List<Game> getBootableSingleGames (Session session)
-  {
-    return (List<Game>) session
-        .createQuery(Constants.HQL.GET_GAMES_SINGLE_BOOT_PENDING)
-        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
-  }
-
-  @SuppressWarnings("unchecked")
-  public static List<Game> getBootableMultiGames (Session session,
-                                                  Round round)
+  public static List<Game> getBootableGames (Session session, Round round)
   {
     List<Game> fullList = (List<Game>) session
-        .createQuery(Constants.HQL.GET_GAMES_MULTI_BOOT_PENDING)
+        .createQuery(Constants.HQL.GET_GAMES_BOOT_PENDING)
         .setInteger("roundId", round.getRoundId())
         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
@@ -495,20 +480,10 @@ public class Game implements Serializable
   }
 
   @SuppressWarnings("unchecked")
-  public static List<Game> getStartableSingleGames (Session session)
-  {
-    return (List<Game>) session
-        .createQuery(Constants.HQL.GET_GAMES_SINGLE_BOOT_COMPLETE)
-        .setTimestamp("startTime", Utils.offsetDate())
-        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
-  }
-
-  @SuppressWarnings("unchecked")
-  public static List<Game> getStartableMultiGames (Session session,
-                                                   Round round)
+  public static List<Game> getStartableGames (Session session, Round round)
   {
     List<Game> fullList = (List<Game>) session
-        .createQuery(Constants.HQL.GET_GAMES_MULTI_BOOT_COMPLETE)
+        .createQuery(Constants.HQL.GET_GAMES_BOOT_COMPLETE)
         .setInteger("roundId", round.getRoundId())
         .setTimestamp("startTime", Utils.offsetDate())
         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();

@@ -50,29 +50,11 @@
 
       <h:form rendered="#{actionRound.getResultMap().size() > 0}">
         <h3>Totals</h3>
-        <t:dataTable id="dataresultsSingle" border="1"
-                     style="border:1px solid black;border-collapse:collapse;"
-                     columnClasses=",right"
-                     value="#{actionRound.resultMap.keySet()}" var="broker"
-                     rendered="#{actionRound.round.isSingle()}">
-          <t:column>
-            <f:facet name="header">Broker</f:facet>
-            <h:outputText value="#{broker.brokerName}"/>
-          </t:column>
 
-          <t:column>
-            <f:facet name="header">Total</f:facet>
-            <h:outputText value="#{actionRound.resultMap.get(broker)[0]}">
-              <f:convertNumber minFractionDigits="4" groupingUsed="false"/>
-            </h:outputText>
-          </t:column>
-        </t:dataTable>
-
-        <t:dataTable id="dataresultsMulti" border="1"
+        <t:dataTable id="dataResults" border="1"
                      style="border:1px solid black;border-collapse:collapse;"
                      columnClasses=",right,right,right,right,right,right,right,right,right,right,right,right,right,right"
-                     value="#{actionRound.resultMap.keySet()}" var="broker"
-                     rendered="#{actionRound.round.isMulti()}">
+                     value="#{actionRound.resultMap.keySet()}" var="broker">
           <t:column>
             <f:facet name="header">Broker</f:facet>
             <h:outputText value="#{broker.getBrokerName()}"/>
@@ -133,7 +115,7 @@
       </h:form>
 
       <h:panelGroup
-          rendered="#{actionRound.round.isMulti() and actionRound.avgsAndSDs.size() > 0}">
+          rendered="#{actionRound.avgsAndSDs.size() > 0}">
         <br/>
         <table>
           <tbody>
@@ -178,7 +160,7 @@
       </h:panelGroup>
 
       <h:panelGroup
-          rendered="#{actionRound.round.isMulti() and actionRound.avgsAndSDs.size() == 0}">
+          rendered="#{actionRound.avgsAndSDs.size() == 0}">
         <br/>
         <h4>No game-data available yet</h4>
       </h:panelGroup>

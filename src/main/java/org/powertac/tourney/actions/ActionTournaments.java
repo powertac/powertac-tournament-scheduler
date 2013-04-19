@@ -51,19 +51,9 @@ public class ActionTournaments
     return brokerList;
   }
 
-  public List<Tournament> getAvailableTournaments (Broker b)
-  {
-    return b.getAvailableTournaments();
-  }
-
-  public List<Tournament> getRegisteredTournaments (Broker b)
-  {
-    return b.getRegisteredTournaments();
-  }
-
   public void register (Broker b)
   {
-    if (!(b.getRegisterRoundId() > 0)) {
+    if (!(b.getRegisterTournamentId() > 0)) {
       return;
     }
 
@@ -79,7 +69,7 @@ public class ActionTournaments
 
   public void unregister (Broker b)
   {
-    if (!(b.getUnregisterRoundId() > 0)) {
+    if (!(b.getUnregisterTournamentId() > 0)) {
       return;
     }
 
@@ -92,10 +82,6 @@ public class ActionTournaments
       User.reloadUser(user);
     }
   }
-
-
-
-
 
   public List<String> getLevelInfo (Tournament tournament)
   {
@@ -139,14 +125,6 @@ public class ActionTournaments
     try {
       tournament.setStateToClosed();
       session.saveOrUpdate(tournament);
-
-      // Also close round(s) of first level
-      Level level = tournament.getLevelMap().get(0);
-      for (Round round : level.getRoundMap().values()) {
-        round.setClosed(true);
-        session.update(round);
-      }
-
       transaction.commit();
     } catch (Exception e) {
       transaction.rollback();
@@ -429,7 +407,11 @@ public class ActionTournaments
           messages.add("The # rounds of level " + levelNr + " is smaller than 1");
         }
         if (level.getNofWinners() < 1)  {
-          messages.add("The # winners of level " + levelNr + "  is smaller than 1");
+          messages.add("The # winners of level " + levelNr + " is smaller than 1");
+        }
+        if (level.getNofRounds() > level.getNofWinners() &&
+            level.getNofRounds() >= 1 && level.getNofWinners() >= 1) {
+          messages.add("The # rounds of level " + levelNr + " is larger than the # of winners");
         }
 
         if (levelNr > 0) {

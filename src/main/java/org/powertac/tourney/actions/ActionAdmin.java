@@ -46,7 +46,7 @@ public class ActionAdmin
 
   private TournamentProperties properties = TournamentProperties.getProperties();
 
-  private List<Round> availableRounds = new ArrayList<Round>();
+  private List<Round> availableRounds;
 
   public ActionAdmin ()
   {
@@ -57,10 +57,9 @@ public class ActionAdmin
   @SuppressWarnings("unchecked")
   private void loadData ()
   {
+    availableRounds = new ArrayList<Round>();
     for (Round round : Round.getNotCompleteRoundList()) {
-      if (round.isMulti()) {
-        availableRounds.add(round);
-      }
+      availableRounds.add(round);
     }
 
     Collections.sort(availableRounds, new Utils.AlphanumComparator());
@@ -88,7 +87,7 @@ public class ActionAdmin
     log.info("Unloading Round");
 
     Scheduler scheduler = Scheduler.getScheduler();
-    scheduler.Round();
+    scheduler.unloadRound();
   }
 
   public List<Round> getAvailableRounds ()

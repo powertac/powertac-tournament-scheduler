@@ -15,15 +15,13 @@
       <script type="text/javascript" charset="utf8"
               src="resources/js/overview.js"></script>
 
-      <h2>Overview</h2>
-
       <h:form
           rendered="#{(user.isAdmin()) and (actionOverview.brokerList.size() > 0)}"
           id="brokersForm">
         <h3 class="withButton">Registered Brokers</h3>
         <h:commandButton value="Refresh"/>
         <input id="toggleSampleButton" type="button" value="Hide sample"
-               onclick="toggleSample();"/>
+               onclick="toggleActiveBrokers();"/>
         <t:dataTable id="databrokers" border="1"
                      value="#{actionOverview.brokerList}" var="broker">
 
@@ -47,14 +45,19 @@
             <h:outputText value="#{broker.user.userName}"/>
           </t:column>
 
+          <h:column>
+              <f:facet name="header">Tournaments</f:facet>
+              <h:outputText value="#{broker.getTournamentsString(true)}"/>
+          </h:column>
+
           <t:column>
-            <f:facet name="header">Registered</f:facet>
-            <h:outputText value="#{broker.getRoundsString()}"/>
+            <f:facet name="header">Rounds</f:facet>
+            <h:outputText value="#{broker.getRoundsString(true)}"/>
           </t:column>
 
           <t:column>
-            <f:facet name="header">Running</f:facet>
-            <h:outputText value="#{broker.getRunningString()}"/>
+            <f:facet name="header">Games</f:facet>
+            <h:outputText value="#{broker.getRunningGamesString()}"/>
           </t:column>
 
           <t:column>
@@ -93,13 +96,6 @@
           <t:column>
             <f:facet name="header">Status</f:facet>
             <h:outputText value="#{t.state}"/>
-            <h:outputText value=" / closed" rendered="#{t.closed}"/>
-          </t:column>
-
-          <t:column>
-            <f:facet name="header">Type</f:facet>
-            <h:outputText value="Multi" rendered="#{t.isMulti()}"/>
-            <h:outputText value="Single" rendered="#{t.isSingle()}"/>
           </t:column>
 
           <t:column>
@@ -110,15 +106,17 @@
           <t:column>
             <f:facet name="header">Reg / Max</f:facet>
             <h:outputText value="#{t.brokerMap.size()} / #{t.maxBrokers}"/>
-            <h:outputText value=" : #{t.maxAgents}"
-                          rendered="#{t.isMulti()}"/>
+            <h:outputText value=" : #{t.maxAgents}"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">Games</f:facet>
-            <h:outputText
-                value="#{t.size1} (#{t.multiplier1})  #{t.size2} (#{t.multiplier2})  #{t.size3} (#{t.multiplier3})"
-                rendered="#{t.isMulti()}"/>
+            <h:outputText value="#{t.size1}:#{t.multiplier1}"
+                          rendered="#{t.size1 > 0 and t.multiplier1 > 0}"/>
+            <h:outputText value=" #{t.size2}:#{t.multiplier2}"
+                          rendered="#{t.size2 > 0 and t.multiplier2 > 0}"/>
+            <h:outputText value=" #{t.size3}:#{t.multiplier3}"
+                          rendered="#{t.size3 > 0 and t.multiplier3 > 0}"/>
           </t:column>
 
           <t:column>
@@ -128,12 +126,6 @@
             </a>
           </t:column>
 
-          <t:column styleClass="left">
-            <f:facet name="header">Actions</f:facet>
-            <h:commandButton value="Now" action="#{actionOverview.startNow(t)}"
-                             onclick="return confirmAlert('This will start all the games in this round now. Proceed?');"
-                             rendered="#{!t.isStarted()}"/>
-          </t:column>
         </t:dataTable>
 
         <h:messages for="roundForm"/>
@@ -149,7 +141,7 @@
         <h3 class="withButton" id="gamesFormHeader">Pending/Running Games</h3>
         <h:commandButton value="Refresh"/>
         <input id="toggleActiveButton" type="button" value="Hide inactive"
-               onclick="toggleActive();"/>
+               onclick="toggleActiveGames();"/>
         <t:dataTable id="dataGames" border="1"
                      value="#{actionOverview.notCompleteGamesList}" var="g">
           <t:column>
