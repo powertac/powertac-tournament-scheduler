@@ -228,7 +228,7 @@ public class ActionTournaments
       setValues(session, tournament);
       createLevels(session, tournament);
       // Create first round(s) so brokers can register
-      tournament.scheduleRounds(session);
+      tournament.scheduleLevel(session);
       transaction.commit();
     } catch (ConstraintViolationException ignored) {
       transaction.rollback();

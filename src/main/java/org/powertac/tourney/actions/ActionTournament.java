@@ -5,9 +5,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tourney.beans.*;
 import org.powertac.tourney.constants.Constants;
-import org.powertac.tourney.services.HibernateUtil;
-import org.powertac.tourney.services.MemStore;
-import org.powertac.tourney.services.Utils;
+import org.powertac.tourney.services.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -24,6 +22,7 @@ public class ActionTournament
   private Tournament tournament;
   private List<String> tournamentInfo = new ArrayList<String>();
   private List<String> participantInfo = new ArrayList<String>();
+  private List<String> csvLinks = new ArrayList<String>();
 
   private static boolean editing;
   private String content;
@@ -55,6 +54,7 @@ public class ActionTournament
 
       loadTournamentInfo();
       loadParticipantInfo();
+      loadCsvLinks();
       transaction.commit();
     } catch (Exception e) {
       transaction.rollback();
@@ -125,6 +125,16 @@ public class ActionTournament
     }
 
     java.util.Collections.sort(participantInfo);
+  }
+
+  private void loadCsvLinks ()
+  {
+    csvLinks = CSV.getTournamentCsvLinks(tournament);
+  }
+
+  public void createCsv ()
+  {
+    CSV.createTournamentCsv(tournament);
   }
 
   public List<Broker> getAllowedBrokers ()
@@ -288,6 +298,11 @@ public class ActionTournament
   public List<String> getParticipantInfo ()
   {
     return participantInfo;
+  }
+
+  public List<String> getCsvLinks ()
+  {
+    return csvLinks;
   }
   //</editor-fold>
 }

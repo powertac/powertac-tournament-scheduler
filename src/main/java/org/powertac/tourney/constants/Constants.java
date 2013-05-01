@@ -90,6 +90,8 @@ public class Constants
         "FROM Tournament AS tournament "
             + "LEFT JOIN FETCH tournament.levelMap AS levelMap "
             + "LEFT JOIN FETCH levelMap.roundMap AS roundMap "
+            + "LEFT JOIN FETCH roundMap.gameMap AS gameMap "
+            + "LEFT JOIN FETCH gameMap.agentMap as agentMap "
             + "LEFT JOIN FETCH roundMap.brokerMap AS brokerMap "
             + "WHERE tournament.tournamentId =:tournamentId";
 

@@ -311,27 +311,33 @@ public class Game implements Serializable
     return STATE.hasBootstrap.contains(state);
   }
 
-  public void setStateBootPending () {
+  public void setStateBootPending ()
+  {
     this.state = STATE.boot_pending;
   }
 
-  public void setStateBootInProgress () {
+  public void setStateBootInProgress ()
+  {
     this.state = STATE.boot_in_progress;
   }
 
-  public void setStateBootComplete () {
+  public void setStateBootComplete ()
+  {
     this.state = STATE.boot_complete;
   }
 
-  public void setStateBootFailed () {
+  public void setStateBootFailed ()
+  {
     this.state = STATE.boot_failed;
   }
 
-  public void setStateGamePending () {
+  public void setStateGamePending ()
+  {
     this.state = STATE.game_pending;
   }
 
-  public void setStateGameFailed () {
+  public void setStateGameFailed ()
+  {
     this.state = STATE.game_failed;
   }
 
@@ -365,23 +371,28 @@ public class Game implements Serializable
     return isBootFailed() || isGameFailed();
   }
 
-  public static String getStateBootPending () {
+  public static String getStateBootPending ()
+  {
     return STATE.boot_pending.toString();
   }
 
-  public static String getStateBootInProgress () {
+  public static String getStateBootInProgress ()
+  {
     return STATE.boot_in_progress.toString();
   }
 
-  public static String getStateBootComplete () {
+  public static String getStateBootComplete ()
+  {
     return STATE.boot_complete.toString();
   }
 
-  public static String getStateGamePending () {
+  public static String getStateGamePending ()
+  {
     return STATE.game_pending.toString();
   }
 
-  public static String getStateGameReady () {
+  public static String getStateGameReady ()
+  {
     return STATE.game_ready.toString();
   }
 

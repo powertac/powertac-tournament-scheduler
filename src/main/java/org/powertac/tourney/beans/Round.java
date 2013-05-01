@@ -49,6 +49,7 @@ public class Round
 
   public Round ()
   {
+    state = STATE.pending;
   }
 
   public String delete ()
@@ -127,7 +128,7 @@ public class Round
     }
 
     // Always generate new CSVs
-    CSV.createCsv(this);
+    CSV.createRoundCsv(this);
   }
 
   public static String getStateComplete ()
@@ -148,7 +149,7 @@ public class Round
   }
 
   //<editor-fold desc="Winner determination">
-  public Map<Broker, Double[]> determineWinner ()
+  public Map<Broker, double[]> determineWinner ()
   {
     // Col 0  = result gameType 1
     // Col 1  = result gameType 2
@@ -165,9 +166,9 @@ public class Round
     // Col 12 = normalized result gameType 3
     // Col 13 = total normalized
 
-    Map<Broker, Double[]> resultMap = new HashMap<Broker, Double[]>();
-    Double[] averages = new Double[]{0.0, 0.0, 0.0};
-    Double[] SD = new Double[]{0.0, 0.0, 0.0};
+    Map<Broker, double[]> resultMap = new HashMap<Broker, double[]>();
+    double[] averages = new double[3];
+    double[] SD = new double[3];
 
     // Get the not-normalized results into the map
     for (Game game: gameMap.values()) {
@@ -175,12 +176,10 @@ public class Round
 
       for (Agent agent: game.getAgentMap().values()) {
         if (!resultMap.containsKey(agent.getBroker())) {
-          resultMap.put(agent.getBroker(), new Double[]{
-              0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-              0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+          resultMap.put(agent.getBroker(), new double[14]);
         }
 
-        Double[] results = resultMap.get(agent.getBroker());
+        double[] results = resultMap.get(agent.getBroker());
         results[gameTypeIndex] += agent.getBalance();
         averages[gameTypeIndex] += agent.getBalance();
         results[3] = results[0] + results[1] + results[2];
@@ -194,7 +193,7 @@ public class Round
 
     // Put averages in map, calculate SD
     for (Broker broker: resultMap.keySet()) {
-      Double[] results = resultMap.get(broker);
+      double[] results = resultMap.get(broker);
       results[4] = averages[0];
       results[5] = averages[1];
       results[6] = averages[2];
@@ -211,7 +210,7 @@ public class Round
 
     // Put SDs in map, calculate normalized results and total
     for (Broker broker: resultMap.keySet()) {
-      Double[] results = resultMap.get(broker);
+      double[] results = resultMap.get(broker);
       results[7] = SD[0];
       results[8] = SD[1];
       results[9] = SD[2];
@@ -242,12 +241,12 @@ public class Round
 
   public List<Broker> rankList ()
   {
-    final Map<Broker, Double[]> winnersMap = determineWinner();
+    final Map<Broker, double[]> winnersMap = determineWinner();
 
     class CustomComparator implements Comparator<Broker> {
       @Override
       public int compare(Broker b1, Broker b2) {
-        return winnersMap.get(b2)[13].compareTo(winnersMap.get(b1)[13]);
+        return ((Double) winnersMap.get(b2)[13]).compareTo(winnersMap.get(b1)[13]);
       }
     }
 
@@ -289,11 +288,6 @@ public class Round
   public String dateToUTC ()
   {
     return Utils.dateToStringFull(dateTo);
-  }
-
-  public void setStateToPending ()
-  {
-    this.setState(STATE.pending);
   }
 
   public void setStateToInProgress ()
@@ -376,16 +370,17 @@ public class Round
     return rounds;
   }
 
-  public List<Double> getAvgsAndSDs (Map<Broker, Double[]> resultMap)
+  public double[] getAvgsAndSDsArray (Map<Broker, double[]> resultMap)
   {
-    List<Double> result = new ArrayList<Double>();
-
     if (resultMap.size() > 0) {
-      Map.Entry<Broker, Double[]> entry = resultMap.entrySet().iterator().next();
-      result.addAll(Arrays.asList(entry.getValue()).subList(4, 10));
+      Map.Entry<Broker, double[]> entry = resultMap.entrySet().iterator().next();
+      double[] temp = Arrays.copyOfRange(entry.getValue(), 4, 10);
+      if (!Arrays.equals(temp, new double[6])) {
+        return temp;
+      }
     }
 
-    return result;
+    return null;
   }
   //</editor-fold>
 

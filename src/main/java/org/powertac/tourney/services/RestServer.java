@@ -13,6 +13,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tourney.beans.Game;
 import org.powertac.tourney.beans.Location;
+import org.powertac.tourney.beans.User;
 import org.powertac.tourney.constants.Constants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -154,7 +155,10 @@ public class RestServer
   public String parseProperties (Map<String, String[]> params,
                                  HttpServletRequest request)
   {
-    if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
+    // Allow slaves and admin users
+    User user = User.getCurrentUser();
+    if (!MemStore.checkMachineAllowed(request.getRemoteAddr()) &&
+        !user.isAdmin()) {
       return "error";
     }
 
@@ -200,7 +204,7 @@ public class RestServer
     result += String.format(Constants.Props.vizQ, game.getVisualizerQueue());
 
     int minTimeslotCount =
-        properties.getPropertyInt("competition.minimumTimeslotCount", "1400");
+        properties.getPropertyInt("competition.minimumTimeslotCount", "1320");
     int expTimeslotCount =
         properties.getPropertyInt("competition.expectedTimeslotCount", "1440");
     if (game.getGameName().toLowerCase().contains("test")) {

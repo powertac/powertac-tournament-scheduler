@@ -14,8 +14,6 @@
       <h2>Account for user: #{user.userName}</h2>
 
       <h:form id="accountForm3" rendered="#{user.isLoggedIn()}">
-        <h4>Details</h4>
-
         <h:panelGrid columns="2" styleClass="left fixed_height">
           <h:outputText value="Institution"/>
           <h:outputText value="#{actionAccount.user.institution}"

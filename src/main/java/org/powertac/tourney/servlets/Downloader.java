@@ -35,7 +35,8 @@ public class Downloader extends HttpServlet
       response.addHeader("Content-Disposition", "attachment; filename=\""
           + downloadFile + "\"");
       streamFile(response, downloadFile);
-    } else if (csvName != null) {
+    }
+    else if (csvName != null) {
       String downloadFile = csvName + ".csv";
       response.setContentType("text/csv");
       response.addHeader("Content-Disposition", "attachment; filename=\""

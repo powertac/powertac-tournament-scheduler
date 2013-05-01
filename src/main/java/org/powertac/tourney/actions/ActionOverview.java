@@ -24,7 +24,7 @@ public class ActionOverview
   private List<Game> notCompleteGamesList = new ArrayList<Game>();
   private List<Round> notCompleteRoundList = new ArrayList<Round>();
 
-  private boolean hideSample = false;
+  private boolean hideSample = true;
   private boolean hideInactive = true;
 
   public ActionOverview ()

@@ -48,7 +48,7 @@
                value="#{actionRound.round.roundId}"/>
       </h:form>
 
-      <h:form rendered="#{actionRound.getResultMap().size() > 0}">
+      <h:panelGroup rendered="#{actionRound.avgsAndSDs != null}">
         <h3>Totals</h3>
 
         <t:dataTable id="dataResults" border="1"
@@ -112,27 +112,24 @@
             </h:outputText>
           </t:column>
         </t:dataTable>
-      </h:form>
 
-      <h:panelGroup
-          rendered="#{actionRound.avgsAndSDs.size() > 0}">
         <br/>
         <table>
           <tbody>
           <tr>
             <td><h4>Averages</h4></td>
             <td class="right">
-              <h:outputText value="#{actionRound.avgsAndSDs.get(0)}">
+              <h:outputText value="#{actionRound.avgsAndSDs[0]}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
               </h:outputText>
             </td>
             <td class="right">
-              <h:outputText value="#{actionRound.avgsAndSDs.get(1)}">
+              <h:outputText value="#{actionRound.avgsAndSDs[1]}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
               </h:outputText>
             </td>
             <td class="right">
-              <h:outputText value="#{actionRound.avgsAndSDs.get(2)}">
+              <h:outputText value="#{actionRound.avgsAndSDs[2]}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
               </h:outputText>
             </td>
@@ -140,17 +137,17 @@
           <tr>
             <td><h4>Standard deviations</h4></td>
             <td class="right">
-              <h:outputText value="#{actionRound.avgsAndSDs.get(3)}">
+              <h:outputText value="#{actionRound.avgsAndSDs[3]}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
               </h:outputText>
             </td>
             <td class="right">
-              <h:outputText value="#{actionRound.avgsAndSDs.get(4)}">
+              <h:outputText value="#{actionRound.avgsAndSDs[4]}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
               </h:outputText>
             </td>
             <td class="right">
-              <h:outputText value="#{actionRound.avgsAndSDs.get(5)}">
+              <h:outputText value="#{actionRound.avgsAndSDs[6]}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
               </h:outputText>
             </td>
@@ -159,8 +156,7 @@
         </table>
       </h:panelGroup>
 
-      <h:panelGroup
-          rendered="#{actionRound.avgsAndSDs.size() == 0}">
+      <h:panelGroup rendered="#{actionRound.avgsAndSDs == null}">
         <br/>
         <h4>No game-data available yet</h4>
       </h:panelGroup>

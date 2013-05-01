@@ -105,7 +105,7 @@ public class Machine
             Machine machine = (Machine) query.uniqueResult();
 
             if (machine == null) {
-              log.warn("Machine " + displayName + " doesn't exist in the TM");
+              log.warn("Machine " + displayName + " doesn't exist in the TS");
               continue;
             }
 

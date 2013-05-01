@@ -18,9 +18,11 @@
       <h:form
           rendered="#{(user.isAdmin()) and (actionOverview.brokerList.size() > 0)}"
           id="brokersForm">
+        <br/>
+
         <h3 class="withButton">Registered Brokers</h3>
         <h:commandButton value="Refresh"/>
-        <input id="toggleSampleButton" type="button" value="Hide sample"
+        <input id="toggleSampleButton" type="button" value="Hide inactive"
                onclick="toggleActiveBrokers();"/>
         <t:dataTable id="databrokers" border="1"
                      value="#{actionOverview.brokerList}" var="broker">
@@ -151,7 +153,8 @@
 
           <t:column>
             <f:facet name="header">Name</f:facet>
-            <h:link value="#{g.gameName}" outcome="Game">
+            <h:link value="#{g.gameName}" outcome="Game"
+                    style="white-space: nowrap;">
               <f:param name="gameId" value="#{g.gameId}"/>
             </h:link>
           </t:column>
@@ -164,7 +167,8 @@
 
           <t:column>
             <f:facet name="header">Brokers</f:facet>
-            <h:outputText value="#{g.getBrokerIdsInGameString()}"/>
+            <h:outputText value="#{g.getBrokerIdsInGameString()}"
+                          style="white-space: nowrap;"/>
           </t:column>
 
           <t:column>
@@ -177,23 +181,23 @@
             <f:facet name="header">Links</f:facet>
             <h:panelGroup>
               <h:outputLink value="properties.jsp?gameId=#{g.gameId}"
-                            target="_blank">Props</h:outputLink>
+                            target="_blank">P</h:outputLink>
 
-              <h:outputText value=" | " rendered="#{g.hasBootstrap()}"/>
+              <h:outputText value="&#160;" rendered="#{g.hasBootstrap()}"/>
               <h:outputLink
                   value="serverInterface.jsp?action=boot&amp;gameId=#{g.gameId}"
                   rendered="#{g.hasBootstrap()}"
-                  target="_blank">Boot</h:outputLink>
+                  target="_blank">B</h:outputLink>
 
-              <h:outputText value=" | " rendered="#{g.isRunning()}"/>
+              <h:outputText value="&#160;" rendered="#{g.isRunning()}"/>
               <h:outputLink value="http://#{g.machine.vizUrl}"
                             rendered="#{g.isRunning()}"
-                            target="_blank">Viz</h:outputLink>
+                            target="_blank">V</h:outputLink>
 
-              <h:outputText value=" | " rendered="#{g.machine != null}"/>
+              <h:outputText value="&#160;" rendered="#{g.machine != null}"/>
               <h:outputLink value="#{g.jenkinsMachineUrl()}"
                             rendered="#{g.machine != null}"
-                            target="_blank">Jenkins</h:outputLink>
+                            target="_blank">J</h:outputLink>
             </h:panelGroup>
           </t:column>
 

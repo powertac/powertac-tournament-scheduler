@@ -18,6 +18,10 @@ function showGamesCount() {
     setText("total2", "");
     setText("total3", "");
 
+    if (maxBrokers == 0 || maxAgents == 0) {
+        return;
+    }
+
     var gameDuration = (gameName.toLowerCase().indexOf("test") > -1) ? 0.4 : 2;
     var totalGames1 = 0;
     var totalGames2 = 0;

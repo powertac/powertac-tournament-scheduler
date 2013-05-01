@@ -7,13 +7,11 @@ import org.powertac.tourney.beans.*;
 import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.CSV;
 import org.powertac.tourney.services.HibernateUtil;
-import org.powertac.tourney.services.TournamentProperties;
 import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,8 +27,8 @@ public class ActionRound
   private List<String> participantInfo = new ArrayList<String>();
   private List<String> csvLinks = new ArrayList<String>();
   private Map<Integer, List> agentsMap = new HashMap<Integer, List>();
-  private Map<Broker, Double[]> resultMap = new HashMap<Broker, Double[]>();
-  private List<Double> avgsAndSDs = new ArrayList<Double>();
+  private Map<Broker, double[]> resultMap = new HashMap<Broker, double[]>();
+  private double[] avgsAndSDs;
 
   public ActionRound ()
   {
@@ -59,7 +57,7 @@ public class ActionRound
 
       loadRoundInfo();
       loadParticipantInfo();
-      addCsvLinks();
+      loadCsvLinks();
       loadMaps();
       transaction.commit();
     } catch (Exception e) {
@@ -87,7 +85,7 @@ public class ActionRound
   private void loadMaps ()
   {
     resultMap = round.determineWinner();
-    avgsAndSDs = round.getAvgsAndSDs(resultMap);
+    avgsAndSDs = round.getAvgsAndSDsArray(resultMap);
 
     for (Game game: round.getGameMap().values()) {
       List<Agent> agents = new ArrayList<Agent>();
@@ -136,45 +134,14 @@ public class ActionRound
     java.util.Collections.sort(participantInfo);
   }
 
-  private void addCsvLinks ()
+  private void loadCsvLinks ()
   {
-    TournamentProperties properties = TournamentProperties.getProperties();
-
-    String baseUrl = properties.getProperty("actionIndex.logUrl",
-        "download?game=%d");
-    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("game"));
-
-    String roundCsv = round.getRoundName() + ".csv";
-    String gamesCsv = round.getRoundName() + ".games.csv";
-
-    File roundFile = new File(String.format("%s%s",
-        properties.getProperty("logLocation"), roundCsv));
-    File gamesFile = new File(String.format("%s%s",
-        properties.getProperty("logLocation"), gamesCsv));
-
-    if (roundFile.exists()) {
-      if (baseUrl.endsWith("?")) {
-        roundCsv = "csv=" + round.getRoundName();
-      } else if (!baseUrl.endsWith("/")) {
-        baseUrl += "/";
-      }
-      csvLinks.add(String.format(
-          "Round csv : <a href=\"%s\">link</a>", baseUrl + roundCsv));
-    }
-    if (gamesFile.exists()) {
-      if (baseUrl.endsWith("?")) {
-        gamesCsv = "csv=" + round.getRoundName() + ".games";
-      } else if (!baseUrl.endsWith("/")) {
-        baseUrl += "/";
-      }
-      csvLinks.add(String.format(
-          "Games csv : <a href=\"%s\">link</a>", baseUrl + gamesCsv));
-    }
+    csvLinks = CSV.getRoundCsvLinks(round);
   }
 
   public void createCsv ()
   {
-    CSV.createCsv(round);
+    CSV.createRoundCsv(round);
   }
 
   //<editor-fold desc="Setters and Getters">
@@ -203,12 +170,12 @@ public class ActionRound
     return agentsMap;
   }
 
-  public Map<Broker, Double[]> getResultMap ()
+  public Map<Broker, double[]> getResultMap ()
   {
     return resultMap;
   }
 
-  public List<Double> getAvgsAndSDs ()
+  public double[] getAvgsAndSDs ()
   {
     return avgsAndSDs;
   }

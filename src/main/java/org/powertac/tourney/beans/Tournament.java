@@ -69,7 +69,7 @@ public class Tournament
     state = STATE.open;
   }
 
-  public void scheduleRounds (Session session)
+  public void scheduleLevel (Session session)
   {
     Level level = getCurrentLevel();
 
@@ -122,7 +122,6 @@ public class Tournament
     round.setDateTo(location.getDateTo());
     round.setLocations(location.getLocation() + ",");
     round.setPomId(pomId);
-    round.setStateToPending();
     session.save(round);
 
     level.getRoundMap().put(round.getRoundId(), round);
@@ -139,7 +138,7 @@ public class Tournament
 
     // Loop through rounds, pick top winners
     int winnersPerRound =
-        previousLevel.getNofWinners() / level.getNofRounds();
+        previousLevel.getNofWinners() / previousLevel.getNofRounds();
     List<Broker> winners = new ArrayList<Broker>();
     for (Round round : previousLevel.getRoundMap().values()) {
       List<Broker> roundWinners = round.rankList();
@@ -236,17 +235,17 @@ public class Tournament
     }
     else if (state == STATE.completed0) {
       state = STATE.scheduled1;
-      scheduleRounds(session);
+      scheduleLevel(session);
       scheduleBrokers(session);
     }
     else if (state == STATE.completed1) {
       state = STATE.scheduled2;
-      scheduleRounds(session);
+      scheduleLevel(session);
       scheduleBrokers(session);
     }
     else if (state == STATE.completed2) {
       state = STATE.scheduled3;
-      scheduleRounds(session);
+      scheduleLevel(session);
       scheduleBrokers(session);
     }
     else {

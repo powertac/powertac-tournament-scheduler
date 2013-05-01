@@ -69,6 +69,25 @@
         </t:dataList>
       </h:panelGroup>
 
+      <h:panelGroup rendered="#{actionTournament.csvLinks.size() > 0}">
+        <h4>CSV</h4>
+        <t:dataList var="infoEntry" value="#{actionTournament.csvLinks}"
+                    layout="unorderedList">
+            <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
+        </t:dataList>
+      </h:panelGroup>
+
+      <h:form rendered="#{user.isAdmin()}">
+        <h:commandButton action="#{actionTournament.createCsv}"
+                         value="Create or update CSV"
+                         styleClass="bigButton">
+            <f:ajax execute="@form" render="@form"/>
+        </h:commandButton>
+        <input type="hidden" name="tournamentId"
+               value="#{actionTournament.tournament.tournamentId}"/>
+        <br/>
+      </h:form>
+
     </ui:define>
   </ui:composition>
 </h:body>

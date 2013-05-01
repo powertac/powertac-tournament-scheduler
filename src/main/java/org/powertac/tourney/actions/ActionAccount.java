@@ -36,10 +36,6 @@ public class ActionAccount
   {
     if (brokers.size() == 0) {
       brokers.addAll(user.getBrokerMap().values());
-      /*for (Broker broker: user.getBrokerMap().values()) {
-        brokers.add(broker);
-      }*/
-
       Collections.sort(brokers, new Utils.AlphanumComparator());
     }
     return brokers;

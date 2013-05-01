@@ -83,10 +83,15 @@ function updateGames(data) {
         var sp = $(this).find('td:first-child span')[0];
         var orgRowNr = $(sp).attr("id").split(":")[2];
 
+        var spn = $('#gamesForm\\:dataGames\\:' + orgRowNr + '\\:heartbeat');
         if (data[$(sp).text()] != undefined) {
-            $('#gamesForm\\:dataGames\\:' + orgRowNr + '\\:heartbeat').html(data[$(sp).text()]);
+            var parts = data[$(sp).text()].split(" ");
+            var duration = Math.round((parts[2] - parts[0]) * 5 / 60);
+            spn.html(data[$(sp).text()]);
+            spn.attr("title", duration + " mins");
         } else {
-            $('#gamesForm\\:dataGames\\:' + orgRowNr + '\\:heartbeat').html("");
+            spn.html("");
+            spn.attr("title", "");
         }
     });
 
@@ -145,7 +150,7 @@ $(document).ready(function () {
     }
 
     if ($('#brokersForm\\:hideInactive').val() == 'true') {
-        toggleActiveBrokers();
+        toggleActiveGames();
     }
 
     updateTables();

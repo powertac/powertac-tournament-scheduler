@@ -138,7 +138,7 @@ public class Scheduler implements InitializingBean
 
   public void unloadRound ()
   {
-    log.info("Unloading Round");
+    log.info("Unloading Round " + runningRound.getRoundName());
     runningRound = null;
   }
 
