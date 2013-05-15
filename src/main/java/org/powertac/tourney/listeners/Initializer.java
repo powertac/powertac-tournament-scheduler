@@ -1,21 +1,24 @@
 package org.powertac.tourney.listeners;
 
+import org.powertac.tourney.services.HibernateUtil;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.util.Enumeration;
+import java.util.Set;
 
 public class Initializer implements ServletContextListener
 {
   public void contextDestroyed (ServletContextEvent e)
   {
-    Enumeration<Driver> drivers = DriverManager.getDrivers();
-    while (drivers.hasMoreElements()) {
-      Driver driver = drivers.nextElement();
-      try {
-        DriverManager.deregisterDriver(driver);
-      } catch (Exception ignored) {
+    HibernateUtil.shutdown();
+
+    Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+    Thread[] threadArray = threadSet.toArray(new Thread[threadSet.size()]);
+    for (Thread t: threadArray) {
+      if (t.getName().contains("Abandoned connection cleanup thread")) {
+        synchronized(t) {
+          t.stop(); //don't complain, it works
+        }
       }
     }
   }
