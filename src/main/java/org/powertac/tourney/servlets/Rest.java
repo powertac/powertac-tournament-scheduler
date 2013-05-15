@@ -1,6 +1,6 @@
 package org.powertac.tourney.servlets;
 
-import org.powertac.tourney.beans.Scheduler;
+import org.powertac.tourney.services.Scheduler;
 import org.powertac.tourney.services.MemStore;
 
 import javax.servlet.ServletException;

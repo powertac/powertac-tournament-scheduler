@@ -56,7 +56,7 @@
         <h:messages for="accountForm3"/>
       </h:form>
 
-      <h:form id="accountForm0" rendered="#{user.isLoggedIn()}">
+      <h:form id="accountForm0" rendered="#{user.isLoggedIn() and actionAccount.brokers.size() > 0}">
         <h4>Brokers in Tournaments, Rounds and (running) Games</h4>
         <h:dataTable border="1" id="brokers"
                      value="#{actionAccount.brokers}" var="broker">
@@ -93,7 +93,7 @@
         <h:messages for="accountForm0"/>
       </h:form>
 
-      <h:form id="accountForm1" rendered="#{user.isLoggedIn()}">
+      <h:form id="accountForm1" rendered="#{user.isLoggedIn() and actionAccount.brokers.size() > 0}">
         <br/>
         <h4>Manage Brokers</h4>
         <h:dataTable border="1" value="#{actionAccount.brokers}" var="broker">

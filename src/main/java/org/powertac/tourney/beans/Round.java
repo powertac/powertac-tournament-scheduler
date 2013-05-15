@@ -7,6 +7,7 @@ import org.hibernate.criterion.Restrictions;
 import org.powertac.tourney.constants.Constants;
 import org.powertac.tourney.services.CSV;
 import org.powertac.tourney.services.HibernateUtil;
+import org.powertac.tourney.services.Scheduler;
 import org.powertac.tourney.services.Utils;
 
 import javax.faces.bean.ManagedBean;

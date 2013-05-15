@@ -20,7 +20,7 @@
         <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
       </h:form>
 
-      <h:form>
+      <h:form rendered="#{user.isAdmin()}">
         <h:panelGroup rendered="#{!actionAdmin.getConfigErrors().isEmpty()}">
           <h:outputText value="There are config errors!" style="color: red;"/>
           <t:dataList var="infoEntry" value="#{actionAdmin.getConfigErrors()}"

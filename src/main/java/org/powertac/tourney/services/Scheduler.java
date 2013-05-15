@@ -1,11 +1,11 @@
-package org.powertac.tourney.beans;
+package org.powertac.tourney.services;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.powertac.tourney.beans.*;
 import org.powertac.tourney.constants.Constants;
-import org.powertac.tourney.services.*;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

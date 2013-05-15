@@ -6,6 +6,7 @@ import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.powertac.tourney.beans.*;
 import org.powertac.tourney.services.HibernateUtil;
+import org.powertac.tourney.services.Scheduler;
 import org.powertac.tourney.services.Utils;
 
 import javax.faces.application.FacesMessage;

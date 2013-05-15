@@ -84,14 +84,16 @@ function updateGames(data) {
         var orgRowNr = $(sp).attr("id").split(":")[2];
 
         var spn = $('#gamesForm\\:dataGames\\:' + orgRowNr + '\\:heartbeat');
+        spn.html("");
+        spn.attr("title", "");
         if (data[$(sp).text()] != undefined) {
+            spn.html(data[$(sp).text()]);
+
             var parts = data[$(sp).text()].split(" ");
             var duration = Math.round((parts[2] - parts[0]) * 5 / 60);
-            spn.html(data[$(sp).text()]);
-            spn.attr("title", duration + " mins");
-        } else {
-            spn.html("");
-            spn.attr("title", "");
+            if (!isNaN(duration)) {
+                spn.attr("title", duration + " mins");
+            }
         }
     });
 

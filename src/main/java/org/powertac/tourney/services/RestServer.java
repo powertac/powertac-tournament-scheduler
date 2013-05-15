@@ -323,21 +323,21 @@ public class RestServer
 
       game.handleStatus(session, statusString);
       transaction.commit();
-      return "success";
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return "error";
     } finally {
       session.close();
-
-      String[] gameLengths = params.get(Constants.Rest.REQ_PARAM_GAMELENGTH);
-      if (gameLengths != null && transaction.wasCommitted()) {
-        log.info(String.format("Received gamelength %s for game %s",
-            gameLengths[0], gameId));
-        MemStore.addGameLength(gameId, gameLengths[0]);
-      }
     }
+
+    String[] gameLengths = params.get(Constants.Rest.REQ_PARAM_GAMELENGTH);
+    if (gameLengths != null && transaction.wasCommitted()) {
+      log.info(String.format("Received gamelength %s for game %s",
+          gameLengths[0], gameId));
+      MemStore.addGameLength(gameId, gameLengths[0]);
+    }
+    return "success";
   }
 
   private String handleHeartBeat (Map<String, String[]> params)

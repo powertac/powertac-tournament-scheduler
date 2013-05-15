@@ -160,7 +160,7 @@ public class ActionTournaments
       if (transaction.wasCommitted()) {
         log.info("Next level scheduled for tournament "
             + tournament.getTournamentId());
-        message(0, "Level scheduled, manually load the rounds(s)");
+        message(0, "Level scheduled, edit and then manually load the rounds(s)");
         resetValues();
       }
       session.close();

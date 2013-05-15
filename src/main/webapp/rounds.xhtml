@@ -102,7 +102,8 @@
       </h:form>
 
       <h:form
-          rendered="#{user.isAdmin() and (actionRounds.brokerList.size() > 0)}"
+          rendered="#{user.isAdmin() and (actionRounds.brokerList.size() > 0)
+                    and (actionRounds.roundId == -1)}"
           id="roundRegistered">
         <h3 class="withButton">Registered Brokers</h3>
         <h:commandButton value="Refresh"/>
