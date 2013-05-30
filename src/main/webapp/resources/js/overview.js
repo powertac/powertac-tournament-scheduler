@@ -31,7 +31,8 @@ function toggleActiveBrokers() {
 }
 
 function toggleActiveGames() {
-    var active_statuses = new Array('boot_in_progress', 'game_pending', 'game_ready', 'game_in_progress');
+    var active_statuses = new Array('boot_in_progress', 'game_pending', 
+            'game_ready', 'game_in_progress', 'boot_failed', 'game_failed');
 
     if ($("#toggleActiveButton").val() == "Hide inactive") {
         $('#toggleActiveButton').val("Show inactive");
@@ -70,9 +71,11 @@ function updateBrokers(data) {
         var orgRowNr = $(sp).attr("id").split(":")[2];
 
         if (data[$(sp).text()] != undefined) {
-            $('#brokersForm\\:databrokers\\:' + orgRowNr + '\\:checkins').html(data[$(sp).text()]);
+            $('#brokersForm\\:databrokers\\:' + orgRowNr + 
+                '\\:checkins').html(data[$(sp).text()]);
         } else {
-            $('#brokersForm\\:databrokers\\:' + orgRowNr + '\\:checkins').html("");
+            $('#brokersForm\\:databrokers\\:' + orgRowNr + 
+                '\\:checkins').html("");
         }
     });
 }
@@ -97,7 +100,7 @@ function updateGames(data) {
         }
     });
 
-    $('#gamesFormHeader').text('Pending/Running Games (' + allRows.length + ')');
+    $('#gamesFormHeader').text('Pending/Running Games ('+ allRows.length +')');
 }
 
 function updateTables() {

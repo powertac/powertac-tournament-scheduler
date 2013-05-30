@@ -486,7 +486,7 @@ public class Game implements Serializable
     // Get availability for participating brokers
     Map<Integer, Integer> availability =
         Broker.getBrokerAvailability(session, round.getMaxAgents());
-    Collections.sort(fullList, new customGameComparator(availability));
+    Collections.sort(fullList, new CustomGameComparator(availability));
     return fullList;
   }
 
@@ -506,7 +506,7 @@ public class Game implements Serializable
     // We have do an extra loop, starting of games changes availability
     List<Game> result = new ArrayList<Game>();
     outerloop: while (fullList.size() > 0) {
-      Collections.sort(fullList, new customGameComparator(availability));
+      Collections.sort(fullList, new CustomGameComparator(availability));
 
       Game game = fullList.remove(0);
 
@@ -723,10 +723,10 @@ public class Game implements Serializable
   }
   //</editor-fold>
 
-  static class customGameComparator implements Comparator<Game> {
+  static class CustomGameComparator implements Comparator<Game> {
     private Map<Integer, Integer> availability;
 
-    public customGameComparator (Map<Integer, Integer> availability)
+    public CustomGameComparator (Map<Integer, Integer> availability)
     {
       super();
       this.availability = availability;

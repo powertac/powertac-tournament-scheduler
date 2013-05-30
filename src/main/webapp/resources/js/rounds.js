@@ -35,8 +35,7 @@ function showGamesCount() {
             elems[4].value = maxBrokers;
             gameType1 = maxBrokers;
         }
-        recSafety = 0;
-        totalGames1 = calculateGames(maxBrokers, gameType1, multiplier1);
+        totalGames1 = multiplier1 * binomial(maxBrokers, gameType1);
         slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType1, totalGames1);
         totalTime1 = durationOverhead * gameDuration * (totalGames1 / slaves);
         setText("total1", "Games / duration : " + totalGames1 + " / " + Math.floor(totalTime1 * 10) / 10);
@@ -46,8 +45,7 @@ function showGamesCount() {
             elems[6].value = maxBrokers;
             gameType2 = maxBrokers;
         }
-        recSafety = 0;
-        totalGames2 = calculateGames(maxBrokers, gameType2, multiplier2);
+        totalGames2 = multiplier2 * binomial(maxBrokers, gameType2);
         slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType2, totalGames2);
         totalTime2 = durationOverhead * gameDuration * (totalGames2 / slaves);
         setText("total2", "Games / duration : " + totalGames2 + " / " + Math.floor(totalTime2 * 10) / 10);
@@ -57,8 +55,7 @@ function showGamesCount() {
             elems[8].value = maxBrokers;
             gameType3 = maxBrokers;
         }
-        recSafety = 0;
-        totalGames3 = calculateGames(maxBrokers, gameType3, multiplier3);
+        totalGames3 = multiplier3 * binomial(maxBrokers, gameType3);
         slaves = Math.min(maxSlaves, maxAgents * maxBrokers / gameType3, totalGames3);
         totalTime3 = durationOverhead * gameDuration * (totalGames3 / slaves);
         setText("total3", "Games / duration : " + totalGames3 + " / " + Math.floor(totalTime3 * 10) / 10);
@@ -82,19 +79,17 @@ function setText(fieldId, newText) {
     el.appendChild(el.ownerDocument.createTextNode(newText));
 }
 
-var recSafety = 0;
-function calculateGames(players, gametype, multiplier) {
-    if (players == gametype) {
-        return multiplier;
+function binomial(n, k) {
+    if (k == 0) {
+        return 1;
+    } else if (2*k > n) {
+        return binomial(n,n-k);
+    } else {
+        e = n - k + 1;
+        for (var i = 2; i < k+1; i++) {
+            e *= (n-k+i);
+            e /= i;
+        }
+        return e;
     }
-    if (gametype == 1) {
-        return players * multiplier;
-    }
-
-    // Poor mans recursion validation
-    if (recSafety++ > 2500) {
-        return Number.NaN;
-    }
-
-    return calculateGames(players - 1, gametype, multiplier) + calculateGames(players - 1, gametype - 1, multiplier);
 }
