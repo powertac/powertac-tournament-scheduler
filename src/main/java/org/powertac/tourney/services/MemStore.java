@@ -11,6 +11,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @Service("memStore")
@@ -18,21 +19,22 @@ public class MemStore
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  public static HashMap<String, List<String>> machineIPs;
-  public static HashMap<String, String> vizIPs;
-  public static HashMap<String, String> localIPs;
+  public static ConcurrentHashMap<String, List<String>> machineIPs;
+  public static ConcurrentHashMap<String, String> vizIPs;
+  public static ConcurrentHashMap<String, String> localIPs;
 
-  public static HashMap<Integer, List<Long>> brokerCheckins;
-  public static HashMap<String, Long> vizCheckins;
-  public static HashMap<Integer, String[]> gameHeartbeats;
-  public static HashMap<Integer, Integer> gameLengths;
+  public static ConcurrentHashMap<Integer, List<Long>> brokerCheckins;
+  public static ConcurrentHashMap<String, Long> vizCheckins;
+  public static ConcurrentHashMap<Integer, String[]> gameHeartbeats;
+  public static ConcurrentHashMap<Integer, Integer> gameLengths;
 
-  public static HashMap<Integer, Boolean> brokerState =
-      new HashMap<Integer, Boolean>();
+  public static ConcurrentHashMap<Integer, Boolean> brokerState =
+      new ConcurrentHashMap<Integer, Boolean>(50, 0.9f, 1);
 
   public static String indexContent;
 
-  public static HashMap<Integer, String> tournamentContent = new HashMap<Integer, String>();
+  public static ConcurrentHashMap<Integer, String> tournamentContent =
+      new ConcurrentHashMap<Integer, String>(20, 0.9f, 1);
 
   public static List<Location> availableLocations = new ArrayList<Location>();
 
@@ -42,17 +44,17 @@ public class MemStore
     vizIPs = null;
     localIPs = null;
 
-    brokerCheckins = new HashMap<Integer, List<Long>>();
-    vizCheckins = new HashMap<String, Long>();
-    gameHeartbeats = new HashMap<Integer, String[]>();
-    gameLengths = new HashMap<Integer, Integer>();
+    brokerCheckins = new ConcurrentHashMap<Integer, List<Long>>(50, 0.9f, 1);
+    vizCheckins = new ConcurrentHashMap<String, Long>(20, 0.9f, 1);
+    gameHeartbeats = new ConcurrentHashMap<Integer, String[]>(20, 0.9f, 1);
+    gameLengths = new ConcurrentHashMap<Integer, Integer>(20, 0.9f, 1);
   }
 
   public static void getIpAddresses ()
   {
-    machineIPs = new HashMap<String, List<String>>();
-    vizIPs = new HashMap<String, String>();
-    localIPs = new HashMap<String, String>();
+    machineIPs = new ConcurrentHashMap<String, List<String>>(20, 0.9f, 1);
+    vizIPs = new ConcurrentHashMap<String, String>(20, 0.9f, 1);
+    localIPs = new ConcurrentHashMap<String, String>(20, 0.9f, 1);
 
     for (Machine m: Machine.getMachineList()) {
       try {
@@ -84,7 +86,8 @@ public class MemStore
                NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
         NetworkInterface intf = en.nextElement();
 
-        if (!intf.getName().startsWith("eth")) {
+        if (!intf.getName().startsWith("eth") &&
+            !intf.getName().startsWith("vboxnet")) {
           continue;
         }
 

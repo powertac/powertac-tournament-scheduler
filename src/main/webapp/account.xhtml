@@ -57,7 +57,7 @@
       </h:form>
 
       <h:form id="accountForm0" rendered="#{user.isLoggedIn() and actionAccount.brokers.size() > 0}">
-        <h4>Brokers in Tournaments, Rounds and (running) Games</h4>
+        <h4>Brokers in Tournaments, Rounds and running Games</h4>
         <h:dataTable border="1" id="brokers"
                      value="#{actionAccount.brokers}" var="broker">
           <h:column>

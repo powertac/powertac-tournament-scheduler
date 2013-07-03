@@ -1,7 +1,7 @@
 package org.powertac.tourney.servlets;
 
-import org.powertac.tourney.services.Scheduler;
 import org.powertac.tourney.services.MemStore;
+import org.powertac.tourney.services.Scheduler;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -24,25 +24,25 @@ public class Rest extends HttpServlet
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException
   {
-    String type = request.getParameter("type");
-    response.setContentType("application/json");
-    PrintWriter out = response.getWriter();
+      String type = request.getParameter("type");
+      response.setContentType("application/json");
+      PrintWriter out = response.getWriter();
 
-    String result = "{}";
-    if (type.equals("brokers")) {
-      result = parseBrokers();
-    } else if (type.equals("games")) {
-      result = parseGames();
-    } else if (type.equals("visualizers")) {
-      result = parseVisualizers();
-    } else if (type.equals("watchdog")) {
-      result = parseWatchdog();
-    }
+      String result = "{}";
+      if (type.equals("brokers")) {
+        result = parseBrokers();
+      } else if (type.equals("games")) {
+        result = parseGames();
+      } else if (type.equals("visualizers")) {
+        result = parseVisualizers();
+      } else if (type.equals("watchdog")) {
+        result = parseWatchdog();
+      }
 
-    response.setContentLength(result.length());
-    out.print(result);
-    out.flush();
-    out.close();
+      response.setContentLength(result.length());
+      out.print(result);
+      out.flush();
+      out.close();
   }
 
   private String parseBrokers()

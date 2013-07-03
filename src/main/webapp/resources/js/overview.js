@@ -1,6 +1,6 @@
 function toggleActiveBrokers() {
     if ($("#toggleSampleButton").val() == "Hide inactive") {
-        $('#toggleSampleButton').val("Show active");
+        $('#toggleSampleButton').val("Show inactive");
 
         $("#brokersForm\\:databrokers").find('>tbody>tr').each(function () {
             var sp = $(this).find('td:nth-child(4)')[0];
@@ -31,8 +31,8 @@ function toggleActiveBrokers() {
 }
 
 function toggleActiveGames() {
-    var active_statuses = new Array('boot_in_progress', 'game_pending', 
-            'game_ready', 'game_in_progress', 'boot_failed', 'game_failed');
+    var active_statuses = ['boot_in_progress', 'game_pending',
+            'game_ready', 'game_in_progress', 'boot_failed', 'game_failed'];
 
     if ($("#toggleActiveButton").val() == "Hide inactive") {
         $('#toggleActiveButton').val("Show inactive");
