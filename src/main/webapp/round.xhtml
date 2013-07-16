@@ -89,26 +89,26 @@
           <t:column>
             <f:facet name="header">Size 1</f:facet>
             <h:outputText value="#{actionRound.resultMap.get(broker)[10]}">
-              <f:convertNumber minFractionDigits="1" groupingUsed="false"/>
+              <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
             </h:outputText>
           </t:column>
           <t:column>
             <f:facet name="header">Size 2</f:facet>
             <h:outputText value="#{actionRound.resultMap.get(broker)[11]}">
-              <f:convertNumber minFractionDigits="1" groupingUsed="false"/>
+              <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
             </h:outputText>
           </t:column>
           <t:column>
             <f:facet name="header">Size 3</f:facet>
             <h:outputText value="#{actionRound.resultMap.get(broker)[12]}">
-              <f:convertNumber minFractionDigits="1" groupingUsed="false"/>
+              <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
             </h:outputText>
           </t:column>
 
           <t:column>
             <f:facet name="header">Total (normalized)</f:facet>
             <h:outputText value="#{actionRound.resultMap.get(broker)[13]}">
-              <f:convertNumber minFractionDigits="1" groupingUsed="false"/>
+              <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
             </h:outputText>
           </t:column>
         </t:dataTable>
@@ -117,7 +117,7 @@
         <table>
           <tbody>
           <tr>
-            <td><h4>Averages</h4></td>
+            <td class="left">Average</td>
             <td class="right">
               <h:outputText value="#{actionRound.avgsAndSDs[0]}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
@@ -135,7 +135,7 @@
             </td>
           </tr>
           <tr>
-            <td><h4>Standard deviations</h4></td>
+            <td class="left">Standard Deviation</td>
             <td class="right">
               <h:outputText value="#{actionRound.avgsAndSDs[3]}">
                 <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
@@ -203,7 +203,7 @@
               <ui:repeat value="#{actionRound.agentsMap.get(entry.gameId)}"
                          var="a">
                 <h:outputText value="#{a.balance}">
-                  <f:convertNumber minFractionDigits="6" groupingUsed="false"/>
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
                 </h:outputText><br/>
               </ui:repeat>
             </h:panelGroup>

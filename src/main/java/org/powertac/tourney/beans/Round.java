@@ -173,6 +173,10 @@ public class Round
 
     // Get the not-normalized results into the map
     for (Game game: gameMap.values()) {
+      if (!game.isComplete()) {
+        continue;
+      }
+
       int gameTypeIndex = game.getGameTypeIndex();
 
       for (Agent agent: game.getAgentMap().values()) {

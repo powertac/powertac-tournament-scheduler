@@ -7,7 +7,7 @@ import org.powertac.tourney.services.Utils;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @ManagedBean
-@RequestScoped
+@SessionScoped
 public class ActionAccount
 {
   private User user = User.getCurrentUser();

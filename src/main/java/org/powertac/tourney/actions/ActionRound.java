@@ -75,7 +75,7 @@ public class ActionRound
       return Integer.parseInt(facesContext.getExternalContext().
           getRequestParameterMap().get("roundId"));
     } catch (NumberFormatException ignored) {
-      if (!FacesContext.getCurrentInstance().isPostback()) {
+      if (!facesContext.isPostback()) {
         Utils.redirect();
       }
       return -1;
