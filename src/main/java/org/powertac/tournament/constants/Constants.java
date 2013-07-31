@@ -65,6 +65,7 @@ public class Constants
             + "LEFT JOIN FETCH user.brokerMap AS brokerMap "
             + "LEFT JOIN FETCH brokerMap.roundMap AS roundMap "
             + "LEFT JOIN FETCH brokerMap.tournamentMap AS tournamentMap "
+            + "LEFT JOIN FETCH tournamentMap.levelMap as levelMap "
             + "LEFT JOIN FETCH brokerMap.agentMap AS agentMap "
             + "WHERE user.userName =:userName ";
 
@@ -108,6 +109,7 @@ public class Constants
             + "LEFT JOIN FETCH roundMap.gameMap as gameMap "
             + "LEFT JOIN FETCH gameMap.agentMap as agentMap "
             + "LEFT JOIN FETCH roundMap.brokerMap as brokerMap "
+            + "LEFT JOIN FETCH brokerMap.user as user "
             + "WHERE NOT tournament.state='" + Tournament.getStateComplete() + "'";
 
     public static final String GET_ROUND_BY_ID =
@@ -120,6 +122,7 @@ public class Constants
 
     public static final String GET_ROUNDS_NOT_COMPLETE =
         "FROM Round AS round "
+            + "LEFT JOIN FETCH round.level as level "
             + "LEFT JOIN FETCH round.gameMap as gameMap "
             + "LEFT JOIN FETCH gameMap.agentMap AS agentMap "
             + "LEFT JOIN FETCH gameMap.machine "

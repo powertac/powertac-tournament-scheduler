@@ -22,7 +22,11 @@ public class ActionRounds
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private List<Broker> brokerList = new ArrayList<Broker>();
+  private List<Location> locationList;
+  private List<Broker> brokerList;
+  private List<Round> roundList;
+  private List<Pom> pomList;
+
   private int slavesCount;
 
   private int roundId;
@@ -44,26 +48,6 @@ public class ActionRounds
   public ActionRounds ()
   {
     resetValues();
-  }
-
-  public List<Broker> getBrokerList ()
-  {
-    return brokerList;
-  }
-
-  public List<Round> getRoundList ()
-  {
-    return Round.getNotCompleteRoundList();
-  }
-
-  public List<Pom> getPomList ()
-  {
-    return Pom.getPomList();
-  }
-
-  public List<Location> getLocationList ()
-  {
-    return Location.getLocationList();
   }
 
   public boolean allowEdit (Round round)
@@ -232,6 +216,12 @@ public class ActionRounds
 
   public void resetValues ()
   {
+    locationList = Location.getLocationList();
+    brokerList = Broker.getBrokerList();
+    roundList = Round.getNotCompleteRoundList();
+    pomList = Pom.getPomList();
+    slavesCount = Machine.getMachineList().size();
+
     roundId = -1;
     roundName = "";
     maxBrokers = 0;
@@ -244,7 +234,7 @@ public class ActionRounds
     multiplier3 = 1;
     startTime = Utils.offsetDate(2);
 
-    if (getLocationList().size() == 1) {
+    if (locationList.size() == 1) {
       Location location = getLocationList().get(0);
       dateFrom = location.getDateFrom();
       dateTo = location.getDateTo();
@@ -253,7 +243,6 @@ public class ActionRounds
     else {
       dateFrom = new Date();
       dateTo = new Date();
-      dateTo.setTime(0);
       for (Location loc: getLocationList()) {
         if (loc.getDateFrom().before(dateFrom)) {
           dateFrom = loc.getDateFrom();
@@ -265,9 +254,6 @@ public class ActionRounds
     }
 
     selectedPom = 0;
-
-    brokerList = Broker.getBrokerList();
-    slavesCount = Machine.getMachineList().size();
   }
 
   public void register (Broker b)
@@ -336,6 +322,33 @@ public class ActionRounds
       FacesContext.getCurrentInstance().addMessage("saveRound", fm);
     }
   }
+
+  //<editor-fold desc="Collections">
+  public List<Broker> getBrokerList ()
+  {
+    return brokerList;
+  }
+
+  public List<Round> getRoundList ()
+  {
+    return roundList;
+  }
+
+  public List<Pom> getPomList ()
+  {
+    return pomList;
+  }
+
+  public List<Location> getLocationList ()
+  {
+    return locationList;
+  }
+
+  public List<Round> getAvailableRounds (Broker broker)
+  {
+    return broker.getAvailableRounds(roundList);
+  }
+  //</editor-fold>
 
   //<editor-fold desc="Setters and getters">
   public int getRoundId ()

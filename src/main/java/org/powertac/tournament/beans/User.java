@@ -11,10 +11,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -62,17 +59,6 @@ public class User
 
   public User ()
   {
-  }
-
-  @Transient
-  public void logout ()
-  {
-    // There is probably a better way to do this
-    brokerMap = new HashMap<Integer, Broker>();
-    userId = -1;
-    userName = "Guest";
-    password = "";
-    permission = PERMISSION.guest;
   }
 
   public void increasePermission ()
@@ -136,6 +122,17 @@ public class User
         .getSessionMap().put("user", newUser);
   }
 
+  @Transient
+  public void logout ()
+  {
+    // There is probably a better way to do this
+    brokerMap = new HashMap<Integer, Broker>();
+    userId = -1;
+    userName = "Guest";
+    password = "";
+    permission = PERMISSION.guest;
+  }
+
   public String save ()
   {
     Session session = HibernateUtil.getSessionFactory().openSession();
@@ -152,6 +149,14 @@ public class User
     finally {
       session.close();
     }
+  }
+
+  public void setPasswordAndSalt (String password)
+  {
+    String genSalt = DigestUtils.md5Hex(Math.random() + (new Date()).toString());
+
+    setPassword(DigestUtils.md5Hex(password + genSalt));
+    setSalt(genSalt);
   }
 
   //<editor-fold desc="Collections">

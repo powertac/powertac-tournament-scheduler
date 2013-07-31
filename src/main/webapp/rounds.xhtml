@@ -9,275 +9,274 @@
       xmlns:t="http://myfaces.apache.org/tomahawk">
 
 <h:body>
-  <ui:composition template="template.xhtml">
-    <ui:define name="content">
-      <script type="text/javascript" charset="utf8"
-              src="resources/js/rounds.js"></script>
+<ui:composition template="template.xhtml">
+<ui:define name="content">
+<script type="text/javascript" charset="utf8"
+        src="resources/js/rounds.js"></script>
 
-      <h:form rendered="#{user.isAdmin() and actionRounds.roundList.size() > 0}"
-              id="runningRounds">
-        <br/>
+<h:form rendered="#{user.isAdmin() and actionRounds.roundList.size() > 0}"
+        id="runningRounds">
+  <br/>
 
-        <h3 class="withButton">Pending/Running Rounds</h3>
-        <h:commandButton value="Refresh"/>
-        <t:dataTable id="dataRounds" border="1"
-                     value="#{actionRounds.roundList}" var="r">
+  <h3 class="withButton">Pending/Running Rounds</h3>
+  <h:commandButton value="Refresh"/>
+  <t:dataTable id="dataRounds" border="1"
+               value="#{actionRounds.roundList}" var="r">
 
-          <t:column>
-            <f:facet name="header">ID</f:facet>
-            <h:outputText value="#{r.roundId}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">ID</f:facet>
+      <h:outputText value="#{r.roundId}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Name</f:facet>
-            <h:link value="#{r.roundName}" outcome="Round">
-              <f:param name="roundId" value="#{r.roundId}"/>
-            </h:link>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Name</f:facet>
+      <h:link value="#{r.roundName}" outcome="Round">
+        <f:param name="roundId" value="#{r.roundId}"/>
+      </h:link>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Tourney</f:facet>
-            <h:link value="#{r.level.tournamentId}" outcome="Tournament"
-                    rendered="#{r.level.tournamentId != null}">
-              <f:param name="tournamentId" value="#{r.level.tournamentId}"/>
-            </h:link>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Tourney</f:facet>
+      <h:link value="#{r.level.tournamentId}" outcome="Tournament"
+              rendered="#{r.level.tournamentId != null}">
+        <f:param name="tournamentId" value="#{r.level.tournamentId}"/>
+      </h:link>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Status</f:facet>
-            <h:outputText value="#{r.state  }"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Status</f:facet>
+      <h:outputText value="#{r.state  }"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Start Time</f:facet>
-            <h:outputText value="#{r.startTimeUTC()}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Start Time</f:facet>
+      <h:outputText value="#{r.startTimeUTC()}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Reg / Max</f:facet>
-            <h:outputText value="#{r.brokerMap.size()} / #{r.maxBrokers}"/>
-            <h:outputText value=" : #{r.maxAgents}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Reg / Max</f:facet>
+      <h:outputText value="#{r.brokerMap.size()} / #{r.maxBrokers}"/>
+      <h:outputText value=" : #{r.maxAgents}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Games</f:facet>
-            <h:outputText value="#{r.size1}:#{r.multiplier1}"
-                          rendered="#{r.size1 > 0 and r.multiplier1 > 0}"/>
-            <h:outputText value=" #{r.size2}:#{r.multiplier2}"
-                          rendered="#{r.size2 > 0 and r.multiplier2 > 0}"/>
-            <h:outputText value=" #{r.size3}:#{r.multiplier3}"
-                          rendered="#{r.size3 > 0 and r.multiplier3 > 0}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Games</f:facet>
+      <h:outputText value="#{r.size1}:#{r.multiplier1}"
+                    rendered="#{r.size1 > 0 and r.multiplier1 > 0}"/>
+      <h:outputText value=" #{r.size2}:#{r.multiplier2}"
+                    rendered="#{r.size2 > 0 and r.multiplier2 > 0}"/>
+      <h:outputText value=" #{r.size3}:#{r.multiplier3}"
+                    rendered="#{r.size3 > 0 and r.multiplier3 > 0}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Pom</f:facet>
-            <a href="pom.jsp?pomId=#{r.pomId}">
-              <h:outputText value="#{r.pomId}"/>
-            </a>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Pom</f:facet>
+      <a href="pom.jsp?pomId=#{r.pomId}">
+        <h:outputText value="#{r.pomId}"/>
+      </a>
+    </t:column>
 
-          <t:column style="text-align: left">
-            <f:facet name="header">Actions</f:facet>
-            <h:commandButton value="Delete"
-                             action="#{actionRounds.deleteRound(r)}"
-                             rendered="#{actionRounds.allowDelete(r)}"
-                             onclick="return confirmAlert('Are you sure you want to delete this round?');"
-                             styleClass="smallButton"/>
-            <h:commandButton value="Edit"
-                             rendered="#{actionRounds.allowEdit(r)}"
-                             action="#{actionRounds.loadRound(r)}"
-                             styleClass="smallButton"/>
-            <h:commandButton value="Cancel"
-                             action="#{actionRounds.resetValues()}"
-                             rendered="#{actionRounds.roundId == r.roundId}"
-                             styleClass="smallButton"/>
-            <h:commandButton value="Now" action="#{actionRounds.startNow(r)}"
-                             onclick="return confirmAlert('This will start all the games in this round now.\nProceed?');"
-                             rendered="#{!r.isStarted()}"
-                             styleClass="smallButton"/>
-          </t:column>
-        </t:dataTable>
-        <br/>
-        <h:messages for="runningRounds"/>
-      </h:form>
+    <t:column style="text-align: left">
+      <f:facet name="header">Actions</f:facet>
+      <h:commandButton value="Delete"
+                       action="#{actionRounds.deleteRound(r)}"
+                       rendered="#{actionRounds.allowDelete(r)}"
+                       onclick="return confirmAlert('Are you sure you want to delete this round?');"
+                       styleClass="smallButton"/>
+      <h:commandButton value="Edit"
+                       rendered="#{actionRounds.allowEdit(r)}"
+                       action="#{actionRounds.loadRound(r)}"
+                       styleClass="smallButton"/>
+      <h:commandButton value="Cancel"
+                       action="#{actionRounds.resetValues()}"
+                       rendered="#{actionRounds.roundId == r.roundId}"
+                       styleClass="smallButton"/>
+      <h:commandButton value="Now" action="#{actionRounds.startNow(r)}"
+                       onclick="return confirmAlert('This will start all the games in this round now.\nProceed?');"
+                       rendered="#{!r.isStarted()}"
+                       styleClass="smallButton"/>
+    </t:column>
+  </t:dataTable>
+  <br/>
+  <h:messages for="runningRounds"/>
+</h:form>
 
-      <h:form
-          rendered="#{user.isAdmin() and (actionRounds.brokerList.size() > 0)
+<h:form
+    rendered="#{user.isAdmin() and (actionRounds.brokerList.size() > 0)
                     and (actionRounds.roundId == -1)}"
-          id="roundRegistered">
-        <h3 class="withButton">Registered Brokers</h3>
-        <h:commandButton value="Refresh"/>
-        <t:dataTable id="databrokers" border="1"
-                     value="#{actionRounds.brokerList}" var="broker">
+    id="roundRegistered">
+  <h3 class="withButton">Registered Brokers</h3>
+  <h:commandButton value="Refresh"/>
+  <t:dataTable id="databrokers" border="1"
+               value="#{actionRounds.brokerList}" var="broker">
 
-          <t:column>
-            <f:facet name="header">ID</f:facet>
-            <h:outputText value="#{broker.brokerId}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">ID</f:facet>
+      <h:outputText value="#{broker.brokerId}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Name</f:facet>
-            <h:outputText value="#{broker.brokerName}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Name</f:facet>
+      <h:outputText value="#{broker.brokerName}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Registered</f:facet>
-            <h:outputText value="#{broker.getRoundsString(false)}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Registered</f:facet>
+      <h:outputText value="#{broker.getRoundsString(false)}"/>
+    </t:column>
 
-          <t:column style="text-align: right">
-            <f:facet name="header">Add</f:facet>
-            <h:selectOneMenu value="#{broker.registerRoundId}"
-                             styleClass="smallButton">
-              <f:selectItems
-                  value="#{broker.getAvailableRounds()}"
-                  var="r"
-                  itemValue="#{r.roundId}"
-                  itemLabel="#{r.roundName}"
-                  rendered="#{(r.maxBrokers != r.numberRegistered)}"/>
-            </h:selectOneMenu>
-            <h:commandButton value="Register" styleClass="smallButton"
-                             action="#{actionRounds.register(broker)}"/>
-          </t:column>
+    <t:column style="text-align: right">
+      <f:facet name="header">Add</f:facet>
+      <h:selectOneMenu value="#{broker.registerRoundId}"
+                       styleClass="smallButton">
+        <f:selectItems
+            value="#{actionRounds.getAvailableRounds(broker)}" var="r"
+            itemValue="#{r.roundId}"
+            itemLabel="#{r.roundName}"
+            rendered="#{(r.maxBrokers != r.getNofBrokers())}"/>
+      </h:selectOneMenu>
+      <h:commandButton value="Register" styleClass="smallButton"
+                       action="#{actionRounds.register(broker)}"/>
+    </t:column>
 
-          <t:column style="text-align: right">
-            <f:facet name="header">Remove</f:facet>
-            <h:selectOneMenu value="#{broker.unregisterRoundId}"
-                             styleClass="smallButton">
-              <f:selectItems
-                  value="#{broker.getRegisteredRounds()}"
-                  var="r"
-                  itemValue="#{r.roundId}"
-                  itemLabel="#{r.roundName}"
-                  rendered="#{(r.maxBrokers != r.numberRegistered)}"/>
-            </h:selectOneMenu>
-            <h:commandButton value="Unregister" styleClass="smallButton"
-                             action="#{actionRounds.unregister(broker)}"/>
-          </t:column>
-        </t:dataTable>
-        <h:messages for="roundRegistered" layout=""/>
-      </h:form>
+    <t:column style="text-align: right">
+      <f:facet name="header">Remove</f:facet>
+      <h:selectOneMenu value="#{broker.unregisterRoundId}"
+                       styleClass="smallButton">
+        <f:selectItems
+            value="#{broker.getRegisteredRounds()}"
+            var="r"
+            itemValue="#{r.roundId}"
+            itemLabel="#{r.roundName}"
+            rendered="#{(r.maxBrokers != r.numberRegistered)}"/>
+      </h:selectOneMenu>
+      <h:commandButton value="Unregister" styleClass="smallButton"
+                       action="#{actionRounds.unregister(broker)}"/>
+    </t:column>
+  </t:dataTable>
+  <h:messages for="roundRegistered" layout=""/>
+</h:form>
 
-      <h:form enctype="multipart/form-data" id="saveRound"
-              rendered="#{user.isAdmin() and actionRounds.roundId != -1}">
-        <h3>Edit Round</h3>
+<h:form enctype="multipart/form-data" id="saveRound"
+        rendered="#{user.isAdmin() and actionRounds.roundId != -1}">
+  <h3>Edit Round</h3>
 
-        <h:panelGrid columns="2" id="roundTable">
-          <h:outputText value="Round Name"/>
-          <h:panelGroup>
-            <h:inputText value="#{actionRounds.roundName}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         styleClass="input_wide"/>
-          </h:panelGroup>
+  <h:panelGrid columns="2" id="roundTable">
+    <h:outputText value="Round Name"/>
+    <h:panelGroup>
+      <h:inputText value="#{actionRounds.roundName}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   styleClass="input_wide"/>
+    </h:panelGroup>
 
-          <h:outputText value="Max Brokers / Agents"/>
-          <h:panelGroup>
-            <h:inputText id="maxBrokers"
-                         value="#{actionRounds.maxBrokers}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         styleClass="input_small"/>
-            <h:inputText id="maxAgents"
-                         value="#{actionRounds.maxAgents}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         styleClass="input_small"/>
-            <span id="totalGames"/>
-          </h:panelGroup>
+    <h:outputText value="Max Brokers / Agents"/>
+    <h:panelGroup>
+      <h:inputText id="maxBrokers"
+                   value="#{actionRounds.maxBrokers}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   styleClass="input_small"/>
+      <h:inputText id="maxAgents"
+                   value="#{actionRounds.maxAgents}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   styleClass="input_small"/>
+      <span id="totalGames"/>
+    </h:panelGroup>
 
-          <h:outputText value="Game 1 Size / Multi"/>
-          <h:panelGroup>
-            <h:inputText id="gameSize1" value="#{actionRounds.size1}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         styleClass="input_small"/>
-            <h:inputText id="multiplier1"
-                         value="#{actionRounds.multiplier1}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         styleClass="input_small"/>
-            <span id="total1"/>
-          </h:panelGroup>
+    <h:outputText value="Game 1 Size / Multi"/>
+    <h:panelGroup>
+      <h:inputText id="gameSize1" value="#{actionRounds.size1}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   styleClass="input_small"/>
+      <h:inputText id="multiplier1"
+                   value="#{actionRounds.multiplier1}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   styleClass="input_small"/>
+      <span id="total1"/>
+    </h:panelGroup>
 
-          <h:outputText value="Game 2 Size / Multi"/>
-          <h:panelGroup>
-            <h:inputText id="gameSize2" value="#{actionRounds.size2}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         styleClass="input_small"/>
-            <h:inputText id="multiplier2"
-                         value="#{actionRounds.multiplier2}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         styleClass="input_small"/>
-            <span id="total2"/>
-          </h:panelGroup>
+    <h:outputText value="Game 2 Size / Multi"/>
+    <h:panelGroup>
+      <h:inputText id="gameSize2" value="#{actionRounds.size2}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   styleClass="input_small"/>
+      <h:inputText id="multiplier2"
+                   value="#{actionRounds.multiplier2}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   styleClass="input_small"/>
+      <span id="total2"/>
+    </h:panelGroup>
 
-          <h:outputText value="Game 3 Size / Multi"/>
-          <h:panelGroup>
-            <h:inputText id="gameSize3" value="#{actionRounds.size3}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         styleClass="input_small"/>
-            <h:inputText id="multiplier3"
-                         value="#{actionRounds.multiplier3}"
-                         onchange="showGamesCount()" onkeyup="showGamesCount()"
-                         styleClass="input_small"/>
-            <span id="total3"/>
-          </h:panelGroup>
+    <h:outputText value="Game 3 Size / Multi"/>
+    <h:panelGroup>
+      <h:inputText id="gameSize3" value="#{actionRounds.size3}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   styleClass="input_small"/>
+      <h:inputText id="multiplier3"
+                   value="#{actionRounds.multiplier3}"
+                   onchange="showGamesCount()" onkeyup="showGamesCount()"
+                   styleClass="input_small"/>
+      <span id="total3"/>
+    </h:panelGroup>
 
-          <h:outputText value="StartTime UTC"/>
-          <h:panelGroup>
-            <t:inputDate value="#{actionRounds.startTime}" type="both"
-                         forceId="true"/>
-          </h:panelGroup>
+    <h:outputText value="StartTime UTC"/>
+    <h:panelGroup>
+      <t:inputDate value="#{actionRounds.startTime}" type="both"
+                   forceId="true"/>
+    </h:panelGroup>
 
-          <h:outputText value="Date from"/>
-          <h:panelGroup>
-            <t:inputDate value="#{actionRounds.dateFrom}" forceId="true"/>
-          </h:panelGroup>
+    <h:outputText value="Date from"/>
+    <h:panelGroup>
+      <t:inputDate value="#{actionRounds.dateFrom}" forceId="true"/>
+    </h:panelGroup>
 
-          <h:outputText value="Date to"/>
-          <h:panelGroup>
-            <t:inputDate value="#{actionRounds.dateTo}" forceId="true"/>
-          </h:panelGroup>
+    <h:outputText value="Date to"/>
+    <h:panelGroup>
+      <t:inputDate value="#{actionRounds.dateTo}" forceId="true"/>
+    </h:panelGroup>
 
-          <h:outputText value="Locations"/>
-          <h:panelGroup>
-            <h:selectManyCheckbox id="locations" styleClass="monospaced"
-                                  value="#{actionRounds.locations}"
-                                  layout="pageDirection">
-              <f:selectItems value="#{actionRounds.locationList}"
-                             var="L" itemValue="#{L.location}"
-                             itemLabel="#{L.fullString}"
-                             itemLabelEscaped="false"/>
-            </h:selectManyCheckbox>
-          </h:panelGroup>
+    <h:outputText value="Locations"/>
+    <h:panelGroup>
+      <h:selectManyCheckbox id="locations" styleClass="monospaced"
+                            value="#{actionRounds.locations}"
+                            layout="pageDirection">
+        <f:selectItems value="#{actionRounds.locationList}"
+                       var="L" itemValue="#{L.location}"
+                       itemLabel="#{L.fullString}"
+                       itemLabelEscaped="false"/>
+      </h:selectManyCheckbox>
+    </h:panelGroup>
 
-          <h:outputText value="Select Pom File"/>
-          <h:panelGroup>
-            <h:selectOneMenu id="poms"
-                             value="#{actionRounds.selectedPom}">
-              <f:selectItems value="#{actionRounds.pomList}" var="p"
-                             itemValue="#{p.pomId}" itemLabel="#{p.pomName}"/>
-            </h:selectOneMenu>
-          </h:panelGroup>
+    <h:outputText value="Select Pom File"/>
+    <h:panelGroup>
+      <h:selectOneMenu id="poms"
+                       value="#{actionRounds.selectedPom}">
+        <f:selectItems value="#{actionRounds.pomList}" var="p"
+                       itemValue="#{p.pomId}" itemLabel="#{p.pomName}"/>
+      </h:selectOneMenu>
+    </h:panelGroup>
 
-          <h:panelGroup> </h:panelGroup>
-          <h:commandButton value="Submit"
-                           action="#{actionRounds.saveRound()}"/>
-        </h:panelGrid>
-        <h:inputHidden id="roundId" value="#{actionRounds.roundId}"/>
-        <br/>
-        <h:messages for="saveRound"/>
-      </h:form>
+    <h:panelGroup> </h:panelGroup>
+    <h:commandButton value="Submit"
+                     action="#{actionRounds.saveRound()}"/>
+  </h:panelGrid>
+  <h:inputHidden id="roundId" value="#{actionRounds.roundId}"/>
+  <br/>
+  <h:messages for="saveRound"/>
+</h:form>
 
-      <h:form rendered="#{user.isAdmin()}">
-        <br/>
-        <h4>If the round name contains 'test' (any case), short games will be created</h4>
-        <h4>It also allows deletion of the round</h4>
-      </h:form>
+<h:form rendered="#{user.isAdmin()}">
+  <br/>
+  <h4>If the round name contains 'test' (any case), short games will be created</h4>
+  <h4>It also allows deletion of the round</h4>
+</h:form>
 
-      <h:form rendered="#{!user.isAdmin()}">
-        <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
-        <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
-      </h:form>
+<h:form rendered="#{!user.isAdmin()}">
+  <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
+  <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
+</h:form>
 
-      <h:inputHidden id="slavesCount" value="#{actionRounds.slavesCount}"/>
-    </ui:define>
-  </ui:composition>
+<h:inputHidden id="slavesCount" value="#{actionRounds.slavesCount}"/>
+</ui:define>
+</ui:composition>
 </h:body>
 </html>

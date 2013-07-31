@@ -8,345 +8,345 @@
       xmlns:t="http://myfaces.apache.org/tomahawk">
 
 <h:body>
-  <ui:composition template="template.xhtml">
-    <ui:define name="content">
-      <script type="text/javascript" charset="utf8"
+<ui:composition template="template.xhtml">
+<ui:define name="content">
+<script type="text/javascript" charset="utf8"
         src="resources/js/admin.js"></script>
 
-      <h2>Admin</h2>
+<h2>Admin</h2>
 
-      <h:form rendered="#{!user.isAdmin()}">
-        <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
-        <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
-      </h:form>
+<h:form rendered="#{!user.isAdmin()}">
+  <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
+  <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
+</h:form>
 
-      <h:form rendered="#{user.isAdmin()}">
-        <h:panelGroup rendered="#{!actionAdmin.getConfigErrors().isEmpty()}">
-          <h:outputText value="There are config errors!" style="color: red;"/>
-          <t:dataList var="infoEntry" value="#{actionAdmin.getConfigErrors()}"
-                      layout="unorderedList">
-            <h:commandButton value="Hide"
-                             action="#{actionAdmin.removeMessage(infoEntry)}"/>
-            <t:outputText value="#{infoEntry}" escape="false" id="message"/>
-          </t:dataList>
-          <br/>
-        </h:panelGroup>
-      </h:form>
+<h:form rendered="#{user.isAdmin()}">
+  <h:panelGroup rendered="#{!actionAdmin.getConfigErrors().isEmpty()}">
+    <h:outputText value="There are config errors!" style="color: red;"/>
+    <t:dataList var="infoEntry" value="#{actionAdmin.getConfigErrors()}"
+                layout="unorderedList">
+      <h:commandButton value="Hide"
+                       action="#{actionAdmin.removeMessage(infoEntry)}"/>
+      <t:outputText value="#{infoEntry}" escape="false" id="message"/>
+    </t:dataList>
+    <br/>
+  </h:panelGroup>
+</h:form>
 
-      <h:form id="adminControls" rendered="#{user.isAdmin()}">
-        <t:panelGrid columns="3">
-          <h4>WatchDog Status</h4>
-          <h:panelGroup>
-            <h:outputText style="color:green;" id="watchdog"
-                          rendered="#{scheduler.running}"/>
-            <h:outputText value="WatchDog not running"
-                          style="color:red;"
-                          rendered="#{!scheduler.running}"/>
-          </h:panelGroup>
-          <h:commandButton value="Restart" action="#{actionAdmin.restartWatchDog}"/>
+<h:form id="adminControls" rendered="#{user.isAdmin()}">
+  <t:panelGrid columns="3">
+    <h4>WatchDog Status</h4>
+    <h:panelGroup>
+      <h:outputText style="color:green;" id="watchdog"
+                    rendered="#{scheduler.running}"/>
+      <h:outputText value="WatchDog not running"
+                    style="color:red;"
+                    rendered="#{!scheduler.running}"/>
+    </h:panelGroup>
+    <h:commandButton value="Restart" action="#{actionAdmin.restartWatchDog}"/>
 
-          <h4>Round Status</h4>
-          <h:panelGroup>
-            <h:outputText value="Round not Loaded"
-                          style="color:red;"
-                          rendered="#{scheduler.nullRound}"/>
-            <h:outputText
-                value="Round &lt;b&gt;#{scheduler.getRunningRound().roundName}&lt;/b&gt; Loaded"
-                style="color:green;" escape="false"
-                rendered="#{!scheduler.nullRound}"/>
-          </h:panelGroup>
-          <h:panelGroup>
-            <h:commandButton value="Unload"
-                             action="#{actionAdmin.unloadRound()}"
-                             rendered="#{!scheduler.nullRound}"/>
-            <h:panelGroup rendered="#{actionAdmin.availableRounds.size() > 0}">
-              <h:selectOneMenu value="#{actionAdmin.selectedRound}"
-                               rendered="#{scheduler.nullRound}"
-                               style="border:1px solid grey;height:22px;padding:1px;margin:2px;">
-                <f:selectItems value="#{actionAdmin.availableRounds}" var="r"
-                               itemValue="#{r.roundId}"
-                               itemLabel="#{r.roundName}"/>
-              </h:selectOneMenu>
-              <h:commandButton value="Load"
-                               action="#{actionAdmin.loadRound()}"
-                               rendered="#{scheduler.nullRound}"/>
-            </h:panelGroup>
-            <h:panelGroup rendered="#{actionAdmin.availableRounds.size() == 0}">
-              <h:outputText >No rounds availble for loading</h:outputText>
-            </h:panelGroup>
-          </h:panelGroup>
+    <h4>Round Status</h4>
+    <h:panelGroup>
+      <h:outputText value="Round not Loaded"
+                    style="color:red;"
+                    rendered="#{scheduler.nullRound}"/>
+      <h:outputText
+          value="Round &lt;b&gt;#{scheduler.getRunningRound().roundName}&lt;/b&gt; Loaded"
+          style="color:green;" escape="false"
+          rendered="#{!scheduler.nullRound}"/>
+    </h:panelGroup>
+    <h:panelGroup>
+      <h:commandButton value="Unload"
+                       action="#{actionAdmin.unloadRound()}"
+                       rendered="#{!scheduler.nullRound}"/>
+      <h:panelGroup rendered="#{actionAdmin.availableRounds.size() > 0}">
+        <h:selectOneMenu value="#{actionAdmin.selectedRound}"
+                         rendered="#{scheduler.nullRound}"
+                         style="border:1px solid grey;height:22px;padding:1px;margin:2px;">
+          <f:selectItems value="#{actionAdmin.availableRounds}" var="r"
+                         itemValue="#{r.roundId}"
+                         itemLabel="#{r.roundName}"/>
+        </h:selectOneMenu>
+        <h:commandButton value="Load"
+                         action="#{actionAdmin.loadRound()}"
+                         rendered="#{scheduler.nullRound}"/>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{actionAdmin.availableRounds.size() == 0}">
+        <h:outputText>No rounds availble for loading</h:outputText>
+      </h:panelGroup>
+    </h:panelGroup>
 
-          <h4>Weather Server Status</h4>
-          <t:panelGroup colspan="2">
-            <h:outputText value="#{checkWeatherServer.status}"
-                          style="color:green;"
-                          rendered="#{checkWeatherServer.status == 'Server Alive and Well'}"/>
-            <h:outputText value="#{checkWeatherServer.status}"
-                          style="color:red;"
-                          rendered="#{checkWeatherServer.status == 'Server is Down'}"/>
-            <h:outputText value="#{checkWeatherServer.status}"
-                          style="color:orange;"
-                          rendered="#{checkWeatherServer.status == 'Server Timeout or Network Error'}"/>
-          </t:panelGroup>
+    <h4>Weather Server Status</h4>
+    <t:panelGroup colspan="2">
+      <h:outputText value="#{checkWeatherServer.status}"
+                    style="color:green;"
+                    rendered="#{checkWeatherServer.status == 'Server Alive and Well'}"/>
+      <h:outputText value="#{checkWeatherServer.status}"
+                    style="color:red;"
+                    rendered="#{checkWeatherServer.status == 'Server is Down'}"/>
+      <h:outputText value="#{checkWeatherServer.status}"
+                    style="color:orange;"
+                    rendered="#{checkWeatherServer.status == 'Server Timeout or Network Error'}"/>
+    </t:panelGroup>
 
-          <h4>Weather Server Location</h4>
-          <t:panelGroup colspan="2">
-            <a href="#{checkWeatherServer.weatherServerLocation}" target="_blank">
-              <h:outputText value="#{checkWeatherServer.weatherServerLocation}"/>
-            </a>
-          </t:panelGroup>
-        </t:panelGrid>
-      </h:form>
+    <h4>Weather Server Location</h4>
+    <t:panelGroup colspan="2">
+      <a href="#{checkWeatherServer.weatherServerLocation}" target="_blank">
+        <h:outputText value="#{checkWeatherServer.weatherServerLocation}"/>
+      </a>
+    </t:panelGroup>
+  </t:panelGrid>
+</h:form>
 
-      <h:form rendered="#{user.isAdmin()}">
-        <h3>Weather Server Locations and Dates:</h3>
-        <h:dataTable border="1" styleClass="dataTable"
-                     value="#{actionAdmin.locationList}" var="l">
-          <h:column>
-            <f:facet name="header">Name</f:facet>
-            <h:outputText value="#{l.location}"/>
-          </h:column>
+<h:form rendered="#{user.isAdmin()}">
+  <h3>Weather Server Locations and Dates:</h3>
+  <h:dataTable border="1" styleClass="dataTable"
+               value="#{actionAdmin.locationList}" var="l">
+    <h:column>
+      <f:facet name="header">Name</f:facet>
+      <h:outputText value="#{l.location}"/>
+    </h:column>
 
-          <h:column>
-            <f:facet name="header">Timezone</f:facet>
-            <h:outputText value="#{l.timezone}"/>
-          </h:column>
+    <h:column>
+      <f:facet name="header">Timezone</f:facet>
+      <h:outputText value="#{l.timezone}"/>
+    </h:column>
 
-          <h:column>
-            <f:facet name="header">Start Date</f:facet>
-            <h:outputText value="#{l.dateFrom}"/>
-          </h:column>
+    <h:column>
+      <f:facet name="header">Start Date</f:facet>
+      <h:outputText value="#{l.dateFrom}"/>
+    </h:column>
 
-          <h:column>
-            <f:facet name="header">End Date</f:facet>
-            <h:outputText value="#{l.dateTo}"/>
-          </h:column>
+    <h:column>
+      <f:facet name="header">End Date</f:facet>
+      <h:outputText value="#{l.dateTo}"/>
+    </h:column>
 
-          <h:column styleClass="left">
-            <f:facet name="header">Action</f:facet>
-            <h:commandButton value="Delete" action="#{actionAdmin.deleteLocation(l)}"
-                             onclick="return confirmAlert('Are you sure you want to delete this location?');"
-                             styleClass="smallButton"/>
-            <h:commandButton value="Edit" action="#{actionAdmin.editLocation(l)}"
-                             styleClass="smallButton"/>
-          </h:column>
-        </h:dataTable>
+    <h:column styleClass="left">
+      <f:facet name="header">Action</f:facet>
+      <h:commandButton value="Delete" action="#{actionAdmin.deleteLocation(l)}"
+                       onclick="return confirmAlert('Are you sure you want to delete this location?');"
+                       styleClass="smallButton"/>
+      <h:commandButton value="Edit" action="#{actionAdmin.editLocation(l)}"
+                       styleClass="smallButton"/>
+    </h:column>
+  </h:dataTable>
 
-        <h:panelGroup rendered="#{actionAdmin.possibleLocationList.size() > 0}">
-          <h3 style="margin-top: 5px;" >Extra Locations Available:</h3>
-        </h:panelGroup>
-        <h:dataTable border="1" styleClass="dataTable"
-                     value="#{actionAdmin.possibleLocationList}" var="l"
-                     rendered="#{actionAdmin.possibleLocationList.size() > 0}">
-          <h:column>
-            <h:outputText value="#{l.location}"/>
-          </h:column>
+  <h:panelGroup rendered="#{actionAdmin.possibleLocationList.size() > 0}">
+    <h3 style="margin-top: 5px;">Extra Locations Available:</h3>
+  </h:panelGroup>
+  <h:dataTable border="1" styleClass="dataTable"
+               value="#{actionAdmin.possibleLocationList}" var="l"
+               rendered="#{actionAdmin.possibleLocationList.size() > 0}">
+    <h:column>
+      <h:outputText value="#{l.location}"/>
+    </h:column>
 
-          <h:column>
-            <h:outputText value="#{l.dateFrom}"/>
-          </h:column>
+    <h:column>
+      <h:outputText value="#{l.dateFrom}"/>
+    </h:column>
 
-          <h:column>
-            <h:outputText value="#{l.dateTo}"/>
-          </h:column>
+    <h:column>
+      <h:outputText value="#{l.dateTo}"/>
+    </h:column>
 
-          <h:column styleClass="left">
-            <h:commandButton value="Add" action="#{actionAdmin.addLocation(l)}"
-                             styleClass="smallButton"/>
-          </h:column>
-        </h:dataTable>
-      </h:form>
+    <h:column styleClass="left">
+      <h:commandButton value="Add" action="#{actionAdmin.addLocation(l)}"
+                       styleClass="smallButton"/>
+    </h:column>
+  </h:dataTable>
+</h:form>
 
-      <h:form rendered="#{user.isAdmin()}" id="saveLocation">
-        <br/>
-        <h:panelGrid columns="4">
-          <h:outputText value="Name:"/>
-          <h:inputText value="#{actionAdmin.locationName}"/>
+<h:form rendered="#{user.isAdmin()}" id="saveLocation">
+  <br/>
+  <h:panelGrid columns="4">
+    <h:outputText value="Name:"/>
+    <h:inputText value="#{actionAdmin.locationName}"/>
 
-          <h:outputText value="Start Date:"/>
-          <t:inputDate value="#{actionAdmin.locationStartTime}"/>
+    <h:outputText value="Start Date:"/>
+    <t:inputDate value="#{actionAdmin.locationStartTime}"/>
 
-          <h:outputText value="Timezone:"/>
-          <h:inputText value="#{actionAdmin.locationTimezone}"/>
+    <h:outputText value="Timezone:"/>
+    <h:inputText value="#{actionAdmin.locationTimezone}"/>
 
-          <h:outputText value="End Date:"/>
-          <t:inputDate value="#{actionAdmin.locationEndTime}"/>
-        </h:panelGrid>
-        <h:commandButton value="Save"
-                         action="#{actionAdmin.saveLocation}"/>
-        <h:messages for="saveLocation"/>
-        <h:inputHidden id="locationId" value="#{actionAdmin.locationId}"/>
-      </h:form>
+    <h:outputText value="End Date:"/>
+    <t:inputDate value="#{actionAdmin.locationEndTime}"/>
+  </h:panelGrid>
+  <h:commandButton value="Save"
+                   action="#{actionAdmin.saveLocation}"/>
+  <h:messages for="saveLocation"/>
+  <h:inputHidden id="locationId" value="#{actionAdmin.locationId}"/>
+</h:form>
 
-      <h:form rendered="#{user.isAdmin()}">
-        <h3>Available Poms</h3>
-        <t:dataTable id="dataPoms" border="1" styleClass="dataTable"
-                     value="#{actionAdmin.pomList}" var="p">
+<h:form rendered="#{user.isAdmin()}">
+  <h3>Available Poms</h3>
+  <t:dataTable id="dataPoms" border="1" styleClass="dataTable"
+               value="#{actionAdmin.pomList}" var="p">
 
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Pom Name"/>
-            </f:facet>
-            <a href="pom.jsp?pomId=#{p.pomId}">
-              <h:outputText value="#{p.pomName}"/>
-            </a>
-          </t:column>
+    <t:column>
+      <f:facet name="header">
+        <h:outputText value="Pom Name"/>
+      </f:facet>
+      <a href="pom.jsp?pomId=#{p.pomId}">
+        <h:outputText value="#{p.pomName}"/>
+      </a>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Pom Id"/>
-            </f:facet>
-            <h:outputText value="#{p.pomId}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">
+        <h:outputText value="Pom Id"/>
+      </f:facet>
+      <h:outputText value="#{p.pomId}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Uploading User"/>
-            </f:facet>
-            <h:outputText value="#{p.user.getUserName()}"/>
-          </t:column>
-        </t:dataTable>
-      </h:form>
+    <t:column>
+      <f:facet name="header">
+        <h:outputText value="Uploading User"/>
+      </f:facet>
+      <h:outputText value="#{p.user.getUserName()}"/>
+    </t:column>
+  </t:dataTable>
+</h:form>
 
-      <br/>
-      <h:form rendered="#{user.isAdmin()}" enctype="multipart/form-data"
-              id="pomUploadForm" styleClass="left">
-        <h:panelGrid columns="3">
-          <h:outputText value="Pom Name"/>
-          <h:inputText value="#{actionAdmin.pomName}"/>
-          <t:inputFileUpload value="#{actionAdmin.uploadedPom}"
-                             accept="mime-type" storage="file"/>
-        </h:panelGrid>
-        <h:commandButton value="Submit Pom"
-                         action="#{actionAdmin.submitPom}"/>
-        <h:messages for="pomUploadForm"/>
-      </h:form>
+<br/>
+<h:form rendered="#{user.isAdmin()}" enctype="multipart/form-data"
+        id="pomUploadForm" styleClass="left">
+  <h:panelGrid columns="3">
+    <h:outputText value="Pom Name"/>
+    <h:inputText value="#{actionAdmin.pomName}"/>
+    <t:inputFileUpload value="#{actionAdmin.uploadedPom}"
+                       accept="mime-type" storage="file"/>
+  </h:panelGrid>
+  <h:commandButton value="Submit Pom"
+                   action="#{actionAdmin.submitPom}"/>
+  <h:messages for="pomUploadForm"/>
+</h:form>
 
-      <br/>
-      <h:form rendered="#{user.isAdmin()}" id="machinesForm">
-        <h3 class="withButton">Available Machines</h3>
-        <h:commandButton value="Refresh"/>
-        <t:dataTable id="dataMachines" border="1"
-                     styleClass="dataTable"
-                     value="#{actionAdmin.machineList}" var="m">
+<br/>
+<h:form rendered="#{user.isAdmin()}" id="machinesForm">
+  <h3 class="withButton">Available Machines</h3>
+  <h:commandButton value="Refresh"/>
+  <t:dataTable id="dataMachines" border="1"
+               styleClass="dataTable"
+               value="#{actionAdmin.machineList}" var="m">
 
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Name"/>
-            </f:facet>
-            <h:outputText value="#{m.machineName}" id="id"/>
-          </t:column>
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Hostname"/>
-            </f:facet>
-            <h:outputText value="#{m.machineUrl}"/>
-          </t:column>
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Vizualizer URL"/>
-            </f:facet>
-            <a href="http://#{m.vizUrl}" target="_blank">
-              <h:outputText value="#{m.vizUrl} "/>
-            </a>
-          </t:column>
-          <t:column>
-            <f:facet name="header">CheckIns</f:facet>
-            <h:outputText id="checkins"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">
+        <h:outputText value="Name"/>
+      </f:facet>
+      <h:outputText value="#{m.machineName}" id="id"/>
+    </t:column>
+    <t:column>
+      <f:facet name="header">
+        <h:outputText value="Hostname"/>
+      </f:facet>
+      <h:outputText value="#{m.machineUrl}"/>
+    </t:column>
+    <t:column>
+      <f:facet name="header">
+        <h:outputText value="Vizualizer URL"/>
+      </f:facet>
+      <a href="http://#{m.vizUrl}" target="_blank">
+        <h:outputText value="#{m.vizUrl} "/>
+      </a>
+    </t:column>
+    <t:column>
+      <f:facet name="header">CheckIns</f:facet>
+      <h:outputText id="checkins"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Idle"/>
-            </f:facet>
-            <h:outputText value="#{!m.isInProgress()}"/>
-          </t:column>
-          <t:column>
-            <h:commandButton value="Toggle"
-                             action="#{actionAdmin.toggleState(m)}"
-                             styleClass="smallButton"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">
+        <h:outputText value="Idle"/>
+      </f:facet>
+      <h:outputText value="#{!m.isInProgress()}"/>
+    </t:column>
+    <t:column>
+      <h:commandButton value="Toggle"
+                       action="#{actionAdmin.toggleState(m)}"
+                       styleClass="smallButton"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Avail"/>
-            </f:facet>
-            <h:outputText value="#{m.available}"/>
-          </t:column>
-          <t:column>
-            <h:commandButton value="Toggle"
-                             action="#{actionAdmin.toggleAvailable(m)}"
-                             styleClass="smallButton"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">
+        <h:outputText value="Avail"/>
+      </f:facet>
+      <h:outputText value="#{m.available}"/>
+    </t:column>
+    <t:column>
+      <h:commandButton value="Toggle"
+                       action="#{actionAdmin.toggleAvailable(m)}"
+                       styleClass="smallButton"/>
+    </t:column>
 
-          <t:column styleClass="left">
-            <f:facet name="header">Actions</f:facet>
-            <h:commandButton value="Delete" action="#{actionAdmin.deleteMachine(m)}"
-                             onclick="return confirmAlert('Are you sure you want to delete this machine?');"
-                             styleClass="smallButton"/>
-            <h:commandButton value="Edit" action="#{actionAdmin.editMachine(m)}"
-                             styleClass="smallButton"/>
-          </t:column>
-        </t:dataTable>
-      </h:form>
+    <t:column styleClass="left">
+      <f:facet name="header">Actions</f:facet>
+      <h:commandButton value="Delete" action="#{actionAdmin.deleteMachine(m)}"
+                       onclick="return confirmAlert('Are you sure you want to delete this machine?');"
+                       styleClass="smallButton"/>
+      <h:commandButton value="Edit" action="#{actionAdmin.editMachine(m)}"
+                       styleClass="smallButton"/>
+    </t:column>
+  </t:dataTable>
+</h:form>
 
-      <br/>
-      <h:form rendered="#{user.isAdmin()}" id="saveMachine">
-        <h:panelGrid columns="6">
-          <h:outputText value="Name:"/>
-          <h:inputText value="#{actionAdmin.machineName}"/>
+<br/>
+<h:form rendered="#{user.isAdmin()}" id="saveMachine">
+  <h:panelGrid columns="6">
+    <h:outputText value="Name:"/>
+    <h:inputText value="#{actionAdmin.machineName}"/>
 
-          <h:outputText value="Hostname:"/>
-          <h:inputText value="#{actionAdmin.machineUrl}"/>
+    <h:outputText value="Hostname:"/>
+    <h:inputText value="#{actionAdmin.machineUrl}"/>
 
-          <h:outputText value="Viz Url:"/>
-          <h:inputText value="#{actionAdmin.machineViz}"/>
-        </h:panelGrid>
-        <h:commandButton value="Save" action="#{actionAdmin.saveMachine()}"/>
-        <h:messages for="saveMachine"/>
-        <h:inputHidden id="machineId" value="#{actionAdmin.machineId}"/>
-      </h:form>
+    <h:outputText value="Viz Url:"/>
+    <h:inputText value="#{actionAdmin.machineViz}"/>
+  </h:panelGrid>
+  <h:commandButton value="Save" action="#{actionAdmin.saveMachine()}"/>
+  <h:messages for="saveMachine"/>
+  <h:inputHidden id="machineId" value="#{actionAdmin.machineId}"/>
+</h:form>
 
-      <h:form rendered="#{user.isAdmin()}">
-        <h3>User Details</h3>
-        <t:dataTable id="dataUsers" border="1"
-                     value="#{actionAdmin.userList}" var="u">
+<h:form rendered="#{user.isAdmin()}">
+  <h3>User Details</h3>
+  <t:dataTable id="dataUsers" border="1"
+               value="#{actionAdmin.userList}" var="u">
 
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="User ID"/>
-            </f:facet>
-            <h:outputText value="#{u.userId}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">
+        <h:outputText value="User ID"/>
+      </f:facet>
+      <h:outputText value="#{u.userId}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Username"/>
-            </f:facet>
-            <h:outputText value="#{u.userName}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">
+        <h:outputText value="Username"/>
+      </f:facet>
+      <h:outputText value="#{u.userName}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Permission"/>
-            </f:facet>
-            <h:outputText value="#{u.permission}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">
+        <h:outputText value="Permission"/>
+      </f:facet>
+      <h:outputText value="#{u.permission}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">
-              <h:outputText value="Actions"/>
-            </f:facet>
-            <h:commandButton value="Increase" styleClass="smallButton"
-                             action="#{actionAdmin.increasePermissions(u)}"/>
-            <h:commandButton value="Decrease" styleClass="smallButton"
-                             action="#{actionAdmin.decreasePermissions(u)}"/>
-          </t:column>
-        </t:dataTable>
-      </h:form>
+    <t:column>
+      <f:facet name="header">
+        <h:outputText value="Actions"/>
+      </f:facet>
+      <h:commandButton value="Increase" styleClass="smallButton"
+                       action="#{actionAdmin.increasePermissions(u)}"/>
+      <h:commandButton value="Decrease" styleClass="smallButton"
+                       action="#{actionAdmin.decreasePermissions(u)}"/>
+    </t:column>
+  </t:dataTable>
+</h:form>
 
-      <br/><br/>
-    </ui:define>
-  </ui:composition>
+<br/><br/>
+</ui:define>
+</ui:composition>
 </h:body>
 </html>

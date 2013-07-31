@@ -45,6 +45,7 @@ public class Scheduler implements InitializingBean
     watchDogInterval =
         properties.getPropertyInt("scheduler.watchDogInterval", "120000");
 
+    /*
     Timer t = new Timer();
     TimerTask tt = new TimerTask()
     {
@@ -55,6 +56,7 @@ public class Scheduler implements InitializingBean
       }
     };
     t.schedule(tt, 3000);
+    */
   }
 
   private synchronized void startWatchDog ()

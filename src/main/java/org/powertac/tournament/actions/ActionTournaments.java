@@ -29,26 +29,14 @@ public class ActionTournaments
   private int nofLevels = 4;
   private List<Level> levels;
   private boolean[] disabledArray;
-  private List<Broker> brokerList = new ArrayList<Broker>();
+
+  private List<Tournament> tournamentList;
+  private List<Pom> pomList;
+  private List<Broker> brokerList;
 
   public ActionTournaments ()
   {
     resetValues();
-  }
-
-  public List<Tournament> getTournamentList ()
-  {
-    return Tournament.getNotCompleteTournamentList();
-  }
-
-  public List<Pom> getPomList ()
-  {
-    return Pom.getPomList();
-  }
-
-  public List<Broker> getBrokerList ()
-  {
-    return brokerList;
   }
 
   public void register (Broker b)
@@ -347,6 +335,8 @@ public class ActionTournaments
     levels.get(0).setNofRounds(1);
     levels.get(0).setNofWinners(100);
 
+    tournamentList = Tournament.getNotCompleteTournamentList();
+    pomList = Pom.getPomList();
     brokerList = Broker.getBrokerList();
   }
 
@@ -450,6 +440,28 @@ public class ActionTournaments
       FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
     }
   }
+
+  //<editor-fold desc="Collections">
+  public List<Tournament> getTournamentList ()
+  {
+    return tournamentList;
+  }
+
+  public List<Pom> getPomList ()
+  {
+    return pomList;
+  }
+
+  public List<Broker> getBrokerList ()
+  {
+    return brokerList;
+  }
+
+  public List<Tournament> getAvailableTournaments (Broker broker)
+  {
+    return broker.getAvailableTournaments(tournamentList);
+  }
+  //</editor-fold>
 
   //<editor-fold desc="Setters and Getters">
   public int getTournamentId ()

@@ -24,21 +24,18 @@ public class ActionAccount
   private String brokerName;
   private String brokerShort;
 
-  private List<Broker> brokers = new ArrayList<Broker>();
+  private List<Broker> brokers;
 
   public ActionAccount ()
   {
-    User.reloadUser (user);
+    loadData();
   }
 
   @SuppressWarnings("unchecked")
-  public List<Broker> getBrokers ()
+  private void loadData ()
   {
-    if (brokers.size() == 0) {
-      brokers.addAll(user.getBrokerMap().values());
-      Collections.sort(brokers, new Utils.AlphanumComparator());
-    }
-    return brokers;
+    brokers = new ArrayList<Broker>(user.getBrokerMap().values());
+    Collections.sort(brokers, new Utils.AlphanumComparator());
   }
 
   public void addBroker ()
@@ -122,7 +119,6 @@ public class ActionAccount
   public void editBroker (Broker broker)
   {
     User.getCurrentUser().setEditingBroker(true);
-
     broker.setEdit(true);
   }
 
@@ -189,12 +185,16 @@ public class ActionAccount
     }
   }
 
+  public List<Broker> getBrokers ()
+  {
+    return brokers;
+  }
+
   //<editor-fold desc="Setters and Getters">
   public String getBrokerShort ()
   {
     return brokerShort;
   }
-
   public void setBrokerShort (String brokerShort)
   {
     this.brokerShort = brokerShort;
@@ -204,7 +204,6 @@ public class ActionAccount
   {
     return brokerName;
   }
-
   public void setBrokerName (String brokerName)
   {
     this.brokerName = brokerName;
@@ -214,7 +213,6 @@ public class ActionAccount
   {
     return user;
   }
-
   public void setUser (User user)
   {
     this.user = user;

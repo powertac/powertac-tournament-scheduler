@@ -291,7 +291,6 @@ public class Broker
     }
   }
 
-
   // Check if not more than maxBrokers are running
   public boolean hasAgentsAvailable ()
   {
@@ -316,23 +315,22 @@ public class Broker
   @Transient
   public String getTournamentsString (boolean useId)
   {
-    String result = "";
+    StringBuilder result = new StringBuilder();
 
     for (Tournament tournament : tournamentMap.values()) {
-      if (!tournament.isComplete()) {
-        if (useId) {
-          result += tournament.getTournamentId() + ", ";
-        }
-        else {
-          result += tournament.getTournamentName() + ", ";
-        }
+      if (!tournament.isComplete() && useId) {
+        result.append(tournament.getTournamentId()).append(", ");
+      }
+      else if (!tournament.isComplete() && !useId) {
+        result.append(tournament.getTournamentName()).append(", ");
       }
     }
-    if (!result.isEmpty()) {
-      result = result.substring(0, result.length() - 2);
+
+    if (result.length() != 0) {
+      result.delete(result.length()-2, result.length());
     }
 
-    return result;
+    return result.toString();
   }
 
   @Transient
@@ -378,6 +376,7 @@ public class Broker
     return result;
   }
 
+  //<editor-fold desc="Collections">
   @SuppressWarnings("unchecked")
   public static List<Broker> getBrokerList ()
   {
@@ -399,8 +398,36 @@ public class Broker
     return brokers;
   }
 
+  // This creates a map with brokerId <--> # of free agents
+  @SuppressWarnings("unchecked")
+  public static Map<Integer, Integer> getBrokerAvailability (Session session,
+                                                             int maxAgents)
+  {
+    Map<Integer, Integer> result = new HashMap<Integer, Integer>();
+
+    List<Broker> brokers = (List<Broker>) session
+        .createQuery(Constants.HQL.GET_BROKERS).list();
+
+    for (Broker broker: brokers) {
+      int brokerId = broker.getBrokerId();
+      if (!MemStore.getBrokerState(brokerId)) {
+        result.put(brokerId, 0);
+        continue;
+      }
+
+      result.put(brokerId, maxAgents);
+      for (Agent agent: broker.getAgentMap().values()) {
+        if (agent.getGame().isRunning()) {
+          result.put(brokerId, result.get(brokerId) - 1);
+        }
+      }
+    }
+
+    return result;
+  }
+
   @Transient
-  public List<Round> getAvailableRounds ()
+  public List<Round> getAvailableRounds (List<Round> roundList)
   {
     List<Round> registrableRounds = new ArrayList<Round>();
 
@@ -408,7 +435,7 @@ public class Broker
     long loginDeadline = properties.getPropertyInt("loginDeadline", "3600000");
     long nowStamp = Utils.offsetDate().getTime();
 
-    for (Round round: Round.getNotCompleteRoundList()) {
+    for (Round round: roundList) {
       // Check if maxNofBrokers reached
       if (round.getBrokerMap().size() >= round.getMaxBrokers()) {
         continue;
@@ -455,11 +482,11 @@ public class Broker
   }
 
   @Transient
-  public List<Tournament> getAvailableTournaments ()
+  public List<Tournament> getAvailableTournaments (List<Tournament> tournamentList)
   {
     List<Tournament> registrableTournaments = new ArrayList<Tournament>();
 
-    for (Tournament tournament: Tournament.getNotCompleteTournamentList()) {
+    for (Tournament tournament: tournamentList) {
       // Can't register if already started
       if (tournament.isStarted()) {
         continue;
@@ -565,34 +592,7 @@ public class Broker
   {
     this.tournamentMap = tournamentMap;
   }
-
-  // This creates a map with brokerId <--> # of free agents
-  @SuppressWarnings("unchecked")
-  public static Map<Integer, Integer> getBrokerAvailability (Session session,
-                                                             int maxAgents)
-  {
-    Map<Integer, Integer> result = new HashMap<Integer, Integer>();
-
-    List<Broker> brokers = (List<Broker>) session
-        .createQuery(Constants.HQL.GET_BROKERS).list();
-
-    for (Broker broker: brokers) {
-      int brokerId = broker.getBrokerId();
-      if (!MemStore.getBrokerState(brokerId)) {
-        result.put(brokerId, 0);
-        continue;
-      }
-
-      result.put(brokerId, maxAgents);
-      for (Agent agent: broker.getAgentMap().values()) {
-        if (agent.getGame().isRunning()) {
-          result.put(brokerId, result.get(brokerId) - 1);
-        }
-      }
-    }
-
-    return result;
-  }
+  //</editor-fold>
 
   //<editor-fold desc="Bean Setters and Getters">
   @Id

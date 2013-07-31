@@ -1,6 +1,5 @@
 package org.powertac.tournament.actions;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 import org.powertac.tournament.beans.User;
 
@@ -8,7 +7,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.util.Date;
 
 
 @ManagedBean
@@ -34,8 +32,6 @@ public class ActionRegister
       return "Failure";
     }
 
-    String genSalt = DigestUtils.md5Hex(Math.random() + (new Date()).toString());
-
     User user = new User();
     user.setUserName(username);
     user.setContactName(contactName);
@@ -43,8 +39,7 @@ public class ActionRegister
     user.setContactPhone(contactPhone);
     user.setInstitution(institution);
     user.setPermissionBroker();
-    user.setPassword(DigestUtils.md5Hex(password1 + genSalt));
-    user.setSalt(genSalt);
+    user.setPasswordAndSalt(password1);
 
     log.info("Registring user " + username);
     return user.save();
@@ -82,7 +77,6 @@ public class ActionRegister
   {
     return contactName;
   }
-
   public void setContactName (String contactName)
   {
     this.contactName = contactName;
@@ -92,7 +86,6 @@ public class ActionRegister
   {
     return institution;
   }
-
   public void setInstitution (String institution)
   {
     this.institution = institution;
@@ -102,7 +95,6 @@ public class ActionRegister
   {
     return contactEmail;
   }
-
   public void setContactEmail (String contactEmail)
   {
     this.contactEmail = contactEmail;
@@ -112,7 +104,6 @@ public class ActionRegister
   {
     return username;
   }
-
   public void setUsername (String username)
   {
     this.username = username;
@@ -122,7 +113,6 @@ public class ActionRegister
   {
     return password1;
   }
-
   public void setPassword1 (String password1)
   {
     this.password1 = password1;
@@ -132,7 +122,6 @@ public class ActionRegister
   {
     return password2;
   }
-
   public void setPassword2 (String password2)
   {
     this.password2 = password2;
@@ -142,7 +131,6 @@ public class ActionRegister
   {
     return contactPhone;
   }
-
   public void setContactPhone (String contactPhone)
   {
     this.contactPhone = contactPhone;

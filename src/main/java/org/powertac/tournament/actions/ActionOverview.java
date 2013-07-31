@@ -10,7 +10,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -20,9 +19,9 @@ public class ActionOverview
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private List<Broker> brokerList = new ArrayList<Broker>();
-  private List<Game> notCompleteGamesList = new ArrayList<Game>();
-  private List<Round> notCompleteRoundList = new ArrayList<Round>();
+  private List<Broker> brokerList;
+  private List<Game> notCompleteGamesList;
+  private List<Round> notCompleteRoundList;
 
   private boolean hideSample = true;
   private boolean hideInactive = true;
@@ -37,21 +36,6 @@ public class ActionOverview
     brokerList = Broker.getBrokerList();
     notCompleteGamesList = Game.getNotCompleteGamesList();
     notCompleteRoundList = Round.getNotCompleteRoundList();
-  }
-
-  public List<Broker> getBrokerList ()
-  {
-    return brokerList;
-  }
-
-  public List<Round> getNotCompleteRoundList ()
-  {
-    return notCompleteRoundList;
-  }
-
-  public List<Game> getNotCompleteGamesList ()
-  {
-    return notCompleteGamesList;
   }
 
   public String getBrokerState (int brokerId)
@@ -186,6 +170,24 @@ public class ActionOverview
     }
   }
 
+  //<editor-fold desc="Collections">
+  public List<Broker> getBrokerList ()
+  {
+    return brokerList;
+  }
+
+  public List<Game> getNotCompleteGamesList ()
+  {
+    return notCompleteGamesList;
+  }
+
+  public List<Round> getNotCompleteRoundList ()
+  {
+    return notCompleteRoundList;
+  }
+  //</editor-fold>
+
+  //<editor-fold desc="Getters and Setters">
   public boolean isHideSample ()
   {
     return hideSample;
@@ -203,4 +205,5 @@ public class ActionOverview
   {
     this.hideInactive = hideInactive;
   }
+  //</editor-fold>
 }

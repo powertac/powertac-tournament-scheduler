@@ -13,8 +13,9 @@
   <ui:composition template="template.xhtml">
     <ui:define name="content">
 
-      <h:form rendered="#{user.isAdmin() and actionTournaments.tournamentList.size() > 0}"
-              id="runningTournaments">
+      <h:form
+          rendered="#{user.isAdmin() and actionTournaments.tournamentList.size() > 0}"
+          id="runningTournaments">
         <br/>
 
         <h3 class="withButton">Pending/Running Tournaments</h3>
@@ -91,46 +92,44 @@
                      value="#{actionTournaments.brokerList}" var="broker">
 
           <t:column>
-              <f:facet name="header">ID</f:facet>
-              <h:outputText value="#{broker.brokerId}"/>
+            <f:facet name="header">ID</f:facet>
+            <h:outputText value="#{broker.brokerId}"/>
           </t:column>
 
           <t:column>
-              <f:facet name="header">Name</f:facet>
-              <h:outputText value="#{broker.brokerName}"/>
+            <f:facet name="header">Name</f:facet>
+            <h:outputText value="#{broker.brokerName}"/>
           </t:column>
 
           <t:column>
-              <f:facet name="header">Registered</f:facet>
-              <h:outputText value="#{broker.getTournamentsString(false)}"/>
+            <f:facet name="header">Registered</f:facet>
+            <h:outputText value="#{broker.getTournamentsString(false)}"/>
           </t:column>
 
           <t:column style="text-align: right">
-              <f:facet name="header">Add</f:facet>
-              <h:selectOneMenu value="#{broker.registerTournamentId}"
-                               styleClass="smallButton">
-                  <f:selectItems
-                          value="#{broker.getAvailableTournaments()}"
-                          var="r"
-                          itemValue="#{r.tournamentId}"
-                          itemLabel="#{r.tournamentName}"/>
-              </h:selectOneMenu>
-              <h:commandButton value="Register" styleClass="smallButton"
-                               action="#{actionTournaments.register(broker)}"/>
+            <f:facet name="header">Add</f:facet>
+            <h:selectOneMenu value="#{broker.registerTournamentId}"
+                             styleClass="smallButton">
+              <f:selectItems
+                  value="#{actionTournaments.getAvailableTournaments(broker)}" var="r"
+                  itemValue="#{r.tournamentId}"
+                  itemLabel="#{r.tournamentName}"/>
+            </h:selectOneMenu>
+            <h:commandButton value="Register" styleClass="smallButton"
+                             action="#{actionTournaments.register(broker)}"/>
           </t:column>
 
           <t:column style="text-align: right">
-              <f:facet name="header">Remove</f:facet>
-              <h:selectOneMenu value="#{broker.unregisterTournamentId}"
-                               styleClass="smallButton">
-                  <f:selectItems
-                          value="#{broker.getRegisteredTournaments()}"
-                          var="t"
-                          itemValue="#{r.tournamentId}"
-                          itemLabel="#{r.tournamentName}"/>
-              </h:selectOneMenu>
-              <h:commandButton value="Unregister" styleClass="smallButton"
-                               action="#{actionTournaments.unregister(broker)}"/>
+            <f:facet name="header">Remove</f:facet>
+            <h:selectOneMenu value="#{broker.unregisterTournamentId}"
+                             styleClass="smallButton">
+              <f:selectItems
+                  value="#{broker.getRegisteredTournaments()}" var="r"
+                  itemValue="#{r.tournamentId}"
+                  itemLabel="#{r.tournamentName}"/>
+            </h:selectOneMenu>
+            <h:commandButton value="Unregister" styleClass="smallButton"
+                             action="#{actionTournaments.unregister(broker)}"/>
           </t:column>
         </t:dataTable>
         <h:messages for="tournamentRegistered" layout=""/>
@@ -170,18 +169,18 @@
               <td><h:outputText value="Level #{r.levelNr} name"/></td>
               <td><h:inputText value="#{r.levelName}"
                                disabled="#{actionTournaments.disabledArray[r.levelNr]}"
-                               styleClass="input_wide" /></td>
+                               styleClass="input_wide"/></td>
             </tr>
             <tr>
-              <td><h:outputText value="Rounds / winners" /></td>
+              <td><h:outputText value="Rounds / winners"/></td>
               <td>
                 <h:panelGroup>
                   <h:inputText value="#{r.nofRounds}"
                                readonly="#{actionTournaments.disabledArray[r.levelNr]}"
-                               styleClass="input_small" />
+                               styleClass="input_small"/>
                   <h:inputText value="#{r.nofWinners}"
                                readonly="#{actionTournaments.disabledArray[r.levelNr]}"
-                               styleClass="input_small" />
+                               styleClass="input_small"/>
                 </h:panelGroup>
               </td>
             </tr>

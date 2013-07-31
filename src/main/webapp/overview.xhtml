@@ -8,230 +8,230 @@
       xmlns:t="http://myfaces.apache.org/tomahawk">
 
 <h:body>
-  <ui:composition template="template.xhtml">
-    <ui:define name="content">
-      <script type="text/javascript" charset="utf8"
-              src="resources/js/datatable.sort.js"></script>
-      <script type="text/javascript" charset="utf8"
-              src="resources/js/overview.js"></script>
+<ui:composition template="template.xhtml">
+<ui:define name="content">
+<script type="text/javascript" charset="utf8"
+        src="resources/js/datatable.sort.js"></script>
+<script type="text/javascript" charset="utf8"
+        src="resources/js/overview.js"></script>
 
-      <h:form
-          rendered="#{(user.isAdmin()) and (actionOverview.brokerList.size() > 0)}"
-          id="brokersForm">
-        <br/>
+<h:form
+    rendered="#{(user.isAdmin()) and (actionOverview.brokerList.size() > 0)}"
+    id="brokersForm">
+  <br/>
 
-        <h3 class="withButton">Registered Brokers</h3>
-        <h:commandButton value="Refresh"/>
-        <input id="toggleSampleButton" type="button" value="Hide inactive"
-               onclick="toggleActiveBrokers();"/>
-        <t:dataTable id="databrokers" border="1"
-                     value="#{actionOverview.brokerList}" var="broker">
+  <h3 class="withButton">Registered Brokers</h3>
+  <h:commandButton value="Refresh"/>
+  <input id="toggleSampleButton" type="button" value="Hide inactive"
+         onclick="toggleActiveBrokers();"/>
+  <t:dataTable id="databrokers" border="1"
+               value="#{actionOverview.brokerList}" var="broker">
 
-          <t:column>
-            <f:facet name="header">ID</f:facet>
-            <h:outputText value="#{broker.brokerId}" id="id"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">ID</f:facet>
+      <h:outputText value="#{broker.brokerId}" id="id"/>
+    </t:column>
 
-          <t:column
-              styleClass="#{actionOverview.getBrokerState(broker.getBrokerId())}">
-            <f:facet name="header">Name</f:facet>
-            <h:outputLink value="mailto:#{broker.user.contactEmail}">
-              <h:outputText value="#{broker.brokerName}"/>
-            </h:outputLink>
-            <h:commandButton value="Toggle" styleClass="smallButton float_right"
-                             action="#{actionOverview.toggleState(broker.getBrokerId())}"/>
-          </t:column>
+    <t:column
+        styleClass="#{actionOverview.getBrokerState(broker.getBrokerId())}">
+      <f:facet name="header">Name</f:facet>
+      <h:outputLink value="mailto:#{broker.user.contactEmail}">
+        <h:outputText value="#{broker.brokerName}"/>
+      </h:outputLink>
+      <h:commandButton value="Toggle" styleClass="smallButton float_right"
+                       action="#{actionOverview.toggleState(broker.getBrokerId())}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">User</f:facet>
-            <h:outputText value="#{broker.user.userName}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">User</f:facet>
+      <h:outputText value="#{broker.user.userName}"/>
+    </t:column>
 
-          <h:column>
-              <f:facet name="header">Tournaments</f:facet>
-              <h:outputText value="#{broker.getTournamentsString(true)}"/>
-          </h:column>
+    <h:column>
+      <f:facet name="header">Tournaments</f:facet>
+      <h:outputText value="#{broker.getTournamentsString(true)}"/>
+    </h:column>
 
-          <t:column>
-            <f:facet name="header">Rounds</f:facet>
-            <h:outputText value="#{broker.getRoundsString(true)}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Rounds</f:facet>
+      <h:outputText value="#{broker.getRoundsString(true)}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Games</f:facet>
-            <h:outputText value="#{broker.getRunningGamesString()}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Games</f:facet>
+      <h:outputText value="#{broker.getRunningGamesString()}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">CheckIns</f:facet>
-            <t:outputText id="checkins"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">CheckIns</f:facet>
+      <t:outputText id="checkins"/>
+    </t:column>
 
-        </t:dataTable>
-        <h:messages for="brokersForm" layout=""/>
-        <br/>
+  </t:dataTable>
+  <h:messages for="brokersForm" layout=""/>
+  <br/>
 
-        <h:inputHidden id="hideSample" value="#{actionOverview.hideSample}"/>
-        <h:inputHidden id="hideInactive" value="#{actionOverview.hideInactive}"/>
-      </h:form>
+  <h:inputHidden id="hideSample" value="#{actionOverview.hideSample}"/>
+  <h:inputHidden id="hideInactive" value="#{actionOverview.hideInactive}"/>
+</h:form>
 
-      <h:form
-          rendered="#{(user.isAdmin()) and (actionOverview.notCompleteRoundList.size() > 0)}"
-          id="roundForm">
-        <h3 class="withButton">Pending/Running Rounds</h3>
-        <h:commandButton value="Refresh"/>
-        <t:dataTable id="dataRounds" border="1"
-                     value="#{actionOverview.notCompleteRoundList}" var="r">
+<h:form
+    rendered="#{(user.isAdmin()) and (actionOverview.notCompleteRoundList.size() > 0)}"
+    id="roundForm">
+  <h3 class="withButton">Pending/Running Rounds</h3>
+  <h:commandButton value="Refresh"/>
+  <t:dataTable id="dataRounds" border="1"
+               value="#{actionOverview.notCompleteRoundList}" var="r">
 
-          <t:column>
-            <f:facet name="header">ID</f:facet>
-            <h:outputText value="#{r.roundId}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">ID</f:facet>
+      <h:outputText value="#{r.roundId}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Name</f:facet>
-            <h:link value="#{r.roundName}" outcome="Round">
-              <f:param name="roundId" value="#{r.roundId}"/>
-            </h:link>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Name</f:facet>
+      <h:link value="#{r.roundName}" outcome="Round">
+        <f:param name="roundId" value="#{r.roundId}"/>
+      </h:link>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Status</f:facet>
-            <h:outputText value="#{r.state}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Status</f:facet>
+      <h:outputText value="#{r.state}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Start Time</f:facet>
-            <h:outputText value="#{r.startTimeUTC()}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Start Time</f:facet>
+      <h:outputText value="#{r.startTimeUTC()}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Reg / Max</f:facet>
-            <h:outputText value="#{r.brokerMap.size()} / #{r.maxBrokers}"/>
-            <h:outputText value=" : #{r.maxAgents}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Reg / Max</f:facet>
+      <h:outputText value="#{r.brokerMap.size()} / #{r.maxBrokers}"/>
+      <h:outputText value=" : #{r.maxAgents}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Games</f:facet>
-            <h:outputText value="#{r.size1}:#{r.multiplier1}"
-                          rendered="#{r.size1 > 0 and r.multiplier1 > 0}"/>
-            <h:outputText value=" #{r.size2}:#{r.multiplier2}"
-                          rendered="#{r.size2 > 0 and r.multiplier2 > 0}"/>
-            <h:outputText value=" #{r.size3}:#{r.multiplier3}"
-                          rendered="#{r.size3 > 0 and r.multiplier3 > 0}"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Games</f:facet>
+      <h:outputText value="#{r.size1}:#{r.multiplier1}"
+                    rendered="#{r.size1 > 0 and r.multiplier1 > 0}"/>
+      <h:outputText value=" #{r.size2}:#{r.multiplier2}"
+                    rendered="#{r.size2 > 0 and r.multiplier2 > 0}"/>
+      <h:outputText value=" #{r.size3}:#{r.multiplier3}"
+                    rendered="#{r.size3 > 0 and r.multiplier3 > 0}"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Pom</f:facet>
-            <a href="pom.jsp?pomId=#{r.pomId}">
-              <h:outputText value="#{r.pomId}"/>
-            </a>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Pom</f:facet>
+      <a href="pom.jsp?pomId=#{r.pomId}">
+        <h:outputText value="#{r.pomId}"/>
+      </a>
+    </t:column>
 
-        </t:dataTable>
+  </t:dataTable>
 
-        <h:messages for="roundForm"/>
-        <br/>
+  <h:messages for="roundForm"/>
+  <br/>
 
-        <h:inputHidden id="hideSample" value="#{actionOverview.hideSample}"/>
-        <h:inputHidden id="hideInactive" value="#{actionOverview.hideInactive}"/>
-      </h:form>
+  <h:inputHidden id="hideSample" value="#{actionOverview.hideSample}"/>
+  <h:inputHidden id="hideInactive" value="#{actionOverview.hideInactive}"/>
+</h:form>
 
-      <h:form
-          rendered="#{(user.isAdmin()) and (actionOverview.notCompleteGamesList.size() > 0)}"
-          id="gamesForm">
-        <h3 class="withButton" id="gamesFormHeader">Pending/Running Games</h3>
-        <h:commandButton value="Refresh"/>
-        <input id="toggleActiveButton" type="button" value="Hide inactive"
-               onclick="toggleActiveGames();"/>
-        <t:dataTable id="dataGames" border="1"
-                     value="#{actionOverview.notCompleteGamesList}" var="g">
-          <t:column>
-            <f:facet name="header">ID</f:facet>
-            <h:outputText value="#{g.gameId}" id="id"/>
-          </t:column>
+<h:form
+    rendered="#{(user.isAdmin()) and (actionOverview.notCompleteGamesList.size() > 0)}"
+    id="gamesForm">
+  <h3 class="withButton" id="gamesFormHeader">Pending/Running Games</h3>
+  <h:commandButton value="Refresh"/>
+  <input id="toggleActiveButton" type="button" value="Hide inactive"
+         onclick="toggleActiveGames();"/>
+  <t:dataTable id="dataGames" border="1"
+               value="#{actionOverview.notCompleteGamesList}" var="g">
+    <t:column>
+      <f:facet name="header">ID</f:facet>
+      <h:outputText value="#{g.gameId}" id="id"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Name</f:facet>
-            <h:link value="#{g.gameName}" outcome="Game"
-                    style="white-space: nowrap;">
-              <f:param name="gameId" value="#{g.gameId}"/>
-            </h:link>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Name</f:facet>
+      <h:link value="#{g.gameName}" outcome="Game"
+              style="white-space: nowrap;">
+        <f:param name="gameId" value="#{g.gameId}"/>
+      </h:link>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Status</f:facet>
-            <h:outputText value="#{g.state}"
-                          style="#{g.isRunning() ? 'font-weight:bold;' : '' }"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Status</f:facet>
+      <h:outputText value="#{g.state}"
+                    style="#{g.isRunning() ? 'font-weight:bold;' : '' }"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Brokers</f:facet>
-            <h:outputText value="#{g.getBrokerIdsInGameString()}"
-                          style="white-space: nowrap;"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Brokers</f:facet>
+      <h:outputText value="#{g.getBrokerIdsInGameString()}"
+                    style="white-space: nowrap;"/>
+    </t:column>
 
-          <t:column>
-            <f:facet name="header">Heartbeat</f:facet>
-            <t:outputText id="heartbeat" rendered="#{g.isRunning()}"
-                          style="float:left; width: 110px;"/>
-          </t:column>
+    <t:column>
+      <f:facet name="header">Heartbeat</f:facet>
+      <t:outputText id="heartbeat" rendered="#{g.isRunning()}"
+                    style="float:left; width: 110px;"/>
+    </t:column>
 
-          <t:column styleClass="left">
-            <f:facet name="header">Links</f:facet>
-            <h:panelGroup>
-              <h:outputLink value="properties.jsp?gameId=#{g.gameId}"
-                            target="_blank">P</h:outputLink>
+    <t:column styleClass="left">
+      <f:facet name="header">Links</f:facet>
+      <h:panelGroup>
+        <h:outputLink value="properties.jsp?gameId=#{g.gameId}"
+                      target="_blank">P</h:outputLink>
 
-              <h:outputText value="&#160;" rendered="#{g.hasBootstrap()}"/>
-              <h:outputLink
-                  value="serverInterface.jsp?action=boot&amp;gameId=#{g.gameId}"
-                  rendered="#{g.hasBootstrap()}"
-                  target="_blank">B</h:outputLink>
+        <h:outputText value="&#160;" rendered="#{g.hasBootstrap()}"/>
+        <h:outputLink
+            value="serverInterface.jsp?action=boot&amp;gameId=#{g.gameId}"
+            rendered="#{g.hasBootstrap()}"
+            target="_blank">B</h:outputLink>
 
-              <h:outputText value="&#160;" rendered="#{g.isRunning()}"/>
-              <h:outputLink value="http://#{g.machine.vizUrl}"
-                            rendered="#{g.isRunning()}"
-                            target="_blank">V</h:outputLink>
+        <h:outputText value="&#160;" rendered="#{g.isRunning()}"/>
+        <h:outputLink value="http://#{g.machine.vizUrl}"
+                      rendered="#{g.isRunning()}"
+                      target="_blank">V</h:outputLink>
 
-              <h:outputText value="&#160;" rendered="#{g.machine != null}"/>
-              <h:outputLink value="#{g.jenkinsMachineUrl()}"
-                            rendered="#{g.machine != null}"
-                            target="_blank">J</h:outputLink>
-            </h:panelGroup>
-          </t:column>
+        <h:outputText value="&#160;" rendered="#{g.machine != null}"/>
+        <h:outputLink value="#{g.jenkinsMachineUrl()}"
+                      rendered="#{g.machine != null}"
+                      target="_blank">J</h:outputLink>
+      </h:panelGroup>
+    </t:column>
 
-          <t:column styleClass="left">
-            <f:facet name="header">Actions</f:facet>
-            <h:panelGroup>
-              <h:commandButton value="Abort" action="#{actionOverview.abortGame(g)}"
-                               onclick="return confirmAlert('Are you sure you want to abort this game?');"
-                               rendered="#{g.machine != null and g.isRunning()}"
-                               styleClass="smallButton"/>
-              <h:commandButton value="Kill" action="#{actionOverview.killGame(g)}"
-                               onclick="return confirmAlert('Are you sure you want to kill this game?');"
-                               rendered="#{g.machine != null}"
-                               styleClass="smallButton"/>
-              <h:commandButton value="Restart"
-                               action="#{actionOverview.restartGame(g)}"
-                               rendered="#{g.isFailed()}" styleClass="smallButton"/>
-            </h:panelGroup>
-          </t:column>
-        </t:dataTable>
+    <t:column styleClass="left">
+      <f:facet name="header">Actions</f:facet>
+      <h:panelGroup>
+        <h:commandButton value="Abort" action="#{actionOverview.abortGame(g)}"
+                         onclick="return confirmAlert('Are you sure you want to abort this game?');"
+                         rendered="#{g.machine != null and g.isRunning()}"
+                         styleClass="smallButton"/>
+        <h:commandButton value="Kill" action="#{actionOverview.killGame(g)}"
+                         onclick="return confirmAlert('Are you sure you want to kill this game?');"
+                         rendered="#{g.machine != null}"
+                         styleClass="smallButton"/>
+        <h:commandButton value="Restart"
+                         action="#{actionOverview.restartGame(g)}"
+                         rendered="#{g.isFailed()}" styleClass="smallButton"/>
+      </h:panelGroup>
+    </t:column>
+  </t:dataTable>
 
-        <h:messages for="gamesForm"/>
-        <br/>
+  <h:messages for="gamesForm"/>
+  <br/>
 
-        <h:inputHidden id="hideSample" value="#{actionOverview.hideSample}"/>
-        <h:inputHidden id="hideInactive" value="#{actionOverview.hideInactive}"/>
-      </h:form>
+  <h:inputHidden id="hideSample" value="#{actionOverview.hideSample}"/>
+  <h:inputHidden id="hideInactive" value="#{actionOverview.hideInactive}"/>
+</h:form>
 
-      <h:form rendered="#{!user.isAdmin()}">
-        <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
-        <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
-      </h:form>
+<h:form rendered="#{!user.isAdmin()}">
+  <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
+  <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
+</h:form>
 
-    </ui:define>
-  </ui:composition>
+</ui:define>
+</ui:composition>
 </h:body>
 </html>

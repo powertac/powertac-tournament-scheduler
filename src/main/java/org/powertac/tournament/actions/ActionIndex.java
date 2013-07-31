@@ -13,7 +13,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -21,8 +20,8 @@ import java.util.List;
 @RequestScoped
 public class ActionIndex
 {
-  private List<Game> notCompleteGamesList = new ArrayList<Game>();
-  private List<Game> completeGamesList = new ArrayList<Game>();
+  private List<Game> notCompleteGamesList;
+  private List<Game> completeGamesList;
 
   private static boolean editing;
   private String content;
