@@ -19,6 +19,40 @@ function updateWatchdog(data) {
     }
 }
 
+function resizeTables() {
+  $('[id$=dataPoms]').dataTable({
+    "bFilter": false,
+    "bInfo": false,
+
+    "bPaginate": false,
+    /*
+    "aoColumnDefs": [
+      { 'bSortable': false, 'aTargets': [3, 5, 7, 8] },
+    ]
+    */
+  });
+
+  $('[id$=dataMachines]').dataTable({
+    "bFilter": false,
+    "bInfo": false,
+
+    "bPaginate": false,
+    "aoColumnDefs": [
+      { 'bSortable': false, 'aTargets': [3, 5, 7, 8] },
+    ]
+  });
+
+  $('[id$=dataUsers]').dataTable({
+    "bFilter": false,
+    "bInfo": false,
+
+    "bPaginate": false,
+    "aoColumnDefs": [
+      { 'bSortable': false, 'aTargets': [3] },
+    ]
+  });
+}
+
 function updateTables() {
     $.ajax({
         url: "Rest?type=visualizers",
@@ -31,6 +65,7 @@ function updateTables() {
 }
 
 $(document).ready(function () {
+    resizeTables();
     updateTables();
     setInterval(updateTables, 3000);
 });

@@ -180,14 +180,10 @@
 
       <h:form rendered="#{user.isAdmin()}">
         <h3>Available Poms</h3>
-        <t:dataTable id="datausers" border="1" sortable="true"
-                     sortColumn="#{actionAdmin.sortColumnPom}"
-                     sortAscending="#{actionAdmin.sortAscendingPom}"
-                     preserveSort="true"
-                     styleClass="dataTable"
+        <t:dataTable id="dataPoms" border="1" styleClass="dataTable"
                      value="#{actionAdmin.pomList}" var="p">
 
-          <t:column defaultSorted="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Pom Name"/>
             </f:facet>
@@ -196,14 +192,14 @@
             </a>
           </t:column>
 
-          <t:column defaultSorted="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Pom Id"/>
             </f:facet>
             <h:outputText value="#{p.pomId}"/>
           </t:column>
 
-          <t:column defaultSorted="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Uploading User"/>
             </f:facet>
@@ -218,7 +214,7 @@
         <h:panelGrid columns="3">
           <h:outputText value="Pom Name"/>
           <h:inputText value="#{actionAdmin.pomName}"/>
-          <t:inputFileUpload disabled="false" value="#{actionAdmin.uploadedPom}"
+          <t:inputFileUpload value="#{actionAdmin.uploadedPom}"
                              accept="mime-type" storage="file"/>
         </h:panelGrid>
         <h:commandButton value="Submit Pom"
@@ -230,25 +226,23 @@
       <h:form rendered="#{user.isAdmin()}" id="machinesForm">
         <h3 class="withButton">Available Machines</h3>
         <h:commandButton value="Refresh"/>
-        <t:dataTable id="machines" border="1" sortable="false"
-                     sortColumn="#{actionAdmin.sortColumnMachine}"
-                     sortAscending="#{actionAdmin.sortAscendingMachine}"
+        <t:dataTable id="dataMachines" border="1"
                      styleClass="dataTable"
                      value="#{actionAdmin.machineList}" var="m">
 
-          <t:column defaultSorted="true" sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Name"/>
             </f:facet>
             <h:outputText value="#{m.machineName}" id="id"/>
           </t:column>
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Hostname"/>
             </f:facet>
             <h:outputText value="#{m.machineUrl}"/>
           </t:column>
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Vizualizer URL"/>
             </f:facet>
@@ -261,7 +255,7 @@
             <h:outputText id="checkins"/>
           </t:column>
 
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Idle"/>
             </f:facet>
@@ -273,7 +267,7 @@
                              styleClass="smallButton"/>
           </t:column>
 
-          <t:column sortable="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Avail"/>
             </f:facet>
@@ -315,20 +309,17 @@
 
       <h:form rendered="#{user.isAdmin()}">
         <h3>User Details</h3>
-        <t:dataTable id="datausers" border="1" sortable="true"
-                     sortColumn="#{actionAdmin.sortColumnUsers}"
-                     sortAscending="#{actionAdmin.sortAscendingUsers}"
-                     preserveSort="true"
+        <t:dataTable id="dataUsers" border="1"
                      value="#{actionAdmin.userList}" var="u">
 
-          <t:column defaultSorted="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="User ID"/>
             </f:facet>
             <h:outputText value="#{u.userId}"/>
           </t:column>
 
-          <t:column defaultSorted="true">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Username"/>
             </f:facet>
@@ -342,7 +333,7 @@
             <h:outputText value="#{u.permission}"/>
           </t:column>
 
-          <t:column defaultSorted="false">
+          <t:column>
             <f:facet name="header">
               <h:outputText value="Actions"/>
             </f:facet>

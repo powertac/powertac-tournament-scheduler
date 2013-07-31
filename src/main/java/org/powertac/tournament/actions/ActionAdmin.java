@@ -20,12 +20,9 @@ public class ActionAdmin
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private String sortColumnPom = null;
-  private boolean sortAscendingPom = true;
-  private String sortColumnMachine = null;
-  private boolean sortAscendingMachine = true;
-  private String sortColumnUsers = null;
-  private boolean sortAscendingUsers = true;
+  private TournamentProperties properties = TournamentProperties.getProperties();
+
+  private Integer selectedRound;
 
   private int locationId = -1;
   private String locationName = "";
@@ -33,26 +30,26 @@ public class ActionAdmin
   private Date locationStartTime = null;
   private Date locationEndTime = null;
 
+  private UploadedFile uploadedPom;
+  private String pomName;
+
   private int machineId = -1;
   private String machineName = "";
   private String machineUrl = "";
   private String machineViz = "";
 
-  private UploadedFile uploadedPom;
-  private String pomName;
-
-  private Integer selectedRound;
-
-  private TournamentProperties properties = TournamentProperties.getProperties();
-
   private List<Round> availableRounds;
+  private List<Location> locationList;
+  private List<Location> possibleLocations;
+  private List<Pom> pomList;
+  private List<Machine> machineList;
+  private List<User> userList;
 
   public ActionAdmin ()
   {
     loadData();
   }
 
-  //<editor-fold desc="Header stuff">
   @SuppressWarnings("unchecked")
   private void loadData ()
   {
@@ -60,10 +57,27 @@ public class ActionAdmin
     for (Round round : Round.getNotCompleteRoundList()) {
       availableRounds.add(round);
     }
-
     Collections.sort(availableRounds, new Utils.AlphanumComparator());
+
+    locationList = Location.getLocationList();
+
+    possibleLocations = MemStore.getAvailableLocations();
+    for (Location location: getLocationList()) {
+      Iterator<Location> iter = possibleLocations.iterator();
+      while (iter.hasNext()) {
+        if (iter.next().getLocation().equals(location.getLocation())) {
+          iter.remove();
+        }
+      }
+    }
+    MemStore.setAvailableLocations(possibleLocations);
+
+    pomList = Pom.getPomList();
+    machineList = Machine.getMachineList();
+    userList = User.getUserList();
   }
 
+  //<editor-fold desc="Header stuff">
   public void restartWatchDog ()
   {
     log.info("Restarting WatchDog");
@@ -108,24 +122,11 @@ public class ActionAdmin
   //<editor-fold desc="Location stuff">
   public List<Location> getLocationList ()
   {
-    return Location.getLocationList();
+    return locationList;
   }
 
   public List<Location> getPossibleLocationList ()
   {
-    List<Location> possibleLocations = MemStore.getAvailableLocations();
-
-    for (Location location: getLocationList()) {
-      Iterator<Location> iter = possibleLocations.iterator();
-      while (iter.hasNext()) {
-        if (iter.next().getLocation().equals(location.getLocation())) {
-          iter.remove();
-        }
-      }
-    }
-
-    MemStore.setAvailableLocations(possibleLocations);
-
     return possibleLocations;
   }
 
@@ -225,8 +226,8 @@ public class ActionAdmin
     session.close();
     resetLocationData();
 
-    CheckWeatherServer checkWeatherServer =
-        (CheckWeatherServer) SpringApplicationContext.getBean("checkWeatherServer");
+    CheckWeatherServer checkWeatherServer = (CheckWeatherServer)
+        SpringApplicationContext.getBean("checkWeatherServer");
     checkWeatherServer.loadExtraLocations();
   }
 
@@ -243,7 +244,7 @@ public class ActionAdmin
   //<editor-fold desc="Pom stuff">
   public List<Pom> getPomList ()
   {
-    return Pom.getPomList();
+    return pomList;
   }
 
   public void submitPom ()
@@ -291,7 +292,7 @@ public class ActionAdmin
   //<editor-fold desc="Machine stuff">
   public List<Machine> getMachineList ()
   {
-    return Machine.getMachineList();
+    return machineList;
   }
 
   public void toggleAvailable (Machine machine)
@@ -438,9 +439,10 @@ public class ActionAdmin
   }
   //</editor-fold>
 
+  //<editor-fold desc="User stuff">
   public List<User> getUserList ()
   {
-    return User.getUserList();
+    return userList;
   }
 
   public void increasePermissions (User user)
@@ -482,6 +484,7 @@ public class ActionAdmin
 
     session.close();
   }
+  //</editor-fold>
 
   private void message (int field, String msg)
   {
@@ -500,7 +503,6 @@ public class ActionAdmin
   {
     return locationId;
   }
-
   public void setLocationId (int locationId)
   {
     this.locationId = locationId;
@@ -510,7 +512,6 @@ public class ActionAdmin
   {
     return locationName;
   }
-
   public void setLocationName (String locationName)
   {
     this.locationName = locationName;
@@ -520,7 +521,6 @@ public class ActionAdmin
   {
     return locationTimezone;
   }
-
   public void setLocationTimezone (int locationTimezone)
   {
     this.locationTimezone = locationTimezone;
@@ -530,7 +530,6 @@ public class ActionAdmin
   {
     return locationStartTime;
   }
-
   public void setLocationStartTime (Date locationStartTime)
   {
     this.locationStartTime = locationStartTime;
@@ -540,7 +539,6 @@ public class ActionAdmin
   {
     return locationEndTime;
   }
-
   public void setLocationEndTime (Date locationEndTime)
   {
     this.locationEndTime = locationEndTime;
@@ -550,7 +548,6 @@ public class ActionAdmin
   {
     return pomName;
   }
-
   public void setPomName (String pomName)
   {
     this.pomName = pomName.trim();
@@ -560,7 +557,6 @@ public class ActionAdmin
   {
     return uploadedPom;
   }
-
   public void setUploadedPom (UploadedFile uploadedPom)
   {
     this.uploadedPom = uploadedPom;
@@ -570,7 +566,6 @@ public class ActionAdmin
   {
     return machineId;
   }
-
   public void setMachineId (int machineId)
   {
     this.machineId = machineId;
@@ -580,7 +575,6 @@ public class ActionAdmin
   {
     return machineName;
   }
-
   public void setMachineName (String machineName)
   {
     this.machineName = machineName;
@@ -590,7 +584,6 @@ public class ActionAdmin
   {
     return machineUrl;
   }
-
   public void setMachineUrl (String machineUrl)
   {
     this.machineUrl = machineUrl;
@@ -600,79 +593,15 @@ public class ActionAdmin
   {
     return machineViz;
   }
-
   public void setMachineViz (String machineViz)
   {
     this.machineViz = machineViz;
-  }
-  //</editor-fold>
-
-  //<editor-fold desc="Sorting setters and getters">
-  public boolean isSortAscendingPom ()
-  {
-    return sortAscendingPom;
-  }
-
-  public void setSortAscendingPom (boolean sortAscendingPom)
-  {
-    this.sortAscendingPom = sortAscendingPom;
-  }
-
-  public String getSortColumnPom ()
-  {
-    return sortColumnPom;
-  }
-
-  public void setSortColumnPom (String sortColumnPom)
-  {
-    this.sortColumnPom = sortColumnPom;
-  }
-
-  public String getSortColumnMachine ()
-  {
-    return sortColumnMachine;
-  }
-
-  public void setSortColumnMachine (String sortColumnMachine)
-  {
-    this.sortColumnMachine = sortColumnMachine;
-  }
-
-  public boolean isSortAscendingMachine ()
-  {
-    return sortAscendingMachine;
-  }
-
-  public void setSortAscendingMachine (boolean sortAscendingMachine)
-  {
-    this.sortAscendingMachine = sortAscendingMachine;
-  }
-
-  public String getSortColumnUsers ()
-  {
-    return sortColumnUsers;
-  }
-
-  public void setSortColumnUsers (String sortColumnUsers)
-  {
-    this.sortColumnUsers = sortColumnUsers;
-  }
-
-  public boolean isSortAscendingUsers ()
-  {
-    return sortAscendingUsers;
-  }
-
-  public void setSortAscendingUsers (boolean sortAscendingUsers)
-  {
-    this.sortAscendingUsers = sortAscendingUsers;
   }
 
   public Integer getSelectedRound ()
   {
     return selectedRound;
   }
-
   public void setSelectedRound (Integer selectedRound)
   {
     this.selectedRound = selectedRound;
