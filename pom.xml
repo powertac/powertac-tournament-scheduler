@@ -2,11 +2,11 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.powertac.tourney</groupId>
-  <artifactId>TournamentScheduler</artifactId>
+  <groupId>org.powertac</groupId>
+  <artifactId>tournament-scheduler</artifactId>
   <packaging>war</packaging>
-  <version>1.0.0</version>
-  <name>Power TAC tournament-scheduler</name>
+  <version>1.0.1</version>
+  <name>Power TAC tournament scheduler</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -206,7 +206,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.0</version>
+        <version>3.1</version>
         <configuration>
           <source>1.6</source>
           <target>1.6</target>

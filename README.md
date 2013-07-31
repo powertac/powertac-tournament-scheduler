@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Power TAC Tournament Schedudler is a dynamic jsf web application for scheduling and managing tournaments and experiments between brokers. For more information, see http://www.powertac.org.
+The Power TAC Tournament Scheduler is a dynamic jsf web application for scheduling and managing tournaments between brokers. For more information, see http://www.powertac.org.
 
 ## Getting Started 
 
