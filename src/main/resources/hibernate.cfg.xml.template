@@ -6,7 +6,7 @@
 <hibernate-configuration>
     <session-factory>
         <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/tourney</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/powertac_tournament</property>
         <property name="hibernate.connection.username">localUsername</property>
         <property name="hibernate.connection.password">localPassword</property>
         <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>

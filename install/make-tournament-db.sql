@@ -1,9 +1,9 @@
-DROP DATABASE IF EXISTS `tourney`;
-CREATE DATABASE `tourney`;
+DROP DATABASE IF EXISTS `powertac_tournament`;
+CREATE DATABASE `powertac_tournament`;
 
 /* Create user table*/
-DROP TABLE IF EXISTS `tourney`.`users`;
-CREATE TABLE `tourney`.`users` (
+DROP TABLE IF EXISTS `powertac_tournament`.`users`;
+CREATE TABLE `powertac_tournament`.`users` (
   `userId`       INT(11)                                                     NOT NULL AUTO_INCREMENT,
   `userName`     VARCHAR(45) UNIQUE                                          NOT NULL,
   `institution`  VARCHAR(256)                                                NULL,
@@ -19,45 +19,45 @@ CREATE TABLE `tourney`.`users` (
 
 
 /* Create broker table with key constraint on userId */
-DROP TABLE IF EXISTS `tourney`.`brokers`;
-CREATE TABLE `tourney`.`brokers` (
+DROP TABLE IF EXISTS `powertac_tournament`.`brokers`;
+CREATE TABLE `powertac_tournament`.`brokers` (
   `brokerId`    INT(11)             NOT NULL AUTO_INCREMENT,
   `userId`      INT(11)             NOT NULL,
   `brokerName`  VARCHAR(45) UNIQUE  NOT NULL,
   `brokerAuth`  VARCHAR(32) UNIQUE  NOT NULL,
   `brokerShort` VARCHAR(256)        NOT NULL,
   PRIMARY KEY (`brokerId`),
-  CONSTRAINT broker_refs FOREIGN KEY (`userId`) REFERENCES `tourney`.`users` (`userId`)
+  CONSTRAINT broker_refs FOREIGN KEY (`userId`) REFERENCES `powertac_tournament`.`users` (`userId`)
 )
   ENGINE = InnoDB;
 
 
 /* Create poms list */
-DROP TABLE IF EXISTS `tourney`.`poms`;
-CREATE TABLE `tourney`.`poms` (
+DROP TABLE IF EXISTS `powertac_tournament`.`poms`;
+CREATE TABLE `powertac_tournament`.`poms` (
   `pomId`   INT(11)     NOT NULL AUTO_INCREMENT,
   `pomName` VARCHAR(45) NOT NULL,
   `userId`  INT(11)     NOT NULL,
   PRIMARY KEY (`pomId`),
-  CONSTRAINT pom_refs FOREIGN KEY (`userId`) REFERENCES `tourney`.`users` (`userId`)
+  CONSTRAINT pom_refs FOREIGN KEY (`userId`) REFERENCES `powertac_tournament`.`users` (`userId`)
 )
   ENGINE = InnoDB;
 
 
-DROP TABLE IF EXISTS `tourney`.`tournaments`;
-CREATE TABLE `tourney`.`tournaments` (
+DROP TABLE IF EXISTS `powertac_tournament`.`tournaments`;
+CREATE TABLE `powertac_tournament`.`tournaments` (
   `tournamentId`    INT(11)                                                                                                                                            NOT NULL AUTO_INCREMENT,
   `tournamentName`  VARCHAR(256) UNIQUE                                                                                                                                NOT NULL,
   `state`           ENUM('open', 'closed', 'scheduled0', 'completed0', 'scheduled1', 'completed1', 'scheduled2', 'completed2', 'scheduled3', 'completed3', 'complete') NOT NULL,
   `pomId`           INT(11)                                                                                                                                            NOT NULL,
   PRIMARY KEY (`tournamentId`),
-  CONSTRAINT tournament_refs FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`)
+  CONSTRAINT tournament_refs FOREIGN KEY (`pomId`) REFERENCES `powertac_tournament`.`poms` (`pomId`)
 )
   ENGINE = InnoDB;
 
 
-DROP TABLE IF EXISTS `tourney`.`levels`;
-CREATE TABLE `tourney`.`levels` (
+DROP TABLE IF EXISTS `powertac_tournament`.`levels`;
+CREATE TABLE `powertac_tournament`.`levels` (
   `levelId`        INT(11)      NOT NULL AUTO_INCREMENT,
   `levelName`      VARCHAR(256) NOT NULL,
   `tournamentId`   INT(11)      NOT NULL,
@@ -66,14 +66,14 @@ CREATE TABLE `tourney`.`levels` (
   `nofWinners`     INT(11)      NOT NULL,
   `startTime`      DATETIME     NOT NULL,
   PRIMARY KEY (`levelId`),
-  CONSTRAINT level_refs FOREIGN KEY (`tournamentId`) REFERENCES `tourney`.`tournaments` (`tournamentId`)
+  CONSTRAINT level_refs FOREIGN KEY (`tournamentId`) REFERENCES `powertac_tournament`.`tournaments` (`tournamentId`)
 )
   ENGINE = InnoDB;
 
 
 /* Create top level round list */
-DROP TABLE IF EXISTS `tourney`.`rounds`;
-CREATE TABLE `tourney`.`rounds` (
+DROP TABLE IF EXISTS `powertac_tournament`.`rounds`;
+CREATE TABLE `powertac_tournament`.`rounds` (
   `roundId`     INT(11)                                    NOT NULL AUTO_INCREMENT,
   `roundName`   VARCHAR(256) UNIQUE                        NOT NULL,
   `levelId`     INT(11) DEFAULT NULL,
@@ -92,38 +92,38 @@ CREATE TABLE `tourney`.`rounds` (
   `locations`   VARCHAR(256)                               NOT NULL,
   `state`       ENUM('pending', 'in_progress', 'complete') NOT NULL,
   PRIMARY KEY (`roundId`),
-  CONSTRAINT round_refs1 FOREIGN KEY (`pomId`) REFERENCES `tourney`.`poms` (`pomId`),
-  CONSTRAINT round_refs2 FOREIGN KEY (`levelId`) REFERENCES `tourney`.`levels` (`levelId`)
+  CONSTRAINT round_refs1 FOREIGN KEY (`pomId`) REFERENCES `powertac_tournament`.`poms` (`pomId`),
+  CONSTRAINT round_refs2 FOREIGN KEY (`levelId`) REFERENCES `powertac_tournament`.`levels` (`levelId`)
 )
   ENGINE = InnoDB;
 
 
-DROP TABLE IF EXISTS `tourney`.`round_brokers`;
-CREATE TABLE `tourney`.`round_brokers` (
+DROP TABLE IF EXISTS `powertac_tournament`.`round_brokers`;
+CREATE TABLE `powertac_tournament`.`round_brokers` (
   `roundBrokerId`  INT(11) NOT NULL AUTO_INCREMENT,
   `roundId`        INT(11) NOT NULL,
   `brokerId`       INT(11) NOT NULL,
   PRIMARY KEY (`roundBrokerId`),
-  CONSTRAINT round_broker_refs1 FOREIGN KEY (`roundId`) REFERENCES `tourney`.`rounds` (`roundId`),
-  CONSTRAINT round_broker_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`)
+  CONSTRAINT round_broker_refs1 FOREIGN KEY (`roundId`) REFERENCES `powertac_tournament`.`rounds` (`roundId`),
+  CONSTRAINT round_broker_refs2 FOREIGN KEY (`brokerId`) REFERENCES `powertac_tournament`.`brokers` (`brokerId`)
 )
   ENGINE = InnoDB;
 
 
-DROP TABLE IF EXISTS `tourney`.`tournament_brokers`;
-CREATE TABLE `tourney`.`tournament_brokers` (
+DROP TABLE IF EXISTS `powertac_tournament`.`tournament_brokers`;
+CREATE TABLE `powertac_tournament`.`tournament_brokers` (
   `tournamentBrokerId`  INT(11) NOT NULL AUTO_INCREMENT,
   `tournamentId`        INT(11) NOT NULL,
   `brokerId`            INT(11) NOT NULL,
   PRIMARY KEY (tournamentBrokerId),
-  CONSTRAINT tournament_broker_refs1 FOREIGN KEY (`tournamentId`) REFERENCES `tourney`.`tournaments` (`tournamentId`),
-  CONSTRAINT tournament_broker_refs2 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`)
+  CONSTRAINT tournament_broker_refs1 FOREIGN KEY (`tournamentId`) REFERENCES `powertac_tournament`.`tournaments` (`tournamentId`),
+  CONSTRAINT tournament_broker_refs2 FOREIGN KEY (`brokerId`) REFERENCES `powertac_tournament`.`brokers` (`brokerId`)
 )
   ENGINE = InnoDB;
 
 
-DROP TABLE IF EXISTS `tourney`.`machines`;
-CREATE TABLE `tourney`.`machines` (
+DROP TABLE IF EXISTS `powertac_tournament`.`machines`;
+CREATE TABLE `powertac_tournament`.`machines` (
   `machineId`     INT(11)                 NOT NULL AUTO_INCREMENT,
   `machineName`   VARCHAR(32)             NOT NULL,
   `machineUrl`    VARCHAR(256)            NOT NULL, /* Hostname of the machine */
@@ -136,8 +136,8 @@ CREATE TABLE `tourney`.`machines` (
 
 
 /* Create top level games list */
-DROP TABLE IF EXISTS `tourney`.`games`;
-CREATE TABLE `tourney`.`games` (
+DROP TABLE IF EXISTS `powertac_tournament`.`games`;
+CREATE TABLE `powertac_tournament`.`games` (
   `gameId`          INT(11)                                                                                                                                                    NOT NULL AUTO_INCREMENT,
   `gameName`        VARCHAR(256)                                                                                                                                               NOT NULL,
   `roundId`         INT(11)                                                                                                                                                    NOT NULL,
@@ -152,14 +152,14 @@ CREATE TABLE `tourney`.`games` (
   `gameLength`      INT(11) DEFAULT NULL,
   `lastTick`        INT(11) DEFAULT NULL,
   PRIMARY KEY (`gameId`),
-  CONSTRAINT game_refs1 FOREIGN KEY (`roundId`) REFERENCES `tourney`.`rounds` (`roundId`),
-  CONSTRAINT game_refs2 FOREIGN KEY (`machineId`) REFERENCES `tourney`.`machines` (`machineId`)
+  CONSTRAINT game_refs1 FOREIGN KEY (`roundId`) REFERENCES `powertac_tournament`.`rounds` (`roundId`),
+  CONSTRAINT game_refs2 FOREIGN KEY (`machineId`) REFERENCES `powertac_tournament`.`machines` (`machineId`)
 )
   ENGINE = InnoDB;
 
 
-DROP TABLE IF EXISTS `tourney`.`locations`;
-CREATE TABLE `tourney`.`locations` (
+DROP TABLE IF EXISTS `powertac_tournament`.`locations`;
+CREATE TABLE `powertac_tournament`.`locations` (
   `locationId` INT(11)      NOT NULL AUTO_INCREMENT,
   `location`   VARCHAR(256) NOT NULL,
   `timezone`   INT(11)      NOT NULL,
@@ -169,13 +169,13 @@ CREATE TABLE `tourney`.`locations` (
 )
   ENGINE = InnoDB;
 
-INSERT INTO `tourney`.`locations`
+INSERT INTO `powertac_tournament`.`locations`
 (`locationId`, `location`, `timezone`, `fromDate`, `toDate`) VALUES
 (1, 'rotterdam', 1, '2009-01-01 00:00:00', '2011-06-01 00:00:00');
 
 
-DROP TABLE IF EXISTS `tourney`.`agents`;
-CREATE TABLE `tourney`.`agents` (
+DROP TABLE IF EXISTS `powertac_tournament`.`agents`;
+CREATE TABLE `powertac_tournament`.`agents` (
   `agentId`     INT(11)                                    NOT NULL AUTO_INCREMENT,
   `gameId`      INT(11)                                    NOT NULL,
   `brokerId`    INT(11)                                    NOT NULL,
@@ -183,14 +183,14 @@ CREATE TABLE `tourney`.`agents` (
   `state`       ENUM('pending', 'in_progress', 'complete') NOT NULL,
   `balance`     DOUBLE                                     NOT NULL DEFAULT '0',
   PRIMARY KEY (`agentId`),
-  CONSTRAINT agent_refs1 FOREIGN KEY (`brokerId`) REFERENCES `tourney`.`brokers` (`brokerId`),
-  CONSTRAINT agent_refs2 FOREIGN KEY (`gameId`) REFERENCES `tourney`.`games` (`gameId`)
+  CONSTRAINT agent_refs1 FOREIGN KEY (`brokerId`) REFERENCES `powertac_tournament`.`brokers` (`brokerId`),
+  CONSTRAINT agent_refs2 FOREIGN KEY (`gameId`) REFERENCES `powertac_tournament`.`games` (`gameId`)
 )
   ENGINE = InnoDB;
 
 
-DROP TABLE IF EXISTS `tourney`.`config`;
-CREATE TABLE IF NOT EXISTS `tourney`.`config` (
+DROP TABLE IF EXISTS `powertac_tournament`.`config`;
+CREATE TABLE IF NOT EXISTS `powertac_tournament`.`config` (
   `configId`    INT(11)             NOT NULL AUTO_INCREMENT,
   `configKey`   VARCHAR(256) UNIQUE NOT NULL,
   `configValue` LONGTEXT,
