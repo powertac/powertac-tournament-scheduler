@@ -45,6 +45,20 @@
     <param-name>org.apache.myfaces.USE_ENCRYPTION</param-name>
     <param-value>true</param-value>
   </context-param>
+
+  <context-param>
+    <param-name>org.apache.myfaces.ALGORITHM</param-name>
+    <param-value>AES</param-value>
+  </context-param>
+  <context-param>
+    <param-name>org.apache.myfaces.SECRET</param-name>
+    <param-value>MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIz</param-value>
+  </context-param>
+  <context-param>
+    <param-name>org.apache.myfaces.MAC_SECRET</param-name>
+    <param-value>YWJjZDEyMzQ=</param-value>
+  </context-param>
+
   <context-param>
     <description>
       This parameter tells MyFaces if javascript code should be allowed in the

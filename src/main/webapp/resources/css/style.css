@@ -108,6 +108,9 @@ table.fixed_height td {
     white-space: nowrap;
 }
 
+select.select_wide {
+    width:250px;
+}
 input[type="text"].input_wide {
     width:250px;
 }

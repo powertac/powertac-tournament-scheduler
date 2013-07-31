@@ -81,50 +81,50 @@
         <h3 class="withButton">Pending/Running Rounds</h3>
         <h:commandButton value="Refresh"/>
         <t:dataTable id="dataRounds" border="1"
-                     value="#{actionOverview.notCompleteRoundList}" var="t">
+                     value="#{actionOverview.notCompleteRoundList}" var="r">
 
           <t:column>
             <f:facet name="header">ID</f:facet>
-            <h:outputText value="#{t.roundId}"/>
+            <h:outputText value="#{r.roundId}"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">Name</f:facet>
-            <h:link value="#{t.roundName}" outcome="Round">
-              <f:param name="roundId" value="#{t.roundId}"/>
+            <h:link value="#{r.roundName}" outcome="Round">
+              <f:param name="roundId" value="#{r.roundId}"/>
             </h:link>
           </t:column>
 
           <t:column>
             <f:facet name="header">Status</f:facet>
-            <h:outputText value="#{t.state}"/>
+            <h:outputText value="#{r.state}"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">Start Time</f:facet>
-            <h:outputText value="#{t.startTimeUTC()}"/>
+            <h:outputText value="#{r.startTimeUTC()}"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">Reg / Max</f:facet>
-            <h:outputText value="#{t.brokerMap.size()} / #{t.maxBrokers}"/>
-            <h:outputText value=" : #{t.maxAgents}"/>
+            <h:outputText value="#{r.brokerMap.size()} / #{r.maxBrokers}"/>
+            <h:outputText value=" : #{r.maxAgents}"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">Games</f:facet>
-            <h:outputText value="#{t.size1}:#{t.multiplier1}"
-                          rendered="#{t.size1 > 0 and t.multiplier1 > 0}"/>
-            <h:outputText value=" #{t.size2}:#{t.multiplier2}"
-                          rendered="#{t.size2 > 0 and t.multiplier2 > 0}"/>
-            <h:outputText value=" #{t.size3}:#{t.multiplier3}"
-                          rendered="#{t.size3 > 0 and t.multiplier3 > 0}"/>
+            <h:outputText value="#{r.size1}:#{r.multiplier1}"
+                          rendered="#{r.size1 > 0 and r.multiplier1 > 0}"/>
+            <h:outputText value=" #{r.size2}:#{r.multiplier2}"
+                          rendered="#{r.size2 > 0 and r.multiplier2 > 0}"/>
+            <h:outputText value=" #{r.size3}:#{r.multiplier3}"
+                          rendered="#{r.size3 > 0 and r.multiplier3 > 0}"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">Pom</f:facet>
-            <a href="pom.jsp?pomId=#{t.pomId}">
-              <h:outputText value="#{t.pomId}"/>
+            <a href="pom.jsp?pomId=#{r.pomId}">
+              <h:outputText value="#{r.pomId}"/>
             </a>
           </t:column>
 

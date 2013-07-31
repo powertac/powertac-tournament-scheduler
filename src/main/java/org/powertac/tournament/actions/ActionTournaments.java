@@ -83,28 +83,22 @@ public class ActionTournaments
     }
   }
 
-  public List<String> getLevelInfo (Tournament tournament)
+  public String getLevelInfo (Tournament tournament, int levelNr)
   {
-    List<String> results = new ArrayList<String>();
-    String base = "<a href=\"round.xhtml?roundId=%d\">%d</a> ";
-
-    for (Level level: tournament.getLevelMap().values()) {
-      String links = level.getNofRounds() + " / "+ level.getNofWinners();
-      if (level.getRoundMap().size() != 0) {
-        links += " | ";
-      }
-      for (Round round : level.getRoundMap().values()) {
-        links += String.format(base, round.getRoundId(),
-            round.getRoundId());
-      }
-      results.add(links);
+    Level level = tournament.getLevelMap().get(levelNr);
+    if (level == null) {
+      return "";
     }
 
-    while (results.size() < nofLevels) {
-      results.add("");
+    String links = level.getNofRounds() + " / "+ level.getNofWinners();
+    if (level.getRoundMap().size() != 0) {
+      links += " | ";
     }
-
-    return results;
+    for (Round round : level.getRoundMap().values()) {
+      links += String.format("<a href=\"round.xhtml?roundId=%d\">%d</a> ",
+          round.getRoundId(), round.getRoundId());
+    }
+    return links;
   }
 
   public String getLevelStyle (Tournament tournament, int levelNr)
@@ -310,8 +304,8 @@ public class ActionTournaments
         level.setStartTime(posted.getStartTime());
       }
       else {
-        level.setNofRounds(level.getRoundMap().size());
         level.setLevelName(posted.getLevelName());
+        level.setNofRounds(level.getRoundMap().size());
         level.setNofWinners(level.getMaxBrokers());
       }
 
@@ -501,6 +495,11 @@ public class ActionTournaments
   public void setDisabledArray (boolean[] disabledArray)
   {
     this.disabledArray = disabledArray;
+  }
+
+  public int getNofLevels ()
+  {
+    return nofLevels;
   }
   //</editor-fold>
 }

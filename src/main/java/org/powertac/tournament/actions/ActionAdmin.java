@@ -38,7 +38,6 @@ public class ActionAdmin
   private String machineUrl = "";
   private String machineViz = "";
 
-  private Upload upload = new Upload();
   private UploadedFile uploadedPom;
   private String pomName;
 
@@ -250,7 +249,6 @@ public class ActionAdmin
   public void submitPom ()
   {
     if (pomName.isEmpty()) {
-      // Show succes message.
       message(1, "Error: You need to fill in the pom name");
       return;
     }
@@ -277,11 +275,11 @@ public class ActionAdmin
       return;
     }
 
-    upload.setUploadedFile(uploadedPom);
-    upload.setUploadLocation(properties.getProperty("pomLocation"));
-    boolean pomStored = upload.submit("pom." + pom.getPomId() + ".xml");
+    Upload upload = new Upload(uploadedPom);
+    String msg = upload.submit("pomLocation", pom.pomFileName());
+    message(1, msg);
 
-    if (pomStored) {
+    if (msg.toLowerCase().contains("success")) {
       transaction.commit();
     } else {
       transaction.rollback();

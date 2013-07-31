@@ -101,7 +101,7 @@
             <f:facet name="header">Broker Name</f:facet>
             <h:outputText value="#{broker.brokerName}"
                           rendered="#{!broker.edit}"/>
-            <h:inputText value="#{broker.newName}"
+            <h:inputText value="#{broker.brokerName}"
                          rendered="#{broker.edit}" maxlength="45"/>
           </h:column>
 
@@ -109,7 +109,7 @@
             <f:facet name="header">Broker Auth Token</f:facet>
             <h:outputText value="#{broker.brokerAuth}"
                           rendered="#{!broker.edit}"/>
-            <h:inputText value="#{broker.newAuth}" styleClass="input_wide"
+            <h:inputText value="#{broker.brokerAuth}" styleClass="input_wide"
                          rendered="#{broker.edit}" maxlength="32"/>
           </h:column>
 
@@ -117,7 +117,7 @@
             <f:facet name="header">Short Description</f:facet>
             <h:outputText value="#{broker.shortDescription}"
                           rendered="#{!broker.edit}"/>
-            <h:inputText value="#{broker.newShort}"
+            <h:inputText value="#{broker.shortDescription}"
                          rendered="#{broker.edit}" maxlength="256"/>
           </h:column>
 
@@ -133,7 +133,7 @@
                              action="#{actionAccount.updateBroker(broker)}"
                              rendered="#{broker.edit}"/>
             <h:commandButton value="cancel" styleClass="smallButton"
-                             action="#{actionAccount.cancelBroker(broker)}"
+                             action="#{actionAccount.cancelEdit(broker)}"
                              rendered="#{broker.edit}"/>
           </h:column>
         </h:dataTable>

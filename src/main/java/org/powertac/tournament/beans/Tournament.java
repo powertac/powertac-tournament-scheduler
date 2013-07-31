@@ -84,8 +84,7 @@ public class Tournament
     }
   }
 
-  private void scheduleRound (Session session, String name,
-                              Level level)
+  private void scheduleRound (Session session, String name, Level level)
   {
     log.info("Creating round : " + name);
 

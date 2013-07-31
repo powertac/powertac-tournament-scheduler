@@ -63,9 +63,9 @@
               <h:selectOneMenu value="#{actionAdmin.selectedRound}"
                                rendered="#{scheduler.nullRound}"
                                style="border:1px solid grey;height:22px;padding:1px;margin:2px;">
-                <f:selectItems value="#{actionAdmin.availableRounds}" var="t"
-                               itemValue="#{t.roundId}"
-                               itemLabel="#{t.roundName}"/>
+                <f:selectItems value="#{actionAdmin.availableRounds}" var="r"
+                               itemValue="#{r.roundId}"
+                               itemLabel="#{r.roundName}"/>
               </h:selectOneMenu>
               <h:commandButton value="Load"
                                action="#{actionAdmin.loadRound()}"

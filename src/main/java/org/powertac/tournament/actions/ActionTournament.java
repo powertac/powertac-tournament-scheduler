@@ -80,8 +80,6 @@ public class ActionTournament
 
   private void loadTournamentInfo ()
   {
-    String base = "<a href=\"round.xhtml?roundId=%s\">%s</a>";
-
     tournamentInfo.add("Id : " + tournament.getTournamentId());
     tournamentInfo.add("Name : " + tournament.getTournamentName());
     tournamentInfo.add("Status : " + tournament.getState());
@@ -94,12 +92,13 @@ public class ActionTournament
           + level.getNofRounds() + " / " + level.getNofWinners());
 
       for (Round round : level.getRoundMap().values()) {
-        tournamentInfo.add("Round : " +
-            String.format(base,
-                round.getRoundId(), round.getRoundName())
-            + "<br/>StartTime (UTC) : " + round.startTimeUTC().substring(0, 16)
-            + "<br/>Status : " + round.getState()
-        );
+        tournamentInfo.add(String.format("Round : " +
+            "<a href=\"round.xhtml?roundId=%s\">%s</a>" +
+            "<br/>StartTime (UTC) : %s<br/>Status : %s",
+                round.getRoundId(),
+                round.getRoundName(),
+                round.startTimeUTC().substring(0, 16),
+                round.getState()));
       }
 
       int last = tournamentInfo.size() - 1;

@@ -45,7 +45,7 @@ public class ActionAccount
   {
     // Check if name and description not empty, and if name allowed
     if (namesEmpty(brokerName, brokerShort, 2) ||
-        nameExists(brokerName, 2) ||
+        nameExists(brokerName, -1, 2) ||
         nameAllowed(brokerName, 2)) {
       return;
     }
@@ -94,55 +94,41 @@ public class ActionAccount
   public void updateBroker (Broker broker)
   {
     // Check if name and description not empty, and if name allowed (if changed)
-    if (namesEmpty(broker.getNewName(), broker.getNewShort(), 1)) {
+    if (namesEmpty(broker.getBrokerName(), broker.getShortDescription(), 1)) {
       return;
     }
-    if (nameAllowed(broker.getNewName(), 1)) {
+    if (nameAllowed(broker.getBrokerName(), 1)) {
       return;
-    } else if (!broker.getBrokerName().equals(broker.getNewName())) {
-      if (nameExists(broker.getNewName(), 1)) {
-        return;
-      }
+    }
+    if (nameExists(broker.getBrokerName(), broker.getBrokerId(), 1)) {
+      return;
     }
 
     User user = User.getCurrentUser();
     if (!user.isLoggedIn()) {
       return;
     }
-    user.setEditingBroker(false);
-
-    broker.setEdit(false);
-    String orgName = broker.getBrokerName();
-    String orgShort = broker.getShortDescription();
-    String orgAuth = broker.getBrokerAuth();
-    broker.setBrokerName(broker.getNewName());
-    broker.setShortDescription(broker.getNewShort());
-    broker.setBrokerAuth(broker.getNewAuth());
 
     String errorMessage = broker.update();
     if (errorMessage != null) {
       message(1, errorMessage);
-      broker.setBrokerName(orgName);
-      broker.setShortDescription(orgShort);
-      broker.setBrokerAuth(orgAuth);
+    }
+    else {
+      user.setEditingBroker(false);
+      broker.setEdit(false);
     }
   }
 
   public void editBroker (Broker broker)
   {
-    User user = User.getCurrentUser();
-    user.setEditingBroker(true);
+    User.getCurrentUser().setEditingBroker(true);
 
     broker.setEdit(true);
-    broker.setNewAuth(broker.getBrokerAuth());
-    broker.setNewName(broker.getBrokerName());
-    broker.setNewShort(broker.getShortDescription());
   }
 
-  public void cancelBroker (Broker broker)
+  public void cancelEdit (Broker broker)
   {
-    User user = User.getCurrentUser();
-    user.setEditingBroker(false);
+    User.getCurrentUser().setEditingBroker(false);
     broker.setEdit(false);
   }
 
@@ -156,14 +142,14 @@ public class ActionAccount
     return false;
   }
 
-  private boolean nameExists (String brokerName, int field)
+  private boolean nameExists (String brokerName, int brokerId, int field)
   {
     Broker broker = Broker.getBrokerByName(brokerName);
-    if (broker != null) {
-      message(field, "Brokername taken, please select a new name");
-      return true;
+    if (broker == null || broker.getBrokerId() == brokerId) {
+      return false;
     }
-    return false;
+    message(field, "Brokername taken, please select a new name");
+    return true;
   }
 
   // We can't allow commas, used in end-of-game message from server

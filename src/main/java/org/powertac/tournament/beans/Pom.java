@@ -47,6 +47,12 @@ public class Pom
     return poms;
   }
 
+  @Transient
+  public String pomFileName ()
+  {
+    return "pom." + pomId + ".xml";
+  }
+
   @Id
   @GeneratedValue(strategy = IDENTITY)
   @Column(name = "pomId", unique = true, nullable = false)

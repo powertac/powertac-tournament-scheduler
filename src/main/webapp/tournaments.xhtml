@@ -6,7 +6,8 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:t="http://myfaces.apache.org/tomahawk">
+      xmlns:t="http://myfaces.apache.org/tomahawk"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 <h:body>
   <ui:composition template="template.xhtml">
@@ -19,78 +20,62 @@
         <h3 class="withButton">Pending/Running Tournaments</h3>
         <h:commandButton value="Refresh"/>
         <t:dataTable id="dataTournaments" border="1"
-                     value="#{actionTournaments.tournamentList}" var="c">
+                     value="#{actionTournaments.tournamentList}" var="t">
 
           <t:column>
             <f:facet name="header">ID</f:facet>
-            <h:outputText value="#{c.tournamentId}"/>
+            <h:outputText value="#{t.tournamentId}"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">Name</f:facet>
-            <h:link value="#{c.tournamentName}" outcome="Tournament">
-              <f:param name="tournamentId" value="#{c.tournamentId}"/>
+            <h:link value="#{t.tournamentName}" outcome="Tournament">
+              <f:param name="tournamentId" value="#{t.tournamentId}"/>
             </h:link>
           </t:column>
 
-          <t:column styleClass="#{actionTournaments.getLevelStyle(c, 0)}">
-              <f:facet name="header" >Level 0</f:facet>
-              <h:outputText value="#{actionTournaments.getLevelInfo(c).get(0)}"
+          <c:forEach begin="0" end="${actionTournaments.nofLevels-1}" var="r">
+            <t:column styleClass="#{actionTournaments.getLevelStyle(t, r)}">
+              <f:facet name="header">Level #{r}</f:facet>
+              <h:outputText value="#{actionTournaments.getLevelInfo(t, r)}"
                             escape="false"/>
-          </t:column>
-
-          <t:column styleClass="#{actionTournaments.getLevelStyle(c, 1)}">
-              <f:facet name="header">Level 1</f:facet>
-              <h:outputText value="#{actionTournaments.getLevelInfo(c).get(1)}"
-                            escape="false"/>
-          </t:column>
-
-          <t:column styleClass="#{actionTournaments.getLevelStyle(c, 2)}">
-              <f:facet name="header">Level 2</f:facet>
-              <h:outputText value="#{actionTournaments.getLevelInfo(c).get(2)}"
-                            escape="false"/>
-          </t:column>
-
-          <t:column styleClass="#{actionTournaments.getLevelStyle(c, 3)}">
-              <f:facet name="header">Level 3</f:facet>
-              <h:outputText value="#{actionTournaments.getLevelInfo(c).get(3)}"
-                            escape="false"/>
-          </t:column>
+            </t:column>
+          </c:forEach>
 
           <t:column>
             <f:facet name="header">Pom</f:facet>
-            <a href="pom.jsp?pomId=#{c.pomId}">
-              <h:outputText value="#{c.pomId}"/>
+            <a href="pom.jsp?pomId=#{t.pomId}">
+              <h:outputText value="#{t.pomId}"/>
             </a>
           </t:column>
 
           <t:column>
             <f:facet name="header">Status</f:facet>
-            <h:outputText value="#{c.state}"/>
+            <h:outputText value="#{t.state}"/>
           </t:column>
 
           <t:column styleClass="left">
             <f:facet name="header">Actions</f:facet>
             <h:commandButton value="Close"
-                             action="#{actionTournaments.closeTournament(c)}"
-                             rendered="#{actionTournaments.closingAllowed(c)}"
+                             action="#{actionTournaments.closeTournament(t)}"
+                             rendered="#{actionTournaments.closingAllowed(t)}"
                              styleClass="actionButton"/>
             <h:commandButton value="Schedule"
-                             action="#{actionTournaments.scheduleTournament(c)}"
-                             rendered="#{actionTournaments.schedulingAllowed(c)}"
+                             action="#{actionTournaments.scheduleTournament(t)}"
+                             rendered="#{actionTournaments.schedulingAllowed(t)}"
                              styleClass="actionButton"/>
             <h:commandButton value="Complete"
-                             action="#{actionTournaments.completingTournament(c)}"
-                             rendered="#{actionTournaments.completingAllowed(c)}"
+                             action="#{actionTournaments.completingTournament(t)}"
+                             rendered="#{actionTournaments.completingAllowed(t)}"
                              styleClass="actionButton"/>
 
             <h:commandButton value="Edit"
-                             action="#{actionTournaments.loadTournament(c)}"
-                             rendered="#{actionTournaments.editingAllowed(c)}"
+                             action="#{actionTournaments.loadTournament(t)}"
+                             rendered="#{actionTournaments.editingAllowed(t)}"
                              styleClass="actionButton"/>
             <h:commandButton value="Cancel"
                              action="#{actionTournaments.resetValues()}"
-                             rendered="#{actionTournaments.tournamentId == c.tournamentId}"
+                             rendered="#{actionTournaments.tournamentId == t.tournamentId}"
                              styleClass="actionButton"/>
           </t:column>
         </t:dataTable>
@@ -126,9 +111,9 @@
                                styleClass="smallButton">
                   <f:selectItems
                           value="#{broker.getAvailableTournaments()}"
-                          var="t"
-                          itemValue="#{t.tournamentId}"
-                          itemLabel="#{t.tournamentName}"/>
+                          var="r"
+                          itemValue="#{r.tournamentId}"
+                          itemLabel="#{r.tournamentName}"/>
               </h:selectOneMenu>
               <h:commandButton value="Register" styleClass="smallButton"
                                action="#{actionTournaments.register(broker)}"/>
@@ -141,8 +126,8 @@
                   <f:selectItems
                           value="#{broker.getRegisteredTournaments()}"
                           var="t"
-                          itemValue="#{t.tournamentId}"
-                          itemLabel="#{t.tournamentName}"/>
+                          itemValue="#{r.tournamentId}"
+                          itemLabel="#{r.tournamentName}"/>
               </h:selectOneMenu>
               <h:commandButton value="Unregister" styleClass="smallButton"
                                action="#{actionTournaments.unregister(broker)}"/>
@@ -169,7 +154,7 @@
 
           <h:outputText value="Select Pom File"/>
           <h:panelGroup>
-            <h:selectOneMenu id="poms"
+            <h:selectOneMenu id="poms" styleClass="select_wide"
                              disabled="#{actionTournaments.disabledArray[0]}"
                              value="#{actionTournaments.selectedPom}">
               <f:selectItems value="#{actionTournaments.pomList}" var="p"
@@ -180,22 +165,22 @@
           <h:panelGroup/>
           <h:panelGroup><br/></h:panelGroup>
 
-          <ui:repeat value="#{actionTournaments.levels}" var="t">
+          <ui:repeat value="#{actionTournaments.levels}" var="r">
             <tr>
-              <td><h:outputText value="Level #{t.levelNr} name"/></td>
-              <td><h:inputText value="#{t.levelName}"
-                               disabled="#{actionTournaments.disabledArray[t.levelNr]}"
+              <td><h:outputText value="Level #{r.levelNr} name"/></td>
+              <td><h:inputText value="#{r.levelName}"
+                               disabled="#{actionTournaments.disabledArray[r.levelNr]}"
                                styleClass="input_wide" /></td>
             </tr>
             <tr>
               <td><h:outputText value="Rounds / winners" /></td>
               <td>
                 <h:panelGroup>
-                  <h:inputText value="#{t.nofRounds}"
-                               readonly="#{actionTournaments.disabledArray[t.levelNr]}"
+                  <h:inputText value="#{r.nofRounds}"
+                               readonly="#{actionTournaments.disabledArray[r.levelNr]}"
                                styleClass="input_small" />
-                  <h:inputText value="#{t.nofWinners}"
-                               readonly="#{actionTournaments.disabledArray[t.levelNr]}"
+                  <h:inputText value="#{r.nofWinners}"
+                               readonly="#{actionTournaments.disabledArray[r.levelNr]}"
                                styleClass="input_small" />
                 </h:panelGroup>
               </td>
@@ -204,10 +189,10 @@
               <td><h:outputText value="StartTime UTC"/></td>
               <td>
                 <h:panelGroup>
-                  <t:inputDate value="#{t.startTime}"
-                               readonly="#{actionTournaments.disabledArray[t.levelNr]}"
-                               disabled="#{actionTournaments.disabledArray[t.levelNr]}"
-                               id="levelStartTime" ampm="false" type="both"/>
+                  <t:inputDate value="#{r.startTime}"
+                               readonly="#{actionTournaments.disabledArray[r.levelNr]}"
+                               disabled="#{actionTournaments.disabledArray[r.levelNr]}"
+                               id="levelStartTime" type="both"/>
                 </h:panelGroup>
               </td>
             </tr>

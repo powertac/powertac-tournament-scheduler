@@ -36,9 +36,7 @@ public class Broker
 
   // For edit mode, web interface
   private boolean edit;
-  private String newName;
-  private String newAuth;
-  private String newShort;
+
   // For registration, web interface
   private int registerRoundId;
   private int unregisterRoundId;
@@ -148,8 +146,7 @@ public class Broker
 
   public void registerForRound (Session session, int roundId)
   {
-    Round round =
-        (Round) session.get(Round.class, roundId);
+    Round round = (Round) session.get(Round.class, roundId);
     RoundBroker roundBroker = new RoundBroker();
     roundBroker.setBroker(this);
     roundBroker.setRound(round);
@@ -661,36 +658,6 @@ public class Broker
   public void setEdit (boolean edit)
   {
     this.edit = edit;
-  }
-
-  @Transient
-  public String getNewName ()
-  {
-    return newName;
-  }
-  public void setNewName (String newName)
-  {
-    this.newName = newName;
-  }
-
-  @Transient
-  public String getNewAuth ()
-  {
-    return newAuth;
-  }
-  public void setNewAuth (String newAuth)
-  {
-    this.newAuth = newAuth;
-  }
-
-  @Transient
-  public String getNewShort ()
-  {
-    return newShort;
-  }
-  public void setNewShort (String newShort)
-  {
-    this.newShort = newShort;
   }
 
   @Transient

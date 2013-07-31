@@ -4,8 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
+import java.io.File;
 import java.io.FileOutputStream;
 
 
@@ -13,47 +12,34 @@ public class Upload
 {
   private static Logger log = Logger.getLogger("TMLogger");
 
-  private UploadedFile uploadedFile;
-  private String uploadLocation;
+  private static TournamentProperties properties =
+      TournamentProperties.getProperties();
 
-  public boolean submit (String fileName)
+  private UploadedFile uploadedFile;
+
+  public Upload (UploadedFile uploadedFile)
   {
-    String filePath = uploadLocation + fileName;
+    this.uploadedFile = uploadedFile;
+  }
+
+  public String submit (String location, String fileName)
+  {
+    String uploadLocation = properties.getProperty(location);
+    File filePath = new File(new File(uploadLocation), fileName);
 
     FileOutputStream fos = null;
     try {
       fos = new FileOutputStream(filePath);
       IOUtils.copy(uploadedFile.getInputStream(), fos);
-      message(0, "File upload success! " + filePath);
-    } catch (Exception e) {
-      message(0, "File upload failed with I/O error. " + filePath);
-      log.error("File upload failed with I/O error. " + filePath);
+      return "File upload success! " + filePath.getPath();
+    }
+    catch (Exception e) {
+      log.error("File upload failed with I/O error. " + filePath.getPath());
       e.printStackTrace();
-      return false;
-    } finally {
+      return "File upload failed with I/O error. " + filePath.getPath();
+    }
+    finally {
       IOUtils.closeQuietly(fos);
     }
-
-    return true;
   }
-
-  private void message (int field, String msg)
-  {
-    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-    if (field == 0) {
-      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
-    }
-  }
-
-  //<editor-fold desc="Setters and Getters">
-  public void setUploadedFile (UploadedFile uploadedFile)
-  {
-    this.uploadedFile = uploadedFile;
-  }
-
-  public void setUploadLocation (String uploadLocation)
-  {
-    this.uploadLocation = uploadLocation;
-  }
-  //</editor-fold>
 }
