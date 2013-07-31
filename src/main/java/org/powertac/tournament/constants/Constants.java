@@ -100,6 +100,8 @@ public class Constants
         "FROM Tournament AS tournament "
             + "LEFT JOIN FETCH tournament.levelMap AS levelMap "
             + "LEFT JOIN FETCH levelMap.roundMap AS roundMap "
+            + "LEFT JOIN FETCH tournament.brokerMap AS brokerMap "
+            + "LEFT JOIN FETCH brokerMap.user AS user "
             + "WHERE tournament.tournamentName =:tournamentName";
 
     public static final String GET_TOURNAMENT_NOT_COMPLETE =
@@ -215,7 +217,8 @@ public class Constants
     public static final String GET_BROKER_BY_BROKERAUTH =
         "FROM Broker AS broker "
             + "LEFT JOIN FETCH broker.user "
-            + "LEFT JOIN FETCH broker.roundMap "
+            + "LEFT JOIN FETCH broker.roundMap as roundMap "
+            + "LEFT JOIN FETCH roundMap.level "
             + "LEFT JOIN FETCH broker.agentMap as agentMap "
             + "LEFT JOIN FETCH agentMap.game as game "
             + "LEFT JOIN FETCH game.round "
