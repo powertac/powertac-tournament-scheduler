@@ -25,18 +25,18 @@
         <property name="hibernate.c3p0.acquireRetryAttempts">1</property>
         <property name="hibernate.c3p0.acquireRetryDelay">250</property>
 
-        <mapping class="org.powertac.tourney.beans.User" />
-        <mapping class="org.powertac.tourney.beans.Machine" />
-        <mapping class="org.powertac.tourney.beans.Pom" />
-        <mapping class="org.powertac.tourney.beans.Tournament"/>
-        <mapping class="org.powertac.tourney.beans.Level"/>
-        <mapping class="org.powertac.tourney.beans.Round" />
-        <mapping class="org.powertac.tourney.beans.Game" />
-        <mapping class="org.powertac.tourney.beans.Broker" />
-        <mapping class="org.powertac.tourney.beans.Agent" />
-        <mapping class="org.powertac.tourney.beans.TournamentBroker" />
-        <mapping class="org.powertac.tourney.beans.RoundBroker" />
-        <mapping class="org.powertac.tourney.beans.Location" />
-        <mapping class="org.powertac.tourney.beans.Config" />
+        <mapping class="org.powertac.tournament.beans.User" />
+        <mapping class="org.powertac.tournament.beans.Machine" />
+        <mapping class="org.powertac.tournament.beans.Pom" />
+        <mapping class="org.powertac.tournament.beans.Tournament"/>
+        <mapping class="org.powertac.tournament.beans.Level"/>
+        <mapping class="org.powertac.tournament.beans.Round" />
+        <mapping class="org.powertac.tournament.beans.Game" />
+        <mapping class="org.powertac.tournament.beans.Broker" />
+        <mapping class="org.powertac.tournament.beans.Agent" />
+        <mapping class="org.powertac.tournament.beans.TournamentBroker" />
+        <mapping class="org.powertac.tournament.beans.RoundBroker" />
+        <mapping class="org.powertac.tournament.beans.Location" />
+        <mapping class="org.powertac.tournament.beans.Config" />
     </session-factory>
 </hibernate-configuration>

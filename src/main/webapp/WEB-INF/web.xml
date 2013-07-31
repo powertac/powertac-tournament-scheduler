@@ -92,7 +92,7 @@
     <session-timeout>240</session-timeout>
   </session-config>
   <listener>
-    <listener-class>org.powertac.tourney.listeners.Initializer</listener-class>
+    <listener-class>org.powertac.tournament.listeners.Initializer</listener-class>
   </listener>
   <filter>
     <filter-name>ExtensionsFilter</filter-name>
@@ -128,7 +128,7 @@
   </servlet>
   <servlet>
     <servlet-name>Downloader</servlet-name>
-    <servlet-class>org.powertac.tourney.servlets.Downloader</servlet-class>
+    <servlet-class>org.powertac.tournament.servlets.Downloader</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>
