@@ -21,7 +21,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Table(name = "brokers")
 public class Broker
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private Integer brokerId;
   private String brokerName;
@@ -49,7 +49,7 @@ public class Broker
 
   public boolean save ()
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       session.save(this);
@@ -66,7 +66,7 @@ public class Broker
 
   public String update ()
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       session.update(this);
@@ -86,7 +86,7 @@ public class Broker
 
   public boolean delete ()
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Broker broker = (Broker) session
@@ -129,7 +129,7 @@ public class Broker
 
   public boolean registerForRound (int roundId)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       registerForRound(session, roundId);
@@ -157,7 +157,7 @@ public class Broker
 
   public boolean unregisterFromRound (int roundId)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Round round =
@@ -201,7 +201,7 @@ public class Broker
 
   public boolean registerForTournament (int tournamentId)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       registerForTournament(session, tournamentId);
@@ -230,7 +230,7 @@ public class Broker
 
   public boolean unRegisterFromTournament (int tournamentId)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Tournament tournament =
@@ -382,7 +382,7 @@ public class Broker
   {
     List<Broker> brokers = new ArrayList<Broker>();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_BROKERS);
@@ -410,6 +410,8 @@ public class Broker
 
     for (Broker broker: brokers) {
       int brokerId = broker.getBrokerId();
+
+      // If disabled, none available
       if (!MemStore.getBrokerState(brokerId)) {
         result.put(brokerId, 0);
         continue;
@@ -532,7 +534,7 @@ public class Broker
   public static Broker getBrokerByName (String brokerName)
   {
     Broker broker = null;
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_BROKER_BY_NAME);

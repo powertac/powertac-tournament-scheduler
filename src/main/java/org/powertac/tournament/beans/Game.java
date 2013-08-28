@@ -23,7 +23,9 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Table(name = "games")
 public class Game implements Serializable
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
+
+  private TournamentProperties properties = TournamentProperties.getProperties();
 
   private Integer gameId = 0;
   private String gameName;
@@ -38,8 +40,6 @@ public class Game implements Serializable
   private String simStartTime;
   private Integer gameLength = 0;
   private Integer lastTick = 0;
-
-  TournamentProperties properties = TournamentProperties.getProperties();
 
   private Map<Integer, Agent> agentMap = new HashMap<Integer, Agent>();
 
@@ -155,7 +155,7 @@ public class Game implements Serializable
       case boot_complete:
         Machine.delayedMachineUpdate(machine, 10);
         machine = null;
-        log.debug("Freeing Machines for game: " + gameId);
+        log.debug("Freeing Machine for game: " + gameId);
 
         // Reset values when a game is aborted
         for (Agent agent: getAgentMap().values()) {
@@ -171,7 +171,7 @@ public class Game implements Serializable
         log.warn("BOOT " + gameId + " FAILED!");
         Machine.delayedMachineUpdate(machine, 10);
         machine = null;
-        log.debug("Freeing Machines for game: " + gameId);
+        log.debug("Freeing Machine for game: " + gameId);
         break;
 
       case game_ready:
@@ -189,7 +189,7 @@ public class Game implements Serializable
         log.info("Setting Agents to Complete for game: " + gameId);
         Machine.delayedMachineUpdate(machine, 10);
         machine = null;
-        log.debug("Freeing Machines for game: " + gameId);
+        log.debug("Freeing Machine for game: " + gameId);
         // If all games of round are complete, set round complete
         round.processGameFinished(gameId);
         break;
@@ -203,7 +203,7 @@ public class Game implements Serializable
         log.info("Setting Agents to Complete for game: " + gameId);
         Machine.delayedMachineUpdate(machine, 10);
         machine = null;
-        log.debug("Freeing Machines for game: " + gameId);
+        log.debug("Freeing Machine for game: " + gameId);
         break;
     }
     session.update(this);
@@ -532,7 +532,7 @@ public class Game implements Serializable
   {
     List<Game> games = new ArrayList<Game>();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_GAMES_NOT_COMPLETE);
@@ -553,7 +553,7 @@ public class Game implements Serializable
   {
     List<Game> games = new ArrayList<Game>();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_GAMES_COMPLETE);

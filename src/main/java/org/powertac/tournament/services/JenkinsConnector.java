@@ -13,10 +13,11 @@ import java.net.URL;
 
 public class JenkinsConnector
 {
+  private static TournamentProperties properties =
+      TournamentProperties.getProperties();
 
   public static void sendJob (String jobUrl, boolean usePOST) throws Exception
   {
-    TournamentProperties properties = TournamentProperties.getProperties();
     InputStream is = null;
 
     try {
@@ -51,8 +52,6 @@ public class JenkinsConnector
 
   public static NodeList getNodeList () throws Exception
   {
-    TournamentProperties properties = TournamentProperties.getProperties();
-
     String url = properties.getProperty("jenkins.location")
         + "computer/api/xml";
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -64,8 +63,6 @@ public class JenkinsConnector
   public static NodeList getExecutorList (String machineName, int number)
       throws Exception
   {
-    TournamentProperties properties = TournamentProperties.getProperties();
-
     String url = properties.getProperty("jenkins.location")
         + "computer/" + machineName + "/executors/" + number + "/api/xml";
 

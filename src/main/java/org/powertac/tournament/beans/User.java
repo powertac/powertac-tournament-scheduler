@@ -81,7 +81,7 @@ public class User
   {
     User user = null;
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_USER_BY_NAME);
@@ -135,7 +135,7 @@ public class User
 
   public String save ()
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       session.saveOrUpdate(this);
@@ -177,7 +177,7 @@ public class User
   {
     List<User> users = new ArrayList<User>();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_USERS);

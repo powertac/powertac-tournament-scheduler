@@ -7,18 +7,17 @@ import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.powertac.tournament.beans.*;
 import org.powertac.tournament.services.*;
+import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import java.util.*;
 
 @ManagedBean
-@RequestScoped
-public class ActionAdmin
+public class ActionAdmin implements InitializingBean
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private TournamentProperties properties = TournamentProperties.getProperties();
 
@@ -47,11 +46,10 @@ public class ActionAdmin
 
   public ActionAdmin ()
   {
-    loadData();
   }
 
   @SuppressWarnings("unchecked")
-  private void loadData ()
+  public void afterPropertiesSet () throws Exception
   {
     availableRounds = new ArrayList<Round>();
     for (Round round : Round.getNotCompleteRoundList()) {
@@ -169,7 +167,7 @@ public class ActionAdmin
     location.setDateTo(locationEndTime);
     location.setTimezone(locationTimezone);
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       session.save(location);
@@ -188,7 +186,7 @@ public class ActionAdmin
 
   public void editLocation ()
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Location location = (Location) session.get(Location.class, locationId);
@@ -214,7 +212,7 @@ public class ActionAdmin
 
   public void deleteLocation (Location location)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       session.delete(location);
@@ -264,7 +262,7 @@ public class ActionAdmin
     pom.setPomName(getPomName());
     pom.setUser(currentUser);
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       session.save(pom);
@@ -297,7 +295,7 @@ public class ActionAdmin
 
   public void toggleAvailable (Machine machine)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       machine.setAvailable(!machine.isAvailable());
@@ -312,7 +310,7 @@ public class ActionAdmin
 
   public void toggleState (Machine machine)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       if (machine.isInProgress()) {
@@ -368,7 +366,7 @@ public class ActionAdmin
     machine.setStateIdle();
     machine.setAvailable(false);
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       session.save(machine);
@@ -389,7 +387,7 @@ public class ActionAdmin
 
   public void editMachine ()
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Machine machine = (Machine) session.get(Machine.class, machineId);
@@ -414,7 +412,7 @@ public class ActionAdmin
 
   public void deleteMachine (Machine machine)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       log.info("Deleting machine " + machine.getMachineId());
@@ -447,7 +445,7 @@ public class ActionAdmin
 
   public void increasePermissions (User user)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       user.increasePermission();
@@ -467,7 +465,7 @@ public class ActionAdmin
 
   public void decreasePermissions (User user)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       user.decreasePermission();

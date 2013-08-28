@@ -24,7 +24,7 @@ import java.util.*;
 @Service("checkWeatherServer")
 public class CheckWeatherServer implements InitializingBean
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   @Autowired
   private TournamentProperties properties;
@@ -48,7 +48,6 @@ public class CheckWeatherServer implements InitializingBean
   {
     loadExtraLocations();
 
-    /*
     // Check the status of the weather server every 15 minutes
     TimerTask weatherServerChecker = new TimerTask()
     {
@@ -61,7 +60,6 @@ public class CheckWeatherServer implements InitializingBean
 
     weatherServerCheckerTimer = new Timer();
     weatherServerCheckerTimer.schedule(weatherServerChecker, new Date(), 900000);
-    */
   }
 
   public void ping ()

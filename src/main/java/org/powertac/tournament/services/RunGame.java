@@ -11,7 +11,7 @@ import java.util.List;
 
 public class RunGame
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private Game game;
   private String brokers = "";
@@ -23,13 +23,11 @@ public class RunGame
   public RunGame (Game game)
   {
     this.game = game;
-
-    run();
   }
 
   private void run ()
   {
-    session = HibernateUtil.getSessionFactory().openSession();
+    session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       if (!checkMachineAvailable()) {
@@ -58,7 +56,7 @@ public class RunGame
     } catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      log.info("Failed to start simulation game: " + game.getGameId());
+      log.info("Failed to start sim game: " + game.getGameId());
     } finally {
       session.close();
     }
@@ -174,7 +172,7 @@ public class RunGame
 
       return true;
     } catch (Exception e) {
-      log.error("Jenkins failure to start simulation game: " + game.getGameId());
+      log.error("Jenkins failure to start sim game: " + game.getGameId());
       game.setStateGameFailed();
       throw e;
     }
@@ -197,7 +195,7 @@ public class RunGame
 
     List<Game> games = new ArrayList<Game>();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       games = Game.getStartableGames(session, runningRound);
@@ -214,7 +212,7 @@ public class RunGame
     machinesAvailable = true;
     for (Game game: games) {
       log.info(String.format("Game %s will be started ...", game.getGameId()));
-      new RunGame(game);
+      new RunGame(game).run();
 
       if (!machinesAvailable) {
         log.info("No free machines, stop looking for Startable Games");

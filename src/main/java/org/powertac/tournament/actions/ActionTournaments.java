@@ -7,20 +7,19 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.powertac.tournament.beans.*;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.Utils;
+import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import java.util.ArrayList;
 import java.util.List;
 
 
 @ManagedBean
-@RequestScoped
-public class ActionTournaments
+public class ActionTournaments implements InitializingBean
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private int tournamentId;
   private String tournamentName;
@@ -35,6 +34,10 @@ public class ActionTournaments
   private List<Broker> brokerList;
 
   public ActionTournaments ()
+  {
+  }
+
+  public void afterPropertiesSet () throws Exception
   {
     resetValues();
   }
@@ -102,7 +105,7 @@ public class ActionTournaments
   {
     log.info("Closing tournament : " + tournament.getTournamentId());
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       tournament.setStateToClosed();
@@ -123,7 +126,7 @@ public class ActionTournaments
   {
     log.info("Scheduling tournament : " + tournament.getTournamentId());
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       if (tournament.scheduleNextLevel(session)) {
@@ -153,7 +156,7 @@ public class ActionTournaments
   {
     log.info("Completing tournament : " + tournament.getTournamentId());
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       if (tournament.completeLevel()) {
@@ -203,7 +206,7 @@ public class ActionTournaments
   {
     log.info("Creating tournament");
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     Tournament tournament = new Tournament();
     try {
@@ -251,7 +254,7 @@ public class ActionTournaments
   {
     log.info("Saving tournament " + tournamentId);
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Tournament tournament = (Tournament) session.get(Tournament.class, tournamentId);

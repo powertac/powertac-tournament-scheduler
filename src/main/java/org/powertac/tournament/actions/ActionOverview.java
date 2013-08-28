@@ -5,19 +5,18 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.*;
 import org.powertac.tournament.services.*;
+import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import java.util.List;
 
 
 @ManagedBean
-@RequestScoped
-public class ActionOverview
+public class ActionOverview  implements InitializingBean
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private List<Broker> brokerList;
   private List<Game> notCompleteGamesList;
@@ -28,10 +27,9 @@ public class ActionOverview
 
   public ActionOverview ()
   {
-    loadData();
   }
 
-  private void loadData ()
+  public void afterPropertiesSet () throws Exception
   {
     brokerList = Broker.getBrokerList();
     notCompleteGamesList = Game.getNotCompleteGamesList();
@@ -52,7 +50,7 @@ public class ActionOverview
     boolean enabled = true;
 
     try {
-      enabled = MemStore.brokerState.get(brokerId);
+      enabled = MemStore.getBrokerState(brokerId);
     } catch (Exception ignored) {
     }
 
@@ -63,7 +61,7 @@ public class ActionOverview
   {
     log.info("Trying to abort game: " + game.getGameId());
 
-    new RunAbort(game.getMachine().getMachineName());
+    new RunAbort(game.getMachine().getMachineName()).run();
 
     message(2, "Aborting games takes some time, please wait");
   }
@@ -77,7 +75,7 @@ public class ActionOverview
     Machine machine = game.getMachine();
     String machineName = game.getMachine().getMachineName();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       // Reset game and machine on TM
@@ -117,7 +115,7 @@ public class ActionOverview
     }
 
     // Kill the job on Jenkins and the slave
-    new RunKill(machineName);
+    new RunKill(machineName).run();
   }
 
   public void restartGame (Game game)
@@ -126,7 +124,7 @@ public class ActionOverview
 
     int gameId = game.getGameId();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       if (game.isBootFailed()) {

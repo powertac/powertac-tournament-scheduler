@@ -1,10 +1,3 @@
-/**
- * Created by IntelliJ IDEA.
- * User: govert
- * Date: 1/28/13
- * Time: 2:26 PM
- */
-
 package org.powertac.tournament.services;
 
 import org.apache.log4j.Logger;
@@ -20,7 +13,7 @@ import java.util.Map;
 
 public class RestBroker
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   public String parseBrokerLogin (Map<String, String[]> params)
   {
@@ -41,7 +34,7 @@ public class RestBroker
     log.info(String.format("Broker %s login request : %s",
         brokerAuth, joinName));
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_BROKER_BY_BROKERAUTH);

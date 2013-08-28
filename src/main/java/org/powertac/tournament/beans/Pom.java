@@ -32,7 +32,7 @@ public class Pom
   {
     List<Pom> poms = new ArrayList<Pom>();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_POMS);

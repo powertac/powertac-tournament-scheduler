@@ -1,10 +1,3 @@
-/**
- * Created by IntelliJ IDEA.
- * User: govert
- * Date: 1/28/13
- * Time: 2:19 PM
- */
-
 package org.powertac.tournament.services;
 
 import org.apache.log4j.Logger;
@@ -22,7 +15,7 @@ import java.util.Map;
 
 public class RestServer
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private TournamentProperties properties = TournamentProperties.getProperties();
 
@@ -126,7 +119,7 @@ public class RestServer
         return "error";
       }
 
-      Session session = HibernateUtil.getSessionFactory().openSession();
+      Session session = HibernateUtil.getSession();
       Transaction transaction = session.beginTransaction();
       try {
         Game game = (Game) session.get(Game.class, gameId);
@@ -170,7 +163,7 @@ public class RestServer
     }
 
     Game game;
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       game = (Game) session.get(Game.class, gameId);
@@ -308,7 +301,7 @@ public class RestServer
     log.info(String.format("Received %s message from game: %s",
         statusString, gameId));
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_GAME_BY_ID);
@@ -358,7 +351,7 @@ public class RestServer
       return "error";
     }
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Game game = (Game) session.get(Game.class, gameId);

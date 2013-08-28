@@ -39,7 +39,7 @@ import java.util.Properties;
 @Service("tournamentProperties")
 public class TournamentProperties
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private String resourceName = "tournament.properties";
   private Properties properties = new Properties();

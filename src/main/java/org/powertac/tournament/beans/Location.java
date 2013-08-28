@@ -41,7 +41,7 @@ public class Location
   {
     List<Location> locations = new ArrayList<Location>();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       org.hibernate.Query query = session.createQuery(Constants.HQL.GET_LOCATIONS);
@@ -60,7 +60,7 @@ public class Location
   {
     Location location = null;
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       org.hibernate.Query query = session.

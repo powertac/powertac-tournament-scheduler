@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class SimLogParser implements Runnable
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private int gameId;
   String logLocation;
@@ -129,7 +129,7 @@ public class SimLogParser implements Runnable
   @SuppressWarnings("unchecked")
   public void storeResults (HashMap<String, Double> results)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Game game = (Game) session.get(Game.class, gameId);

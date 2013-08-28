@@ -6,6 +6,7 @@ import org.hibernate.Transaction;
 import org.hibernate.annotations.Type;
 import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.HibernateUtil;
+import org.powertac.tournament.services.Utils;
 
 import javax.persistence.*;
 
@@ -15,7 +16,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Table(name = "config")
 public class Config
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private int configId;
   private String configKey;
@@ -60,7 +61,7 @@ public class Config
   public static String getIndexContent ()
   {
     String content;
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       org.hibernate.Query query = session.createQuery(Constants.HQL.GET_CONFIG);
@@ -90,7 +91,7 @@ public class Config
 
   public static boolean setIndexContent (String newContent)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       org.hibernate.Query query = session.createQuery(Constants.HQL.GET_CONFIG);
@@ -114,7 +115,7 @@ public class Config
   public static boolean setTournamentContent (String newContent,
                                               int tournamentId)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       org.hibernate.Query query = session.createQuery(Constants.HQL.GET_CONFIG);
@@ -138,7 +139,7 @@ public class Config
   public static String getTournamentContent (int tournamentId)
   {
     String content;
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       org.hibernate.Query query = session.createQuery(Constants.HQL.GET_CONFIG);

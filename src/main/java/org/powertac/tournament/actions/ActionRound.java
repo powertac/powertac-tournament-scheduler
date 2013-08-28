@@ -8,9 +8,9 @@ import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.CSV;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.Utils;
+import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,8 +19,7 @@ import java.util.Map;
 
 
 @ManagedBean
-@RequestScoped
-public class ActionRound
+public class ActionRound implements InitializingBean
 {
   private Round round;
   private List<String> roundInfo = new ArrayList<String>();
@@ -32,17 +31,16 @@ public class ActionRound
 
   public ActionRound ()
   {
-    loadData();
   }
 
-  private void loadData ()
+  public void afterPropertiesSet () throws Exception
   {
     int roundId = getRoundId();
     if (roundId < 1) {
       return;
     }
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);

@@ -1,10 +1,3 @@
-/**
- * Created by IntelliJ IDEA.
- * User: govert
- * Date: 1/28/13
- * Time: 2:26 PM
- */
-
 package org.powertac.tournament.services;
 
 import org.apache.log4j.Logger;
@@ -21,7 +14,7 @@ import java.util.Map;
 
 public class RestVisualizer
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   /**
    * Handles a login GET request from a visualizer of the form<br/>
@@ -52,7 +45,7 @@ public class RestVisualizer
     long readyDeadline = 30 * 1000;
     long nowStamp = Utils.offsetDate().getTime();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
 
     try {

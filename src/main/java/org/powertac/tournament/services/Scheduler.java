@@ -19,7 +19,7 @@ import java.util.*;
 @ManagedBean
 public class Scheduler implements InitializingBean
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   @Autowired
   private TournamentProperties properties;
@@ -45,7 +45,6 @@ public class Scheduler implements InitializingBean
     watchDogInterval =
         properties.getPropertyInt("scheduler.watchDogInterval", "120000");
 
-    /*
     Timer t = new Timer();
     TimerTask tt = new TimerTask()
     {
@@ -56,7 +55,6 @@ public class Scheduler implements InitializingBean
       }
     };
     t.schedule(tt, 3000);
-    */
   }
 
   private synchronized void startWatchDog ()
@@ -124,7 +122,7 @@ public class Scheduler implements InitializingBean
   {
     log.info("Loading Round " + roundId);
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
@@ -179,7 +177,7 @@ public class Scheduler implements InitializingBean
     int[] multipliers = {runningRound.getMultiplier1(),
         runningRound.getMultiplier2(), runningRound.getMultiplier3()};
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       List<Broker> brokers = new ArrayList<Broker>();

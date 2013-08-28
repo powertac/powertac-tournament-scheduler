@@ -5,19 +5,21 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.*;
 import org.powertac.tournament.constants.Constants;
-import org.powertac.tournament.services.*;
+import org.powertac.tournament.services.CSV;
+import org.powertac.tournament.services.HibernateUtil;
+import org.powertac.tournament.services.MemStore;
+import org.powertac.tournament.services.Utils;
+import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import java.util.ArrayList;
 import java.util.List;
 
 
 @ManagedBean
-@RequestScoped
-public class ActionTournament
+public class ActionTournament implements InitializingBean
 {
   private Tournament tournament;
   private List<String> tournamentInfo = new ArrayList<String>();
@@ -29,17 +31,16 @@ public class ActionTournament
 
   public ActionTournament ()
   {
-    loadData();
   }
 
-  private void loadData ()
+  public void afterPropertiesSet () throws Exception
   {
     int tournamentId = getTournamentId();
     if (tournamentId < 1) {
       return;
     }
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID);

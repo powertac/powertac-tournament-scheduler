@@ -20,7 +20,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Table(name = "tournaments")
 public class Tournament
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private int tournamentId;
   private String tournamentName;
@@ -362,7 +362,7 @@ public class Tournament
   {
     List<Tournament> tournaments = new ArrayList<Tournament>();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       tournaments = (List<Tournament>) session

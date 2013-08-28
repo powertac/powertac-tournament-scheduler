@@ -8,19 +8,18 @@ import org.powertac.tournament.beans.*;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.Scheduler;
 import org.powertac.tournament.services.Utils;
+import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import java.util.*;
 
 
 @ManagedBean
-@RequestScoped
-public class ActionRounds
+public class ActionRounds implements InitializingBean
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private List<Location> locationList;
   private List<Broker> brokerList;
@@ -46,6 +45,10 @@ public class ActionRounds
   private int selectedPom;
 
   public ActionRounds ()
+  {
+  }
+
+  public void afterPropertiesSet () throws Exception
   {
     resetValues();
   }
@@ -110,7 +113,7 @@ public class ActionRounds
   {
     log.info("Saving round " + roundId);
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Round round = (Round) session.get(Round.class, roundId);
@@ -154,7 +157,7 @@ public class ActionRounds
 
   public void startNow (Round round)
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       round.setStartTime(Utils.offsetDate());

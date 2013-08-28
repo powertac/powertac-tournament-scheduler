@@ -17,7 +17,12 @@ import java.util.*;
 
 public class Utils
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = getLogger();
+
+  public static Logger getLogger ()
+  {
+    return Logger.getLogger("TSLogger");
+  }
 
   public static void secondsSleep (int seconds)
   {

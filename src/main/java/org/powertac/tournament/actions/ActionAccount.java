@@ -4,10 +4,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.User;
 import org.powertac.tournament.services.Utils;
+import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,8 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @ManagedBean
-@SessionScoped
-public class ActionAccount
+public class ActionAccount implements InitializingBean
 {
   private User user = User.getCurrentUser();
   private String brokerName;
@@ -28,11 +27,10 @@ public class ActionAccount
 
   public ActionAccount ()
   {
-    loadData();
   }
 
   @SuppressWarnings("unchecked")
-  private void loadData ()
+  public void afterPropertiesSet () throws Exception
   {
     brokers = new ArrayList<Broker>(user.getBrokerMap().values());
     Collections.sort(brokers, new Utils.AlphanumComparator());

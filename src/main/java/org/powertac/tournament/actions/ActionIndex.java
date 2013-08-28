@@ -8,17 +8,16 @@ package org.powertac.tournament.actions;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.services.TournamentProperties;
+import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import java.util.List;
 
 
 @ManagedBean
-@RequestScoped
-public class ActionIndex
+public class ActionIndex implements InitializingBean
 {
   private List<Game> notCompleteGamesList;
   private List<Game> completeGamesList;
@@ -28,10 +27,9 @@ public class ActionIndex
 
   public ActionIndex ()
   {
-    loadData();
   }
 
-  private void loadData ()
+  public void afterPropertiesSet () throws Exception
   {
     notCompleteGamesList = Game.getNotCompleteGamesList();
     completeGamesList = Game.getCompleteGamesList();

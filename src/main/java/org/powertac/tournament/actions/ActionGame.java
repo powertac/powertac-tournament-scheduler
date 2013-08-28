@@ -9,9 +9,9 @@ import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Utils;
+import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -19,8 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @ManagedBean
-@RequestScoped
-public class ActionGame
+public class ActionGame implements InitializingBean
 {
   private Game game;
   private List<String> gameInfo = new ArrayList<String>();
@@ -28,17 +27,16 @@ public class ActionGame
 
   public ActionGame ()
   {
-    loadData();
   }
 
-  private void loadData ()
+  public void afterPropertiesSet () throws Exception
   {
     int gameId = getGameId();
     if (gameId < 1) {
       return;
     }
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_GAME_BY_ID);

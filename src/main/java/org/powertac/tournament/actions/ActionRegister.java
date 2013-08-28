@@ -2,6 +2,7 @@ package org.powertac.tournament.actions;
 
 import org.apache.log4j.Logger;
 import org.powertac.tournament.beans.User;
+import org.powertac.tournament.services.Utils;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -13,7 +14,7 @@ import javax.faces.context.FacesContext;
 @RequestScoped
 public class ActionRegister
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private String username;
   private String password1;

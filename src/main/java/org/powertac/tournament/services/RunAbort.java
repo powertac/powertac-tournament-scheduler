@@ -5,9 +5,16 @@ import org.apache.log4j.Logger;
 
 public class RunAbort
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
+
+  private String machineName;
 
   public RunAbort (String machineName)
+  {
+    this.machineName = machineName;
+  }
+
+  public void run ()
   {
     if (machineName.isEmpty()) {
       return;

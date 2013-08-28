@@ -24,7 +24,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Table(name = "machines")
 public class Machine
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private Integer machineId;
   private String machineName;
@@ -77,7 +77,7 @@ public class Machine
   {
     log.info("WatchDogTimer Checking Machine States..");
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       NodeList nList = JenkinsConnector.getNodeList();
@@ -156,7 +156,7 @@ public class Machine
   {
     List<Machine> machines = new ArrayList<Machine>();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_MACHINES);
@@ -199,7 +199,7 @@ public class Machine
       {
         Utils.secondsSleep(delay);
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
+        Session session = HibernateUtil.getSession();
         Transaction transaction = session.beginTransaction();
         try {
           log.info("Setting machine " + machineId + " to idle");

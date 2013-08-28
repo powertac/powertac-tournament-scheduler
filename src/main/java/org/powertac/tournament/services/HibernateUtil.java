@@ -3,6 +3,7 @@ package org.powertac.tournament.services;
 import com.mchange.v2.c3p0.C3P0Registry;
 import com.mchange.v2.c3p0.PooledDataSource;
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
@@ -15,7 +16,7 @@ import java.util.Enumeration;
 
 public class HibernateUtil
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private static final SessionFactory sessionFactory = buildSessionFactory();
 
@@ -38,6 +39,11 @@ public class HibernateUtil
   public static SessionFactory getSessionFactory ()
   {
     return sessionFactory;
+  }
+
+  public static Session getSession ()
+  {
+    return getSessionFactory().openSession();
   }
 
   public static void shutdown ()

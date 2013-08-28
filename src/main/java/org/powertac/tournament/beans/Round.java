@@ -55,7 +55,7 @@ public class Round
 
   public String delete ()
   {
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Round round = (Round) session
@@ -352,7 +352,7 @@ public class Round
   {
     List<Round> rounds = new ArrayList<Round>();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       rounds = (List<Round>) session

@@ -10,7 +10,7 @@ import java.io.FileOutputStream;
 
 public class Upload
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
   private static TournamentProperties properties =
       TournamentProperties.getProperties();

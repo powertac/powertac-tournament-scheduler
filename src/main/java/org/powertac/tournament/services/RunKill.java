@@ -7,9 +7,16 @@ import org.w3c.dom.NodeList;
 
 public class RunKill
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
+
+  private String machineName;
 
   public RunKill (String machineName)
+  {
+    this.machineName = machineName;
+  }
+
+  public void run ()
   {
     if (machineName.isEmpty()) {
       return;

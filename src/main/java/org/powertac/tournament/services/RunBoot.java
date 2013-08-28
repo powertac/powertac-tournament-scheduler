@@ -14,10 +14,11 @@ import java.util.List;
  */
 public class RunBoot
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
+
+  private TournamentProperties properties = TournamentProperties.getProperties();
 
   private Game game;
-  private TournamentProperties properties = TournamentProperties.getProperties();
   private Session session;
 
   private static boolean machinesAvailable;
@@ -25,13 +26,11 @@ public class RunBoot
   public RunBoot (Game game)
   {
     this.game = game;
-
-    run();
   }
 
   private void run ()
   {
-    session = HibernateUtil.getSessionFactory().openSession();
+    session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       if (!checkMachineAvailable()) {
@@ -135,7 +134,7 @@ public class RunBoot
 
     List<Game> games = new ArrayList<Game>();
 
-    Session session = HibernateUtil.getSessionFactory().openSession();
+    Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       games = Game.getBootableGames(session, runningRound);
@@ -152,7 +151,7 @@ public class RunBoot
     machinesAvailable = true;
     for (Game game: games) {
       log.info(String.format("Boot %s will be started ...", game.getGameId()));
-      new RunBoot(game);
+      new RunBoot(game).run();
 
       if (!machinesAvailable) {
         log.info("No free machines, stop looking for Bootable Games");
