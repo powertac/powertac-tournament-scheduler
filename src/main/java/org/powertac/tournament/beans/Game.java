@@ -422,8 +422,8 @@ public class Game implements Serializable
   private void saveStandings ()
   {
     try {
-      gameLength = MemStore.gameLengths.get(gameId) + 360;
-      lastTick = Integer.parseInt(MemStore.gameHeartbeats.get(gameId)[0]);
+      gameLength = MemStore.getGameLengths().get(gameId) + 360;
+      lastTick = Integer.parseInt(MemStore.getGameHeartbeats().get(gameId)[0]);
     } catch (Exception ignored) {
     }
   }

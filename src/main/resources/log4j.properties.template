@@ -4,7 +4,7 @@ log4j.rootLogger=FATAL
 log4j.logger.org.apache=WARN
 
 
-log4j.category.TMLogger=DEBUG, File
+log4j.category.TSLogger=DEBUG, File
 
 log4j.appender.File=org.apache.log4j.RollingFileAppender
 log4j.appender.File.File=/home/jcollins/development/powertac/ts/log/tournament.trace

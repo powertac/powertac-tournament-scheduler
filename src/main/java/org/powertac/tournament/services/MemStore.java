@@ -17,26 +17,26 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service("memStore")
 public class MemStore
 {
-  private static Logger log = Logger.getLogger("TMLogger");
+  private static Logger log = Utils.getLogger();
 
-  public static ConcurrentHashMap<String, List<String>> machineIPs;
-  public static ConcurrentHashMap<String, String> vizIPs;
-  public static ConcurrentHashMap<String, String> localIPs;
+  private static ConcurrentHashMap<String, List<String>> machineIPs;
+  private static ConcurrentHashMap<String, String> vizIPs;
+  private static ConcurrentHashMap<String, String> localIPs;
 
-  public static ConcurrentHashMap<Integer, List<Long>> brokerCheckins;
-  public static ConcurrentHashMap<String, Long> vizCheckins;
-  public static ConcurrentHashMap<Integer, String[]> gameHeartbeats;
-  public static ConcurrentHashMap<Integer, Integer> gameLengths;
+  private static ConcurrentHashMap<Integer, List<Long>> brokerCheckins;
+  private static ConcurrentHashMap<String, Long> vizCheckins;
+  private static ConcurrentHashMap<Integer, String[]> gameHeartbeats;
+  private static ConcurrentHashMap<Integer, Integer> gameLengths;
 
-  public static ConcurrentHashMap<Integer, Boolean> brokerState =
+  private static ConcurrentHashMap<Integer, Boolean> brokerState =
       new ConcurrentHashMap<Integer, Boolean>(50, 0.9f, 1);
+  private static boolean hideInactiveBrokers = true;
+  private static boolean hideInactiveGames = true;
+  private static List<Location> availableLocations = new ArrayList<Location>();
 
-  public static String indexContent;
-
-  public static ConcurrentHashMap<Integer, String> tournamentContent =
+  private static String indexContent;
+  private static ConcurrentHashMap<Integer, String> tournamentContent =
       new ConcurrentHashMap<Integer, String>(20, 0.9f, 1);
-
-  public static List<Location> availableLocations = new ArrayList<Location>();
 
   public MemStore ()
   {
@@ -50,6 +50,7 @@ public class MemStore
     gameLengths = new ConcurrentHashMap<Integer, Integer>(20, 0.9f, 1);
   }
 
+  //<editor-fold desc="IP stuff">
   public static void getIpAddresses ()
   {
     machineIPs = new ConcurrentHashMap<String, List<String>>(20, 0.9f, 1);
@@ -108,6 +109,10 @@ public class MemStore
     }
   }
 
+  public static void resetMachineIPs ()
+  {
+    machineIPs = null;
+  }
   public static boolean checkMachineAllowed (String slaveAddress)
   {
     //log.debug("Testing checkMachineAllowed : " + slaveAddress);
@@ -132,6 +137,10 @@ public class MemStore
     return false;
   }
 
+  public static void resetVizIPs ()
+  {
+    vizIPs = null;
+  }
   public static boolean checkVizAllowed (String vizAddress)
   {
     //log.debug("Testing checkVizAllowed : " + vizAddress);
@@ -155,7 +164,13 @@ public class MemStore
     log.debug(vizAddress + " is not allowed");
     return true;
   }
+  //</editor-fold>
 
+  //<editor-fold desc="Checkin stuff">
+  public static ConcurrentHashMap<Integer, List<Long>> getBrokerCheckins ()
+  {
+    return brokerCheckins;
+  }
   public synchronized static void addBrokerCheckin (int brokerId)
   {
     List<Long> dates = brokerCheckins.get(brokerId);
@@ -171,18 +186,33 @@ public class MemStore
 
     brokerCheckins.put(brokerId, dates);
   }
+  public static void removeBrokerCheckin (int brokerId, long checkin)
+  {
+    brokerCheckins.get(brokerId).remove(checkin);
+  }
 
+  public static ConcurrentHashMap<String, Long> getVizCheckins ()
+  {
+    return vizCheckins;
+  }
   public synchronized static void addVizCheckin (String machineName)
   {
     vizCheckins.put(machineName, System.currentTimeMillis());
   }
+  public static void removeVizCheckin (String machineName)
+  {
+    vizCheckins.remove(machineName);
+  }
 
+  public static ConcurrentHashMap<Integer, String[]> getGameHeartbeats ()
+  {
+    return gameHeartbeats;
+  }
   public synchronized static void addGameHeartbeat (int gameId, String message)
   {
     gameHeartbeats.put(gameId,
         new String[]{message, System.currentTimeMillis() + ""});
   }
-
   public synchronized static void removeGameHeartbeat (int gameId)
   {
     if (gameHeartbeats.containsKey(gameId)) {
@@ -190,6 +220,10 @@ public class MemStore
     }
   }
 
+  public static ConcurrentHashMap<Integer, Integer> getGameLengths ()
+  {
+    return gameLengths;
+  }
   public synchronized static void addGameLength (int gameId, String gameLength)
   {
     try {
@@ -197,14 +231,15 @@ public class MemStore
     } catch (Exception ignored) {
     }
   }
-
   public synchronized static void removeGameLength (int gameId)
   {
     if (gameLengths.containsKey(gameId)) {
       gameLengths.remove(gameId);
     }
   }
+  //</editor-fold>
 
+  //<editor-fold desc="Interface stuff">
   public static boolean getBrokerState (int brokerId)
   {
     boolean enabled = true;
@@ -215,12 +250,40 @@ public class MemStore
 
     return enabled;
   }
-
   public static void setBrokerState (int brokerId, boolean state)
   {
     brokerState.put(brokerId, state);
   }
 
+  public static boolean isHideInactiveBrokers ()
+  {
+    return hideInactiveBrokers;
+  }
+  public static void setHideInactiveBrokers (boolean hideInactiveBrokers)
+  {
+    MemStore.hideInactiveBrokers = hideInactiveBrokers;
+  }
+
+  public static boolean isHideInactiveGames ()
+  {
+    return hideInactiveGames;
+  }
+  public static void setHideInactiveGames (boolean hideInactiveGames)
+  {
+    MemStore.hideInactiveGames = hideInactiveGames;
+  }
+
+  public static List<Location> getAvailableLocations ()
+  {
+    return availableLocations;
+  }
+  public static void setAvailableLocations (List<Location> availableLocations)
+  {
+    MemStore.availableLocations = availableLocations;
+  }
+  //</editor-fold>
+
+  //<editor-fold desc="Content stuff">
   public static String getIndexContent ()
   {
     if (indexContent == null || indexContent.isEmpty()) {
@@ -261,13 +324,5 @@ public class MemStore
 
     return Config.setTournamentContent(newContent, tournamentId);
   }
-
-  public static List<Location> getAvailableLocations ()
-  {
-    return availableLocations;
-  }
-  public static void setAvailableLocations (List<Location> availableLocations)
-  {
-    MemStore.availableLocations = availableLocations;
-  }
+  //</editor-fold>
 }

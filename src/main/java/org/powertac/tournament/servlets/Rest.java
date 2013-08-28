@@ -49,18 +49,20 @@ public class Rest extends HttpServlet
   {
     String result = "{ ";
 
-    for (Integer i : MemStore.brokerCheckins.keySet()) {
-      if (MemStore.brokerCheckins.get(i) == null) {
+    for (Integer i : MemStore.getBrokerCheckins().keySet()) {
+      if (MemStore.getBrokerCheckins().get(i) == null) {
         continue;
       }
 
       result += "\"" + i.toString() + "\": \"";
 
-      Iterator<Long> iter = MemStore.brokerCheckins.get(i).iterator();
+      Iterator<Long> iter = MemStore.getBrokerCheckins().get(i).iterator();
       while (iter.hasNext()) {
-        int stamp = (int) (System.currentTimeMillis() - iter.next()) / 1000;
+        Long checkin = iter.next();
+        int stamp = (int) (System.currentTimeMillis() - checkin) / 1000;
         if (stamp > 900) {
           iter.remove();
+          MemStore.removeBrokerCheckin(i, checkin);
         } else if (stamp < 60) {
           result += "<b>" + stamp + "</b> ";
         } else {
@@ -82,8 +84,8 @@ public class Rest extends HttpServlet
   {
     String result = "{ ";
 
-    for (Integer i : MemStore.gameHeartbeats.keySet()) {
-      String[] messages = MemStore.gameHeartbeats.get(i);
+    for (Integer i : MemStore.getGameHeartbeats().keySet()) {
+      String[] messages = MemStore.getGameHeartbeats().get(i);
       if (messages == null) {
         continue;
       }
@@ -97,7 +99,7 @@ public class Rest extends HttpServlet
           MemStore.removeGameHeartbeat(i);
           MemStore.removeGameLength(i);
         } else {
-          Integer gameLength = MemStore.gameLengths.get(i);
+          Integer gameLength = MemStore.getGameLengths().get(i);
           if (gameLength == null) {
             result += messages[0] + " (" + stamp + ")";
           } else {
@@ -123,8 +125,8 @@ public class Rest extends HttpServlet
   {
     String result = "{ ";
 
-    for (String s : MemStore.vizCheckins.keySet()) {
-      if (MemStore.vizCheckins.get(s) == null) {
+    for (String s : MemStore.getVizCheckins().keySet()) {
+      if (MemStore.getVizCheckins().get(s) == null) {
         continue;
       }
 
@@ -132,9 +134,9 @@ public class Rest extends HttpServlet
 
       try {
         long stamp =
-            (System.currentTimeMillis() - MemStore.vizCheckins.get(s)) / 1000;
+            (System.currentTimeMillis() - MemStore.getVizCheckins().get(s)) / 1000;
         if (stamp > 900) {
-          MemStore.vizCheckins.remove(s);
+          MemStore.removeVizCheckin(s);
         } else {
           result += String.valueOf(stamp);
         }
