@@ -112,7 +112,7 @@ function get_pom () {
     SIZE=$(stat -c%s &quot;pom.xml&quot;)
     if [ $SIZE -le 10 ] ; then
         log nl &quot;Error getting pom : $pomUrl&quot;
-        log nl &quot;Notify TM we&apos;re game_failed&quot;
+        log nl &quot;Notify TS we&apos;re game_failed&quot;
         wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_failed&quot;
         cleanup
         exit 1
@@ -168,7 +168,7 @@ eval $CMD
 COUNT=$(grep -c &apos;Abort file detected - shutting down&apos; log/powertac-sim-$gameId.trace)
 if [ $COUNT -eq 1 ] ; then
     log nl &quot;We detected an abort&quot;
-    log nl &quot;Notify TM we&apos;re boot_complete&quot;
+    log nl &quot;Notify TS we&apos;re boot_complete&quot;
     wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_complete&quot;
     cleanup
     exit 1
@@ -189,7 +189,7 @@ curl --upload-file &quot;$simName-logs.$COMP_EXT&quot; &quot;$interfaceUrl?fileN
 
 cleanup
 
-log nl &quot;Notify TM we&apos;re game_complete&quot;
+log nl &quot;Notify TS we&apos;re game_complete&quot;
 wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_complete&quot;
 
 exit 0
