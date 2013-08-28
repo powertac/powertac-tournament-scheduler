@@ -71,6 +71,7 @@ input[readonly], input[readonly="readonly"] {
 input.smallButton {
     padding: 0;
     margin: 0;
+    height: 20px;
 }
 
 input.actionButton {

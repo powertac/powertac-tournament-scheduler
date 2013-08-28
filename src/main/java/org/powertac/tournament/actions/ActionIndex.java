@@ -54,6 +54,15 @@ public class ActionIndex implements InitializingBean
     return String.format(baseUrl, g.getGameId());
   }
 
+  public String getBootUrl (Game g)
+  {
+    TournamentProperties properties = TournamentProperties.getProperties();
+    String baseUrl = properties.getProperty("actionIndex.bootUrl",
+        "download?boot=%d");
+
+    return String.format(baseUrl, g.getGameId());
+  }
+
   public void edit ()
   {
     if (editing) {

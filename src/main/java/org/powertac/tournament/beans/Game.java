@@ -191,7 +191,7 @@ public class Game implements Serializable
         machine = null;
         log.debug("Freeing Machine for game: " + gameId);
         // If all games of round are complete, set round complete
-        round.processGameFinished(gameId);
+        round.gameCompleted(gameId);
         break;
 
       case game_failed:

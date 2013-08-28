@@ -19,7 +19,7 @@
   <br/>
 
   <h3 class="withButton">Pending/Running Tournaments</h3>
-  <h:commandButton value="Refresh"/>
+  <h:button value="Refresh" outcome="Tournaments"/>
   <t:dataTable id="dataTournaments" border="1"
                value="#{actionTournaments.tournamentList}" var="t">
 
@@ -88,7 +88,7 @@
     rendered="#{user.isAdmin() and (actionTournaments.brokerList.size() > 0)}"
     id="tournamentRegistered">
   <h3 class="withButton">Registered Brokers</h3>
-  <h:commandButton value="Refresh"/>
+  <h:button value="Refresh" outcome="Tournaments"/>
   <t:dataTable id="databrokers" border="1"
                value="#{actionTournaments.brokerList}" var="broker">
 
@@ -149,13 +149,13 @@
   <h:panelGrid columns="2" id="tournamentTable">
     <h:outputText value="Tournament Name"/>
     <h:inputText value="#{actionTournaments.tournamentName}"
-                 readonly="#{actionTournaments.disabledArray[0]}"
+                 readonly="#{actionTournaments.disabled[0]}"
                  styleClass="input_wide"/>
 
     <h:outputText value="Select Pom File"/>
     <h:panelGroup>
       <h:selectOneMenu id="poms" styleClass="select_wide"
-                       disabled="#{actionTournaments.disabledArray[0]}"
+                       disabled="#{actionTournaments.disabled[0]}"
                        value="#{actionTournaments.selectedPom}">
         <f:selectItems value="#{actionTournaments.pomList}" var="p"
                        itemValue="#{p.pomId}" itemLabel="#{p.pomName}"/>
@@ -165,22 +165,22 @@
     <h:panelGroup/>
     <h:panelGroup><br/></h:panelGroup>
 
-    <ui:repeat value="#{actionTournaments.levels}" var="r">
+    <ui:repeat value="#{actionTournaments.levels}" var="l">
       <tr>
-        <td><h:outputText value="Level #{r.levelNr} name"/></td>
-        <td><h:inputText value="#{r.levelName}"
-                         disabled="#{actionTournaments.disabledArray[r.levelNr]}"
+        <td><h:outputText value="Level #{l.levelNr} name"/></td>
+        <td><h:inputText value="#{l.levelName}"
+                         disabled="#{actionTournaments.disabled[l.levelNr]}"
                          styleClass="input_wide"/></td>
       </tr>
       <tr>
         <td><h:outputText value="Rounds / winners"/></td>
         <td>
           <h:panelGroup>
-            <h:inputText value="#{r.nofRounds}"
-                         readonly="#{actionTournaments.disabledArray[r.levelNr]}"
+            <h:inputText value="#{l.nofRounds}"
+                         readonly="#{actionTournaments.disabled[l.levelNr]}"
                          styleClass="input_small"/>
-            <h:inputText value="#{r.nofWinners}"
-                         readonly="#{actionTournaments.disabledArray[r.levelNr]}"
+            <h:inputText value="#{l.nofWinners}"
+                         readonly="#{actionTournaments.disabled[l.levelNr]}"
                          styleClass="input_small"/>
           </h:panelGroup>
         </td>
@@ -189,9 +189,9 @@
         <td><h:outputText value="StartTime UTC"/></td>
         <td>
           <h:panelGroup>
-            <t:inputDate value="#{r.startTime}"
-                         readonly="#{actionTournaments.disabledArray[r.levelNr]}"
-                         disabled="#{actionTournaments.disabledArray[r.levelNr]}"
+            <t:inputDate value="#{l.startTime}"
+                         readonly="#{actionTournaments.disabled[l.levelNr]}"
+                         disabled="#{actionTournaments.disabled[l.levelNr]}"
                          id="levelStartTime" type="both"/>
           </h:panelGroup>
         </td>

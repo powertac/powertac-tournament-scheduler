@@ -1,22 +1,22 @@
 function updateVisualizers(data) {
-    $('#machinesForm\\:machines').find('>tbody>tr').each(function () {
-        var sp = $(this).find('td:first-child span')[0];
-        var orgRowNr = $(sp).attr("id").split(":")[2];
+  $('#machinesForm\\:dataMachines').find('>tbody>tr').each(function () {
+    var sp = $(this).find('td:first-child span')[0];
+    var orgRowNr = $(sp).attr("id").split(":")[2];
 
-        if (data[$(sp).text()] != undefined) {
-            $('#machinesForm\\:machines\\:' + orgRowNr + '\\:checkins').html(data[$(sp).text()]);
-        } else {
-            $('#machinesForm\\:machines\\:' + orgRowNr + '\\:checkins').html("");
-        }
-    });
+    if (data[$(sp).text()] != undefined) {
+      $('#machinesForm\\:dataMachines\\:' + orgRowNr + '\\:checkins').html(data[$(sp).text()]);
+    } else {
+      $('#machinesForm\\:dataMachines\\:' + orgRowNr + '\\:checkins').html("");
+    }
+  });
 }
 
 function updateWatchdog(data) {
-    if (data['text'] != undefined) {
-        $('#adminControls\\:watchdog').html(data['text']);
-    } else {
-        $('#adminControls\\:watchdog').html("");
-    }
+  if (data['text'] != undefined) {
+    $('#adminControls\\:watchdog').html(data['text']);
+  } else {
+    $('#adminControls\\:watchdog').html("");
+  }
 }
 
 function resizeTables() {
@@ -24,12 +24,7 @@ function resizeTables() {
     "bFilter": false,
     "bInfo": false,
 
-    "bPaginate": false,
-    /*
-    "aoColumnDefs": [
-      { 'bSortable': false, 'aTargets': [3, 5, 7, 8] },
-    ]
-    */
+    "bPaginate": false
   });
 
   $('[id$=dataMachines]').dataTable({
@@ -39,6 +34,7 @@ function resizeTables() {
     "bPaginate": false,
     "aoColumnDefs": [
       { 'bSortable': false, 'aTargets': [3, 5, 7, 8] },
+      { "sType": "natural", "aTargets": [0, 1, 2] }
     ]
   });
 
@@ -54,18 +50,18 @@ function resizeTables() {
 }
 
 function updateTables() {
-    $.ajax({
-        url: "Rest?type=visualizers",
-        success: updateVisualizers
-    });
-    $.ajax({
-        url: "Rest?type=watchdog",
-        success: updateWatchdog
-    });
+  $.ajax({
+    url: "Rest?type=visualizers",
+    success: updateVisualizers
+  });
+  $.ajax({
+    url: "Rest?type=watchdog",
+    success: updateWatchdog
+  });
 }
 
 $(document).ready(function () {
-    resizeTables();
-    updateTables();
-    setInterval(updateTables, 3000);
+  resizeTables();
+  updateTables();
+  setInterval(updateTables, 3000);
 });

@@ -27,7 +27,7 @@ public class ActionTournaments implements InitializingBean
 
   private int nofLevels = 4;
   private List<Level> levels;
-  private boolean[] disabledArray;
+  private boolean[] disabled;
 
   private List<Tournament> tournamentList;
   private List<Pom> pomList;
@@ -239,13 +239,13 @@ public class ActionTournaments implements InitializingBean
     selectedPom = tournament.getPomId();
     int currentLevel = tournament.getCurrentLevelNr();
 
-    disabledArray = new boolean[tournament.getLevelMap().size()];
+    disabled = new boolean[tournament.getLevelMap().size()];
     levels = new ArrayList<Level>();
     for (Level level: tournament.getLevelMap().values()) {
       levels.add(level);
 
       if (currentLevel >= level.getLevelNr()) {
-        disabledArray[level.getLevelNr()] = true;
+        disabled[level.getLevelNr()] = true;
       }
     }
   }
@@ -321,7 +321,7 @@ public class ActionTournaments implements InitializingBean
     tournamentName = "";
     selectedPom = 0;
 
-    disabledArray = new boolean[nofLevels];
+    disabled = new boolean[nofLevels];
 
     levels = new ArrayList<Level>();
     for (int i = 0; i < nofLevels; i++) {
@@ -503,13 +503,13 @@ public class ActionTournaments implements InitializingBean
     this.levels = levels;
   }
 
-  public boolean[] getDisabledArray ()
+  public boolean[] getDisabled ()
   {
-    return disabledArray;
+    return disabled;
   }
-  public void setDisabledArray (boolean[] disabledArray)
+  public void setDisabled (boolean[] disabled)
   {
-    this.disabledArray = disabledArray;
+    this.disabled = disabled;
   }
 
   public int getNofLevels ()

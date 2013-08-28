@@ -196,7 +196,17 @@ public class ActionRounds implements InitializingBean
         Math.max(1, size3)};
     Integer[] multipliers = {Math.max(0, multiplier1), Math.max(0, multiplier2),
         Math.max(0, multiplier3)};
+
+    // Sort biggest games first, keep paired with multiplier
+    Map<Integer, Integer> tempMap = new HashMap<Integer, Integer>();
+    for (int i=0; i< 3; i++) {
+      tempMap.put(gameTypes[i], multipliers[i]);
+    }
     Arrays.sort(gameTypes, Collections.reverseOrder());
+    for (int i=0; i< 3; i++) {
+      multipliers[i] = tempMap.get(gameTypes[i]);
+    }
+
     maxBrokers = Math.max(maxBrokers, round.getBrokerMap().size());
 
     if (round.getSize() < 1) {
@@ -269,9 +279,10 @@ public class ActionRounds implements InitializingBean
     if (!registered) {
       message(1, "Error registering broker");
     } else {
-      brokerList = Broker.getBrokerList();
       User user = User.getCurrentUser();
       User.reloadUser(user);
+      roundList = Round.getNotCompleteRoundList();
+      brokerList = Broker.getBrokerList();
     }
   }
 
@@ -285,9 +296,10 @@ public class ActionRounds implements InitializingBean
     if (!registered) {
       message(1, "Error unregistering broker");
     } else {
-      brokerList = Broker.getBrokerList();
       User user = User.getCurrentUser();
       User.reloadUser(user);
+      roundList = Round.getNotCompleteRoundList();
+      brokerList = Broker.getBrokerList();
     }
   }
 

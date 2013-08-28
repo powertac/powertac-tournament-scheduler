@@ -433,18 +433,13 @@ public class Broker
   {
     List<Round> registrableRounds = new ArrayList<Round>();
 
-    TournamentProperties properties = TournamentProperties.getProperties();
-    long loginDeadline = properties.getPropertyInt("loginDeadline", "3600000");
-    long nowStamp = Utils.offsetDate().getTime();
-
     for (Round round: roundList) {
       // Check if maxNofBrokers reached
       if (round.getBrokerMap().size() >= round.getMaxBrokers()) {
         continue;
       }
-      // Check if after deadline
-      long diff = round.getStartTime().getTime() - nowStamp;
-      if (diff < loginDeadline) {
+      // Check if round hasn't started
+      if (!round.isPending()) {
         continue;
       }
       // Check if already registered

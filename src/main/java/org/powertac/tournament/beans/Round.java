@@ -104,7 +104,7 @@ public class Round
    * If a game is complete, check if it was the last one to complete
    * If so, set round state to complete
    */
-  public void processGameFinished (int finishedGameId)
+  public void gameCompleted (int finishedGameId)
   {
     boolean allDone = true;
 
@@ -147,6 +147,28 @@ public class Round
   public int getNofBrokers ()
   {
     return brokerMap.size();
+  }
+
+  @Transient
+  public String getParamString1 ()
+  {
+    return brokerMap.size() + " / " + maxBrokers + " : "  + maxAgents;
+  }
+
+  @Transient
+  public String getParamString2 ()
+  {
+    String result = "";
+    if (size1 > 0 && multiplier1 > 0) {
+      result += size1 +":"+ multiplier1 +" ";
+    }
+    if (size2 > 0 && multiplier2 > 0) {
+      result += size2 +":"+ multiplier2 +" ";
+    }
+    if (size3 > 0 && multiplier3 > 0) {
+      result += size3 +":"+ multiplier3;
+    }
+    return result;
   }
 
   //<editor-fold desc="Winner determination">

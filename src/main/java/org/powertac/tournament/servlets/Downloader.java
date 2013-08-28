@@ -21,31 +21,41 @@ import java.io.IOException;
 public class Downloader extends HttpServlet
 {
   TournamentProperties properties = TournamentProperties.getProperties();
-  String absolutePath = properties.getProperty("logLocation");
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException
   {
+    String downloadFile;
+    String absolutePath;
     String gameId = request.getParameter("game");
+    String bootId = request.getParameter("boot");
     String csvName = request.getParameter("csv");
 
     if (gameId != null) {
-      String downloadFile = "game-" + gameId + "-sim-logs.tar.gz";
+      absolutePath = properties.getProperty("logLocation");
+      downloadFile = "game-" + gameId + "-sim-logs.tar.gz";
       response.setContentType("application/x-tar; x-gzip");
-      response.addHeader("Content-Disposition", "attachment; filename=\""
-          + downloadFile + "\"");
-      streamFile(response, downloadFile);
+    }
+    else if (bootId != null) {
+      absolutePath = properties.getProperty("bootLocation");
+      downloadFile = "game-" + bootId + "-boot.xml";
+      response.setContentType("application/xml");
     }
     else if (csvName != null) {
-      String downloadFile = csvName + ".csv";
+      absolutePath = properties.getProperty("logLocation");
+      downloadFile = csvName + ".csv";
       response.setContentType("text/csv");
-      response.addHeader("Content-Disposition", "attachment; filename=\""
-          + downloadFile + "\"");
-      streamFile(response, downloadFile);
     }
+    else {
+      return;
+    }
+
+    response.addHeader("Content-Disposition", "attachment; filename=\""
+        + downloadFile + "\"");
+    streamFile(response, absolutePath, downloadFile);
   }
 
-  private void streamFile(HttpServletResponse response, String downloadFile)
+  private void streamFile(HttpServletResponse response, String absolutePath, String downloadFile)
   {
     byte[] buf = new byte[1024];
     try {

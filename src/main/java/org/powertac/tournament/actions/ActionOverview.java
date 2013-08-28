@@ -22,9 +22,6 @@ public class ActionOverview  implements InitializingBean
   private List<Game> notCompleteGamesList;
   private List<Round> notCompleteRoundList;
 
-  private boolean hideSample = true;
-  private boolean hideInactive = true;
-
   public ActionOverview ()
   {
   }
@@ -186,22 +183,22 @@ public class ActionOverview  implements InitializingBean
   //</editor-fold>
 
   //<editor-fold desc="Getters and Setters">
-  public boolean isHideSample ()
+  public boolean isHideInactiveBrokers ()
   {
-    return hideSample;
+    return MemStore.isHideInactiveBrokers();
   }
-  public void setHideSample (boolean hideSample)
+  public void setHideInactiveBrokers (boolean ignored)
   {
-    this.hideSample = hideSample;
+    MemStore.setHideInactiveBrokers(!MemStore.isHideInactiveBrokers());
   }
 
-  public boolean isHideInactive ()
+  public boolean isHideInactiveGames ()
   {
-    return hideInactive;
+    return MemStore.isHideInactiveGames();
   }
-  public void setHideInactive (boolean hideInactive)
+  public void setHideInactiveGames (boolean ignored)
   {
-    this.hideInactive = hideInactive;
+    MemStore.setHideInactiveGames(!MemStore.isHideInactiveGames());
   }
   //</editor-fold>
 }
