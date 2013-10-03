@@ -61,6 +61,9 @@ public class ActionOverview  implements InitializingBean
     new RunAbort(game.getMachine().getMachineName()).run();
 
     message(2, "Aborting games takes some time, please wait");
+
+    // Somehow the Show/Hide event is fired
+    MemStore.setHideInactiveGames(!MemStore.isHideInactiveGames());
   }
 
   public void killGame (Game game)
@@ -113,6 +116,9 @@ public class ActionOverview  implements InitializingBean
 
     // Kill the job on Jenkins and the slave
     new RunKill(machineName).run();
+
+    // Somehow the Show/Hide event is fired
+    MemStore.setHideInactiveGames(!MemStore.isHideInactiveGames());
   }
 
   public void restartGame (Game game)
