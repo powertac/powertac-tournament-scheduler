@@ -5,6 +5,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.powertac.tournament.beans.Agent;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.constants.Constants;
 
@@ -41,8 +42,10 @@ public class RestVisualizer
       return String.format(errorResponse, "invalid login request");
     }
 
-    // Wait 30 seconds, game is set ready before it actually starts
-    long readyDeadline = 30 * 1000;
+    // Wait 10 seconds, game is set ready before it actually starts
+    long readyDeadline1 = 10 * 1000;
+    // In the first 60 secs, check if all brokers are logged in
+    long readyDeadline2 = (10+60) * 1000;
     long nowStamp = Utils.offsetDate().getTime();
 
     Session session = HibernateUtil.getSession();
@@ -53,7 +56,7 @@ public class RestVisualizer
       List<Game> games = (List<Game>) query.
           setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
-      for (Game game: games) {
+      gamesLoop: for (Game game: games) {
         if (game.getMachine() == null) {
           continue;
         }
@@ -64,8 +67,16 @@ public class RestVisualizer
           continue;
         }
 
-        if ((nowStamp - game.getReadyTime().getTime()) < readyDeadline) {
+        if ((nowStamp - game.getReadyTime().getTime()) < readyDeadline1) {
           continue;
+        }
+
+        if ((nowStamp - game.getReadyTime().getTime()) < readyDeadline2) {
+          for (Agent agent: game.getAgentMap().values()) {
+            if (!agent.isInProgress()) {
+              continue gamesLoop;
+            }
+          }
         }
 
         String queue = game.getVisualizerQueue();
@@ -79,12 +90,14 @@ public class RestVisualizer
       MemStore.addVizCheckin(machineName);
       transaction.commit();
       return String.format(retryResponse, 60);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.error(e.toString());
       return String.format(errorResponse, "database error");
-    } finally {
+    }
+    finally {
       session.close();
     }
   }

@@ -108,7 +108,8 @@ public class RestBroker
   private String getReadyString (Session session, Broker broker,
                                  String loginResponse, int tournamentId)
   {
-    long readyDeadline = 2 * 60 * 1000;
+    // Wait 10 seconds, game is set ready before it actually starts
+    long readyDeadline = 10 * 1000;
     long nowStamp = Utils.offsetDate().getTime();
 
     Query query = session.createQuery(Constants.HQL.GET_GAMES_READY);
@@ -120,6 +121,10 @@ public class RestBroker
         continue;
       }
 
+      if ((nowStamp - game.getReadyTime().getTime()) < readyDeadline) {
+        continue;
+      }
+
       // Check if an other agent already checked in
       Agent agent = game.getAgentMap().get(broker.getBrokerId());
       if (agent == null || !agent.isPending()) {
@@ -127,13 +132,6 @@ public class RestBroker
       }
 
       log.debug("Game " + game.getGameId() + " is ready");
-
-      long diff = nowStamp - game.getReadyTime().getTime();
-      if (diff < readyDeadline) {
-        log.debug("Broker needs to wait for the viz timeout : " +
-            (readyDeadline - diff) / 1000);
-        continue;
-      }
 
       agent.setStateInProgress();
       session.update(agent);
