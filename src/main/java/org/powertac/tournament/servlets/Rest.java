@@ -16,36 +16,39 @@ import java.util.Iterator;
 @WebServlet(description = "Access to the REST API", urlPatterns = {"/Rest"})
 public class Rest extends HttpServlet
 {
-  public Rest()
+  public Rest ()
   {
     super();
   }
 
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+  protected void doGet (HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException
   {
-      String type = request.getParameter("type");
-      response.setContentType("application/json");
-      PrintWriter out = response.getWriter();
+    String type = request.getParameter("type");
+    response.setContentType("application/json");
+    PrintWriter out = response.getWriter();
 
-      String result = "{}";
-      if (type.equals("brokers")) {
-        result = parseBrokers();
-      } else if (type.equals("games")) {
-        result = parseGames();
-      } else if (type.equals("visualizers")) {
-        result = parseVisualizers();
-      } else if (type.equals("watchdog")) {
-        result = parseWatchdog();
-      }
+    String result = "{}";
+    if (type.equals("brokers")) {
+      result = parseBrokers();
+    }
+    else if (type.equals("games")) {
+      result = parseGames();
+    }
+    else if (type.equals("visualizers")) {
+      result = parseVisualizers();
+    }
+    else if (type.equals("watchdog")) {
+      result = parseWatchdog();
+    }
 
-      response.setContentLength(result.length());
-      out.print(result);
-      out.flush();
-      out.close();
+    response.setContentLength(result.length());
+    out.print(result);
+    out.flush();
+    out.close();
   }
 
-  private String parseBrokers()
+  private String parseBrokers ()
   {
     String result = "{ ";
 
@@ -63,9 +66,11 @@ public class Rest extends HttpServlet
         if (stamp > 900) {
           iter.remove();
           MemStore.removeBrokerCheckin(i, checkin);
-        } else if (stamp < 60) {
+        }
+        else if (stamp < 60) {
           result += "<b>" + stamp + "</b> ";
-        } else {
+        }
+        else {
           result += stamp + " ";
         }
       }
@@ -80,7 +85,7 @@ public class Rest extends HttpServlet
     return result;
   }
 
-  private String parseGames()
+  private String parseGames ()
   {
     String result = "{ ";
 
@@ -98,15 +103,18 @@ public class Rest extends HttpServlet
         if (stamp > 900) {
           MemStore.removeGameHeartbeat(i);
           MemStore.removeGameLength(i);
-        } else {
+        }
+        else {
           Integer gameLength = MemStore.getGameLengths().get(i);
           if (gameLength == null) {
             result += messages[0] + " (" + stamp + ")";
-          } else {
-            result += messages[0] + " / " + (gameLength + 360) + " (" + stamp + ")";
+          }
+          else {
+            result += messages[0] + " / " + gameLength + " (" + stamp + ")";
           }
         }
-      } catch (Exception e) {
+      }
+      catch (Exception e) {
         e.printStackTrace();
       }
 
@@ -121,7 +129,7 @@ public class Rest extends HttpServlet
     return result;
   }
 
-  private String parseVisualizers()
+  private String parseVisualizers ()
   {
     String result = "{ ";
 
@@ -137,10 +145,12 @@ public class Rest extends HttpServlet
             (System.currentTimeMillis() - MemStore.getVizCheckins().get(s)) / 1000;
         if (stamp > 900) {
           MemStore.removeVizCheckin(s);
-        } else {
+        }
+        else {
           result += String.valueOf(stamp);
         }
-      } catch (Exception ignored) {
+      }
+      catch (Exception ignored) {
       }
 
       result += "\" , ";
@@ -154,7 +164,7 @@ public class Rest extends HttpServlet
     return result;
   }
 
-  private String parseWatchdog()
+  private String parseWatchdog ()
   {
     Scheduler scheduler = Scheduler.getScheduler();
     return "{ \"text\": \"WatchDog running "

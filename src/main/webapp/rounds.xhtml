@@ -158,56 +158,42 @@
     <h:outputText value="Round Name"/>
     <h:panelGroup>
       <h:inputText value="#{actionRounds.roundName}"
-                   onchange="showGamesCount()" onkeyup="showGamesCount()"
-                   styleClass="input_wide"/>
+                   onblur="showGamesCount()" styleClass="input_wide"/>
     </h:panelGroup>
 
     <h:outputText value="Max Brokers / Agents"/>
     <h:panelGroup>
-      <h:inputText id="maxBrokers"
-                   value="#{actionRounds.maxBrokers}"
-                   onchange="showGamesCount()" onkeyup="showGamesCount()"
-                   styleClass="input_small"/>
-      <h:inputText id="maxAgents"
-                   value="#{actionRounds.maxAgents}"
-                   onchange="showGamesCount()" onkeyup="showGamesCount()"
-                   styleClass="input_small"/>
+      <h:inputText id="maxBrokers" value="#{actionRounds.maxBrokers}"
+                   onblur="showGamesCount()" styleClass="input_small"/>
+      <h:inputText id="maxAgents" value="#{actionRounds.maxAgents}"
+                   onblur="showGamesCount()" styleClass="input_small"/>
       <span id="totalGames"/>
     </h:panelGroup>
 
     <h:outputText value="Game 1 Size / Multi"/>
     <h:panelGroup>
       <h:inputText id="gameSize1" value="#{actionRounds.size1}"
-                   onchange="showGamesCount()" onkeyup="showGamesCount()"
-                   styleClass="input_small"/>
-      <h:inputText id="multiplier1"
-                   value="#{actionRounds.multiplier1}"
-                   onchange="showGamesCount()" onkeyup="showGamesCount()"
-                   styleClass="input_small"/>
+                   onblur="showGamesCount()" styleClass="input_small"/>
+      <h:inputText id="multiplier1" value="#{actionRounds.multiplier1}"
+                   onblur="showGamesCount()" styleClass="input_small"/>
       <span id="total1"/>
     </h:panelGroup>
 
     <h:outputText value="Game 2 Size / Multi"/>
     <h:panelGroup>
       <h:inputText id="gameSize2" value="#{actionRounds.size2}"
-                   onchange="showGamesCount()" onkeyup="showGamesCount()"
-                   styleClass="input_small"/>
-      <h:inputText id="multiplier2"
-                   value="#{actionRounds.multiplier2}"
-                   onchange="showGamesCount()" onkeyup="showGamesCount()"
-                   styleClass="input_small"/>
+                   onblur="showGamesCount()" styleClass="input_small"/>
+      <h:inputText id="multiplier2" value="#{actionRounds.multiplier2}"
+                   onblur="showGamesCount()" styleClass="input_small"/>
       <span id="total2"/>
     </h:panelGroup>
 
     <h:outputText value="Game 3 Size / Multi"/>
     <h:panelGroup>
       <h:inputText id="gameSize3" value="#{actionRounds.size3}"
-                   onchange="showGamesCount()" onkeyup="showGamesCount()"
-                   styleClass="input_small"/>
-      <h:inputText id="multiplier3"
-                   value="#{actionRounds.multiplier3}"
-                   onchange="showGamesCount()" onkeyup="showGamesCount()"
-                   styleClass="input_small"/>
+                   onblur="showGamesCount()" styleClass="input_small"/>
+      <h:inputText id="multiplier3" value="#{actionRounds.multiplier3}"
+                   onblur="showGamesCount()" styleClass="input_small"/>
       <span id="total3"/>
     </h:panelGroup>
 

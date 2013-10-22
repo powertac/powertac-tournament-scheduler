@@ -124,9 +124,10 @@
 
     <t:column>
       <f:facet name="header">Pom</f:facet>
-      <a href="pom.jsp?pomId=#{r.pomId}">
+      <h:outputLink value="pom.jsp?pomId=#{r.pomId}"
+                    target="_blank">
         <h:outputText value="#{r.pomId}"/>
-      </a>
+      </h:outputLink>
     </t:column>
 
   </t:dataTable>

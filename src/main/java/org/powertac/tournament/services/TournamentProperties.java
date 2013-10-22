@@ -59,10 +59,10 @@ public class TournamentProperties
     return properties.getProperty(key, defaultValue);
   }
 
-  public int getPropertyInt (String key, String defaultValue)
+  public int getPropertyInt (String key)
   {
     loadIfNecessary();
-    return Integer.parseInt(properties.getProperty(key, defaultValue));
+    return Integer.parseInt(properties.getProperty(key));
   }
 
   // lazy loader
@@ -72,7 +72,7 @@ public class TournamentProperties
       try {
         properties.load(TournamentProperties.class.getClassLoader()
             .getResourceAsStream(resourceName));
-        appendExtraProperties();
+        checkProperties();
         loaded = true;
       } catch (IOException e) {
         log.error("Failed to load " + resourceName);
@@ -105,7 +105,7 @@ public class TournamentProperties
   /**
    * Check if given properties are correct (file locations) and add some more
    */
-  private void appendExtraProperties ()
+  private void checkProperties ()
   {
     properties.setProperty("tourneyUrl", getTourneyUrl());
 
@@ -124,6 +124,35 @@ public class TournamentProperties
     checkFileLocation("pomLocation", fallBack);
     checkFileLocation("bootLocation", fallBack);
     checkFileLocation("logLocation", fallBack);
+
+    // Check if timeouts are present
+    if (properties.get("scheduler.watchDogInterval") == null) {
+      properties.setProperty("scheduler.watchDogInterval", "120000");
+    }
+    if (properties.get("scheduler.simWedged") == null) {
+      properties.setProperty("scheduler.simWedged", "10800000");
+    }
+    if (properties.get("scheduler.bootstrapWedged") == null) {
+      properties.setProperty("scheduler.bootstrapWedged", "900000");
+    }
+    if (properties.get("scheduler.simTestWedged") == null) {
+      properties.setProperty("scheduler.simTestWedged", "2700000");
+    }
+
+    // Check if gameLengths are present
+    if (properties.get("competition.minimumTimeslotCount") == null) {
+      properties.setProperty("competition.minimumTimeslotCount", "1320");
+    }
+    if (properties.get("competition.expectedTimeslotCount") == null) {
+      properties.setProperty("competition.expectedTimeslotCount", "1440");
+    }
+    if (properties.get("test.minimumTimeslotCount") == null) {
+      properties.setProperty("test.minimumTimeslotCount", "200");
+    }
+    if (properties.get("test.expectedTimeslotCount") == null) {
+      properties.setProperty("test.expectedTimeslotCount", "220");
+    }
+    properties.setProperty("bootLength", "360");
   }
 
   private String getTourneyUrl ()

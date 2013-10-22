@@ -42,8 +42,7 @@ public class Scheduler implements InitializingBean
 
   private void lazyStart ()
   {
-    watchDogInterval =
-        properties.getPropertyInt("scheduler.watchDogInterval", "120000");
+    watchDogInterval = properties.getPropertyInt("scheduler.watchDogInterval");
 
     Timer t = new Timer();
     TimerTask tt = new TimerTask()
@@ -288,7 +287,7 @@ public class Scheduler implements InitializingBean
       }
 
       long wedgedDeadline =
-          properties.getPropertyInt("scheduler.bootstrapWedged", "900000");
+          properties.getPropertyInt("scheduler.bootstrapWedged");
       long nowStamp = Utils.offsetDate().getTime();
       long minStamp = game.getReadyTime().getTime() + wedgedDeadline;
       long maxStamp = minStamp + watchDogInterval;
@@ -315,11 +314,9 @@ public class Scheduler implements InitializingBean
         continue;
       }
 
-      long wedgedDeadline =
-          properties.getPropertyInt("scheduler.simWedged", "10800000");
+      long wedgedDeadline = properties.getPropertyInt("scheduler.simWedged");
       if (game.getGameName().toLowerCase().contains("test")) {
-        wedgedDeadline =
-            properties.getPropertyInt("scheduler.simTestWedged", "2700000");
+        wedgedDeadline = properties.getPropertyInt("scheduler.simTestWedged");
       }
       long nowStamp = Utils.offsetDate().getTime();
       long minStamp = game.getReadyTime().getTime() + wedgedDeadline;

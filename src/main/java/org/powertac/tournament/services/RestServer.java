@@ -197,14 +197,14 @@ public class RestServer
     result += String.format(Constants.Props.vizQ, game.getVisualizerQueue());
 
     int minTimeslotCount =
-        properties.getPropertyInt("competition.minimumTimeslotCount", "1320");
+        properties.getPropertyInt("competition.minimumTimeslotCount");
     int expTimeslotCount =
-        properties.getPropertyInt("competition.expectedTimeslotCount", "1440");
+        properties.getPropertyInt("competition.expectedTimeslotCount");
     if (game.getGameName().toLowerCase().contains("test")) {
       minTimeslotCount =
-          properties.getPropertyInt("test.minimumTimeslotCount", "200");
+          properties.getPropertyInt("test.minimumTimeslotCount");
       expTimeslotCount =
-          properties.getPropertyInt("test.expectedTimeslotCount", "220");
+          properties.getPropertyInt("test.expectedTimeslotCount");
     }
     result += String.format(Constants.Props.minTimeslot, minTimeslotCount);
     result += String.format(Constants.Props.expectedTimeslot, expTimeslotCount);

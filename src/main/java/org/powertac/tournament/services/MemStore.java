@@ -10,7 +10,10 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -18,6 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MemStore
 {
   private static Logger log = Utils.getLogger();
+
+  private static TournamentProperties properties =
+      TournamentProperties.getProperties();
 
   private static ConcurrentHashMap<String, List<String>> machineIPs;
   private static ConcurrentHashMap<String, String> vizIPs;
@@ -57,7 +63,7 @@ public class MemStore
     vizIPs = new ConcurrentHashMap<String, String>(20, 0.9f, 1);
     localIPs = new ConcurrentHashMap<String, String>(20, 0.9f, 1);
 
-    for (Machine m: Machine.getMachineList()) {
+    for (Machine m : Machine.getMachineList()) {
       try {
         String machineIP = InetAddress.getByName(m.getMachineUrl()).toString();
         if (machineIP.contains("/")) {
@@ -67,7 +73,8 @@ public class MemStore
         List<String> machine =
             Arrays.asList(m.getMachineName(), m.getMachineId().toString());
         machineIPs.put(machineIP, machine);
-      } catch (UnknownHostException ignored) {
+      }
+      catch (UnknownHostException ignored) {
       }
 
       try {
@@ -77,7 +84,8 @@ public class MemStore
           vizIP = vizIP.split("/")[1];
         }
         vizIPs.put(vizIP, m.getMachineName());
-      } catch (UnknownHostException ignored) {
+      }
+      catch (UnknownHostException ignored) {
       }
     }
 
@@ -104,7 +112,8 @@ public class MemStore
           localIPs.put(ip, intf.getName());
         }
       }
-    } catch (SocketException e) {
+    }
+    catch (SocketException e) {
       log.error(" (error retrieving network interface list)");
     }
   }
@@ -113,10 +122,9 @@ public class MemStore
   {
     machineIPs = null;
   }
+
   public static boolean checkMachineAllowed (String slaveAddress)
   {
-    //log.debug("Testing checkMachineAllowed : " + slaveAddress);
-
     if (machineIPs == null) {
       getIpAddresses();
     }
@@ -141,10 +149,9 @@ public class MemStore
   {
     vizIPs = null;
   }
+
   public static boolean checkVizAllowed (String vizAddress)
   {
-    //log.debug("Testing checkVizAllowed : " + vizAddress);
-
     if (vizIPs == null) {
       getIpAddresses();
     }
@@ -171,6 +178,7 @@ public class MemStore
   {
     return brokerCheckins;
   }
+
   public synchronized static void addBrokerCheckin (int brokerId)
   {
     List<Long> dates = brokerCheckins.get(brokerId);
@@ -186,6 +194,7 @@ public class MemStore
 
     brokerCheckins.put(brokerId, dates);
   }
+
   public static void removeBrokerCheckin (int brokerId, long checkin)
   {
     brokerCheckins.get(brokerId).remove(checkin);
@@ -195,10 +204,12 @@ public class MemStore
   {
     return vizCheckins;
   }
+
   public synchronized static void addVizCheckin (String machineName)
   {
     vizCheckins.put(machineName, System.currentTimeMillis());
   }
+
   public static void removeVizCheckin (String machineName)
   {
     vizCheckins.remove(machineName);
@@ -208,11 +219,13 @@ public class MemStore
   {
     return gameHeartbeats;
   }
+
   public synchronized static void addGameHeartbeat (int gameId, String message)
   {
     gameHeartbeats.put(gameId,
         new String[]{message, System.currentTimeMillis() + ""});
   }
+
   public synchronized static void removeGameHeartbeat (int gameId)
   {
     if (gameHeartbeats.containsKey(gameId)) {
@@ -224,13 +237,17 @@ public class MemStore
   {
     return gameLengths;
   }
+
   public synchronized static void addGameLength (int gameId, String gameLength)
   {
     try {
-      gameLengths.put(gameId, Integer.parseInt(gameLength));
-    } catch (Exception ignored) {
+      gameLengths.put(gameId, Integer.parseInt(gameLength) +
+          properties.getPropertyInt("bootLength"));
+    }
+    catch (Exception ignored) {
     }
   }
+
   public synchronized static void removeGameLength (int gameId)
   {
     if (gameLengths.containsKey(gameId)) {
@@ -245,7 +262,8 @@ public class MemStore
     boolean enabled = true;
     try {
       enabled = MemStore.brokerState.get(brokerId);
-    } catch (Exception ignored) {
+    }
+    catch (Exception ignored) {
     }
 
     return enabled;
