@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.powertac.tournament.beans.Config;
 import org.powertac.tournament.beans.Location;
 import org.powertac.tournament.beans.Machine;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -17,13 +17,10 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-@Service("memStore")
+@Component("memStore")
 public class MemStore
 {
   private static Logger log = Utils.getLogger();
-
-  private static TournamentProperties properties =
-      TournamentProperties.getProperties();
 
   private static ConcurrentHashMap<String, List<String>> machineIPs;
   private static ConcurrentHashMap<String, String> vizIPs;
@@ -242,7 +239,7 @@ public class MemStore
   {
     try {
       gameLengths.put(gameId, Integer.parseInt(gameLength) +
-          properties.getPropertyInt("bootLength"));
+          TournamentProperties.getProperties().getPropertyInt("bootLength"));
     }
     catch (Exception ignored) {
     }

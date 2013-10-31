@@ -16,7 +16,7 @@
 package org.powertac.tournament.services;
 
 import org.apache.log4j.Logger;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import java.util.Properties;
  *
  * @author John Collins
  */
-@Service("tournamentProperties")
+@Component("tournamentProperties")
 public class TournamentProperties
 {
   private static Logger log = Utils.getLogger();
