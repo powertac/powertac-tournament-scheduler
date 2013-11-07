@@ -170,6 +170,9 @@ public class Scheduler implements InitializingBean
     }
     log.info("Round available : "+ runningRound.getRoundName());
 
+    // Brokers might have (un)registered after the round was loaded
+    reloadRound();
+
     // Get array of gametypes
     int[] gameTypes = {runningRound.getSize1(),
         runningRound.getSize2(), runningRound.getSize3()};
