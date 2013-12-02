@@ -40,6 +40,7 @@ public class Game implements Serializable
   private String simStartTime;
   private Integer gameLength = 0;
   private Integer lastTick = 0;
+  private Integer urgency;
 
   private Map<Integer, Agent> agentMap = new HashMap<Integer, Agent>();
 
@@ -479,51 +480,124 @@ public class Game implements Serializable
   @SuppressWarnings("unchecked")
   public static List<Game> getBootableGames (Session session, Round round)
   {
-    List<Game> fullList = (List<Game>) session
+    return (List<Game>) session
         .createQuery(Constants.HQL.GET_GAMES_BOOT_PENDING)
         .setInteger("roundId", round.getRoundId())
         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
-
-    // Get availability for participating brokers
-    Map<Integer, Integer> availability =
-        Broker.getBrokerAvailability(session, round.getMaxAgents());
-    Collections.sort(fullList, new CustomGameComparator(availability));
-    return fullList;
   }
 
+  // Create a string of all the round IDs of the rounds in the given List.
+  // Needed for a query to get all runable games.
   @SuppressWarnings("unchecked")
-  public static List<Game> getStartableGames (Session session, Round round)
+  public static String makeStringOfRoundIDs (List<Round> runningRounds)
   {
-    List<Game> fullList = (List<Game>) session
-        .createQuery(Constants.HQL.GET_GAMES_BOOT_COMPLETE)
-        .setInteger("roundId", round.getRoundId())
-        .setTimestamp("startTime", Utils.offsetDate())
-        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+    if (runningRounds == null || runningRounds.isEmpty()) {
+      return "";
+    }
+    String result = "(";
+    for (Round round: runningRounds) {
+      result += "'" + round.getRoundId() + "',";
+    }
+    result = result.substring(0,result.length()-1);
+    result += ")";
+    return result;
+  }
 
-    // Get availability for participating brokers
-    Map<Integer, Integer> availability =
-        Broker.getBrokerAvailability(session, round.getMaxAgents());
 
-    // We have do an extra loop, starting of games changes availability
-    List<Game> result = new ArrayList<Game>();
-    outerloop: while (fullList.size() > 0) {
-      Collections.sort(fullList, new CustomGameComparator(availability));
+  /*
+   * Given a list of games (in practice all runnable games), this function
+   * creates a double Map that shows how many runable games each broker has in
+   * any running tournament.
+   * The result is in this form:
+   * Map<(tournamentID), Map<(brokerID), (number of appearences)>>
+   */
+  @SuppressWarnings("unchecked")
+  public static Map<Integer, Map<Integer, Integer>> countAppearences (List<Game> games)
+  {
+    Map<Integer, Map<Integer, Integer>> appearences = new HashMap<Integer, Map<Integer, Integer>>();
 
-      Game game = fullList.remove(0);
+    for (Game game: games) {
+      int tournamentId = game.getRound().getTournamentId();
+      Map<Integer, Integer> innerMap = appearences.get(tournamentId);
+      if (innerMap == null) {
+        innerMap = new HashMap<Integer, Integer>();
+      }
 
-      // Ignore if game is not runnable
-      for (int brokerId: game.getAgentMap().keySet()) {
-        if (availability.get(brokerId) < 1) {
-          continue outerloop;
+      for (Agent agent: game.getAgentMap().values()) {
+        int brokerId = agent.getBrokerId();
+        if (innerMap.get(brokerId) == null) {
+          innerMap.put(brokerId, 1);
+        }
+        else {
+          innerMap.put(brokerId, innerMap.get(brokerId)+1);
         }
       }
 
-      // Change availability
-      for (int brokerId: game.getAgentMap().keySet()) {
-        availability.put(brokerId, availability.get(brokerId) - 1);
-      }
-      result.add(game);
+      appearences.put(tournamentId, innerMap);
     }
+
+    return appearences;
+  }
+
+  /*
+   * This function calculates the urgencies of the given games.
+   * The input is a list of games for which the urgency needs to be calculated
+   * and a double map 'appearences' that stores for every
+   * tournament/broker-combination how often it appears in the currently
+   * startable games. The urgency of is the sum of the appearences of all
+   * brokers in that tournament.
+   */
+  @SuppressWarnings("unchecked")
+  public static void setUrgencies (List<Game> games,
+                                   Map<Integer, Map<Integer, Integer>> appearences)
+  {
+    for (Game game:games) {
+      game.setUrgency(0);
+      for (Agent agent: game.getAgentMap().values()) {
+        game.setUrgency(game.getUrgency() +
+            appearences.get(game.getRound().getTournamentId())
+                .get(agent.getBrokerId()));
+      }
+    }
+  }
+
+  /*
+   * This function returns a list of all startable games in order of urgency.
+   * the urgency of a game is the sum of the startable games of all brokers in
+   * that game. This favors the bigger games (more brokers) since they'll have
+   * a higher sum, and *  it favors the games with brokers that still have a
+   * lot of games to do.
+   */
+  @SuppressWarnings("unchecked")
+  public static List<Game> getStartableGames (Session session,
+                                              List<Round> runningRounds)
+  {
+    List<Game> result = new ArrayList<Game>();
+
+    // no running rounds means no games to check
+    if (runningRounds == null || runningRounds.isEmpty())
+        return result;
+
+    // use a query to retrieve all runnable games (boot_complete) for the
+    // running rounds
+    String roundIDs = makeStringOfRoundIDs(runningRounds);
+    List<Game> fullList = (List<Game>) session
+        .createQuery(Constants.HQL.GET_GAMES_BOOT_COMPLETE + roundIDs)
+        .setTimestamp("startTime", Utils.offsetDate())
+        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+
+    // count the appearences of each broker in the runnable games of
+    // each tournament
+    Map<Integer, Map<Integer, Integer>> appearences = countAppearences(fullList);
+
+    // calculate the urgencies of the games as the total number of runable
+    // games its brokers are playing in
+    setUrgencies(fullList, appearences);
+
+    // sort all games based on their urgency
+    Collections.sort(fullList, new CustomGameComparator());
+
+    result = fullList;
 
     return result;
   }
@@ -540,7 +614,8 @@ public class Game implements Serializable
       games = (List<Game>) query.
           setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -561,7 +636,8 @@ public class Game implements Serializable
       games = (List<Game>) query.
           setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -722,68 +798,25 @@ public class Game implements Serializable
   {
     this.lastTick = lastTick;
   }
+  @Transient
+  public Integer getUrgency()
+  {
+    return urgency;
+  }
+  public void setUrgency(int urgency)
+  {
+      this.urgency = urgency;
+  }
   //</editor-fold>
 
-  static class CustomGameComparator implements Comparator<Game> {
-    private Map<Integer, Integer> availability;
-
-    public CustomGameComparator (Map<Integer, Integer> availability)
+  static class CustomGameComparator implements Comparator<Game>
+  {
+    public int compare (Game game1, Game game2)
     {
-      super();
-      this.availability = availability;
-    }
-
-    public int compare (Game game1, Game game2) {
-      // Total of free agents for all brokers in this game
-      int total1Free = 0;
-      int total2Free = 0;
-      // Total of free agents for this game
-      int game1Free = 0;
-      int game2Free = 0;
-
-      for (Agent agent: game1.getAgentMap().values()) {
-        int freeAgents = availability.get(agent.getBrokerId());
-        total1Free += freeAgents;
-        game1Free += Math.min(1, freeAgents);
-      }
-      for (Agent agent: game2.getAgentMap().values()) {
-        int freeAgents = availability.get(agent.getBrokerId());
-        total2Free += freeAgents;
-        game2Free += Math.min(1, freeAgents);
-      }
-
-      // Let the game that has all brokers available start first
-      if (game1Free == game1.getSize() && game2Free != game2.getSize()) {
-        return -1;
-      }
-      else if (game1Free != game1.getSize() && game2Free == game2.getSize()) {
-        return 1;
-      }
-
-      // Both games can start or both can't, let's start with biggest game
-      if (game1.getSize() > game2.getSize()) {
-        return -1;
-      }
-      else if (game2.getSize() > game1.getSize()) {
-        return 1;
-      }
-
-      // Games have equal size, start with biggest # total free agents
-      if (total1Free > total2Free) {
-        return -1;
-      }
-      else if (total2Free > total1Free) {
-         return 1;
-      }
-
-      // Equal # of (total) free agents, start with biggest # free in this game
-      if (game1Free > game2Free) {
-        return -1;
-      }
-      else if (game2Free > game1Free) {
-        return 1;
-      }
-
+      if (game1.getUrgency() > game2.getUrgency())
+          return -1;
+      if (game1.getUrgency() < game2.getUrgency())
+          return 1;
       return 0;
     }
   }

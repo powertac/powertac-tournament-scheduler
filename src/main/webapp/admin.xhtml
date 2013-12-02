@@ -37,41 +37,45 @@
 
       <h:form id="adminControls" rendered="#{user.isAdmin()}">
         <t:panelGrid columns="3">
-          <h4>WatchDog Status</h4>
+          <h4>Scheduler Status</h4>
           <h:panelGroup>
             <h:outputText style="color:green;" id="watchdog"
                           rendered="#{scheduler.running}"/>
-            <h:outputText value="WatchDog not running"
+            <h:outputText value="Scheduler not running"
                           style="color:red;"
                           rendered="#{!scheduler.running}"/>
           </h:panelGroup>
-          <h:commandButton value="Restart" action="#{actionAdmin.restartWatchDog}"/>
+          <h:commandButton value="Restart" action="#{actionAdmin.restartScheduler}"/>
 
           <h4>Round Status</h4>
           <h:panelGroup>
-            <h:outputText value="Round not Loaded"
+            <h:outputText value="No Rounds Loaded"
                           style="color:red;"
-                          rendered="#{scheduler.nullRound}"/>
-            <h:outputText
-                value="Round &lt;b&gt;#{scheduler.getRunningRound().roundName}&lt;/b&gt; Loaded"
-                style="color:green;" escape="false"
-                rendered="#{!scheduler.nullRound}"/>
+                          rendered="#{scheduler.isRunningRoundsEmpty()}"/>
+            <h:dataTable id="loadedRoundTable" value="#{scheduler.runningRounds}" var="round" border="0" rendered="#{!scheduler.isRunningRoundsEmpty() }">
+                <h:column>
+                    <f:facet name="header">
+                        <h:outputText value="Running Rounds:" style="color:green;" />
+                    </f:facet>
+                    <h:outputText value="#{round.roundName}" style="color:green;" />
+                </h:column>
+            </h:dataTable>
           </h:panelGroup>
           <h:panelGroup>
             <h:commandButton value="Unload"
-                             action="#{actionAdmin.unloadRound()}"
-                             rendered="#{!scheduler.nullRound}"/>
+                             action="#{actionAdmin.unloadRounds()}"
+                             rendered="#{!scheduler.isRunningRoundsEmpty()}"/>
             <h:panelGroup rendered="#{actionAdmin.availableRounds.size() > 0}">
-              <h:selectOneMenu value="#{actionAdmin.selectedRound}"
-                               rendered="#{scheduler.nullRound}"
-                               style="border:1px solid grey;height:22px;padding:1px;margin:2px;">
+              <h:selectManyListbox value="#{actionAdmin.selectedRounds}"
+                               rendered="#{scheduler.isRunningRoundsEmpty()}"
+                               style="border:1px solid grey;padding:1px;margin:2px;">
                 <f:selectItems value="#{actionAdmin.availableRounds}" var="r"
                                itemValue="#{r.roundId}"
                                itemLabel="#{r.roundName}"/>
-              </h:selectOneMenu>
+              </h:selectManyListbox>
               <h:commandButton value="Load"
                                action="#{actionAdmin.loadRound()}"
-                               rendered="#{scheduler.nullRound}"/>
+                               rendered="#{scheduler.isRunningRoundsEmpty()}"/>
             </h:panelGroup>
             <h:panelGroup rendered="#{actionAdmin.availableRounds.size() == 0}">
               <h:outputText>No rounds availble for loading</h:outputText>

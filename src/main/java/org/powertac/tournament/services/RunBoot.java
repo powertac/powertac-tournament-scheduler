@@ -69,7 +69,7 @@ public class RunBoot
         Scheduler scheduler = Scheduler.getScheduler();
         log.info(String.format(
             "No machine available for scheduled boot %s, retry in %s seconds",
-            game.getGameId(), scheduler.getWatchDogInterval() / 1000));
+            game.getGameId(), scheduler.getSchedulerInterval() / 1000));
         return false;
       }
 
@@ -123,10 +123,10 @@ public class RunBoot
    * games in that round. If no round loaded, we look for games in
    * all singleGame rounds.
   **/
-  public static void startBootableGames (Round runningRound)
+  public static void startBootableGames (List <Round> runningRounds)
   {
-    if (runningRound == null) {
-      log.info("No round available for bootable games");
+    if (runningRounds == null) {
+      log.info("No rounds available for bootable games");
       return;
     }
 
@@ -137,7 +137,8 @@ public class RunBoot
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      games = Game.getBootableGames(session, runningRound);
+      for (Round round: runningRounds)
+        games.addAll(Game.getBootableGames(session, round));
       log.info("CheckForBoots for bootable games");
       transaction.commit();
     } catch (Exception e) {

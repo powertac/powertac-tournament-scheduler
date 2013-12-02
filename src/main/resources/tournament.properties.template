@@ -37,7 +37,7 @@ actionIndex.logUrl = download?game=%d
 actionIndex.bootUrl = download?boot=%d
 
 # Interval (ms) to check the machine states, to-be-run bootstraps and sims
-scheduler.watchDogInterval = 60000
+scheduler.schedulerInterval = 60000
 
 # Deadline (ms) for registering brokers before tournament-starttime
 loginDeadline = 3600000

@@ -75,7 +75,7 @@ public class Machine
    */
   public static void checkMachines ()
   {
-    log.info("WatchDogTimer Checking Machine States..");
+    log.info("SchedulerTimer Checking Machine States..");
 
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();

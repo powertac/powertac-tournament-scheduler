@@ -14,7 +14,7 @@ public class Level
 {
   private int levelId;
   private String levelName;
-  private int tournamentId;
+  private Tournament tournament;
   private int levelNr;
   private int nofRounds;
   private int nofWinners;
@@ -92,14 +92,15 @@ public class Level
     this.levelName = levelName;
   }
 
-  @Column(name = "tournamentId")
-  public int getTournamentId ()
+  @ManyToOne
+  @JoinColumn(name = "tournamentId")
+  public Tournament getTournament ()
   {
-    return tournamentId;
+    return tournament;
   }
-  public void setTournamentId (int tournamentId)
+  public void setTournament (Tournament tournament)
   {
-    this.tournamentId = tournamentId;
+    this.tournament = tournament;
   }
 
   @Column(name = "levelNr")

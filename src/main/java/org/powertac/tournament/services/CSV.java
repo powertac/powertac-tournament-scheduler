@@ -95,6 +95,7 @@ public class CSV
       bw.write("tournamentName;" + tournament.getTournamentName() + separator);
       bw.write("status;" + tournament.getState() + separator);
       bw.write("pomId;" + tournament.getPomId() + separator);
+      bw.write("MaxAgents;" + tournament.getMaxAgents() + separator);
 
       bw.write(separator);
 
@@ -255,7 +256,6 @@ public class CSV
 
     bw.write(prefix + "MaxBrokers;" + round.getMaxBrokers() + separator);
     bw.write(prefix + "Registered Brokers;" + round.getBrokerMap().size() + separator);
-    bw.write(prefix + "MaxAgents;" + round.getMaxAgents() + separator);
 
     bw.write(prefix + "size1;" + round.getSize1() + separator);
     bw.write(prefix + "multiplier1;" + round.getMultiplier1() + separator);

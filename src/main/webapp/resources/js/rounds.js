@@ -7,16 +7,15 @@ function showGamesCount() {
   var maxSlaves = document.getElementById("slavesCount").value;
   var durationOverhead = 1.1;
 
-  var elems = saveRound.elements;
-  var gameName = elems[0].value;
-  var maxBrokers = parseInt(elems[1].value);
-  var maxAgents = parseInt(elems[2].value);
-  var gameType1 = parseInt(elems[3].value);
-  var multiplier1 = parseInt(elems[4].value);
-  var gameType2 = parseInt(elems[5].value);
-  var multiplier2 = parseInt(elems[6].value);
-  var gameType3 = parseInt(elems[7].value);
-  var multiplier3 = parseInt(elems[8].value);
+  var gameName = document.getElementById("saveRound:roundNameID").value;
+  var maxBrokers = parseInt(document.getElementById("saveRound:maxBrokers").value);
+  var maxAgents = parseInt(document.getElementById("saveRound:maxAgents").value);
+  var gameType1 = parseInt(document.getElementById("saveRound:gameSize1").value);
+  var multiplier1 = parseInt(document.getElementById("saveRound:multiplier1").value);
+  var gameType2 = parseInt(document.getElementById("saveRound:gameSize2").value);
+  var multiplier2 = parseInt(document.getElementById("saveRound:multiplier2").value);
+  var gameType3 = parseInt(document.getElementById("saveRound:gameSize3").value);
+  var multiplier3 = parseInt(document.getElementById("saveRound:multiplier3").value);
 
   setText("totalGames", "");
   setText("total1", "");
@@ -37,7 +36,7 @@ function showGamesCount() {
   var slaves = 0;
   if ((maxBrokers > 0) && (gameType1 > 0) && (multiplier1 > 0)) {
     if (gameType1 > maxBrokers) {
-      elems[4].value = maxBrokers;
+      document.getElementById("gameSize1").value = maxBrokers;
       gameType1 = maxBrokers;
     }
     totalGames1 = multiplier1 * binomial(maxBrokers, gameType1);
@@ -47,7 +46,7 @@ function showGamesCount() {
   }
   if ((maxBrokers > 0) && (gameType2 > 0) && (multiplier2 > 0)) {
     if (gameType2 > maxBrokers) {
-      elems[6].value = maxBrokers;
+      document.getElementById("gameSize2").value = maxBrokers;
       gameType2 = maxBrokers;
     }
     totalGames2 = multiplier2 * binomial(maxBrokers, gameType2);
@@ -57,7 +56,7 @@ function showGamesCount() {
   }
   if ((maxBrokers > 0) && (gameType3 > 0) && (multiplier3 > 0)) {
     if (gameType3 > maxBrokers) {
-      elems[8].value = maxBrokers;
+      document.getElementById("gameSize3").value = maxBrokers;
       gameType3 = maxBrokers;
     }
     totalGames3 = multiplier3 * binomial(maxBrokers, gameType3);
@@ -90,7 +89,7 @@ function binomial(n, k) {
   } else if (2 * k > n) {
     return binomial(n, n - k);
   } else {
-    e = n - k + 1;
+    var e = n - k + 1;
     for (var i = 2; i < k + 1; i++) {
       e *= (n - k + i);
       e /= i;
@@ -99,6 +98,30 @@ function binomial(n, k) {
   }
 }
 
+function toggleRoundName() {
+  var formElement = document.getElementById('saveRound');
+  if (typeof(formElement) == 'undefined' || formElement == null) {
+    return;
+  }
+  var checkBoxElement = document.getElementById('saveRound:changeAllRounds');
+  if (typeof(checkBoxElement) == 'undefined' || checkBoxElement == null) {
+    return;
+  }
+
+  var changeAllRoundsCheckbox = checkBoxElement.checked;
+  var roundNameID = document.getElementById('saveRound:roundNameID');
+
+  if (changeAllRoundsCheckbox) {
+    // disable writing the roundname
+    roundNameID.readOnly = true;
+  }
+  else {
+    // enable writing the roundname
+    roundNameID.readOnly = false;
+  }
+}
+
 $(document).ready(function () {
   showGamesCount();
+  toggleRoundName();
 });

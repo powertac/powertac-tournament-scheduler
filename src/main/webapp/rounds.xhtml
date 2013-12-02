@@ -37,9 +37,9 @@
 
     <t:column>
       <f:facet name="header">Tourney</f:facet>
-      <h:link value="#{r.level.tournamentId}" outcome="Tournament"
-              rendered="#{r.level.tournamentId != null}">
-        <f:param name="tournamentId" value="#{r.level.tournamentId}"/>
+      <h:link value="#{r.level.getTournament().tournamentId}" outcome="Tournament"
+              rendered="#{r.level.getTournament().tournamentId != null}">
+        <f:param name="tournamentId" value="#{r.level.getTournament().tournamentId}"/>
       </h:link>
     </t:column>
 
@@ -157,16 +157,22 @@
   <h:panelGrid columns="2" id="roundTable">
     <h:outputText value="Round Name"/>
     <h:panelGroup>
-      <h:inputText value="#{actionRounds.roundName}"
+      <h:inputText value="#{actionRounds.roundName}" id="roundNameID"
                    onblur="showGamesCount()" styleClass="input_wide"/>
     </h:panelGroup>
 
-    <h:outputText value="Max Brokers / Agents"/>
+    <h:outputText value="Change all Rounds in same Level" rendered="#{actionRounds.enableChangeAllRounds}" />
+    <h:panelGroup rendered="#{actionRounds.enableChangeAllRounds}">
+      <h:selectBooleanCheckbox value="#{actionRounds.changeAllRoundsInLevel}" id="changeAllRounds" onchange="toggleRoundName()">
+      </h:selectBooleanCheckbox>
+    </h:panelGroup>
+
+    <h:outputText value="Max Brokers / Max Agents"/>
     <h:panelGroup>
       <h:inputText id="maxBrokers" value="#{actionRounds.maxBrokers}"
                    onblur="showGamesCount()" styleClass="input_small"/>
       <h:inputText id="maxAgents" value="#{actionRounds.maxAgents}"
-                   onblur="showGamesCount()" styleClass="input_small"/>
+                   readonly="true" styleClass="input_small"/>
       <span id="totalGames"/>
     </h:panelGroup>
 

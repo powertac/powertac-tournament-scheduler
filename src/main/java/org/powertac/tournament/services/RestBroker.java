@@ -117,7 +117,7 @@ public class RestBroker
         setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
     for (Game game: games) {
-      if (game.getRound().getLevel().getTournamentId() != tournamentId) {
+      if (game.getRound().getTournamentId() != tournamentId) {
         continue;
       }
 

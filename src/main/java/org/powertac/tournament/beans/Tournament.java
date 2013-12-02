@@ -26,6 +26,7 @@ public class Tournament
   private String tournamentName;
   private STATE state;
   private int pomId;
+  private int maxAgents;
 
   private Map<Integer, Level> levelMap = new HashMap<Integer, Level>();
   private Map<Integer, Broker> brokerMap = new HashMap<Integer, Broker>();
@@ -67,6 +68,7 @@ public class Tournament
   public Tournament ()
   {
     state = STATE.open;
+    maxAgents = 2; // default value for maximum number of concurrent agents
   }
 
   public void scheduleLevel (Session session)
@@ -108,7 +110,7 @@ public class Tournament
     round.setRoundName(name);
     round.setLevel(level);
     round.setMaxBrokers(maxBrokers);
-    round.setMaxAgents(2);
+    round.setMaxAgents(level.getTournament().maxAgents);
     round.setSize1(size1);
     round.setSize2(size2);
     round.setSize3(size3);
@@ -450,6 +452,16 @@ public class Tournament
   public void setPomId (int pomId)
   {
     this.pomId = pomId;
+  }
+
+  @Column(name = "maxAgents", nullable = false)
+  public int getMaxAgents()
+  {
+    return maxAgents;
+  }
+  public void setMaxAgents(int maxAgents)
+  {
+    this.maxAgents = maxAgents;
   }
   //</editor-fold>
 }

@@ -21,7 +21,7 @@ public class ActionAdmin implements InitializingBean
 
   private TournamentProperties properties = TournamentProperties.getProperties();
 
-  private Integer selectedRound;
+  private List<Integer> selectedRounds;
 
   private int locationId = -1;
   private String locationName = "";
@@ -76,29 +76,41 @@ public class ActionAdmin implements InitializingBean
   }
 
   //<editor-fold desc="Header stuff">
-  public void restartWatchDog ()
+  public void restartScheduler()
   {
-    log.info("Restarting WatchDog");
+    log.info("Restarting Scheduler");
     Scheduler scheduler = Scheduler.getScheduler();
-    if (!scheduler.restartWatchDog()) {
-      log.info("Not restarting WatchDog, too close");
+    if (!scheduler.restartScheduler()) {
+      log.info("Not restarting Scheduler, too close");
     }
   }
 
+  /* selectedRounds is a list of Integers that are the IDs of the rounds selected
+   * by the user in the 'Admin'-form of the tournament scheduler.
+   * This function gives this list to the scheduler to make sure that this will
+   * be the list of running rounds.
+   */
   public void loadRound ()
   {
-    log.info("Loading Round " + selectedRound);
+    for (Integer roundID:selectedRounds) {
+      log.info("Loading Round " + roundID);
+    }
+    log.info("End of list of rounds that are loaded");
 
     Scheduler scheduler = Scheduler.getScheduler();
-    scheduler.loadRound(selectedRound);
+    scheduler.loadRounds(selectedRounds);
   }
 
-  public void unloadRound ()
+  /* This function is run when the user presses the 'Unload'-button on the
+   * 'Admin'-form of the tournament scheduler. It makes sure that the scheduler
+   * will clear the list with running rounds.
+   */
+  public void unloadRounds ()
   {
-    log.info("Unloading Round");
+    log.info("Unloading Rounds");
 
     Scheduler scheduler = Scheduler.getScheduler();
-    scheduler.unloadRound();
+    scheduler.unloadRounds(true);
   }
 
   public List<Round> getAvailableRounds ()
@@ -596,13 +608,13 @@ public class ActionAdmin implements InitializingBean
     this.machineViz = machineViz;
   }
 
-  public Integer getSelectedRound ()
+  public List <Integer> getSelectedRounds ()
   {
-    return selectedRound;
+    return selectedRounds;
   }
-  public void setSelectedRound (Integer selectedRound)
+  public void setSelectedRounds (List <Integer> selectedRounds)
   {
-    this.selectedRound = selectedRound;
+    this.selectedRounds = selectedRounds;
   }
   //</editor-fold>
 }

@@ -46,10 +46,11 @@ CREATE TABLE `powertac_tournament`.`poms` (
 
 DROP TABLE IF EXISTS `powertac_tournament`.`tournaments`;
 CREATE TABLE `powertac_tournament`.`tournaments` (
-  `tournamentId`    INT(11)                                                                                                                                            NOT NULL AUTO_INCREMENT,
-  `tournamentName`  VARCHAR(256) UNIQUE                                                                                                                                NOT NULL,
-  `state`           ENUM('open', 'closed', 'scheduled0', 'completed0', 'scheduled1', 'completed1', 'scheduled2', 'completed2', 'scheduled3', 'completed3', 'complete') NOT NULL,
-  `pomId`           INT(11)                                                                                                                                            NOT NULL,
+  `tournamentId`   INT(11)                                                                                                                                            NOT NULL AUTO_INCREMENT,
+  `tournamentName` VARCHAR(256) UNIQUE                                                                                                                                NOT NULL,
+  `state`          ENUM('open', 'closed', 'scheduled0', 'completed0', 'scheduled1', 'completed1', 'scheduled2', 'completed2', 'scheduled3', 'completed3', 'complete') NOT NULL,
+  `pomId`          INT(11)                                                                                                                                            NOT NULL,
+  `maxAgents`      INT(11)                                                                                                                                            NOT NULL DEFAULT 2,
   PRIMARY KEY (`tournamentId`),
   CONSTRAINT tournament_refs FOREIGN KEY (`pomId`) REFERENCES `powertac_tournament`.`poms` (`pomId`)
 )
@@ -58,13 +59,13 @@ CREATE TABLE `powertac_tournament`.`tournaments` (
 
 DROP TABLE IF EXISTS `powertac_tournament`.`levels`;
 CREATE TABLE `powertac_tournament`.`levels` (
-  `levelId`        INT(11)      NOT NULL AUTO_INCREMENT,
-  `levelName`      VARCHAR(256) NOT NULL,
-  `tournamentId`   INT(11)      NOT NULL,
-  `levelNr`        INT(11)      NOT NULL,
-  `nofRounds`      INT(11)      NOT NULL,
-  `nofWinners`     INT(11)      NOT NULL,
-  `startTime`      DATETIME     NOT NULL,
+  `levelId`      INT(11)      NOT NULL AUTO_INCREMENT,
+  `levelName`    VARCHAR(256) NOT NULL,
+  `tournamentId` INT(11)      NOT NULL,
+  `levelNr`      INT(11)      NOT NULL,
+  `nofRounds`    INT(11)      NOT NULL,
+  `nofWinners`   INT(11)      NOT NULL,
+  `startTime`    DATETIME     NOT NULL,
   PRIMARY KEY (`levelId`),
   CONSTRAINT level_refs FOREIGN KEY (`tournamentId`) REFERENCES `powertac_tournament`.`tournaments` (`tournamentId`)
 )
@@ -100,9 +101,9 @@ CREATE TABLE `powertac_tournament`.`rounds` (
 
 DROP TABLE IF EXISTS `powertac_tournament`.`round_brokers`;
 CREATE TABLE `powertac_tournament`.`round_brokers` (
-  `roundBrokerId`  INT(11) NOT NULL AUTO_INCREMENT,
-  `roundId`        INT(11) NOT NULL,
-  `brokerId`       INT(11) NOT NULL,
+  `roundBrokerId` INT(11) NOT NULL AUTO_INCREMENT,
+  `roundId`       INT(11) NOT NULL,
+  `brokerId`      INT(11) NOT NULL,
   PRIMARY KEY (`roundBrokerId`),
   CONSTRAINT round_broker_refs1 FOREIGN KEY (`roundId`) REFERENCES `powertac_tournament`.`rounds` (`roundId`),
   CONSTRAINT round_broker_refs2 FOREIGN KEY (`brokerId`) REFERENCES `powertac_tournament`.`brokers` (`brokerId`)
@@ -112,9 +113,9 @@ CREATE TABLE `powertac_tournament`.`round_brokers` (
 
 DROP TABLE IF EXISTS `powertac_tournament`.`tournament_brokers`;
 CREATE TABLE `powertac_tournament`.`tournament_brokers` (
-  `tournamentBrokerId`  INT(11) NOT NULL AUTO_INCREMENT,
-  `tournamentId`        INT(11) NOT NULL,
-  `brokerId`            INT(11) NOT NULL,
+  `tournamentBrokerId` INT(11) NOT NULL AUTO_INCREMENT,
+  `tournamentId`       INT(11) NOT NULL,
+  `brokerId`           INT(11) NOT NULL,
   PRIMARY KEY (tournamentBrokerId),
   CONSTRAINT tournament_broker_refs1 FOREIGN KEY (`tournamentId`) REFERENCES `powertac_tournament`.`tournaments` (`tournamentId`),
   CONSTRAINT tournament_broker_refs2 FOREIGN KEY (`brokerId`) REFERENCES `powertac_tournament`.`brokers` (`brokerId`)
@@ -171,7 +172,7 @@ CREATE TABLE `powertac_tournament`.`locations` (
 
 INSERT INTO `powertac_tournament`.`locations`
 (`locationId`, `location`, `timezone`, `fromDate`, `toDate`) VALUES
-(1, 'rotterdam', 1, '2009-01-01 00:00:00', '2011-06-01 00:00:00');
+  (1, 'rotterdam', 1, '2009-01-01 00:00:00', '2011-06-01 00:00:00');
 
 
 DROP TABLE IF EXISTS `powertac_tournament`.`agents`;

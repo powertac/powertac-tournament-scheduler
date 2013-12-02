@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 @ManagedBean
 public class ActionAccount implements InitializingBean
 {
@@ -64,7 +65,8 @@ public class ActionAccount implements InitializingBean
       brokerShort = "";
       brokers = new ArrayList<Broker>();
       User.reloadUser(user);
-    } else {
+    }
+    else {
       message(2, "Error adding broker");
     }
   }
@@ -81,7 +83,8 @@ public class ActionAccount implements InitializingBean
 
     if (deleted) {
       User.reloadUser(user);
-    } else {
+    }
+    else {
       message(1, "Error deleting broker");
     }
   }
@@ -176,9 +179,11 @@ public class ActionAccount implements InitializingBean
     FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
     if (field == 0) {
       FacesContext.getCurrentInstance().addMessage("accountForm0", fm);
-    } else if (field == 1) {
+    }
+    else if (field == 1) {
       FacesContext.getCurrentInstance().addMessage("accountForm1", fm);
-    } else if (field == 2) {
+    }
+    else if (field == 2) {
       FacesContext.getCurrentInstance().addMessage("accountForm2", fm);
     }
   }

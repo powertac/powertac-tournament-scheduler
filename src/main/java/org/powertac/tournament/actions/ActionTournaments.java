@@ -24,6 +24,7 @@ public class ActionTournaments implements InitializingBean
   private int tournamentId;
   private String tournamentName;
   private int selectedPom;
+  private int maxAgents;
 
   private int nofLevels = 4;
   private List<Level> levels;
@@ -279,6 +280,7 @@ public class ActionTournaments implements InitializingBean
     if (tournamentId == -1) {
       tournament.setTournamentName(tournamentName);
       tournament.setPomId(selectedPom);
+      tournament.setMaxAgents(maxAgents);
       session.saveOrUpdate(tournament);
     }
   }
@@ -309,7 +311,7 @@ public class ActionTournaments implements InitializingBean
     for (Level level: levels) {
       log.info("Creating level " + level.getLevelNr()
           + " : " + level.getLevelName());
-      level.setTournamentId(tournament.getTournamentId());
+      level.setTournament(tournament);
       session.save(level);
       tournament.getLevelMap().put(level.getLevelNr(), level);
     }
@@ -320,6 +322,7 @@ public class ActionTournaments implements InitializingBean
     tournamentId = -1;
     tournamentName = "";
     selectedPom = 0;
+    maxAgents = 2;
 
     disabled = new boolean[nofLevels];
 
@@ -492,6 +495,15 @@ public class ActionTournaments implements InitializingBean
   public void setSelectedPom (int selectedPom)
   {
     this.selectedPom = selectedPom;
+  }
+
+  public int getMaxAgents()
+  {
+    return maxAgents;
+  }
+  public void setMaxAgents(int maxAgents)
+  {
+    this.maxAgents = maxAgents;
   }
 
   public List<Level> getLevels ()

@@ -43,6 +43,8 @@ public class ActionRounds implements InitializingBean
   private Date dateTo;
   private List<String> locations;
   private int selectedPom;
+  private boolean enableChangeAllRounds;
+  private boolean changeAllRoundsInLevel;
 
   public ActionRounds ()
   {
@@ -93,6 +95,8 @@ public class ActionRounds implements InitializingBean
     dateTo = round.getDateTo();
     locations = round.getLocationsList();
     selectedPom = round.getPomId();
+    enableChangeAllRounds = enableChangeAllRounds(round);
+    changeAllRoundsInLevel = enableChangeAllRounds(round);
   }
 
   public void saveRound ()
@@ -109,6 +113,17 @@ public class ActionRounds implements InitializingBean
     }
   }
 
+  public boolean enableChangeAllRounds (Round round)
+  {
+    // This function checks whether it should be possible for the user to change all rounds at the same time
+    // This can only be possible when there are more than one rounds in the level.
+    Level level = round.getLevel();
+    if (level.getRoundMap().size() > 1) {
+      return true;
+    }
+    return false;
+  }
+
   public void saveEditedRound ()
   {
     log.info("Saving round " + roundId);
@@ -117,17 +132,30 @@ public class ActionRounds implements InitializingBean
     Transaction transaction = session.beginTransaction();
     try {
       Round round = (Round) session.get(Round.class, roundId);
-      setValues(round);
-      session.saveOrUpdate(round);
+      // if we want all rounds from this level to be the same
+      if (changeAllRoundsInLevel) {
+        Level level = round.getLevel();
+        for (Round round2 : level.getRoundMap().values()) {
+          setValues(round2, false);
+          session.saveOrUpdate(round2);
+        }
+      }
+      else {
+        setValues(round, true);
+        session.saveOrUpdate(round);
+      }
       transaction.commit();
-    } catch (ConstraintViolationException ignored) {
+    }
+    catch (ConstraintViolationException ignored) {
       transaction.rollback();
       message(2, "The round name already exists");
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.error("Error saving round");
-    } finally {
+    }
+    finally {
       if (transaction.wasCommitted()) {
         resetValues();
       }
@@ -169,50 +197,42 @@ public class ActionRounds implements InitializingBean
       message(1, msg);
 
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       message(1, "Failed to start now : " + round.getRoundId());
     }
     session.close();
 
-    // If a round is loaded, just reload
-    Scheduler scheduler = Scheduler.getScheduler();
-    if (!scheduler.isNullRound() &&
-        round.getRoundId() ==
-            scheduler.getRunningRound().getRoundId()) {
-      scheduler.reloadRound();
-    }
+    // A round might already be loaded
+    Scheduler.getScheduler().reloadRounds();
   }
 
-  public void setValues (Round round)
+  public void setValues (Round round, boolean changeSingleRound)
   {
     String allLocations = "";
-    for (String s: locations) {
+    for (String s : locations) {
       allLocations += s + ",";
     }
 
-    Integer[] gameTypes = {Math.max(1, size1), Math.max(1, size2),
-        Math.max(1, size3)};
-    Integer[] multipliers = {Math.max(0, multiplier1), Math.max(0, multiplier2),
-        Math.max(0, multiplier3)};
+    Integer[] gameTypes = {Math.max(1, size1),
+                           Math.max(1, size2),
+                           Math.max(1, size3)};
+    Integer[] multipliers = {Math.max(0, multiplier1),
+                             Math.max(0, multiplier2),
+                             Math.max(0, multiplier3)};
 
     // Sort biggest games first, keep paired with multiplier
-    Map<Integer, Integer> tempMap = new HashMap<Integer, Integer>();
-    for (int i=0; i< 3; i++) {
-      tempMap.put(gameTypes[i], multipliers[i]);
-    }
-    Arrays.sort(gameTypes, Collections.reverseOrder());
-    for (int i=0; i< 3; i++) {
-      multipliers[i] = tempMap.get(gameTypes[i]);
-    }
+    sortGames(gameTypes, multipliers);
 
     maxBrokers = Math.max(maxBrokers, round.getBrokerMap().size());
 
     if (round.getSize() < 1) {
-      round.setRoundName(roundName);
+      if (changeSingleRound) {
+        round.setRoundName(roundName);
+      }
       round.setMaxBrokers(maxBrokers);
-      round.setMaxAgents(maxAgents);
       round.setSize1(gameTypes[0]);
       round.setSize2(gameTypes[1]);
       round.setSize3(gameTypes[2]);
@@ -225,6 +245,39 @@ public class ActionRounds implements InitializingBean
       round.setLocations(allLocations);
       round.setPomId(selectedPom);
     }
+  }
+
+  public void sortGames (Integer[] gameTypes, Integer[] multipliers)
+  {
+    // this function assumes both arrays have size 3
+    if (gameTypes[0] < gameTypes[1]) {
+      swapValues(gameTypes, multipliers, 0, 1, 3);
+    }
+    if (gameTypes[1] < gameTypes[2]) {
+      swapValues(gameTypes, multipliers, 1, 2, 3);
+    }
+    if (gameTypes[0] < gameTypes[1]) {
+      swapValues(gameTypes, multipliers, 0, 1, 3);
+    }
+  }
+
+  public void swapValues (Integer[] array1, Integer[] array2, int index1, int index2, int n)
+  {
+    if (index1 == index2) {
+      return;
+    }
+    if (0 > index1 || index1 >= n) {
+      return;
+    }
+    if (0 > index2 || index2 >= n) {
+      return;
+    }
+    int temp = array1[index1];
+    array1[index1] = array1[index2];
+    array1[index2] = temp;
+    temp = array2[index1];
+    array2[index1] = array2[index2];
+    array2[index2] = temp;
   }
 
   public void resetValues ()
@@ -256,7 +309,7 @@ public class ActionRounds implements InitializingBean
     else {
       dateFrom = new Date();
       dateTo = new Date();
-      for (Location loc: getLocationList()) {
+      for (Location loc : getLocationList()) {
         if (loc.getDateFrom().before(dateFrom)) {
           dateFrom = loc.getDateFrom();
         }
@@ -267,6 +320,8 @@ public class ActionRounds implements InitializingBean
     }
 
     selectedPom = 0;
+    enableChangeAllRounds = true;
+    changeAllRoundsInLevel = false;
   }
 
   public void register (Broker b)
@@ -278,7 +333,8 @@ public class ActionRounds implements InitializingBean
     boolean registered = b.registerForRound(b.getRegisterRoundId());
     if (!registered) {
       message(1, "Error registering broker");
-    } else {
+    }
+    else {
       User user = User.getCurrentUser();
       User.reloadUser(user);
       roundList = Round.getNotCompleteRoundList();
@@ -295,7 +351,8 @@ public class ActionRounds implements InitializingBean
     boolean registered = b.unregisterFromRound(b.getUnregisterRoundId());
     if (!registered) {
       message(1, "Error unregistering broker");
-    } else {
+    }
+    else {
       User user = User.getCurrentUser();
       User.reloadUser(user);
       roundList = Round.getNotCompleteRoundList();
@@ -319,7 +376,7 @@ public class ActionRounds implements InitializingBean
       messages.add("End date should be after start date");
     }
 
-    for (String msg: messages) {
+    for (String msg : messages) {
       message(2, msg);
     }
 
@@ -331,9 +388,11 @@ public class ActionRounds implements InitializingBean
     FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
     if (field == 0) {
       FacesContext.getCurrentInstance().addMessage("runningRounds", fm);
-    } else if (field == 1) {
+    }
+    else if (field == 1) {
       FacesContext.getCurrentInstance().addMessage("roundRegistered", fm);
-    } else if (field == 2) {
+    }
+    else if (field == 2) {
       FacesContext.getCurrentInstance().addMessage("saveRound", fm);
     }
   }
@@ -504,6 +563,24 @@ public class ActionRounds implements InitializingBean
   public int getSlavesCount ()
   {
     return slavesCount;
+  }
+
+  public boolean getChangeAllRoundsInLevel ()
+  {
+    return changeAllRoundsInLevel;
+  }
+  public void setChangeAllRoundsInLevel (boolean changeRounds)
+  {
+    this.changeAllRoundsInLevel = changeRounds;
+  }
+
+  public boolean getEnableChangeAllRounds ()
+  {
+    return enableChangeAllRounds;
+  }
+  public void setEnableChangeAllRounds (boolean enableChangeRounds)
+  {
+    this.enableChangeAllRounds = enableChangeRounds;
   }
   //</editor-fold>
 }

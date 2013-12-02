@@ -1,7 +1,6 @@
 package org.powertac.tournament.services;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.*;
@@ -24,11 +23,11 @@ public class Scheduler implements InitializingBean
   @Autowired
   private TournamentProperties properties;
 
-  private Timer watchDogTimer = null;
-  private long watchDogInterval;
+  private Timer schedulerTimer = null;
+  private long schedulerInterval;
 
-  private Round runningRound = null;
-  private long lastWatchdogRun = 0;
+  private List<Round> runningRounds;
+  private long lastSchedulerRun = 0;
 
   public Scheduler ()
   {
@@ -42,7 +41,8 @@ public class Scheduler implements InitializingBean
 
   private void lazyStart ()
   {
-    watchDogInterval = properties.getPropertyInt("scheduler.watchDogInterval");
+    schedulerInterval =
+        properties.getPropertyInt("scheduler.schedulerInterval");
 
     Timer t = new Timer();
     TimerTask tt = new TimerTask()
@@ -50,24 +50,24 @@ public class Scheduler implements InitializingBean
       @Override
       public void run ()
       {
-        startWatchDog();
+        startScheduler();
       }
     };
     t.schedule(tt, 3000);
   }
 
-  private synchronized void startWatchDog ()
+  private synchronized void startScheduler ()
   {
-    if (watchDogTimer != null) {
-      log.warn("Watchdog already running");
+    if (schedulerTimer != null) {
+      log.warn("Scheduler already running");
       return;
     }
 
-    log.info("Starting WatchDog...");
+    log.info("Starting Scheduler...");
 
-    lastWatchdogRun = System.currentTimeMillis();
+    lastSchedulerRun = System.currentTimeMillis();
 
-    TimerTask watchDog = new TimerTask()
+    TimerTask schedulerTimerTask = new TimerTask()
     {
       @Override
       public void run ()
@@ -76,153 +76,201 @@ public class Scheduler implements InitializingBean
         log.info(System.getProperty("line.separator"));
         try {
           Machine.checkMachines();
-          scheduleLoadedRound();
-          RunGame.startRunnableGames(runningRound);
-          RunBoot.startBootableGames(runningRound);
+          createGamesForLoadedRounds();
+          RunGame.startRunnableGames(runningRounds);
+          RunBoot.startBootableGames(runningRounds);
           checkWedgedBoots();
           checkWedgedSims();
 
-          lastWatchdogRun = System.currentTimeMillis();
-        } catch (Exception e) {
-          log.error("Severe error in WatchDogTimer!");
+          lastSchedulerRun = System.currentTimeMillis();
+        }
+        catch (Exception e) {
+          log.error("Severe error in SchedulerTimer!");
           e.printStackTrace();
         }
       }
     };
 
-    watchDogTimer = new Timer();
-    watchDogTimer.schedule(watchDog, new Date(), watchDogInterval);
+    schedulerTimer = new Timer();
+    schedulerTimer.schedule(schedulerTimerTask, new Date(), schedulerInterval);
   }
 
-  private void stopWatchDog ()
+  private void stopScheduler ()
   {
-    if (watchDogTimer != null) {
-      watchDogTimer.cancel();
-      watchDogTimer.purge();
-      watchDogTimer = null;
-      log.info("Stopping WatchDog...");
-    } else {
-      log.warn("WatchDogTimer Already Stopped");
+    if (schedulerTimer != null) {
+      schedulerTimer.cancel();
+      schedulerTimer.purge();
+      schedulerTimer = null;
+      log.info("Stopping Scheduler...");
+    }
+    else {
+      log.warn("SchedulerTimer Already Stopped");
     }
   }
 
-  public boolean restartWatchDog ()
+  public boolean restartScheduler ()
   {
-    if ((System.currentTimeMillis() - lastWatchdogRun) < 55000) {
-      stopWatchDog();
-      startWatchDog();
+    if ((System.currentTimeMillis() - lastSchedulerRun) < 55000) {
+      stopScheduler();
+      startScheduler();
       return true;
-    } else {
+    }
+    else {
       return false;
     }
   }
 
-  public void loadRound (int roundId)
+  public void loadRounds (List<Integer> roundIDs)
   {
-    log.info("Loading Round " + roundId);
-
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
+
+    runningRounds = new ArrayList<Round>();
     try {
-      Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
-      query.setInteger("roundId", roundId);
-      runningRound = (Round) query.uniqueResult();
+      for (int roundId : roundIDs) {
+        Round round = (Round) session.createQuery(Constants.HQL.GET_ROUND_BY_ID)
+            .setInteger("roundId", roundId).uniqueResult();
+        if (round != null && !round.isComplete()) {
+          runningRounds.add(round);
+        }
+      }
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
     session.close();
   }
 
-  public void unloadRound ()
+  public void unloadRounds (boolean logInfo)
   {
-    log.info("Unloading Round " + runningRound.getRoundName());
-    runningRound = null;
+    if (logInfo) {
+      for (Round round : runningRounds) {
+        log.info("Unloading Round " + round.getRoundName());
+      }
+      log.info("All rounds are unloaded");
+    }
+    runningRounds.clear();
   }
 
-  public void reloadRound ()
+  // This function removes the given round from 'runningRounds'.
+  public void unloadRound (Integer roundID)
   {
-    if (runningRound == null) {
+    Round round;
+    Iterator<Round> roundIterator = runningRounds.listIterator();
+
+    while (roundIterator.hasNext()) {
+      round = roundIterator.next();
+      if (round.getRoundId() == roundID) {
+        roundIterator.remove();
+      }
+    }
+  }
+
+  public void reloadRounds ()
+  {
+    if (runningRounds == null) {
       return;
     }
-    int runningId = runningRound.getRoundId();
-    unloadRound();
-    loadRound(runningId);
+
+    List<Integer> runningRoundIDs = new ArrayList<Integer>();
+    for (Round round : runningRounds) {
+      runningRoundIDs.add(round.getRoundId());
+    }
+    unloadRounds(false);
+    loadRounds(runningRoundIDs);
   }
 
   /**
    * Check if it's time to schedule the round
    */
-  private void scheduleLoadedRound ()
+  private void createGamesForLoadedRounds ()
   {
-    if (isNullRound()) {
-      log.info("No round available for scheduling");
+    if (isRunningRoundsEmpty()) {
+      log.info("No rounds available for scheduling");
       return;
     }
-    else if (runningRound.getSize() > 0) {
-      log.info("Round already scheduled : " + runningRound.getRoundName());
-      return;
-    }
-    else if (!runningRound.isStarted()) {
-      log.info("Round not ready : " + runningRound.getRoundName());
-      return;
-    }
-    log.info("Round available : "+ runningRound.getRoundName());
 
-    // Brokers might have (un)registered after the round was loaded
-    reloadRound();
+    // Brokers might have (un)registered after the rounds were loaded
+    reloadRounds();
+
+    boolean roundsChanged = false;
+    for (Round round : runningRounds) {
+      roundsChanged |= createGamesForLoadedRound(round);
+    }
+
+    if (roundsChanged) {
+      log.info("Some rounds were scheduled, reload rounds.");
+      reloadRounds();
+    }
+  }
+
+  public boolean createGamesForLoadedRound (Round round)
+  {
+    if (round.getSize() > 0) {
+      log.info("Round already scheduled : " + round.getRoundName());
+      return false;
+    }
+    else if (!round.isStarted()) {
+      log.info("Round not ready : " + round.getRoundName());
+      return false;
+    }
+    log.info("Round available : " + round.getRoundName());
 
     // Get array of gametypes
-    int[] gameTypes = {runningRound.getSize1(),
-        runningRound.getSize2(), runningRound.getSize3()};
-    int[] multipliers = {runningRound.getMultiplier1(),
-        runningRound.getMultiplier2(), runningRound.getMultiplier3()};
+    int[] gameTypes = {round.getSize1(),
+        round.getSize2(), round.getSize3()};
+    int[] multipliers = {round.getMultiplier1(),
+        round.getMultiplier2(), round.getMultiplier3()};
 
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       List<Broker> brokers = new ArrayList<Broker>();
-      for (Broker broker: runningRound.getBrokerMap().values()) {
+      for (Broker broker : round.getBrokerMap().values()) {
         brokers.add(broker);
       }
 
       if (brokers.size() == 0) {
-        log.info("Round has no brokers registered, setting to complete");
-        runningRound.setStateToComplete();
-        session.update(runningRound);
-        unloadRound();
+        log.info("Round " + round.getRoundName()
+            + " has no brokers registered, setting to complete");
+        round.setStateToComplete();
+        session.update(round);
         transaction.commit();
-        return;
+        return true;
       }
 
       for (int i = 0; i < (gameTypes.length); i++) {
         for (int j = 0; j < multipliers[i]; j++) {
-          doTheKailash(session, gameTypes[i], i, j, brokers);
+          doTheKailash(session, round, gameTypes[i], i, j, brokers);
         }
       }
 
-      runningRound.setStateToInProgress();
-      session.update(runningRound);
+      round.setStateToInProgress();
+      session.update(round);
 
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-    } finally {
+    }
+    finally {
       session.close();
     }
 
-    reloadRound();
+    return true;
   }
 
-  private void doTheKailash (Session session, int gameType, int gameNumber,
-                             int multiplier, List<Broker> brokers)
+  private void doTheKailash (Session session, Round round, int gameType,
+                             int gameNumber, int multiplier,
+                             List<Broker> brokers)
   {
     log.info(String.format("Doing the Kailash with gameType = %s ; "
         + "maxBrokers = %s", gameType, brokers.size()));
     String brokersString = "";
-    for (Broker b: brokers) {
+    for (Broker b : brokers) {
       brokersString += b.getBrokerId() + " ";
     }
     log.info("Broker ids : " + brokersString);
@@ -261,9 +309,9 @@ public class Scheduler implements InitializingBean
       String gameString = games.get(j);
 
       String gameName = String.format("%s_%s_%s_%s",
-          runningRound.getRoundName(),
+          round.getRoundName(),
           (gameNumber + 1), gameType, j + multiplier * games.size());
-      Game game = Game.createGame(runningRound, gameName);
+      Game game = Game.createGame(round, gameName);
       session.save(game);
 
       log.info("Created game " + game.getGameId());
@@ -282,9 +330,9 @@ public class Scheduler implements InitializingBean
 
   private void checkWedgedBoots ()
   {
-    log.info("WatchDogTimer Looking for Wedged Bootstraps");
+    log.info("SchedulerTimer Looking for Wedged Bootstraps");
 
-    for (Game game: Game.getNotCompleteGamesList()) {
+    for (Game game : Game.getNotCompleteGamesList()) {
       if (!game.isBooting() || game.getReadyTime() == null) {
         continue;
       }
@@ -293,7 +341,7 @@ public class Scheduler implements InitializingBean
           properties.getPropertyInt("scheduler.bootstrapWedged");
       long nowStamp = Utils.offsetDate().getTime();
       long minStamp = game.getReadyTime().getTime() + wedgedDeadline;
-      long maxStamp = minStamp + watchDogInterval;
+      long maxStamp = minStamp + schedulerInterval;
 
       if (nowStamp > minStamp && nowStamp < maxStamp) {
         String msg = String.format(
@@ -305,25 +353,27 @@ public class Scheduler implements InitializingBean
         properties.addErrorMessage(msg);
       }
     }
-    log.debug("WatchDogTimer No Bootstraps seems Wedged");
+    log.debug("SchedulerTimer No Bootstraps seems Wedged");
   }
 
   private void checkWedgedSims ()
   {
-    log.info("WatchDogTimer Looking for Wedged Sims");
+    log.info("SchedulerTimer Looking for Wedged Sims");
 
-    for (Game game: Game.getNotCompleteGamesList()) {
+    for (Game game : Game.getNotCompleteGamesList()) {
       if (!game.isRunning() || game.getReadyTime() == null) {
         continue;
       }
 
-      long wedgedDeadline = properties.getPropertyInt("scheduler.simWedged");
+      long wedgedDeadline =
+          properties.getPropertyInt("scheduler.simWedged");
       if (game.getGameName().toLowerCase().contains("test")) {
-        wedgedDeadline = properties.getPropertyInt("scheduler.simTestWedged");
+        wedgedDeadline =
+            properties.getPropertyInt("scheduler.simTestWedged");
       }
       long nowStamp = Utils.offsetDate().getTime();
       long minStamp = game.getReadyTime().getTime() + wedgedDeadline;
-      long maxStamp = minStamp + watchDogInterval;
+      long maxStamp = minStamp + schedulerInterval;
 
       if (nowStamp > minStamp && nowStamp < maxStamp) {
         String msg = String.format(
@@ -335,22 +385,22 @@ public class Scheduler implements InitializingBean
         properties.addErrorMessage(msg);
       }
     }
-    log.debug("WatchDogTimer No Sim seems Wedged");
+    log.debug("SchedulerTimer No Sim seems Wedged");
   }
 
-  public boolean isNullRound ()
+  public boolean isRunningRoundsEmpty ()
   {
-    return runningRound == null;
+    return runningRounds == null || runningRounds.size() == 0;
   }
 
   public boolean isRunning ()
   {
-    return watchDogTimer != null;
+    return schedulerTimer != null;
   }
 
-  public Round getRunningRound ()
+  public List<Round> getRunningRounds ()
   {
-    return runningRound;
+    return runningRounds;
   }
 
   public static Scheduler getScheduler ()
@@ -363,27 +413,28 @@ public class Scheduler implements InitializingBean
   {
     log.info("Spring Container is destroyed! Scheduler clean up");
 
-    stopWatchDog();
+    stopScheduler();
   }
 
   //<editor-fold desc="Setters and Getters">
-  public long getWatchDogInterval ()
+  public long getSchedulerInterval ()
   {
-    return watchDogInterval;
+    return schedulerInterval;
   }
 
-  public void setWatchDogInterval (long watchDogInterval)
+  public void setSchedulerInterval (long schedulerInterval)
   {
-    this.watchDogInterval = watchDogInterval;
+    this.schedulerInterval = schedulerInterval;
   }
 
-  public String getLastWatchdogRun ()
+  public String getLastSchedulerRun ()
   {
-    if (lastWatchdogRun == 0) {
+    if (lastSchedulerRun == 0) {
       return "";
-    } else {
+    }
+    else {
       return String.format(" : ran %s secs ago",
-          (int) (System.currentTimeMillis() - lastWatchdogRun) / 1000);
+          (int) (System.currentTimeMillis() - lastSchedulerRun) / 1000);
     }
   }
   //</editor-fold>

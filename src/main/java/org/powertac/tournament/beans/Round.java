@@ -113,7 +113,7 @@ public class Round
       if (game.getGameId() == finishedGameId) {
         continue;
       }
-      if (!game.isComplete()) {
+      if (!game.isComplete() && game.getRound() == this) {
         allDone = false;
       }
     }
@@ -122,10 +122,7 @@ public class Round
       state = STATE.complete;
 
       Scheduler scheduler = Scheduler.getScheduler();
-      if (scheduler.getRunningRound() != null &&
-          scheduler.getRunningRound().getRoundId() == roundId) {
-        scheduler.unloadRound();
-      }
+      scheduler.unloadRound(this.getRoundId());
     }
 
     // Always generate new CSVs
@@ -135,6 +132,12 @@ public class Round
   public static String getStateComplete ()
   {
     return STATE.complete.toString();
+  }
+
+  @Transient
+  public int getTournamentId ()
+  {
+    return level.getTournament().getTournamentId();
   }
 
   @Transient
@@ -160,13 +163,13 @@ public class Round
   {
     String result = "";
     if (size1 > 0 && multiplier1 > 0) {
-      result += size1 +":"+ multiplier1 +" ";
+      result += size1 + ":" + multiplier1 + " ";
     }
     if (size2 > 0 && multiplier2 > 0) {
-      result += size2 +":"+ multiplier2 +" ";
+      result += size2 + ":" + multiplier2 + " ";
     }
     if (size3 > 0 && multiplier3 > 0) {
-      result += size3 +":"+ multiplier3;
+      result += size3 + ":" + multiplier3;
     }
     return result;
   }

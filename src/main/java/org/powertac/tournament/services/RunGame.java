@@ -100,7 +100,7 @@ public class RunGame
       }
 
       // Check if any broker is already running the maxAgent nof agents
-      if (!broker.hasAgentsAvailable()) {
+      if (!broker.hasAgentsAvailable(game.getRound())) {
         log.info(String.format("Not starting game %s : broker %s doesn't have "
             + "enough available agents",
             game.getGameId(), broker.getBrokerId()));
@@ -127,7 +127,7 @@ public class RunGame
         Scheduler scheduler = Scheduler.getScheduler();
         log.info(String.format(
             "No machine available for scheduled sim %s, retry in %s seconds",
-            game.getGameId(), scheduler.getWatchDogInterval() / 1000));
+            game.getGameId(), scheduler.getSchedulerInterval() / 1000));
         return false;
       }
 
@@ -145,7 +145,7 @@ public class RunGame
 
   /*
    * If all conditions are met (we have a slave available, game is booted and
-   * agents should be avalable) send job to Jenkins.
+   * agents should be available) send job to Jenkins.
    */
   private boolean startJob () throws Exception
   {
@@ -183,11 +183,11 @@ public class RunGame
    * If a round is loaded (runningRound != null) we only look for
    * games in that round. If no round loaded, we look for games in
    * all singleGame rounds.
-  **/
-  public static void startRunnableGames (Round runningRound)
+   */
+  public static void startRunnableGames (List <Round> runningRounds)
   {
-    if (runningRound == null) {
-      log.info("No round available for runnable games");
+    if (runningRounds == null || runningRounds.isEmpty()) {
+      log.info("No rounds available for runnable games");
       return;
     }
 
@@ -198,7 +198,7 @@ public class RunGame
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      games = Game.getStartableGames(session, runningRound);
+      games.addAll(Game.getStartableGames(session, runningRounds));
       log.info("CheckForSims for startable games");
       transaction.commit();
     } catch (Exception e) {

@@ -168,6 +168,6 @@ public class Rest extends HttpServlet
   {
     Scheduler scheduler = Scheduler.getScheduler();
     return "{ \"text\": \"WatchDog running "
-        + scheduler.getLastWatchdogRun() + "\" }";
+        + scheduler.getLastSchedulerRun() + "\" }";
   }
 }
