@@ -11,11 +11,11 @@ function updateVisualizers(data) {
   });
 }
 
-function updateWatchdog(data) {
+function updateScheduler(data) {
   if (data['text'] != undefined) {
-    $('#adminControls\\:watchdog').html(data['text']);
+    $('#adminControls\\:scheduler').html(data['text']);
   } else {
-    $('#adminControls\\:watchdog').html("");
+    $('#adminControls\\:scheduler').html("");
   }
 }
 
@@ -55,8 +55,8 @@ function updateTables() {
     success: updateVisualizers
   });
   $.ajax({
-    url: "Rest?type=watchdog",
-    success: updateWatchdog
+    url: "Rest?type=scheduler",
+    success: updateScheduler
   });
 }
 

@@ -127,8 +127,8 @@ public class TournamentProperties
     checkFileLocation("logLocation", fallBack);
 
     // Check if timeouts are present
-    if (properties.get("scheduler.watchDogInterval") == null) {
-      properties.setProperty("scheduler.watchDogInterval", "120000");
+    if (properties.get("scheduler.schedulerInterval") == null) {
+      properties.setProperty("scheduler.schedulerInterval", "120000");
     }
     if (properties.get("scheduler.simWedged") == null) {
       properties.setProperty("scheduler.simWedged", "10800000");

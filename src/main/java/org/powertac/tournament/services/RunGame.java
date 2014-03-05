@@ -198,7 +198,7 @@ public class RunGame
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      games.addAll(Game.getStartableGames(session, runningRounds));
+      games = Game.getStartableGames(session, runningRounds);
       log.info("CheckForSims for startable games");
       transaction.commit();
     } catch (Exception e) {

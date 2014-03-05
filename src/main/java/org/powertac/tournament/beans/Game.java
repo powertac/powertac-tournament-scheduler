@@ -402,11 +402,19 @@ public class Game implements Serializable
   }
   //</editor-fold>
 
+  // These 2 methods (createGameName and getGameTypeIndex) are tightly coupled
   @Transient
   public int getGameTypeIndex ()
   {
     String[] parts = gameName.split("_");
     return Integer.parseInt(parts[parts.length - 3]) - 1;
+  }
+
+  public static String createGameName (String roundName, int gameNumber,
+                                       int gameType, int counter, int offset)
+  {
+    return String.format("%s_%s_%s_%s",
+        roundName, (gameNumber + 1), gameType, counter + offset);
   }
 
   public String jenkinsMachineUrl ()
@@ -478,31 +486,19 @@ public class Game implements Serializable
 
   //<editor-fold desc="Collections">
   @SuppressWarnings("unchecked")
-  public static List<Game> getBootableGames (Session session, Round round)
+  public static List<Game> getBootableGames (Session session, List<Round> rounds)
   {
-    return (List<Game>) session
-        .createQuery(Constants.HQL.GET_GAMES_BOOT_PENDING)
-        .setInteger("roundId", round.getRoundId())
-        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
-  }
+    List<Game> games = new ArrayList<Game>();
 
-  // Create a string of all the round IDs of the rounds in the given List.
-  // Needed for a query to get all runable games.
-  @SuppressWarnings("unchecked")
-  public static String makeStringOfRoundIDs (List<Round> runningRounds)
-  {
-    if (runningRounds == null || runningRounds.isEmpty()) {
-      return "";
+    for (Round round: rounds) {
+      games.addAll((List<Game>) session
+          .createQuery(Constants.HQL.GET_GAMES_BOOT_PENDING)
+          .setInteger("roundId", round.getRoundId())
+          .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list());
     }
-    String result = "(";
-    for (Round round: runningRounds) {
-      result += "'" + round.getRoundId() + "',";
-    }
-    result = result.substring(0,result.length()-1);
-    result += ")";
-    return result;
-  }
 
+    return games;
+  }
 
   /*
    * Given a list of games (in practice all runnable games), this function
@@ -579,10 +575,14 @@ public class Game implements Serializable
 
     // use a query to retrieve all runnable games (boot_complete) for the
     // running rounds
-    String roundIDs = makeStringOfRoundIDs(runningRounds);
+    List<Integer> ids = new ArrayList<Integer>();
+    for (Round round: runningRounds) {
+      ids.add(round.getRoundId());
+    }
     List<Game> fullList = (List<Game>) session
-        .createQuery(Constants.HQL.GET_GAMES_BOOT_COMPLETE + roundIDs)
+        .createQuery(Constants.HQL.GET_GAMES_BOOT_COMPLETE)
         .setTimestamp("startTime", Utils.offsetDate())
+        .setParameterList("ids", ids)
         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
     // count the appearences of each broker in the runnable games of

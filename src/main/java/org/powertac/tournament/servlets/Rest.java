@@ -38,8 +38,8 @@ public class Rest extends HttpServlet
     else if (type.equals("visualizers")) {
       result = parseVisualizers();
     }
-    else if (type.equals("watchdog")) {
-      result = parseWatchdog();
+    else if (type.equals("scheduler")) {
+      result = parseScheduler();
     }
 
     response.setContentLength(result.length());
@@ -164,10 +164,10 @@ public class Rest extends HttpServlet
     return result;
   }
 
-  private String parseWatchdog ()
+  private String parseScheduler ()
   {
     Scheduler scheduler = Scheduler.getScheduler();
-    return "{ \"text\": \"WatchDog running "
+    return "{ \"text\": \"Scheduler running "
         + scheduler.getLastSchedulerRun() + "\" }";
   }
 }

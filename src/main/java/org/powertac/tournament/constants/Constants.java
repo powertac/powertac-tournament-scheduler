@@ -166,7 +166,7 @@ public class Constants
 
             + "WHERE game.state='" + Game.getStateBootComplete() + "' "
             + "AND game.startTime < :startTime "
-            + "AND round.roundId IN ";
+            + "AND round.roundId IN (:ids)";
 
     public static final String GET_GAMES_NOT_COMPLETE =
         "FROM Game AS game "

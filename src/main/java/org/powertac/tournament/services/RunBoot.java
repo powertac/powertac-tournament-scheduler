@@ -134,8 +134,7 @@ public class RunBoot
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      for (Round round: runningRounds)
-        games.addAll(Game.getBootableGames(session, round));
+      games = Game.getBootableGames(session, runningRounds);
       log.info("CheckForBoots for bootable games");
       transaction.commit();
     } catch (Exception e) {

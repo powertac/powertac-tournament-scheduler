@@ -157,6 +157,9 @@ public class ActionOverview  implements InitializingBean
       message(2, "Error restarting game : " + gameId);
     }
     session.close();
+
+    // Somehow the Show/Hide event is fired
+    MemStore.setHideInactiveGames(!MemStore.isHideInactiveGames());
   }
 
   private void message (int field, String msg)
