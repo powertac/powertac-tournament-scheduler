@@ -11,6 +11,7 @@ import org.powertac.tournament.constants.Constants;
 import java.util.List;
 import java.util.Map;
 
+
 public class RestBroker
 {
   private static Logger log = Utils.getLogger();
@@ -69,12 +70,14 @@ public class RestBroker
       MemStore.addBrokerCheckin(broker.getBrokerId());
       transaction.commit();
       return String.format(retryResponse, 60);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.error("Error, sending retry response");
       return String.format(retryResponse, 60);
-    } finally {
+    }
+    finally {
       session.close();
     }
   }

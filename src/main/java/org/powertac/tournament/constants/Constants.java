@@ -73,7 +73,7 @@ public class Constants
     public static final String GET_POMS =
         "FROM Pom AS pom "
             + "LEFT JOIN FETCH pom.user "
-            + "order by pom.pomId desc ";
+            + "ORDER BY pom.pomId DESC ";
 
     public static final String GET_LOCATIONS =
         "FROM Location AS location ";

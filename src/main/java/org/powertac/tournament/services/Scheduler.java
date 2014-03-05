@@ -31,7 +31,6 @@ public class Scheduler implements InitializingBean
 
   public Scheduler ()
   {
-    super();
   }
 
   public void afterPropertiesSet () throws Exception
@@ -155,14 +154,14 @@ public class Scheduler implements InitializingBean
   }
 
   // This function removes the given round from 'runningRounds'.
-  public void unloadRound (Integer roundID)
+  public void unloadRound (Integer roundId)
   {
     Round round;
     Iterator<Round> roundIterator = runningRounds.listIterator();
 
     while (roundIterator.hasNext()) {
       round = roundIterator.next();
-      if (round.getRoundId() == roundID) {
+      if (round.getRoundId() == roundId) {
         roundIterator.remove();
       }
     }
@@ -316,6 +315,7 @@ public class Scheduler implements InitializingBean
 
       log.info("Created game " + game.getGameId());
 
+      // Add agents to the game
       for (int i = 0; i < gameString.length(); i++) {
         if (gameString.charAt(i) == '1') {
           Broker broker = brokers.get(i);

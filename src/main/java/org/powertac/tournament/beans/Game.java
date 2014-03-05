@@ -158,7 +158,7 @@ public class Game implements Serializable
         machine = null;
         log.debug("Freeing Machine for game: " + gameId);
 
-        // Reset values when a game is aborted
+        // Reset values for aborted games
         for (Agent agent: getAgentMap().values()) {
           agent.setStatePending();
           agent.setBalance(0);
@@ -572,11 +572,10 @@ public class Game implements Serializable
   public static List<Game> getStartableGames (Session session,
                                               List<Round> runningRounds)
   {
-    List<Game> result = new ArrayList<Game>();
-
     // no running rounds means no games to check
-    if (runningRounds == null || runningRounds.isEmpty())
-        return result;
+    if (runningRounds == null || runningRounds.isEmpty()) {
+        return new ArrayList<Game>();
+    }
 
     // use a query to retrieve all runnable games (boot_complete) for the
     // running rounds
@@ -597,9 +596,7 @@ public class Game implements Serializable
     // sort all games based on their urgency
     Collections.sort(fullList, new CustomGameComparator());
 
-    result = fullList;
-
-    return result;
+    return fullList;
   }
 
   @SuppressWarnings("unchecked")

@@ -120,9 +120,8 @@ public class Round
 
     if (allDone) {
       state = STATE.complete;
-
       Scheduler scheduler = Scheduler.getScheduler();
-      scheduler.unloadRound(this.getRoundId());
+      scheduler.unloadRound(roundId);
     }
 
     // Always generate new CSVs

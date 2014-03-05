@@ -56,6 +56,11 @@ public class ActionAdmin implements InitializingBean
       availableRounds.add(round);
     }
     Collections.sort(availableRounds, new Utils.AlphanumComparator());
+    // If only one round, select it for the user
+    if (availableRounds.size() == 1) {
+      selectedRounds = new ArrayList<Integer>();
+      selectedRounds.add(availableRounds.get(0).getRoundId());
+    }
 
     locationList = Location.getLocationList();
 
@@ -90,10 +95,10 @@ public class ActionAdmin implements InitializingBean
    * This function gives this list to the scheduler to make sure that this will
    * be the list of running rounds.
    */
-  public void loadRound ()
+  public void loadRounds ()
   {
-    for (Integer roundID:selectedRounds) {
-      log.info("Loading Round " + roundID);
+    for (Integer roundId : selectedRounds) {
+      log.info("Loading Round " + roundId);
     }
     log.info("End of list of rounds that are loaded");
 
@@ -166,7 +171,8 @@ public class ActionAdmin implements InitializingBean
 
     if (locationId == -1) {
       addLocation();
-    } else {
+    }
+    else {
       editLocation();
     }
   }
@@ -184,7 +190,8 @@ public class ActionAdmin implements InitializingBean
     try {
       session.save(location);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -209,7 +216,8 @@ public class ActionAdmin implements InitializingBean
 
       session.update(location);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       message(0, "Error : location not edited " + e.getMessage());
@@ -229,7 +237,8 @@ public class ActionAdmin implements InitializingBean
     try {
       session.delete(location);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -292,7 +301,8 @@ public class ActionAdmin implements InitializingBean
 
     if (msg.toLowerCase().contains("success")) {
       transaction.commit();
-    } else {
+    }
+    else {
       transaction.rollback();
     }
     session.close();
@@ -313,7 +323,8 @@ public class ActionAdmin implements InitializingBean
       machine.setAvailable(!machine.isAvailable());
       session.update(machine);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -327,12 +338,14 @@ public class ActionAdmin implements InitializingBean
     try {
       if (machine.isInProgress()) {
         machine.setStateIdle();
-      } else {
+      }
+      else {
         machine.setStateRunning();
       }
       session.update(machine);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -364,7 +377,8 @@ public class ActionAdmin implements InitializingBean
     // It's a new machine
     if (machineId == -1) {
       addMachine();
-    } else {
+    }
+    else {
       editMachine();
     }
   }
@@ -383,7 +397,8 @@ public class ActionAdmin implements InitializingBean
     try {
       session.save(machine);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
 
@@ -409,7 +424,8 @@ public class ActionAdmin implements InitializingBean
 
       session.update(machine);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       message(2, "Error : machine not edited " + e.getMessage());
@@ -430,7 +446,8 @@ public class ActionAdmin implements InitializingBean
       log.info("Deleting machine " + machine.getMachineId());
       session.delete(machine);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
 
@@ -463,7 +480,8 @@ public class ActionAdmin implements InitializingBean
       user.increasePermission();
       session.update(user);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       log.warn("Error increasing permissions for : " + user.getUserId());
       e.printStackTrace();
@@ -483,7 +501,8 @@ public class ActionAdmin implements InitializingBean
       user.decreasePermission();
       session.update(user);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       log.warn("Error decreasing permissions for : " + user.getUserId());
       e.printStackTrace();
@@ -501,9 +520,11 @@ public class ActionAdmin implements InitializingBean
     FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
     if (field == 0) {
       FacesContext.getCurrentInstance().addMessage("saveLocation", fm);
-    } else if (field == 1) {
+    }
+    else if (field == 1) {
       FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
-    } else if (field == 2) {
+    }
+    else if (field == 2) {
       FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
     }
   }

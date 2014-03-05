@@ -79,7 +79,7 @@ public class RunGame
   /**
    * Make sure brokers are registered for the round
    * Also check if participating brokers have an agent available (we don't check
-   * if agents are checking in, brokers are responsible for availability).
+   * for agents checking in, brokers are responsible for availability).
    */
   private boolean checkBrokers ()
   {

@@ -52,7 +52,9 @@
             <h:outputText value="No Rounds Loaded"
                           style="color:red;"
                           rendered="#{scheduler.isRunningRoundsEmpty()}"/>
-            <h:dataTable id="loadedRoundTable" value="#{scheduler.runningRounds}" var="round" border="0" rendered="#{!scheduler.isRunningRoundsEmpty() }">
+            <h:dataTable id="loadedRoundTable" border="0"
+                         value="#{scheduler.runningRounds}" var="round"
+                         rendered="#{!scheduler.isRunningRoundsEmpty() }">
                 <h:column>
                     <f:facet name="header">
                         <h:outputText value="Running Rounds:" style="color:green;" />
@@ -74,7 +76,7 @@
                                itemLabel="#{r.roundName}"/>
               </h:selectManyListbox>
               <h:commandButton value="Load"
-                               action="#{actionAdmin.loadRound()}"
+                               action="#{actionAdmin.loadRounds()}"
                                rendered="#{scheduler.isRunningRoundsEmpty()}"/>
             </h:panelGroup>
             <h:panelGroup rendered="#{actionAdmin.availableRounds.size() == 0}">

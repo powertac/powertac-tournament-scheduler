@@ -74,7 +74,8 @@ public class TournamentProperties
             .getResourceAsStream(resourceName));
         checkProperties();
         loaded = true;
-      } catch (IOException e) {
+      }
+      catch (IOException e) {
         log.error("Failed to load " + resourceName);
       }
     }
@@ -179,7 +180,8 @@ public class TournamentProperties
           }
         }
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       messages.add("Error getting Tournament Location!");
     }
@@ -197,17 +199,20 @@ public class TournamentProperties
       if (is == null) {
         throw new Exception("Couldn't open Jenkins Location");
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       String msg = "Jenkins Location could not be reached!";
       if (!messages.contains(msg)) {
         messages.add(msg);
       }
-    } finally {
+    }
+    finally {
       if (is != null) {
         try {
           is.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
           e.printStackTrace();
         }
       }
@@ -233,7 +238,8 @@ public class TournamentProperties
       log.error(msg);
       messages.add(msg);
       properties.setProperty(name, catalinaBase);
-    } else if (!test.canWrite()) {
+    }
+    else if (!test.canWrite()) {
       String msg = String.format("%s '%s' isn't writeable<br/>falling back on : %s",
           name, directory, catalinaBase);
       log.error(msg);

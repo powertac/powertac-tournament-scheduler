@@ -3,7 +3,7 @@ jQuery.fn.dataTableExt.oSort['natural-asc'] = function (a, b) {
 };
 
 jQuery.fn.dataTableExt.oSort['natural-desc'] = function (a, b) {
-    return naturalSort(a, b) * -1;
+  return naturalSort(a, b) * -1;
 };
 
 /*

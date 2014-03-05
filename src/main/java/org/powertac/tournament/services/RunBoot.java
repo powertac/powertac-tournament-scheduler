@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/*
- *
- */
 public class RunBoot
 {
   private static Logger log = Utils.getLogger();
@@ -125,7 +122,7 @@ public class RunBoot
   **/
   public static void startBootableGames (List <Round> runningRounds)
   {
-    if (runningRounds == null) {
+    if (runningRounds == null || runningRounds.size() == 0) {
       log.info("No rounds available for bootable games");
       return;
     }

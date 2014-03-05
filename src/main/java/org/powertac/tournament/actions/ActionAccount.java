@@ -149,9 +149,9 @@ public class ActionAccount implements InitializingBean
     return true;
   }
 
-  // We can't allow commas, used in end-of-game message from server
   private boolean nameAllowed (String brokerName, int field)
   {
+    // Allow only alphanumeric, '-' and '_'
     Pattern ALPHANUMERIC = Pattern.compile("[A-Za-z0-9\\-\\_]+");
     Matcher m = ALPHANUMERIC.matcher(brokerName);
 
