@@ -25,18 +25,18 @@ public class MemStore
 
   private static ConcurrentHashMap<Integer, List<Long>> brokerCheckins;
   private static ConcurrentHashMap<String, Long> vizCheckins;
+  private static ConcurrentHashMap<String, String> machineLoads;
   private static ConcurrentHashMap<Integer, String[]> gameHeartbeats;
   private static ConcurrentHashMap<Integer, Integer> gameLengths;
+  private static ConcurrentHashMap<Integer, Long> elapsedTimes;
 
-  private static ConcurrentHashMap<Integer, Boolean> brokerState =
-      new ConcurrentHashMap<Integer, Boolean>(50, 0.9f, 1);
+  private static ConcurrentHashMap<Integer, Boolean> brokerState;
   private static boolean hideInactiveBrokers = true;
   private static boolean hideInactiveGames = true;
-  private static List<Location> availableLocations = new ArrayList<Location>();
+  private static List<Location> availableLocations;
 
   private static String indexContent;
-  private static ConcurrentHashMap<Integer, String> tournamentContent =
-      new ConcurrentHashMap<Integer, String>(20, 0.9f, 1);
+  private static ConcurrentHashMap<Integer, String> tournamentContent;
 
   public MemStore ()
   {
@@ -46,8 +46,15 @@ public class MemStore
 
     brokerCheckins = new ConcurrentHashMap<Integer, List<Long>>(50, 0.9f, 1);
     vizCheckins = new ConcurrentHashMap<String, Long>(20, 0.9f, 1);
+    machineLoads = new ConcurrentHashMap<String, String>(20, 0.9f, 1);
     gameHeartbeats = new ConcurrentHashMap<Integer, String[]>(20, 0.9f, 1);
     gameLengths = new ConcurrentHashMap<Integer, Integer>(20, 0.9f, 1);
+    elapsedTimes = new ConcurrentHashMap<Integer, Long>();
+
+    brokerState = new ConcurrentHashMap<Integer, Boolean>(50, 0.9f, 1);
+    availableLocations = new ArrayList<Location>();
+
+    tournamentContent = new ConcurrentHashMap<Integer, String>(20, 0.9f, 1);
   }
 
   //<editor-fold desc="IP stuff">
@@ -209,6 +216,22 @@ public class MemStore
     vizCheckins.remove(machineName);
   }
 
+  public static ConcurrentHashMap<String, String> getMachineLoads ()
+  {
+    return machineLoads;
+  }
+
+  public synchronized static void addMachineLoad (String machineName,
+                                                  String load)
+  {
+    machineLoads.put(machineName, load);
+  }
+
+  public static void removeMachineLoad (String machineName)
+  {
+    machineLoads.remove(machineName);
+  }
+
   public static ConcurrentHashMap<Integer, String[]> getGameHeartbeats ()
   {
     return gameHeartbeats;
@@ -220,11 +243,14 @@ public class MemStore
         new String[]{message, System.currentTimeMillis() + ""});
   }
 
-  public synchronized static void removeGameHeartbeat (int gameId)
+  public static ConcurrentHashMap<Integer, Long> getElapsedTimes ()
   {
-    if (gameHeartbeats.containsKey(gameId)) {
-      gameHeartbeats.remove(gameId);
-    }
+    return elapsedTimes;
+  }
+
+  public synchronized static void addElapsedTime (int gameId, long elapsedtime)
+  {
+    elapsedTimes.put(gameId, elapsedtime);
   }
 
   public static ConcurrentHashMap<Integer, Integer> getGameLengths ()
@@ -242,11 +268,11 @@ public class MemStore
     }
   }
 
-  public synchronized static void removeGameLength (int gameId)
+  public synchronized static void removeGameInfo (int gameId)
   {
-    if (gameLengths.containsKey(gameId)) {
-      gameLengths.remove(gameId);
-    }
+    gameHeartbeats.remove(gameId);
+    gameLengths.remove(gameId);
+    elapsedTimes.remove(gameId);
   }
   //</editor-fold>
 

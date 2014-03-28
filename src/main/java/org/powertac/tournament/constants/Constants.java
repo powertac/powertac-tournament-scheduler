@@ -40,6 +40,10 @@ public class Constants
     public static final String REQ_PARAM_JOIN = "requestJoin";
     public static final String REQ_PARAM_TYPE = "type";
 
+    // Possible Rest Parameters for Viz Login
+    public static final String REQ_PARAM_MACHINE_NAME = "machineName";
+    public static final String REQ_PARAM_MACHINE_LOAD = "machineLoad";
+
     // Possible Rest Paramenters for Server Interface
     public static final String REQ_PARAM_STATUS = "status";
     public static final String REQ_PARAM_GAMEID = "gameId";
@@ -51,6 +55,7 @@ public class Constants
     public static final String REQ_PARAM_GAMERESULTS = "gameresults";
     public static final String REQ_PARAM_GAMELENGTH = "gameLength";
     public static final String REQ_PARAM_STANDINGS = "standings";
+    public static final String REQ_PARAM_ELAPSED_TIME = "elapsedTime";
 
     // Possible Rest Parameters for pom service
     public static final String REQ_PARAM_POM_ID = "pomId";

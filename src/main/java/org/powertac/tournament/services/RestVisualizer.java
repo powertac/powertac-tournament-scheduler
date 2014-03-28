@@ -18,6 +18,12 @@ public class RestVisualizer
 {
   private static Logger log = Utils.getLogger();
 
+  private static String head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>";
+  private static String tail = "</message>";
+  private static String retryResponse = head + "<retry>%d</retry>" + tail;
+  private static String loginResponse = head + "<login><queueName>%s</queueName><serverQueue>%s</serverQueue></login>" + tail;
+  private static String errorResponse = head + "<error>%s</error>" + tail;
+
   /**
    * Handles a login GET request from a visualizer of the form<br/>
    * &nbsp;../visualizerLogin.jsp?machineName<br/>
@@ -29,12 +35,10 @@ public class RestVisualizer
   public String parseVisualizerLogin (Map<String, String[]> params,
                                       HttpServletRequest request)
   {
-    String machineName = params.get("machineName")[0];
-    String head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>";
-    String tail = "</message>";
-    String retryResponse = head + "<retry>%d</retry>" + tail;
-    String loginResponse = head + "<login><queueName>%s</queueName><serverQueue>%s</serverQueue></login>" + tail;
-    String errorResponse = head + "<error>%s</error>" + tail;
+    String machineName = params.get(Constants.Rest.REQ_PARAM_MACHINE_NAME)[0];
+    String load = params.get(Constants.Rest.REQ_PARAM_MACHINE_LOAD)[0];
+
+    MemStore.addMachineLoad(machineName, load);
 
     log.info("Visualizer login request : " + machineName);
 

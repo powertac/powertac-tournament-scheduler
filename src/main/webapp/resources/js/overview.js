@@ -85,16 +85,24 @@ function updateGames(data) {
     var sp = $(this).find('td:first-child span')[0];
     var orgRowNr = $(sp).attr("id").split(":")[2];
 
-    var spn = $('#gamesForm\\:dataGames\\:' + orgRowNr + '\\:heartbeat');
-    spn.html("");
-    spn.attr("title", "");
-    if (data[$(sp).text()] != undefined) {
-      spn.html(data[$(sp).text()]);
+    var hb = $('#gamesForm\\:dataGames\\:' + orgRowNr + '\\:heartbeat');
+    hb.html("");
+    hb.attr("title", "");
+    var et = $('#gamesForm\\:dataGames\\:' + orgRowNr + '\\:step');
+    et.html("");
 
+    if (data[$(sp).text()] != undefined) {
+      var heartBeat = data[$(sp).text()].split(";")[0];
       var parts = data[$(sp).text()].split(" ");
       var duration = Math.round((parts[2] - parts[0]) * 5 / 60);
+      var elapsedTime = data[$(sp).text()].split(";")[1];
+
+      hb.html(heartBeat);
       if (!isNaN(duration)) {
-        spn.attr("title", duration + " mins");
+        hb.attr("title", duration + " minutes");
+      }
+      if (elapsedTime != undefined) {
+        et.html(elapsedTime);
       }
     }
   });

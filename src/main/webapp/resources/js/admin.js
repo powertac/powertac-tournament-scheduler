@@ -3,10 +3,21 @@ function updateVisualizers(data) {
     var sp = $(this).find('td:first-child span')[0];
     var orgRowNr = $(sp).attr("id").split(":")[2];
 
-    if (data[$(sp).text()] != undefined) {
-      $('#machinesForm\\:dataMachines\\:' + orgRowNr + '\\:checkins').html(data[$(sp).text()]);
-    } else {
-      $('#machinesForm\\:dataMachines\\:' + orgRowNr + '\\:checkins').html("");
+    var checkInSpan = $('#machinesForm\\:dataMachines\\:' + orgRowNr + '\\:checkins');
+    var loadSpan = $('#machinesForm\\:dataMachines\\:' + orgRowNr + '\\:load');
+
+    if (data[$(sp).text()] == undefined) {
+      checkInSpan.html("");
+      loadSpan.html("");
+    }
+    else {
+      var parts = data[$(sp).text()].split(";");
+      if (parts[0] != undefined) {
+        checkInSpan.html(parts[0]);
+      }
+      if (parts[1] != undefined) {
+        loadSpan.html(parts[1]);
+      }
     }
   });
 }

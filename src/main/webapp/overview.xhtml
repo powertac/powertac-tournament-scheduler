@@ -182,6 +182,12 @@
                     style="float:left; width: 110px;"/>
     </t:column>
 
+    <t:column>
+      <f:facet name="header">Step</f:facet>
+      <t:outputText id="step" rendered="#{g.isRunning()}"
+                    style="float:left; width: 50px;"/>
+    </t:column>
+
     <t:column styleClass="left">
       <f:facet name="header">Links</f:facet>
       <h:panelGroup>

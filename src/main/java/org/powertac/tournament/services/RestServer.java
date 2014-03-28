@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.util.Map;
 
+
 public class RestServer
 {
   private static Logger log = Utils.getLogger();
@@ -30,17 +31,20 @@ public class RestServer
         }
 
         return handleStatus(params);
-      } else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_BOOT)) {
+      }
+      else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_BOOT)) {
         String gameId = params.get(Constants.Rest.REQ_PARAM_GAMEID)[0];
         return serveBoot(gameId);
-      } else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_HEARTBEAT)) {
+      }
+      else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_HEARTBEAT)) {
         if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
           return "error";
         }
 
         return handleHeartBeat(params);
       }
-    } catch (Exception ignored) {
+    }
+    catch (Exception ignored) {
     }
     return "error";
   }
@@ -63,7 +67,8 @@ public class RestServer
       String path;
       if (fileName.endsWith("boot.xml")) {
         path = properties.getProperty("bootLocation") + fileName;
-      } else {
+      }
+      else {
         path = properties.getProperty("logLocation") + fileName;
       }
 
@@ -85,11 +90,13 @@ public class RestServer
           Runnable r = new SimLogParser(
               properties.getProperty("logLocation"), fileName);
           new Thread(r).start();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
           log.error("Error creating LogParser for " + fileName);
         }
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       return "error";
     }
     return "success";
@@ -125,14 +132,17 @@ public class RestServer
         Game game = (Game) session.get(Game.class, gameId);
         String standings = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
         return game.handleStandings(session, standings, true);
-      } catch (Exception e) {
+      }
+      catch (Exception e) {
         transaction.rollback();
         e.printStackTrace();
         return "error";
-      } finally {
+      }
+      finally {
         session.close();
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       log.error("Something went wrong with receiving the POST message!");
       log.error(e.getMessage());
       return "error";
@@ -158,7 +168,8 @@ public class RestServer
     int gameId;
     try {
       gameId = Integer.parseInt(params.get(Constants.Rest.REQ_PARAM_GAMEID)[0]);
-    } catch (Exception ignored) {
+    }
+    catch (Exception ignored) {
       return "";
     }
 
@@ -168,11 +179,13 @@ public class RestServer
     try {
       game = (Game) session.get(Game.class, gameId);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return "";
-    } finally {
+    }
+    finally {
       session.close();
     }
 
@@ -188,7 +201,8 @@ public class RestServer
     result += String.format(Constants.Props.startTime, game.getSimStartTime());
     if (game.getMachine() != null) {
       result += String.format(Constants.Props.jms, game.getMachine().getJmsUrl());
-    } else {
+    }
+    else {
       result += String.format(Constants.Props.jms, "tcp://localhost:61616");
     }
     result += String.format(Constants.Props.serverFirstTimeout, 600000);
@@ -227,7 +241,8 @@ public class RestServer
     try {
       String pomId = params.get(Constants.Rest.REQ_PARAM_POM_ID)[0];
       return servePom(pomId);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       log.error(e.getMessage());
       return "error";
     }
@@ -254,7 +269,8 @@ public class RestServer
       fstream.close();
       in.close();
       br.close();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       log.error(e.getMessage());
       result = "error";
     }
@@ -284,7 +300,8 @@ public class RestServer
       fstream.close();
       in.close();
       br.close();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       log.error(e.getMessage());
       result = "error";
     }
@@ -316,11 +333,13 @@ public class RestServer
 
       game.handleStatus(session, statusString);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return "error";
-    } finally {
+    }
+    finally {
       session.close();
     }
 
@@ -337,6 +356,7 @@ public class RestServer
   {
     int gameId;
 
+    // Write heartbeat + elapsed time to the MemStore
     try {
       String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
       gameId = Integer.parseInt(params.get(Constants.Rest.REQ_PARAM_GAMEID)[0]);
@@ -344,24 +364,33 @@ public class RestServer
         log.debug("The message didn't have a gameId!");
         return "error";
       }
-
       MemStore.addGameHeartbeat(gameId, message);
-    } catch (Exception e) {
+
+      long elapsedTime =
+          Long.parseLong(params.get(Constants.Rest.REQ_PARAM_ELAPSED_TIME)[0]);
+      if (elapsedTime > 0) {
+        MemStore.addElapsedTime(gameId, elapsedTime);
+      }
+    }
+    catch (Exception e) {
       e.printStackTrace();
       return "error";
     }
 
+    // Write heartbeat to the DB
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       Game game = (Game) session.get(Game.class, gameId);
       String standings = params.get(Constants.Rest.REQ_PARAM_STANDINGS)[0];
       return game.handleStandings(session, standings, false);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return "error";
-    } finally {
+    }
+    finally {
       session.close();
     }
   }

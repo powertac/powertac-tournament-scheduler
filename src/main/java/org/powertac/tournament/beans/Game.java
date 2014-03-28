@@ -165,7 +165,7 @@ public class Game implements Serializable
           session.update(agent);
         }
         setReadyTime(null);
-        MemStore.removeGameHeartbeat(gameId);
+        MemStore.removeGameInfo(gameId);
         break;
 
       case boot_failed:

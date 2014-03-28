@@ -101,8 +101,7 @@ public class Rest extends HttpServlet
         int stamp = (int)
             (System.currentTimeMillis() - Long.parseLong(messages[1])) / 1000;
         if (stamp > 900) {
-          MemStore.removeGameHeartbeat(i);
-          MemStore.removeGameLength(i);
+          MemStore.removeGameInfo(i);
         }
         else {
           Integer gameLength = MemStore.getGameLengths().get(i);
@@ -111,6 +110,11 @@ public class Rest extends HttpServlet
           }
           else {
             result += messages[0] + " / " + gameLength + " (" + stamp + ")";
+          }
+
+          Long tmp = MemStore.getElapsedTimes().get(i);
+          if (tmp != null) {
+            result += ";" + String.valueOf(tmp);
           }
         }
       }
@@ -141,16 +145,23 @@ public class Rest extends HttpServlet
       result += "\"" + s + "\": \"";
 
       try {
-        long stamp =
-            (System.currentTimeMillis() - MemStore.getVizCheckins().get(s)) / 1000;
+        long stamp = (System.currentTimeMillis() -
+                      MemStore.getVizCheckins().get(s)) / 1000;
         if (stamp > 900) {
           MemStore.removeVizCheckin(s);
+          MemStore.removeMachineLoad(s);
         }
         else {
           result += String.valueOf(stamp);
+
+          String tmp = MemStore.getMachineLoads().get(s);
+          if (tmp != null) {
+            result += ";" + tmp;
+          }
         }
       }
-      catch (Exception ignored) {
+      catch (Exception e) {
+        e.printStackTrace();
       }
 
       result += "\" , ";
