@@ -278,7 +278,7 @@ public class ActionTournaments implements InitializingBean
   private void setValues (Session session, Tournament tournament)
   {
     if (tournamentId == -1) {
-      tournament.setTournamentName(tournamentName);
+      tournament.setTournamentName(tournamentName.trim().replace(" ", "_"));
       tournament.setPomId(selectedPom);
       tournament.setMaxAgents(maxAgents);
       session.saveOrUpdate(tournament);
@@ -291,7 +291,7 @@ public class ActionTournaments implements InitializingBean
       Level level = tournament.getLevelMap().get(posted.getLevelNr());
 
       if (level.getLevelNr() > tournament.getCurrentLevelNr()) {
-        level.setLevelName(posted.getLevelName());
+        level.setLevelName(posted.getLevelName().trim().replace(" ", "_"));
         level.setNofRounds(posted.getNofRounds());
         level.setNofWinners(posted.getNofWinners());
         level.setStartTime(posted.getStartTime());
@@ -309,6 +309,7 @@ public class ActionTournaments implements InitializingBean
   private void createLevels (Session session, Tournament tournament)
   {
     for (Level level: levels) {
+      level.setLevelName(level.getLevelName().trim().replace(" ", "_"));
       log.info("Creating level " + level.getLevelNr()
           + " : " + level.getLevelName());
       level.setTournament(tournament);

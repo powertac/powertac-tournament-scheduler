@@ -1,8 +1,9 @@
 package org.powertac.tournament.servlets;
 
+import org.apache.log4j.Logger;
 import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Utils;
 
-import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 
 /**
  * Servlet implementation class Downloader
@@ -20,10 +20,11 @@ import java.io.IOException;
     urlPatterns = {"/Downloader"})
 public class Downloader extends HttpServlet
 {
+  private static Logger log = Utils.getLogger();
+
   TournamentProperties properties = TournamentProperties.getProperties();
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException
   {
     String downloadFile;
     String absolutePath;
@@ -71,8 +72,9 @@ public class Downloader extends HttpServlet
       in.close();
       out.flush();
       out.close();
-    } catch (Exception exc) {
-      exc.printStackTrace();
+    }
+    catch (Exception exc) {
+      log.warn("File not found for downloading : " + downloadFile);
     }
   }
 }
