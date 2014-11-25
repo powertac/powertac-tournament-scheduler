@@ -1,26 +1,62 @@
-package org.powertac.tournament.services;
+package org.powertac.tournament.servlets;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.powertac.tournament.beans.*;
+import org.powertac.tournament.beans.Agent;
+import org.powertac.tournament.beans.Broker;
+import org.powertac.tournament.beans.Game;
+import org.powertac.tournament.beans.Tournament;
 import org.powertac.tournament.constants.Constants;
+import org.powertac.tournament.services.HibernateUtil;
+import org.powertac.tournament.services.MemStore;
+import org.powertac.tournament.services.Utils;
 
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
-import java.util.Map;
 
 
-public class RestBroker
+@WebServlet(description = "REST API for brokers",
+    urlPatterns = {"/brokerLogin.jsp"})
+public class RestBroker extends HttpServlet
 {
   private static Logger log = Utils.getLogger();
 
-  public String parseBrokerLogin (Map<String, String[]> params)
+  private static String responseType = "text/plain; charset=UTF-8";
+
+  public RestBroker ()
   {
-    String responseType = params.get(Constants.Rest.REQ_PARAM_TYPE)[0];
-    String brokerAuth = params.get(Constants.Rest.REQ_PARAM_AUTH_TOKEN)[0];
-    String joinName = params.get(Constants.Rest.REQ_PARAM_JOIN)[0];
+    super();
+  }
+
+  synchronized protected void doGet (HttpServletRequest request,
+                                     HttpServletResponse response)
+      throws IOException
+  {
+    String result = parseBrokerLogin(request);
+
+    response.setContentType(responseType);
+    response.setContentLength(result.length());
+
+    PrintWriter out = response.getWriter();
+    out.print(result);
+    out.flush();
+    out.close();
+  }
+
+  public String parseBrokerLogin (HttpServletRequest request)
+  {
+    String responseType = request.getParameter(Constants.Rest.REQ_PARAM_TYPE);
+    String brokerAuth = request.getParameter(Constants.Rest.REQ_PARAM_AUTH_TOKEN);
+    String joinName = request.getParameter(Constants.Rest.REQ_PARAM_JOIN);
+
     String retryResponse = "{\n \"retry\":%d\n}";
     String loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"queueName\":%s\n \"serverQueue\":%s\n}";
     String doneResponse = "{\n \"done\":\"true\"\n}";
@@ -60,7 +96,7 @@ public class RestBroker
 
       // Only games more than X minutes ready, allowing the Viz to Login first
       String readyString = getReadyString (session, broker, loginResponse,
-                                           tournament.getTournamentId());
+          tournament.getTournamentId());
       if (readyString != null) {
         transaction.commit();
         return readyString;

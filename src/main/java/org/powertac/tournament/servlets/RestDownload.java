@@ -1,6 +1,7 @@
 package org.powertac.tournament.servlets;
 
 import org.apache.log4j.Logger;
+import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Utils;
 
@@ -17,20 +18,21 @@ import java.io.FileInputStream;
  * Servlet implementation class Downloader
  */
 @WebServlet(description = "Access to download compressed logfiles",
-    urlPatterns = {"/Downloader"})
-public class Downloader extends HttpServlet
+    urlPatterns = {"/download"})
+public class RestDownload extends HttpServlet
 {
   private static Logger log = Utils.getLogger();
 
   TournamentProperties properties = TournamentProperties.getProperties();
 
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+  protected void doGet (HttpServletRequest request, HttpServletResponse response)
   {
     String downloadFile;
     String absolutePath;
     String gameId = request.getParameter("game");
     String bootId = request.getParameter("boot");
     String csvName = request.getParameter("csv");
+    String pomId = request.getParameter(Constants.Rest.REQ_PARAM_POM_ID);
 
     if (gameId != null) {
       absolutePath = properties.getProperty("logLocation");
@@ -47,6 +49,11 @@ public class Downloader extends HttpServlet
       downloadFile = csvName + ".csv";
       response.setContentType("text/csv");
     }
+    else if (pomId != null) {
+      absolutePath = properties.getProperty("pomLocation");
+      downloadFile = "pom." + pomId + ".xml";
+      response.setContentType("application/xml");
+    }
     else {
       return;
     }
@@ -56,7 +63,8 @@ public class Downloader extends HttpServlet
     streamFile(response, absolutePath, downloadFile);
   }
 
-  private void streamFile(HttpServletResponse response, String absolutePath, String downloadFile)
+  private void streamFile(HttpServletResponse response,
+                          String absolutePath, String downloadFile)
   {
     byte[] buf = new byte[1024];
     try {

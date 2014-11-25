@@ -3,7 +3,6 @@ package org.powertac.tournament.servlets;
 import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.services.Scheduler;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -13,20 +12,20 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 
 
-@WebServlet(description = "Access to the REST API", urlPatterns = {"/Rest"})
-public class Rest extends HttpServlet
+@WebServlet(description = "REST API for web", urlPatterns = {"/Rest"})
+public class RestWeb extends HttpServlet
 {
-  public Rest ()
+  private static String responseType = "application/json";
+
+  public RestWeb ()
   {
     super();
   }
 
   protected void doGet (HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException
+      throws IOException
   {
     String type = request.getParameter("type");
-    response.setContentType("application/json");
-    PrintWriter out = response.getWriter();
 
     String result = "{}";
     if (type.equals("brokers")) {
@@ -42,7 +41,10 @@ public class Rest extends HttpServlet
       result = parseScheduler();
     }
 
+    response.setContentType(responseType);
     response.setContentLength(result.length());
+
+    PrintWriter out = response.getWriter();
     out.print(result);
     out.flush();
     out.close();

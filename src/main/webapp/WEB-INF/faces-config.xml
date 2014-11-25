@@ -12,13 +12,6 @@
     </el-resolver>
   </application>
 
-  <!-- Listeners -->
-  <lifecycle>
-    <phase-listener>
-      org.powertac.tournament.listeners.RestoreViewPhaseListener
-    </phase-listener>
-  </lifecycle>
-
   <!-- Error Code
   <error-page>
       <exception-type>javax.faces.application.ViewExpiredException</exception-type>

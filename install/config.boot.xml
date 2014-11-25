@@ -71,7 +71,7 @@ COMP_CMD=&quot;tar -czvf&quot;
 COMP_EXT=&quot;tar.gz&quot;
 
 interfacePath=&quot;faces/serverInterface.jsp&quot;
-pomPath=&quot;faces/pom.jsp&quot;
+pomPath=&quot;faces/download&quot;
 LOGFILE=&quot;./log/boot.$(date -u +%y%m%d_%H%M).log&quot;
 
 

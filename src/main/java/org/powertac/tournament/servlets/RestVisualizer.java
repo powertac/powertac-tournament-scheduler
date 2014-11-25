@@ -1,4 +1,4 @@
-package org.powertac.tournament.services;
+package org.powertac.tournament.servlets;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -8,13 +8,22 @@ import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Agent;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.constants.Constants;
+import org.powertac.tournament.services.HibernateUtil;
+import org.powertac.tournament.services.MemStore;
+import org.powertac.tournament.services.Utils;
 
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
-import java.util.Map;
 
 
-public class RestVisualizer
+@WebServlet(description = "REST API for visualizers",
+    urlPatterns = {"/visualizerLogin.jsp"})
+public class RestVisualizer extends HttpServlet
 {
   private static Logger log = Utils.getLogger();
 
@@ -24,6 +33,28 @@ public class RestVisualizer
   private static String loginResponse = head + "<login><queueName>%s</queueName><serverQueue>%s</serverQueue></login>" + tail;
   private static String errorResponse = head + "<error>%s</error>" + tail;
 
+  private static String responseType = "text/plain; charset=UTF-8";
+
+  public RestVisualizer ()
+  {
+    super();
+  }
+
+  synchronized protected void doGet (HttpServletRequest request,
+                                     HttpServletResponse response)
+      throws IOException
+  {
+    String result = parseVisualizerLogin(request);
+
+    response.setContentType(responseType);
+    response.setContentLength(result.length());
+
+    PrintWriter out = response.getWriter();
+    out.print(result);
+    out.flush();
+    out.close();
+  }
+
   /**
    * Handles a login GET request from a visualizer of the form<br/>
    * &nbsp;../visualizerLogin.jsp?machineName<br/>
@@ -32,12 +63,14 @@ public class RestVisualizer
    * listen on the queue named qn.
    */
   @SuppressWarnings("unchecked")
-  public String parseVisualizerLogin (Map<String, String[]> params,
-                                      HttpServletRequest request)
+  public String parseVisualizerLogin (HttpServletRequest request)
   {
-    String machineName = params.get(Constants.Rest.REQ_PARAM_MACHINE_NAME)[0];
-    String load = params.get(Constants.Rest.REQ_PARAM_MACHINE_LOAD)[0];
+    String machineName = request.getParameter(Constants.Rest.REQ_PARAM_MACHINE_NAME);
 
+    String load = request.getParameter(Constants.Rest.REQ_PARAM_MACHINE_LOAD);
+    if (load == null) {
+      load = "";
+    }
     MemStore.addMachineLoad(machineName, load);
 
     log.info("Visualizer login request : " + machineName);
@@ -50,7 +83,7 @@ public class RestVisualizer
     // Wait 10 seconds, game is set ready before it actually starts
     long readyDeadline1 = 10 * 1000;
     // In the first 60 secs, check if all brokers are logged in
-    long readyDeadline2 = (10+60) * 1000;
+    long readyDeadline2 = (10 + 60) * 1000;
     long nowStamp = Utils.offsetDate().getTime();
 
     Session session = HibernateUtil.getSession();
@@ -61,7 +94,8 @@ public class RestVisualizer
       List<Game> games = (List<Game>) query.
           setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
-      gamesLoop: for (Game game: games) {
+      gamesLoop:
+      for (Game game : games) {
         if (game.getMachine() == null) {
           continue;
         }
@@ -77,7 +111,7 @@ public class RestVisualizer
         }
 
         if ((nowStamp - game.getReadyTime().getTime()) < readyDeadline2) {
-          for (Agent agent: game.getAgentMap().values()) {
+          for (Agent agent : game.getAgentMap().values()) {
             if (!agent.isInProgress()) {
               continue gamesLoop;
             }
@@ -91,7 +125,7 @@ public class RestVisualizer
         return String.format(loginResponse, queue, svrQueue);
       }
 
-      log.debug("No games available, retry visualizer");
+      log.debug("No games available, retry " + machineName);
       MemStore.addVizCheckin(machineName);
       transaction.commit();
       return String.format(retryResponse, 60);

@@ -1,39 +1,98 @@
-package org.powertac.tournament.services;
+package org.powertac.tournament.servlets;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Game;
-import org.powertac.tournament.beans.Location;
-import org.powertac.tournament.beans.User;
 import org.powertac.tournament.constants.Constants;
+import org.powertac.tournament.services.HibernateUtil;
+import org.powertac.tournament.services.MemStore;
+import org.powertac.tournament.services.SimLogParser;
+import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Utils;
 
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import java.io.*;
-import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
 
-public class RestServer
+@WebServlet(description = "REST API for game servers",
+    urlPatterns = {"/serverInterface.jsp"})
+public class RestServer extends HttpServlet
 {
   private static Logger log = Utils.getLogger();
 
+  private static String responseType = "text/plain; charset=UTF-8";
+
   private TournamentProperties properties = TournamentProperties.getProperties();
 
-  public String handleGet (Map<String, String[]> params,
-                           HttpServletRequest request)
+  public RestServer ()
+  {
+    super();
+  }
+
+  synchronized protected void doGet (HttpServletRequest request,
+                                     HttpServletResponse response)
+      throws IOException
+  {
+    String result = handleGET(request);
+
+    writeResult(response, result);
+  }
+
+  synchronized protected void doPut (HttpServletRequest request,
+                                     HttpServletResponse response)
+      throws IOException
+  {
+    String result = handlePUT(request);
+
+    writeResult(response, result);
+  }
+
+  synchronized protected void doPost (HttpServletRequest request,
+                                      HttpServletResponse response)
+      throws IOException
+  {
+    String result = handlePOST(request);
+
+    writeResult(response, result);
+  }
+
+  private void writeResult (HttpServletResponse response, String result)
+      throws IOException
+  {
+    response.setContentType(responseType);
+    response.setContentLength(result.length());
+
+    PrintWriter out = response.getWriter();
+    out.print(result);
+    out.flush();
+    out.close();
+  }
+
+  public String handleGET (HttpServletRequest request)
   {
     try {
-      String actionString = params.get(Constants.Rest.REQ_PARAM_ACTION)[0];
+      String actionString = request.getParameter(Constants.Rest.REQ_PARAM_ACTION);
       if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_STATUS)) {
         if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
           return "error";
         }
 
-        return handleStatus(params);
+        return handleStatus(request);
       }
       else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_BOOT)) {
-        String gameId = params.get(Constants.Rest.REQ_PARAM_GAMEID)[0];
+        String gameId = request.getParameter(Constants.Rest.REQ_PARAM_GAMEID);
         return serveBoot(gameId);
       }
       else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_HEARTBEAT)) {
@@ -41,7 +100,7 @@ public class RestServer
           return "error";
         }
 
-        return handleHeartBeat(params);
+        return handleHeartBeat(request);
       }
     }
     catch (Exception ignored) {
@@ -52,15 +111,14 @@ public class RestServer
   /**
    * Handle 'PUT' to serverInterface.jsp, either boot.xml or (Boot|Sim) log
    */
-  public String handlePUT (Map<String, String[]> params,
-                           HttpServletRequest request)
+  public String handlePUT (HttpServletRequest request)
   {
     if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
       return "error";
     }
 
     try {
-      String fileName = params.get(Constants.Rest.REQ_PARAM_FILENAME)[0];
+      String fileName = request.getParameter(Constants.Rest.REQ_PARAM_FILENAME);
 
       log.info("Received a file " + fileName);
 
@@ -105,22 +163,21 @@ public class RestServer
   /**
    * Handle 'POST' to serverInterface.jsp, this is an end-of-game message
    */
-  public String handlePOST (Map<String, String[]> params,
-                            HttpServletRequest request)
+  public String handlePOST (HttpServletRequest request)
   {
     if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
       return "error";
     }
 
     try {
-      String actionString = params.get(Constants.Rest.REQ_PARAM_ACTION)[0];
+      String actionString = request.getParameter(Constants.Rest.REQ_PARAM_ACTION);
       if (!actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_GAMERESULTS)) {
         log.debug("The message didn't have the right action-string!");
         return "error";
       }
 
       int gameId = Integer.parseInt(
-          params.get(Constants.Rest.REQ_PARAM_GAMEID)[0]);
+          request.getParameter(Constants.Rest.REQ_PARAM_GAMEID));
       if (!(gameId > 0)) {
         log.debug("The message didn't have a gameId!");
         return "error";
@@ -130,7 +187,7 @@ public class RestServer
       Transaction transaction = session.beginTransaction();
       try {
         Game game = (Game) session.get(Game.class, gameId);
-        String standings = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
+        String standings = request.getParameter(Constants.Rest.REQ_PARAM_MESSAGE);
         return game.handleStandings(session, standings, true);
       }
       catch (Exception e) {
@@ -147,135 +204,6 @@ public class RestServer
       log.error(e.getMessage());
       return "error";
     }
-  }
-
-  /**
-   * Returns a properties file string
-   *
-   * @param params :
-   * @return String representing a properties file
-   */
-  public String parseProperties (Map<String, String[]> params,
-                                 HttpServletRequest request)
-  {
-    // Allow slaves and admin users
-    User user = User.getCurrentUser();
-    if (!MemStore.checkMachineAllowed(request.getRemoteAddr()) &&
-        !user.isAdmin()) {
-      return "error";
-    }
-
-    int gameId;
-    try {
-      gameId = Integer.parseInt(params.get(Constants.Rest.REQ_PARAM_GAMEID)[0]);
-    }
-    catch (Exception ignored) {
-      return "";
-    }
-
-    Game game;
-    Session session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      game = (Game) session.get(Game.class, gameId);
-      transaction.commit();
-    }
-    catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-      return "";
-    }
-    finally {
-      session.close();
-    }
-
-    return getPropertiesString(game);
-  }
-
-  private String getPropertiesString (Game game)
-  {
-    String result = "";
-    result += String.format(Constants.Props.weatherServerURL,
-        properties.getProperty("weatherServerLocation"));
-    result += String.format(Constants.Props.weatherLocation, game.getLocation());
-    result += String.format(Constants.Props.startTime, game.getSimStartTime());
-    if (game.getMachine() != null) {
-      result += String.format(Constants.Props.jms, game.getMachine().getJmsUrl());
-    }
-    else {
-      result += String.format(Constants.Props.jms, "tcp://localhost:61616");
-    }
-    result += String.format(Constants.Props.serverFirstTimeout, 600000);
-    result += String.format(Constants.Props.serverTimeout, 120000);
-    result += String.format(Constants.Props.remote, true);
-    result += String.format(Constants.Props.vizQ, game.getVisualizerQueue());
-
-    int minTimeslotCount =
-        properties.getPropertyInt("competition.minimumTimeslotCount");
-    int expTimeslotCount =
-        properties.getPropertyInt("competition.expectedTimeslotCount");
-    if (game.getGameName().toLowerCase().contains("test")) {
-      minTimeslotCount =
-          properties.getPropertyInt("test.minimumTimeslotCount");
-      expTimeslotCount =
-          properties.getPropertyInt("test.expectedTimeslotCount");
-    }
-    result += String.format(Constants.Props.minTimeslot, minTimeslotCount);
-    result += String.format(Constants.Props.expectedTimeslot, expTimeslotCount);
-
-    Location location = Location.getLocationByName(game.getLocation());
-    result += String.format(Constants.Props.timezoneOffset,
-        location.getTimezone());
-
-    return result;
-  }
-
-  /**
-   * Returns a pom file string
-   *
-   * @param params :
-   * @return String representing a pom file
-   */
-  public String parsePom (Map<String, String[]> params)
-  {
-    try {
-      String pomId = params.get(Constants.Rest.REQ_PARAM_POM_ID)[0];
-      return servePom(pomId);
-    }
-    catch (Exception e) {
-      log.error(e.getMessage());
-      return "error";
-    }
-  }
-
-  private String servePom (String pomId)
-  {
-    String result = "";
-    try {
-      // Determine pom-file location
-      String pomLocation = properties.getProperty("pomLocation") +
-          "pom." + pomId + ".xml";
-
-      // Read the file
-      FileInputStream fstream = new FileInputStream(pomLocation);
-      DataInputStream in = new DataInputStream(fstream);
-      BufferedReader br = new BufferedReader(new InputStreamReader(in));
-      String strLine;
-      while ((strLine = br.readLine()) != null) {
-        result += strLine + "\n";
-      }
-
-      // Close the streams
-      fstream.close();
-      in.close();
-      br.close();
-    }
-    catch (Exception e) {
-      log.error(e.getMessage());
-      result = "error";
-    }
-
-    return result;
   }
 
   private String serveBoot (String gameId)
@@ -309,11 +237,11 @@ public class RestServer
     return result;
   }
 
-  private String handleStatus (Map<String, String[]> params)
+  private String handleStatus (HttpServletRequest request)
   {
-    String statusString = params.get(Constants.Rest.REQ_PARAM_STATUS)[0];
+    String statusString = request.getParameter(Constants.Rest.REQ_PARAM_STATUS);
     int gameId = Integer.parseInt(
-        params.get(Constants.Rest.REQ_PARAM_GAMEID)[0]);
+        request.getParameter(Constants.Rest.REQ_PARAM_GAMEID));
 
     log.info(String.format("Received %s message from game: %s",
         statusString, gameId));
@@ -343,31 +271,33 @@ public class RestServer
       session.close();
     }
 
-    String[] gameLengths = params.get(Constants.Rest.REQ_PARAM_GAMELENGTH);
-    if (gameLengths != null && transaction.wasCommitted()) {
+    String gameLength = request.getParameter(Constants.Rest.REQ_PARAM_GAMELENGTH);
+    if (gameLength != null && transaction.wasCommitted()) {
       log.info(String.format("Received gamelength %s for game %s",
-          gameLengths[0], gameId));
-      MemStore.addGameLength(gameId, gameLengths[0]);
+          gameLength, gameId));
+      MemStore.addGameLength(gameId, gameLength);
     }
     return "success";
   }
 
-  private String handleHeartBeat (Map<String, String[]> params)
+  private String handleHeartBeat (HttpServletRequest request)
   {
     int gameId;
 
     // Write heartbeat + elapsed time to the MemStore
     try {
-      String message = params.get(Constants.Rest.REQ_PARAM_MESSAGE)[0];
-      gameId = Integer.parseInt(params.get(Constants.Rest.REQ_PARAM_GAMEID)[0]);
+      String message = request.getParameter(Constants.Rest.REQ_PARAM_MESSAGE);
+      gameId = Integer.parseInt(
+          request.getParameter(Constants.Rest.REQ_PARAM_GAMEID));
+
       if (!(gameId > 0)) {
         log.debug("The message didn't have a gameId!");
         return "error";
       }
       MemStore.addGameHeartbeat(gameId, message);
 
-      long elapsedTime =
-          Long.parseLong(params.get(Constants.Rest.REQ_PARAM_ELAPSED_TIME)[0]);
+      long elapsedTime = Long.parseLong(
+          request.getParameter(Constants.Rest.REQ_PARAM_ELAPSED_TIME));
       if (elapsedTime > 0) {
         MemStore.addElapsedTime(gameId, elapsedTime);
       }
@@ -382,7 +312,7 @@ public class RestServer
     Transaction transaction = session.beginTransaction();
     try {
       Game game = (Game) session.get(Game.class, gameId);
-      String standings = params.get(Constants.Rest.REQ_PARAM_STANDINGS)[0];
+      String standings = request.getParameter(Constants.Rest.REQ_PARAM_STANDINGS);
       return game.handleStandings(session, standings, false);
     }
     catch (Exception e) {

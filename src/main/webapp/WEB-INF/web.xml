@@ -106,7 +106,8 @@
     <session-timeout>240</session-timeout>
   </session-config>
   <listener>
-    <listener-class>org.powertac.tournament.listeners.Initializer</listener-class>
+    <listener-class>org.powertac.tournament.listeners.Initializer
+    </listener-class>
   </listener>
   <filter>
     <filter-name>ExtensionsFilter</filter-name>
@@ -140,11 +141,7 @@
     <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
-  <servlet>
-    <servlet-name>Downloader</servlet-name>
-    <servlet-class>org.powertac.tournament.servlets.Downloader</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
+
   <servlet-mapping>
     <servlet-name>Faces Servlet</servlet-name>
     <url-pattern>/faces/*</url-pattern>
@@ -152,10 +149,6 @@
   <servlet-mapping>
     <servlet-name>Faces Servlet</servlet-name>
     <url-pattern>*.faces</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>Downloader</servlet-name>
-    <url-pattern>/download</url-pattern>
   </servlet-mapping>
   <welcome-file-list>
     <welcome-file>welcome.jsp</welcome-file>
