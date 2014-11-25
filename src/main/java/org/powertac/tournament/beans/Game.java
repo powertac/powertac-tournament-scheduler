@@ -488,14 +488,20 @@ public class Game implements Serializable
   @SuppressWarnings("unchecked")
   public static List<Game> getBootableGames (Session session, List<Round> rounds)
   {
-    List<Game> games = new ArrayList<Game>();
-
-    for (Round round: rounds) {
-      games.addAll((List<Game>) session
-          .createQuery(Constants.HQL.GET_GAMES_BOOT_PENDING)
-          .setInteger("roundId", round.getRoundId())
-          .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list());
+    // no running rounds means no games to check
+    if (rounds == null || rounds.isEmpty()) {
+      return new ArrayList<Game>();
     }
+
+    // Get all bootable games (boot_pending) for the running rounds
+    List<Integer> roundIds = new ArrayList<Integer>();
+    for (Round round: rounds) {
+      roundIds.add(round.getRoundId());
+    }
+    List<Game> games = (List<Game>) session
+        .createQuery(Constants.HQL.GET_GAMES_BOOT_PENDING)
+        .setParameterList("roundIds", roundIds)
+        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
     return games;
   }
@@ -575,28 +581,28 @@ public class Game implements Serializable
 
     // use a query to retrieve all runnable games (boot_complete) for the
     // running rounds
-    List<Integer> ids = new ArrayList<Integer>();
+    List<Integer> roundIds = new ArrayList<Integer>();
     for (Round round: runningRounds) {
-      ids.add(round.getRoundId());
+      roundIds.add(round.getRoundId());
     }
-    List<Game> fullList = (List<Game>) session
+    List<Game> games = (List<Game>) session
         .createQuery(Constants.HQL.GET_GAMES_BOOT_COMPLETE)
         .setTimestamp("startTime", Utils.offsetDate())
-        .setParameterList("ids", ids)
+        .setParameterList("roundIds", roundIds)
         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
     // count the appearences of each broker in the runnable games of
     // each tournament
-    Map<Integer, Map<Integer, Integer>> appearences = countAppearences(fullList);
+    Map<Integer, Map<Integer, Integer>> appearences = countAppearences(games);
 
     // calculate the urgencies of the games as the total number of runable
     // games its brokers are playing in
-    setUrgencies(fullList, appearences);
+    setUrgencies(games, appearences);
 
     // sort all games based on their urgency
-    Collections.sort(fullList, new CustomGameComparator());
+    Collections.sort(games, new CustomGameComparator());
 
-    return fullList;
+    return games;
   }
 
   @SuppressWarnings("unchecked")

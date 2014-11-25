@@ -156,7 +156,7 @@ public class Constants
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH game.agentMap "
             + "WHERE game.state='" + Game.getStateBootPending() + "' "
-            + "AND round.roundId =:roundId";
+            + "AND round.roundId IN (:roundIds)";
 
     public static final String GET_GAMES_BOOT_COMPLETE =
         "FROM Game AS game "
@@ -171,7 +171,7 @@ public class Constants
 
             + "WHERE game.state='" + Game.getStateBootComplete() + "' "
             + "AND game.startTime < :startTime "
-            + "AND round.roundId IN (:ids)";
+            + "AND round.roundId IN (:roundIds)";
 
     public static final String GET_GAMES_NOT_COMPLETE =
         "FROM Game AS game "

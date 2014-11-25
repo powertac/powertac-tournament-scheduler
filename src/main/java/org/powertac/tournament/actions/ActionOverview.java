@@ -117,6 +117,9 @@ public class ActionOverview  implements InitializingBean
     // Kill the job on Jenkins and the slave
     new RunKill(machineName).run();
 
+    // Removed MemStored info about game
+    MemStore.removeGameInfo(gameId);
+
     // Somehow the Show/Hide event is fired
     MemStore.setHideInactiveGames(!MemStore.isHideInactiveGames());
   }

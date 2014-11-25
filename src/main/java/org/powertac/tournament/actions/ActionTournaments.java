@@ -52,7 +52,8 @@ public class ActionTournaments implements InitializingBean
     boolean registered = b.registerForTournament(b.getRegisterTournamentId());
     if (!registered) {
       message(1, "Error registering broker");
-    } else {
+    }
+    else {
       brokerList = Broker.getBrokerList();
       User user = User.getCurrentUser();
       User.reloadUser(user);
@@ -68,7 +69,8 @@ public class ActionTournaments implements InitializingBean
     boolean registered = b.unRegisterFromTournament(b.getUnregisterTournamentId());
     if (!registered) {
       message(1, "Error unregistering broker");
-    } else {
+    }
+    else {
       brokerList = Broker.getBrokerList();
       User user = User.getCurrentUser();
       User.reloadUser(user);
@@ -82,7 +84,7 @@ public class ActionTournaments implements InitializingBean
       return "";
     }
 
-    String links = level.getNofRounds() + " / "+ level.getNofWinners();
+    String links = level.getNofRounds() + " / " + level.getNofWinners();
     if (level.getRoundMap().size() != 0) {
       links += " | ";
     }
@@ -97,7 +99,8 @@ public class ActionTournaments implements InitializingBean
   {
     if (tournament.getCurrentLevelNr() == levelNr) {
       return "left running";
-    } else {
+    }
+    else {
       return "left";
     }
   }
@@ -112,12 +115,14 @@ public class ActionTournaments implements InitializingBean
       tournament.setStateToClosed();
       session.saveOrUpdate(tournament);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       log.error("Error closing tournament " + tournament.getTournamentId());
       e.printStackTrace();
       message(0, "Error closing the tournament");
-    } finally {
+    }
+    finally {
       message(0, "Tournament closed, schedule next level when done editing");
       session.close();
     }
@@ -137,12 +142,14 @@ public class ActionTournaments implements InitializingBean
       else {
         transaction.rollback();
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.error("Error scheduling next tournament level");
       message(0, "Error scheduling next tournament level");
-    } finally {
+    }
+    finally {
       if (transaction.wasCommitted()) {
         log.info("Next level scheduled for tournament "
             + tournament.getTournamentId());
@@ -167,11 +174,13 @@ public class ActionTournaments implements InitializingBean
       else {
         transaction.rollback();
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.error("Error completing tournament level");
-    } finally {
+    }
+    finally {
       if (transaction.wasCommitted()) {
         log.info(String.format("Level completed for tournament %s",
             tournament.getTournamentId()));
@@ -198,7 +207,8 @@ public class ActionTournaments implements InitializingBean
 
     if (tournamentId != -1) {
       updateTournament();
-    } else {
+    }
+    else {
       createTournament();
     }
   }
@@ -216,14 +226,17 @@ public class ActionTournaments implements InitializingBean
       // Create first round(s) so brokers can register
       tournament.scheduleLevel(session);
       transaction.commit();
-    } catch (ConstraintViolationException ignored) {
+    }
+    catch (ConstraintViolationException ignored) {
       transaction.rollback();
       message(1, "The tournament name already exists");
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.error("Error creating tournament");
-    } finally {
+    }
+    finally {
       if (transaction.wasCommitted()) {
         log.info(String.format("Created tournament %s",
             tournament.getTournamentId()));
@@ -242,7 +255,7 @@ public class ActionTournaments implements InitializingBean
 
     disabled = new boolean[tournament.getLevelMap().size()];
     levels = new ArrayList<Level>();
-    for (Level level: tournament.getLevelMap().values()) {
+    for (Level level : tournament.getLevelMap().values()) {
       levels.add(level);
 
       if (currentLevel >= level.getLevelNr()) {
@@ -262,12 +275,14 @@ public class ActionTournaments implements InitializingBean
       setValues(session, tournament);
       updateLevels(session, tournament);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.error("Error updating tournament");
       message(1, "Error updating tournament");
-    } finally {
+    }
+    finally {
       if (transaction.wasCommitted()) {
         resetValues();
       }
@@ -287,7 +302,7 @@ public class ActionTournaments implements InitializingBean
 
   private void updateLevels (Session session, Tournament tournament)
   {
-    for (Level posted: levels) {
+    for (Level posted : levels) {
       Level level = tournament.getLevelMap().get(posted.getLevelNr());
 
       if (level.getLevelNr() > tournament.getCurrentLevelNr()) {
@@ -308,7 +323,7 @@ public class ActionTournaments implements InitializingBean
 
   private void createLevels (Session session, Tournament tournament)
   {
-    for (Level level: levels) {
+    for (Level level : levels) {
       level.setLevelName(level.getLevelName().trim().replace(" ", "_"));
       log.info("Creating level " + level.getLevelNr()
           + " : " + level.getLevelName());
@@ -377,7 +392,7 @@ public class ActionTournaments implements InitializingBean
 
     int previousWinners = -1;
     boolean previousUsed = false;
-    for (Level level: levels) {
+    for (Level level : levels) {
       int levelNr = level.getLevelNr();
       String levelName = level.getLevelName();
 
@@ -389,7 +404,7 @@ public class ActionTournaments implements InitializingBean
         if (level.getNofRounds() != 0) {
           messages.add("Level " + levelNr + " has rounds, but no name");
         }
-        if (level.getNofWinners() != 0)  {
+        if (level.getNofWinners() != 0) {
           messages.add("Level " + levelNr + " has winners, but no name");
         }
       }
@@ -397,7 +412,7 @@ public class ActionTournaments implements InitializingBean
         if (level.getNofRounds() < 1) {
           messages.add("The # rounds of level " + levelNr + " is smaller than 1");
         }
-        if (level.getNofWinners() < 1)  {
+        if (level.getNofWinners() < 1) {
           messages.add("The # winners of level " + levelNr + " is smaller than 1");
         }
         if (level.getNofRounds() > level.getNofWinners() &&
@@ -408,18 +423,18 @@ public class ActionTournaments implements InitializingBean
         if (levelNr > 0) {
           if (!previousUsed) {
             messages.add("Level " + levelNr +
-                " can't be used if level " + (levelNr - 1)  + " is unused");
+                " can't be used if level " + (levelNr - 1) + " is unused");
           }
           else {
             if (previousWinners < level.getNofWinners()) {
-              messages.add("The # winners of level " + (levelNr-1) +
+              messages.add("The # winners of level " + (levelNr - 1) +
                   " is smaller than the NOF winners of level " + levelNr);
             }
 
             if (level.getNofRounds() > 0 &&
                 (previousWinners % level.getNofRounds()) != 0) {
               messages.add("The # rounds of level " + levelNr + " must be "
-                  + "a multiple of the # of winners of level " + (levelNr-1));
+                  + "a multiple of the # of winners of level " + (levelNr - 1));
             }
           }
         }
@@ -427,11 +442,11 @@ public class ActionTournaments implements InitializingBean
 
       previousWinners = level.getNofWinners();
       previousUsed = (!levelName.isEmpty() &&
-                      level.getNofRounds() > 0 &&
-                      level.getNofWinners() > 0);
+          level.getNofRounds() > 0 &&
+          level.getNofWinners() > 0);
     }
 
-    for (String msg: messages) {
+    for (String msg : messages) {
       message(1, msg);
     }
 
@@ -443,7 +458,8 @@ public class ActionTournaments implements InitializingBean
     FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
     if (field == 0) {
       FacesContext.getCurrentInstance().addMessage("runningTournaments", fm);
-    } else if (field == 1) {
+    }
+    else if (field == 1) {
       FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
     }
   }
@@ -475,6 +491,7 @@ public class ActionTournaments implements InitializingBean
   {
     return tournamentId;
   }
+
   public void setTournamentId (int tournamentId)
   {
     this.tournamentId = tournamentId;
@@ -484,6 +501,7 @@ public class ActionTournaments implements InitializingBean
   {
     return tournamentName;
   }
+
   public void setTournamentName (String tournamentName)
   {
     this.tournamentName = tournamentName;
@@ -493,16 +511,18 @@ public class ActionTournaments implements InitializingBean
   {
     return selectedPom;
   }
+
   public void setSelectedPom (int selectedPom)
   {
     this.selectedPom = selectedPom;
   }
 
-  public int getMaxAgents()
+  public int getMaxAgents ()
   {
     return maxAgents;
   }
-  public void setMaxAgents(int maxAgents)
+
+  public void setMaxAgents (int maxAgents)
   {
     this.maxAgents = maxAgents;
   }
@@ -511,6 +531,7 @@ public class ActionTournaments implements InitializingBean
   {
     return levels;
   }
+
   public void setLevels (List<Level> levels)
   {
     this.levels = levels;
@@ -520,6 +541,7 @@ public class ActionTournaments implements InitializingBean
   {
     return disabled;
   }
+
   public void setDisabled (boolean[] disabled)
   {
     this.disabled = disabled;
