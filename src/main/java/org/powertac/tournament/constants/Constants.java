@@ -7,7 +7,7 @@ import org.powertac.tournament.beans.Tournament;
 
 public class Constants
 {
-  public class Props
+  public static class Props
   {
     public static final String weatherServerURL =
         "server.weatherService.serverUrl = %s\n";
@@ -33,7 +33,7 @@ public class Constants
         "common.competition.timezoneOffset = %s\n";
   }
 
-  public class Rest
+  public static class Rest
   {
     // Possible Rest Parameters for Broker Login
     public static final String REQ_PARAM_AUTH_TOKEN = "authToken";

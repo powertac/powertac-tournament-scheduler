@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import static org.powertac.tournament.constants.Constants.Rest;
+
 
 @WebServlet(description = "REST API for visualizers",
     urlPatterns = {"/visualizerLogin.jsp"})
@@ -65,9 +67,9 @@ public class RestVisualizer extends HttpServlet
   @SuppressWarnings("unchecked")
   public String parseVisualizerLogin (HttpServletRequest request)
   {
-    String machineName = request.getParameter(Constants.Rest.REQ_PARAM_MACHINE_NAME);
+    String machineName = request.getParameter(Rest.REQ_PARAM_MACHINE_NAME);
 
-    String load = request.getParameter(Constants.Rest.REQ_PARAM_MACHINE_LOAD);
+    String load = request.getParameter(Rest.REQ_PARAM_MACHINE_LOAD);
     if (load == null) {
       load = "";
     }

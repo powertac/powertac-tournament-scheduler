@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
+import static org.powertac.tournament.constants.Constants.Rest;
+
 
 @WebServlet(description = "REST API for game servers",
     urlPatterns = {"/serverInterface.jsp"})
@@ -83,19 +85,19 @@ public class RestServer extends HttpServlet
   public String handleGET (HttpServletRequest request)
   {
     try {
-      String actionString = request.getParameter(Constants.Rest.REQ_PARAM_ACTION);
-      if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_STATUS)) {
+      String actionString = request.getParameter(Rest.REQ_PARAM_ACTION);
+      if (actionString.equalsIgnoreCase(Rest.REQ_PARAM_STATUS)) {
         if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
           return "error";
         }
 
         return handleStatus(request);
       }
-      else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_BOOT)) {
-        String gameId = request.getParameter(Constants.Rest.REQ_PARAM_GAMEID);
+      else if (actionString.equalsIgnoreCase(Rest.REQ_PARAM_BOOT)) {
+        String gameId = request.getParameter(Rest.REQ_PARAM_GAMEID);
         return serveBoot(gameId);
       }
-      else if (actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_HEARTBEAT)) {
+      else if (actionString.equalsIgnoreCase(Rest.REQ_PARAM_HEARTBEAT)) {
         if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
           return "error";
         }
@@ -118,7 +120,7 @@ public class RestServer extends HttpServlet
     }
 
     try {
-      String fileName = request.getParameter(Constants.Rest.REQ_PARAM_FILENAME);
+      String fileName = request.getParameter(Rest.REQ_PARAM_FILENAME);
 
       log.info("Received a file " + fileName);
 
@@ -170,8 +172,8 @@ public class RestServer extends HttpServlet
     }
 
     try {
-      String actionString = request.getParameter(Constants.Rest.REQ_PARAM_ACTION);
-      if (!actionString.equalsIgnoreCase(Constants.Rest.REQ_PARAM_GAMERESULTS)) {
+      String actionString = request.getParameter(Rest.REQ_PARAM_ACTION);
+      if (!actionString.equalsIgnoreCase(Rest.REQ_PARAM_GAMERESULTS)) {
         log.debug("The message didn't have the right action-string!");
         return "error";
       }
@@ -187,7 +189,7 @@ public class RestServer extends HttpServlet
       Transaction transaction = session.beginTransaction();
       try {
         Game game = (Game) session.get(Game.class, gameId);
-        String standings = request.getParameter(Constants.Rest.REQ_PARAM_MESSAGE);
+        String standings = request.getParameter(Rest.REQ_PARAM_MESSAGE);
         return game.handleStandings(session, standings, true);
       }
       catch (Exception e) {
@@ -239,9 +241,9 @@ public class RestServer extends HttpServlet
 
   private String handleStatus (HttpServletRequest request)
   {
-    String statusString = request.getParameter(Constants.Rest.REQ_PARAM_STATUS);
+    String statusString = request.getParameter(Rest.REQ_PARAM_STATUS);
     int gameId = Integer.parseInt(
-        request.getParameter(Constants.Rest.REQ_PARAM_GAMEID));
+        request.getParameter(Rest.REQ_PARAM_GAMEID));
 
     log.info(String.format("Received %s message from game: %s",
         statusString, gameId));
@@ -271,7 +273,7 @@ public class RestServer extends HttpServlet
       session.close();
     }
 
-    String gameLength = request.getParameter(Constants.Rest.REQ_PARAM_GAMELENGTH);
+    String gameLength = request.getParameter(Rest.REQ_PARAM_GAMELENGTH);
     if (gameLength != null && transaction.wasCommitted()) {
       log.info(String.format("Received gamelength %s for game %s",
           gameLength, gameId));
@@ -286,9 +288,9 @@ public class RestServer extends HttpServlet
 
     // Write heartbeat + elapsed time to the MemStore
     try {
-      String message = request.getParameter(Constants.Rest.REQ_PARAM_MESSAGE);
+      String message = request.getParameter(Rest.REQ_PARAM_MESSAGE);
       gameId = Integer.parseInt(
-          request.getParameter(Constants.Rest.REQ_PARAM_GAMEID));
+          request.getParameter(Rest.REQ_PARAM_GAMEID));
 
       if (!(gameId > 0)) {
         log.debug("The message didn't have a gameId!");
@@ -297,7 +299,7 @@ public class RestServer extends HttpServlet
       MemStore.addGameHeartbeat(gameId, message);
 
       long elapsedTime = Long.parseLong(
-          request.getParameter(Constants.Rest.REQ_PARAM_ELAPSED_TIME));
+          request.getParameter(Rest.REQ_PARAM_ELAPSED_TIME));
       if (elapsedTime > 0) {
         MemStore.addElapsedTime(gameId, elapsedTime);
       }
@@ -312,7 +314,7 @@ public class RestServer extends HttpServlet
     Transaction transaction = session.beginTransaction();
     try {
       Game game = (Game) session.get(Game.class, gameId);
-      String standings = request.getParameter(Constants.Rest.REQ_PARAM_STANDINGS);
+      String standings = request.getParameter(Rest.REQ_PARAM_STANDINGS);
       return game.handleStandings(session, standings, false);
     }
     catch (Exception e) {

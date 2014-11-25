@@ -1,7 +1,6 @@
 package org.powertac.tournament.servlets;
 
 import org.apache.log4j.Logger;
-import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Utils;
 
@@ -13,6 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+
+import static org.powertac.tournament.constants.Constants.Rest;
+
 
 /**
  * Servlet implementation class Downloader
@@ -32,7 +34,7 @@ public class RestDownload extends HttpServlet
     String gameId = request.getParameter("game");
     String bootId = request.getParameter("boot");
     String csvName = request.getParameter("csv");
-    String pomId = request.getParameter(Constants.Rest.REQ_PARAM_POM_ID);
+    String pomId = request.getParameter(Rest.REQ_PARAM_POM_ID);
 
     if (gameId != null) {
       absolutePath = properties.getProperty("logLocation");

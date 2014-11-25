@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import static org.powertac.tournament.constants.Constants.Rest;
+
 
 @WebServlet(description = "REST API for brokers",
     urlPatterns = {"/brokerLogin.jsp"})
@@ -53,9 +55,9 @@ public class RestBroker extends HttpServlet
 
   public String parseBrokerLogin (HttpServletRequest request)
   {
-    String responseType = request.getParameter(Constants.Rest.REQ_PARAM_TYPE);
-    String brokerAuth = request.getParameter(Constants.Rest.REQ_PARAM_AUTH_TOKEN);
-    String joinName = request.getParameter(Constants.Rest.REQ_PARAM_JOIN);
+    String responseType = request.getParameter(Rest.REQ_PARAM_TYPE);
+    String brokerAuth = request.getParameter(Rest.REQ_PARAM_AUTH_TOKEN);
+    String joinName = request.getParameter(Rest.REQ_PARAM_JOIN);
 
     String retryResponse = "{\n \"retry\":%d\n}";
     String loginResponse = "{\n \"login\":%d\n \"jmsUrl\":%s\n \"queueName\":%s\n \"serverQueue\":%s\n}";

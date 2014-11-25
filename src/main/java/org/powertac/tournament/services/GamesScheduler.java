@@ -27,13 +27,13 @@ public class GamesScheduler
     }
 
     // Get all bootable games (boot_pending) for the running rounds
-    List<Integer> ids = new ArrayList<Integer>();
-    for (Round round: rounds) {
-      ids.add(round.getRoundId());
+    List<Integer> roundIds = new ArrayList<Integer>();
+    for (Round round : rounds) {
+      roundIds.add(round.getRoundId());
     }
     List<Game> games = (List<Game>) session
         .createQuery(Constants.HQL.GET_GAMES_BOOT_PENDING)
-        .setParameterList("roundIds", ids)
+        .setParameterList("roundIds", roundIds)
         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
     orderGames(games);
@@ -58,14 +58,14 @@ public class GamesScheduler
     }
 
     // Get all runnable games (boot_complete) for the running rounds
-    List<Integer> ids = new ArrayList<Integer>();
-    for (Round round: rounds) {
-      ids.add(round.getRoundId());
+    List<Integer> roundIds = new ArrayList<Integer>();
+    for (Round round : rounds) {
+      roundIds.add(round.getRoundId());
     }
     List<Game> games = (List<Game>) session
         .createQuery(Constants.HQL.GET_GAMES_BOOT_COMPLETE)
         .setTimestamp("startTime", Utils.offsetDate())
-        .setParameterList("roundIds", ids)
+        .setParameterList("roundIds", roundIds)
         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
     orderGames(games);
@@ -99,20 +99,20 @@ public class GamesScheduler
   {
     Map<Integer, Map<Integer, Integer>> appearences = new HashMap<Integer, Map<Integer, Integer>>();
 
-    for (Game game: games) {
+    for (Game game : games) {
       int tournamentId = game.getRound().getTournamentId();
       Map<Integer, Integer> innerMap = appearences.get(tournamentId);
       if (innerMap == null) {
         innerMap = new HashMap<Integer, Integer>();
       }
 
-      for (Agent agent: game.getAgentMap().values()) {
+      for (Agent agent : game.getAgentMap().values()) {
         int brokerId = agent.getBrokerId();
         if (innerMap.get(brokerId) == null) {
           innerMap.put(brokerId, 1);
         }
         else {
-          innerMap.put(brokerId, innerMap.get(brokerId)+1);
+          innerMap.put(brokerId, innerMap.get(brokerId) + 1);
         }
       }
 
@@ -132,11 +132,11 @@ public class GamesScheduler
    */
   @SuppressWarnings("unchecked")
   private static void setUrgencies (List<Game> games,
-                                   Map<Integer, Map<Integer, Integer>> appearences)
+                                    Map<Integer, Map<Integer, Integer>> appearences)
   {
-    for (Game game:games) {
+    for (Game game : games) {
       game.setUrgency(0);
-      for (Agent agent: game.getAgentMap().values()) {
+      for (Agent agent : game.getAgentMap().values()) {
         game.setUrgency(game.getUrgency() +
             appearences.get(game.getRound().getTournamentId())
                 .get(agent.getBrokerId()));
@@ -148,10 +148,20 @@ public class GamesScheduler
   {
     public int compare (Game game1, Game game2)
     {
-      if (game1.getUrgency() > game2.getUrgency())
+      if (game1.getUrgency() > game2.getUrgency()) {
         return -1;
-      if (game1.getUrgency() < game2.getUrgency())
+      }
+      if (game1.getUrgency() < game2.getUrgency()) {
         return 1;
+      }
+
+      if (game1.getAgentMap().size() > game2.getAgentMap().size()) {
+        return -1;
+      }
+      if (game1.getAgentMap().size() < game2.getAgentMap().size()) {
+        return 1;
+      }
+
       return 0;
     }
   }

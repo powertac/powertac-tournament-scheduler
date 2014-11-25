@@ -1,16 +1,13 @@
 package org.powertac.tournament.servlets;
 
-import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Location;
 import org.powertac.tournament.beans.User;
-import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.services.TournamentProperties;
-import org.powertac.tournament.services.Utils;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -19,13 +16,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static org.powertac.tournament.constants.Constants.Props;
+import static org.powertac.tournament.constants.Constants.Rest;
+
 
 @WebServlet(description = "REST API to retrieve the properties",
     urlPatterns = {"/properties.jsp"})
 public class RestProperties extends HttpServlet
 {
-  private static Logger log = Utils.getLogger();
-
   private static String responseType = "text/plain; charset=UTF-8";
 
   public RestProperties ()
@@ -58,8 +56,7 @@ public class RestProperties extends HttpServlet
 
     int gameId;
     try {
-      gameId = Integer.parseInt(
-          request.getParameter(Constants.Rest.REQ_PARAM_GAMEID));
+      gameId = Integer.parseInt(request.getParameter(Rest.REQ_PARAM_GAMEID));
     }
     catch (Exception ignored) {
       return "";
@@ -89,37 +86,37 @@ public class RestProperties extends HttpServlet
     TournamentProperties properties = TournamentProperties.getProperties();
 
     String result = "";
-    result += String.format(Constants.Props.weatherServerURL,
+    result += String.format(Props.weatherServerURL,
         properties.getProperty("weatherServerLocation"));
-    result += String.format(Constants.Props.weatherLocation, game.getLocation());
-    result += String.format(Constants.Props.startTime, game.getSimStartTime());
+    result += String.format(Props.weatherLocation, game.getLocation());
+    result += String.format(Props.startTime, game.getSimStartTime());
     if (game.getMachine() != null) {
-      result += String.format(Constants.Props.jms, game.getMachine().getJmsUrl());
+      result += String.format(Props.jms, game.getMachine().getJmsUrl());
     }
     else {
-      result += String.format(Constants.Props.jms, "tcp://localhost:61616");
+      result += String.format(Props.jms, "tcp://localhost:61616");
     }
-    result += String.format(Constants.Props.serverFirstTimeout, 600000);
-    result += String.format(Constants.Props.serverTimeout, 120000);
-    result += String.format(Constants.Props.remote, true);
-    result += String.format(Constants.Props.vizQ, game.getVisualizerQueue());
+    result += String.format(Props.serverFirstTimeout, 600000);
+    result += String.format(Props.serverTimeout, 120000);
+    result += String.format(Props.remote, true);
+    result += String.format(Props.vizQ, game.getVisualizerQueue());
 
-    int minTimeslotCount =
-        properties.getPropertyInt("competition.minimumTimeslotCount");
-    int expTimeslotCount =
-        properties.getPropertyInt("competition.expectedTimeslotCount");
-    if (game.getGameName().toLowerCase().contains("test")) {
-      minTimeslotCount =
-          properties.getPropertyInt("test.minimumTimeslotCount");
-      expTimeslotCount =
-          properties.getPropertyInt("test.expectedTimeslotCount");
+    if (game.getGameLength() > 0) {
+      result += String.format(Props.minTimeslot, game.getGameLength());
+      result += String.format(Props.expectedTimeslot, game.getGameLength());
     }
-    result += String.format(Constants.Props.minTimeslot, minTimeslotCount);
-    result += String.format(Constants.Props.expectedTimeslot, expTimeslotCount);
+    else {
+      boolean test = game.getGameName().toLowerCase().contains("test");
+      result += String.format(Props.minTimeslot, test
+          ? properties.getPropertyInt("test.minimumTimeslotCount")
+          : properties.getPropertyInt("competition.minimumTimeslotCount"));
+      result += String.format(Props.expectedTimeslot, test
+          ? properties.getPropertyInt("test.expectedTimeslotCount")
+          : properties.getPropertyInt("competition.expectedTimeslotCount"));
+    }
 
     Location location = Location.getLocationByName(game.getLocation());
-    result += String.format(Constants.Props.timezoneOffset,
-        location.getTimezone());
+    result += String.format(Props.timezoneOffset, location.getTimezone());
 
     return result;
   }
