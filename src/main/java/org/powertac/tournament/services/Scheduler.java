@@ -31,6 +31,7 @@ public class Scheduler implements InitializingBean
 
   public Scheduler ()
   {
+    runningRounds = new ArrayList<Round>();
   }
 
   public void afterPropertiesSet () throws Exception
