@@ -242,7 +242,7 @@ public class Scheduler implements InitializingBean
 
       for (int i = 0; i < (gameTypes.length); i++) {
         for (int j = 0; j < multipliers[i]; j++) {
-          doTheKailash(session, round, gameTypes[i], i, j, brokers);
+          doTheKailash(session, round, brokers, i, gameTypes[i], j);
         }
       }
 
@@ -262,9 +262,8 @@ public class Scheduler implements InitializingBean
     return true;
   }
 
-  private void doTheKailash (Session session, Round round, int gameType,
-                             int gameNumber, int multiplier,
-                             List<Broker> brokers)
+  private void doTheKailash (Session session, Round round, List<Broker> brokers,
+                             int gameNumber, int gameType, int multiplier)
   {
     log.info(String.format("Doing the Kailash with gameType = %s ; "
         + "maxBrokers = %s", gameType, brokers.size()));
@@ -274,6 +273,27 @@ public class Scheduler implements InitializingBean
     }
     log.info("Broker ids : " + brokersString);
 
+    List<Game> games = new ArrayList<Game>();
+    List<Agent> agents = new ArrayList<Agent>();
+    createGamesAgents(round, brokers, gameNumber, gameType, multiplier,
+        games, agents);
+
+    for (Game game : games) {
+      session.save(game);
+      log.info("Created game " + game.getGameId());
+    }
+    for (Agent agent : agents) {
+      session.save(agent);
+      log.debug(String.format("Registering broker: %s with game: %s",
+          agent.getBrokerId(), agent.getGameId()));
+    }
+  }
+
+  private static void createGamesAgents (Round round, List<Broker> brokers,
+                                         int gameNumber, int gameType,
+                                         int multiplier,
+                                         List<Game> games, List<Agent> agents)
+  {
     // No use scheduling gamesTypes > # brokers
     gameType = Math.min(gameType, brokers.size());
     if (gameType < 1 || brokers.size() < 1) {
@@ -281,7 +301,7 @@ public class Scheduler implements InitializingBean
     }
 
     // Get binary string representations of games
-    List<String> games = new ArrayList<String>();
+    List<String> gameStrings = new ArrayList<String>();
     for (int i = 0; i < (int) Math.pow(2, brokers.size()); i++) {
       // Write as binary + pad with leading zeros
       String gameString = Integer.toBinaryString(i);
@@ -299,29 +319,25 @@ public class Scheduler implements InitializingBean
 
       // We need an equal amount of participants as the gameType
       if (count == gameType) {
-        games.add(gameString);
+        gameStrings.add(gameString);
       }
     }
 
-    // Make games of every gameString
-    for (int j = 0; j < games.size(); j++) {
-      String gameString = games.get(j);
+    // Create game and agents for every gameString
+    for (int j = 0; j < gameStrings.size(); j++) {
+      String gameString = gameStrings.get(j);
 
       String gameName = Game.createGameName(round.getRoundName(),
-          gameNumber, gameType, j, multiplier * games.size());
-      Game game = Game.createGame(round, gameName);
-      session.save(game);
+          gameNumber, gameType, j, multiplier * gameStrings.size());
 
-      log.info("Created game " + game.getGameId());
+      // Create game
+      Game game = Game.createGame(round, gameName);
+      games.add(game);
 
       // Add agents to the game
       for (int i = 0; i < gameString.length(); i++) {
         if (gameString.charAt(i) == '1') {
-          Broker broker = brokers.get(i);
-          Agent agent = Agent.createAgent(broker, game);
-          session.save(agent);
-          log.debug(String.format("Registering broker: %s with game: %s",
-              broker.getBrokerId(), game.getGameId()));
+          agents.add(Agent.createAgent(brokers.get(i), game));
         }
       }
     }

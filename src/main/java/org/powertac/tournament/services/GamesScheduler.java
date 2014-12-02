@@ -45,7 +45,7 @@ public class GamesScheduler
    * This function returns a list of all startable games in order of urgency.
    * the urgency of a game is the sum of the startable games of all brokers in
    * that game. This favors the bigger games (more brokers) since they'll have
-   * a higher sum, and *  it favors the games with brokers that still have a
+   * a higher sum, and it favors the games with brokers that still have a
    * lot of games to do.
    */
   @SuppressWarnings("unchecked")
@@ -127,7 +127,7 @@ public class GamesScheduler
    * The input is a list of games for which the urgency needs to be calculated
    * and a double map 'appearences' that stores for every
    * tournament/broker-combination how often it appears in the currently
-   * startable games. The urgency of is the sum of the appearences of all
+   * startable games. The urgency is the sum of the appearences of all
    * brokers in that tournament.
    */
   @SuppressWarnings("unchecked")
@@ -155,6 +155,7 @@ public class GamesScheduler
         return 1;
       }
 
+      // If urgency is equal, take the largest game
       if (game1.getAgentMap().size() > game2.getAgentMap().size()) {
         return -1;
       }
