@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions">
+
+<h:head>
+  <title>PowerTac Tournament Scheduler</title>
+  <link rel="stylesheet" type="text/css"
+        href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/css/jquery.dataTables.css"/>
+  <script type="text/javascript" charset="utf8"
+          src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
+</h:head>
+
+<h:body>
+  <div id="page">
+    <ui:insert name="header">
+      <ui:include src="header.xhtml"/>
+    </ui:insert>
+
+    <h:form rendered="#{!user.isAdmin()}">
+      <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
+      <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
+    </h:form>
+  </div>
+
+  <p:growl id="growl" showSummary="true" showDetail="true" autoUpdate="true"
+           escape="false"/>
+
+  <p:spacer width="100%" height="10"/>
+
+  <pe:timeline id="timeline" value="#{actionTimeline.model}" height="500px"
+               zoomMin="600000" animate="false" animateZoom="false"
+               timeZone="UTS" browserTimeZone="UTS" showCurrentTime="true"
+               rendered="#{user.isAdmin()}">
+    <p:ajax event="select" listener="#{actionTimeline.onSelect}"/>
+  </pe:timeline>
+</h:body>
+</html>
