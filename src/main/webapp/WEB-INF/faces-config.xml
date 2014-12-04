@@ -62,6 +62,10 @@
       <to-view-id>/overview.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>Timeline</from-outcome>
+      <to-view-id>/timeline.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>Admin</from-outcome>
       <to-view-id>/admin.xhtml</to-view-id>
     </navigation-case>

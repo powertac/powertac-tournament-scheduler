@@ -34,6 +34,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -44,7 +45,8 @@ public class Game implements Serializable
 {
   private static Logger log = Utils.getLogger();
 
-  private TournamentProperties properties = TournamentProperties.getProperties();
+  private static TournamentProperties properties =
+      TournamentProperties.getProperties();
 
   private Integer gameId = 0;
   private String gameName;
@@ -62,6 +64,8 @@ public class Game implements Serializable
   private Integer urgency;
 
   private Map<Integer, Agent> agentMap = new HashMap<Integer, Agent>();
+
+  private Random random = new Random();
 
   private static enum STATE
   {
@@ -103,7 +107,7 @@ public class Game implements Serializable
     When the sim stops, the Jenkins script sets the game to complete.
     game_failed occurs when the script encounters problems downloading the POM-
     or boot-file, or when RunGame has problems sending the job to jenkins.
-   */
+  */
 
   public Game ()
   {
@@ -112,7 +116,7 @@ public class Game implements Serializable
   public void delete (Session session)
   {
     // Delete all agent belonging to this broker
-    for (Agent agent: agentMap.values()) {
+    for (Agent agent : agentMap.values()) {
       session.delete(agent);
       session.flush();
     }
@@ -123,8 +127,7 @@ public class Game implements Serializable
   public String getBrokersInGameString ()
   {
     String result = "";
-
-    for (Agent agent: agentMap.values()) {
+    for (Agent agent : agentMap.values()) {
       result += agent.getBroker().getBrokerName() + ", ";
     }
 
@@ -143,7 +146,7 @@ public class Game implements Serializable
     Collections.sort(agents, new Utils.agentIdComparator());
 
     String result = "";
-    for (Agent agent: agents) {
+    for (Agent agent : agents) {
       result += agent.getBroker().getBrokerId() + ", ";
     }
 
@@ -178,7 +181,7 @@ public class Game implements Serializable
         log.debug("Freeing Machine for game: " + gameId);
 
         // Reset values for aborted games
-        for (Agent agent: getAgentMap().values()) {
+        for (Agent agent : getAgentMap().values()) {
           agent.setStatePending();
           agent.setBalance(0);
           session.update(agent);
@@ -202,7 +205,7 @@ public class Game implements Serializable
         break;
 
       case game_complete:
-        for (Agent agent: agentMap.values()) {
+        for (Agent agent : agentMap.values()) {
           agent.setStateComplete();
           session.update(agent);
         }
@@ -216,7 +219,7 @@ public class Game implements Serializable
 
       case game_failed:
         log.warn("GAME " + gameId + " FAILED!");
-        for (Agent agent: agentMap.values()) {
+        for (Agent agent : agentMap.values()) {
           agent.setStateComplete();
           session.update(agent);
         }
@@ -251,7 +254,7 @@ public class Game implements Serializable
     }
 
     HashMap<String, Double> results = new HashMap<String, Double>();
-    for (String result: standings.split(",")) {
+    for (String result : standings.split(",")) {
       Double balance = Double.parseDouble(result.split(":")[1]);
       String name = result.split(":")[0];
       if (name.equals("default broker")) {
@@ -260,7 +263,7 @@ public class Game implements Serializable
       results.put(name, balance);
     }
 
-    for (Agent agent: agentMap.values()) {
+    for (Agent agent : agentMap.values()) {
       Double balance = results.get(agent.getBroker().getBrokerName());
       if (balance == null || balance == Double.NaN) {
         continue;
@@ -303,9 +306,24 @@ public class Game implements Serializable
   }
 
   @Transient
-  public int getSize()
+  public int getSize ()
   {
     return agentMap.size();
+  }
+
+  // Computes a random game length as outlined in the game specification
+  private int computeGameLength (int minLength, int expLength)
+  {
+    if (expLength == minLength) {
+      return minLength;
+    }
+    else {
+      double roll = random.nextDouble();
+      // compute k = ln(1-roll)/ln(1-p) where p = 1/(exp-min)
+      double k = (Math.log(1.0 - roll) /
+          Math.log(1.0 - 1.0 / (expLength - minLength + 1)));
+      return minLength + (int) Math.floor(k);
+    }
   }
 
   //<editor-fold desc="State methods">
@@ -416,7 +434,8 @@ public class Game implements Serializable
     return STATE.game_ready.toString();
   }
 
-  public static String getStateGameComplete () {
+  public static String getStateGameComplete ()
+  {
     return STATE.game_complete.toString();
   }
   //</editor-fold>
@@ -469,6 +488,12 @@ public class Game implements Serializable
     game.setServerQueue(Utils.createQueueName());
     game.setVisualizerQueue(Utils.createQueueName());
 
+    // TODO Just for development
+    String p = gameName.toLowerCase().contains("test") ? "test" : "competition";
+    int minLength = properties.getPropertyInt(p + ".minimumTimeslotCount");
+    int expLength = properties.getPropertyInt(p + ".expectedTimeslotCount");
+    game.setGameLength(game.computeGameLength(minLength, expLength));
+
     return game;
   }
 
@@ -491,10 +516,11 @@ public class Game implements Serializable
     long msLength = (long) gameLength;
 
     Date starting = new Date();
-    if ( (dateTo - dateFrom) < msLength) {
+    if ((dateTo - dateFrom) < msLength) {
       // Use fromTime in all games in the round as the start time
       starting.setTime(dateFrom);
-    } else {
+    }
+    else {
       long end = dateTo - msLength;
       long startTime = (long) (Math.random() * (end - dateFrom) + dateFrom);
       starting.setTime(startTime);
@@ -570,6 +596,7 @@ public class Game implements Serializable
   {
     return gameId;
   }
+
   public void setGameId (Integer gameId)
   {
     this.gameId = gameId;
@@ -580,6 +607,7 @@ public class Game implements Serializable
   {
     return gameName;
   }
+
   public void setGameName (String gameName)
   {
     this.gameName = gameName;
@@ -591,6 +619,7 @@ public class Game implements Serializable
   {
     return round;
   }
+
   public void setRound (Round round)
   {
     this.round = round;
@@ -602,6 +631,7 @@ public class Game implements Serializable
   {
     return machine;
   }
+
   public void setMachine (Machine machine)
   {
     this.machine = machine;
@@ -613,6 +643,7 @@ public class Game implements Serializable
   {
     return state;
   }
+
   public void setState (STATE state)
   {
     this.state = state;
@@ -624,6 +655,7 @@ public class Game implements Serializable
   {
     return startTime;
   }
+
   public void setStartTime (Date startTime)
   {
     this.startTime = startTime;
@@ -635,6 +667,7 @@ public class Game implements Serializable
   {
     return readyTime;
   }
+
   public void setReadyTime (Date readyTime)
   {
     this.readyTime = readyTime;
@@ -645,6 +678,7 @@ public class Game implements Serializable
   {
     return visualizerQueue;
   }
+
   public void setVisualizerQueue (String name)
   {
     this.visualizerQueue = name;
@@ -655,6 +689,7 @@ public class Game implements Serializable
   {
     return serverQueue;
   }
+
   public void setServerQueue (String name)
   {
     this.serverQueue = name;
@@ -665,6 +700,7 @@ public class Game implements Serializable
   {
     return location;
   }
+
   public void setLocation (String location)
   {
     this.location = location;
@@ -675,6 +711,7 @@ public class Game implements Serializable
   {
     return simStartTime;
   }
+
   public void setSimStartTime (String simStartTime)
   {
     this.simStartTime = simStartTime;
@@ -685,6 +722,7 @@ public class Game implements Serializable
   {
     return gameLength;
   }
+
   public void setGameLength (Integer gameLength)
   {
     this.gameLength = gameLength;
@@ -695,19 +733,28 @@ public class Game implements Serializable
   {
     return lastTick;
   }
+
   public void setLastTick (Integer lastTick)
   {
     this.lastTick = lastTick;
   }
 
   @Transient
-  public Integer getUrgency()
+  public Integer getUrgency ()
   {
     return urgency;
   }
-  public void setUrgency(int urgency)
+
+  public void setUrgency (int urgency)
   {
-      this.urgency = urgency;
+    this.urgency = urgency;
   }
   //</editor-fold>
+
+  // Used by timeline
+  @Override
+  public String toString ()
+  {
+    return gameId + " : " + getBrokerIdsInGameString();
+  }
 }

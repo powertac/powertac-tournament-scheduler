@@ -73,7 +73,7 @@ public class GamesScheduler
     return games;
   }
 
-  private static void orderGames (List<Game> games)
+  public static void orderGames (List<Game> games)
   {
     // count the appearences of each broker in the runnable games of
     // each tournament
