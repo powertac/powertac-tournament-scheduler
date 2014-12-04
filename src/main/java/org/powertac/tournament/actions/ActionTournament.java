@@ -3,7 +3,11 @@ package org.powertac.tournament.actions;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.powertac.tournament.beans.*;
+import org.powertac.tournament.beans.Broker;
+import org.powertac.tournament.beans.Level;
+import org.powertac.tournament.beans.Round;
+import org.powertac.tournament.beans.Tournament;
+import org.powertac.tournament.beans.User;
 import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.CSV;
 import org.powertac.tournament.services.HibernateUtil;
@@ -11,7 +15,6 @@ import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import java.util.ArrayList;
@@ -57,10 +60,12 @@ public class ActionTournament implements InitializingBean
       loadParticipantInfo();
       loadCsvLinks();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-    } finally {
+    }
+    finally {
       session.close();
     }
   }
@@ -71,7 +76,8 @@ public class ActionTournament implements InitializingBean
     try {
       return Integer.parseInt(facesContext.getExternalContext().
           getRequestParameterMap().get("tournamentId"));
-    } catch (NumberFormatException ignored) {
+    }
+    catch (NumberFormatException ignored) {
       if (!FacesContext.getCurrentInstance().isPostback()) {
         Utils.redirect();
       }
@@ -94,12 +100,12 @@ public class ActionTournament implements InitializingBean
 
       for (Round round : level.getRoundMap().values()) {
         tournamentInfo.add(String.format("Round : " +
-            "<a href=\"round.xhtml?roundId=%s\">%s</a>" +
-            "<br/>StartTime (UTC) : %s<br/>Status : %s",
-                round.getRoundId(),
-                round.getRoundName(),
-                round.startTimeUTC().substring(0, 16),
-                round.getState()));
+                "<a href=\"round.xhtml?roundId=%s\">%s</a>" +
+                "<br/>StartTime (UTC) : %s<br/>Status : %s",
+            round.getRoundId(),
+            round.getRoundName(),
+            round.startTimeUTC().substring(0, 16),
+            round.getState()));
       }
 
       int last = tournamentInfo.size() - 1;
@@ -115,11 +121,11 @@ public class ActionTournament implements InitializingBean
       }
 
       for (Round round : level.getRoundMap().values()) {
-        for (Broker broker: round.getBrokerMap().values()) {
+        for (Broker broker : round.getBrokerMap().values()) {
           User participant = broker.getUser();
           participantInfo.add(String.format("%s, %s, %s",
               broker.getBrokerName(),
-              participant.getInstitution(),participant.getContactName()));
+              participant.getInstitution(), participant.getContactName()));
         }
       }
     }
@@ -179,7 +185,7 @@ public class ActionTournament implements InitializingBean
     }
 
     // Find non-registered brokers
-    for (Broker broker: user.getBrokerMap().values()) {
+    for (Broker broker : user.getBrokerMap().values()) {
       boolean brokerRegistered = false;
       for (Round round : rounds) {
         if (round.getBrokerMap().get(broker.getBrokerId()) != null) {
@@ -217,12 +223,14 @@ public class ActionTournament implements InitializingBean
     }
 
     if (leastFilled == null) {
-      message(1, "Registering failed, try again or contact the game master");
+      Utils.growlMessage("Registering failed<br/>" +
+          "Try again or contact the game master");
       return;
     }
 
-    if (leastFilled.getBrokerMap().get(broker.getBrokerId()) != null){
-      message(1, "Registering failed, already registered for this tournament");
+    if (leastFilled.getBrokerMap().get(broker.getBrokerId()) != null) {
+      Utils.growlMessage("Registering failed<br/>" +
+          "Already registered for this tournament");
       return;
     }
 
@@ -242,7 +250,7 @@ public class ActionTournament implements InitializingBean
 
     if (editing) {
       if (!MemStore.setTournamentContent(content, tournamentId)) {
-        message(0, "Error saving to DB");
+        Utils.growlMessage("Failed to save to DB");
         return;
       }
     }
@@ -272,17 +280,6 @@ public class ActionTournament implements InitializingBean
     this.content = content;
   }
   //</editor-fold>
-
-  private void message (int field, String msg)
-  {
-    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-    if (field == 0) {
-      FacesContext.getCurrentInstance().addMessage("contentForm", fm);
-    }
-    else if (field == 1) {
-      FacesContext.getCurrentInstance().addMessage("registerForm", fm);
-    }
-  }
 
   //<editor-fold desc="Setters and Getters">
   public Tournament getTournament ()

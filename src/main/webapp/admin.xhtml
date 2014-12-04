@@ -45,7 +45,8 @@
                           style="color:red;"
                           rendered="#{!scheduler.running}"/>
           </h:panelGroup>
-          <h:commandButton value="Restart" action="#{actionAdmin.restartScheduler}"/>
+          <h:commandButton value="Restart"
+                           action="#{actionAdmin.restartScheduler}"/>
 
           <h4>Round Status</h4>
           <h:panelGroup>
@@ -55,12 +56,12 @@
             <h:dataTable id="loadedRoundTable" border="0"
                          value="#{scheduler.runningRounds}" var="round"
                          rendered="#{!scheduler.isRunningRoundsEmpty() }">
-                <h:column>
-                    <f:facet name="header">
-                        <h:outputText value="Running Rounds:" style="color:green;" />
-                    </f:facet>
-                    <h:outputText value="#{round.roundName}" style="color:green;" />
-                </h:column>
+              <h:column>
+                <f:facet name="header">
+                  <h:outputText value="Running Rounds:" style="color:green;"/>
+                </f:facet>
+                <h:outputText value="#{round.roundName}" style="color:green;"/>
+              </h:column>
             </h:dataTable>
           </h:panelGroup>
           <h:panelGroup>
@@ -69,8 +70,8 @@
                              rendered="#{!scheduler.isRunningRoundsEmpty()}"/>
             <h:panelGroup rendered="#{actionAdmin.availableRounds.size() > 0}">
               <h:selectManyListbox value="#{actionAdmin.selectedRounds}"
-                               rendered="#{scheduler.isRunningRoundsEmpty()}"
-                               style="border:1px solid grey;padding:1px;margin:2px;">
+                                   rendered="#{scheduler.isRunningRoundsEmpty()}"
+                                   style="border:1px solid grey;padding:1px;margin:2px;">
                 <f:selectItems value="#{actionAdmin.availableRounds}" var="r"
                                itemValue="#{r.roundId}"
                                itemLabel="#{r.roundName}"/>
@@ -99,8 +100,10 @@
 
           <h4>Weather Server Location</h4>
           <t:panelGroup colspan="2">
-            <a href="#{checkWeatherServer.weatherServerLocation}" target="_blank">
-              <h:outputText value="#{checkWeatherServer.weatherServerLocation}"/>
+            <a href="#{checkWeatherServer.weatherServerLocation}"
+               target="_blank">
+              <h:outputText
+                  value="#{checkWeatherServer.weatherServerLocation}"/>
             </a>
           </t:panelGroup>
         </t:panelGrid>
@@ -132,10 +135,12 @@
 
           <h:column styleClass="left">
             <f:facet name="header">Action</f:facet>
-            <h:commandButton value="Delete" action="#{actionAdmin.deleteLocation(l)}"
+            <h:commandButton value="Delete"
+                             action="#{actionAdmin.deleteLocation(l)}"
                              onclick="return confirmAlert('Are you sure you want to delete this location?');"
                              styleClass="smallButton"/>
-            <h:commandButton value="Edit" action="#{actionAdmin.editLocation(l)}"
+            <h:commandButton value="Edit"
+                             action="#{actionAdmin.editLocation(l)}"
                              styleClass="smallButton"/>
           </h:column>
         </h:dataTable>
@@ -172,7 +177,8 @@
           <h:inputText value="#{actionAdmin.locationName}"/>
 
           <h:outputText value="Timezone"/>
-          <h:inputText value="#{actionAdmin.locationTimezone}" styleClass="input_small"/>
+          <h:inputText value="#{actionAdmin.locationTimezone}"
+                       styleClass="input_small"/>
 
           <h:outputText value="Start"/>
           <t:inputDate value="#{actionAdmin.locationStartTime}"/>
@@ -182,7 +188,6 @@
         </h:panelGrid>
         <h:commandButton value="Save"
                          action="#{actionAdmin.saveLocation}"/>
-        <h:messages for="saveLocation"/>
         <h:inputHidden id="locationId" value="#{actionAdmin.locationId}"/>
       </h:form>
 
@@ -227,7 +232,6 @@
         </h:panelGrid>
         <h:commandButton value="Submit Pom"
                          action="#{actionAdmin.submitPom}"/>
-        <h:messages for="pomUploadForm"/>
       </h:form>
 
       <br/>
@@ -293,7 +297,8 @@
 
           <t:column styleClass="left">
             <f:facet name="header">Actions</f:facet>
-            <h:commandButton value="Delete" action="#{actionAdmin.deleteMachine(m)}"
+            <h:commandButton value="Delete"
+                             action="#{actionAdmin.deleteMachine(m)}"
                              onclick="return confirmAlert('Are you sure you want to delete this machine?');"
                              styleClass="smallButton"/>
             <h:commandButton value="Edit" action="#{actionAdmin.editMachine(m)}"
@@ -315,7 +320,6 @@
           <h:inputText value="#{actionAdmin.machineViz}"/>
         </h:panelGrid>
         <h:commandButton value="Save" action="#{actionAdmin.saveMachine()}"/>
-        <h:messages for="saveMachine"/>
         <h:inputHidden id="machineId" value="#{actionAdmin.machineId}"/>
       </h:form>
 

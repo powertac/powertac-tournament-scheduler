@@ -4,14 +4,17 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
-import org.powertac.tournament.beans.*;
+import org.powertac.tournament.beans.Broker;
+import org.powertac.tournament.beans.Level;
+import org.powertac.tournament.beans.Pom;
+import org.powertac.tournament.beans.Round;
+import org.powertac.tournament.beans.Tournament;
+import org.powertac.tournament.beans.User;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +54,7 @@ public class ActionTournaments implements InitializingBean
 
     boolean registered = b.registerForTournament(b.getRegisterTournamentId());
     if (!registered) {
-      message(1, "Error registering broker");
+      Utils.growlMessage("Failed to register broker");
     }
     else {
       brokerList = Broker.getBrokerList();
@@ -68,7 +71,7 @@ public class ActionTournaments implements InitializingBean
 
     boolean registered = b.unRegisterFromTournament(b.getUnregisterTournamentId());
     if (!registered) {
-      message(1, "Error unregistering broker");
+      Utils.growlMessage("Failed to unregister broker");
     }
     else {
       brokerList = Broker.getBrokerList();
@@ -120,10 +123,11 @@ public class ActionTournaments implements InitializingBean
       transaction.rollback();
       log.error("Error closing tournament " + tournament.getTournamentId());
       e.printStackTrace();
-      message(0, "Error closing the tournament");
+      Utils.growlMessage("Failed to close the tournament");
     }
     finally {
-      message(0, "Tournament closed, schedule next level when done editing");
+      Utils.growlMessage(
+          "Tournament closed, schedule next level when done editing");
       session.close();
     }
   }
@@ -147,13 +151,14 @@ public class ActionTournaments implements InitializingBean
       transaction.rollback();
       e.printStackTrace();
       log.error("Error scheduling next tournament level");
-      message(0, "Error scheduling next tournament level");
+      Utils.growlMessage("Failed to schedule next tournament level");
     }
     finally {
       if (transaction.wasCommitted()) {
         log.info("Next level scheduled for tournament "
             + tournament.getTournamentId());
-        message(0, "Level scheduled, edit and then manually load the rounds(s)");
+        Utils.growlMessage(
+            "Level scheduled, edit and then manually load the rounds(s)");
         resetValues();
       }
       session.close();
@@ -185,10 +190,12 @@ public class ActionTournaments implements InitializingBean
         log.info(String.format("Level completed for tournament %s",
             tournament.getTournamentId()));
         if (tournament.isComplete()) {
-          message(0, "Level completed. Last level so tournament completed.");
+          Utils.growlMessage(
+              "Level completed.<br/>Last level so tournament completed.");
         }
         else {
-          message(0, "Level completed, schedule next level when done editing");
+          Utils.growlMessage(
+              "Level completed.<br/>Schedule next level when done editing");
         }
         resetValues();
       }
@@ -229,7 +236,7 @@ public class ActionTournaments implements InitializingBean
     }
     catch (ConstraintViolationException ignored) {
       transaction.rollback();
-      message(1, "The tournament name already exists");
+      Utils.growlMessage("The tournament name already exists");
     }
     catch (Exception e) {
       transaction.rollback();
@@ -280,7 +287,7 @@ public class ActionTournaments implements InitializingBean
       transaction.rollback();
       e.printStackTrace();
       log.error("Error updating tournament");
-      message(1, "Error updating tournament");
+      Utils.growlMessage("Failed to update tournament");
     }
     finally {
       if (transaction.wasCommitted()) {
@@ -447,21 +454,10 @@ public class ActionTournaments implements InitializingBean
     }
 
     for (String msg : messages) {
-      message(1, msg);
+      Utils.growlMessage(msg);
     }
 
     return messages.size() == 0;
-  }
-
-  private void message (int field, String msg)
-  {
-    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-    if (field == 0) {
-      FacesContext.getCurrentInstance().addMessage("runningTournaments", fm);
-    }
-    else if (field == 1) {
-      FacesContext.getCurrentInstance().addMessage("saveTournament", fm);
-    }
   }
 
   //<editor-fold desc="Collections">

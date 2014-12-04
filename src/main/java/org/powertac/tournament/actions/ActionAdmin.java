@@ -5,14 +5,28 @@ import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
-import org.powertac.tournament.beans.*;
-import org.powertac.tournament.services.*;
+import org.powertac.tournament.beans.Location;
+import org.powertac.tournament.beans.Machine;
+import org.powertac.tournament.beans.Pom;
+import org.powertac.tournament.beans.Round;
+import org.powertac.tournament.beans.User;
+import org.powertac.tournament.services.CheckWeatherServer;
+import org.powertac.tournament.services.HibernateUtil;
+import org.powertac.tournament.services.MemStore;
+import org.powertac.tournament.services.Scheduler;
+import org.powertac.tournament.services.SpringApplicationContext;
+import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Upload;
+import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 
 @ManagedBean
 public class ActionAdmin implements InitializingBean
@@ -65,7 +79,7 @@ public class ActionAdmin implements InitializingBean
     locationList = Location.getLocationList();
 
     possibleLocations = MemStore.getAvailableLocations();
-    for (Location location: getLocationList()) {
+    for (Location location : getLocationList()) {
       Iterator<Location> iter = possibleLocations.iterator();
       while (iter.hasNext()) {
         if (iter.next().getLocation().equals(location.getLocation())) {
@@ -81,7 +95,7 @@ public class ActionAdmin implements InitializingBean
   }
 
   //<editor-fold desc="Header stuff">
-  public void restartScheduler()
+  public void restartScheduler ()
   {
     log.info("Restarting Scheduler");
     Scheduler scheduler = Scheduler.getScheduler();
@@ -165,7 +179,7 @@ public class ActionAdmin implements InitializingBean
   public void saveLocation ()
   {
     if (locationName.isEmpty() || locationStartTime == null || locationEndTime == null) {
-      message(0, "Error: location not saved, some fields were empty!");
+      Utils.growlMessage("Location not saved.<br/>Some fields were empty!");
       return;
     }
 
@@ -220,7 +234,7 @@ public class ActionAdmin implements InitializingBean
     catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      message(0, "Error : location not edited " + e.getMessage());
+      Utils.growlMessage("Location not edited<br/>" + e.getMessage());
     }
     if (transaction.wasCommitted()) {
       log.info("Edited location " + locationName);
@@ -269,12 +283,12 @@ public class ActionAdmin implements InitializingBean
   public void submitPom ()
   {
     if (pomName.isEmpty()) {
-      message(1, "Error: You need to fill in the pom name");
+      Utils.growlMessage("You need to fill in the pom name");
       return;
     }
 
     if (uploadedPom == null) {
-      message(1, "Error: You need to choose a pom file");
+      Utils.growlMessage("You need to choose a pom file");
       return;
     }
 
@@ -291,13 +305,13 @@ public class ActionAdmin implements InitializingBean
     catch (ConstraintViolationException e) {
       transaction.rollback();
       session.close();
-      message(1, "Error: This name is already used");
+      Utils.growlMessage("This name is already used");
       return;
     }
 
     Upload upload = new Upload(uploadedPom);
     String msg = upload.submit("pomLocation", pom.pomFileName());
-    message(1, msg);
+    Utils.growlMessage(msg);
 
     if (msg.toLowerCase().contains("success")) {
       transaction.commit();
@@ -366,7 +380,7 @@ public class ActionAdmin implements InitializingBean
     machineViz = machineViz.replace("https://", "").replace("http://", "");
 
     if (machineName.isEmpty() || machineUrl.isEmpty() || machineViz.isEmpty()) {
-      message(2, "Error: machine not saved, some fields were empty!");
+      Utils.growlMessage("Machine not saved.<br/>Some fields were empty!");
       return;
     }
 
@@ -401,8 +415,7 @@ public class ActionAdmin implements InitializingBean
     catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-
-      message(2, "Error : machine not added " + e.getMessage());
+      Utils.growlMessage("Machine not added<br/>" + e.getMessage());
     }
     if (transaction.wasCommitted()) {
       log.info("Added new machine " + machineName);
@@ -428,12 +441,15 @@ public class ActionAdmin implements InitializingBean
     catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      message(2, "Error : machine not edited " + e.getMessage());
+      Utils.growlMessage("Machine not edited<br/>" + e.getMessage());
     }
     if (transaction.wasCommitted()) {
       log.info("Edited machine " + machineName);
       resetMachineData();
     }
+
+    // TODO
+    Utils.growlMessage("Hello<br/>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
     session.close();
   }
@@ -450,8 +466,7 @@ public class ActionAdmin implements InitializingBean
     catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-
-      message(2, "Error : machine not deleted " + e.getMessage());
+      Utils.growlMessage("Machine not deleted<br/>" + e.getMessage());
     }
     session.close();
     resetMachineData();
@@ -515,25 +530,12 @@ public class ActionAdmin implements InitializingBean
   }
   //</editor-fold>
 
-  private void message (int field, String msg)
-  {
-    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-    if (field == 0) {
-      FacesContext.getCurrentInstance().addMessage("saveLocation", fm);
-    }
-    else if (field == 1) {
-      FacesContext.getCurrentInstance().addMessage("pomUploadForm", fm);
-    }
-    else if (field == 2) {
-      FacesContext.getCurrentInstance().addMessage("saveMachine", fm);
-    }
-  }
-
   //<editor-fold desc="Setters and Getters">
   public int getLocationId ()
   {
     return locationId;
   }
+
   public void setLocationId (int locationId)
   {
     this.locationId = locationId;
@@ -543,6 +545,7 @@ public class ActionAdmin implements InitializingBean
   {
     return locationName;
   }
+
   public void setLocationName (String locationName)
   {
     this.locationName = locationName;
@@ -552,6 +555,7 @@ public class ActionAdmin implements InitializingBean
   {
     return locationTimezone;
   }
+
   public void setLocationTimezone (int locationTimezone)
   {
     this.locationTimezone = locationTimezone;
@@ -561,6 +565,7 @@ public class ActionAdmin implements InitializingBean
   {
     return locationStartTime;
   }
+
   public void setLocationStartTime (Date locationStartTime)
   {
     this.locationStartTime = locationStartTime;
@@ -570,6 +575,7 @@ public class ActionAdmin implements InitializingBean
   {
     return locationEndTime;
   }
+
   public void setLocationEndTime (Date locationEndTime)
   {
     this.locationEndTime = locationEndTime;
@@ -579,6 +585,7 @@ public class ActionAdmin implements InitializingBean
   {
     return pomName;
   }
+
   public void setPomName (String pomName)
   {
     this.pomName = pomName.trim();
@@ -588,6 +595,7 @@ public class ActionAdmin implements InitializingBean
   {
     return uploadedPom;
   }
+
   public void setUploadedPom (UploadedFile uploadedPom)
   {
     this.uploadedPom = uploadedPom;
@@ -597,6 +605,7 @@ public class ActionAdmin implements InitializingBean
   {
     return machineId;
   }
+
   public void setMachineId (int machineId)
   {
     this.machineId = machineId;
@@ -606,6 +615,7 @@ public class ActionAdmin implements InitializingBean
   {
     return machineName;
   }
+
   public void setMachineName (String machineName)
   {
     this.machineName = machineName;
@@ -615,6 +625,7 @@ public class ActionAdmin implements InitializingBean
   {
     return machineUrl;
   }
+
   public void setMachineUrl (String machineUrl)
   {
     this.machineUrl = machineUrl;
@@ -624,16 +635,18 @@ public class ActionAdmin implements InitializingBean
   {
     return machineViz;
   }
+
   public void setMachineViz (String machineViz)
   {
     this.machineViz = machineViz;
   }
 
-  public List <Integer> getSelectedRounds ()
+  public List<Integer> getSelectedRounds ()
   {
     return selectedRounds;
   }
-  public void setSelectedRounds (List <Integer> selectedRounds)
+
+  public void setSelectedRounds (List<Integer> selectedRounds)
   {
     this.selectedRounds = selectedRounds;
   }

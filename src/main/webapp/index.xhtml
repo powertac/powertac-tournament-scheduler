@@ -26,7 +26,6 @@
                          action="#{actionIndex.edit}"/>
         <h:commandButton rendered="#{actionIndex.editing}"
                          value="Cancel" action="#{actionIndex.cancel}"/>
-        <h:messages for="contentForm"/>
       </h:form>
 
       <h:form rendered="#{actionIndex.notCompleteGamesList.size() != 0}">

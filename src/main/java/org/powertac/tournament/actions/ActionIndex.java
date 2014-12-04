@@ -8,11 +8,10 @@ package org.powertac.tournament.actions;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import java.util.List;
 
 
@@ -67,7 +66,7 @@ public class ActionIndex implements InitializingBean
   {
     if (editing) {
       if (!MemStore.setIndexContent(content)) {
-        message(0, "Error saving to DB");
+        Utils.growlMessage("Failed to save to DB");
         return;
       }
     }
@@ -92,13 +91,5 @@ public class ActionIndex implements InitializingBean
   public void setContent (String content)
   {
     this.content = content;
-  }
-
-  private void message (int field, String msg)
-  {
-    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-    if (field == 0) {
-      FacesContext.getCurrentInstance().addMessage("contentForm", fm);
-    }
   }
 }

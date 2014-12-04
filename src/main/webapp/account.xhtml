@@ -53,7 +53,6 @@
 
           <br/>
         </h:panelGrid>
-        <h:messages for="accountForm3"/>
       </h:form>
 
       <h:form id="accountForm0"
@@ -91,7 +90,6 @@
             <h:outputText id="checkins"/>
           </h:column>
         </h:dataTable>
-        <h:messages for="accountForm0"/>
       </h:form>
 
       <h:form id="accountForm1"
@@ -144,7 +142,6 @@
                          onclick="randomAuth();"/>
         <span id="randomAuthSpan"/>
 
-        <h:messages for="accountForm1"/>
       </h:form>
 
       <h:form id="accountForm2" rendered="#{user.isLoggedIn()}">
@@ -158,7 +155,6 @@
                            action="#{actionAccount.addBroker}"/>
           <br/>
         </h:panelGrid>
-        <h:messages for="accountForm2"/>
       </h:form>
 
       <h:form rendered="#{user.isGuest()}">

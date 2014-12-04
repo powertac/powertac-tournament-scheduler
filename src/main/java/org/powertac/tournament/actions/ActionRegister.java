@@ -4,10 +4,8 @@ import org.apache.log4j.Logger;
 import org.powertac.tournament.beans.User;
 import org.powertac.tournament.services.Utils;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
-import javax.faces.context.FacesContext;
 
 
 @ManagedBean
@@ -50,7 +48,7 @@ public class ActionRegister
   {
     User user = User.getUserByName(username);
     if (user != null) {
-      message(0, "User Name taken, please select a new name");
+      Utils.growlMessage("User Name taken, please select a new name");
       return true;
     }
     return false;
@@ -59,18 +57,10 @@ public class ActionRegister
   private boolean passwordMismatch (String password1, String password2)
   {
     if (!password1.equals(password2)) {
-      message(0, "Passwords do not match");
+      Utils.growlMessage("Passwords do not match");
       return true;
     }
     return false;
-  }
-
-  private void message (int field, String msg)
-  {
-    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-    if (field == 0) {
-      FacesContext.getCurrentInstance().addMessage("registerForm", fm);
-    }
   }
 
   //<editor-fold desc="Setters and Getters">
@@ -78,6 +68,7 @@ public class ActionRegister
   {
     return contactName;
   }
+
   public void setContactName (String contactName)
   {
     this.contactName = contactName;
@@ -87,6 +78,7 @@ public class ActionRegister
   {
     return institution;
   }
+
   public void setInstitution (String institution)
   {
     this.institution = institution;
@@ -96,6 +88,7 @@ public class ActionRegister
   {
     return contactEmail;
   }
+
   public void setContactEmail (String contactEmail)
   {
     this.contactEmail = contactEmail;
@@ -105,6 +98,7 @@ public class ActionRegister
   {
     return username;
   }
+
   public void setUsername (String username)
   {
     this.username = username;
@@ -114,6 +108,7 @@ public class ActionRegister
   {
     return password1;
   }
+
   public void setPassword1 (String password1)
   {
     this.password1 = password1;
@@ -123,6 +118,7 @@ public class ActionRegister
   {
     return password2;
   }
+
   public void setPassword2 (String password2)
   {
     this.password2 = password2;
@@ -132,6 +128,7 @@ public class ActionRegister
   {
     return contactPhone;
   }
+
   public void setContactPhone (String contactPhone)
   {
     this.contactPhone = contactPhone;

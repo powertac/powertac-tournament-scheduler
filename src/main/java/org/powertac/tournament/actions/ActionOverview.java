@@ -3,18 +3,24 @@ package org.powertac.tournament.actions;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.powertac.tournament.beans.*;
-import org.powertac.tournament.services.*;
+import org.powertac.tournament.beans.Agent;
+import org.powertac.tournament.beans.Broker;
+import org.powertac.tournament.beans.Game;
+import org.powertac.tournament.beans.Machine;
+import org.powertac.tournament.beans.Round;
+import org.powertac.tournament.services.HibernateUtil;
+import org.powertac.tournament.services.MemStore;
+import org.powertac.tournament.services.RunAbort;
+import org.powertac.tournament.services.RunKill;
+import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import java.util.List;
 
 
 @ManagedBean
-public class ActionOverview  implements InitializingBean
+public class ActionOverview implements InitializingBean
 {
   private static Logger log = Utils.getLogger();
 
@@ -37,7 +43,8 @@ public class ActionOverview  implements InitializingBean
   {
     if (MemStore.getBrokerState(brokerId)) {
       return "enabled";
-    } else {
+    }
+    else {
       return "disabled";
     }
   }
@@ -48,7 +55,8 @@ public class ActionOverview  implements InitializingBean
 
     try {
       enabled = MemStore.getBrokerState(brokerId);
-    } catch (Exception ignored) {
+    }
+    catch (Exception ignored) {
     }
 
     MemStore.setBrokerState(brokerId, !enabled);
@@ -60,7 +68,7 @@ public class ActionOverview  implements InitializingBean
 
     new RunAbort(game.getMachine().getMachineName()).run();
 
-    message(2, "Aborting games takes some time, please wait");
+    Utils.growlMessage("Aborting games takes some time, please wait");
 
     // Somehow the Show/Hide event is fired
     MemStore.setHideInactiveGames(!MemStore.isHideInactiveGames());
@@ -84,11 +92,12 @@ public class ActionOverview  implements InitializingBean
 
         game.setStateBootPending();
         game.removeBootFile();
-      } else if (game.isRunning()) {
+      }
+      else if (game.isRunning()) {
         log.info("Resetting sim game: " + gameId + " on machine: " + machineId);
 
         game.setStateBootComplete();
-        for (Agent agent: game.getAgentMap().values()) {
+        for (Agent agent : game.getAgentMap().values()) {
           if (!agent.isPending()) {
             MemStore.setBrokerState(agent.getBrokerId(), false);
           }
@@ -104,13 +113,15 @@ public class ActionOverview  implements InitializingBean
       Machine.delayedMachineUpdate(machine, 300);
 
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
 
       log.error("Failed to completely kill game: " + gameId);
-      message(2, "Error killing game : " + gameId);
-    } finally {
+      Utils.growlMessage("Failed to kill game : " + gameId);
+    }
+    finally {
       session.close();
     }
 
@@ -142,7 +153,7 @@ public class ActionOverview  implements InitializingBean
         log.info("Resetting sim game: " + gameId);
         game.setStateBootComplete();
 
-        for (Agent agent: game.getAgentMap().values()) {
+        for (Agent agent : game.getAgentMap().values()) {
           agent.setStatePending();
           session.update(agent);
         }
@@ -152,29 +163,18 @@ public class ActionOverview  implements InitializingBean
       game.setMachine(null);
       session.update(game);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
 
       log.error("Failed to restart game: " + gameId);
-      message(2, "Error restarting game : " + gameId);
+      Utils.growlMessage("Failed to restart game : " + gameId);
     }
     session.close();
 
     // Somehow the Show/Hide event is fired
     MemStore.setHideInactiveGames(!MemStore.isHideInactiveGames());
-  }
-
-  private void message (int field, String msg)
-  {
-    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-    if (field == 0) {
-      FacesContext.getCurrentInstance().addMessage("brokersForm", fm);
-    } else if (field == 1) {
-      FacesContext.getCurrentInstance().addMessage("roundForm", fm);
-    } else if (field == 2) {
-      FacesContext.getCurrentInstance().addMessage("gamesForm", fm);
-    }
   }
 
   //<editor-fold desc="Collections">
@@ -199,6 +199,7 @@ public class ActionOverview  implements InitializingBean
   {
     return MemStore.isHideInactiveBrokers();
   }
+
   public void setHideInactiveBrokers (boolean ignored)
   {
     MemStore.setHideInactiveBrokers(!MemStore.isHideInactiveBrokers());
@@ -208,6 +209,7 @@ public class ActionOverview  implements InitializingBean
   {
     return MemStore.isHideInactiveGames();
   }
+
   public void setHideInactiveGames (boolean ignored)
   {
     MemStore.setHideInactiveGames(!MemStore.isHideInactiveGames());

@@ -3,6 +3,7 @@ package org.powertac.tournament.services;
 import org.apache.log4j.Logger;
 import org.powertac.tournament.beans.Agent;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.mail.Message;
@@ -157,6 +158,17 @@ public class Utils
     calendar.add(Calendar.MILLISECOND, -1 * tz.getRawOffset());
 
     return calendar.getTime();
+  }
+
+  public static void growlMessage (String title, String message)
+  {
+    FacesContext.getCurrentInstance().addMessage(null,
+        new FacesMessage(FacesMessage.SEVERITY_INFO, title, message));
+  }
+
+  public static void growlMessage (String message)
+  {
+    growlMessage ("Error", message);
   }
 
   public static class agentIdComparator implements Comparator<Agent> {

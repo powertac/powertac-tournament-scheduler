@@ -2,10 +2,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:ui="http://java.sun.com/jsf/facelets">
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
 
-<head>
+<h:head>
   <title>PowerTac Tournament Scheduler</title>
   <link rel="stylesheet" type="text/css"
         href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.8.2/css/jquery.dataTables.css"/>
@@ -19,9 +21,13 @@
       return confirm(msg);
     }
   </script>
-</head>
+</h:head>
 
 <body>
+
+<p:growl id="growl" showSummary="true" showDetail="true" autoUpdate="true"
+         escape="false"/>
+
 <f:view>
   <div id="page">
     <div id="header">
@@ -31,13 +37,11 @@
     </div>
 
     <div id="content">
-      <ui:insert name="content">
-      </ui:insert>
+      <ui:insert name="content"/>
     </div>
 
     <div id="footer">
-      <ui:insert name="footer">
-      </ui:insert>
+      <ui:insert name="footer"/>
     </div>
   </div>
 </f:view>

@@ -6,9 +6,7 @@ import org.powertac.tournament.beans.User;
 import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -40,9 +38,9 @@ public class ActionAccount implements InitializingBean
   public void addBroker ()
   {
     // Check if name and description not empty, and if name allowed
-    if (namesEmpty(brokerName, brokerShort, 2) ||
-        nameExists(brokerName, -1, 2) ||
-        nameAllowed(brokerName, 2)) {
+    if (namesEmpty(brokerName, brokerShort) ||
+        nameExists(brokerName, -1) ||
+        nameAllowed(brokerName)) {
       return;
     }
 
@@ -67,7 +65,7 @@ public class ActionAccount implements InitializingBean
       User.reloadUser(user);
     }
     else {
-      message(2, "Error adding broker");
+      Utils.growlMessage("Failed adding broker");
     }
   }
 
@@ -85,20 +83,20 @@ public class ActionAccount implements InitializingBean
       User.reloadUser(user);
     }
     else {
-      message(1, "Error deleting broker");
+      Utils.growlMessage("Failed to delete broker");
     }
   }
 
   public void updateBroker (Broker broker)
   {
     // Check if name and description not empty, and if name allowed (if changed)
-    if (namesEmpty(broker.getBrokerName(), broker.getShortDescription(), 1)) {
+    if (namesEmpty(broker.getBrokerName(), broker.getShortDescription())) {
       return;
     }
-    if (nameAllowed(broker.getBrokerName(), 1)) {
+    if (nameAllowed(broker.getBrokerName())) {
       return;
     }
-    if (nameExists(broker.getBrokerName(), broker.getBrokerId(), 1)) {
+    if (nameExists(broker.getBrokerName(), broker.getBrokerId())) {
       return;
     }
 
@@ -109,7 +107,7 @@ public class ActionAccount implements InitializingBean
 
     String errorMessage = broker.update();
     if (errorMessage != null) {
-      message(1, errorMessage);
+      Utils.growlMessage(errorMessage);
     }
     else {
       user.setEditingBroker(false);
@@ -129,35 +127,36 @@ public class ActionAccount implements InitializingBean
     broker.setEdit(false);
   }
 
-  private boolean namesEmpty (String name, String description, int field)
+  private boolean namesEmpty (String name, String description)
   {
     if (name == null || description == null ||
         name.trim().isEmpty() || description.trim().isEmpty()) {
-      message(field, "Broker requires a Name and a Description");
+      Utils.growlMessage("Broker requires a Name and a Description");
       return true;
     }
     return false;
   }
 
-  private boolean nameExists (String brokerName, int brokerId, int field)
+  private boolean nameExists (String brokerName, int brokerId)
   {
     Broker broker = Broker.getBrokerByName(brokerName);
     if (broker == null || broker.getBrokerId() == brokerId) {
       return false;
     }
-    message(field, "Brokername taken, please select a new name");
+    Utils.growlMessage("Brokername taken", "Please select a new name");
     return true;
   }
 
-  private boolean nameAllowed (String brokerName, int field)
+  private boolean nameAllowed (String brokerName)
   {
     // Allow only alphanumeric, '-' and '_'
     Pattern ALPHANUMERIC = Pattern.compile("[A-Za-z0-9\\-\\_]+");
     Matcher m = ALPHANUMERIC.matcher(brokerName);
 
     if (!m.matches()) {
-      message(field, "Brokername contains illegal characters, please select a "
-          + "new name (only alphanumeric, '-' and '_' allowed)");
+      Utils.growlMessage("Brokername contains illegal characters",
+          "Please select a new name.<br/>" +
+              "Only alphanumeric, '-' and '_' allowed.");
       return true;
     }
     return false;
@@ -174,20 +173,6 @@ public class ActionAccount implements InitializingBean
     user.setEditingDetails(false);
   }
 
-  private void message (int field, String msg)
-  {
-    FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, null);
-    if (field == 0) {
-      FacesContext.getCurrentInstance().addMessage("accountForm0", fm);
-    }
-    else if (field == 1) {
-      FacesContext.getCurrentInstance().addMessage("accountForm1", fm);
-    }
-    else if (field == 2) {
-      FacesContext.getCurrentInstance().addMessage("accountForm2", fm);
-    }
-  }
-
   public List<Broker> getBrokers ()
   {
     return brokers;
@@ -198,6 +183,7 @@ public class ActionAccount implements InitializingBean
   {
     return brokerShort;
   }
+
   public void setBrokerShort (String brokerShort)
   {
     this.brokerShort = brokerShort;
@@ -207,6 +193,7 @@ public class ActionAccount implements InitializingBean
   {
     return brokerName;
   }
+
   public void setBrokerName (String brokerName)
   {
     this.brokerName = brokerName;
@@ -216,6 +203,7 @@ public class ActionAccount implements InitializingBean
   {
     return user;
   }
+
   public void setUser (User user)
   {
     this.user = user;
