@@ -154,8 +154,9 @@ public class ActionAccount implements InitializingBean
     Matcher m = ALPHANUMERIC.matcher(brokerName);
 
     if (!m.matches()) {
-      Utils.growlMessage("Brokername contains illegal characters",
-          "Please select a new name.<br/>" +
+      Utils.growlMessage("Illegal characters",
+          "Brokername contains illegal characters.<br/>" +
+              "Please select a new name.<br/>" +
               "Only alphanumeric, '-' and '_' allowed.");
       return true;
     }

@@ -234,7 +234,7 @@ public class ActionAdmin implements InitializingBean
     catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      Utils.growlMessage("Location not edited<br/>" + e.getMessage());
+      Utils.growlMessage("Location not edited.<br/>" + e.getMessage());
     }
     if (transaction.wasCommitted()) {
       log.info("Edited location " + locationName);
@@ -283,12 +283,12 @@ public class ActionAdmin implements InitializingBean
   public void submitPom ()
   {
     if (pomName.isEmpty()) {
-      Utils.growlMessage("You need to fill in the pom name");
+      Utils.growlMessage("You need to fill in the pom name.");
       return;
     }
 
     if (uploadedPom == null) {
-      Utils.growlMessage("You need to choose a pom file");
+      Utils.growlMessage("You need to choose a pom file.");
       return;
     }
 
@@ -305,7 +305,7 @@ public class ActionAdmin implements InitializingBean
     catch (ConstraintViolationException e) {
       transaction.rollback();
       session.close();
-      Utils.growlMessage("This name is already used");
+      Utils.growlMessage("This name is already used.");
       return;
     }
 
@@ -415,7 +415,7 @@ public class ActionAdmin implements InitializingBean
     catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      Utils.growlMessage("Machine not added<br/>" + e.getMessage());
+      Utils.growlMessage("Machine not added.<br/>" + e.getMessage());
     }
     if (transaction.wasCommitted()) {
       log.info("Added new machine " + machineName);
@@ -441,15 +441,12 @@ public class ActionAdmin implements InitializingBean
     catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      Utils.growlMessage("Machine not edited<br/>" + e.getMessage());
+      Utils.growlMessage("Machine not edited.<br/>" + e.getMessage());
     }
     if (transaction.wasCommitted()) {
       log.info("Edited machine " + machineName);
       resetMachineData();
     }
-
-    // TODO
-    Utils.growlMessage("Hello<br/>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
     session.close();
   }
@@ -466,7 +463,7 @@ public class ActionAdmin implements InitializingBean
     catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      Utils.growlMessage("Machine not deleted<br/>" + e.getMessage());
+      Utils.growlMessage("Machine not deleted.<br/>" + e.getMessage());
     }
     session.close();
     resetMachineData();

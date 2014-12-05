@@ -223,13 +223,13 @@ public class ActionTournament implements InitializingBean
     }
 
     if (leastFilled == null) {
-      Utils.growlMessage("Registering failed<br/>" +
+      Utils.growlMessage("Registering failed.<br/>" +
           "Try again or contact the game master");
       return;
     }
 
     if (leastFilled.getBrokerMap().get(broker.getBrokerId()) != null) {
-      Utils.growlMessage("Registering failed<br/>" +
+      Utils.growlMessage("Registering failed.<br/>" +
           "Already registered for this tournament");
       return;
     }
@@ -250,7 +250,7 @@ public class ActionTournament implements InitializingBean
 
     if (editing) {
       if (!MemStore.setTournamentContent(content, tournamentId)) {
-        Utils.growlMessage("Failed to save to DB");
+        Utils.growlMessage("Failed to save to DB.");
         return;
       }
     }

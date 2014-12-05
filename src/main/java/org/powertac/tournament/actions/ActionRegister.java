@@ -48,7 +48,7 @@ public class ActionRegister
   {
     User user = User.getUserByName(username);
     if (user != null) {
-      Utils.growlMessage("User Name taken, please select a new name");
+      Utils.growlMessage("User Name taken, please select a new name.");
       return true;
     }
     return false;
@@ -57,7 +57,7 @@ public class ActionRegister
   private boolean passwordMismatch (String password1, String password2)
   {
     if (!password1.equals(password2)) {
-      Utils.growlMessage("Passwords do not match");
+      Utils.growlMessage("Passwords do not match.");
       return true;
     }
     return false;

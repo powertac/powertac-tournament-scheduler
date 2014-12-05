@@ -68,7 +68,7 @@ public class ActionOverview implements InitializingBean
 
     new RunAbort(game.getMachine().getMachineName()).run();
 
-    Utils.growlMessage("Aborting games takes some time, please wait");
+    Utils.growlMessage("Notice", "Aborting games takes some time, please wait");
 
     // Somehow the Show/Hide event is fired
     MemStore.setHideInactiveGames(!MemStore.isHideInactiveGames());
