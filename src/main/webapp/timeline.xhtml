@@ -23,6 +23,16 @@
       <ui:include src="header.xhtml"/>
     </ui:insert>
 
+    <p:spacer width="100%" height="10"/>
+
+    <h:form rendered="#{user.isAdmin()}">
+      <h:outputText value="#{actionTimeline.origin}" escape="false"/><br/><br/>
+      <h:commandButton action="#{actionTimeline.clear}" value="Clear"
+                       disabled="#{actionTimeline.origin == null}"/>
+    </h:form>
+
+    <p:spacer width="100%" height="10"/>
+
     <h:form rendered="#{!user.isAdmin()}">
       <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
       <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>

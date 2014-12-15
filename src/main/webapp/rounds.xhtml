@@ -11,6 +11,7 @@
 <h:body>
   <ui:composition template="template.xhtml">
     <ui:define name="content">
+
       <script type="text/javascript" charset="utf8"
               src="resources/js/rounds.js"></script>
 
@@ -148,9 +149,29 @@
                              action="#{actionRounds.unregister(broker)}"/>
           </t:column>
         </t:dataTable>
+        <br/><br/>
       </h:form>
 
-      <h:form enctype="multipart/form-data" id="saveRound"
+      <h:form id="forecaster">
+        <h:commandButton value="Forecast" onclick="createParamStrings()"
+                         rendered="#{actionRounds.roundId != -1}">
+          <f:ajax execute="@form" render="forecast"/>
+        </h:commandButton>
+        <br/>
+
+        <h:outputText id="forecast" value="#{actionRounds.forecast}"
+                      escape="false" styleClass="monospaced"/><br/><br/>
+        <h:outputText value="TODO Explain about parallel rounds"
+                      rendered="#{actionRounds.roundId != -1}"/><br/>
+        <h:outputText value="TODO Explain about storing"
+                      rendered="#{actionRounds.roundId != -1}"/>
+        <h:inputHidden id="paramString" value="#{actionRounds.paramString}"/>
+        <h:inputHidden id="dateString" value="#{actionRounds.dateString}"/>
+        <h:inputHidden id="nameString" value="#{actionRounds.nameString}"/>
+        <h:inputHidden id="idString" value="#{actionRounds.roundId}"/>
+      </h:form>
+
+      <h:form id="saveRound" enctype="multipart/form-data"
               rendered="#{user.isAdmin() and actionRounds.roundId != -1}">
         <h3>Edit Round</h3>
 
@@ -181,7 +202,7 @@
 
           <h:outputText value="Game 1 Size / Multi"/>
           <h:panelGroup>
-            <h:inputText id="gameSize1" value="#{actionRounds.size1}"
+            <h:inputText id="size1" value="#{actionRounds.size1}"
                          onblur="showGamesCount()" styleClass="input_small"/>
             <h:inputText id="multiplier1" value="#{actionRounds.multiplier1}"
                          onblur="showGamesCount()" styleClass="input_small"/>
@@ -190,7 +211,7 @@
 
           <h:outputText value="Game 2 Size / Multi"/>
           <h:panelGroup>
-            <h:inputText id="gameSize2" value="#{actionRounds.size2}"
+            <h:inputText id="size2" value="#{actionRounds.size2}"
                          onblur="showGamesCount()" styleClass="input_small"/>
             <h:inputText id="multiplier2" value="#{actionRounds.multiplier2}"
                          onblur="showGamesCount()" styleClass="input_small"/>
@@ -199,7 +220,7 @@
 
           <h:outputText value="Game 3 Size / Multi"/>
           <h:panelGroup>
-            <h:inputText id="gameSize3" value="#{actionRounds.size3}"
+            <h:inputText id="size3" value="#{actionRounds.size3}"
                          onblur="showGamesCount()" styleClass="input_small"/>
             <h:inputText id="multiplier3" value="#{actionRounds.multiplier3}"
                          onblur="showGamesCount()" styleClass="input_small"/>
@@ -209,7 +230,7 @@
           <h:outputText value="StartTime UTC"/>
           <h:panelGroup>
             <t:inputDate value="#{actionRounds.startTime}" type="both"
-                         forceId="true"/>
+                         forceId="true" id="startTime"/>
           </h:panelGroup>
 
           <h:outputText value="Date from"/>

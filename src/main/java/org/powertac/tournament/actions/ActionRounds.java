@@ -5,13 +5,16 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.powertac.tournament.beans.Broker;
+import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Level;
 import org.powertac.tournament.beans.Location;
 import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.beans.Pom;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.beans.User;
+import org.powertac.tournament.services.Forecaster;
 import org.powertac.tournament.services.HibernateUtil;
+import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.services.Scheduler;
 import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
@@ -155,7 +158,7 @@ public class ActionRounds implements InitializingBean
     }
     catch (ConstraintViolationException ignored) {
       transaction.rollback();
-      Utils.growlMessage("The round name already exists");
+      Utils.growlMessage("The round name already exists.");
     }
     catch (Exception e) {
       transaction.rollback();
@@ -186,7 +189,7 @@ public class ActionRounds implements InitializingBean
     }
     else {
       log.info("Removed round : " + round.getRoundName());
-      Utils.growlMessage("Removed round : " + round.getRoundName());
+      Utils.growlMessage("Notice", "Removed round : " + round.getRoundName());
     }
   }
 
@@ -201,7 +204,7 @@ public class ActionRounds implements InitializingBean
 
       String msg = "Setting round: " + round.getRoundId() + " to start now";
       log.info(msg);
-      Utils.growlMessage(msg);
+      Utils.growlMessage("Notice", msg);
 
       transaction.commit();
     }
@@ -339,7 +342,7 @@ public class ActionRounds implements InitializingBean
 
     boolean registered = b.registerForRound(b.getRegisterRoundId());
     if (!registered) {
-      Utils.growlMessage("Failed to register broker");
+      Utils.growlMessage("Failed to register broker.");
     }
     else {
       User user = User.getCurrentUser();
@@ -357,7 +360,7 @@ public class ActionRounds implements InitializingBean
 
     boolean registered = b.unregisterFromRound(b.getUnregisterRoundId());
     if (!registered) {
-      Utils.growlMessage("Failed to unregister broker");
+      Utils.growlMessage("Failed to unregister broker.");
     }
     else {
       User user = User.getCurrentUser();
@@ -591,6 +594,73 @@ public class ActionRounds implements InitializingBean
   public void setEnableChangeAllRounds (boolean enableChangeRounds)
   {
     this.enableChangeAllRounds = enableChangeRounds;
+  }
+  //</editor-fold>
+
+  //<editor-fold desc="Forecaster">
+  private String paramString;
+  private String dateString;
+  private String nameString;
+
+  public String getParamString ()
+  {
+    return "";
+  }
+
+  public void setParamString (String paramString)
+  {
+    this.paramString = paramString;
+  }
+
+  public String getDateString ()
+  {
+    return "";
+  }
+
+  public void setDateString (String dateString)
+  {
+    this.dateString = dateString;
+  }
+
+  public String getNameString ()
+  {
+    return nameString;
+  }
+
+  public void setNameString (String nameString)
+  {
+    this.nameString = nameString;
+  }
+
+  public String getForecast ()
+  {
+    if (dateString == null || paramString == null || nameString == null) {
+      return "";
+    }
+
+    try {
+      Forecaster forecaster =
+          Forecaster.createFromWeb(paramString, dateString, nameString);
+
+      if (forecaster == null) {
+        return "Can't forecast for more than 10 brokers";
+      }
+
+      // Write to MemStore and ActionTimeline
+      List<Integer> lengths = new ArrayList<Integer>();
+      for (Game game : forecaster.getGamesMap().values()) {
+        lengths.add(game.getGameLength());
+      }
+
+      MemStore.setForecast(roundId, lengths);
+      ActionTimeline.setForecaster(forecaster, "Round " + nameString);
+
+      return forecaster.getForecastString();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      return "Creating forecast failed";
+    }
   }
   //</editor-fold>
 }

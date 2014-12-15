@@ -29,7 +29,8 @@ public class Utils
   {
     try {
       Thread.sleep(seconds * 1000);
-    } catch (Exception ignored) {
+    }
+    catch (Exception ignored) {
     }
   }
 
@@ -69,7 +70,8 @@ public class Utils
       Transport.send(message);
 
       log.info("Done sending mail to : " + recipient);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -78,12 +80,14 @@ public class Utils
   {
     redirect("index.xhtml");
   }
+
   public static void redirect (String url)
   {
     try {
       ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
       externalContext.redirect(url);
-    } catch (Exception ignored) {
+    }
+    catch (Exception ignored) {
     }
   }
 
@@ -99,7 +103,8 @@ public class Utils
     try {
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
       return sdf.format(date);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       return "";
     }
   }
@@ -109,7 +114,8 @@ public class Utils
     try {
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
       return sdf.format(date);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       return "";
     }
   }
@@ -119,7 +125,8 @@ public class Utils
     try {
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
       return sdf.format(date);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       return "";
     }
   }
@@ -129,7 +136,8 @@ public class Utils
     try {
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
       return sdf.parse(dateString);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       return null;
     }
   }
@@ -147,6 +155,7 @@ public class Utils
     return offsetDate(calendar.getTime());
   }
 
+  // This creates a UTC date from a local date
   public static Date offsetDate (Date date)
   {
     Calendar calendar = Calendar.getInstance();
@@ -160,6 +169,15 @@ public class Utils
     return calendar.getTime();
   }
 
+  // Converts a UTS timestamp to a server-local time
+  public static Date dateFromLong (long time)
+  {
+    Calendar cal = Calendar.getInstance();
+    int diff = cal.get(Calendar.DST_OFFSET) + cal.get(Calendar.ZONE_OFFSET);
+    cal.setTimeInMillis(time * 1000 + diff);
+    return cal.getTime();
+  }
+
   public static void growlMessage (String title, String message)
   {
     FacesContext.getCurrentInstance().addMessage(null,
@@ -168,11 +186,13 @@ public class Utils
 
   public static void growlMessage (String message)
   {
-    growlMessage ("Error", message);
+    growlMessage("Error", message);
   }
 
-  public static class agentIdComparator implements Comparator<Agent> {
-    public int compare (Agent agent1, Agent agent2) {
+  public static class agentIdComparator implements Comparator<Agent>
+  {
+    public int compare (Agent agent1, Agent agent2)
+    {
       return agent1.getAgentId() - agent2.getAgentId();
     }
   }
@@ -233,16 +253,19 @@ public class Utils
       if (isDigit(c)) {
         while (marker < slength) {
           c = s.charAt(marker);
-          if (!isDigit(c))
+          if (!isDigit(c)) {
             break;
+          }
           chunk.append(c);
           marker++;
         }
-      } else {
+      }
+      else {
         while (marker < slength) {
           c = s.charAt(marker);
-          if (isDigit(c))
+          if (isDigit(c)) {
             break;
+          }
           chunk.append(c);
           marker++;
         }
@@ -271,7 +294,7 @@ public class Utils
         thatMarker += thatChunk.length();
 
         // If both chunks contain numeric characters, sort them numerically
-        int result = 0;
+        int result;
         if (isDigit(thisChunk.charAt(0)) && isDigit(thatChunk.charAt(0))) {
           // Simple chunk comparison by length.
           int thisChunkLength = thisChunk.length();
@@ -285,12 +308,14 @@ public class Utils
               }
             }
           }
-        } else {
+        }
+        else {
           result = thisChunk.compareTo(thatChunk);
         }
 
-        if (result != 0)
+        if (result != 0) {
           return result;
+        }
       }
 
       return s1Length - s2Length;

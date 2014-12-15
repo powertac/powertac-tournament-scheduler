@@ -1,9 +1,7 @@
 package org.powertac.tournament.actions;
 
 import org.powertac.tournament.beans.Game;
-import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.services.Forecaster;
-import org.powertac.tournament.services.Scheduler;
 import org.powertac.tournament.services.Utils;
 import org.primefaces.extensions.event.timeline.TimelineSelectEvent;
 import org.primefaces.extensions.model.timeline.TimelineEvent;
@@ -12,9 +10,7 @@ import org.primefaces.extensions.model.timeline.TimelineModel;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import java.io.Serializable;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 // http://www.primefaces.org/showcase-ext/sections/timeline/basic.jsf
@@ -23,30 +19,29 @@ import java.util.Map;
 @ViewScoped
 public class ActionTimeline implements Serializable
 {
+  private static Forecaster forecaster;
   private static TimelineModel model;
+  private static String origin;
 
   public ActionTimeline ()
   {
-    // Get the games of all running rounds
-    Map<Integer, Game> gamesMap = new HashMap<Integer, Game>();
-    Scheduler scheduler = Scheduler.getScheduler();
-    for (Round round : scheduler.getRunningRounds()) {
-      gamesMap.putAll(round.getGameMap());
+    if (forecaster == null) {
+      forecaster = Forecaster.createFromRunning();
+      origin = "All running rounds";
     }
 
-    Forecaster forecaster = new Forecaster(gamesMap);
-    forecaster.createSchedule();
-    fillTimeline(forecaster.getGamesMap(),
-        forecaster.getStartTimes(), forecaster.getEndTimes());
+    fillTimeline();
   }
 
-  private void fillTimeline (Map<Integer, Game> gamesMap,
-                             Map<Integer, Long> startTimes,
-                             Map<Integer, Long> endTimes)
+  private void fillTimeline ()
   {
-    // TODO Also write to file for debug purposes
-    System.out.println();
-    System.out.println("Schedule : ");
+    if (forecaster == null) {
+      return;
+    }
+
+    Map<Integer, Game> gamesMap = forecaster.getGamesMap();
+    Map<Integer, Long> startTimes = forecaster.getStartTimes();
+    Map<Integer, Long> endTimes = forecaster.getEndTimes();
 
     model = new TimelineModel();
     for (Game game : gamesMap.values()) {
@@ -57,23 +52,10 @@ public class ActionTimeline implements Serializable
         continue;
       }
 
-      Date start = dateFromLong(startTimes.get(gameId));
-      Date end = dateFromLong(endTimes.get(gameId));
+      Date start = Utils.dateFromLong(startTimes.get(gameId));
+      Date end = Utils.dateFromLong(endTimes.get(gameId));
       model.add(new TimelineEvent(game, start, end));
-
-      // Also print to sysout for debug purposes
-      System.out.println(gameId + " " + Utils.dateToStringFull(start)
-          + " " + Utils.dateToStringFull(end));
     }
-  }
-
-  // Converts a UTS timestamp to a server-local time
-  private Date dateFromLong (long time)
-  {
-    Calendar cal = Calendar.getInstance();
-    int diff = cal.get(Calendar.DST_OFFSET) + cal.get(Calendar.ZONE_OFFSET);
-    cal.setTimeInMillis(time * 1000 + diff);
-    return cal.getTime();
   }
 
   public void onSelect (TimelineSelectEvent e)
@@ -93,5 +75,23 @@ public class ActionTimeline implements Serializable
       model = new TimelineModel();
     }
     return model;
+  }
+
+  public String getOrigin ()
+  {
+    return origin;
+  }
+
+  public void clear ()
+  {
+    forecaster = null;
+    model = null;
+    origin = null;
+  }
+
+  public static void setForecaster (Forecaster forecaster, String origin)
+  {
+    ActionTimeline.forecaster = forecaster;
+    ActionTimeline.origin = origin;
   }
 }

@@ -38,6 +38,8 @@ public class MemStore
   private static String indexContent;
   private static ConcurrentHashMap<Integer, String> tournamentContent;
 
+  private static ConcurrentHashMap<Integer, List<Integer>> forecasts;
+
   public MemStore ()
   {
     machineIPs = null;
@@ -55,6 +57,8 @@ public class MemStore
     availableLocations = new ArrayList<Location>();
 
     tournamentContent = new ConcurrentHashMap<Integer, String>(20, 0.9f, 1);
+
+    forecasts = new ConcurrentHashMap<Integer, List<Integer>>(20, 0.9f, 1);
   }
 
   //<editor-fold desc="IP stuff">
@@ -361,6 +365,18 @@ public class MemStore
     tournamentContent.put(tournamentId, newContent);
 
     return Config.setTournamentContent(newContent, tournamentId);
+  }
+  //</editor-fold>
+
+  //<editor-fold desc="Forecaster stuff">
+  public static List<Integer> getForecast (int roundId)
+  {
+    return forecasts.get(roundId);
+  }
+
+  public static void setForecast (int roundId, List<Integer> lengths)
+  {
+    forecasts.put(roundId, lengths);
   }
   //</editor-fold>
 }

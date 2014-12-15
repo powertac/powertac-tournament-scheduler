@@ -75,9 +75,9 @@ public class GamesScheduler
 
   public static void orderGames (List<Game> games)
   {
-    // count the appearences of each broker in the runnable games of
+    // count the appearances of each broker in the runnable games of
     // each tournament
-    Map<Integer, Map<Integer, Integer>> appearances = countAppearences(games);
+    Map<Integer, Map<Integer, Integer>> appearances = countAppearances(games);
 
     // calculate the urgencies of the games as the total number of runnable
     // games its brokers are playing in
@@ -92,16 +92,16 @@ public class GamesScheduler
    * creates a double Map that shows how many runnable games each broker has in
    * any running tournament.
    * The result is in this form:
-   * Map<(tournamentID), Map<(brokerID), (number of appearences)>>
+   * Map<(tournamentID), Map<(brokerID), (number of appearances)>>
    */
   @SuppressWarnings("unchecked")
-  private static Map<Integer, Map<Integer, Integer>> countAppearences (List<Game> games)
+  private static Map<Integer, Map<Integer, Integer>> countAppearances (List<Game> games)
   {
-    Map<Integer, Map<Integer, Integer>> appearences = new HashMap<Integer, Map<Integer, Integer>>();
+    Map<Integer, Map<Integer, Integer>> appearances = new HashMap<Integer, Map<Integer, Integer>>();
 
     for (Game game : games) {
       int tournamentId = game.getRound().getTournamentId();
-      Map<Integer, Integer> innerMap = appearences.get(tournamentId);
+      Map<Integer, Integer> innerMap = appearances.get(tournamentId);
       if (innerMap == null) {
         innerMap = new HashMap<Integer, Integer>();
       }
@@ -116,29 +116,29 @@ public class GamesScheduler
         }
       }
 
-      appearences.put(tournamentId, innerMap);
+      appearances.put(tournamentId, innerMap);
     }
 
-    return appearences;
+    return appearances;
   }
 
   /*
    * This function calculates the urgencies of the given games.
    * The input is a list of games for which the urgency needs to be calculated
-   * and a double map 'appearences' that stores for every
+   * and a double map 'appearances' that stores for every
    * tournament/broker-combination how often it appears in the currently
-   * startable games. The urgency is the sum of the appearences of all
+   * startable games. The urgency is the sum of the appearances of all
    * brokers in that tournament.
    */
   @SuppressWarnings("unchecked")
   private static void setUrgencies (List<Game> games,
-                                    Map<Integer, Map<Integer, Integer>> appearences)
+                                    Map<Integer, Map<Integer, Integer>> appearances)
   {
     for (Game game : games) {
       game.setUrgency(0);
       for (Agent agent : game.getAgentMap().values()) {
         game.setUrgency(game.getUrgency() +
-            appearences.get(game.getRound().getTournamentId())
+            appearances.get(game.getRound().getTournamentId())
                 .get(agent.getBrokerId()));
       }
     }

@@ -312,8 +312,12 @@ public class Game implements Serializable
   }
 
   // Computes a random game length as outlined in the game specification
-  private int computeGameLength (int minLength, int expLength)
+  public int computeGameLength (String name)
   {
+    String p = name.toLowerCase().contains("test") ? "test" : "competition";
+    int minLength = properties.getPropertyInt(p + ".minimumTimeslotCount");
+    int expLength = properties.getPropertyInt(p + ".expectedTimeslotCount");
+
     if (expLength == minLength) {
       return minLength;
     }
@@ -487,12 +491,6 @@ public class Game implements Serializable
     game.setSimStartTime(randomSimStartTime(game.getLocation()));
     game.setServerQueue(Utils.createQueueName());
     game.setVisualizerQueue(Utils.createQueueName());
-
-    // TODO Just for development
-    String p = gameName.toLowerCase().contains("test") ? "test" : "competition";
-    int minLength = properties.getPropertyInt(p + ".minimumTimeslotCount");
-    int expLength = properties.getPropertyInt(p + ".expectedTimeslotCount");
-    game.setGameLength(game.computeGameLength(minLength, expLength));
 
     return game;
   }
