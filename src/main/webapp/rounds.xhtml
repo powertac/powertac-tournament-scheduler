@@ -6,7 +6,8 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:t="http://myfaces.apache.org/tomahawk">
+      xmlns:t="http://myfaces.apache.org/tomahawk"
+      xmlns:p="http://primefaces.org/ui">
 
 <h:body>
   <ui:composition template="template.xhtml">
@@ -153,22 +154,29 @@
       </h:form>
 
       <h:form id="forecaster">
-        <h:commandButton value="Forecast" onclick="createParamStrings()"
-                         rendered="#{actionRounds.roundId != -1}">
-          <f:ajax execute="@form" render="forecast"/>
-        </h:commandButton>
-        <br/>
-
-        <h:outputText id="forecast" value="#{actionRounds.forecast}"
-                      escape="false" styleClass="monospaced"/><br/><br/>
-        <h:outputText value="TODO Explain about parallel rounds"
-                      rendered="#{actionRounds.roundId != -1}"/><br/>
-        <h:outputText value="TODO Explain about storing"
-                      rendered="#{actionRounds.roundId != -1}"/>
         <h:inputHidden id="paramString" value="#{actionRounds.paramString}"/>
         <h:inputHidden id="dateString" value="#{actionRounds.dateString}"/>
         <h:inputHidden id="nameString" value="#{actionRounds.nameString}"/>
         <h:inputHidden id="idString" value="#{actionRounds.roundId}"/>
+
+        <h:panelGroup
+            rendered="#{actionRounds.isParallelRound() == false}">
+          <h:commandButton value="Forecast" onclick="createParamStrings()">
+            <f:ajax execute="@form" render="forecast"/>
+          </h:commandButton>
+          <p:spacer width="20px"/>
+          <h:outputText
+              value="Note : forecasts are only stored in memory!"/>
+          <br/><br/>
+        </h:panelGroup>
+        <h:panelGroup
+            rendered="#{actionRounds.isParallelRound() == true}">
+          <h:outputText
+              value="Note : forecasting of parallel rounds happens via 'Levels'"/>
+        </h:panelGroup>
+
+        <h:outputText id="forecast" value="#{actionRounds.forecastString}"
+                      escape="false" styleClass="monospaced"/><br/>
       </h:form>
 
       <h:form id="saveRound" enctype="multipart/form-data"

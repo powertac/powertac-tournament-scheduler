@@ -5,7 +5,6 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.powertac.tournament.beans.Broker;
-import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Level;
 import org.powertac.tournament.beans.Location;
 import org.powertac.tournament.beans.Machine;
@@ -24,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import static org.powertac.tournament.services.Forecaster.Forecast;
 
 
 @ManagedBean
@@ -55,6 +56,13 @@ public class ActionRounds implements InitializingBean
   private int selectedPom;
   private boolean enableChangeAllRounds;
   private boolean changeAllRoundsInLevel;
+
+  // Forecast stuff
+  private Forecast forecast;
+  private Boolean parallelRound;
+  private String paramString;
+  private String dateString;
+  private String nameString;
 
   public ActionRounds ()
   {
@@ -107,6 +115,9 @@ public class ActionRounds implements InitializingBean
     selectedPom = round.getPomId();
     enableChangeAllRounds = enableChangeAllRounds(round);
     changeAllRoundsInLevel = enableChangeAllRounds(round);
+
+    forecast = MemStore.getForecast(roundId);
+    parallelRound = round.getLevel().getRoundMap().size() > 1;
   }
 
   public void saveRound ()
@@ -332,6 +343,9 @@ public class ActionRounds implements InitializingBean
     selectedPom = 0;
     enableChangeAllRounds = true;
     changeAllRoundsInLevel = false;
+
+    forecast = null;
+    parallelRound = null;
   }
 
   public void register (Broker b)
@@ -598,10 +612,6 @@ public class ActionRounds implements InitializingBean
   //</editor-fold>
 
   //<editor-fold desc="Forecaster">
-  private String paramString;
-  private String dateString;
-  private String nameString;
-
   public String getParamString ()
   {
     return "";
@@ -632,34 +642,43 @@ public class ActionRounds implements InitializingBean
     this.nameString = nameString;
   }
 
-  public String getForecast ()
+  public Boolean isParallelRound ()
   {
-    if (dateString == null || paramString == null || nameString == null) {
-      return "";
-    }
+    return parallelRound;
+  }
 
+  public String getForecastString ()
+  {
     try {
-      Forecaster forecaster =
-          Forecaster.createFromWeb(paramString, dateString, nameString);
+      if (forecast == null && dateString != null &&
+          paramString != null && nameString != null) {
 
-      if (forecaster == null) {
-        return "Can't forecast for more than 10 brokers";
+        forecast = Forecaster.createForRound(
+            roundId, paramString, dateString, nameString);
+
+        if (forecast == null) {
+          return "Can't forecast for more than 500 games";
+        }
+
+        // Write to MemStore and ActionTimeline
+        MemStore.setForecast(roundId, forecast);
+        ActionTimeline.setForecast(forecast, "Round " + nameString);
       }
 
-      // Write to MemStore and ActionTimeline
-      List<Integer> lengths = new ArrayList<Integer>();
-      for (Game game : forecaster.getGamesMap().values()) {
-        lengths.add(game.getGameLength());
+      if (forecast != null) {
+        return forecast.getForecastString();
       }
-
-      MemStore.setForecast(roundId, lengths);
-      ActionTimeline.setForecaster(forecaster, "Round " + nameString);
-
-      return forecaster.getForecastString();
     }
     catch (Exception e) {
       e.printStackTrace();
       return "Creating forecast failed";
+    }
+
+    if (parallelRound == null || parallelRound) {
+      return "";
+    }
+    else {
+      return "<br/><br/>";
     }
   }
   //</editor-fold>

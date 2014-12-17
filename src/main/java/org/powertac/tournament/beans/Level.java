@@ -1,8 +1,28 @@
 package org.powertac.tournament.beans;
 
-import javax.persistence.*;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.powertac.tournament.constants.Constants;
+import org.powertac.tournament.services.HibernateUtil;
+import org.powertac.tournament.services.Utils;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -67,6 +87,33 @@ public class Level
   public void setRoundMap (Map<Integer, Round> roundMap)
   {
     this.roundMap = roundMap;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static List<Level> getNotCompleteLevelList ()
+  {
+    List<Level> levels = new ArrayList<Level>();
+
+    Session session = HibernateUtil.getSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      levels = (List<Level>) session
+          .createQuery(Constants.HQL.GET_LEVELS_NOT_COMPLETE)
+          .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+
+      transaction.commit();
+    } catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+    }
+    session.close();
+
+    return levels;
+  }
+
+  public String startTimeUTC ()
+  {
+    return Utils.dateToStringMedium(startTime);
   }
 
   //<editor-fold desc="Setters and Getters">

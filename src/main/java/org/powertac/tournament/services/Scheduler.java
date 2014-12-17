@@ -278,7 +278,7 @@ public class Scheduler implements InitializingBean
     }
 
     // Only use stored lengths if they are applicable / not missing
-    List<Integer> lengths = MemStore.getForecast(round.getRoundId());
+    List<Integer> lengths = MemStore.getForecastLengths(round.getRoundId());
     if (lengths == null || games.size() != lengths.size()) {
       lengths = null;
       log.info("Not using stored game lengths");
@@ -352,7 +352,6 @@ public class Scheduler implements InitializingBean
       for (int i = 0; i < gameString.length(); i++) {
         if (gameString.charAt(i) == '1') {
           Agent agent = Agent.createAgent(brokers.get(i), game);
-          //agents.add(agent);
           game.getAgentMap().put(brokers.get(i).getBrokerId(), agent);
         }
       }

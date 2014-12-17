@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:t="http://myfaces.apache.org/tomahawk">
+
+<h:body>
+  <ui:composition template="template.xhtml">
+    <ui:define name="content">
+
+      <script type="text/javascript" charset="utf8"
+              src="resources/js/rounds.js"></script>
+
+      <h:form rendered="#{user.isAdmin() and actionLevels.levelList.size() > 0}"
+              id="levels">
+        <br/>
+
+        <h3 class="withButton">Pending/Running Levels</h3>
+        <h:button value="Refresh" outcome="Levels"/>
+        <t:dataTable id="dataLevels" border="1"
+                     value="#{actionLevels.levelList}" var="l">
+
+          <t:column>
+            <f:facet name="header">ID</f:facet>
+            <h:outputText value="#{l.levelId}"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Name</f:facet>
+            <h:outputText value="#{l.levelName}"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Tourney</f:facet>
+            <h:link value="#{l.tournament.tournamentId}"
+                    outcome="Tournament"
+                    rendered="#{l.tournament.tournamentId != null}">
+              <f:param name="tournamentId"
+                       value="#{l.tournament.tournamentId}"/>
+            </h:link>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Status</f:facet>
+            <h:outputText value="#{actionLevels.getStatus(l)}"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Start Time</f:facet>
+            <h:outputText value="#{l.startTimeUTC()}"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Rounds</f:facet>
+            <h:outputText value="#{actionLevels.getRounds(l)}" escape="false"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Start Times</f:facet>
+            <h:outputText value="#{actionLevels.getStartTimes(l)}"
+                          escape="false"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">End Times</f:facet>
+            <h:outputText value="#{actionLevels.getEndTimes(l)}"
+                          escape="false"/>
+          </t:column>
+
+          <t:column style="text-align: left">
+            <f:facet name="header">Actions</f:facet>
+            <h:commandButton value="Forecast"
+                             action="#{actionLevels.forecast(l)}"/>
+          </t:column>
+        </t:dataTable>
+        <br/>
+      </h:form>
+
+      <h:form rendered="#{!user.isAdmin()}">
+        <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
+        <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
+      </h:form>
+    </ui:define>
+  </ui:composition>
+</h:body>
+</html>

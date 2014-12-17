@@ -12,6 +12,9 @@ import javax.faces.bean.ViewScoped;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
+import java.util.TreeMap;
+
+import static org.powertac.tournament.services.Forecaster.Forecast;
 
 // http://www.primefaces.org/showcase-ext/sections/timeline/basic.jsf
 
@@ -19,14 +22,14 @@ import java.util.Map;
 @ViewScoped
 public class ActionTimeline implements Serializable
 {
-  private static Forecaster forecaster;
+  private static Forecast forecast;
   private static TimelineModel model;
   private static String origin;
 
   public ActionTimeline ()
   {
-    if (forecaster == null) {
-      forecaster = Forecaster.createFromRunning();
+    if (forecast == null) {
+      forecast = Forecaster.createForRunning();
       origin = "All running rounds";
     }
 
@@ -35,13 +38,13 @@ public class ActionTimeline implements Serializable
 
   private void fillTimeline ()
   {
-    if (forecaster == null) {
+    if (forecast == null) {
       return;
     }
 
-    Map<Integer, Game> gamesMap = forecaster.getGamesMap();
-    Map<Integer, Long> startTimes = forecaster.getStartTimes();
-    Map<Integer, Long> endTimes = forecaster.getEndTimes();
+    TreeMap<Integer, Game> gamesMap = forecast.getGamesMap();
+    Map<Integer, Long> startTimes = forecast.getStartTimes();
+    Map<Integer, Long> endTimes = forecast.getEndTimes();
 
     model = new TimelineModel();
     for (Game game : gamesMap.values()) {
@@ -84,14 +87,14 @@ public class ActionTimeline implements Serializable
 
   public void clear ()
   {
-    forecaster = null;
+    forecast = null;
     model = null;
     origin = null;
   }
 
-  public static void setForecaster (Forecaster forecaster, String origin)
+  public static void setForecast (Forecast forecast, String origin)
   {
-    ActionTimeline.forecaster = forecaster;
+    ActionTimeline.forecast = forecast;
     ActionTimeline.origin = origin;
   }
 }

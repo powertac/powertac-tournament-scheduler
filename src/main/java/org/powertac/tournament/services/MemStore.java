@@ -2,6 +2,7 @@ package org.powertac.tournament.services;
 
 import org.apache.log4j.Logger;
 import org.powertac.tournament.beans.Config;
+import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Location;
 import org.powertac.tournament.beans.Machine;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,8 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.powertac.tournament.services.Forecaster.Forecast;
 
 
 @Component("memStore")
@@ -38,7 +41,7 @@ public class MemStore
   private static String indexContent;
   private static ConcurrentHashMap<Integer, String> tournamentContent;
 
-  private static ConcurrentHashMap<Integer, List<Integer>> forecasts;
+  private static ConcurrentHashMap<Integer, Forecast> forecasts;
 
   public MemStore ()
   {
@@ -58,7 +61,7 @@ public class MemStore
 
     tournamentContent = new ConcurrentHashMap<Integer, String>(20, 0.9f, 1);
 
-    forecasts = new ConcurrentHashMap<Integer, List<Integer>>(20, 0.9f, 1);
+    forecasts = new ConcurrentHashMap<Integer, Forecast>(20, 0.9f, 1);
   }
 
   //<editor-fold desc="IP stuff">
@@ -369,14 +372,26 @@ public class MemStore
   //</editor-fold>
 
   //<editor-fold desc="Forecaster stuff">
-  public static List<Integer> getForecast (int roundId)
+  public static List<Integer> getForecastLengths (int roundId)
+  {
+    Forecast forecast = forecasts.get(roundId);
+
+    List<Integer> result = new ArrayList<Integer>();
+    for (Game game : forecast.getGamesMap().values()) {
+      result.add(game.getGameLength());
+    }
+
+    return result;
+  }
+
+  public static Forecast getForecast (int roundId)
   {
     return forecasts.get(roundId);
   }
 
-  public static void setForecast (int roundId, List<Integer> lengths)
+  public static void setForecast (int roundId, Forecast forecast)
   {
-    forecasts.put(roundId, lengths);
+    forecasts.put(roundId, forecast);
   }
   //</editor-fold>
 }

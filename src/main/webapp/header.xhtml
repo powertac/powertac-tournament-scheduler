@@ -37,6 +37,8 @@
       <!-- Admin Level permission buttons -->
       <h:button value="Tournaments" outcome="Tournaments"
                 rendered="#{user.isAdmin()}"/>
+      <h:button value="Levels" outcome="Levels"
+                rendered="#{user.isAdmin()}"/>
       <h:button value="Rounds" outcome="Rounds"
                 rendered="#{user.isAdmin()}"/>
       <h:button value="Overview" outcome="Overview"

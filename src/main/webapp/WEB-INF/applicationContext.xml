@@ -30,6 +30,9 @@
   <bean id="actionRounds" scope="request"
         class="org.powertac.tournament.actions.ActionRounds">
   </bean>
+  <bean id="actionLevels" scope="request"
+        class="org.powertac.tournament.actions.ActionLevels">
+  </bean>
   <bean id="actionTournament" scope="request"
         class="org.powertac.tournament.actions.ActionTournament">
   </bean>

@@ -54,6 +54,10 @@
       <to-view-id>/tournaments.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>Levels</from-outcome>
+      <to-view-id>/levels.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>Rounds</from-outcome>
       <to-view-id>/rounds.xhtml</to-view-id>
     </navigation-case>
