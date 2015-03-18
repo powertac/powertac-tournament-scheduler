@@ -90,6 +90,7 @@ public class SimLogParser implements Runnable
     while ((strLine = br.readLine()) != null) {
       if (strLine.contains(gameLength)) {
         String length = strLine.split("game-length ")[1].split("\\(")[0];
+        length = length.replace("fixed: ", "");
         results.put("gameLength###", Double.parseDouble(length));
       }
 
