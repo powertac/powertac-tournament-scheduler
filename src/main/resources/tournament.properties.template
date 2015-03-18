@@ -1,4 +1,4 @@
-# This is the tournament scheduler properties file
+# This is the Tournament Scheduler properties file
 
 # Configuration information for the weather server, for now this is the only one
 weatherServerLocation = http://wolf-08.fbk.eur.nl:8080/WeatherServer/faces/index.xhtml
