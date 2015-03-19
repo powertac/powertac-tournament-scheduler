@@ -226,10 +226,7 @@ public class Scheduler implements InitializingBean
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      List<Broker> brokers = new ArrayList<Broker>();
-      for (Broker broker : round.getBrokerMap().values()) {
-        brokers.add(broker);
-      }
+      List<Broker> brokers = new ArrayList<Broker>(round.getBrokerMap().values());
 
       if (brokers.size() == 0) {
         log.info("Round " + round.getRoundName()

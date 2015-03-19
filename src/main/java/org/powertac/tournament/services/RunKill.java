@@ -36,11 +36,13 @@ public class RunKill
 
           try {
             JenkinsConnector.sendJob(stopUrl, true);
-          } catch (Exception ignored) {
+          }
+          catch (Exception ignored) {
           }
           log.info("Stopped job on Jenkins");
         }
-      } catch (Exception e) {
+      }
+      catch (Exception e) {
         e.printStackTrace();
       }
     }
@@ -54,7 +56,8 @@ public class RunKill
 
     try {
       JenkinsConnector.sendJob(killUrl, false);
-    } catch (Exception ignored) {
+    }
+    catch (Exception ignored) {
     }
     log.info("Killed job on slave " + machineName);
   }

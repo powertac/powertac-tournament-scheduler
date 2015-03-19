@@ -65,10 +65,8 @@ public class ActionAdmin implements InitializingBean
   @SuppressWarnings("unchecked")
   public void afterPropertiesSet () throws Exception
   {
-    availableRounds = new ArrayList<Round>();
-    for (Round round : Round.getNotCompleteRoundList()) {
-      availableRounds.add(round);
-    }
+    availableRounds = new ArrayList<Round>(Round.getNotCompleteRoundList());
+
     Collections.sort(availableRounds, new Utils.AlphanumComparator());
     // If only one round, select it for the user
     if (availableRounds.size() == 1) {
