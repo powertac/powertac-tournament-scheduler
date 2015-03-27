@@ -20,13 +20,16 @@
     <h:form>
       <!-- Every User permission buttons -->
       <h:button value="Home" outcome="Home"/>
+      <!-- -->
       <h:button value="About" outcome="about.xhtml"/>
 
       <!-- Login/logout/register  buttons -->
       <h:button value="Login" outcome="Login"
                 rendered="#{user.isGuest() }"/>
+
       <h:commandButton value="Logout" action="#{actionLogin.logout}"
                        rendered="#{user.isLoggedIn()}"/>
+      <!-- -->
       <h:button value="Register" outcome="Register"
                 rendered="#{user.isGuest()}"/>
 
@@ -37,14 +40,19 @@
       <!-- Admin Level permission buttons -->
       <h:button value="Tournaments" outcome="Tournaments"
                 rendered="#{user.isAdmin()}"/>
+      <!-- -->
       <h:button value="Levels" outcome="Levels"
                 rendered="#{user.isAdmin()}"/>
+      <!-- -->
       <h:button value="Rounds" outcome="Rounds"
                 rendered="#{user.isAdmin()}"/>
-      <h:button value="Overview" outcome="Overview"
-                rendered="#{user.isAdmin()}"/>
+      <!-- -->
       <h:button value="Timeline" outcome="Timeline"
                 rendered="#{user.isAdmin()}"/>
+      <!-- -->
+      <h:button value="Overview" outcome="Overview"
+                rendered="#{user.isAdmin()}"/>
+      <!-- -->
       <h:button value="Admin" outcome="Admin"
                 rendered="#{user.isAdmin()}"/>
 
