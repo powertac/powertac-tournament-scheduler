@@ -199,7 +199,7 @@ public class RunGame
     Transaction transaction = session.beginTransaction();
     try {
       games = GamesScheduler.getStartableGames(session, runningRounds);
-      log.info("CheckForSims for startable games");
+      log.info("Check for startable games");
       transaction.commit();
     } catch (Exception e) {
       transaction.rollback();

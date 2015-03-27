@@ -135,7 +135,7 @@ public class RunBoot
     Transaction transaction = session.beginTransaction();
     try {
       games = GamesScheduler.getBootableGames(session, runningRounds);
-      log.info("CheckForBoots for bootable games");
+      log.info("Check for bootable games");
       transaction.commit();
     } catch (Exception e) {
       transaction.rollback();

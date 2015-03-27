@@ -122,6 +122,7 @@ public class Constants
 
     public static final String GET_LEVELS_NOT_COMPLETE =
         "FROM Level AS level "
+            + "LEFT JOIN FETCH level.tournament as tournament "
             + "LEFT JOIN FETCH level.roundMap as roundMap "
             + "LEFT JOIN FETCH roundMap.gameMap as gameMap "
             + "LEFT JOIN FETCH gameMap.agentMap AS agentMap "
@@ -130,7 +131,8 @@ public class Constants
             + "LEFT JOIN FETCH agentMap.game "
             + "LEFT JOIN FETCH roundMap.brokerMap AS brokerMap "
             + "LEFT JOIN FETCH brokerMap.user "
-            + "WHERE EXISTS ELEMENTS(level.roundMap)";
+            + "WHERE EXISTS ELEMENTS(level.roundMap) "
+            + "AND NOT tournament.state='" + Tournament.getStateComplete() + "'";
 
     public static final String GET_ROUND_BY_ID =
         "FROM Round AS round "

@@ -39,12 +39,12 @@ public class ActionLevels implements InitializingBean
       if (round.isPending()) {
         result = "pending";
       }
+      else if (round.isComplete() && result.equals("")) {
+        result = "completed";
+      }
       else if (round.isStarted() &&
           (result.equals("completed") || result.equals(""))) {
         result = "in_progress";
-      }
-      else if (round.isComplete() && result.equals("")) {
-        result = "completed";
       }
     }
     return result;
