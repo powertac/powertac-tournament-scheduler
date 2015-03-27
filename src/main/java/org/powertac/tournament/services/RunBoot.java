@@ -98,7 +98,7 @@ public class RunBoot
     log.info("Final url: " + finalUrl);
 
     try {
-      JenkinsConnector.sendJob(finalUrl, false);
+      JenkinsConnector.sendJob(finalUrl, true);
 
       log.info("Jenkins request to bootstrap game: " + game.getGameId());
       game.setStateBootInProgress();

@@ -162,7 +162,7 @@ public class RunGame
     log.info("Final url: " + finalUrl);
 
     try {
-      JenkinsConnector.sendJob(finalUrl, false);
+      JenkinsConnector.sendJob(finalUrl, true);
 
       log.info("Jenkins request to start sim game: " + game.getGameId());
       game.setStateGamePending();

@@ -55,7 +55,7 @@ public class RunKill
     log.info("Kill url: " + killUrl);
 
     try {
-      JenkinsConnector.sendJob(killUrl, false);
+      JenkinsConnector.sendJob(killUrl, true);
     }
     catch (Exception ignored) {
     }
