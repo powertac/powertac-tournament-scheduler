@@ -42,6 +42,9 @@ scheduler.schedulerInterval = 60000
 # Deadline (ms) for registering brokers before tournament-starttime
 loginDeadline = 3600000
 
+# Max games the forecaster tries to forecast
+forecastMax = 1000
+
 # Overwrite the default gamelengths here
 competition.minimumTimeslotCount = 1320
 competition.expectedTimeslotCount = 1440

@@ -96,7 +96,8 @@ public class ActionLevels implements InitializingBean
   {
     Map<Integer, Forecast> forecastMap = Forecaster.createForLevel(level);
     if (forecastMap == null) {
-      Utils.growlMessage("Can't forecast for more than 500 games");
+      Utils.growlMessage("Can't forecast for more than " +
+          Forecaster.forecastMax + " games");
       return;
     }
 

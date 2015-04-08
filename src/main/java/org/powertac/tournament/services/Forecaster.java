@@ -27,6 +27,8 @@ public class Forecaster
   // TODO Get duration from where??
   private static int overhead = 60;
   private static int duration = 5;
+  public  static int forecastMax = 500;
+
 
   // TODO Make configurable via interface ??
   private int slavesCount = Machine.getMachineList().size();
@@ -37,6 +39,10 @@ public class Forecaster
   public Forecaster (TreeMap<Integer, Game> gamesMap)
   {
     this.forecast = new Forecast(gamesMap);
+
+    TournamentProperties properties = TournamentProperties.getProperties();
+    forecastMax = properties.getPropertyInt("forecastMax");
+
     init();
   }
 
@@ -257,7 +263,7 @@ public class Forecaster
     getGames(gamesMap, level, brokers, roundId, gameTypes, multipliers,
         Utils.stringToDateMedium(date), name);
 
-    if (gamesMap.size() > 500) {
+    if (gamesMap.size() > forecastMax) {
       return null;
     }
 
@@ -299,7 +305,7 @@ public class Forecaster
           gameTypes, multipliers, round.getStartTime(), round.getRoundName());
     }
 
-    if (gamesMap.size() > 500) {
+    if (gamesMap.size() > forecastMax) {
       return null;
     }
 

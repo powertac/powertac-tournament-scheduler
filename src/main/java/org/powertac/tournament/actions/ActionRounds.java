@@ -657,7 +657,8 @@ public class ActionRounds implements InitializingBean
             roundId, paramString, dateString, nameString);
 
         if (forecast == null) {
-          return "Can't forecast for more than 500 games";
+          return "Can't forecast for more than " +
+              Forecaster.forecastMax + " games";
         }
 
         // Write to MemStore and ActionTimeline
