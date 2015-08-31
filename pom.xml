@@ -10,9 +10,11 @@
   <url>http://maven.apache.org</url>
 
   <properties>
-    <spring.version>3.2.0.RELEASE</spring.version>
+    <spring.version>4.2.0.RELEASE</spring.version>
+    <spring-web>4.2.0.RELEASE</spring-web>
+    <hibernate.version>4.1.9.Final</hibernate.version>
     <junit.version>4.11</junit.version>
-    <springwebflow-version>2.3.1.RELEASE</springwebflow-version>
+    <mysql-connector>5.1.36</mysql-connector>
   </properties>
 
   <repositories>
@@ -26,7 +28,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -100,32 +102,32 @@
     <!-- Spring framework -->
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
-      <version>2.5.6.SEC03</version>
+      <artifactId>spring-core</artifactId>
+      <version>${spring.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-      <version>3.2.0.RELEASE</version>
+      <version>${spring-web}</version>
     </dependency>
 
     <!-- Mysql DBMS Connector -->
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.22</version>
+      <version>${mysql-connector}</version>
     </dependency>
 
     <!-- Hibernate Dependency -->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>4.1.9.Final</version>
+      <version>${hibernate.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-c3p0</artifactId>
-      <version>4.1.9.Final</version>
+      <version>${hibernate.version}</version>
     </dependency>
     <dependency>
       <groupId>c3p0</groupId>
