@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.HibernateUtil;
+import org.powertac.tournament.services.Utils;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -37,7 +38,7 @@ public class User
   private boolean isEditingBroker;
   private boolean isEditingDetails;
 
-  private static enum PERMISSION {
+  private enum PERMISSION {
     admin,
     researcher,
     organizer,
@@ -118,6 +119,7 @@ public class User
   public static void reloadUser (User user)
   {
     User newUser = User.getUserByName(user.getUserName());
+    FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
     FacesContext.getCurrentInstance().getExternalContext()
         .getSessionMap().put("user", newUser);
   }
@@ -125,12 +127,9 @@ public class User
   @Transient
   public void logout ()
   {
-    // There is probably a better way to do this
-    brokerMap = new HashMap<Integer, Broker>();
-    userId = -1;
-    userName = "Guest";
-    password = "";
-    permission = PERMISSION.guest;
+    FacesContext.getCurrentInstance().getExternalContext()
+        .getSessionMap().remove("user");
+    FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
   }
 
   public String save ()
@@ -170,6 +169,15 @@ public class User
   public void setBrokerMap (Map<Integer, Broker> brokerMap)
   {
     this.brokerMap = brokerMap;
+  }
+
+  @Transient
+  @SuppressWarnings("unchecked")
+  public List<Broker> getBrokers ()
+  {
+    List<Broker> brokers = new ArrayList<Broker>(brokerMap.values());
+    Collections.sort(brokers, new Utils.AlphanumComparator());
+    return brokers;
   }
 
   @SuppressWarnings("unchecked")

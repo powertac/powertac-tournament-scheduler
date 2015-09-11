@@ -4,11 +4,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.User;
 import org.powertac.tournament.services.Utils;
-import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.bean.ManagedBean;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -16,23 +13,15 @@ import java.util.regex.Pattern;
 
 
 @ManagedBean
-public class ActionAccount implements InitializingBean
+public class ActionAccount
 {
   private User user = User.getCurrentUser();
   private String brokerName;
   private String brokerShort;
 
-  private List<Broker> brokers;
-
   public ActionAccount ()
   {
-  }
 
-  @SuppressWarnings("unchecked")
-  public void afterPropertiesSet () throws Exception
-  {
-    brokers = new ArrayList<Broker>(user.getBrokerMap().values());
-    Collections.sort(brokers, new Utils.AlphanumComparator());
   }
 
   public void addBroker ()
@@ -61,7 +50,6 @@ public class ActionAccount implements InitializingBean
     if (added) {
       brokerName = "";
       brokerShort = "";
-      brokers = new ArrayList<Broker>();
       User.reloadUser(user);
     }
     else {
@@ -76,7 +64,6 @@ public class ActionAccount implements InitializingBean
       return;
     }
 
-    brokers = new ArrayList<Broker>();
     boolean deleted = broker.delete();
 
     if (deleted) {
@@ -176,7 +163,7 @@ public class ActionAccount implements InitializingBean
 
   public List<Broker> getBrokers ()
   {
-    return brokers;
+    return user.getBrokers();
   }
 
   //<editor-fold desc="Setters and Getters">
