@@ -103,7 +103,6 @@ public class ActionLevels implements InitializingBean
 
     for (Round round : level.getRoundMap().values()) {
       Forecast forecast = forecastMap.get(round.getRoundId());
-      forecast.writeSchedule(round.getRoundName());
       MemStore.setForecast(round.getRoundId(), forecast);
     }
   }

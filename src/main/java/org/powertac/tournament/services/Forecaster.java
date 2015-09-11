@@ -10,7 +10,6 @@ import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.beans.Tournament;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -227,8 +226,6 @@ public class Forecaster
 
     Forecaster forecaster = new Forecaster(gamesMap);
     forecaster.createSchedule();
-
-    forecaster.forecast.writeSchedule("running");
     return forecaster.forecast;
   }
 
@@ -269,8 +266,6 @@ public class Forecaster
 
     Forecaster forecaster = new Forecaster(gamesMap);
     forecaster.createSchedule();
-
-    forecaster.forecast.writeSchedule(name);
     return forecaster.forecast;
   }
 
@@ -460,36 +455,6 @@ public class Forecaster
       return String.format("Start : %s<br/>End   : %s<br/>Total : %d:%02d:%02d",
           Utils.dateToStringMedium(timeStart), Utils.dateToStringMedium(timeEnd),
           seconds / 3600, (seconds % 3600) / 60, seconds % 60);
-    }
-
-    // TODO Only for development
-    public void writeSchedule (String name)
-    {
-      if (gamesMap.isEmpty()) {
-        return;
-      }
-
-      try {
-        String now = Utils.dateToStringMedium(new Date());
-        String fileName = String.format(
-            "/home/govert/Projects/powertac/files/schedules/%s_%s.txt",
-            now.replace(" ", "_").replace(":", "-"), name);
-        PrintWriter writer = new PrintWriter(fileName);
-
-        for (Game game : gamesMap.values()) {
-          int gameId = game.getGameId();
-          Date start = Utils.dateFromLong(startTimes.get(gameId));
-          Date end = Utils.dateFromLong(endTimes.get(gameId));
-
-          writer.println(String.format("%4d %s %s",
-              gameId, Utils.dateToStringFull(start), Utils.dateToStringFull(end)));
-        }
-
-        writer.close();
-      }
-      catch (Exception e) {
-        e.printStackTrace();
-      }
     }
   }
 }
