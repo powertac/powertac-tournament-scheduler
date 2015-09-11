@@ -37,7 +37,6 @@ public class Round
   private int multiplier1;
   private int multiplier2;
   private int multiplier3;
-  private int pomId;
   private String locations;
 
   private Map<Integer, Game> gameMap = new HashMap<Integer, Game>();
@@ -171,6 +170,12 @@ public class Round
       result += size3 + ":" + multiplier3;
     }
     return result;
+  }
+
+  @Transient
+  public int getPomId ()
+  {
+    return level.getTournament().getPomId();
   }
 
   //<editor-fold desc="Winner determination">
@@ -569,16 +574,6 @@ public class Round
   public void setMultiplier3 (int multiplier3)
   {
     this.multiplier3 = multiplier3;
-  }
-
-  @Column(name = "pomId", nullable = false)
-  public int getPomId ()
-  {
-    return pomId;
-  }
-  public void setPomId (int pomId)
-  {
-    this.pomId = pomId;
   }
 
   @Column(name = "locations", nullable = false)

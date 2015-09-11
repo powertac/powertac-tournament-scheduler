@@ -122,7 +122,6 @@ public class Tournament
     round.setDateFrom(location.getDateFrom());
     round.setDateTo(location.getDateTo());
     round.setLocations(location.getLocation() + ",");
-    round.setPomId(pomId);
     session.save(round);
 
     level.getRoundMap().put(round.getRoundId(), round);

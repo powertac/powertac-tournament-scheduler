@@ -117,7 +117,6 @@ public class ActionRound implements InitializingBean
     roundInfo.add(String.format("Size / multiplier 3 : %s / %s",
         round.getSize3(), round.getMultiplier3()));
 
-    roundInfo.add("Pom Id : " + round.getPomId());
     roundInfo.add("Locations : " + round.getLocations());
   }
 

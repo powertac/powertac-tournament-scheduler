@@ -89,12 +89,10 @@ CREATE TABLE `powertac_tournament`.`rounds` (
   `multiplier1` INT(11)                                    NOT NULL,
   `multiplier2` INT(11)                                    NOT NULL,
   `multiplier3` INT(11)                                    NOT NULL,
-  `pomId`       INT(11)                                    NOT NULL,
   `locations`   VARCHAR(256)                               NOT NULL,
   `state`       ENUM('pending', 'in_progress', 'complete') NOT NULL,
   PRIMARY KEY (`roundId`),
-  CONSTRAINT round_refs1 FOREIGN KEY (`pomId`) REFERENCES `powertac_tournament`.`poms` (`pomId`),
-  CONSTRAINT round_refs2 FOREIGN KEY (`levelId`) REFERENCES `powertac_tournament`.`levels` (`levelId`)
+  CONSTRAINT round_refs1 FOREIGN KEY (`levelId`) REFERENCES `powertac_tournament`.`levels` (`levelId`)
 )
   ENGINE = InnoDB;
 

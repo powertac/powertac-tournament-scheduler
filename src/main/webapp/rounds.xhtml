@@ -67,13 +67,6 @@
             <h:outputText value="#{r.getParamString2()}"/>
           </t:column>
 
-          <t:column>
-            <f:facet name="header">Pom</f:facet>
-            <a href="pom.jsp?pomId=#{r.pomId}">
-              <h:outputText value="#{r.pomId}"/>
-            </a>
-          </t:column>
-
           <t:column style="text-align: left">
             <f:facet name="header">Actions</f:facet>
             <h:commandButton value="Delete"
@@ -261,15 +254,6 @@
                              itemLabel="#{L.fullString}"
                              itemLabelEscaped="false"/>
             </h:selectManyCheckbox>
-          </h:panelGroup>
-
-          <h:outputText value="Select Pom File"/>
-          <h:panelGroup>
-            <h:selectOneMenu id="poms"
-                             value="#{actionRounds.selectedPom}">
-              <f:selectItems value="#{actionRounds.pomList}" var="p"
-                             itemValue="#{p.pomId}" itemLabel="#{p.pomName}"/>
-            </h:selectOneMenu>
           </h:panelGroup>
 
           <h:panelGroup> </h:panelGroup>

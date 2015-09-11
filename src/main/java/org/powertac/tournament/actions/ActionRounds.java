@@ -8,7 +8,6 @@ import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.Level;
 import org.powertac.tournament.beans.Location;
 import org.powertac.tournament.beans.Machine;
-import org.powertac.tournament.beans.Pom;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.beans.User;
 import org.powertac.tournament.services.Forecaster;
@@ -35,7 +34,6 @@ public class ActionRounds implements InitializingBean
   private List<Location> locationList;
   private List<Broker> brokerList;
   private List<Round> roundList;
-  private List<Pom> pomList;
 
   private int slavesCount;
 
@@ -53,7 +51,6 @@ public class ActionRounds implements InitializingBean
   private Date dateFrom;
   private Date dateTo;
   private List<String> locations;
-  private int selectedPom;
   private boolean enableChangeAllRounds;
   private boolean changeAllRoundsInLevel;
 
@@ -112,7 +109,6 @@ public class ActionRounds implements InitializingBean
     dateFrom = round.getDateFrom();
     dateTo = round.getDateTo();
     locations = round.getLocationsList();
-    selectedPom = round.getPomId();
     enableChangeAllRounds = enableChangeAllRounds(round);
     changeAllRoundsInLevel = enableChangeAllRounds(round);
 
@@ -264,7 +260,6 @@ public class ActionRounds implements InitializingBean
       round.setDateFrom(dateFrom);
       round.setDateTo(dateTo);
       round.setLocations(allLocations);
-      round.setPomId(selectedPom);
     }
   }
 
@@ -306,7 +301,6 @@ public class ActionRounds implements InitializingBean
     locationList = Location.getLocationList();
     brokerList = Broker.getBrokerList();
     roundList = Round.getNotCompleteRoundList();
-    pomList = Pom.getPomList();
     slavesCount = Machine.getMachineList().size();
 
     roundId = -1;
@@ -340,7 +334,6 @@ public class ActionRounds implements InitializingBean
       }
     }
 
-    selectedPom = 0;
     enableChangeAllRounds = true;
     changeAllRoundsInLevel = false;
 
@@ -392,7 +385,7 @@ public class ActionRounds implements InitializingBean
       messages.add("The round name cannot be empty");
     }
 
-    if ((locations.size() < 1) && (roundId == -1 || selectedPom != 0)) {
+    if ((locations.size() < 1) && (roundId == -1)) {
       messages.add("Choose at least one location");
     }
 
@@ -416,11 +409,6 @@ public class ActionRounds implements InitializingBean
   public List<Round> getRoundList ()
   {
     return roundList;
-  }
-
-  public List<Pom> getPomList ()
-  {
-    return pomList;
   }
 
   public List<Location> getLocationList ()
@@ -573,16 +561,6 @@ public class ActionRounds implements InitializingBean
   public void setLocations (List<String> locations)
   {
     this.locations = locations;
-  }
-
-  public int getSelectedPom ()
-  {
-    return selectedPom;
-  }
-
-  public void setSelectedPom (int selectedPom)
-  {
-    this.selectedPom = selectedPom;
   }
 
   public int getSlavesCount ()
