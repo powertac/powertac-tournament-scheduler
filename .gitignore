@@ -31,3 +31,4 @@ Thumbs.db
 # Compiled source
 *.class
 
+*.sh

@@ -215,6 +215,7 @@ public class Game implements Serializable
         log.debug("Freeing Machine for game: " + gameId);
         // If all games of round are complete, set round complete
         round.gameCompleted(gameId);
+        MemStore.removeGameInfo(gameId);
         break;
 
       case game_failed:
@@ -227,6 +228,7 @@ public class Game implements Serializable
         Machine.delayedMachineUpdate(machine, 10);
         machine = null;
         log.debug("Freeing Machine for game: " + gameId);
+        MemStore.removeGameInfo(gameId);
         break;
     }
     session.update(this);

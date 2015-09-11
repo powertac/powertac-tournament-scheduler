@@ -35,7 +35,7 @@ public class RunKill
           log.info("Stop url: " + stopUrl);
 
           try {
-            JenkinsConnector.sendJob(stopUrl, true);
+            JenkinsConnector.sendJob(stopUrl);
           }
           catch (Exception ignored) {
           }
@@ -55,7 +55,7 @@ public class RunKill
     log.info("Kill url: " + killUrl);
 
     try {
-      JenkinsConnector.sendJob(killUrl, true);
+      JenkinsConnector.sendJob(killUrl);
     }
     catch (Exception ignored) {
     }

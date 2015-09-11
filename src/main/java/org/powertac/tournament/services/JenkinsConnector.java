@@ -16,7 +16,7 @@ public class JenkinsConnector
   private static TournamentProperties properties =
       TournamentProperties.getProperties();
 
-  public static void sendJob (String jobUrl, boolean usePOST) throws Exception
+  public static void sendJob (String jobUrl) throws Exception
   {
     InputStream is = null;
 
@@ -24,10 +24,8 @@ public class JenkinsConnector
       URL url = new URL(jobUrl);
       HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-      if (usePOST) {
-        conn.setInstanceFollowRedirects(false);
-        conn.setRequestMethod("POST");
-      }
+      conn.setInstanceFollowRedirects(false);
+      conn.setRequestMethod("POST");
 
       String user = properties.getProperty("jenkins.username", "");
       String token = properties.getProperty("jenkins.token", "");

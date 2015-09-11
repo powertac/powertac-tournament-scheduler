@@ -6,7 +6,7 @@ weatherServerLocation = http://wolf-08.fbk.eur.nl:8080/WeatherServer/faces/index
 # URL, user/token of the Jenkins server.
 # If user or token is empty, assume no authentication needed
 # The token can be found under http://localhost:8080/jenkins/me/configure
-jenkins.location = http://awesom-o-4000.rsmnet.local:8080/jenkins
+jenkins.location = http://localhost:8080/jenkins
 jenkins.username =
 jenkins.token =
 

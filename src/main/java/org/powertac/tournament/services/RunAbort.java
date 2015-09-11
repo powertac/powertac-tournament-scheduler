@@ -29,7 +29,7 @@ public class RunAbort
     log.info("Abort url: " + abortUrl);
 
     try {
-      JenkinsConnector.sendJob(abortUrl, false);
+      JenkinsConnector.sendJob(abortUrl);
 
       log.info("Aborted job on slave " + machineName);
     } catch (Exception ignored) {
