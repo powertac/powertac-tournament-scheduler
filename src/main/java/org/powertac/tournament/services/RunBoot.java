@@ -3,9 +3,9 @@ package org.powertac.tournament.services;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.powertac.tournament.beans.*;
+import org.powertac.tournament.beans.Game;
+import org.powertac.tournament.beans.Machine;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -16,13 +16,13 @@ public class RunBoot
   private TournamentProperties properties = TournamentProperties.getProperties();
 
   private Game game;
+  private List<Machine> freeMachines;
   private Session session;
 
-  private static boolean machinesAvailable;
-
-  public RunBoot (Game game)
+  public RunBoot (Game game, List<Machine> freeMachines)
   {
     this.game = game;
+    this.freeMachines = freeMachines;
   }
 
   private void run ()
@@ -30,62 +30,39 @@ public class RunBoot
     session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      if (!checkMachineAvailable()) {
-        transaction.rollback();
-        machinesAvailable = false;
-        return;
-      }
-
-      if (!startJob()) {
-        transaction.rollback();
-        return;
-      }
-
+      setMachineToGame();
+      startJob();
       session.update(game);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.info("Failed to bootstrap game: " + game.getGameId());
-    } finally {
+    }
+    finally {
       session.close();
     }
   }
 
   /**
-   * Make sure there is a machine available for the game
+   * Link machine to the game
    */
-  private boolean checkMachineAvailable ()
-      throws Exception
+  private void setMachineToGame ()
   {
-    try {
-      log.info("Claiming free machine");
+    log.info("Claiming free machine");
 
-      Machine freeMachine = Machine.getFreeMachine(session);
-      if (freeMachine == null) {
-        Scheduler scheduler = Scheduler.getScheduler();
-        log.info(String.format(
-            "No machine available for scheduled boot %s, retry in %s seconds",
-            game.getGameId(), scheduler.getSchedulerInterval() / 1000));
-        return false;
-      }
-
-      game.setMachine(freeMachine);
-      freeMachine.setStateRunning();
-      session.update(freeMachine);
-      log.info(String.format("Game: %s booting on machine: %s",
-          game.getGameId(), game.getMachine().getMachineName()));
-      return true;
-    } catch (Exception e) {
-      log.warn("Error claiming free machine for boot " + game.getGameId());
-      throw e;
-    }
+    Machine freeMachine = freeMachines.remove(0);
+    game.setMachine(freeMachine);
+    freeMachine.setStateRunning();
+    log.info(String.format("Game: %s booting on machine: %s",
+        game.getGameId(), game.getMachine().getMachineName()));
   }
 
   /*
    * If all conditions are met (we have a slave available) send job to Jenkins.
    */
-  private boolean startJob () throws Exception
+  private void startJob () throws Exception
   {
     String finalUrl =
         properties.getProperty("jenkins.location")
@@ -105,9 +82,8 @@ public class RunBoot
       game.setReadyTime(Utils.offsetDate());
       log.debug(String.format("Update game: %s to %s", game.getGameId(),
           Game.getStateBootInProgress()));
-
-      return true;
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       log.error("Jenkins failure to bootstrap game: " + game.getGameId());
       game.setStateBootFailed();
       throw e;
@@ -120,40 +96,25 @@ public class RunBoot
    * games in that round. If no round loaded, we look for games in
    * all singleGame rounds.
   **/
-  public static void startBootableGames (List <Round> runningRounds)
+  public static void startBootableGames (List<Integer> runningRoundIds,
+                                         List<Game> notCompleteGames,
+                                         List<Machine> freeMachines)
   {
-    if (runningRounds == null || runningRounds.size() == 0) {
-      log.info("No rounds available for bootable games");
-      return;
-    }
-
     log.info("Looking for Bootstraps To Start..");
 
-    List<Game> games = new ArrayList<Game>();
+    List<Game> games =
+        GamesScheduler.getBootableGames(runningRoundIds, notCompleteGames);
 
-    Session session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      games = GamesScheduler.getBootableGames(session, runningRounds);
-      log.info("Check for bootable games");
-      transaction.commit();
-    } catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-    }
-    session.close();
+    log.info(String.format("Found %s boot(s) ready to start", games.size()));
 
-    log.info(String.format("Found %s boots ready to start", games.size()));
-
-    machinesAvailable = true;
-    for (Game game: games) {
-      log.info(String.format("Boot %s will be started ...", game.getGameId()));
-      new RunBoot(game).run();
-
-      if (!machinesAvailable) {
+    for (Game game : games) {
+      if (freeMachines.size() == 0) {
         log.info("No free machines, stop looking for Bootable Games");
-        break;
+        return;
       }
+
+      log.info(String.format("Boot %s will be started ...", game.getGameId()));
+      new RunBoot(game, freeMachines).run();
     }
   }
 }

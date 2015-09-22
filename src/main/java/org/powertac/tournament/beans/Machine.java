@@ -83,7 +83,7 @@ public class Machine
    * Check the status of the Jenkins slaves against the local status
    */
   @SuppressWarnings("unchecked")
-  public static void checkMachines ()
+  public static List<Machine> checkMachines ()
   {
     log.info("SchedulerTimer Checking Machine States..");
 
@@ -95,6 +95,8 @@ public class Machine
       Machine machine = (Machine) obj;
       machines.put(machine.getMachineName(), machine);
     }
+
+    List<Machine> freeMachines = new ArrayList<Machine>();
 
     try {
       NodeList nList = JenkinsConnector.getNodeList();
@@ -133,6 +135,10 @@ public class Machine
                   + "Jenkins reports 'not idle'", displayName));
             }
             session.saveOrUpdate(machine);
+
+            if (machine.isAvailable() && machine.isStateIdle()) {
+              freeMachines.add(machine);
+            }
           }
         } catch (Exception e) {
           e.printStackTrace();
@@ -150,6 +156,8 @@ public class Machine
       e.printStackTrace();
     }
     session.close();
+
+    return freeMachines;
   }
 
   @SuppressWarnings("unchecked")

@@ -75,13 +75,13 @@ public class Scheduler implements InitializingBean
         // Empty line to make logs more readable
         log.info(System.getProperty("line.separator"));
         try {
-          Machine.checkMachines();
+          List<Game> notCompleteGames = Game.getNotCompleteGamesList();
+          List<Machine> freeMachines = Machine.checkMachines();
           createGamesForLoadedRounds();
-          RunGame.startRunnableGames(runningRounds);
-          RunBoot.startBootableGames(runningRounds);
-          checkWedgedBoots();
-          checkWedgedSims();
-
+          RunGame.startRunnableGames(getRunningRoundIds(), notCompleteGames, freeMachines);
+          RunBoot.startBootableGames(getRunningRoundIds(), notCompleteGames, freeMachines);
+          checkWedgedBoots(notCompleteGames);
+          checkWedgedSims(notCompleteGames);
           lastSchedulerRun = System.currentTimeMillis();
         }
         catch (Exception e) {
@@ -355,11 +355,11 @@ public class Scheduler implements InitializingBean
     }
   }
 
-  private void checkWedgedBoots ()
+  private void checkWedgedBoots (List<Game> notCompleteGames)
   {
     log.info("SchedulerTimer Looking for Wedged Bootstraps");
 
-    for (Game game : Game.getNotCompleteGamesList()) {
+    for (Game game : notCompleteGames) {
       if (!game.isBooting() || game.getReadyTime() == null) {
         continue;
       }
@@ -383,11 +383,11 @@ public class Scheduler implements InitializingBean
     log.debug("SchedulerTimer No Bootstraps seems Wedged");
   }
 
-  private void checkWedgedSims ()
+  private void checkWedgedSims (List<Game> notCompleteGames)
   {
     log.info("SchedulerTimer Looking for Wedged Sims");
 
-    for (Game game : Game.getNotCompleteGamesList()) {
+    for (Game game : notCompleteGames) {
       if (!game.isRunning() || game.getReadyTime() == null) {
         continue;
       }
@@ -428,6 +428,14 @@ public class Scheduler implements InitializingBean
   public List<Round> getRunningRounds ()
   {
     return runningRounds;
+  }
+
+  public List<Integer> getRunningRoundIds () {
+    List<Integer> runningRoundIds = new ArrayList<Integer>();
+    for (Round round : runningRounds) {
+      runningRoundIds.add(round.getRoundId());
+    }
+    return runningRoundIds;
   }
 
   public static Scheduler getScheduler ()

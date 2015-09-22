@@ -293,22 +293,13 @@ public class Broker
   // Check if there are still agents available
   public boolean hasAgentsAvailable (Round round)
   {
-    boolean found = false;
     Scheduler scheduler = Scheduler.getScheduler();
-    List<Round> runningRounds = scheduler.getRunningRounds();
+    List<Integer> runningRoundIds = scheduler.getRunningRoundIds();
 
     // Shouldn't happen (no games should start when no round loaded)
-    if (runningRounds == null || runningRounds.size() == 0) {
-      return false;
-    }
-
-    // If there are running rounds, but this one is not (should also not happen)
-    for (Round runningRound:runningRounds) {
-      if (runningRound.getRoundId() == round.getRoundId()) {
-        found = true;
-      }
-    }
-    if (!found) {
+    // Or there are running rounds, but this one is not (should also not happen)
+    if (runningRoundIds.size() == 0 ||
+        !Scheduler.getScheduler().getRunningRoundIds().contains(round.getRoundId())) {
       return false;
     }
 

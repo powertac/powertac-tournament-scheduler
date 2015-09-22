@@ -1,11 +1,7 @@
 package org.powertac.tournament.services;
 
-import org.hibernate.Criteria;
-import org.hibernate.Session;
 import org.powertac.tournament.beans.Agent;
 import org.powertac.tournament.beans.Game;
-import org.powertac.tournament.beans.Round;
-import org.powertac.tournament.constants.Constants;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,24 +13,21 @@ import java.util.Map;
 
 public class GamesScheduler
 {
-  @SuppressWarnings("unchecked")
-  public static List<Game> getBootableGames (Session session,
-                                             List<Round> rounds)
+  public static List<Game> getBootableGames (List<Integer> runningRoundIds,
+                                             List<Game> notCompleteGames)
   {
-    // no running rounds means no games to check
-    if (rounds == null || rounds.isEmpty()) {
-      return new ArrayList<Game>();
-    }
+    List<Game> games = new ArrayList<Game>();
 
-    // Get all bootable games (boot_pending) for the running rounds
-    List<Integer> roundIds = new ArrayList<Integer>();
-    for (Round round : rounds) {
-      roundIds.add(round.getRoundId());
+    for (Game game : notCompleteGames) {
+      if (!game.isBootPending()) {
+        continue;
+      }
+      if (runningRoundIds != null && runningRoundIds.size() > 0 &&
+          !runningRoundIds.contains(game.getRound().getRoundId())) {
+        continue;
+      }
+      games.add(game);
     }
-    List<Game> games = (List<Game>) session
-        .createQuery(Constants.HQL.GET_GAMES_BOOT_PENDING)
-        .setParameterList("roundIds", roundIds)
-        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
     orderGames(games);
 
@@ -42,31 +35,29 @@ public class GamesScheduler
   }
 
   /*
-   * This function returns a list of all startable games in order of urgency.
-   * the urgency of a game is the sum of the startable games of all brokers in
-   * that game. This favors the bigger games (more brokers) since they'll have
-   * a higher sum, and it favors the games with brokers that still have a
-   * lot of games to do.
-   */
+ * This function returns a list of all startable games in order of urgency.
+ * the urgency of a game is the sum of the startable games of all brokers in
+ * that game. This favors the bigger games (more brokers) since they'll have
+ * a higher sum, and it favors the games with brokers that still have a
+ * lot of games to do.
+ */
   @SuppressWarnings("unchecked")
-  public static List<Game> getStartableGames (Session session,
-                                              List<Round> rounds)
+  public static List<Game> getStartableGames (List<Integer> runningRoundIds,
+                                              List<Game> notCompleteGames)
   {
-    // no running rounds means no games to check
-    if (rounds == null || rounds.isEmpty()) {
-      return new ArrayList<Game>();
+    List<Game> games = new ArrayList<Game>();
+
+    if (runningRoundIds == null || runningRoundIds.size() == 0) {
+      return games;
     }
 
-    // Get all runnable games (boot_complete) for the running rounds
-    List<Integer> roundIds = new ArrayList<Integer>();
-    for (Round round : rounds) {
-      roundIds.add(round.getRoundId());
+    for (Game game : notCompleteGames) {
+      if (!game.isBootComplete() ||
+          !runningRoundIds.contains(game.getRound().getRoundId())) {
+        continue;
+      }
+      games.add(game);
     }
-    List<Game> games = (List<Game>) session
-        .createQuery(Constants.HQL.GET_GAMES_BOOT_COMPLETE)
-        .setTimestamp("startTime", Utils.offsetDate())
-        .setParameterList("roundIds", roundIds)
-        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
     orderGames(games);
 

@@ -350,6 +350,18 @@ public class Game implements Serializable
     return STATE.isRunning.contains(state);
   }
 
+  @Transient
+  public boolean isBootPending ()
+  {
+    return state == STATE.boot_pending;
+  }
+
+  @Transient
+  public boolean isBootComplete ()
+  {
+    return state == STATE.boot_complete;
+  }
+
   public boolean hasBootstrap ()
   {
     return STATE.hasBootstrap.contains(state);

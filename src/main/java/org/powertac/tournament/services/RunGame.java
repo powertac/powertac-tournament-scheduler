@@ -3,9 +3,11 @@ package org.powertac.tournament.services;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.powertac.tournament.beans.*;
+import org.powertac.tournament.beans.Agent;
+import org.powertac.tournament.beans.Broker;
+import org.powertac.tournament.beans.Game;
+import org.powertac.tournament.beans.Machine;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -14,15 +16,15 @@ public class RunGame
   private static Logger log = Utils.getLogger();
 
   private Game game;
+  private List<Machine> freeMachines;
   private String brokers = "";
   private TournamentProperties properties = TournamentProperties.getProperties();
   private Session session;
 
-  private static boolean machinesAvailable;
-
-  public RunGame (Game game)
+  public RunGame (Game game, List<Machine> freeMachines)
   {
     this.game = game;
+    this.freeMachines = freeMachines;
   }
 
   private void run ()
@@ -30,12 +32,6 @@ public class RunGame
     session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      if (!checkMachineAvailable()) {
-        transaction.rollback();
-        machinesAvailable = false;
-        return;
-      }
-
       if (!checkBootstrap()) {
         transaction.rollback();
         return;
@@ -46,18 +42,17 @@ public class RunGame
         return;
       }
 
-      if (!startJob()) {
-        transaction.rollback();
-        return;
-      }
-
+      setMachineToGame();
+      startJob();
       session.update(game);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.info("Failed to start sim game: " + game.getGameId());
-    } finally {
+    }
+    finally {
       session.close();
     }
   }
@@ -69,7 +64,8 @@ public class RunGame
   {
     if (game.hasBootstrap()) {
       return true;
-    } else {
+    }
+    else {
       log.info("Game: " + game.getGameId() + " reports that boot is not ready!");
       game.setStateBootPending();
       return false;
@@ -83,71 +79,64 @@ public class RunGame
    */
   private boolean checkBrokers ()
   {
-    if (game.getAgentMap().size() < 1) {
-      log.info(String.format("Game: %s (round %s) reports no brokers "
-          + "registered",
-          game.getGameId(), game.getRound().getRoundId()));
+    try {
+      session.refresh(game);
+
+      if (game.getAgentMap().size() < 1) {
+        log.info(String.format("Game: %s (round %s) reports no brokers "
+                + "registered",
+            game.getGameId(), game.getRound().getRoundId()));
+        return false;
+      }
+
+      for (Agent agent : game.getAgentMap().values()) {
+        Broker broker = agent.getBroker();
+        // Check if any broker is disabled in the interface
+        if (!MemStore.getBrokerState(broker.getBrokerId())) {
+          log.info(String.format("Not starting game %s : broker %s is disabled",
+              game.getGameId(), broker.getBrokerId()));
+          return false;
+        }
+
+        // Check if any broker is already running the maxAgent nof agents
+        if (!broker.hasAgentsAvailable(game.getRound())) {
+          log.info(String.format("Not starting game %s : broker %s doesn't have "
+                  + "enough available agents",
+              game.getGameId(), broker.getBrokerId()));
+          return false;
+        }
+
+        brokers += broker.getBrokerName() + "/" + agent.getBrokerQueue() + ",";
+      }
+      brokers = brokers.substring(0, brokers.length() - 1);
+      return true;
+    }
+    catch (Exception e) {
+      e.printStackTrace();
       return false;
     }
-
-    for (Agent agent: game.getAgentMap().values()) {
-      Broker broker = agent.getBroker();
-      // Check if any broker is disabled in the interface
-      if (!MemStore.getBrokerState(broker.getBrokerId())) {
-        log.info(String.format("Not starting game %s : broker %s is disabled",
-            game.getGameId(), broker.getBrokerId()));
-        return false;
-      }
-
-      // Check if any broker is already running the maxAgent nof agents
-      if (!broker.hasAgentsAvailable(game.getRound())) {
-        log.info(String.format("Not starting game %s : broker %s doesn't have "
-            + "enough available agents",
-            game.getGameId(), broker.getBrokerId()));
-        return false;
-      }
-
-      brokers += broker.getBrokerName() + "/" + agent.getBrokerQueue() + ",";
-    }
-    brokers = brokers.substring(0, brokers.length() - 1);
-    return true;
   }
 
   /**
-   * Make sure there is a machine available for the game
+   * Link machine to the game
    */
-  private boolean checkMachineAvailable ()
-      throws Exception
+  private void setMachineToGame ()
   {
-    try {
-      log.info("Claiming free machine");
+    log.info("Claiming free machine");
 
-      Machine freeMachine = Machine.getFreeMachine(session);
-      if (freeMachine == null) {
-        Scheduler scheduler = Scheduler.getScheduler();
-        log.info(String.format(
-            "No machine available for scheduled sim %s, retry in %s seconds",
-            game.getGameId(), scheduler.getSchedulerInterval() / 1000));
-        return false;
-      }
-
-      game.setMachine(freeMachine);
-      freeMachine.setStateRunning();
-      session.update(freeMachine);
-      log.info(String.format("Game: %s running on machine: %s",
-          game.getGameId(), game.getMachine().getMachineName()));
-      return true;
-    } catch (Exception e) {
-      log.warn("Error claiming free machine for game " + game.getGameId());
-      throw e;
-    }
+    Machine freeMachine = freeMachines.remove(0);
+    game.setMachine(freeMachine);
+    freeMachine.setStateRunning();
+    session.update(freeMachine);
+    log.info(String.format("Game: %s running on machine: %s",
+        game.getGameId(), game.getMachine().getMachineName()));
   }
 
   /*
    * If all conditions are met (we have a slave available, game is booted and
    * agents should be available) send job to Jenkins.
    */
-  private boolean startJob () throws Exception
+  private void startJob () throws Exception
   {
     String finalUrl =
         properties.getProperty("jenkins.location")
@@ -169,9 +158,8 @@ public class RunGame
       game.setReadyTime(Utils.offsetDate());
       log.debug(String.format("Update game: %s to %s", game.getGameId(),
           Game.getStateGamePending()));
-
-      return true;
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       log.error("Jenkins failure to start sim game: " + game.getGameId());
       game.setStateGameFailed();
       throw e;
@@ -184,40 +172,30 @@ public class RunGame
    * games in that round. If no round loaded, we look for games in
    * all singleGame rounds.
    */
-  public static void startRunnableGames (List <Round> runningRounds)
+  public static void startRunnableGames (List<Integer> runningRoundIds,
+                                         List<Game> notCompleteGames,
+                                         List<Machine> freeMachines)
   {
-    if (runningRounds == null || runningRounds.isEmpty()) {
+    if (runningRoundIds == null || runningRoundIds.size() == 0) {
       log.info("No rounds available for runnable games");
       return;
     }
 
     log.info("Looking for Runnable Games");
 
-    List<Game> games = new ArrayList<Game>();
-
-    Session session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      games = GamesScheduler.getStartableGames(session, runningRounds);
-      log.info("Check for startable games");
-      transaction.commit();
-    } catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-    }
-    session.close();
+    List<Game> games =
+        GamesScheduler.getStartableGames(runningRoundIds, notCompleteGames);
 
     log.info(String.format("Found %s game(s) ready to start", games.size()));
 
-    machinesAvailable = true;
-    for (Game game: games) {
-      log.info(String.format("Game %s will be started ...", game.getGameId()));
-      new RunGame(game).run();
-
-      if (!machinesAvailable) {
+    for (Game game : games) {
+      if (freeMachines.size() == 0) {
         log.info("No free machines, stop looking for Startable Games");
-        break;
+        return;
       }
+
+      log.info(String.format("Game %s will be started ...", game.getGameId()));
+      new RunGame(game, freeMachines).run();
     }
   }
 }
