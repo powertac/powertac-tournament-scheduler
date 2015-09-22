@@ -21,7 +21,6 @@ public class Pom
 {
   private int pomId;
   private String pomName;
-  private User user;
 
   public Pom ()
   {
@@ -75,17 +74,5 @@ public class Pom
   public void setPomName (String pomName)
   {
     this.pomName = pomName;
-  }
-
-  @ManyToOne
-  @JoinColumn(name = "userId")
-  public User getUser ()
-  {
-    return user;
-  }
-
-  public void setUser (User user)
-  {
-    this.user = user;
   }
 }

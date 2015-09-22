@@ -290,10 +290,8 @@ public class ActionAdmin implements InitializingBean
       return;
     }
 
-    User currentUser = User.getCurrentUser();
     Pom pom = new Pom();
     pom.setPomName(getPomName());
-    pom.setUser(currentUser);
 
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();

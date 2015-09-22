@@ -37,9 +37,7 @@ DROP TABLE IF EXISTS `powertac_tournament`.`poms`;
 CREATE TABLE `powertac_tournament`.`poms` (
   `pomId`   INT(11)     NOT NULL AUTO_INCREMENT,
   `pomName` VARCHAR(45) NOT NULL,
-  `userId`  INT(11)     NOT NULL,
-  PRIMARY KEY (`pomId`),
-  CONSTRAINT pom_refs FOREIGN KEY (`userId`) REFERENCES `powertac_tournament`.`users` (`userId`)
+  PRIMARY KEY (`pomId`)
 )
   ENGINE = InnoDB;
 
