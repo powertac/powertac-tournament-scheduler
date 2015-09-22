@@ -13,10 +13,19 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -73,16 +82,22 @@ public class Machine
   /**
    * Check the status of the Jenkins slaves against the local status
    */
+  @SuppressWarnings("unchecked")
   public static void checkMachines ()
   {
     log.info("SchedulerTimer Checking Machine States..");
 
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
+
+    Map<String, Machine> machines = new HashMap<String, Machine>();
+    for (Object obj : session.createQuery(Constants.HQL.GET_MACHINES).list()) {
+      Machine machine = (Machine) obj;
+      machines.put(machine.getMachineName(), machine);
+    }
+
     try {
       NodeList nList = JenkinsConnector.getNodeList();
-
-      boolean dirty = false; // Session.isDirty() doesn't seem to work
 
       for (int temp = 0; temp < nList.getLength(); temp++) {
         try {
@@ -99,10 +114,7 @@ public class Machine
 
             log.debug("Checking machine " + displayName);
 
-            Query query = session.
-                createQuery(Constants.HQL.GET_MACHINE_BY_MACHINENAME);
-            query.setString("machineName", displayName);
-            Machine machine = (Machine) query.uniqueResult();
+            Machine machine = machines.get(displayName);
 
             if (machine == null) {
               log.warn("Machine " + displayName + " doesn't exist in the TS");
@@ -111,14 +123,12 @@ public class Machine
 
             if (machine.isAvailable() && offline.equals("true")) {
               machine.setAvailable(false);
-              dirty = true;
               log.warn(String.format("Machine %s is set available, but "
                   + "Jenkins reports offline", displayName));
             }
 
             if (machine.isStateIdle() && idle.equals("false")) {
               machine.setStateRunning();
-              dirty = true;
               log.warn(String.format("Machine %s has status 'idle', but "
                   + "Jenkins reports 'not idle'", displayName));
             }
@@ -129,7 +139,7 @@ public class Machine
         }
       }
 
-      if (dirty) {
+      if (session.isDirty()) {
         transaction.commit();
       }
     } catch (IOException ioe) {
