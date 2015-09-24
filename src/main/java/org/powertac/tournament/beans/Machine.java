@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.criterion.Restrictions;
 import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.JenkinsConnector;
@@ -158,15 +157,6 @@ public class Machine
     session.close();
 
     return freeMachines;
-  }
-
-  @SuppressWarnings("unchecked")
-  public static Machine getFreeMachine (Session session)
-  {
-    return (Machine) session.createCriteria(Machine.class)
-        .add(Restrictions.eq("state", Machine.STATE.idle))
-        .add(Restrictions.eq("available", true))
-        .setMaxResults(1).uniqueResult();
   }
 
   @SuppressWarnings("unchecked")

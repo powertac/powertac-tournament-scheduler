@@ -19,7 +19,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.bean.ManagedBean;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -319,7 +319,7 @@ public class ActionRounds implements InitializingBean
       Location location = getLocationList().get(0);
       dateFrom = location.getDateFrom();
       dateTo = location.getDateTo();
-      locations = Arrays.asList(location.getLocation());
+      locations = Collections.singletonList(location.getLocation());
     }
     else {
       dateFrom = new Date();

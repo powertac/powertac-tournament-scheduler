@@ -16,7 +16,12 @@ import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.bean.ManagedBean;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 @ManagedBean
@@ -27,6 +32,7 @@ public class ActionOverview implements InitializingBean
   private List<Broker> brokerList;
   private List<Game> notCompleteGamesList;
   private List<Round> notCompleteRoundList;
+  private Map<Integer, Set<Integer>> runningGames;
 
   public ActionOverview ()
   {
@@ -34,32 +40,37 @@ public class ActionOverview implements InitializingBean
 
   public void afterPropertiesSet () throws Exception
   {
+    runningGames = new HashMap<Integer, Set<Integer>>();
+
     brokerList = Broker.getBrokerList();
-    notCompleteGamesList = Game.getNotCompleteGamesList();
+    Set<Integer> brokerIds = new HashSet<Integer>();
+    for (Broker broker : brokerList) {
+      brokerIds.add(broker.getBrokerId());
+      runningGames.put(broker.getBrokerId(), new HashSet<Integer>());
+    }
+
     notCompleteRoundList = Round.getNotCompleteRoundList();
+    notCompleteGamesList = new ArrayList<Game>();
+    for (Round round : notCompleteRoundList) {
+      for (Game game : round.getGameMap().values()) {
+        if (game.isComplete()) {
+          continue;
+        }
+
+        notCompleteGamesList.add(game);
+
+        for (Agent agent : game.getAgentMap().values()) {
+          if (agent.isInProgress() && brokerIds.contains(agent.getBrokerId())) {
+            runningGames.get(agent.getBrokerId()).add(game.getGameId());
+          }
+        }
+      }
+    }
   }
 
   public String getBrokerState (int brokerId)
   {
-    if (MemStore.getBrokerState(brokerId)) {
-      return "enabled";
-    }
-    else {
-      return "disabled";
-    }
-  }
-
-  public void toggleState (int brokerId)
-  {
-    boolean enabled = true;
-
-    try {
-      enabled = MemStore.getBrokerState(brokerId);
-    }
-    catch (Exception ignored) {
-    }
-
-    MemStore.setBrokerState(brokerId, !enabled);
+    return MemStore.getBrokerState(brokerId) ? "enabled" : "disabled";
   }
 
   public void abortGame (Game game)
@@ -69,9 +80,6 @@ public class ActionOverview implements InitializingBean
     new RunAbort(game.getMachine().getMachineName()).run();
 
     Utils.growlMessage("Notice", "Aborting games takes some time, please wait");
-
-    // Somehow the Show/Hide event is fired
-    MemStore.setHideInactiveGames(!MemStore.isHideInactiveGames());
   }
 
   public void killGame (Game game)
@@ -130,9 +138,6 @@ public class ActionOverview implements InitializingBean
 
     // Removed MemStored info about game
     MemStore.removeGameInfo(gameId);
-
-    // Somehow the Show/Hide event is fired
-    MemStore.setHideInactiveGames(!MemStore.isHideInactiveGames());
   }
 
   public void restartGame (Game game)
@@ -172,9 +177,6 @@ public class ActionOverview implements InitializingBean
       Utils.growlMessage("Failed to restart game : " + gameId);
     }
     session.close();
-
-    // Somehow the Show/Hide event is fired
-    MemStore.setHideInactiveGames(!MemStore.isHideInactiveGames());
   }
 
   //<editor-fold desc="Collections">
@@ -183,36 +185,23 @@ public class ActionOverview implements InitializingBean
     return brokerList;
   }
 
+  public List<Round> getNotCompleteRoundList ()
+  {
+    return notCompleteRoundList;
+  }
+
   public List<Game> getNotCompleteGamesList ()
   {
     return notCompleteGamesList;
   }
 
-  public List<Round> getNotCompleteRoundList ()
+  public String getRunningGames (int brokerId)
   {
-    return notCompleteRoundList;
-  }
-  //</editor-fold>
-
-  //<editor-fold desc="Getters and Setters">
-  public boolean isHideInactiveBrokers ()
-  {
-    return MemStore.isHideInactiveBrokers();
-  }
-
-  public void setHideInactiveBrokers (boolean ignored)
-  {
-    MemStore.setHideInactiveBrokers(!MemStore.isHideInactiveBrokers());
-  }
-
-  public boolean isHideInactiveGames ()
-  {
-    return MemStore.isHideInactiveGames();
-  }
-
-  public void setHideInactiveGames (boolean ignored)
-  {
-    MemStore.setHideInactiveGames(!MemStore.isHideInactiveGames());
+    Set<Integer> tmp = runningGames.get(brokerId);
+    if (tmp == null) {
+      return "";
+    }
+    return tmp.toString().replace("[", "").replace("]", "");
   }
   //</editor-fold>
 }

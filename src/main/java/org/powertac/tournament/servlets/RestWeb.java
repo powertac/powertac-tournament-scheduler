@@ -22,6 +22,17 @@ public class RestWeb extends HttpServlet
     super();
   }
 
+  protected void doPost (HttpServletRequest request, HttpServletResponse response)
+      throws IOException
+  {
+    String type = request.getParameter("type");
+
+    if (type.equals("brokerState")) {
+      int brokerId = Integer.valueOf(request.getParameter("brokerId"));
+      MemStore.setBrokerState(brokerId, !MemStore.getBrokerState(brokerId));
+    }
+  }
+
   protected void doGet (HttpServletRequest request, HttpServletResponse response)
       throws IOException
   {
@@ -148,7 +159,7 @@ public class RestWeb extends HttpServlet
 
       try {
         long stamp = (System.currentTimeMillis() -
-                      MemStore.getVizCheckins().get(s)) / 1000;
+            MemStore.getVizCheckins().get(s)) / 1000;
         if (stamp > 900) {
           MemStore.removeVizCheckin(s);
           MemStore.removeMachineLoad(s);

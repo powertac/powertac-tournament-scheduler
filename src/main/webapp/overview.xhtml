@@ -23,11 +23,7 @@
         <h3 class="withButton">Registered Brokers</h3>
         <h:button value="Refresh" outcome="Overview"/>
         <h:commandButton id="toggleBrokerViz" value="Hide inactive"
-                         onclick="toggleBrokerViz();">
-          <f:ajax execute="hideInactiveBrokers"/>
-        </h:commandButton>
-        <h:inputHidden id="hideInactiveBrokers"
-                       value="#{actionOverview.hideInactiveBrokers}"/>
+                  onclick="toggleBrokerViz();" type="button"/>
 
         <t:dataTable id="databrokers" border="1"
                      value="#{actionOverview.brokerList}" var="broker">
@@ -44,10 +40,8 @@
               <h:outputText value="#{broker.brokerName}"/>
             </h:outputLink>
             <h:commandButton value="Toggle" styleClass="smallButton float_right"
-                             action="#{actionOverview.toggleState(broker.getBrokerId())}"
-                             onclick='toggleStateViz("#{broker.getBrokerId()}")'>
-              <f:ajax/>
-            </h:commandButton>
+                             onclick='toggleStateViz("#{broker.getBrokerId()}")'
+                             type="button"/>
           </t:column>
 
           <t:column>
@@ -67,7 +61,7 @@
 
           <t:column>
             <f:facet name="header">Games</f:facet>
-            <h:outputText value="#{broker.getRunningGamesString()}"/>
+            <h:outputText value="#{actionOverview.getRunningGames(broker.brokerId)}"/>
           </t:column>
 
           <t:column>
@@ -141,11 +135,7 @@
         <h3 class="withButton" id="gamesFormHeader">Pending/Running Games</h3>
         <h:button value="Refresh" outcome="Overview"/>
         <h:commandButton id="toggleGameViz" value="Hide inactive"
-                         onclick="toggleGamesViz();">
-          <f:ajax execute="hideInactiveGames"/>
-        </h:commandButton>
-        <h:inputHidden id="hideInactiveGames"
-                       value="#{actionOverview.hideInactiveGames}"/>
+                         onclick="toggleGamesViz();" type="button"/>
 
         <t:dataTable id="dataGames" border="1"
                      value="#{actionOverview.notCompleteGamesList}" var="g">

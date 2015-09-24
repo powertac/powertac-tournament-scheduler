@@ -52,11 +52,11 @@ public class GamesScheduler
     }
 
     for (Game game : notCompleteGames) {
-      if (!game.isBootComplete() ||
-          !runningRoundIds.contains(game.getRound().getRoundId())) {
-        continue;
+      if (game.isBootComplete() &&
+          game.getStartTime().before(Utils.offsetDate()) &&
+          runningRoundIds.contains(game.getRound().getRoundId())) {
+        games.add(game);
       }
-      games.add(game);
     }
 
     orderGames(games);

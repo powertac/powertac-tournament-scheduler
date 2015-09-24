@@ -8,13 +8,32 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.ConstraintViolationException;
 import org.powertac.tournament.constants.Constants;
-import org.powertac.tournament.services.*;
+import org.powertac.tournament.services.HibernateUtil;
+import org.powertac.tournament.services.Scheduler;
+import org.powertac.tournament.services.Utils;
 
 import javax.faces.bean.ManagedBean;
-import javax.persistence.*;
-import java.util.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static javax.persistence.GenerationType.IDENTITY;
+
 
 @ManagedBean
 @Entity
@@ -54,11 +73,13 @@ public class Broker
       session.save(this);
       transaction.commit();
       return true;
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return false;
-    } finally {
+    }
+    finally {
       session.close();
     }
   }
@@ -71,14 +92,17 @@ public class Broker
       session.update(this);
       transaction.commit();
       return null;
-    } catch (ConstraintViolationException cve) {
+    }
+    catch (ConstraintViolationException cve) {
       transaction.rollback();
       return cve.getMessage();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return "Error updating broker";
-    } finally {
+    }
+    finally {
       session.close();
     }
   }
@@ -93,7 +117,7 @@ public class Broker
           .setInteger("brokerId", brokerId).uniqueResult();
 
       // Delete all agent belonging to this broker
-      for (Agent agent: broker.agentMap.values()) {
+      for (Agent agent : broker.agentMap.values()) {
         // Don't allow deleting brokers with agents in running games
         if (agent.getGame().isRunning()) {
           transaction.rollback();
@@ -117,11 +141,13 @@ public class Broker
       session.delete(broker);
       transaction.commit();
       return true;
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return false;
-    } finally {
+    }
+    finally {
       session.close();
     }
   }
@@ -134,11 +160,13 @@ public class Broker
       registerForRound(session, roundId);
       transaction.commit();
       return true;
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return false;
-    } finally {
+    }
+    finally {
       session.close();
     }
   }
@@ -174,26 +202,15 @@ public class Broker
           .add(Restrictions.eq("broker", this)).uniqueResult();
       session.delete(roundBroker);
 
-      List<Integer> deleteAgents = new ArrayList<Integer>();
-      for (Agent agent: agentMap.values()) {
-        if (agent.getGame().getRound().getRoundId() == roundId) {
-          deleteAgents.add(agent.getAgentId());
-        }
-      }
-
-      for (Integer agentId: deleteAgents) {
-        Agent agent = (Agent) session.load(Agent.class, agentId);
-        session.delete(agent);
-        session.flush();
-      }
-
       transaction.commit();
       return true;
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return false;
-    } finally {
+    }
+    finally {
       session.close();
     }
   }
@@ -206,11 +223,13 @@ public class Broker
       registerForTournament(session, tournamentId);
       transaction.commit();
       return true;
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return false;
-    } finally {
+    }
+    finally {
       session.close();
     }
   }
@@ -251,8 +270,8 @@ public class Broker
       }
 
       List<Integer> deleteAgents = new ArrayList<Integer>();
-      for (Level level: tournament.getLevelMap().values()) {
-        for (Round round: level.getRoundMap().values()) {
+      for (Level level : tournament.getLevelMap().values()) {
+        for (Round round : level.getRoundMap().values()) {
           // Delete link between broker and round
           RoundBroker roundBroker = (RoundBroker) session
               .createCriteria(RoundBroker.class)
@@ -264,8 +283,8 @@ public class Broker
           }
 
           // Delete link between brokers agent and game
-          for (Game game: round.getGameMap().values()) {
-            for (Agent agent: game.getAgentMap().values()) {
+          for (Game game : round.getGameMap().values()) {
+            for (Agent agent : game.getAgentMap().values()) {
               if (agent.getBrokerId() == brokerId) {
                 deleteAgents.add(agent.getAgentId());
               }
@@ -273,7 +292,7 @@ public class Broker
           }
         }
       }
-      for (Integer agentId: deleteAgents) {
+      for (Integer agentId : deleteAgents) {
         Agent agent = (Agent) session.load(Agent.class, agentId);
         session.delete(agent);
         session.flush();
@@ -281,11 +300,13 @@ public class Broker
 
       transaction.commit();
       return true;
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return false;
-    } finally {
+    }
+    finally {
       session.close();
     }
   }
@@ -305,7 +326,7 @@ public class Broker
 
     // Round is running, now check for free agents
     int freeAgents = round.getLevel().getTournament().getMaxAgents();
-    for (Agent agent: agentMap.values()) {
+    for (Agent agent : agentMap.values()) {
       Game game = agent.getGame();
       if (game.isRunning() &&
           round.getTournamentId() == game.getRound().getTournamentId()) {
@@ -321,65 +342,50 @@ public class Broker
   @Transient
   public String getTournamentsString (boolean useId)
   {
-    StringBuilder result = new StringBuilder();
+    Set<String> tournaments = new HashSet<String>();
 
     for (Tournament tournament : tournamentMap.values()) {
       if (!tournament.isComplete() && useId) {
-        result.append(tournament.getTournamentId()).append(", ");
+        tournaments.add(String.valueOf(tournament.getTournamentId()));
       }
       else if (!tournament.isComplete() && !useId) {
-        result.append(tournament.getTournamentName()).append(", ");
+        tournaments.add(tournament.getTournamentName());
       }
     }
 
-    if (result.length() != 0) {
-      result.delete(result.length()-2, result.length());
-    }
-
-    return result.toString();
+    return tournaments.toString().replace("[", "").replace("]", "");
   }
 
   @Transient
   public String getRoundsString (boolean useId)
   {
-    String result = "";
+    Set<String> rounds = new HashSet<String>();
 
     for (Round round : roundMap.values()) {
-      if (!round.isComplete()) {
-        if (useId) {
-          result += round.getRoundId() + ", ";
-        }
-        else {
-          result += round.getRoundName() + ", ";
-        }
+      if (!round.isComplete() && useId) {
+        rounds.add(String.valueOf(round.getRoundId()));
+      }
+      else if (!round.isComplete() && !useId) {
+        rounds.add(round.getRoundName());
       }
     }
-    if (!result.isEmpty()) {
-      result = result.substring(0, result.length() - 2);
-    }
 
-    return result;
+    return rounds.toString().replace("[", "").replace("]", "");
   }
 
   @Transient
   @SuppressWarnings("unchecked")
   public String getRunningGamesString ()
   {
-    List<Agent> agents = new ArrayList(agentMap.values());
-    Collections.sort(agents, new Utils.agentIdComparator());
+    Set<Integer> gameIds = new HashSet<Integer>();
 
-    String result = "";
-    for (Agent agent: agents) {
+    for (Agent agent : agentMap.values()) {
       if (agent.isInProgress()) {
-        result += agent.getGameId() + ", ";
+        gameIds.add(agent.getGameId());
       }
     }
 
-    if (!result.isEmpty()) {
-      result = result.substring(0, result.length() - 2);
-    }
-
-    return result;
+    return gameIds.toString().replace("[", "").replace("]", "");
   }
 
   //<editor-fold desc="Collections">
@@ -395,7 +401,8 @@ public class Broker
       brokers = (List<Broker>) query.
           setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -404,44 +411,12 @@ public class Broker
     return brokers;
   }
 
-  // This creates a map with brokerId <--> # of free agents
-  @SuppressWarnings("unchecked")
-  public static Map<Integer, Integer> getBrokerAvailability (Session session, Tournament tournament)
-  {
-    Map<Integer, Integer> result = new HashMap<Integer, Integer>();
-
-    List<Broker> brokers = (List<Broker>) session
-        .createQuery(Constants.HQL.GET_BROKERS).list();
-
-    for (Broker broker: brokers) {
-      int brokerId = broker.getBrokerId();
-
-      // If disabled, none available
-      if (!MemStore.getBrokerState(brokerId)) {
-        result.put(brokerId, 0);
-        continue;
-      }
-
-      result.put(brokerId, tournament.getMaxAgents());
-      for (Agent agent: broker.getAgentMap().values()) {
-        Game game = agent.getGame();
-
-        if (game.isRunning() &&
-            game.getRound().getTournamentId() == tournament.getTournamentId()) {
-          result.put(brokerId, result.get(brokerId) - 1);
-        }
-      }
-    }
-
-    return result;
-  }
-
   @Transient
   public List<Round> getAvailableRounds (List<Round> roundList)
   {
     List<Round> registrableRounds = new ArrayList<Round>();
 
-    for (Round round: roundList) {
+    for (Round round : roundList) {
       // Check if maxNofBrokers reached
       if (round.getBrokerMap().size() >= round.getMaxBrokers()) {
         continue;
@@ -491,7 +466,7 @@ public class Broker
   {
     List<Tournament> registrableTournaments = new ArrayList<Tournament>();
 
-    for (Tournament tournament: tournamentList) {
+    for (Tournament tournament : tournamentList) {
       // Can't register if already started
       if (tournament.isStarted()) {
         continue;
@@ -544,7 +519,8 @@ public class Broker
       query.setString("brokerName", brokerName);
       broker = (Broker) query.uniqueResult();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -559,6 +535,7 @@ public class Broker
   {
     return agentMap;
   }
+
   public void setAgentMap (Map<Integer, Agent> agentMap)
   {
     this.agentMap = agentMap;
@@ -576,6 +553,7 @@ public class Broker
   {
     return roundMap;
   }
+
   public void setRoundMap (Map<Integer, Round> roundMap)
   {
     this.roundMap = roundMap;
@@ -593,6 +571,7 @@ public class Broker
   {
     return tournamentMap;
   }
+
   public void setTournamentMap (Map<Integer, Tournament> tournamentMap)
   {
     this.tournamentMap = tournamentMap;
@@ -607,6 +586,7 @@ public class Broker
   {
     return brokerId;
   }
+
   public void setBrokerId (Integer brokerId)
   {
     this.brokerId = brokerId;
@@ -618,6 +598,7 @@ public class Broker
   {
     return user;
   }
+
   public void setUser (User user)
   {
     this.user = user;
@@ -628,6 +609,7 @@ public class Broker
   {
     return brokerName;
   }
+
   public void setBrokerName (String brokerName)
   {
     this.brokerName = brokerName;
@@ -638,6 +620,7 @@ public class Broker
   {
     return brokerAuth;
   }
+
   public void setBrokerAuth (String brokerAuth)
   {
     this.brokerAuth = brokerAuth;
@@ -648,6 +631,7 @@ public class Broker
   {
     return shortDescription;
   }
+
   public void setShortDescription (String shortDescription)
   {
     this.shortDescription = shortDescription;
@@ -660,6 +644,7 @@ public class Broker
   {
     return edit;
   }
+
   public void setEdit (boolean edit)
   {
     this.edit = edit;
@@ -670,6 +655,7 @@ public class Broker
   {
     return registerRoundId;
   }
+
   public void setRegisterRoundId (int selectedTourneyRegister)
   {
     this.registerRoundId = selectedTourneyRegister;
@@ -680,6 +666,7 @@ public class Broker
   {
     return unregisterRoundId;
   }
+
   public void setUnregisterRoundId (int unregisterRoundId)
   {
     this.unregisterRoundId = unregisterRoundId;
@@ -690,6 +677,7 @@ public class Broker
   {
     return registerTournamentId;
   }
+
   public void setRegisterTournamentId (int registerTournamentId)
   {
     this.registerTournamentId = registerTournamentId;
@@ -700,6 +688,7 @@ public class Broker
   {
     return unregisterTournamentId;
   }
+
   public void setUnregisterTournamentId (int selectedUnregisterTournamentId)
   {
     this.unregisterTournamentId = selectedUnregisterTournamentId;

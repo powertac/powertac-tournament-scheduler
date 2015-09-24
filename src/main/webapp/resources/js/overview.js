@@ -1,4 +1,10 @@
 function toggleStateViz(brokerId) {
+  $.ajax({
+    url: "Rest?type=brokerState",
+    type: "POST",
+    data: {brokerId: brokerId}
+  });
+
   $("#brokersForm\\:databrokers").find('>tbody>tr').each(function () {
     var id = $(this).find('td:nth-child(1)')[0];
     if ($(id).text() == brokerId) {
@@ -157,13 +163,8 @@ function resizeTables() {
 $(document).ready(function () {
   resizeTables();
 
-  if ($('#brokersForm\\:hideInactiveBrokers').val() == 'true') {
-    toggleBrokerViz();
-  }
-
-  if ($('#gamesForm\\:hideInactiveGames').val() == 'true') {
-    toggleGamesViz();
-  }
+  toggleBrokerViz();
+  toggleGamesViz();
 
   updateTables();
   setInterval(updateTables, 3000);

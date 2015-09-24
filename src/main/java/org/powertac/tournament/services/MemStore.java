@@ -34,8 +34,6 @@ public class MemStore
   private static ConcurrentHashMap<Integer, Long> elapsedTimes;
 
   private static ConcurrentHashMap<Integer, Boolean> brokerState;
-  private static boolean hideInactiveBrokers = true;
-  private static boolean hideInactiveGames = true;
   private static List<Location> availableLocations;
 
   private static String indexContent;
@@ -286,36 +284,16 @@ public class MemStore
   //<editor-fold desc="Interface stuff">
   public static boolean getBrokerState (int brokerId)
   {
-    boolean enabled = true;
     try {
-      enabled = MemStore.brokerState.get(brokerId);
+      return MemStore.brokerState.get(brokerId);
     }
     catch (Exception ignored) {
+      return true;
     }
-
-    return enabled;
   }
   public static void setBrokerState (int brokerId, boolean state)
   {
     brokerState.put(brokerId, state);
-  }
-
-  public static boolean isHideInactiveBrokers ()
-  {
-    return hideInactiveBrokers;
-  }
-  public static void setHideInactiveBrokers (boolean hideInactiveBrokers)
-  {
-    MemStore.hideInactiveBrokers = hideInactiveBrokers;
-  }
-
-  public static boolean isHideInactiveGames ()
-  {
-    return hideInactiveGames;
-  }
-  public static void setHideInactiveGames (boolean hideInactiveGames)
-  {
-    MemStore.hideInactiveGames = hideInactiveGames;
   }
 
   public static List<Location> getAvailableLocations ()
