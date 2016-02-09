@@ -53,7 +53,7 @@ public class ActionOverview implements InitializingBean
     notCompleteGamesList = new ArrayList<Game>();
     for (Round round : notCompleteRoundList) {
       for (Game game : round.getGameMap().values()) {
-        if (game.isComplete()) {
+        if (game.getState().isComplete()) {
           continue;
         }
 
@@ -95,16 +95,16 @@ public class ActionOverview implements InitializingBean
     Transaction transaction = session.beginTransaction();
     try {
       // Reset game and machine on TM
-      if (game.isBooting()) {
+      if (game.getState().isBooting()) {
         log.info("Resetting boot game: " + gameId + " on machine: " + machineId);
 
-        game.setStateBootPending();
+        game.setState(Game.GameState.boot_pending);
         game.removeBootFile();
       }
-      else if (game.isRunning()) {
+      else if (game.getState().isRunning()) {
         log.info("Resetting sim game: " + gameId + " on machine: " + machineId);
 
-        game.setStateBootComplete();
+        game.setState(Game.GameState.boot_complete);
         for (Agent agent : game.getAgentMap().values()) {
           if (!agent.isPending()) {
             MemStore.setBrokerState(agent.getBrokerId(), false);
@@ -149,14 +149,14 @@ public class ActionOverview implements InitializingBean
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      if (game.isBootFailed()) {
+      if (game.getState().isBootFailed()) {
         log.info("Resetting boot game: " + gameId);
         game.removeBootFile();
-        game.setStateBootPending();
+        game.setState(Game.GameState.boot_pending);
       }
-      if (game.isGameFailed()) {
+      if (game.getState().isGameFailed()) {
         log.info("Resetting sim game: " + gameId);
-        game.setStateBootComplete();
+        game.setState(Game.GameState.boot_complete);
 
         for (Agent agent : game.getAgentMap().values()) {
           agent.setStatePending();

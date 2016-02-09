@@ -214,7 +214,7 @@ public class CSV
           "download?game=%d");
       for (Game game: round.getGameMap().values()) {
         String logUrl = "";
-        if (game.isComplete()) {
+        if (game.getState().isComplete()) {
           if (baseUrl.startsWith("http://")) {
             logUrl = String.format(baseUrl, game.getGameId());
           } else {

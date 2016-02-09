@@ -166,7 +166,7 @@ public class Constants
             + "LEFT JOIN FETCH game.agentMap agentMap "
             + "LEFT JOIN FETCH agentMap.broker as broker "
             + "LEFT JOIN FETCH broker.user "
-            + "WHERE NOT game.state='" + Game.getStateGameComplete() + "' ";
+            + "WHERE NOT game.state='" + Game.GameState.game_complete + "' ";
 
     public static final String GET_GAMES_READY =
         "FROM Game AS game "
@@ -174,7 +174,7 @@ public class Constants
             + "LEFT JOIN FETCH game.machine "
             + "LEFT JOIN FETCH game.agentMap agentMap "
             + "LEFT JOIN FETCH agentMap.broker as broker "
-            + "WHERE game.state='" + Game.getStateGameReady() + "' ";
+            + "WHERE game.state='" + Game.GameState.game_ready + "' ";
 
     public static final String GET_GAMES_COMPLETE =
         "FROM Game AS game "
@@ -183,7 +183,7 @@ public class Constants
             + "LEFT JOIN FETCH game.agentMap agentMap "
             + "LEFT JOIN FETCH agentMap.broker as broker "
             + "LEFT JOIN FETCH broker.user "
-            + "WHERE game.state='" + Game.getStateGameComplete() + "' ";
+            + "WHERE game.state='" + Game.GameState.game_complete + "' ";
 
     public static final String GET_BROKERS =
         "FROM Broker AS broker "

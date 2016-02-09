@@ -62,7 +62,7 @@ public class Forecaster
     // Add the completed and running games
     int machineIndex = 0;
     for (Game game : forecast.gamesMap.values()) {
-      if (game.isRunning() || game.isComplete()) {
+      if (game.getState().isRunning() || game.getState().isComplete()) {
         long timeStart = (game.getReadyTime().getTime() / 1000) - overhead;
         long timeEnd = getTimeEnd(game, timeStart);
         addJob(game, machineIndex++, timeStart, timeEnd);
@@ -75,7 +75,7 @@ public class Forecaster
     // Get a list of all the games we still need to schedule
     List<Game> unfinished = new ArrayList<Game>();
     for (Game game : forecast.gamesMap.values()) {
-      if (!game.isRunning() && !game.isComplete()) {
+      if (!game.getState().isRunning() && !game.getState().isComplete()) {
         unfinished.add(game);
       }
     }

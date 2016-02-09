@@ -78,14 +78,14 @@ public class RunBoot
       JenkinsConnector.sendJob(finalUrl);
 
       log.info("Jenkins request to bootstrap game: " + game.getGameId());
-      game.setStateBootInProgress();
+      game.setState(Game.GameState.boot_in_progress);
       game.setReadyTime(Utils.offsetDate());
       log.debug(String.format("Update game: %s to %s", game.getGameId(),
-          Game.getStateBootInProgress()));
+          Game.GameState.boot_in_progress));
     }
     catch (Exception e) {
       log.error("Jenkins failure to bootstrap game: " + game.getGameId());
-      game.setStateBootFailed();
+      game.setState(Game.GameState.boot_failed);
       throw e;
     }
   }

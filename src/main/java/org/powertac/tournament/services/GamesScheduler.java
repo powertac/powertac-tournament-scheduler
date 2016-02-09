@@ -19,7 +19,7 @@ public class GamesScheduler
     List<Game> games = new ArrayList<Game>();
 
     for (Game game : notCompleteGames) {
-      if (!game.isBootPending()) {
+      if (!game.getState().isBootPending()) {
         continue;
       }
       if (runningRoundIds != null && runningRoundIds.size() > 0 &&
@@ -52,7 +52,7 @@ public class GamesScheduler
     }
 
     for (Game game : notCompleteGames) {
-      if (game.isBootComplete() &&
+      if (game.getState().isBootComplete() &&
           game.getStartTime().before(Utils.offsetDate()) &&
           runningRoundIds.contains(game.getRound().getRoundId())) {
         games.add(game);

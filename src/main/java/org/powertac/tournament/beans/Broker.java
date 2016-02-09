@@ -119,7 +119,7 @@ public class Broker
       // Delete all agent belonging to this broker
       for (Agent agent : broker.agentMap.values()) {
         // Don't allow deleting brokers with agents in running games
-        if (agent.getGame().isRunning()) {
+        if (agent.getGame().getState().isRunning()) {
           transaction.rollback();
           return false;
         }
@@ -328,7 +328,7 @@ public class Broker
     int freeAgents = round.getLevel().getTournament().getMaxAgents();
     for (Agent agent : agentMap.values()) {
       Game game = agent.getGame();
-      if (game.isRunning() &&
+      if (game.getState().isRunning() &&
           round.getTournamentId() == game.getRound().getTournamentId()) {
         // every agent that is in a game that is running and from the same
         // tournament reduces the amount of availabele agents.

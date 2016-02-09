@@ -66,7 +66,7 @@ public class Round
 
       // Disallow removal when games booting or running
       for (Game game: round.gameMap.values()) {
-        if (game.isBooting() || game.isRunning()) {
+        if (game.getState().isBooting() || game.getState().isRunning()) {
           transaction.rollback();
           return String.format("Game %s can not be removed, state = %s",
               game.getGameName(), game.getState());
@@ -112,9 +112,7 @@ public class Round
       if (game.getGameId() == finishedGameId) {
         continue;
       }
-      if (!game.isComplete() && game.getRound() == this) {
-        allDone = false;
-      }
+      allDone &= game.getState().isComplete();
     }
 
     if (allDone) {
@@ -202,7 +200,7 @@ public class Round
 
     // Get the not-normalized results into the map
     for (Game game: gameMap.values()) {
-      if (!game.isComplete()) {
+      if (!game.getState().isComplete()) {
         continue;
       }
 

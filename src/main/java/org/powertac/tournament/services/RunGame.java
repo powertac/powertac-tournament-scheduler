@@ -62,12 +62,12 @@ public class RunGame
    */
   private boolean checkBootstrap ()
   {
-    if (game.hasBootstrap()) {
+    if (game.getState().hasBootstrap()) {
       return true;
     }
     else {
       log.info("Game: " + game.getGameId() + " reports that boot is not ready!");
-      game.setStateBootPending();
+      game.setState(Game.GameState.boot_pending);
       return false;
     }
   }
@@ -154,14 +154,14 @@ public class RunGame
       JenkinsConnector.sendJob(finalUrl);
 
       log.info("Jenkins request to start sim game: " + game.getGameId());
-      game.setStateGamePending();
+      game.setState(Game.GameState.game_pending);
       game.setReadyTime(Utils.offsetDate());
       log.debug(String.format("Update game: %s to %s", game.getGameId(),
-          Game.getStateGamePending()));
+          Game.GameState.game_pending));
     }
     catch (Exception e) {
       log.error("Jenkins failure to start sim game: " + game.getGameId());
-      game.setStateGameFailed();
+      game.setState(Game.GameState.game_failed);
       throw e;
     }
   }

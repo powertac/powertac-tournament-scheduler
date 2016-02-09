@@ -78,7 +78,7 @@ public class ActionGame implements InitializingBean
     gameInfo.add("Name : " + game.getGameName());
     gameInfo.add("Status : " + game.getState());
 
-    if (game.isComplete()) {
+    if (game.getState().isComplete()) {
       TournamentProperties properties = TournamentProperties.getProperties();
       String baseUrl = properties.getProperty("actionIndex.logUrl",
           "download?game=%d");

@@ -360,7 +360,7 @@ public class Scheduler implements InitializingBean
     log.info("SchedulerTimer Looking for Wedged Bootstraps");
 
     for (Game game : notCompleteGames) {
-      if (!game.isBooting() || game.getReadyTime() == null) {
+      if (!game.getState().isBooting() || game.getReadyTime() == null) {
         continue;
       }
 
@@ -388,7 +388,7 @@ public class Scheduler implements InitializingBean
     log.info("SchedulerTimer Looking for Wedged Sims");
 
     for (Game game : notCompleteGames) {
-      if (!game.isRunning() || game.getReadyTime() == null) {
+      if (!game.getState().isRunning() || game.getReadyTime() == null) {
         continue;
       }
 

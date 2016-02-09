@@ -104,7 +104,7 @@ public class RestVisualizer extends HttpServlet
         if (!game.getMachine().getMachineName().equals(machineName)) {
           continue;
         }
-        if (!game.isReady()) {
+        if (!game.getState().isReady()) {
           continue;
         }
 

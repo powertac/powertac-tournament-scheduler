@@ -155,7 +155,7 @@
           <t:column>
             <f:facet name="header">Status</f:facet>
             <h:outputText value="#{g.state}"
-                          style="#{g.isRunning() ? 'font-weight:bold;' : '' }"/>
+                          style="#{g.state.isRunning() ? 'font-weight:bold;' : '' }"/>
           </t:column>
 
           <t:column>
@@ -166,13 +166,13 @@
 
           <t:column>
             <f:facet name="header">Heartbeat</f:facet>
-            <t:outputText id="heartbeat" rendered="#{g.isRunning()}"
+            <t:outputText id="heartbeat" rendered="#{g.state.isRunning()}"
                           style="float:left; width: 110px;"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">Step</f:facet>
-            <t:outputText id="step" rendered="#{g.isRunning()}"
+            <t:outputText id="step" rendered="#{g.state.isRunning()}"
                           style="float:left; width: 50px;"/>
           </t:column>
 
@@ -182,15 +182,15 @@
               <h:outputLink value="properties.jsp?gameId=#{g.gameId}"
                             target="_blank">P</h:outputLink>
 
-              <h:outputText value="&#160;" rendered="#{g.hasBootstrap()}"/>
+              <h:outputText value="&#160;" rendered="#{g.state.hasBootstrap()}"/>
               <h:outputLink
                   value="serverInterface.jsp?action=boot&amp;gameId=#{g.gameId}"
-                  rendered="#{g.hasBootstrap()}"
+                  rendered="#{g.state.hasBootstrap()}"
                   target="_blank">B</h:outputLink>
 
-              <h:outputText value="&#160;" rendered="#{g.isRunning()}"/>
+              <h:outputText value="&#160;" rendered="#{g.state.isRunning()}"/>
               <h:outputLink value="http://#{g.machine.vizUrl}"
-                            rendered="#{g.isRunning()}"
+                            rendered="#{g.state.isRunning()}"
                             target="_blank">V</h:outputLink>
 
               <h:outputText value="&#160;" rendered="#{g.machine != null}"/>
@@ -206,7 +206,7 @@
               <h:commandButton value="Abort"
                                action="#{actionOverview.abortGame(g)}"
                                onclick="return confirmAlert('Are you sure you want to abort this game?');"
-                               rendered="#{g.machine != null and g.isRunning()}"
+                               rendered="#{g.machine != null and g.state.isRunning()}"
                                styleClass="smallButton"/>
               <h:commandButton value="Kill"
                                action="#{actionOverview.killGame(g)}"
@@ -215,7 +215,7 @@
                                styleClass="smallButton"/>
               <h:commandButton value="Restart"
                                action="#{actionOverview.restartGame(g)}"
-                               rendered="#{g.isFailed()}"
+                               rendered="#{g.state.isFailed()}"
                                styleClass="smallButton"/>
             </h:panelGroup>
           </t:column>

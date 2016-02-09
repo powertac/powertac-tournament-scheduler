@@ -52,7 +52,7 @@ public class Game implements Serializable
   private String gameName;
   private Round round;
   private Machine machine = null;
-  private STATE state = STATE.boot_pending;
+  private GameState state = GameState.boot_pending;
   private Date startTime;
   private Date readyTime;
   private String serverQueue = "";
@@ -67,22 +67,72 @@ public class Game implements Serializable
 
   private Random random = new Random();
 
-  private static enum STATE
+  public enum GameState
   {
     boot_pending, boot_in_progress, boot_complete, boot_failed,
     game_pending, game_ready, game_in_progress, game_complete, game_failed;
 
-    public static final EnumSet<STATE> hasBootstrap = EnumSet.of(
+    public static final EnumSet<GameState> hasBootstrap = EnumSet.of(
         boot_complete,
         game_pending,
         game_ready,
         game_in_progress,
         game_complete);
 
-    public static final EnumSet<STATE> isRunning = EnumSet.of(
+    public static final EnumSet<GameState> isRunning = EnumSet.of(
         game_pending,
         game_ready,
         game_in_progress);
+
+    public boolean isBooting ()
+    {
+      return equals(GameState.boot_in_progress);
+    }
+
+    public boolean isRunning ()
+    {
+      return isRunning.contains(this);
+    }
+
+    public boolean isBootPending ()
+    {
+      return equals(GameState.boot_pending);
+    }
+
+    public boolean isBootComplete ()
+    {
+      return equals(GameState.boot_complete);
+    }
+
+    public boolean hasBootstrap ()
+    {
+      return GameState.hasBootstrap.contains(this);
+    }
+
+    public boolean isBootFailed ()
+    {
+      return equals(GameState.boot_failed);
+    }
+
+    public boolean isGameFailed ()
+    {
+      return equals(GameState.game_failed);
+    }
+
+    public boolean isFailed ()
+    {
+      return isBootFailed() || isGameFailed();
+    }
+
+    public boolean isComplete ()
+    {
+      return equals(GameState.game_complete);
+    }
+
+    public boolean isReady ()
+    {
+      return equals(GameState.game_ready);
+    }
   }
 
   /*
@@ -159,17 +209,16 @@ public class Game implements Serializable
 
   public void handleStatus (Session session, String status) throws Exception
   {
-    STATE state;
-    state = STATE.valueOf(status);
+    GameState newState = GameState.valueOf(status);
 
-    if (stateEquals(state)) {
+    if (newState.equals(state)) {
       return;
     }
 
-    this.state = STATE.valueOf(status);
+    state = newState;
     log.info(String.format("Update game: %s to %s", gameId, status));
 
-    switch (state) {
+    switch (newState) {
       case boot_in_progress:
         // Remove bootfile, it shouldn't exist anyway
         removeBootFile();
@@ -246,7 +295,7 @@ public class Game implements Serializable
     if (isEndOfGame) {
       log.debug("Status of the game is " + state);
 
-      if (!isRunning()) {
+      if (!state.isRunning()) {
         session.getTransaction().rollback();
         log.warn("Game is not running, aborting!");
         return "error";
@@ -332,132 +381,6 @@ public class Game implements Serializable
     }
   }
 
-  //<editor-fold desc="State methods">
-  private boolean stateEquals (STATE state)
-  {
-    return this.state.equals(state);
-  }
-
-  @Transient
-  public boolean isBooting ()
-  {
-    return state.equals(STATE.boot_in_progress);
-  }
-
-  @Transient
-  public boolean isRunning ()
-  {
-    return STATE.isRunning.contains(state);
-  }
-
-  @Transient
-  public boolean isBootPending ()
-  {
-    return state == STATE.boot_pending;
-  }
-
-  @Transient
-  public boolean isBootComplete ()
-  {
-    return state == STATE.boot_complete;
-  }
-
-  public boolean hasBootstrap ()
-  {
-    return STATE.hasBootstrap.contains(state);
-  }
-
-  public void setStateBootPending ()
-  {
-    this.state = STATE.boot_pending;
-  }
-
-  public void setStateBootInProgress ()
-  {
-    this.state = STATE.boot_in_progress;
-  }
-
-  public void setStateBootComplete ()
-  {
-    this.state = STATE.boot_complete;
-  }
-
-  public void setStateBootFailed ()
-  {
-    this.state = STATE.boot_failed;
-  }
-
-  public void setStateGamePending ()
-  {
-    this.state = STATE.game_pending;
-  }
-
-  public void setStateGameFailed ()
-  {
-    this.state = STATE.game_failed;
-  }
-
-  @Transient
-  public boolean isComplete ()
-  {
-    return stateEquals(STATE.game_complete);
-  }
-
-  @Transient
-  public boolean isReady ()
-  {
-    return stateEquals(STATE.game_ready);
-  }
-
-  @Transient
-  public boolean isBootFailed ()
-  {
-    return stateEquals(STATE.boot_failed);
-  }
-
-  @Transient
-  public boolean isGameFailed ()
-  {
-    return stateEquals(STATE.game_failed);
-  }
-
-  @Transient
-  public boolean isFailed ()
-  {
-    return isBootFailed() || isGameFailed();
-  }
-
-  public static String getStateBootPending ()
-  {
-    return STATE.boot_pending.toString();
-  }
-
-  public static String getStateBootInProgress ()
-  {
-    return STATE.boot_in_progress.toString();
-  }
-
-  public static String getStateBootComplete ()
-  {
-    return STATE.boot_complete.toString();
-  }
-
-  public static String getStateGamePending ()
-  {
-    return STATE.game_pending.toString();
-  }
-
-  public static String getStateGameReady ()
-  {
-    return STATE.game_ready.toString();
-  }
-
-  public static String getStateGameComplete ()
-  {
-    return STATE.game_complete.toString();
-  }
-  //</editor-fold>
-
   // These 2 methods (createGameName and getGameTypeIndex) are tightly coupled
   @Transient
   public int getGameTypeIndex ()
@@ -499,7 +422,7 @@ public class Game implements Serializable
     Game game = new Game();
     game.setGameName(gameName);
     game.setRound(round);
-    game.setState(STATE.boot_pending);
+    game.setState(GameState.boot_pending);
     game.setStartTime(round.getStartTime());
     game.setLocation(randomLocation(round));
     game.setSimStartTime(randomSimStartTime(game.getLocation()));
@@ -651,12 +574,12 @@ public class Game implements Serializable
 
   @Column(name = "state", nullable = false)
   @Enumerated(EnumType.STRING)
-  public STATE getState ()
+  public GameState getState ()
   {
     return state;
   }
 
-  public void setState (STATE state)
+  public void setState (GameState state)
   {
     this.state = state;
   }
