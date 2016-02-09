@@ -6,58 +6,58 @@
       xmlns:ui="http://java.sun.com/jsf/facelets">
 
 <body>
-<ui:composition>
-  <div id="header-logo">
-    <img id="header-img" src="resources/images/garland_logo.png"
-         alt="Garland Logo"/>
+  <ui:composition>
+    <div id="header-logo">
+      <img id="header-img" src="resources/images/garland_logo.png"
+           alt="Garland Logo"/>
 
-    <div id="header-text">
-      <h1>Tournament Scheduler</h1>
+      <div id="header-text">
+        <h1>Tournament Scheduler</h1>
+      </div>
     </div>
-  </div>
 
-  <div id="nav_ribbon">
-    <h:form>
-      <!-- Every User permission buttons -->
-      <h:button value="Home" outcome="Home"/>
-      <!-- -->
-      <h:button value="About" outcome="about.xhtml"/>
+    <div id="nav_ribbon">
+      <h:form>
+        <!-- Every User permission buttons -->
+        <h:button value="Home" outcome="Home"/>
+        <!-- -->
+        <h:button value="About" outcome="about.xhtml"/>
 
-      <!-- Login/logout/register  buttons -->
-      <h:button value="Login" outcome="Login"
-                rendered="#{user.isGuest() }"/>
+        <!-- Login/logout/register  buttons -->
+        <h:button value="Login" outcome="Login"
+                  rendered="#{user.isGuest() }"/>
 
-      <h:commandButton value="Logout" action="#{actionLogin.logout}"
-                       rendered="#{user.isLoggedIn()}"/>
-      <!-- -->
-      <h:button value="Register" outcome="Register"
-                rendered="#{user.isGuest()}"/>
+        <h:commandButton value="Logout" action="#{actionLogin.logout}"
+                         rendered="#{user.isLoggedIn()}"/>
+        <!-- -->
+        <h:button value="Register" outcome="Register"
+                  rendered="#{user.isGuest()}"/>
 
-      <!-- Normal User permission buttons -->
-      <h:button value="Account" outcome="Account"
-                rendered="#{user.isLoggedIn()}"/>
+        <!-- Normal User permission buttons -->
+        <h:button value="Account" outcome="Account"
+                  rendered="#{user.isLoggedIn()}"/>
 
-      <!-- Admin Level permission buttons -->
-      <h:button value="Tournaments" outcome="Tournaments"
-                rendered="#{user.isAdmin()}"/>
-      <!-- -->
-      <h:button value="Levels" outcome="Levels"
-                rendered="#{user.isAdmin()}"/>
-      <!-- -->
-      <h:button value="Rounds" outcome="Rounds"
-                rendered="#{user.isAdmin()}"/>
-      <!-- -->
-      <h:button value="Timeline" outcome="Timeline"
-                rendered="#{user.isAdmin()}"/>
-      <!-- -->
-      <h:button value="Overview" outcome="Overview"
-                rendered="#{user.isAdmin()}"/>
-      <!-- -->
-      <h:button value="Admin" outcome="Admin"
-                rendered="#{user.isAdmin()}"/>
+        <!-- Admin Level permission buttons -->
+        <h:button value="Tournaments" outcome="Tournaments"
+                  rendered="#{user.isAdmin()}"/>
+        <!-- -->
+        <h:button value="Levels" outcome="Levels"
+                  rendered="#{user.isAdmin()}"/>
+        <!-- -->
+        <h:button value="Rounds" outcome="Rounds"
+                  rendered="#{user.isAdmin()}"/>
+        <!-- -->
+        <h:button value="Timeline" outcome="Timeline"
+                  rendered="#{user.isAdmin()}"/>
+        <!-- -->
+        <h:button value="Overview" outcome="Overview"
+                  rendered="#{user.isAdmin()}"/>
+        <!-- -->
+        <h:button value="Admin" outcome="Admin"
+                  rendered="#{user.isAdmin()}"/>
 
-    </h:form>
-  </div>
-</ui:composition>
+      </h:form>
+    </div>
+  </ui:composition>
 </body>
 </html>

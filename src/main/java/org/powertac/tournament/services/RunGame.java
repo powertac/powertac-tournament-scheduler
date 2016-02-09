@@ -15,10 +15,11 @@ public class RunGame
 {
   private static Logger log = Utils.getLogger();
 
+  private TournamentProperties properties = TournamentProperties.getProperties();
+
   private Game game;
   private List<Machine> freeMachines;
   private String brokers = "";
-  private TournamentProperties properties = TournamentProperties.getProperties();
   private Session session;
 
   public RunGame (Game game, List<Machine> freeMachines)

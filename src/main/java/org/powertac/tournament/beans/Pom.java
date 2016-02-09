@@ -7,7 +7,12 @@ import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.HibernateUtil;
 
 import javax.faces.bean.ManagedBean;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +42,8 @@ public class Pom
       Query query = session.createQuery(Constants.HQL.GET_POMS);
       poms = (List<Pom>) query.list();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }

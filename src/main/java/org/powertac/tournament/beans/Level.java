@@ -69,7 +69,7 @@ public class Level
   @Transient
   public boolean isStarted ()
   {
-    for (Round round: roundMap.values()) {
+    for (Round round : roundMap.values()) {
       if (round.isStarted()) {
         return true;
       }
@@ -84,6 +84,7 @@ public class Level
   {
     return roundMap;
   }
+
   public void setRoundMap (Map<Integer, Round> roundMap)
   {
     this.roundMap = roundMap;
@@ -102,7 +103,8 @@ public class Level
           .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -124,6 +126,7 @@ public class Level
   {
     return levelId;
   }
+
   public void setLevelId (int levelId)
   {
     this.levelId = levelId;
@@ -134,6 +137,7 @@ public class Level
   {
     return levelName;
   }
+
   public void setLevelName (String levelName)
   {
     this.levelName = levelName;
@@ -145,6 +149,7 @@ public class Level
   {
     return tournament;
   }
+
   public void setTournament (Tournament tournament)
   {
     this.tournament = tournament;
@@ -155,6 +160,7 @@ public class Level
   {
     return levelNr;
   }
+
   public void setLevelNr (int levelNr)
   {
     this.levelNr = levelNr;
@@ -165,6 +171,7 @@ public class Level
   {
     return nofRounds;
   }
+
   public void setNofRounds (int nofRounds)
   {
     this.nofRounds = nofRounds;
@@ -175,6 +182,7 @@ public class Level
   {
     return nofWinners;
   }
+
   public void setNofWinners (int nofWinners)
   {
     this.nofWinners = nofWinners;
@@ -186,6 +194,7 @@ public class Level
   {
     return startTime;
   }
+
   public void setStartTime (Date startTime)
   {
     this.startTime = startTime;

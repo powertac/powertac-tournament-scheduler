@@ -11,8 +11,30 @@ import org.powertac.tournament.services.Scheduler;
 import org.powertac.tournament.services.Utils;
 
 import javax.faces.bean.ManagedBean;
-import javax.persistence.*;
-import java.util.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -65,7 +87,7 @@ public class Round
       level.setNofRounds(level.getNofRounds() - 1);
 
       // Disallow removal when games booting or running
-      for (Game game: round.gameMap.values()) {
+      for (Game game : round.gameMap.values()) {
         if (game.getState().isBooting() || game.getState().isRunning()) {
           transaction.rollback();
           return String.format("Game %s can not be removed, state = %s",
@@ -82,7 +104,7 @@ public class Round
       }
       session.flush();
 
-      for (Game game: round.gameMap.values()) {
+      for (Game game : round.gameMap.values()) {
         game.delete(session);
       }
       session.flush();
@@ -90,11 +112,13 @@ public class Round
       session.delete(round);
       transaction.commit();
       return "";
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return "Error deleting round";
-    } finally {
+    }
+    finally {
       session.close();
     }
   }
@@ -107,7 +131,7 @@ public class Round
   {
     boolean allDone = true;
 
-    for (Game game: gameMap.values()) {
+    for (Game game : gameMap.values()) {
       // The state of the finished game isn't in the db yet.
       if (game.getGameId() == finishedGameId) {
         continue;
@@ -151,7 +175,7 @@ public class Round
   @Transient
   public String getParamString1 ()
   {
-    return brokerMap.size() + " / " + maxBrokers + " : "  + maxAgents;
+    return brokerMap.size() + " / " + maxBrokers + " : " + maxAgents;
   }
 
   @Transient
@@ -199,14 +223,14 @@ public class Round
     double[] SD = new double[3];
 
     // Get the not-normalized results into the map
-    for (Game game: gameMap.values()) {
+    for (Game game : gameMap.values()) {
       if (!game.getState().isComplete()) {
         continue;
       }
 
       int gameTypeIndex = game.getGameTypeIndex();
 
-      for (Agent agent: game.getAgentMap().values()) {
+      for (Agent agent : game.getAgentMap().values()) {
         if (!resultMap.containsKey(agent.getBroker())) {
           resultMap.put(agent.getBroker(), new double[14]);
         }
@@ -224,7 +248,7 @@ public class Round
     averages[2] = averages[2] / resultMap.size();
 
     // Put averages in map, calculate SD
-    for (Broker broker: resultMap.keySet()) {
+    for (Broker broker : resultMap.keySet()) {
       double[] results = resultMap.get(broker);
       results[4] = averages[0];
       results[5] = averages[1];
@@ -241,7 +265,7 @@ public class Round
     SD[2] = Math.sqrt(SD[2] / resultMap.size());
 
     // Put SDs in map, calculate normalized results and total
-    for (Broker broker: resultMap.keySet()) {
+    for (Broker broker : resultMap.keySet()) {
       double[] results = resultMap.get(broker);
       results[7] = SD[0];
       results[8] = SD[1];
@@ -249,17 +273,20 @@ public class Round
 
       if (results[7] > 0) {
         results[10] = (results[0] - results[4]) / results[7];
-      } else {
+      }
+      else {
         results[10] = results[0] - results[4];
       }
       if (results[8] > 0) {
         results[11] = (results[1] - results[5]) / results[8];
-      } else {
+      }
+      else {
         results[11] = results[1] - results[5];
       }
       if (results[9] > 0) {
         results[12] = (results[2] - results[6]) / results[9];
-      } else {
+      }
+      else {
         results[12] = results[2] - results[6];
       }
 
@@ -275,9 +302,11 @@ public class Round
   {
     final Map<Broker, double[]> winnersMap = determineWinner();
 
-    class CustomComparator implements Comparator<Broker> {
+    class CustomComparator implements Comparator<Broker>
+    {
       @Override
-      public int compare(Broker b1, Broker b2) {
+      public int compare (Broker b1, Broker b2)
+      {
         return ((Double) winnersMap.get(b2)[13]).compareTo(winnersMap.get(b1)[13]);
       }
     }
@@ -359,6 +388,7 @@ public class Round
   {
     return brokerMap;
   }
+
   public void setBrokerMap (Map<Integer, Broker> brokerMap)
   {
     this.brokerMap = brokerMap;
@@ -368,7 +398,7 @@ public class Round
   public List<String> getLocationsList ()
   {
     List<String> locationList = new ArrayList<String>();
-    for (String location: locations.split(",")) {
+    for (String location : locations.split(",")) {
       locationList.add(location.trim());
     }
     return locationList;
@@ -387,13 +417,14 @@ public class Round
           .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
       for (Round round : rounds) {
-        for (Game game: round.getGameMap().values()) {
+        for (Game game : round.getGameMap().values()) {
           game.getSize();
         }
       }
 
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -424,6 +455,7 @@ public class Round
   {
     return roundId;
   }
+
   public void setRoundId (int roundId)
   {
     this.roundId = roundId;
@@ -434,6 +466,7 @@ public class Round
   {
     return roundName;
   }
+
   public void setRoundName (String roundName)
   {
     this.roundName = roundName;
@@ -445,6 +478,7 @@ public class Round
   {
     return level;
   }
+
   public void setLevel (Level level)
   {
     this.level = level;
@@ -456,6 +490,7 @@ public class Round
   {
     return startTime;
   }
+
   public void setStartTime (Date startTime)
   {
     this.startTime = startTime;
@@ -467,6 +502,7 @@ public class Round
   {
     return dateFrom;
   }
+
   public void setDateFrom (Date dateFrom)
   {
     this.dateFrom = dateFrom;
@@ -478,6 +514,7 @@ public class Round
   {
     return dateTo;
   }
+
   public void setDateTo (Date dateTo)
   {
     this.dateTo = dateTo;
@@ -488,6 +525,7 @@ public class Round
   {
     return maxBrokers;
   }
+
   public void setMaxBrokers (int maxBrokers)
   {
     this.maxBrokers = maxBrokers;
@@ -498,6 +536,7 @@ public class Round
   {
     return maxAgents;
   }
+
   public void setMaxAgents (int maxAgents)
   {
     this.maxAgents = maxAgents;
@@ -509,6 +548,7 @@ public class Round
   {
     return state;
   }
+
   public void setState (STATE state)
   {
     this.state = state;
@@ -519,6 +559,7 @@ public class Round
   {
     return size1;
   }
+
   public void setSize1 (int size1)
   {
     this.size1 = size1;
@@ -529,6 +570,7 @@ public class Round
   {
     return size2;
   }
+
   public void setSize2 (int size2)
   {
     this.size2 = size2;
@@ -539,6 +581,7 @@ public class Round
   {
     return size3;
   }
+
   public void setSize3 (int size3)
   {
     this.size3 = size3;
@@ -549,6 +592,7 @@ public class Round
   {
     return multiplier1;
   }
+
   public void setMultiplier1 (int multiplier1)
   {
     this.multiplier1 = multiplier1;
@@ -559,6 +603,7 @@ public class Round
   {
     return multiplier2;
   }
+
   public void setMultiplier2 (int multiplier2)
   {
     this.multiplier2 = multiplier2;
@@ -569,6 +614,7 @@ public class Round
   {
     return multiplier3;
   }
+
   public void setMultiplier3 (int multiplier3)
   {
     this.multiplier3 = multiplier3;
@@ -579,6 +625,7 @@ public class Round
   {
     return locations;
   }
+
   public void setLocations (String locations)
   {
     this.locations = locations;

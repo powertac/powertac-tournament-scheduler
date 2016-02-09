@@ -8,7 +8,11 @@ import org.powertac.tournament.beans.Agent;
 import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.Game;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +46,8 @@ public class SimLogParser implements Runnable
       proc = runtime.exec(copyCmd);
       proc.waitFor();
       log.debug("Done copying");
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
     }
 
@@ -51,7 +56,8 @@ public class SimLogParser implements Runnable
       proc = runtime.exec(untarCmd);
       proc.waitFor();
       log.debug("Done untarring");
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
     }
 
@@ -62,7 +68,8 @@ public class SimLogParser implements Runnable
       log.debug("Done extracting");
       storeResults(results);
       log.debug("Done storing");
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
     }
 
@@ -102,7 +109,7 @@ public class SimLogParser implements Runnable
       if (strLine.contains(finalBalance)) {
         String balances = strLine.split("\\[")[1].split("\\]")[0].trim();
 
-        for (String result: balances.split(" \"")) {
+        for (String result : balances.split(" \"")) {
           Double balance = Double.parseDouble(result.split(":")[1]);
           String name = result.split(":")[0];
           if (name.startsWith("\"")) {
@@ -135,7 +142,7 @@ public class SimLogParser implements Runnable
     try {
       Game game = (Game) session.get(Game.class, gameId);
 
-      for (Map.Entry<String, Double> entry: results.entrySet()) {
+      for (Map.Entry<String, Double> entry : results.entrySet()) {
         if (entry.getKey().equals("gameLength###")) {
           // Check if gameLength not already recieved
           if (game.getGameLength() == 0) {
@@ -168,10 +175,12 @@ public class SimLogParser implements Runnable
         }
       }
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-    } finally {
+    }
+    finally {
       session.close();
     }
   }

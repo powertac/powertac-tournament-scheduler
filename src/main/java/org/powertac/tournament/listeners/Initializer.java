@@ -6,6 +6,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.util.Set;
 
+
 public class Initializer implements ServletContextListener
 {
   public void contextDestroyed (ServletContextEvent e)
@@ -14,9 +15,9 @@ public class Initializer implements ServletContextListener
 
     Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
     Thread[] threadArray = threadSet.toArray(new Thread[threadSet.size()]);
-    for (Thread t: threadArray) {
+    for (Thread t : threadArray) {
       if (t.getName().contains("Abandoned connection cleanup thread")) {
-        synchronized(t) {
+        synchronized (t) {
           t.stop(); //don't complain, it works
         }
       }

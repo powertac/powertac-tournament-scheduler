@@ -11,7 +11,10 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.powertac.tournament.services.Forecaster.Forecast;
@@ -98,7 +101,7 @@ public class MemStore
     localIPs.put("127.0.0.1", "loopback");
     try {
       for (Enumeration<NetworkInterface> en =
-               NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
+           NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
         NetworkInterface intf = en.nextElement();
 
         if (!intf.getName().startsWith("eth") &&
@@ -107,7 +110,7 @@ public class MemStore
         }
 
         for (Enumeration<InetAddress> enumIpAddr =
-                 intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+             intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
           String ip = enumIpAddr.nextElement().toString();
           if (ip.contains(":")) {
             continue;
@@ -291,6 +294,7 @@ public class MemStore
       return true;
     }
   }
+
   public static void setBrokerState (int brokerId, boolean state)
   {
     brokerState.put(brokerId, state);
@@ -300,6 +304,7 @@ public class MemStore
   {
     return availableLocations;
   }
+
   public static void setAvailableLocations (List<Location> availableLocations)
   {
     MemStore.availableLocations = availableLocations;

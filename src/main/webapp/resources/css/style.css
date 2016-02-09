@@ -1,188 +1,195 @@
 body {
-    font-family: "Times New Roman", Times, serif;
-    font-size: 16px;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 16px;
 }
 
 h4 {
-    margin: 0;
+  margin: 0;
 }
 
 table {
-    border: 0;
-    border-collapse: collapse;
+  border: 0;
+  border-collapse: collapse;
 }
 
 th {
-    vertical-align: middle;
-    padding: 0 10px 0 10px;
+  vertical-align: middle;
+  padding: 0 10px 0 10px;
 }
 
 td {
-    vertical-align: middle;
-    padding: 1px 5px 1px 5px;
-    padding-right: 10px;
-    text-align: center;
+  vertical-align: middle;
+  padding: 1px 5px 1px 5px;
+  padding-right: 10px;
+  text-align: center;
 }
 
 table.dataTable {
-    border: 1px solid black;
+  border: 1px solid black;
 }
 
 table.dataTable td {
-    padding-left: 0;
-    padding-right: 0;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 table.dataTable tr.odd {
-    background-color: #FFFFFF;
+  background-color: #FFFFFF;
 }
 
 table.dataTable tr.odd td.sorting_1 {
-    background-color: #FFFFFF;
+  background-color: #FFFFFF;
 }
 
 table.dataTable tr.even td.sorting_1 {
-    background-color: #FFFFFF;
+  background-color: #FFFFFF;
 }
 
 td.disabled {
-    background-color: #FF0000;
+  background-color: #FF0000;
 }
 
 td.running {
-    background-color: #FFFF00;
+  background-color: #FFFF00;
 }
 
 h3 {
-    margin: 30px 0 5px 0;
+  margin: 30px 0 5px 0;
 }
 
 h3.withButton {
-    height: 23px;
-    display: inline-block;
-    padding-right: 10px;
-    margin: 0 0 5px 0;
+  height: 23px;
+  display: inline-block;
+  padding-right: 10px;
+  margin: 0 0 5px 0;
 }
 
 input[readonly], input[readonly="readonly"] {
-    background: buttonface;
+  background: buttonface;
 }
 
 input.smallButton {
-    padding: 0;
-    margin: 0;
-    height: 20px;
+  padding: 0;
+  margin: 0;
+  height: 20px;
 }
 
 input.actionButton {
-    padding: 0;
-    margin: 0;
-    width: 65px;
+  padding: 0;
+  margin: 0;
+  width: 65px;
 }
 
 input.bigButton {
-    margin: 2px;
-    padding: 1px 6px 1px 6px;
-    width: 150px;
+  margin: 2px;
+  padding: 1px 6px 1px 6px;
+  width: 150px;
 }
 
 table.left td {
-    text-align: left;
+  text-align: left;
 }
+
 .left {
-    text-align: left;
+  text-align: left;
 }
 
 table.fixed_height td {
-    height: 26px;
+  height: 26px;
 }
 
 .right {
-    text-align: right;
+  text-align: right;
 }
 
 .float_right {
-    float: right;
+  float: right;
 }
 
 .nowrap {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 select.select_wide {
-    width:250px;
+  width: 250px;
 }
+
 input[type="text"].input_wide {
-    width:250px;
+  width: 250px;
 }
+
 input[type="text"].input_small {
-    width:50px;
+  width: 50px;
 }
 
 #page {
-    margin-left: auto;
-    margin-right: auto;
-    width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 1000px;
 }
 
 #content {
-    background-image: url(../images/bg-image.png);
-    background-repeat: repeat-x;
-    border-radius: 15px;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 50px;
+  background-image: url(../images/bg-image.png);
+  background-repeat: repeat-x;
+  border-radius: 15px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 50px;
 }
 
 #header-logo {
-    background-color: #e4ffe3;
-    border: 3px solid #009E18;
-    border-radius: 15px;
-    height: 120px;
-    width: 1000px;
+  background-color: #e4ffe3;
+  border: 3px solid #009E18;
+  border-radius: 15px;
+  height: 120px;
+  width: 1000px;
 }
 
 #header-img {
-    float: left;
+  float: left;
 }
 
 #header-text {
-    position: relative;
-    bottom: -60px;
-    left: -130px;
-    white-space: nowrap;
+  position: relative;
+  bottom: -60px;
+  left: -130px;
+  white-space: nowrap;
 }
 
 #nav_ribbon {
-    border-radius: 15px;
-    width: 1000px;
-    vertical-align: middle;
+  border-radius: 15px;
+  width: 1000px;
+  vertical-align: middle;
 }
 
 textarea.contentInput {
-    width: 960px;
-    height: 400px;
+  width: 960px;
+  height: 400px;
 }
 
 #adminControls table td {
-    text-align: left;
+  text-align: left;
 }
+
 #loginForm table td {
-    text-align: left;
+  text-align: left;
 }
+
 #registerForm table td {
-    text-align: left;
+  text-align: left;
 }
+
 #saveRound table td {
-    text-align: left;
+  text-align: left;
 }
+
 #saveTournament table td {
-    text-align: left;
+  text-align: left;
 }
 
 .monospaced {
-    font-family: Consolas, Monaco, Lucida Console, Liberation Mono,
-        DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-    font-size: 14px;
-    white-space:pre;
+  font-family: Consolas, Monaco, Lucida Console, Liberation Mono,
+  DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+  font-size: 14px;
+  white-space: pre;
 }

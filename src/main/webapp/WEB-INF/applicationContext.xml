@@ -7,36 +7,26 @@
                       http://www.springframework.org/schema/context
                       http://www.springframework.org/schema/context/spring-context.xsd">
 
-  <context:component-scan base-package="org.powertac.tournament"/>
+  <context:component-scan base-package="org.powertac.tournament" />
 
   <bean id="actionAccount" scope="session"
-        class="org.powertac.tournament.actions.ActionAccount">
-  </bean>
+    class="org.powertac.tournament.actions.ActionAccount"></bean>
   <bean id="actionAdmin" scope="request"
-        class="org.powertac.tournament.actions.ActionAdmin">
-  </bean>
+    class="org.powertac.tournament.actions.ActionAdmin"></bean>
   <bean id="actionGame" scope="request"
-        class="org.powertac.tournament.actions.ActionGame">
-  </bean>
+    class="org.powertac.tournament.actions.ActionGame"></bean>
   <bean id="actionIndex" scope="request"
-        class="org.powertac.tournament.actions.ActionIndex">
-  </bean>
+    class="org.powertac.tournament.actions.ActionIndex"></bean>
   <bean id="actionOverview" scope="request"
-        class="org.powertac.tournament.actions.ActionOverview">
-  </bean>
+    class="org.powertac.tournament.actions.ActionOverview"></bean>
   <bean id="actionRound" scope="request"
-        class="org.powertac.tournament.actions.ActionRound">
-  </bean>
+    class="org.powertac.tournament.actions.ActionRound"></bean>
   <bean id="actionRounds" scope="request"
-        class="org.powertac.tournament.actions.ActionRounds">
-  </bean>
+    class="org.powertac.tournament.actions.ActionRounds"></bean>
   <bean id="actionLevels" scope="request"
-        class="org.powertac.tournament.actions.ActionLevels">
-  </bean>
+    class="org.powertac.tournament.actions.ActionLevels"></bean>
   <bean id="actionTournament" scope="request"
-        class="org.powertac.tournament.actions.ActionTournament">
-  </bean>
+    class="org.powertac.tournament.actions.ActionTournament"></bean>
   <bean id="actionTournaments" scope="request"
-        class="org.powertac.tournament.actions.ActionTournaments">
-  </bean>
+    class="org.powertac.tournament.actions.ActionTournaments"></bean>
 </beans>

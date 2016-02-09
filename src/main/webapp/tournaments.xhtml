@@ -138,12 +138,10 @@
 
       <h:form enctype="multipart/form-data" rendered="#{user.isAdmin()}"
               id="saveTournament">
-        <h:panelGroup rendered="#{actionTournaments.tournamentId == -1}">
-          <h3>Create Tournament</h3>
-        </h:panelGroup>
-        <h:panelGroup rendered="#{actionTournaments.tournamentId != -1}">
-          <h3>Edit Tournament</h3>
-        </h:panelGroup>
+        <h3>
+          <h:outputLabel value="#{actionTournaments.tournamentId == -1 ? 'Create' : 'Edit'}"/>
+          Tournament
+        </h3>
 
         <h:panelGrid columns="2" id="tournamentTable">
           <h:outputText value="Tournament Name"/>

@@ -1,8 +1,18 @@
 package org.powertac.tournament.services;
 
-import org.powertac.tournament.beans.*;
+import org.powertac.tournament.beans.Agent;
+import org.powertac.tournament.beans.Broker;
+import org.powertac.tournament.beans.Game;
+import org.powertac.tournament.beans.Level;
+import org.powertac.tournament.beans.Round;
+import org.powertac.tournament.beans.Tournament;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +39,7 @@ public class CSV
     if (t != null) {
       String name = "%stournament.%s.csv";
       String levels = "%srounds.%s.csv";
-      names = new String[] {
+      names = new String[]{
           String.format(name, logLocation, t.getTournamentName().replaceAll(" ", "_")),
           String.format(name, logLocation, t.getTournamentId()),
           String.format(levels, logLocation, t.getTournamentName().replaceAll(" ", "_")),
@@ -39,7 +49,7 @@ public class CSV
     else if (r != null) {
       String name = "%sround.%s.csv";
       String games = "%sgames.%s.csv";
-      names = new String[] {
+      names = new String[]{
           String.format(name, logLocation, r.getRoundName().replaceAll(" ", "_")),
           String.format(name, logLocation, r.getRoundId()),
           String.format(games, logLocation, r.getRoundName().replaceAll(" ", "_")),
@@ -101,7 +111,7 @@ public class CSV
 
       bw.write("levelId;levelName;levelNr;nofRounds;nofWinners;startTime"
           + separator);
-      for (Level level: tournament.getLevelMap().values()) {
+      for (Level level : tournament.getLevelMap().values()) {
         bw.write(String.format("%s;%s;%s;%s;%s;%s%s",
             level.getLevelId(),
             level.getLevelName(),
@@ -115,7 +125,8 @@ public class CSV
       bw.close();
 
       copyFile(tournamentCSV, names[1]);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
     }
   }
@@ -134,16 +145,16 @@ public class CSV
       FileWriter fw = new FileWriter(levelsCSV.getAbsoluteFile());
       BufferedWriter bw = new BufferedWriter(fw);
 
-      for (Level level: tournament.getLevelMap().values()) {
+      for (Level level : tournament.getLevelMap().values()) {
         bw.write("levelId;" + level.getLevelId() + separator);
         bw.write("levelName;" + level.getLevelName() + separator);
         bw.write("levelNr;" + level.getLevelNr() + separator);
         bw.write("nofWinners;" + level.getNofWinners() + separator);
         bw.write("startTime;" + Utils.dateToStringFull(level.getStartTime()) + separator);
         bw.write(separator);
-        for (Round round: level.getRoundMap().values()) {
+        for (Round round : level.getRoundMap().values()) {
           Map<Broker, double[]> resultMap = round.determineWinner();
-          singleRound (bw, ";", round, resultMap);
+          singleRound(bw, ";", round, resultMap);
           bw.write(separator);
         }
       }
@@ -151,7 +162,8 @@ public class CSV
       bw.close();
 
       copyFile(levelsCSV, names[3]);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
     }
   }
@@ -176,12 +188,13 @@ public class CSV
       FileWriter fw = new FileWriter(roundCSV.getAbsoluteFile());
       BufferedWriter bw = new BufferedWriter(fw);
 
-      singleRound (bw, "", round, resultMap);
+      singleRound(bw, "", round, resultMap);
 
       bw.close();
 
       copyFile(roundCSV, names[1]);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
     }
   }
@@ -212,12 +225,13 @@ public class CSV
       String tourneyUrl = properties.getProperty("tourneyUrl");
       String baseUrl = properties.getProperty("actionIndex.logUrl",
           "download?game=%d");
-      for (Game game: round.getGameMap().values()) {
+      for (Game game : round.getGameMap().values()) {
         String logUrl = "";
         if (game.getState().isComplete()) {
           if (baseUrl.startsWith("http://")) {
             logUrl = String.format(baseUrl, game.getGameId());
-          } else {
+          }
+          else {
             logUrl = tourneyUrl + String.format(baseUrl, game.getGameId());
           }
         }
@@ -226,7 +240,7 @@ public class CSV
             game.getGameId(), game.getGameName(), game.getState(),
             game.getSize(), game.getGameLength(), game.getLastTick(),
             game.getLocation(), game.getSimStartTime(), logUrl);
-        for (Agent agent: game.getAgentMap().values()) {
+        for (Agent agent : game.getAgentMap().values()) {
           content = String.format("%s%d;%f;", content,
               agent.getBrokerId(), agent.getBalance());
         }
@@ -237,7 +251,8 @@ public class CSV
       bw.close();
 
       copyFile(gamesCSV, names[3]);
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       e.printStackTrace();
     }
   }
@@ -287,7 +302,7 @@ public class CSV
         "Total (not normalized);Size 1;Size 2;Size3;Total (normalized)" +
         separator);
 
-    for (Map.Entry<Broker, double[]> entry: resultMap.entrySet()) {
+    for (Map.Entry<Broker, double[]> entry : resultMap.entrySet()) {
       double[] results = entry.getValue();
       bw.write(String.format("%s%s;%s;%f;%f;%f;%f;%f;%f;%f;%f%s",
           prefix,
@@ -303,7 +318,7 @@ public class CSV
   {
     File targetFile = new File(name);
 
-    if(!targetFile.exists()) {
+    if (!targetFile.exists()) {
       targetFile.createNewFile();
     }
 

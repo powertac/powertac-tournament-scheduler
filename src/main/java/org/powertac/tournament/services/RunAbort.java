@@ -32,7 +32,8 @@ public class RunAbort
       JenkinsConnector.sendJob(abortUrl);
 
       log.info("Aborted job on slave " + machineName);
-    } catch (Exception ignored) {
+    }
+    catch (Exception ignored) {
       log.error("Failed to aborted job on slave " + machineName);
     }
   }

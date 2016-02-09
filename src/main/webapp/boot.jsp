@@ -5,11 +5,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>Boot Interface</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>Boot Interface</title>
 </head>
 
 <body>
-    <h2>Page for server to get the boot files from the Tournament Scheduler</h2>
+  <h2>Page for server to get the boot files from the Tournament Scheduler</h2>
 </body>
 </html>

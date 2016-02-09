@@ -8,211 +8,211 @@
       xmlns:t="http://myfaces.apache.org/tomahawk">
 
 <h:body>
-<ui:composition template="template.xhtml">
-<ui:define name="content">
-<script type="text/javascript" charset="utf8"
-        src="resources/js/datatable.sort.js"></script>
-<script type="text/javascript" charset="utf8"
-        src="resources/js/round.js"></script>
+  <ui:composition template="template.xhtml">
+    <ui:define name="content">
+      <script type="text/javascript" charset="utf8"
+              src="resources/js/datatable.sort.js"></script>
+      <script type="text/javascript" charset="utf8"
+              src="resources/js/round.js"></script>
 
-<h2>Overview for round : #{actionRound.round.roundName}</h2>
+      <h2>Overview for round : #{actionRound.round.roundName}</h2>
 
-<t:dataList var="infoEntry" value="#{actionRound.roundInfo}"
-            layout="unorderedList">
-  <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
-</t:dataList>
+      <t:dataList var="infoEntry" value="#{actionRound.roundInfo}"
+                  layout="unorderedList">
+        <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
+      </t:dataList>
 
-<h:panelGroup rendered="#{actionRound.participantInfo.size() > 0}">
-  <h4>Participants</h4>
-  <t:dataList var="infoEntry" value="#{actionRound.participantInfo}"
-              layout="unorderedList">
-    <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
-  </t:dataList>
-</h:panelGroup>
-
-<h:panelGroup rendered="#{actionRound.csvLinks.size() > 0}">
-  <h4>CSV</h4>
-  <t:dataList var="infoEntry" value="#{actionRound.csvLinks}"
-              layout="unorderedList">
-    <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
-  </t:dataList>
-</h:panelGroup>
-
-<h:form rendered="#{user.isAdmin()}">
-  <h:commandButton action="#{actionRound.createCsv}"
-                   value="Create or update CSV"
-                   styleClass="bigButton">
-    <f:ajax execute="@form" render="@form"/>
-  </h:commandButton>
-  <input type="hidden" name="roundId"
-         value="#{actionRound.round.roundId}"/>
-</h:form>
-
-<h:panelGroup rendered="#{actionRound.avgsAndSDs != null}">
-  <h3>Totals</h3>
-
-  <t:dataTable id="dataResults" border="1"
-               style="border:1px solid black;border-collapse:collapse;"
-               columnClasses=",right,right,right,right,right,right,right,right,right,right,right,right,right,right"
-               value="#{actionRound.resultMap.keySet()}" var="broker">
-    <t:column>
-      <f:facet name="header">Broker</f:facet>
-      <h:outputText value="#{broker.getBrokerName()}"/>
-    </t:column>
-
-    <t:column>
-      <f:facet name="header">Size 1</f:facet>
-      <h:outputText value="#{actionRound.resultMap.get(broker)[0]}">
-        <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
-      </h:outputText>
-    </t:column>
-    <t:column>
-      <f:facet name="header">Size 2</f:facet>
-      <h:outputText value="#{actionRound.resultMap.get(broker)[1]}">
-        <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
-      </h:outputText>
-    </t:column>
-    <t:column>
-      <f:facet name="header">Size 3</f:facet>
-      <h:outputText value="#{actionRound.resultMap.get(broker)[2]}">
-        <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
-      </h:outputText>
-    </t:column>
-
-    <t:column>
-      <f:facet name="header">Total (not normalized)</f:facet>
-      <h:outputText value="#{actionRound.resultMap.get(broker)[3]}">
-        <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
-      </h:outputText>
-    </t:column>
-
-    <t:column>
-      <f:facet name="header">Size 1</f:facet>
-      <h:outputText value="#{actionRound.resultMap.get(broker)[10]}">
-        <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
-      </h:outputText>
-    </t:column>
-    <t:column>
-      <f:facet name="header">Size 2</f:facet>
-      <h:outputText value="#{actionRound.resultMap.get(broker)[11]}">
-        <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
-      </h:outputText>
-    </t:column>
-    <t:column>
-      <f:facet name="header">Size 3</f:facet>
-      <h:outputText value="#{actionRound.resultMap.get(broker)[12]}">
-        <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
-      </h:outputText>
-    </t:column>
-
-    <t:column>
-      <f:facet name="header">Total (normalized)</f:facet>
-      <h:outputText value="#{actionRound.resultMap.get(broker)[13]}">
-        <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
-      </h:outputText>
-    </t:column>
-  </t:dataTable>
-
-  <br/>
-  <table>
-    <tbody>
-    <tr>
-      <td class="left">Average</td>
-      <td class="right">
-        <h:outputText value="#{actionRound.avgsAndSDs[0]}">
-          <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
-        </h:outputText>
-      </td>
-      <td class="right">
-        <h:outputText value="#{actionRound.avgsAndSDs[1]}">
-          <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
-        </h:outputText>
-      </td>
-      <td class="right">
-        <h:outputText value="#{actionRound.avgsAndSDs[2]}">
-          <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
-        </h:outputText>
-      </td>
-    </tr>
-    <tr>
-      <td class="left">Standard Deviation</td>
-      <td class="right">
-        <h:outputText value="#{actionRound.avgsAndSDs[3]}">
-          <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
-        </h:outputText>
-      </td>
-      <td class="right">
-        <h:outputText value="#{actionRound.avgsAndSDs[4]}">
-          <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
-        </h:outputText>
-      </td>
-      <td class="right">
-        <h:outputText value="#{actionRound.avgsAndSDs[5]}">
-          <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
-        </h:outputText>
-      </td>
-    </tr>
-    </tbody>
-  </table>
-</h:panelGroup>
-
-<h:panelGroup rendered="#{actionRound.avgsAndSDs == null}">
-  <br/>
-  <h4>No game-data available yet</h4>
-</h:panelGroup>
-
-<h:form rendered="#{actionRound.round.gameMap.size() > 0}">
-  <h3>Games</h3>
-  <t:dataTable id="games" border="1"
-               style="border:1px solid black;border-collapse:collapse;"
-               columnClasses=",,,,right"
-               value="#{actionRound.round.gameMap.values()}"
-               var="entry">
-    <t:column>
-      <f:facet name="header">ID</f:facet>
-      <h:outputText>
-        <h:link value="#{entry.gameId}" outcome="Game">
-          <f:param name="gameId" value="#{entry.gameId}"/>
-        </h:link>
-      </h:outputText>
-    </t:column>
-
-    <t:column>
-      <f:facet name="header">Name</f:facet>
-      <h:outputText value="#{entry.gameName}"/>
-    </t:column>
-
-    <t:column>
-      <f:facet name="header">Status</f:facet>
-      <h:outputText value="#{entry.state}"/>
-    </t:column>
-
-    <t:column>
-      <f:facet name="header">Brokers</f:facet>
-      <h:panelGroup>
-        <ui:repeat value="#{actionRound.agentsMap.get(entry.gameId)}"
-                   var="a">
-          <b>#{a.broker.getBrokerName()}</b><br/>
-        </ui:repeat>
+      <h:panelGroup rendered="#{actionRound.participantInfo.size() > 0}">
+        <h4>Participants</h4>
+        <t:dataList var="infoEntry" value="#{actionRound.participantInfo}"
+                    layout="unorderedList">
+          <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
+        </t:dataList>
       </h:panelGroup>
-    </t:column>
 
-    <t:column>
-      <f:facet name="header">Balance</f:facet>
-      <h:panelGroup>
-        <ui:repeat value="#{actionRound.agentsMap.get(entry.gameId)}"
-                   var="a">
-          <h:outputText value="#{a.balance}">
-            <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
-          </h:outputText><br/>
-        </ui:repeat>
+      <h:panelGroup rendered="#{actionRound.csvLinks.size() > 0}">
+        <h4>CSV</h4>
+        <t:dataList var="infoEntry" value="#{actionRound.csvLinks}"
+                    layout="unorderedList">
+          <t:outputText value="#{infoEntry}" escape="false" id="infoEntry"/>
+        </t:dataList>
       </h:panelGroup>
-    </t:column>
-  </t:dataTable>
-</h:form>
 
-<br/><br/>
-</ui:define>
-</ui:composition>
+      <h:form rendered="#{user.isAdmin()}">
+        <h:commandButton action="#{actionRound.createCsv}"
+                         value="Create or update CSV"
+                         styleClass="bigButton">
+          <f:ajax execute="@form" render="@form"/>
+        </h:commandButton>
+        <input type="hidden" name="roundId"
+               value="#{actionRound.round.roundId}"/>
+      </h:form>
+
+      <h:panelGroup rendered="#{actionRound.avgsAndSDs != null}">
+        <h3>Totals</h3>
+
+        <t:dataTable id="dataResults" border="1"
+                     style="border:1px solid black;border-collapse:collapse;"
+                     columnClasses=",right,right,right,right,right,right,right,right,right,right,right,right,right,right"
+                     value="#{actionRound.resultMap.keySet()}" var="broker">
+          <t:column>
+            <f:facet name="header">Broker</f:facet>
+            <h:outputText value="#{broker.getBrokerName()}"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Size 1</f:facet>
+            <h:outputText value="#{actionRound.resultMap.get(broker)[0]}">
+              <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+            </h:outputText>
+          </t:column>
+          <t:column>
+            <f:facet name="header">Size 2</f:facet>
+            <h:outputText value="#{actionRound.resultMap.get(broker)[1]}">
+              <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+            </h:outputText>
+          </t:column>
+          <t:column>
+            <f:facet name="header">Size 3</f:facet>
+            <h:outputText value="#{actionRound.resultMap.get(broker)[2]}">
+              <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+            </h:outputText>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Total (not normalized)</f:facet>
+            <h:outputText value="#{actionRound.resultMap.get(broker)[3]}">
+              <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+            </h:outputText>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Size 1</f:facet>
+            <h:outputText value="#{actionRound.resultMap.get(broker)[10]}">
+              <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
+            </h:outputText>
+          </t:column>
+          <t:column>
+            <f:facet name="header">Size 2</f:facet>
+            <h:outputText value="#{actionRound.resultMap.get(broker)[11]}">
+              <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
+            </h:outputText>
+          </t:column>
+          <t:column>
+            <f:facet name="header">Size 3</f:facet>
+            <h:outputText value="#{actionRound.resultMap.get(broker)[12]}">
+              <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
+            </h:outputText>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Total (normalized)</f:facet>
+            <h:outputText value="#{actionRound.resultMap.get(broker)[13]}">
+              <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
+            </h:outputText>
+          </t:column>
+        </t:dataTable>
+
+        <br/>
+        <table>
+          <tbody>
+            <tr>
+              <td class="left">Average</td>
+              <td class="right">
+                <h:outputText value="#{actionRound.avgsAndSDs[0]}">
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+                </h:outputText>
+              </td>
+              <td class="right">
+                <h:outputText value="#{actionRound.avgsAndSDs[1]}">
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+                </h:outputText>
+              </td>
+              <td class="right">
+                <h:outputText value="#{actionRound.avgsAndSDs[2]}">
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+                </h:outputText>
+              </td>
+            </tr>
+            <tr>
+              <td class="left">Standard Deviation</td>
+              <td class="right">
+                <h:outputText value="#{actionRound.avgsAndSDs[3]}">
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+                </h:outputText>
+              </td>
+              <td class="right">
+                <h:outputText value="#{actionRound.avgsAndSDs[4]}">
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+                </h:outputText>
+              </td>
+              <td class="right">
+                <h:outputText value="#{actionRound.avgsAndSDs[5]}">
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+                </h:outputText>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </h:panelGroup>
+
+      <h:panelGroup rendered="#{actionRound.avgsAndSDs == null}">
+        <br/>
+        <h4>No game-data available yet</h4>
+      </h:panelGroup>
+
+      <h:form rendered="#{actionRound.round.gameMap.size() > 0}">
+        <h3>Games</h3>
+        <t:dataTable id="games" border="1"
+                     style="border:1px solid black;border-collapse:collapse;"
+                     columnClasses=",,,,right"
+                     value="#{actionRound.round.gameMap.values()}"
+                     var="entry">
+          <t:column>
+            <f:facet name="header">ID</f:facet>
+            <h:outputText>
+              <h:link value="#{entry.gameId}" outcome="Game">
+                <f:param name="gameId" value="#{entry.gameId}"/>
+              </h:link>
+            </h:outputText>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Name</f:facet>
+            <h:outputText value="#{entry.gameName}"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Status</f:facet>
+            <h:outputText value="#{entry.state}"/>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Brokers</f:facet>
+            <h:panelGroup>
+              <ui:repeat value="#{actionRound.agentsMap.get(entry.gameId)}"
+                         var="a">
+                <b>#{a.broker.getBrokerName()}</b><br/>
+              </ui:repeat>
+            </h:panelGroup>
+          </t:column>
+
+          <t:column>
+            <f:facet name="header">Balance</f:facet>
+            <h:panelGroup>
+              <ui:repeat value="#{actionRound.agentsMap.get(entry.gameId)}"
+                         var="a">
+                <h:outputText value="#{a.balance}">
+                  <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
+                </h:outputText><br/>
+              </ui:repeat>
+            </h:panelGroup>
+          </t:column>
+        </t:dataTable>
+      </h:form>
+
+      <br/><br/>
+    </ui:define>
+  </ui:composition>
 </h:body>
 </html>

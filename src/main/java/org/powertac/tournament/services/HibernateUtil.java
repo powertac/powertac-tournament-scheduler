@@ -29,7 +29,8 @@ public class HibernateUtil
       ServiceRegistry serviceRegistry = new ServiceRegistryBuilder()
           .applySettings(configuration.getProperties()).buildServiceRegistry();
       return configuration.buildSessionFactory(serviceRegistry);
-    } catch (Throwable ex) {
+    }
+    catch (Throwable ex) {
       // Make sure you log the exception, as it might be swallowed
       log.error("Initial SessionFactory creation failed.\n" + ex);
       throw new ExceptionInInitializerError(ex);
@@ -53,14 +54,17 @@ public class HibernateUtil
       Driver driver = drivers.nextElement();
       try {
         DriverManager.deregisterDriver(driver);
-      } catch (Exception ignored) {}
+      }
+      catch (Exception ignored) {
+      }
     }
 
     for (Object obj : C3P0Registry.getPooledDataSources()) {
       try {
         PooledDataSource dataSource = (PooledDataSource) obj;
         dataSource.close();
-      } catch (Exception ignored) {
+      }
+      catch (Exception ignored) {
       }
     }
 

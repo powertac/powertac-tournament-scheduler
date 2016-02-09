@@ -37,11 +37,13 @@ public class JenkinsConnector
       }
 
       is = conn.getInputStream();
-    } finally {
+    }
+    finally {
       if (is != null) {
         try {
           is.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
           e.printStackTrace();
         }
       }

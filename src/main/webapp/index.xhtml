@@ -63,7 +63,8 @@
 
           <t:column>
             <f:facet name="header">Viz Link</f:facet>
-            <h:outputText value="Not avail." rendered="#{!g.state.isRunning()}"/>
+            <h:outputText value="Not avail."
+                          rendered="#{!g.state.isRunning()}"/>
             <h:panelGroup rendered="#{g.state.isRunning()}">
               <a href="http://#{g.machine.vizUrl}"
                  target="_blank">Visualizer</a>

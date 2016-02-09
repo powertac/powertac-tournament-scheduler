@@ -9,8 +9,26 @@ import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.Utils;
 
 import javax.faces.bean.ManagedBean;
-import javax.persistence.*;
-import java.util.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -77,8 +95,8 @@ public class Tournament
 
     log.info("Scheduling rounds for level " + level.getLevelNr());
 
-    for (int i=0; i < level.getNofRounds(); i++) {
-      String roundName = tournamentName +"_"+ level.getLevelName();
+    for (int i = 0; i < level.getNofRounds(); i++) {
+      String roundName = tournamentName + "_" + level.getLevelName();
       if (level.getNofRounds() != 1) {
         roundName += "_" + i;
       }
@@ -93,7 +111,7 @@ public class Tournament
     int nofBrokers = Math.max(100, level.getNofWinners());
     if (level.getLevelNr() != 0) {
       nofBrokers = Math.min(getPreviousLevel().getNofBrokers(),
-                            getPreviousLevel().getNofWinners());
+          getPreviousLevel().getNofWinners());
     }
     int maxBrokers = (int) Math.ceil(nofBrokers / level.getNofRounds());
 
@@ -210,7 +228,7 @@ public class Tournament
   public int getNofBrokers ()
   {
     int nofBrokers = 0;
-    for (Round round: levelMap.get(0).getRoundMap().values()) {
+    for (Round round : levelMap.get(0).getRoundMap().values()) {
       nofBrokers += round.getBrokerMap().size();
     }
     return nofBrokers;
@@ -337,7 +355,8 @@ public class Tournament
   }
 
   @Transient
-  public int getCurrentLevelNr () {
+  public int getCurrentLevelNr ()
+  {
     if (state.compareTo(STATE.scheduled1) < 0) {
       return 0;
     }
@@ -370,7 +389,8 @@ public class Tournament
           .createQuery(Constants.HQL.GET_TOURNAMENT_NOT_COMPLETE)
           .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -386,6 +406,7 @@ public class Tournament
   {
     return levelMap;
   }
+
   public void setLevelMap (Map<Integer, Level> levelMap)
   {
     this.levelMap = levelMap;
@@ -403,6 +424,7 @@ public class Tournament
   {
     return brokerMap;
   }
+
   public void setBrokerMap (Map<Integer, Broker> brokerMap)
   {
     this.brokerMap = brokerMap;
@@ -417,6 +439,7 @@ public class Tournament
   {
     return tournamentId;
   }
+
   public void setTournamentId (int tournamentId)
   {
     this.tournamentId = tournamentId;
@@ -427,6 +450,7 @@ public class Tournament
   {
     return tournamentName;
   }
+
   public void setTournamentName (String tournamentName)
   {
     this.tournamentName = tournamentName;
@@ -438,6 +462,7 @@ public class Tournament
   {
     return state;
   }
+
   public void setState (STATE state)
   {
     this.state = state;
@@ -448,17 +473,19 @@ public class Tournament
   {
     return pomId;
   }
+
   public void setPomId (int pomId)
   {
     this.pomId = pomId;
   }
 
   @Column(name = "maxAgents", nullable = false)
-  public int getMaxAgents()
+  public int getMaxAgents ()
   {
     return maxAgents;
   }
-  public void setMaxAgents(int maxAgents)
+
+  public void setMaxAgents (int maxAgents)
   {
     this.maxAgents = maxAgents;
   }

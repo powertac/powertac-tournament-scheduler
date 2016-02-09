@@ -3,7 +3,11 @@ package org.powertac.tournament.services;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.powertac.tournament.beans.*;
+import org.powertac.tournament.beans.Agent;
+import org.powertac.tournament.beans.Broker;
+import org.powertac.tournament.beans.Game;
+import org.powertac.tournament.beans.Machine;
+import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.constants.Constants;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +15,13 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 @Service("scheduler")
@@ -430,7 +440,8 @@ public class Scheduler implements InitializingBean
     return runningRounds;
   }
 
-  public List<Integer> getRunningRoundIds () {
+  public List<Integer> getRunningRoundIds ()
+  {
     List<Integer> runningRoundIds = new ArrayList<Integer>();
     for (Round round : runningRounds) {
       runningRoundIds.add(round.getRoundId());

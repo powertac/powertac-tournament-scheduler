@@ -65,8 +65,8 @@ public class RestDownload extends HttpServlet
     streamFile(response, absolutePath, downloadFile);
   }
 
-  private void streamFile(HttpServletResponse response,
-                          String absolutePath, String downloadFile)
+  private void streamFile (HttpServletResponse response,
+                           String absolutePath, String downloadFile)
   {
     byte[] buf = new byte[1024];
     try {

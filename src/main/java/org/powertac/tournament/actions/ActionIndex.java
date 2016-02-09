@@ -1,8 +1,3 @@
-/**
- * @author constantine
- *
- */
-
 package org.powertac.tournament.actions;
 
 import org.powertac.tournament.beans.Game;

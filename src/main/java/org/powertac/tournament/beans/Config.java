@@ -8,9 +8,14 @@ import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.Utils;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 import static javax.persistence.GenerationType.IDENTITY;
+
 
 @Entity
 @Table(name = "config")
@@ -77,12 +82,14 @@ public class Config
 
       content = config.getConfigValue();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.error("Error, getting index content");
       return null;
-    } finally {
+    }
+    finally {
       session.close();
     }
 
@@ -100,12 +107,14 @@ public class Config
       config.setConfigValue(newContent);
       session.update(config);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.error("Error, setting index content");
       return false;
-    } finally {
+    }
+    finally {
       session.close();
     }
 
@@ -124,12 +133,14 @@ public class Config
       config.setConfigValue(newContent);
       session.update(config);
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.error("Error, setting tournament content " + tournamentId);
       return false;
-    } finally {
+    }
+    finally {
       session.close();
     }
 
@@ -155,12 +166,14 @@ public class Config
 
       content = config.getConfigValue();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       log.error("Error, getting tournament content " + tournamentId);
       return null;
-    } finally {
+    }
+    finally {
       session.close();
     }
 

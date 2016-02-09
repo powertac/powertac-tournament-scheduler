@@ -1,10 +1,18 @@
 package org.powertac.tournament.beans;
 
-import org.hibernate.*;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.HibernateUtil;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,7 +55,8 @@ public class Location
       org.hibernate.Query query = session.createQuery(Constants.HQL.GET_LOCATIONS);
       locations = (List<Location>) query.list();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -81,7 +90,7 @@ public class Location
   public String getFullString ()
   {
     String fullString = String.format("%-16s : %s - %s", location,
-      dateFrom.toString().substring(0, 10), dateTo.toString().substring(0, 10));
+        dateFrom.toString().substring(0, 10), dateTo.toString().substring(0, 10));
     return fullString.replace(" ", "&nbsp;");
   }
 

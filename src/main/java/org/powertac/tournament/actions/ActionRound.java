@@ -3,7 +3,11 @@ package org.powertac.tournament.actions;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.powertac.tournament.beans.*;
+import org.powertac.tournament.beans.Agent;
+import org.powertac.tournament.beans.Broker;
+import org.powertac.tournament.beans.Game;
+import org.powertac.tournament.beans.Round;
+import org.powertac.tournament.beans.User;
 import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.CSV;
 import org.powertac.tournament.services.HibernateUtil;
@@ -58,10 +62,12 @@ public class ActionRound implements InitializingBean
       loadCsvLinks();
       loadMaps();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-    } finally {
+    }
+    finally {
       session.close();
     }
   }
@@ -72,7 +78,8 @@ public class ActionRound implements InitializingBean
     try {
       return Integer.parseInt(facesContext.getExternalContext().
           getRequestParameterMap().get("roundId"));
-    } catch (NumberFormatException ignored) {
+    }
+    catch (NumberFormatException ignored) {
       if (!facesContext.isPostback()) {
         Utils.redirect();
       }
@@ -85,10 +92,10 @@ public class ActionRound implements InitializingBean
     resultMap = round.determineWinner();
     avgsAndSDs = round.getAvgsAndSDsArray(resultMap);
 
-    for (Game game: round.getGameMap().values()) {
+    for (Game game : round.getGameMap().values()) {
       List<Agent> agents = new ArrayList<Agent>();
 
-      for (Agent agent: game.getAgentMap().values()) {
+      for (Agent agent : game.getAgentMap().values()) {
         agents.add(agent);
       }
 
@@ -122,11 +129,11 @@ public class ActionRound implements InitializingBean
 
   private void loadParticipantInfo ()
   {
-    for (Broker broker: round.getBrokerMap().values()) {
+    for (Broker broker : round.getBrokerMap().values()) {
       User participant = broker.getUser();
       participantInfo.add(String.format("%s, %s, %s",
           broker.getBrokerName(),
-          participant.getInstitution(),participant.getContactName()));
+          participant.getInstitution(), participant.getContactName()));
     }
     java.util.Collections.sort(participantInfo);
   }

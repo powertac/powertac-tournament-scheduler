@@ -25,25 +25,25 @@
 
 <body>
 
-<p:growl id="growl" showSummary="true" showDetail="true" autoUpdate="true"
-         escape="false"/>
+  <p:growl id="growl" showSummary="true" showDetail="true" autoUpdate="true"
+           escape="false"/>
 
-<f:view>
-  <div id="page">
-    <div id="header">
-      <ui:insert name="header">
-        <ui:include src="header.xhtml"/>
-      </ui:insert>
-    </div>
+  <f:view>
+    <div id="page">
+      <div id="header">
+        <ui:insert name="header">
+          <ui:include src="header.xhtml"/>
+        </ui:insert>
+      </div>
 
-    <div id="content">
-      <ui:insert name="content"/>
-    </div>
+      <div id="content">
+        <ui:insert name="content"/>
+      </div>
 
-    <div id="footer">
-      <ui:insert name="footer"/>
+      <div id="footer">
+        <ui:insert name="footer"/>
+      </div>
     </div>
-  </div>
-</f:view>
+  </f:view>
 </body>
 </html>

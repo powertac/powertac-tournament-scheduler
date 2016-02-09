@@ -17,7 +17,11 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 @ManagedBean
@@ -76,7 +80,8 @@ public class CheckWeatherServer implements InitializingBean
         setStatus("Server Alive and Well");
         log.info("Server Alive and Well");
         mailed = true;
-      } else {
+      }
+      else {
         setStatus("Server is Down");
         log.info("Server is Down");
 
@@ -87,7 +92,8 @@ public class CheckWeatherServer implements InitializingBean
           mailed = true;
         }
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       setStatus("Server Timeout or Network Error");
       log.info("Server Timeout or Network Error");
@@ -98,11 +104,13 @@ public class CheckWeatherServer implements InitializingBean
             properties.getProperty("scheduler.mailRecipient"));
         mailed = true;
       }
-    } finally {
+    }
+    finally {
       if (is != null) {
         try {
           is.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
           e.printStackTrace();
         }
       }

@@ -20,6 +20,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 
+
 /**
  * Static methods to access the Spring application context. It is set up
  * as a service so Spring will create and initialize it.

@@ -2,7 +2,16 @@ package org.powertac.tournament.beans;
 
 import org.powertac.tournament.services.Utils;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -24,7 +33,7 @@ public class Agent
   private STATE state;
   private double balance;
 
-  private static enum STATE
+  private enum STATE
   {
     pending, in_progress, complete
   }
@@ -82,6 +91,7 @@ public class Agent
   {
     return agentId;
   }
+
   public void setAgentId (int agentId)
   {
     this.agentId = agentId;
@@ -93,6 +103,7 @@ public class Agent
   {
     return game;
   }
+
   public void setGame (Game game)
   {
     this.game = game;
@@ -103,6 +114,7 @@ public class Agent
   {
     return gameId;
   }
+
   public void setGameId (int gameId)
   {
     this.gameId = gameId;
@@ -114,6 +126,7 @@ public class Agent
   {
     return broker;
   }
+
   public void setBroker (Broker broker)
   {
     this.broker = broker;
@@ -124,6 +137,7 @@ public class Agent
   {
     return brokerId;
   }
+
   public void setBrokerId (int brokerId)
   {
     this.brokerId = brokerId;
@@ -134,6 +148,7 @@ public class Agent
   {
     return brokerQueue;
   }
+
   public void setBrokerQueue (String brokerQueue)
   {
     this.brokerQueue = brokerQueue;
@@ -145,6 +160,7 @@ public class Agent
   {
     return state;
   }
+
   public void setState (STATE state)
   {
     this.state = state;
@@ -155,6 +171,7 @@ public class Agent
   {
     return balance;
   }
+
   public void setBalance (double balance)
   {
     this.balance = balance;

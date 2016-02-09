@@ -28,6 +28,7 @@ import java.util.Map;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
+
 @Entity
 @Table(name = "machines")
 public class Machine
@@ -139,7 +140,8 @@ public class Machine
               freeMachines.add(machine);
             }
           }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
           e.printStackTrace();
         }
       }
@@ -147,10 +149,12 @@ public class Machine
       if (session.isDirty()) {
         transaction.commit();
       }
-    } catch (IOException ioe) {
+    }
+    catch (IOException ioe) {
       transaction.rollback();
       ioe.printStackTrace();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -170,7 +174,8 @@ public class Machine
       Query query = session.createQuery(Constants.HQL.GET_MACHINES);
       machines = (List<Machine>) query.list();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -214,7 +219,8 @@ public class Machine
           Machine machine = (Machine) session.get(Machine.class, machineId);
           machine.setStateIdle();
           transaction.commit();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
           transaction.rollback();
           e.printStackTrace();
           log.error("Error updating machine state after job kill");

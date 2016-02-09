@@ -11,8 +11,23 @@ import org.powertac.tournament.services.Utils;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
-import javax.persistence.*;
-import java.util.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -38,20 +53,23 @@ public class User
   private boolean isEditingBroker;
   private boolean isEditingDetails;
 
-  private enum PERMISSION {
+  private enum PERMISSION
+  {
     admin,
     researcher,
     organizer,
     broker,
     guest;
 
-    public PERMISSION getDecreased() {
+    public PERMISSION getDecreased ()
+    {
       return this.ordinal() < PERMISSION.values().length - 1
           ? PERMISSION.values()[this.ordinal() + 1]
           : this;
     }
 
-    public PERMISSION getIncreased() {
+    public PERMISSION getIncreased ()
+    {
       return this.ordinal() == 0
           ? this
           : PERMISSION.values()[this.ordinal() - 1];
@@ -89,7 +107,8 @@ public class User
       query.setString("userName", userName);
       user = (User) query.uniqueResult();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -140,7 +159,8 @@ public class User
       session.saveOrUpdate(this);
       transaction.commit();
       return "Success";
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
       return "Failure";
@@ -166,6 +186,7 @@ public class User
   {
     return brokerMap;
   }
+
   public void setBrokerMap (Map<Integer, Broker> brokerMap)
   {
     this.brokerMap = brokerMap;
@@ -191,7 +212,8 @@ public class User
       Query query = session.createQuery(Constants.HQL.GET_USERS);
       users = (List<User>) query.list();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
     }
@@ -209,6 +231,7 @@ public class User
   {
     return userId;
   }
+
   public void setUserId (int userId)
   {
     this.userId = userId;
@@ -219,6 +242,7 @@ public class User
   {
     return userName;
   }
+
   public void setUserName (String userName)
   {
     this.userName = userName;
@@ -229,6 +253,7 @@ public class User
   {
     return institution;
   }
+
   public void setInstitution (String institution)
   {
     this.institution = institution;
@@ -239,6 +264,7 @@ public class User
   {
     return contactName;
   }
+
   public void setContactName (String contactName)
   {
     this.contactName = contactName;
@@ -249,6 +275,7 @@ public class User
   {
     return contactEmail;
   }
+
   public void setContactEmail (String contactEmail)
   {
     this.contactEmail = contactEmail;
@@ -259,6 +286,7 @@ public class User
   {
     return contactPhone;
   }
+
   public void setContactPhone (String contactPhone)
   {
     this.contactPhone = contactPhone;
@@ -269,6 +297,7 @@ public class User
   {
     return salt;
   }
+
   public void setSalt (String salt)
   {
     this.salt = salt;
@@ -279,6 +308,7 @@ public class User
   {
     return password;
   }
+
   public void setPassword (String password)
   {
     this.password = password;
@@ -290,6 +320,7 @@ public class User
   {
     return permission;
   }
+
   public void setPermission (PERMISSION permission)
   {
     this.permission = permission;
@@ -302,6 +333,7 @@ public class User
   {
     return isEditingBroker;
   }
+
   public void setEditingBroker (boolean editing)
   {
     isEditingBroker = editing;
@@ -312,6 +344,7 @@ public class User
   {
     return isEditingDetails;
   }
+
   public void setEditingDetails (boolean editingDetails)
   {
     isEditingDetails = editingDetails;

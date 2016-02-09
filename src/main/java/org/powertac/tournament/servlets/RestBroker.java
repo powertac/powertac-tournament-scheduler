@@ -97,7 +97,7 @@ public class RestBroker extends HttpServlet
       }
 
       // Only games more than X minutes ready, allowing the Viz to Login first
-      String readyString = getReadyString (session, broker, loginResponse,
+      String readyString = getReadyString(session, broker, loginResponse,
           tournament.getTournamentId());
       if (readyString != null) {
         transaction.commit();
@@ -157,7 +157,7 @@ public class RestBroker extends HttpServlet
     List<Game> games = (List<Game>) query.
         setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
 
-    for (Game game: games) {
+    for (Game game : games) {
       if (game.getRound().getTournamentId() != tournamentId) {
         continue;
       }

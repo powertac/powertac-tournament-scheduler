@@ -23,7 +23,7 @@
         <h3 class="withButton">Registered Brokers</h3>
         <h:button value="Refresh" outcome="Overview"/>
         <h:commandButton id="toggleBrokerViz" value="Hide inactive"
-                  onclick="toggleBrokerViz();" type="button"/>
+                         onclick="toggleBrokerViz();" type="button"/>
 
         <t:dataTable id="databrokers" border="1"
                      value="#{actionOverview.brokerList}" var="broker">
@@ -182,7 +182,7 @@
               <h:outputLink value="properties.jsp?gameId=#{g.gameId}"
                             target="_blank">P</h:outputLink>
 
-              <h:outputText value="&#160;" rendered="#{g.state.hasBootstrap()}"/>
+              <h:outputText value="&#160;" rendered="#{g.state.bootComplete}"/>
               <h:outputLink
                   value="serverInterface.jsp?action=boot&amp;gameId=#{g.gameId}"
                   rendered="#{g.state.hasBootstrap()}"

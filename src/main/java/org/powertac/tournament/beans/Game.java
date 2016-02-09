@@ -230,7 +230,7 @@ public class Game implements Serializable
         log.debug("Freeing Machine for game: " + gameId);
 
         // Reset values for aborted games
-        for (Agent agent : getAgentMap().values()) {
+        for (Agent agent : agentMap.values()) {
           agent.setStatePending();
           agent.setBalance(0);
           session.update(agent);

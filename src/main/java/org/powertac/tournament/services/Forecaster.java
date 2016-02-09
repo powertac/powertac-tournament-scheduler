@@ -26,8 +26,7 @@ public class Forecaster
   // TODO Get duration from where??
   private static int overhead = 60;
   private static int duration = 5;
-  public  static int forecastMax = 500;
-
+  public static int forecastMax = 500;
 
   // TODO Make configurable via interface ??
   private int slavesCount = Machine.getMachineList().size();
@@ -285,7 +284,7 @@ public class Forecaster
 
     for (Round round : orgLevel.getRoundMap().values()) {
       int[] gameTypes = new int[]{
-          round.getSize1(), round.getSize2(), round.getSize3() };
+          round.getSize1(), round.getSize2(), round.getSize3()};
       int[] multipliers = new int[]{
           round.getMultiplier1(), round.getMultiplier2(), round.getMultiplier3()};
 

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+
 @ManagedBean
 public class ActionGame implements InitializingBean
 {
@@ -52,10 +53,12 @@ public class ActionGame implements InitializingBean
       loadGameInfo();
       loadResultMap();
       transaction.commit();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-    } finally {
+    }
+    finally {
       session.close();
     }
   }
@@ -66,7 +69,8 @@ public class ActionGame implements InitializingBean
     try {
       return Integer.parseInt(facesContext.getExternalContext().
           getRequestParameterMap().get("gameId"));
-    } catch (NumberFormatException ignored) {
+    }
+    catch (NumberFormatException ignored) {
       Utils.redirect();
       return -1;
     }
@@ -106,7 +110,7 @@ public class ActionGame implements InitializingBean
 
   private void loadResultMap ()
   {
-    for (Agent agent: game.getAgentMap().values()) {
+    for (Agent agent : game.getAgentMap().values()) {
       Map.Entry<String, Double> entry2 =
           new AbstractMap.SimpleEntry<String, Double>(
               agent.getBroker().getBrokerName(), agent.getBalance());
