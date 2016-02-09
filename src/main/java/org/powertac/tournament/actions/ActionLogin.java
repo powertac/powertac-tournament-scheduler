@@ -34,19 +34,20 @@ public class ActionLogin
     this.password = password;
   }
 
-  public String login ()
+  public void login ()
   {
     boolean success = User.loginUser(getUserName(), getPassword());
     if (!success) {
       Utils.growlMessage("Login Failure");
-      return "Failure";
     }
-    return "Success";
+    else {
+      Utils.redirect("account.xhtml");
+    }
   }
 
-  public String logout ()
+  public void logout ()
   {
     User.getCurrentUser().logout();
-    return "Login";
+    Utils.redirect("login.xhtml");
   }
 }

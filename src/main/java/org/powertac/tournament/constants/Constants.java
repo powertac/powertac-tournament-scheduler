@@ -10,27 +10,27 @@ public class Constants
   public static class Props
   {
     public static final String weatherServerURL =
-        "server.weatherService.serverUrl = %s\n";
+        "server.weatherService.serverUrl = ";
     public static final String weatherLocation =
-        "server.weatherService.weatherLocation = %s\n";
+        "server.weatherService.weatherLocation = ";
     public static final String startTime =
-        "common.competition.simulationBaseTime = %s\n";
+        "common.competition.simulationBaseTime = ";
     public static final String jms =
-        "server.jmsManagementService.jmsBrokerUrl = %s\n";
+        "server.jmsManagementService.jmsBrokerUrl = ";
     public static final String serverFirstTimeout =
-        "server.competitionControlService.firstLoginTimeout = %s\n";
+        "server.competitionControlService.firstLoginTimeout = ";
     public static final String serverTimeout =
-        "server.competitionControlService.loginTimeout = %s\n";
+        "server.competitionControlService.loginTimeout = ";
     public static final String remote =
-        "server.visualizerProxyService.remoteVisualizer = %s\n";
+        "server.visualizerProxyService.remoteVisualizer = ";
     public static final String vizQ =
-        "server.visualizerProxyService.visualizerQueueName = %s\n";
+        "server.visualizerProxyService.visualizerQueueName = ";
     public static final String minTimeslot =
-        "common.competition.minimumTimeslotCount = %s\n";
+        "common.competition.minimumTimeslotCount = ";
     public static final String expectedTimeslot =
-        "common.competition.expectedTimeslotCount = %s\n";
+        "common.competition.expectedTimeslotCount = ";
     public static final String timezoneOffset =
-        "common.competition.timezoneOffset = %s\n";
+        "common.competition.timezoneOffset = ";
   }
 
   public static class Rest

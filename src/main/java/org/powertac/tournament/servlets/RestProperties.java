@@ -85,39 +85,48 @@ public class RestProperties extends HttpServlet
   {
     TournamentProperties properties = TournamentProperties.getProperties();
 
-    String result = "";
-    result += String.format(Props.weatherServerURL,
-        properties.getProperty("weatherServerLocation"));
-    result += String.format(Props.weatherLocation, game.getLocation());
-    result += String.format(Props.startTime, game.getSimStartTime());
+    StringBuilder result = new StringBuilder();
+    result.append(Props.weatherServerURL)
+        .append(properties.getProperty("weatherServerLocation")).append("\n");
+    result.append(Props.weatherLocation).append(game.getLocation()).append("\n");
+    result.append(Props.startTime).append(game.getSimStartTime()).append("\n");
+    result.append(Props.jms);
     if (game.getMachine() != null) {
-      result += String.format(Props.jms, game.getMachine().getJmsUrl());
+      result.append(game.getMachine().getJmsUrl()).append("\n");
     }
     else {
-      result += String.format(Props.jms, "tcp://localhost:61616");
+      result.append("tcp://localhost:61616").append("\n");
     }
-    result += String.format(Props.serverFirstTimeout, 600000);
-    result += String.format(Props.serverTimeout, 120000);
-    result += String.format(Props.remote, true);
-    result += String.format(Props.vizQ, game.getVisualizerQueue());
+    result.append(Props.serverFirstTimeout).append(600000).append("\n");
+    result.append(Props.serverTimeout).append(120000).append("\n");
+    result.append(Props.remote).append(true).append("\n");
+    result.append(Props.vizQ).append(game.getVisualizerQueue()).append("\n");
 
     if (game.getGameLength() > 0) {
-      result += String.format(Props.minTimeslot, game.getGameLength());
-      result += String.format(Props.expectedTimeslot, game.getGameLength());
+      result.append(Props.minTimeslot).append(game.getGameLength()).append("\n");
+      result.append(Props.expectedTimeslot).append(game.getGameLength()).append("\n");
     }
     else {
       boolean test = game.getGameName().toLowerCase().contains("test");
-      result += String.format(Props.minTimeslot, test
-          ? properties.getPropertyInt("test.minimumTimeslotCount")
-          : properties.getPropertyInt("competition.minimumTimeslotCount"));
-      result += String.format(Props.expectedTimeslot, test
-          ? properties.getPropertyInt("test.expectedTimeslotCount")
-          : properties.getPropertyInt("competition.expectedTimeslotCount"));
+
+      result.append(Props.minTimeslot);
+      if (test)
+        result.append(properties.getPropertyInt("test.minimumTimeslotCount"));
+      else
+        result.append(properties.getPropertyInt("competition.minimumTimeslotCount"));
+      result.append("\n");
+
+      result.append(Props.expectedTimeslot);
+      if (test)
+        result.append(properties.getPropertyInt("test.expectedTimeslotCount"));
+      else
+        result.append(properties.getPropertyInt("competition.expectedTimeslotCount"));
+      result.append("\n");
     }
 
     Location location = Location.getLocationByName(game.getLocation());
-    result += String.format(Props.timezoneOffset, location.getTimezone());
+    result.append(Props.timezoneOffset).append(location.getTimezone()).append("\n");
 
-    return result;
+    return result.toString();
   }
 }

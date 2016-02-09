@@ -176,16 +176,15 @@ public class Game implements Serializable
   @Transient
   public String getBrokersInGameString ()
   {
-    String result = "";
+    StringBuilder result = new StringBuilder();
+    String prefix = "";
+
     for (Agent agent : agentMap.values()) {
-      result += agent.getBroker().getBrokerName() + ", ";
+      result.append(prefix).append(agent.getBroker().getBrokerName());
+      prefix = ", ";
     }
 
-    if (!result.isEmpty()) {
-      result = result.substring(0, result.length() - 2);
-    }
-
-    return result;
+    return result.toString();
   }
 
   @Transient
@@ -195,16 +194,14 @@ public class Game implements Serializable
     List<Agent> agents = new ArrayList(agentMap.values());
     Collections.sort(agents, new Utils.agentIdComparator());
 
-    String result = "";
+    StringBuilder result = new StringBuilder();
+    String prefix = "";
     for (Agent agent : agents) {
-      result += agent.getBroker().getBrokerId() + ", ";
+      result.append(prefix).append(agent.getBroker().getBrokerId());
+      prefix = ", ";
     }
 
-    if (!result.isEmpty()) {
-      result = result.substring(0, result.length() - 2);
-    }
-
-    return result;
+    return result.toString();
   }
 
   public void handleStatus (Session session, String status) throws Exception

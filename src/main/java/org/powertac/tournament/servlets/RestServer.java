@@ -210,7 +210,7 @@ public class RestServer extends HttpServlet
 
   private String serveBoot (String gameId)
   {
-    String result = "";
+    StringBuilder result = new StringBuilder();
 
     try {
       // Determine boot-file location
@@ -223,7 +223,7 @@ public class RestServer extends HttpServlet
       BufferedReader br = new BufferedReader(new InputStreamReader(in));
       String strLine;
       while ((strLine = br.readLine()) != null) {
-        result += strLine + "\n";
+        result.append(strLine).append("\n");
       }
 
       // Close the streams
@@ -233,10 +233,10 @@ public class RestServer extends HttpServlet
     }
     catch (Exception e) {
       log.error(e.getMessage());
-      result = "error";
+      return "error";
     }
 
-    return result;
+    return result.toString();
   }
 
   private String handleStatus (HttpServletRequest request)

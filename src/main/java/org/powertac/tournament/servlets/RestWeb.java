@@ -63,14 +63,14 @@ public class RestWeb extends HttpServlet
 
   private String parseBrokers ()
   {
-    String result = "{ ";
+    StringBuilder result = new StringBuilder("{ ");
 
     for (Integer i : MemStore.getBrokerCheckins().keySet()) {
       if (MemStore.getBrokerCheckins().get(i) == null) {
         continue;
       }
 
-      result += "\"" + i.toString() + "\": \"";
+      result.append("\"").append(i.toString()).append("\": \"");
 
       Iterator<Long> iter = MemStore.getBrokerCheckins().get(i).iterator();
       while (iter.hasNext()) {
@@ -81,21 +81,21 @@ public class RestWeb extends HttpServlet
           MemStore.removeBrokerCheckin(i, checkin);
         }
         else if (stamp < 60) {
-          result += "<b>" + stamp + "</b> ";
+          result.append("<b>").append(stamp).append("</b> ");
         }
         else {
-          result += stamp + " ";
+          result.append(stamp).append(" ");
         }
       }
-      result += "\" , ";
+      result.append("\" , ");
     }
 
     if (result.length() > 2) {
-      result = result.substring(0, result.length() - 2);
+      result.delete(result.length()-2, result.length());
     }
-    result += " }";
+    result.append(" }");
 
-    return result;
+    return result.toString();
   }
 
   private String parseGames ()

@@ -181,17 +181,17 @@ public class Round
   @Transient
   public String getParamString2 ()
   {
-    String result = "";
+    StringBuilder result = new StringBuilder();
     if (size1 > 0 && multiplier1 > 0) {
-      result += size1 + ":" + multiplier1 + " ";
+      result.append(size1).append(":").append(multiplier1).append(" ");
     }
     if (size2 > 0 && multiplier2 > 0) {
-      result += size2 + ":" + multiplier2 + " ";
+      result.append(size2).append(":").append(multiplier2).append(" ");
     }
     if (size3 > 0 && multiplier3 > 0) {
-      result += size3 + ":" + multiplier3;
+      result.append(size2).append(":").append(multiplier3).append(" ");
     }
-    return result;
+    return result.toString();
   }
 
   @Transient
