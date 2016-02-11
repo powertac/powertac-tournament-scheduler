@@ -52,10 +52,10 @@
           <h:panelGroup>
             <h:outputText value="No Rounds Loaded"
                           style="color:red;"
-                          rendered="#{scheduler.isRunningRoundsEmpty()}"/>
+                          rendered="#{empty scheduler.runningRounds}"/>
             <h:dataTable id="loadedRoundTable" border="0"
                          value="#{scheduler.runningRounds}" var="round"
-                         rendered="#{!scheduler.isRunningRoundsEmpty() }">
+                         rendered="#{not empty scheduler.runningRounds}">
               <h:column>
                 <f:facet name="header">
                   <h:outputText value="Running Rounds:" style="color:green;"/>
@@ -67,10 +67,10 @@
           <h:panelGroup>
             <h:commandButton value="Unload"
                              action="#{actionAdmin.unloadRounds()}"
-                             rendered="#{!scheduler.isRunningRoundsEmpty()}"/>
+                             rendered="#{not empty scheduler.runningRounds}"/>
             <h:panelGroup rendered="#{actionAdmin.availableRounds.size() > 0}">
               <h:selectManyListbox value="#{actionAdmin.selectedRounds}"
-                                   rendered="#{scheduler.isRunningRoundsEmpty()}"
+                                   rendered="#{empty scheduler.runningRounds}"
                                    style="border:1px solid grey;padding:1px;margin:2px;">
                 <f:selectItems value="#{actionAdmin.availableRounds}" var="r"
                                itemValue="#{r.roundId}"
@@ -78,7 +78,7 @@
               </h:selectManyListbox>
               <h:commandButton value="Load"
                                action="#{actionAdmin.loadRounds()}"
-                               rendered="#{scheduler.isRunningRoundsEmpty()}"/>
+                               rendered="#{empty scheduler.runningRounds}"/>
             </h:panelGroup>
             <h:panelGroup rendered="#{actionAdmin.availableRounds.size() == 0}">
               <h:outputText>No rounds availble for loading</h:outputText>

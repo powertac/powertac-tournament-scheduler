@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 
 @Service("scheduler")
@@ -41,11 +42,11 @@ public class Scheduler implements InitializingBean
 
   public Scheduler ()
   {
-    runningRounds = new ArrayList<Round>();
   }
 
   public void afterPropertiesSet () throws Exception
   {
+    runningRounds = new ArrayList<>();
     lazyStart();
   }
 
@@ -135,7 +136,7 @@ public class Scheduler implements InitializingBean
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
 
-    runningRounds = new ArrayList<Round>();
+    runningRounds = new ArrayList<>();
     try {
       for (int roundId : roundIDs) {
         Round round = (Round) session.createQuery(Constants.HQL.GET_ROUND_BY_ID)
@@ -197,7 +198,7 @@ public class Scheduler implements InitializingBean
    */
   private void createGamesForLoadedRounds ()
   {
-    if (isRunningRoundsEmpty()) {
+    if (getRunningRounds().isEmpty()) {
       log.info("No rounds available for scheduling");
       return;
     }
@@ -425,11 +426,6 @@ public class Scheduler implements InitializingBean
     log.debug("SchedulerTimer No Sim seems Wedged");
   }
 
-  public boolean isRunningRoundsEmpty ()
-  {
-    return runningRounds == null || runningRounds.size() == 0;
-  }
-
   public boolean isRunning ()
   {
     return schedulerTimer != null;
@@ -442,11 +438,8 @@ public class Scheduler implements InitializingBean
 
   public List<Integer> getRunningRoundIds ()
   {
-    List<Integer> runningRoundIds = new ArrayList<Integer>();
-    for (Round round : runningRounds) {
-      runningRoundIds.add(round.getRoundId());
-    }
-    return runningRoundIds;
+    return runningRounds.stream().map(Round::getRoundId)
+        .collect(Collectors.toList());
   }
 
   public static Scheduler getScheduler ()
