@@ -64,7 +64,7 @@ public class Round
   private Map<Integer, Game> gameMap = new HashMap<Integer, Game>();
   private Map<Integer, Broker> brokerMap = new HashMap<Integer, Broker>();
 
-  private static enum STATE
+  private enum STATE
   {
     pending, in_progress, complete
   }
@@ -298,6 +298,83 @@ public class Round
     return resultMap;
   }
 
+  @Transient
+  public Map<Broker, Result> getResultMap ()
+  {
+    Map<Broker, Result> resultMapRename = new HashMap<>();
+    boolean dataAvailable = false;
+
+    // Get the types in the last array
+    Integer[] types = new Integer[]{
+        multiplier1 != 0 ? size1 : 0,
+        multiplier2 != 0 ? size2 : 0,
+        multiplier3 != 0 ? size3 : 0};
+    double[] meanArr = new double[3];
+    double[] sdevArr = new double[3];
+
+    // Get the not-normalized results
+    for (Game game : gameMap.values()) {
+      if (!game.getState().isComplete()) {
+        continue;
+      }
+      dataAvailable = true;
+
+      int gameSize = game.getAgentMap().size();
+      int gameSizeIndex = Arrays.asList(types).indexOf(gameSize);
+
+      for (Agent agent : game.getAgentMap().values()) {
+        Broker broker = agent.getBroker();
+        Result brokerResult = resultMapRename.get(broker);
+        if (brokerResult == null) {
+          brokerResult = new Result(broker.getBrokerName());
+          resultMapRename.put(broker, brokerResult);
+        }
+
+        brokerResult.getArray0()[gameSizeIndex] += agent.getBalance();
+        meanArr[gameSizeIndex] += agent.getBalance();
+      }
+    }
+
+    // Get mean per game size
+    for (int i = 0; i < 3; i++) {
+      meanArr[i] = types[i] > 0 ? meanArr[i] / types[i] : 0;
+    }
+
+    // Get SD per game size
+    for (Broker broker : resultMapRename.keySet()) {
+      Result brokerResult = resultMapRename.get(broker);
+      for (int i = 0; i < 3; i++) {
+        sdevArr[i] += Math.pow(meanArr[i] - brokerResult.getArray0()[i], 2);
+      }
+    }
+
+    for (int i = 0; i < 3; i++) {
+      sdevArr[i] = Math.sqrt(sdevArr[i] / brokerMap.size());
+    }
+
+    for (Broker broker : resultMapRename.keySet()) {
+      double[] notNorm = resultMapRename.get(broker).getArray0();
+      double[] norm = resultMapRename.get(broker).getArray1();
+      double[] totals = resultMapRename.get(broker).getArray2();
+
+      // Calculate normalized
+      for (int i = 0; i < 3; i++) {
+        norm[i] = (notNorm[i] - meanArr[i]) / (sdevArr[i] > 0 ? sdevArr[i] : 1);
+      }
+
+      // Totalize
+      totals[0] = notNorm[0] + notNorm[1] + notNorm[2];
+      totals[1] = norm[0] + norm[1] + norm[2];
+    }
+
+    // Hijack broker 'null' for round results
+    if (dataAvailable) {
+      resultMapRename.put(null, new Result(types, meanArr, sdevArr));
+    }
+
+    return resultMapRename;
+  }
+
   public List<Broker> rankList ()
   {
     final Map<Broker, double[]> winnersMap = determineWinner();
@@ -433,7 +510,8 @@ public class Round
     return rounds;
   }
 
-  public double[] getAvgsAndSDsArray (Map<Broker, double[]> resultMap)
+  // Extract means and StdDevs
+  public double[] getMeanSigmaArray (Map<Broker, double[]> resultMap)
   {
     if (resultMap.size() > 0) {
       Map.Entry<Broker, double[]> entry = resultMap.entrySet().iterator().next();
@@ -631,4 +709,45 @@ public class Round
     this.locations = locations;
   }
   //</editor-fold>
+
+  // Data object for broker results in a round
+  public class Result
+  {
+    private String name;
+    private double[] array0 = new double[3];
+    private double[] array1 = new double[3];
+    private double[] array2 = new double[3];
+
+    public Result (String name)
+    {
+      this.name = name;
+    }
+
+    public Result (Integer[] types, double[] meanArr, double[] sdevArr)
+    {
+      array0 = meanArr;
+      array1 = sdevArr;
+      array2 = Arrays.stream(types).mapToDouble(x -> x).toArray();
+    }
+
+    public String getName ()
+    {
+      return name;
+    }
+
+    public double[] getArray0 ()
+    {
+      return array0;
+    }
+
+    public double[] getArray1 ()
+    {
+      return array1;
+    }
+
+    public double[] getArray2 ()
+    {
+      return array2;
+    }
+  }
 }

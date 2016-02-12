@@ -5,7 +5,8 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:t="http://myfaces.apache.org/tomahawk">
+      xmlns:t="http://myfaces.apache.org/tomahawk"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 <h:body>
   <ui:composition template="template.xhtml">
@@ -48,66 +49,99 @@
                value="#{actionRound.round.roundId}"/>
       </h:form>
 
-      <h:panelGroup rendered="#{actionRound.avgsAndSDs != null}">
+      <h:panelGroup rendered="#{actionRound.roundResults != null}">
         <h3>Totals</h3>
+
+        <c:set var="means" value="#{actionRound.roundResults.array0}"
+               scope="request"/>
+        <c:set var="sdevs" value="#{actionRound.roundResults.array1}"
+               scope="request"/>
+        <c:set var="types" value="#{actionRound.roundResults.array2}"
+               scope="request">
+          <f:convertNumber pattern="#0"/>
+        </c:set>
 
         <t:dataTable id="dataResults" border="1"
                      style="border:1px solid black;border-collapse:collapse;"
                      columnClasses=",right,right,right,right,right,right,right,right,right,right,right,right,right,right"
-                     value="#{actionRound.resultMap.keySet()}" var="broker">
+                     value="#{actionRound.resultMap.values()}" var="result">
           <t:column>
             <f:facet name="header">Broker</f:facet>
-            <h:outputText value="#{broker.getBrokerName()}"/>
+            <h:outputText value="#{result.name}"/>
           </t:column>
 
           <t:column>
-            <f:facet name="header">Size 1</f:facet>
-            <h:outputText value="#{actionRound.resultMap.get(broker)[0]}">
+            <f:facet name="header">Type
+              <h:outputText value="#{types[0]}">
+                <f:convertNumber pattern="#0"/>
+              </h:outputText>
+            </f:facet>
+            <h:outputText value="#{result.array0[0]}">
               <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
             </h:outputText>
           </t:column>
           <t:column>
-            <f:facet name="header">Size 2</f:facet>
-            <h:outputText value="#{actionRound.resultMap.get(broker)[1]}">
+            <f:facet name="header">Type
+              <h:outputText value="#{types[1]}">
+                <f:convertNumber pattern="#0"/>
+              </h:outputText>
+            </f:facet>
+            <h:outputText value="#{result.array0[1]}">
               <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
             </h:outputText>
           </t:column>
           <t:column>
-            <f:facet name="header">Size 3</f:facet>
-            <h:outputText value="#{actionRound.resultMap.get(broker)[2]}">
+            <f:facet name="header">Type
+              <h:outputText value="#{types[2]}">
+                <f:convertNumber pattern="#0"/>
+              </h:outputText>
+            </f:facet>
+            <h:outputText value="#{result.array0[2]}">
               <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
             </h:outputText>
           </t:column>
 
           <t:column>
-            <f:facet name="header">Total (not normalized)</f:facet>
-            <h:outputText value="#{actionRound.resultMap.get(broker)[3]}">
+            <f:facet name="header">Total<br/>(not normalized)</f:facet>
+            <h:outputText value="#{result.array2[0]}">
               <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
             </h:outputText>
           </t:column>
 
           <t:column>
-            <f:facet name="header">Size 1</f:facet>
-            <h:outputText value="#{actionRound.resultMap.get(broker)[10]}">
+            <f:facet name="header">Type
+              <h:outputText value="#{types[0]}">
+                <f:convertNumber pattern="#0"/>
+              </h:outputText>
+            </f:facet>
+            <h:outputText value="#{result.array1[0]}">
               <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
             </h:outputText>
           </t:column>
           <t:column>
-            <f:facet name="header">Size 2</f:facet>
-            <h:outputText value="#{actionRound.resultMap.get(broker)[11]}">
+            <f:facet name="header">Type
+              <h:outputText value="#{types[1]}">
+                <f:convertNumber pattern="#0"/>
+              </h:outputText>
+            </f:facet>
+            <h:outputText value="#{result.array1[1]}">
               <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
             </h:outputText>
           </t:column>
           <t:column>
-            <f:facet name="header">Size 3</f:facet>
-            <h:outputText value="#{actionRound.resultMap.get(broker)[12]}">
+            <f:facet name="header">Type
+              <h:outputText value="#{types[2]}">
+                <f:convertNumber pattern="#0"/>
+              </h:outputText>
+            </f:facet>
+            <h:outputText value="#{result.array1[2]}">
               <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
             </h:outputText>
           </t:column>
 
           <t:column>
-            <f:facet name="header">Total (normalized)</f:facet>
-            <h:outputText value="#{actionRound.resultMap.get(broker)[13]}">
+            <f:facet name="header">Total<br/>(normalized)</f:facet>
+            <h:outputText value="#{result.array2[1]}">
               <f:convertNumber minFractionDigits="3" groupingUsed="false"/>
             </h:outputText>
           </t:column>
@@ -119,17 +153,17 @@
             <tr>
               <td class="left">Average</td>
               <td class="right">
-                <h:outputText value="#{actionRound.avgsAndSDs[0]}">
+                <h:outputText value="#{means[0]}">
                   <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
                 </h:outputText>
               </td>
               <td class="right">
-                <h:outputText value="#{actionRound.avgsAndSDs[1]}">
+                <h:outputText value="#{means[1]}">
                   <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
                 </h:outputText>
               </td>
               <td class="right">
-                <h:outputText value="#{actionRound.avgsAndSDs[2]}">
+                <h:outputText value="#{means[2]}">
                   <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
                 </h:outputText>
               </td>
@@ -137,17 +171,17 @@
             <tr>
               <td class="left">Standard Deviation</td>
               <td class="right">
-                <h:outputText value="#{actionRound.avgsAndSDs[3]}">
+                <h:outputText value="#{sdevs[0]}">
                   <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
                 </h:outputText>
               </td>
               <td class="right">
-                <h:outputText value="#{actionRound.avgsAndSDs[4]}">
+                <h:outputText value="#{sdevs[1]}">
                   <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
                 </h:outputText>
               </td>
               <td class="right">
-                <h:outputText value="#{actionRound.avgsAndSDs[5]}">
+                <h:outputText value="#{sdevs[2]}">
                   <f:convertNumber maxFractionDigits="0" groupingUsed="false"/>
                 </h:outputText>
               </td>
@@ -156,7 +190,7 @@
         </table>
       </h:panelGroup>
 
-      <h:panelGroup rendered="#{actionRound.avgsAndSDs == null}">
+      <h:panelGroup rendered="#{actionRound.roundResults == null}">
         <br/>
         <h4>No game-data available yet</h4>
       </h:panelGroup>

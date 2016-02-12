@@ -7,6 +7,7 @@ import org.powertac.tournament.beans.Agent;
 import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Round;
+import org.powertac.tournament.beans.Round.Result;
 import org.powertac.tournament.beans.User;
 import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.CSV;
@@ -26,12 +27,12 @@ import java.util.Map;
 public class ActionRound implements InitializingBean
 {
   private Round round;
-  private List<String> roundInfo = new ArrayList<String>();
-  private List<String> participantInfo = new ArrayList<String>();
-  private List<String> csvLinks = new ArrayList<String>();
-  private Map<Integer, List> agentsMap = new HashMap<Integer, List>();
-  private Map<Broker, double[]> resultMap = new HashMap<Broker, double[]>();
-  private double[] avgsAndSDs;
+  private List<String> roundInfo = new ArrayList<>();
+  private List<String> participantInfo = new ArrayList<>();
+  private List<String> csvLinks = new ArrayList<>();
+  private Map<Integer, List> agentsMap = new HashMap<>();
+  private Map<Broker, Result> resultMap = new HashMap<>();
+  private Result roundResults;
 
   public ActionRound ()
   {
@@ -89,11 +90,11 @@ public class ActionRound implements InitializingBean
 
   private void loadMaps ()
   {
-    resultMap = round.determineWinner();
-    avgsAndSDs = round.getAvgsAndSDsArray(resultMap);
+    resultMap = round.getResultMap();
+    roundResults = resultMap.remove(null);
 
     for (Game game : round.getGameMap().values()) {
-      List<Agent> agents = new ArrayList<Agent>();
+      List<Agent> agents = new ArrayList<>();
 
       for (Agent agent : game.getAgentMap().values()) {
         agents.add(agent);
@@ -174,14 +175,14 @@ public class ActionRound implements InitializingBean
     return agentsMap;
   }
 
-  public Map<Broker, double[]> getResultMap ()
+  public Map<Broker, Result> getResultMap ()
   {
     return resultMap;
   }
 
-  public double[] getAvgsAndSDs ()
+  public Result getRoundResults ()
   {
-    return avgsAndSDs;
+    return roundResults;
   }
   //</editor-fold>
 }

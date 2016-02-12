@@ -96,10 +96,8 @@ public class Tournament
     log.info("Scheduling rounds for level " + level.getLevelNr());
 
     for (int i = 0; i < level.getNofRounds(); i++) {
-      String roundName = tournamentName + "_" + level.getLevelName();
-      if (level.getNofRounds() != 1) {
-        roundName += "_" + i;
-      }
+      String roundName = String.format("%s_%s_%d",
+          tournamentName, level.getLevelName(), i);
       scheduleRound(session, roundName, level);
     }
   }

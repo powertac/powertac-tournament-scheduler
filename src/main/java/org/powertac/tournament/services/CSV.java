@@ -282,7 +282,7 @@ public class CSV
     bw.write(prefix + "pomId;" + round.getPomId() + separator);
     bw.write(prefix + "Locations;" + round.getLocations() + separator);
 
-    double[] avgsAndSDs = round.getAvgsAndSDsArray(resultMap);
+    double[] avgsAndSDs = round.getMeanSigmaArray(resultMap);
     if (resultMap == null || resultMap.size() == 0 || avgsAndSDs == null) {
       return;
     }
