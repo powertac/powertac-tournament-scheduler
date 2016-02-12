@@ -302,7 +302,7 @@ public class CSV
     writer.println();
 
     writer.println(prefix + "brokerId;brokerName;Size 1;Size 2;Size 3;" +
-        "Total (not normalized);Type 1;Size 2;Size3;Total (normalized)");
+        "Total (not normalized);Size 1;Size 2;Size3;Total (normalized)");
 
     for (Broker broker : round.rankList()) {
       Result result = resultMap.get(broker);
@@ -346,7 +346,7 @@ public class CSV
 
   private List<String> getTournamentCsvLinks ()
   {
-    List<String> csvLinks = new ArrayList<String>();
+    List<String> csvLinks = new ArrayList<>();
 
     String tournamentCsv = names[0].replace(logLocation, "");
     String roundsCsv = names[2].replace(logLocation, "");
@@ -379,7 +379,7 @@ public class CSV
 
   private List<String> getRoundCsvLinks ()
   {
-    List<String> csvLinks = new ArrayList<String>();
+    List<String> csvLinks = new ArrayList<>();
 
     String roundCsv = names[0].replace(logLocation, "");
     String gamesCsv = names[2].replace(logLocation, "");
