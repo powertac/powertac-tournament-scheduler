@@ -5,14 +5,14 @@ import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Level;
 import org.powertac.tournament.beans.Round;
+import org.powertac.tournament.beans.Round.Result;
 import org.powertac.tournament.beans.Tournament;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +24,13 @@ public class CSV
   private String logLocation;
   private String baseUrl;
   private TournamentProperties properties;
-  private String separator;
+  private String sep;
   private String[] names;
 
   public CSV (Tournament t, Round r)
   {
     properties = TournamentProperties.getProperties();
-    separator = ";" + System.getProperty("line.separator");
+    sep = ";" + System.getProperty("line.separator");
     logLocation = properties.getProperty("logLocation");
     baseUrl = properties.getProperty("actionIndex.logUrl",
         "download?game=%d");
@@ -98,32 +98,28 @@ public class CSV
     try {
       tournamentCSV.createNewFile();
 
-      FileWriter fw = new FileWriter(tournamentCSV.getAbsoluteFile());
-      BufferedWriter bw = new BufferedWriter(fw);
+      PrintWriter writer = new PrintWriter(tournamentCSV, "UTF-8");
 
-      bw.write("tournamentId;" + tournament.getTournamentId() + separator);
-      bw.write("tournamentName;" + tournament.getTournamentName() + separator);
-      bw.write("status;" + tournament.getState() + separator);
-      bw.write("pomId;" + tournament.getPomId() + separator);
-      bw.write("MaxAgents;" + tournament.getMaxAgents() + separator);
+      writer.println("tournamentId;" + tournament.getTournamentId() + sep);
+      writer.println("tournamentName;" + tournament.getTournamentName() + sep);
+      writer.println("status;" + tournament.getState() + sep);
+      writer.println("pomId;" + tournament.getPomId() + sep);
+      writer.println("MaxAgents;" + tournament.getMaxAgents() + sep);
+      writer.println();
 
-      bw.write(separator);
-
-      bw.write("levelId;levelName;levelNr;nofRounds;nofWinners;startTime"
-          + separator);
+      writer.println("levelId;levelName;levelNr;nofRounds;nofWinners;startTime");
       for (Level level : tournament.getLevelMap().values()) {
-        bw.write(String.format("%s;%s;%s;%s;%s;%s%s",
+        writer.println(String.format("%s;%s;%s;%s;%s;%s",
             level.getLevelId(),
             level.getLevelName(),
             level.getLevelNr(),
             level.getNofRounds(),
             level.getNofWinners(),
-            Utils.dateToStringFull(level.getStartTime()),
-            separator));
+            Utils.dateToStringFull(level.getStartTime())));
       }
 
-      bw.close();
-
+      writer.close();
+      // provide file by tournamentId and name
       copyFile(tournamentCSV, names[1]);
     }
     catch (Exception e) {
@@ -142,25 +138,22 @@ public class CSV
     try {
       levelsCSV.createNewFile();
 
-      FileWriter fw = new FileWriter(levelsCSV.getAbsoluteFile());
-      BufferedWriter bw = new BufferedWriter(fw);
-
+      PrintWriter writer = new PrintWriter(levelsCSV, "UTF-8");
       for (Level level : tournament.getLevelMap().values()) {
-        bw.write("levelId;" + level.getLevelId() + separator);
-        bw.write("levelName;" + level.getLevelName() + separator);
-        bw.write("levelNr;" + level.getLevelNr() + separator);
-        bw.write("nofWinners;" + level.getNofWinners() + separator);
-        bw.write("startTime;" + Utils.dateToStringFull(level.getStartTime()) + separator);
-        bw.write(separator);
+        writer.println("levelId;" + level.getLevelId());
+        writer.println("levelName;" + level.getLevelName());
+        writer.println("levelNr;" + level.getLevelNr());
+        writer.println("nofWinners;" + level.getNofWinners());
+        writer.println("startTime;" + Utils.dateToStringFull(level.getStartTime()));
+        writer.println();
         for (Round round : level.getRoundMap().values()) {
-          Map<Broker, double[]> resultMap = round.determineWinner();
-          singleRound(bw, ";", round, resultMap);
-          bw.write(separator);
+          Map<Broker, Result> resultMap = round.getResultMap();
+          singleRound(writer, ";", round, resultMap);
+          writer.println();
         }
       }
-
-      bw.close();
-
+      writer.close();
+      // provide file by levelId and name
       copyFile(levelsCSV, names[3]);
     }
     catch (Exception e) {
@@ -171,12 +164,11 @@ public class CSV
   private void roundCsv (Round round)
   {
     File roundCSV = new File(names[0]);
-
     if (roundCSV.isFile() && roundCSV.canRead()) {
       roundCSV.delete();
     }
 
-    Map<Broker, double[]> resultMap = round.determineWinner();
+    Map<Broker, Result> resultMap = round.getResultMap();
     if (resultMap.size() == 0) {
       return;
     }
@@ -184,14 +176,10 @@ public class CSV
     // Create new CSVs
     try {
       roundCSV.createNewFile();
-
-      FileWriter fw = new FileWriter(roundCSV.getAbsoluteFile());
-      BufferedWriter bw = new BufferedWriter(fw);
-
-      singleRound(bw, "", round, resultMap);
-
-      bw.close();
-
+      PrintWriter writer = new PrintWriter(roundCSV, "UTF-8");
+      singleRound(writer, "", round, resultMap);
+      writer.close();
+      // provide file by roundId and name
       copyFile(roundCSV, names[1]);
     }
     catch (Exception e) {
@@ -214,13 +202,10 @@ public class CSV
     try {
       gamesCSV.createNewFile();
 
-      FileWriter fw = new FileWriter(gamesCSV.getAbsoluteFile());
-      BufferedWriter bw = new BufferedWriter(fw);
+      PrintWriter writer = new PrintWriter(gamesCSV, "UTF-8");
 
-      bw.write(
-          "gameId;gameName;status;gameSize;gameLength;lastTick;" +
-              "weatherLocation;weatherDate;logUrl;brokerId;brokerBalance;"
-              + separator);
+      writer.print("gameId;gameName;status;gameSize;gameLength;lastTick;");
+      writer.println("weatherLocation;weatherDate;logUrl;brokerId;brokerBalance;");
 
       String tourneyUrl = properties.getProperty("tourneyUrl");
       String baseUrl = properties.getProperty("actionIndex.logUrl",
@@ -245,11 +230,12 @@ public class CSV
               agent.getBrokerId(), agent.getBalance());
         }
 
-        bw.write(content + separator);
+        writer.println(content);
       }
 
-      bw.close();
+      writer.close();
 
+      // provide file by gameId and name
       copyFile(gamesCSV, names[3]);
     }
     catch (IOException e) {
@@ -257,59 +243,77 @@ public class CSV
     }
   }
 
-  private void singleRound (BufferedWriter bw, String prefix, Round round,
-                            Map<Broker, double[]> resultMap)
+  private void singleRound (PrintWriter writer, String prefix,
+                            Round round, Map<Broker, Result> resultMap)
       throws IOException
   {
-    bw.write(prefix + "roundId;" + round.getRoundId() + separator);
-    bw.write(prefix + "roundName;" + round.getRoundName() + separator);
-    bw.write(prefix + "status;" + round.getState() + separator);
+    writeRoundParams (writer, prefix, round);
 
-    bw.write(prefix + "StartTime;" + Utils.dateToStringFull(round.getStartTime()) + separator);
-    bw.write(prefix + "Date from;" + Utils.dateToStringFull(round.getDateFrom()) + separator);
-    bw.write(prefix + "Date to;" + Utils.dateToStringFull(round.getDateTo()) + separator);
-
-    bw.write(prefix + "MaxBrokers;" + round.getMaxBrokers() + separator);
-    bw.write(prefix + "Registered Brokers;" + round.getBrokerMap().size() + separator);
-
-    bw.write(prefix + "size1;" + round.getSize1() + separator);
-    bw.write(prefix + "multiplier1;" + round.getMultiplier1() + separator);
-    bw.write(prefix + "size2;" + round.getSize2() + separator);
-    bw.write(prefix + "multiplier2;" + round.getMultiplier2() + separator);
-    bw.write(prefix + "size3;" + round.getSize3() + separator);
-    bw.write(prefix + "multiplier3;" + round.getMultiplier3() + separator);
-
-    bw.write(prefix + "pomId;" + round.getPomId() + separator);
-    bw.write(prefix + "Locations;" + round.getLocations() + separator);
-
-    double[] avgsAndSDs = round.getMeanSigmaArray(resultMap);
-    if (resultMap == null || resultMap.size() == 0 || avgsAndSDs == null) {
+    if (resultMap == null || resultMap.size() == 0) {
       return;
     }
 
-    bw.write(separator);
+    writeRoundBrokers (writer, prefix, round, resultMap);
+  }
 
-    bw.write(prefix + "Average type 1;" + avgsAndSDs[0] + separator);
-    bw.write(prefix + "Average type 2;" + avgsAndSDs[1] + separator);
-    bw.write(prefix + "Average type 3;" + avgsAndSDs[2] + separator);
+  private void writeRoundParams (PrintWriter writer, String prefix, Round round)
+  {
+    writer.println(prefix + "roundId;" + round.getRoundId());
+    writer.println(prefix + "roundName;" + round.getRoundName());
+    writer.println(prefix + "status;" + round.getState());
 
-    bw.write(prefix + "Standard deviation type 1;" + avgsAndSDs[3] + separator);
-    bw.write(prefix + "Standard deviation type 2;" + avgsAndSDs[4] + separator);
-    bw.write(prefix + "Standard deviation type 3;" + avgsAndSDs[5] + separator);
-    bw.write(separator);
+    writer.println(prefix + "StartTime;" + Utils.dateToStringFull(round.getStartTime()));
+    writer.println(prefix + "Date from;" + Utils.dateToStringFull(round.getDateFrom()));
+    writer.println(prefix + "Date to;" + Utils.dateToStringFull(round.getDateTo()));
 
-    bw.write(prefix + "brokerId;brokerName;Size 1;Size 2;Size 3;" +
-        "Total (not normalized);Size 1;Size 2;Size3;Total (normalized)" +
-        separator);
+    writer.println(prefix + "MaxBrokers;" + round.getMaxBrokers());
+    writer.println(prefix + "Registered Brokers;" + round.getBrokerMap().size());
 
-    for (Map.Entry<Broker, double[]> entry : resultMap.entrySet()) {
-      double[] results = entry.getValue();
-      bw.write(String.format("%s%s;%s;%f;%f;%f;%f;%f;%f;%f;%f%s",
-          prefix,
-          entry.getKey().getBrokerId(), entry.getKey().getBrokerName(),
-          results[0], results[1], results[2], results[3],
-          results[10], results[11], results[12], results[13],
-          separator));
+    writer.println(prefix + "size1;" + round.getSize1());
+    writer.println(prefix + "multiplier1;" + round.getMultiplier1());
+    writer.println(prefix + "size2;" + round.getSize2());
+    writer.println(prefix + "multiplier2;" + round.getMultiplier2());
+    writer.println(prefix + "size3;" + round.getSize3());
+    writer.println(prefix + "multiplier3;" + round.getMultiplier3());
+
+    writer.println(prefix + "pomId;" + round.getPomId());
+    writer.println(prefix + "Locations;" + round.getLocations());
+    writer.println();
+  }
+
+  private void writeRoundBrokers (PrintWriter writer, String prefix,
+                                  Round round, Map<Broker, Result> resultMap)
+  {
+    Result roundResults = resultMap.remove(null);
+    if (roundResults == null) {
+      return;
+    }
+
+    double[] means = roundResults.getArray0();
+    double[] sdevs = roundResults.getArray1();
+
+    writer.println(prefix + "Average type 1;" + means[0]);
+    writer.println(prefix + "Average type 2;" + means[1]);
+    writer.println(prefix + "Average type 3;" + means[2]);
+
+    writer.println(prefix + "Standard deviation type 1;" + sdevs[0]);
+    writer.println(prefix + "Standard deviation type 2;" + sdevs[1]);
+    writer.println(prefix + "Standard deviation type 3;" + sdevs[2]);
+    writer.println();
+
+    writer.println(prefix + "brokerId;brokerName;Size 1;Size 2;Size 3;" +
+        "Total (not normalized);Type 1;Size 2;Size3;Total (normalized)");
+
+    for (Broker broker : round.rankList()) {
+      Result result = resultMap.get(broker);
+      double[] notNorm = result.getArray0();
+      double[] norm = result.getArray0();
+      double[] totals = result.getArray2();
+
+      writer.println(String.format("%s%s;%s;%f;%f;%f;%f;%f;%f;%f;%f",
+          prefix, broker.getBrokerId(), broker.getBrokerName(),
+          notNorm[0], notNorm[1], notNorm[2], totals[0],
+          norm[0], norm[1], norm[2], totals[1]));
     }
   }
 
