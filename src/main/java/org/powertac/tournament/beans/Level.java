@@ -20,10 +20,12 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -67,27 +69,24 @@ public class Level
   }
 
   @Transient
-  public boolean isStarted ()
+  public String getStatus ()
   {
-    for (Round round : roundMap.values()) {
-      if (round.isStarted()) {
-        return true;
-      }
+    Collection<Round> rounds = roundMap.values();
+
+    if (rounds.stream().filter(Round::isPending).count() == roundMap.size()) {
+      return "pending";
     }
-    return false;
+
+    if (rounds.stream().filter(Round::isComplete).count() == roundMap.size()) {
+      return "complete";
+    }
+
+    return "in_progress";
   }
 
-  @OneToMany
-  @JoinColumn(name = "levelId")
-  @MapKey(name = "roundId")
-  public Map<Integer, Round> getRoundMap ()
+  public String startTimeUTC ()
   {
-    return roundMap;
-  }
-
-  public void setRoundMap (Map<Integer, Round> roundMap)
-  {
-    this.roundMap = roundMap;
+    return Utils.dateToStringMedium(startTime);
   }
 
   @SuppressWarnings("unchecked")
@@ -110,12 +109,21 @@ public class Level
     }
     session.close();
 
-    return levels;
+    return levels.stream().filter(l -> l.getStatus().equals("complete"))
+        .collect(Collectors.toList());
   }
 
-  public String startTimeUTC ()
+  @OneToMany
+  @JoinColumn(name = "levelId")
+  @MapKey(name = "roundId")
+  public Map<Integer, Round> getRoundMap ()
   {
-    return Utils.dateToStringMedium(startTime);
+    return roundMap;
+  }
+
+  public void setRoundMap (Map<Integer, Round> roundMap)
+  {
+    this.roundMap = roundMap;
   }
 
   //<editor-fold desc="Setters and Getters">

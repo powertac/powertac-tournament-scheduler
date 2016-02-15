@@ -34,20 +34,7 @@ public class ActionLevels implements InitializingBean
 
   public String getStatus (Level level)
   {
-    String result = "";
-    for (Round round : level.getRoundMap().values()) {
-      if (round.isPending()) {
-        result = "pending";
-      }
-      else if (round.isComplete() && result.equals("")) {
-        result = "completed";
-      }
-      else if (round.isStarted() &&
-          (result.equals("completed") || result.equals(""))) {
-        result = "in_progress";
-      }
-    }
-    return result;
+    return level.getStatus();
   }
 
   public String getRounds (Level level)

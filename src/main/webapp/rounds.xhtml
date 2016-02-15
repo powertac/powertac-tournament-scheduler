@@ -163,7 +163,8 @@
           <br/><br/>
         </h:panelGroup>
         <h:panelGroup
-            rendered="#{actionRounds.isParallelRound() == true}">
+            rendered="#{actionRounds.isParallelRound() == true and
+                        empty actionRounds.forecastString}">
           <h:outputText
               value="Note : forecasting of parallel rounds happens via 'Levels'"/>
         </h:panelGroup>

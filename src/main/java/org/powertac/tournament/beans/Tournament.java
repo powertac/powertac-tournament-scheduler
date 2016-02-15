@@ -96,8 +96,10 @@ public class Tournament
     log.info("Scheduling rounds for level " + level.getLevelNr());
 
     for (int i = 0; i < level.getNofRounds(); i++) {
-      String roundName = String.format("%s_%s_%d",
-          tournamentName, level.getLevelName(), i);
+      String roundName = String.format("%s_%s%s%s",
+          tournamentName, level.getLevelName(),
+          level.getNofRounds() == 1 ? "" : "_",
+          level.getNofRounds() == 1 ? "" : i);
       scheduleRound(session, roundName, level);
     }
   }
@@ -237,7 +239,13 @@ public class Tournament
   public boolean isStarted ()
   {
     Level firstLevel = levelMap.get(0);
-    return firstLevel.isStarted();
+
+    for (Round round : firstLevel.getRoundMap().values()) {
+      if (round.isStarted()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public boolean scheduleNextLevel (Session session)

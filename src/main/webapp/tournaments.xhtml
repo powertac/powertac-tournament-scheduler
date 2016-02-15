@@ -139,7 +139,7 @@
       <h:form enctype="multipart/form-data" rendered="#{user.isAdmin()}"
               id="saveTournament">
         <h3>
-          <h:outputLabel value="#{actionTournaments.tournamentId == -1 ? 'Create' : 'Edit'}"/>
+          <h:outputText value="#{actionTournaments.tournamentId == -1 ? 'Create' : 'Edit'}"/>
           Tournament
         </h3>
 

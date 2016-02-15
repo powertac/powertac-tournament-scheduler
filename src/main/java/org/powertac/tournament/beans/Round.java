@@ -320,6 +320,12 @@ public class Round
     return state.equals(STATE.complete);
   }
 
+  @Transient
+  public boolean isInProgress ()
+  {
+    return state.equals(STATE.in_progress);
+  }
+
   public String startTimeUTC ()
   {
     return Utils.dateToStringMedium(startTime);

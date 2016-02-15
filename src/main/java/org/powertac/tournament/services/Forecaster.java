@@ -46,13 +46,13 @@ public class Forecaster
 
   private void init ()
   {
-    machines = new ArrayList<List<Game>>();
+    machines = new ArrayList<>();
     for (int i = 0; i < slavesCount; i++) {
       machines.add(new ArrayList<Game>());
     }
 
-    forecast.startTimes = new HashMap<Integer, Long>();
-    forecast.endTimes = new HashMap<Integer, Long>();
+    forecast.startTimes = new HashMap<>();
+    forecast.endTimes = new HashMap<>();
     for (int gameId : forecast.gamesMap.keySet()) {
       forecast.startTimes.put(gameId, -1L);
       forecast.endTimes.put(gameId, -1L);
@@ -72,7 +72,7 @@ public class Forecaster
   private void createSchedule ()
   {
     // Get a list of all the games we still need to schedule
-    List<Game> unfinished = new ArrayList<Game>();
+    List<Game> unfinished = new ArrayList<>();
     for (Game game : forecast.gamesMap.values()) {
       if (!game.getState().isRunning() && !game.getState().isComplete()) {
         unfinished.add(game);
@@ -217,7 +217,7 @@ public class Forecaster
   public static Forecast createForRunning ()
   {
     // Get the games of all running rounds
-    TreeMap<Integer, Game> gamesMap = new TreeMap<Integer, Game>();
+    TreeMap<Integer, Game> gamesMap = new TreeMap<>();
     Scheduler scheduler = Scheduler.getScheduler();
     for (Round round : scheduler.getRunningRounds()) {
       gamesMap.putAll(round.getGameMap());
@@ -247,7 +247,7 @@ public class Forecaster
     level.setTournament(tournament);
     tournament.getLevelMap().put(level.getLevelId(), level);
 
-    List<Broker> brokers = new ArrayList<Broker>();
+    List<Broker> brokers = new ArrayList<>();
     for (int i = 0; i < maxBrokers; i++) {
       Broker broker = new Broker();
       broker.setBrokerId(i + 1);
@@ -255,7 +255,7 @@ public class Forecaster
     }
 
     // Get the games for all the rounds
-    TreeMap<Integer, Game> gamesMap = new TreeMap<Integer, Game>();
+    TreeMap<Integer, Game> gamesMap = new TreeMap<>();
     getGames(gamesMap, level, brokers, roundId, gameTypes, multipliers,
         Utils.stringToDateMedium(date), name);
 
@@ -280,7 +280,7 @@ public class Forecaster
     tournament.getLevelMap().put(level.getLevelId(), level);
 
     // Get the games for all the rounds
-    TreeMap<Integer, Game> gamesMap = new TreeMap<Integer, Game>();
+    TreeMap<Integer, Game> gamesMap = new TreeMap<>();
 
     for (Round round : orgLevel.getRoundMap().values()) {
       int[] gameTypes = new int[]{
@@ -288,7 +288,7 @@ public class Forecaster
       int[] multipliers = new int[]{
           round.getMultiplier1(), round.getMultiplier2(), round.getMultiplier3()};
 
-      List<Broker> brokers = new ArrayList<Broker>();
+      List<Broker> brokers = new ArrayList<>();
       for (Broker orgBroker : round.getBrokerMap().values()) {
         Broker broker = new Broker();
         broker.setBrokerId(orgBroker.getBrokerId());
@@ -310,7 +310,7 @@ public class Forecaster
     ActionTimeline.setForecast(forecastTotal, "Level " + orgLevel.getLevelName());
 
     // Split in a separate forecast for each round
-    Map<Integer, Forecast> forecastMap = new HashMap<Integer, Forecast>();
+    Map<Integer, Forecast> forecastMap = new HashMap<>();
     for (int roundId : level.getRoundMap().keySet()) {
       forecastMap.put(roundId, new Forecast(new TreeMap<Integer, Game>()));
     }
@@ -340,7 +340,7 @@ public class Forecaster
     round.setLevel(level);
     level.getRoundMap().put(roundId, round);
 
-    List<Game> games = new ArrayList<Game>();
+    List<Game> games = new ArrayList<>();
     for (int i = 0; i < (gameTypes.length); i++) {
       for (int j = 0; j < multipliers[i]; j++) {
         createGamesAgents(round, brokers, i, gameTypes[i], j, games);
@@ -375,8 +375,8 @@ public class Forecaster
     public Forecast (TreeMap<Integer, Game> gamesMap)
     {
       this.gamesMap = gamesMap;
-      this.startTimes = new HashMap<Integer, Long>();
-      this.endTimes = new HashMap<Integer, Long>();
+      this.startTimes = new HashMap<>();
+      this.endTimes = new HashMap<>();
     }
 
     public TreeMap<Integer, Game> getGamesMap ()
@@ -422,7 +422,7 @@ public class Forecaster
 
     public List<Long> getTimes (long timeStart, Long timeEnd)
     {
-      List<Long> times = new ArrayList<Long>();
+      List<Long> times = new ArrayList<>();
 
       for (long time : startTimes.values()) {
         if (time >= timeStart) {
