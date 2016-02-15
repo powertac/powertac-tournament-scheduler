@@ -135,7 +135,7 @@ function resizeTables() {
     "bPaginate": false,
     "aoColumnDefs": [
       { 'bSortable': false, 'aTargets': [3, 4, 5] },
-      { "sType": "natural", "aTargets": [0] }
+      { "sType": "natural", "aTargets": [0, 1] }
     ]
   });
   $('[id$=dataRounds]').dataTable({
@@ -154,8 +154,8 @@ function resizeTables() {
     "sScrollY": Math.min(400, $("[id$=dataGames]").height()) + "px",
     "bPaginate": false,
     "aoColumnDefs": [
-      { 'bSortable': false, 'aTargets': [3, 4, 5, 6] },
-      { "sType": "natural", "aTargets": [0, 1] }
+      { 'bSortable': false, 'aTargets': [3, 4, 5, 6, 7] },
+      { "sType": "natural", "aTargets": [0] }
     ]
   });
 }

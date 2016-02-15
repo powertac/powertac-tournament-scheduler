@@ -11,8 +11,6 @@
   <ui:composition template="template.xhtml">
     <ui:define name="content">
       <script type="text/javascript" charset="utf8"
-              src="resources/js/datatable.sort.js"></script>
-      <script type="text/javascript" charset="utf8"
               src="resources/js/overview.js"></script>
 
       <h:form
@@ -141,7 +139,7 @@
                      value="#{actionOverview.notCompleteGamesList}" var="g">
           <t:column>
             <f:facet name="header">ID</f:facet>
-            <h:outputText value="#{g.gameId}" id="id"/>
+            <h:outputText value="#{g.gameId}" id="gameId"/>
           </t:column>
 
           <t:column>
