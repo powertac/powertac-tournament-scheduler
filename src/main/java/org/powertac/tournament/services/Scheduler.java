@@ -3,12 +3,11 @@ package org.powertac.tournament.services;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.powertac.tournament.beans.Agent;
-import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.constants.Constants;
+import org.powertac.tournament.schedulers.RoundScheduler;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -208,161 +206,12 @@ public class Scheduler implements InitializingBean
 
     boolean roundsChanged = false;
     for (Round round : runningRounds) {
-      roundsChanged |= createGamesForLoadedRound(round);
+      roundsChanged |= new RoundScheduler(round).createGamesForLoadedRound();
     }
 
     if (roundsChanged) {
       log.info("Some rounds were scheduled, reload rounds.");
       reloadRounds();
-    }
-  }
-
-  public boolean createGamesForLoadedRound (Round round)
-  {
-    if (round.getSize() > 0) {
-      log.info("Round already scheduled : " + round.getRoundName());
-      return false;
-    }
-    else if (!round.isStarted()) {
-      log.info("Round not ready : " + round.getRoundName());
-      return false;
-    }
-    log.info("Round available : " + round.getRoundName());
-
-    // Get array of gametypes
-    int[] gameTypes = {round.getSize1(), round.getSize2(), round.getSize3()};
-    int[] multipliers = {
-        round.getMultiplier1(), round.getMultiplier2(), round.getMultiplier3()};
-
-    Session session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      List<Broker> brokers = new ArrayList<Broker>(round.getBrokerMap().values());
-
-      if (brokers.size() == 0) {
-        log.info("Round " + round.getRoundName()
-            + " has no brokers registered, setting to complete");
-        round.setStateToComplete();
-        session.update(round);
-        transaction.commit();
-        return true;
-      }
-
-      doTheKailash(session, round, brokers, gameTypes, multipliers);
-
-      round.setStateToInProgress();
-      session.update(round);
-
-      transaction.commit();
-    }
-    catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-    }
-    finally {
-      session.close();
-    }
-
-    return true;
-  }
-
-  private void doTheKailash (Session session, Round round, List<Broker> brokers,
-                             int[] gameTypes, int[] multipliers)
-  {
-    log.info(String.format("Doing the Kailash, types = %s , multipliers = %s",
-        Arrays.toString(gameTypes), Arrays.toString(multipliers)));
-    String brokersString = "";
-    for (Broker b : brokers) {
-      brokersString += b.getBrokerId() + " ";
-    }
-    log.info("Broker ids : " + brokersString);
-
-    // Get a list of all the games for all types and multipliers
-    List<Game> games = new ArrayList<Game>();
-    for (int i = 0; i < (gameTypes.length); i++) {
-      for (int j = 0; j < multipliers[i]; j++) {
-        createGamesAgents(round, brokers, i, gameTypes[i], j, games);
-      }
-    }
-
-    // Only use stored lengths if they are applicable / not missing
-    List<Integer> lengths = MemStore.getForecastLengths(round.getRoundId());
-    if (lengths == null || games.size() != lengths.size()) {
-      lengths = null;
-      log.info("Not using stored game lengths");
-    }
-    else {
-      log.info("Using stored game lengths");
-    }
-
-    int count = 0;
-    for (Game game : games) {
-      if (lengths != null) {
-        game.setGameLength(lengths.get(count++));
-      }
-      else {
-        game.setGameLength(game.computeGameLength(round.getRoundName()));
-      }
-
-      session.save(game);
-      log.info(String.format("Created game %s", game.getGameId()));
-
-      for (Agent agent : game.getAgentMap().values()) {
-        session.save(agent);
-        log.info(
-            String.format("Added broker: %s", agent.getBroker().getBrokerId()));
-      }
-    }
-  }
-
-  public static void createGamesAgents (Round round, List<Broker> brokers,
-                                        int gameNumber, int gameType,
-                                        int multiplier, List<Game> games)
-  {
-    // No use scheduling gamesTypes > # brokers
-    gameType = Math.min(gameType, brokers.size());
-
-    // Get binary string representations of games
-    List<String> gameStrings = new ArrayList<String>();
-    for (int i = 0; i < (int) Math.pow(2, brokers.size()); i++) {
-      // Write as binary + pad with leading zeros
-      String gameString = Integer.toBinaryString(i);
-      while (gameString.length() < brokers.size()) {
-        gameString = '0' + gameString;
-      }
-
-      // Count number of 1's, representing participating players
-      int count = 0;
-      for (int j = 0; j < gameString.length(); j++) {
-        if (gameString.charAt(j) == '1') {
-          count++;
-        }
-      }
-
-      // We need an equal amount of participants as the gameType
-      if (count == gameType) {
-        gameStrings.add(gameString);
-      }
-    }
-
-    // Create game and agents for every gameString
-    for (int j = 0; j < gameStrings.size(); j++) {
-      String gameString = gameStrings.get(j);
-
-      String gameName = Game.createGameName(round.getRoundName(),
-          gameNumber, gameType, j, multiplier * gameStrings.size());
-
-      // Create game
-      Game game = Game.createGame(round, gameName);
-      games.add(game);
-
-      // Add agents to the game
-      for (int i = 0; i < gameString.length(); i++) {
-        if (gameString.charAt(i) == '1') {
-          Agent agent = Agent.createAgent(brokers.get(i), game);
-          game.getAgentMap().put(brokers.get(i).getBrokerId(), agent);
-        }
-      }
     }
   }
 

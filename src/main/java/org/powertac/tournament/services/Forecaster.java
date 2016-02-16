@@ -9,6 +9,7 @@ import org.powertac.tournament.beans.Location;
 import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.beans.Tournament;
+import org.powertac.tournament.schedulers.RoundScheduler;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,8 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import static org.powertac.tournament.services.Scheduler.createGamesAgents;
 
 
 public class Forecaster
@@ -343,7 +342,7 @@ public class Forecaster
     List<Game> games = new ArrayList<>();
     for (int i = 0; i < (gameTypes.length); i++) {
       for (int j = 0; j < multipliers[i]; j++) {
-        createGamesAgents(round, brokers, i, gameTypes[i], j, games);
+        new RoundScheduler(round).createGamesAgents(brokers, gameTypes[i], games);
       }
     }
 
@@ -359,7 +358,7 @@ public class Forecaster
       game.setGameId(gameIdx++);
       round.getGameMap().put(game.getGameId(), game);
       game.setRound(round);
-      game.setGameLength(game.computeGameLength(name));
+      game.setGameLength(game.computeGameLength());
 
       gamesMap.put(game.getGameId(), game);
     }

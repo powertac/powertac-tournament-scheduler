@@ -325,7 +325,7 @@ public class Broker
     }
 
     // Round is running, now check for free agents
-    int freeAgents = round.getLevel().getTournament().getMaxAgents();
+    int freeAgents = round.getMaxAgents();
     for (Agent agent : agentMap.values()) {
       Game game = agent.getGame();
       if (game.getState().isRunning() &&

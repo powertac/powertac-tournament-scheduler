@@ -360,9 +360,10 @@ public class Game implements Serializable
   }
 
   // Computes a random game length as outlined in the game specification
-  public int computeGameLength (String name)
+  public int computeGameLength ()
   {
-    String p = name.toLowerCase().contains("test") ? "test" : "competition";
+    String p = round.getRoundName().toLowerCase()
+        .contains("test") ? "test" : "competition";
     int minLength = properties.getPropertyInt(p + ".minimumTimeslotCount");
     int expLength = properties.getPropertyInt(p + ".expectedTimeslotCount");
 
@@ -378,19 +379,9 @@ public class Game implements Serializable
     }
   }
 
-  // These 2 methods (createGameName and getGameTypeIndex) are tightly coupled
-  @Transient
-  public int getGameTypeIndex ()
+  public static String createGameName (String roundName, int type, int counter)
   {
-    String[] parts = gameName.split("_");
-    return Integer.parseInt(parts[parts.length - 3]) - 1;
-  }
-
-  public static String createGameName (String roundName, int gameNumber,
-                                       int gameType, int counter, int offset)
-  {
-    return String.format("%s_%s_%s_%s",
-        roundName, (gameNumber + 1), gameType, counter + offset);
+    return String.format("%s_%d_%d", roundName, type, counter);
   }
 
   public String jenkinsMachineUrl ()

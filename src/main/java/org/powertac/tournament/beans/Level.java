@@ -109,7 +109,7 @@ public class Level
     }
     session.close();
 
-    return levels.stream().filter(l -> l.getStatus().equals("complete"))
+    return levels.stream().filter(l -> !l.getStatus().equals("complete"))
         .collect(Collectors.toList());
   }
 
