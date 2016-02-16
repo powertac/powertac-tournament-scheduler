@@ -65,7 +65,7 @@ public class RestVisualizer extends HttpServlet
    * listen on the queue named qn.
    */
   @SuppressWarnings("unchecked")
-  public String parseVisualizerLogin (HttpServletRequest request)
+  private String parseVisualizerLogin (HttpServletRequest request)
   {
     String machineName = request.getParameter(Rest.REQ_PARAM_MACHINE_NAME);
 

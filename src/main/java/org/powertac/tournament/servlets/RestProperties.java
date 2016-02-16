@@ -45,7 +45,7 @@ public class RestProperties extends HttpServlet
     out.close();
   }
 
-  public String parseProperties (HttpServletRequest request)
+  private String parseProperties (HttpServletRequest request)
   {
     // Allow slaves and admin users
     User user = User.getCurrentUser();

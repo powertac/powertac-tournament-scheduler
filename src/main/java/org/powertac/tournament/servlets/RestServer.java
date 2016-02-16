@@ -82,7 +82,7 @@ public class RestServer extends HttpServlet
     out.close();
   }
 
-  public String handleGET (HttpServletRequest request)
+  private String handleGET (HttpServletRequest request)
   {
     try {
       String actionString = request.getParameter(Rest.REQ_PARAM_ACTION);
@@ -113,7 +113,7 @@ public class RestServer extends HttpServlet
   /**
    * Handle 'PUT' to serverInterface.jsp, either boot.xml or (Boot|Sim) log
    */
-  public String handlePUT (HttpServletRequest request)
+  private String handlePUT (HttpServletRequest request)
   {
     if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
       return "error";
@@ -165,7 +165,7 @@ public class RestServer extends HttpServlet
   /**
    * Handle 'POST' to serverInterface.jsp, this is an end-of-game message
    */
-  public String handlePOST (HttpServletRequest request)
+  private String handlePOST (HttpServletRequest request)
   {
     if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
       return "error";

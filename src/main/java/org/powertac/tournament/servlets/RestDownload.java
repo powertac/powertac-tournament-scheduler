@@ -25,7 +25,7 @@ public class RestDownload extends HttpServlet
 {
   private static Logger log = Utils.getLogger();
 
-  TournamentProperties properties = TournamentProperties.getProperties();
+  private TournamentProperties properties = TournamentProperties.getProperties();
 
   protected void doGet (HttpServletRequest request, HttpServletResponse response)
   {

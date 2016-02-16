@@ -53,7 +53,7 @@ public class RestBroker extends HttpServlet
     out.close();
   }
 
-  public String parseBrokerLogin (HttpServletRequest request)
+  private String parseBrokerLogin (HttpServletRequest request)
   {
     String responseType = request.getParameter(Rest.REQ_PARAM_TYPE);
     String brokerAuth = request.getParameter(Rest.REQ_PARAM_AUTH_TOKEN);
