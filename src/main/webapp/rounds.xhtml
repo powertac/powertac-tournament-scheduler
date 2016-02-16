@@ -269,14 +269,13 @@
         <br/>
         <h4>If the round name contains 'test' (any case), short games will be created</h4>
         <h4>It also allows deletion of the round</h4>
+        <h:inputHidden id="slavesCount" value="#{actionRounds.slavesCount}"/>
       </h:form>
 
       <h:form rendered="#{!user.isAdmin()}">
         <h3>Insufficient Permissions, redirecting in 10 seconds</h3>
         <meta http-equiv="REFRESH" content="10;url=login.xhtml"/>
       </h:form>
-
-      <h:inputHidden id="slavesCount" value="#{actionRounds.slavesCount}"/>
     </ui:define>
   </ui:composition>
 </h:body>

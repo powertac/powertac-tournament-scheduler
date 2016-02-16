@@ -31,7 +31,7 @@ function showGamesCount() {
     return;
   }
 
-  var maxSlaves = document.getElementById("slavesCount").value;
+  var maxSlaves = $('[id$=slavesCount]').val();
   var durationOverhead = 1.1;
 
   var gameName = document.getElementById("saveRound:roundNameID").value;
