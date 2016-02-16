@@ -26,6 +26,8 @@ td {
 
 table.dataTable {
   border: 1px solid black;
+  width: 945px!important;
+  float: left;
 }
 
 table.dataTable td {

@@ -36,9 +36,6 @@ function toggleBrokerViz() {
       $(this).css("display", "");
     });
   }
-
-  var newHeight = Math.min(400, $("[id$=databrokers]").height()) + "px";
-  $('#brokersForm\\:databrokers').parent().height(newHeight);
 }
 
 function toggleGamesViz() {
@@ -65,9 +62,6 @@ function toggleGamesViz() {
       $(this).css("display", "");
     });
   }
-
-  var newHeight = Math.min(400, $("[id$=dataGames]").height()) + "px";
-  $('#gamesForm\\:dataGames').parent().height(newHeight);
 }
 
 function updateBrokers(data) {
@@ -135,7 +129,7 @@ function resizeTables() {
     "bPaginate": false,
     "aoColumnDefs": [
       { 'bSortable': false, 'aTargets': [3, 4, 5] },
-      { "sType": "natural", "aTargets": [0, 1] }
+      { "sType": "natural-nohtml", "aTargets": [0, 1] }
     ]
   });
   $('[id$=dataRounds]').dataTable({
@@ -145,7 +139,7 @@ function resizeTables() {
     "bPaginate": false,
     "aoColumnDefs": [
       { 'bSortable': false, 'aTargets': [4, 5, 6] },
-      { "sType": "natural", "aTargets": [0] }
+      { "sType": "natural-nohtml", "aTargets": [0] }
     ]
   });
   $('[id$=dataGames]').dataTable({
@@ -155,7 +149,7 @@ function resizeTables() {
     "bPaginate": false,
     "aoColumnDefs": [
       { 'bSortable': false, 'aTargets': [3, 4, 5, 6, 7] },
-      { "sType": "natural", "aTargets": [0] }
+      { "sType": "natural-nohtml", "aTargets": [0] }
     ]
   });
 }
