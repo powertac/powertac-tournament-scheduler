@@ -1,6 +1,9 @@
-package org.powertac.tournament.services;
+package org.powertac.tournament.runners;
 
 import org.apache.log4j.Logger;
+import org.powertac.tournament.services.JenkinsConnector;
+import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Utils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 

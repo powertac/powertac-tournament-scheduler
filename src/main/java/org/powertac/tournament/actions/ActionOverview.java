@@ -10,8 +10,8 @@ import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
-import org.powertac.tournament.services.RunAbort;
-import org.powertac.tournament.services.RunKill;
+import org.powertac.tournament.runners.RunAbort;
+import org.powertac.tournament.runners.RunKill;
 import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
 

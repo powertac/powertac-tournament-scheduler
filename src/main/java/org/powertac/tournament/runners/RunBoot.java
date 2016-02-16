@@ -1,10 +1,15 @@
-package org.powertac.tournament.services;
+package org.powertac.tournament.runners;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Machine;
+import org.powertac.tournament.services.GamesScheduler;
+import org.powertac.tournament.services.HibernateUtil;
+import org.powertac.tournament.services.JenkinsConnector;
+import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Utils;
 
 import java.util.List;
 
