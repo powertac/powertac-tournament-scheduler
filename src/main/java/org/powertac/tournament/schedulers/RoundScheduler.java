@@ -174,12 +174,8 @@ public class RoundScheduler
     // Create game and agents for every gameString
 
     for (String gameString : gameStrings) {
-      // Create game name
-      String gameName = Game.createGameName(
-          round.getRoundName(), gameType, gameCounter++);
-
       // Create game
-      Game game = Game.createGame(round, gameName);
+      Game game = Game.createGame(round, gameType, gameCounter++);
       games.add(game);
 
       // Add agents to the game

@@ -1,4 +1,4 @@
-package org.powertac.tournament.runners;
+package org.powertac.tournament.jobs;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -151,6 +151,7 @@ public class RunGame
             + "job/start-sim-server/buildWithParameters?"
             + "tourneyUrl=" + properties.getProperty("tourneyUrl")
             + "&pomId=" + game.getRound().getPomId()
+            + "&gameName=" + game.getNiceName()
             + "&gameId=" + game.getGameId()
             + "&machine=" + game.getMachine().getMachineName()
             + "&brokers=" + brokers

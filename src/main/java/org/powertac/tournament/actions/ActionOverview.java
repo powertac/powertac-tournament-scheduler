@@ -10,8 +10,8 @@ import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
-import org.powertac.tournament.runners.RunAbort;
-import org.powertac.tournament.runners.RunKill;
+import org.powertac.tournament.jobs.RunAbort;
+import org.powertac.tournament.jobs.RunKill;
 import org.powertac.tournament.services.Utils;
 import org.powertac.tournament.states.AgentState;
 import org.powertac.tournament.states.GameState;
@@ -42,17 +42,17 @@ public class ActionOverview implements InitializingBean
 
   public void afterPropertiesSet () throws Exception
   {
-    runningGames = new HashMap<Integer, Set<Integer>>();
+    runningGames = new HashMap<>();
 
     brokerList = Broker.getBrokerList();
-    Set<Integer> brokerIds = new HashSet<Integer>();
+    Set<Integer> brokerIds = new HashSet<>();
     for (Broker broker : brokerList) {
       brokerIds.add(broker.getBrokerId());
       runningGames.put(broker.getBrokerId(), new HashSet<Integer>());
     }
 
     notCompleteRoundList = Round.getNotCompleteRoundList();
-    notCompleteGamesList = new ArrayList<Game>();
+    notCompleteGamesList = new ArrayList<>();
     for (Round round : notCompleteRoundList) {
       for (Game game : round.getGameMap().values()) {
         if (game.getState().isComplete()) {

@@ -1,4 +1,4 @@
-package org.powertac.tournament.runners;
+package org.powertac.tournament.jobs;
 
 import org.apache.log4j.Logger;
 import org.powertac.tournament.services.JenkinsConnector;

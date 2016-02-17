@@ -1,12 +1,7 @@
 package org.powertac.tournament.actions;
 
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Agent;
 import org.powertac.tournament.beans.Game;
-import org.powertac.tournament.constants.Constants;
-import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
@@ -23,8 +18,8 @@ import java.util.Map;
 public class ActionGame implements InitializingBean
 {
   private Game game;
-  private List<String> gameInfo = new ArrayList<String>();
-  private List<Map.Entry<String, Double>> resultMap = new ArrayList<Map.Entry<String, Double>>();
+  private List<String> gameInfo = new ArrayList<>();
+  private List<Map.Entry<String, Double>> resultMap = new ArrayList<>();
 
   public ActionGame ()
   {
@@ -37,30 +32,14 @@ public class ActionGame implements InitializingBean
       return;
     }
 
-    Session session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      Query query = session.createQuery(Constants.HQL.GET_GAME_BY_ID);
-      query.setInteger("gameId", gameId);
-      game = (Game) query.uniqueResult();
+    game = Game.getGameFromId(gameId);
+    if (game == null) {
+      Utils.redirect();
+      return;
+    }
 
-      if (game == null) {
-        transaction.rollback();
-        Utils.redirect();
-        return;
-      }
-
-      loadGameInfo();
-      loadResultMap();
-      transaction.commit();
-    }
-    catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-    }
-    finally {
-      session.close();
-    }
+    loadGameInfo();
+    loadResultMap();
   }
 
   private int getGameId ()
@@ -112,7 +91,7 @@ public class ActionGame implements InitializingBean
   {
     for (Agent agent : game.getAgentMap().values()) {
       Map.Entry<String, Double> entry2 =
-          new AbstractMap.SimpleEntry<String, Double>(
+          new AbstractMap.SimpleEntry<>(
               agent.getBroker().getBrokerName(), agent.getBalance());
       resultMap.add(entry2);
     }

@@ -9,7 +9,7 @@ import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.schedulers.GameHandler;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
-import org.powertac.tournament.runners.SimLogParser;
+import org.powertac.tournament.jobs.SimLogParser;
 import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Utils;
 

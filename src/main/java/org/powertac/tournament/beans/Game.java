@@ -112,130 +112,6 @@ public class Game implements Serializable
     return result.toString();
   }
 
-  /*
-  public void handleStatus (Session session, String status) throws Exception
-  {
-    GameState newState = GameState.valueOf(status);
-
-    if (newState.equals(state)) {
-      return;
-    }
-
-    state = newState;
-    log.info(String.format("Update game: %s to %s", gameId, status));
-
-    switch (newState) {
-      case boot_in_progress:
-        // Remove bootfile, it shouldn't exist anyway
-        removeBootFile();
-        break;
-
-      case boot_complete:
-        Machine.delayedMachineUpdate(machine, 10);
-        machine = null;
-        log.debug("Freeing Machine for game: " + gameId);
-
-        // Reset values for aborted games
-        for (Agent agent : agentMap.values()) {
-          agent.setState(AgentState.pending);
-          agent.setBalance(0);
-          session.update(agent);
-        }
-        setReadyTime(null);
-        MemStore.removeGameInfo(gameId);
-        break;
-
-      case boot_failed:
-        log.warn("BOOT " + gameId + " FAILED!");
-        Machine.delayedMachineUpdate(machine, 10);
-        machine = null;
-        log.debug("Freeing Machine for game: " + gameId);
-        break;
-
-      case game_ready:
-        readyTime = Utils.offsetDate();
-        break;
-
-      case game_in_progress:
-        break;
-
-      case game_complete:
-        for (Agent agent : agentMap.values()) {
-          agent.setState(AgentState.complete);
-          session.update(agent);
-        }
-        log.info("Setting Agents to Complete for game: " + gameId);
-        Machine.delayedMachineUpdate(machine, 10);
-        machine = null;
-        log.debug("Freeing Machine for game: " + gameId);
-        // If all games of round are complete, set round complete
-        new RoundScheduler(round).gameCompleted(gameId);
-        MemStore.removeGameInfo(gameId);
-        break;
-
-      case game_failed:
-        log.warn("GAME " + gameId + " FAILED!");
-        for (Agent agent : agentMap.values()) {
-          agent.setState(AgentState.complete);
-          session.update(agent);
-        }
-        log.info("Setting Agents to Complete for game: " + gameId);
-        Machine.delayedMachineUpdate(machine, 10);
-        machine = null;
-        log.debug("Freeing Machine for game: " + gameId);
-        MemStore.removeGameInfo(gameId);
-        break;
-    }
-    session.update(this);
-  }
-  */
-
-  /*
-   * This is called when the REST interface receives a heartbeat message (GET)
-   * or a end-of-game message (POST)
-   */
-  /*
-  public String handleStandings (Session session, String standings,
-                                 boolean isEndOfGame) throws Exception
-  {
-    log.debug("We received standings for game " + gameId);
-
-    if (isEndOfGame) {
-      log.debug("Status of the game is " + state);
-
-      if (!state.isRunning()) {
-        session.getTransaction().rollback();
-        log.warn("Game is not running, aborting!");
-        return "error";
-      }
-
-      saveStandings();
-    }
-
-    HashMap<String, Double> results = new HashMap<String, Double>();
-    for (String result : standings.split(",")) {
-      Double balance = Double.parseDouble(result.split(":")[1]);
-      String name = result.split(":")[0];
-      if (name.equals("default broker")) {
-        continue;
-      }
-      results.put(name, balance);
-    }
-
-    for (Agent agent : agentMap.values()) {
-      Double balance = results.get(agent.getBroker().getBrokerName());
-      if (balance == null || balance == Double.NaN) {
-        continue;
-      }
-      agent.setBalance(balance);
-      session.update(agent);
-    }
-
-    session.getTransaction().commit();
-    return "success";
-  }
-  */
-
   public void removeBootFile ()
   {
     String bootLocation = properties.getProperty("bootLocation") +
@@ -271,6 +147,14 @@ public class Game implements Serializable
     return agentMap.size();
   }
 
+  @Transient
+  public String getNiceName ()
+  {
+    String idx = gameName.substring(gameName.lastIndexOf("_") + 1);
+    return String.format("%s_%s",
+        round.getLevel().getTournament().getTournamentName(), idx);
+  }
+
   // Computes a random game length as outlined in the game specification
   public int computeGameLength ()
   {
@@ -289,11 +173,6 @@ public class Game implements Serializable
           Math.log(1.0 - 1.0 / (expLength - minLength + 1)));
       return minLength + (int) Math.floor(k);
     }
-  }
-
-  public static String createGameName (String roundName, int type, int counter)
-  {
-    return String.format("%s_%d_%d", roundName, type, counter);
   }
 
   public String jenkinsMachineUrl ()
@@ -351,8 +230,11 @@ public class Game implements Serializable
     return Utils.dateToStringSmall(starting);
   }
 
-  public static Game createGame (Round round, String gameName)
+  public static Game createGame (Round round, int type, int counter)
   {
+    String gameName = String.format("%s_%d_%d",
+        round.getRoundName(), type, counter);
+
     Game game = new Game();
     game.setGameName(gameName);
     game.setRound(round);
@@ -362,6 +244,28 @@ public class Game implements Serializable
     game.setSimStartTime(randomSimStartTime(game.getLocation()));
     game.setServerQueue(Utils.createQueueName());
     game.setVisualizerQueue(Utils.createQueueName());
+
+    return game;
+  }
+
+  public static Game getGameFromId (int gameId)
+  {
+    Game game = null;
+    Session session = HibernateUtil.getSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      Query query = session.createQuery(Constants.HQL.GET_GAME_BY_ID);
+      query.setInteger("gameId", gameId);
+      game = (Game) query.uniqueResult();
+      transaction.commit();
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+    }
+    finally {
+      session.close();
+    }
 
     return game;
   }
