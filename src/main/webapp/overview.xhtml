@@ -180,7 +180,7 @@
               <h:outputLink value="properties.jsp?gameId=#{g.gameId}"
                             target="_blank">P</h:outputLink>
 
-              <h:outputText value="&#160;" rendered="#{g.state.isBootComplete()}"/>
+              <h:outputText value="&#160;" rendered="#{g.state.hasBootstrap()}"/>
               <h:outputLink
                   value="serverInterface.jsp?action=boot&amp;gameId=#{g.gameId}"
                   rendered="#{g.state.hasBootstrap()}"

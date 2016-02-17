@@ -73,11 +73,13 @@ public class Level
   {
     Collection<Round> rounds = roundMap.values();
 
-    if (rounds.stream().filter(Round::isPending).count() == roundMap.size()) {
+    if (rounds.stream()
+        .filter(r -> r.getState().isPending()).count() == roundMap.size()) {
       return "pending";
     }
 
-    if (rounds.stream().filter(Round::isComplete).count() == roundMap.size()) {
+    if (rounds.stream()
+        .filter(r -> r.getState().isComplete()).count() == roundMap.size()) {
       return "complete";
     }
 

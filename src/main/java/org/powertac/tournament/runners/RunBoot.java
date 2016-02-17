@@ -5,11 +5,12 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Machine;
-import org.powertac.tournament.services.GamesScheduler;
+import org.powertac.tournament.schedulers.GamesScheduler;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.JenkinsConnector;
 import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Utils;
+import org.powertac.tournament.states.GameState;
 
 import java.util.List;
 
@@ -83,14 +84,14 @@ public class RunBoot
       JenkinsConnector.sendJob(finalUrl);
 
       log.info("Jenkins request to bootstrap game: " + game.getGameId());
-      game.setState(Game.GameState.boot_in_progress);
+      game.setState(GameState.boot_in_progress);
       game.setReadyTime(Utils.offsetDate());
       log.debug(String.format("Update game: %s to %s", game.getGameId(),
-          Game.GameState.boot_in_progress));
+          GameState.boot_in_progress));
     }
     catch (Exception e) {
       log.error("Jenkins failure to bootstrap game: " + game.getGameId());
-      game.setState(Game.GameState.boot_failed);
+      game.setState(GameState.boot_failed);
       throw e;
     }
   }

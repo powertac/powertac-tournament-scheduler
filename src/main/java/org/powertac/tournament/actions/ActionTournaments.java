@@ -3,13 +3,13 @@ package org.powertac.tournament.actions;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.exception.ConstraintViolationException;
 import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.Level;
 import org.powertac.tournament.beans.Pom;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.beans.Tournament;
 import org.powertac.tournament.beans.User;
+import org.powertac.tournament.schedulers.TournamentScheduler;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
@@ -100,7 +100,7 @@ public class ActionTournaments implements InitializingBean
 
   public String getLevelStyle (Tournament tournament, int levelNr)
   {
-    if (tournament.getCurrentLevelNr() == levelNr) {
+    if (tournament.getState().getCurrentLevelNr() == levelNr) {
       return "left running";
     }
     else {
@@ -110,96 +110,23 @@ public class ActionTournaments implements InitializingBean
 
   public void closeTournament (Tournament tournament)
   {
-    log.info("Closing tournament : " + tournament.getTournamentId());
-
-    Session session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      tournament.setStateToClosed();
-      session.saveOrUpdate(tournament);
-      transaction.commit();
-    }
-    catch (Exception e) {
-      transaction.rollback();
-      log.error("Error closing tournament " + tournament.getTournamentId());
-      e.printStackTrace();
-      Utils.growlMessage("Failed to close the tournament.");
-    }
-    finally {
-      Utils.growlMessage("Notice",
-          "Tournament closed, schedule next level when done editing");
-      session.close();
-    }
+    TournamentScheduler scheduler = new TournamentScheduler(tournament);
+    scheduler.closeTournament();
   }
 
   public void scheduleTournament (Tournament tournament)
   {
-    log.info("Scheduling tournament : " + tournament.getTournamentId());
-
-    Session session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      if (tournament.scheduleNextLevel(session)) {
-        session.saveOrUpdate(tournament);
-        transaction.commit();
-      }
-      else {
-        transaction.rollback();
-      }
-    }
-    catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-      log.error("Error scheduling next tournament level");
-      Utils.growlMessage("Failed to schedule next tournament level.");
-    }
-    finally {
-      if (transaction.wasCommitted()) {
-        log.info("Next level scheduled for tournament "
-            + tournament.getTournamentId());
-        Utils.growlMessage("Notice",
-            "Level scheduled, edit and then manually load the rounds(s).");
-        resetValues();
-      }
-      session.close();
+    TournamentScheduler scheduler = new TournamentScheduler(tournament);
+    if (scheduler.scheduleTournament()) {
+      resetValues();
     }
   }
 
   public void completingTournament (Tournament tournament)
   {
-    log.info("Completing tournament : " + tournament.getTournamentId());
-
-    Session session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      if (tournament.completeLevel()) {
-        session.saveOrUpdate(tournament);
-        transaction.commit();
-      }
-      else {
-        transaction.rollback();
-      }
-    }
-    catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-      log.error("Error completing tournament level");
-    }
-    finally {
-      if (transaction.wasCommitted()) {
-        log.info(String.format("Level completed for tournament %s",
-            tournament.getTournamentId()));
-        if (tournament.isComplete()) {
-          Utils.growlMessage("Notice",
-              "Level completed.<br/>Last level so tournament completed.");
-        }
-        else {
-          Utils.growlMessage("Notice",
-              "Level completed.<br/>Schedule next level when done editing");
-        }
-        resetValues();
-      }
-      session.close();
+    TournamentScheduler scheduler = new TournamentScheduler(tournament);
+    if (scheduler.completeTournament()) {
+      resetValues();
     }
   }
 
@@ -222,34 +149,11 @@ public class ActionTournaments implements InitializingBean
 
   private void createTournament ()
   {
-    log.info("Creating tournament");
-
-    Session session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
     Tournament tournament = new Tournament();
-    try {
-      setValues(session, tournament);
-      createLevels(session, tournament);
-      // Create first round(s) so brokers can register
-      tournament.scheduleLevel(session);
-      transaction.commit();
-    }
-    catch (ConstraintViolationException ignored) {
-      transaction.rollback();
-      Utils.growlMessage("The tournament name already exists.");
-    }
-    catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-      log.error("Error creating tournament");
-    }
-    finally {
-      if (transaction.wasCommitted()) {
-        log.info(String.format("Created tournament %s",
-            tournament.getTournamentId()));
-        resetValues();
-      }
-      session.close();
+    setTournamentValues(tournament);
+    TournamentScheduler scheduler = new TournamentScheduler(tournament);
+    if (scheduler.createTournament(levels)) {
+      resetValues();
     }
   }
 
@@ -258,10 +162,10 @@ public class ActionTournaments implements InitializingBean
     tournamentId = tournament.getTournamentId();
     tournamentName = tournament.getTournamentName();
     selectedPom = tournament.getPomId();
-    int currentLevel = tournament.getCurrentLevelNr();
+    int currentLevel = tournament.getState().getCurrentLevelNr();
 
     disabled = new boolean[tournament.getLevelMap().size()];
-    levels = new ArrayList<Level>();
+    levels = new ArrayList<>();
     for (Level level : tournament.getLevelMap().values()) {
       levels.add(level);
 
@@ -271,16 +175,18 @@ public class ActionTournaments implements InitializingBean
     }
   }
 
-  public void updateTournament ()
+  private void updateTournament ()
   {
     log.info("Saving tournament " + tournamentId);
 
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Tournament tournament = (Tournament) session.get(Tournament.class, tournamentId);
-      setValues(session, tournament);
-      updateLevels(session, tournament);
+      Tournament tournament =
+          (Tournament) session.get(Tournament.class, tournamentId);
+      setTournamentValues(tournament);
+      session.save(tournament);
+      updateAndSaveLevels(session, tournament);
       transaction.commit();
     }
     catch (Exception e) {
@@ -297,22 +203,21 @@ public class ActionTournaments implements InitializingBean
     }
   }
 
-  private void setValues (Session session, Tournament tournament)
+  private void setTournamentValues (Tournament tournament)
   {
     if (tournamentId == -1) {
       tournament.setTournamentName(tournamentName.trim().replace(" ", "_"));
       tournament.setPomId(selectedPom);
       tournament.setMaxAgents(maxAgents);
-      session.saveOrUpdate(tournament);
     }
   }
 
-  private void updateLevels (Session session, Tournament tournament)
+  private void updateAndSaveLevels (Session session, Tournament tournament)
   {
     for (Level posted : levels) {
       Level level = tournament.getLevelMap().get(posted.getLevelNr());
 
-      if (level.getLevelNr() > tournament.getCurrentLevelNr()) {
+      if (level.getLevelNr() > tournament.getState().getCurrentLevelNr()) {
         level.setLevelName(posted.getLevelName().trim().replace(" ", "_"));
         level.setNofRounds(posted.getNofRounds());
         level.setNofWinners(posted.getNofWinners());
@@ -328,18 +233,6 @@ public class ActionTournaments implements InitializingBean
     }
   }
 
-  private void createLevels (Session session, Tournament tournament)
-  {
-    for (Level level : levels) {
-      level.setLevelName(level.getLevelName().trim().replace(" ", "_"));
-      log.info("Creating level " + level.getLevelNr()
-          + " : " + level.getLevelName());
-      level.setTournament(tournament);
-      session.save(level);
-      tournament.getLevelMap().put(level.getLevelNr(), level);
-    }
-  }
-
   public void resetValues ()
   {
     tournamentId = -1;
@@ -349,7 +242,7 @@ public class ActionTournaments implements InitializingBean
 
     disabled = new boolean[nofLevels];
 
-    levels = new ArrayList<Level>();
+    levels = new ArrayList<>();
     for (int i = 0; i < nofLevels; i++) {
       Level level = new Level();
       level.setLevelName("");
@@ -371,27 +264,28 @@ public class ActionTournaments implements InitializingBean
 
   public boolean editingAllowed (Tournament tournament)
   {
-    return tournament.editingAllowed() && tournamentId == -1;
+    return tournament.getState().editingAllowed() && tournamentId == -1;
   }
 
   public boolean closingAllowed (Tournament tournament)
   {
-    return tournament.closingAllowed() && tournamentId == -1;
+    return tournament.getState().closingAllowed() && tournamentId == -1;
   }
 
   public boolean schedulingAllowed (Tournament tournament)
   {
-    return tournament.schedulingAllowed() && tournamentId == -1;
+    return tournament.getState().schedulingAllowed() && tournamentId == -1;
   }
 
   public boolean completingAllowed (Tournament tournament)
   {
-    return tournament.completingAllowed() && tournamentId == -1;
+    TournamentScheduler scheduler = new TournamentScheduler(tournament);
+    return scheduler.completingAllowed() && tournamentId == -1;
   }
 
   private boolean inputsValidated ()
   {
-    List<String> messages = new ArrayList<String>();
+    List<String> messages = new ArrayList<>();
 
     if (tournamentName.trim().isEmpty()) {
       messages.add("The tournament name cannot be empty");

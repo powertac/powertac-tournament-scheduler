@@ -13,6 +13,7 @@ import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.services.Utils;
+import org.powertac.tournament.states.AgentState;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -132,7 +133,7 @@ public class RestBroker extends HttpServlet
       return null;
     }
 
-    if (tournament.isComplete()) {
+    if (tournament.getState().isComplete()) {
       log.debug("Tournament is finished, we're done : " + joinName);
       return null;
     }
@@ -168,13 +169,13 @@ public class RestBroker extends HttpServlet
 
       // Check if an other agent already checked in
       Agent agent = game.getAgentMap().get(broker.getBrokerId());
-      if (agent == null || !agent.isPending()) {
+      if (agent == null || !agent.getState().isPending()) {
         continue;
       }
 
       log.debug("Game " + game.getGameId() + " is ready");
 
-      agent.setStateInProgress();
+      agent.setState(AgentState.in_progress);
       session.update(agent);
 
       log.info(String.format("Sending login to broker %s : %s, %s, %s",

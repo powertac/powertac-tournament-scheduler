@@ -5,10 +5,9 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.powertac.tournament.constants.Constants;
-import org.powertac.tournament.services.CSV;
 import org.powertac.tournament.services.HibernateUtil;
-import org.powertac.tournament.services.Scheduler;
 import org.powertac.tournament.services.Utils;
+import org.powertac.tournament.states.RoundState;
 
 import javax.faces.bean.ManagedBean;
 import javax.persistence.Column;
@@ -52,7 +51,7 @@ public class Round
   private Date dateTo;
   private int maxBrokers;
   private int maxAgents;
-  private STATE state;
+  private RoundState state;
   private int size1;
   private int size2;
   private int size3;
@@ -64,14 +63,9 @@ public class Round
   private Map<Integer, Game> gameMap = new HashMap<Integer, Game>();
   private Map<Integer, Broker> brokerMap = new HashMap<Integer, Broker>();
 
-  private enum STATE
-  {
-    pending, in_progress, complete
-  }
-
   public Round ()
   {
-    state = STATE.pending;
+    state = RoundState.pending;
   }
 
   public String delete ()
@@ -121,37 +115,6 @@ public class Round
     finally {
       session.close();
     }
-  }
-
-  /**
-   * If a game is complete, check if it was the last one to complete
-   * If so, set round state to complete
-   */
-  public void gameCompleted (int finishedGameId)
-  {
-    boolean allDone = true;
-
-    for (Game game : gameMap.values()) {
-      // The state of the finished game isn't in the db yet.
-      if (game.getGameId() == finishedGameId) {
-        continue;
-      }
-      allDone &= game.getState().isComplete();
-    }
-
-    if (allDone) {
-      state = STATE.complete;
-      Scheduler scheduler = Scheduler.getScheduler();
-      scheduler.unloadRound(roundId);
-    }
-
-    // Always generate new CSVs
-    CSV.createRoundCsv(this);
-  }
-
-  public static String getStateComplete ()
-  {
-    return STATE.complete.toString();
   }
 
   @Transient
@@ -301,29 +264,11 @@ public class Round
   }
   //</editor-fold>
 
-  //<editor-fold desc="State methods">
+  //<editor-fold desc="Convenience methods">
   @Transient
   public boolean isStarted ()
   {
     return startTime.before(Utils.offsetDate());
-  }
-
-  @Transient
-  public boolean isPending ()
-  {
-    return state.equals(STATE.pending);
-  }
-
-  @Transient
-  public boolean isComplete ()
-  {
-    return state.equals(STATE.complete);
-  }
-
-  @Transient
-  public boolean isInProgress ()
-  {
-    return state.equals(STATE.in_progress);
   }
 
   public String startTimeUTC ()
@@ -339,16 +284,6 @@ public class Round
   public String dateToUTC ()
   {
     return Utils.dateToStringFull(dateTo);
-  }
-
-  public void setStateToInProgress ()
-  {
-    this.setState(STATE.in_progress);
-  }
-
-  public void setStateToComplete ()
-  {
-    this.setState(STATE.complete);
   }
   //</editor-fold>
 
@@ -535,12 +470,12 @@ public class Round
 
   @Column(name = "state", nullable = false)
   @Enumerated(EnumType.STRING)
-  public STATE getState ()
+  public RoundState getState ()
   {
     return state;
   }
 
-  public void setState (STATE state)
+  public void setState (RoundState state)
   {
     this.state = state;
   }

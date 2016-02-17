@@ -1,5 +1,6 @@
 package org.powertac.tournament.services;
 
+import org.apache.log4j.Logger;
 import org.powertac.tournament.actions.ActionTimeline;
 import org.powertac.tournament.beans.Agent;
 import org.powertac.tournament.beans.Broker;
@@ -9,6 +10,7 @@ import org.powertac.tournament.beans.Location;
 import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.beans.Tournament;
+import org.powertac.tournament.schedulers.GamesScheduler;
 import org.powertac.tournament.schedulers.RoundScheduler;
 
 import java.util.ArrayList;
@@ -21,6 +23,8 @@ import java.util.TreeMap;
 
 public class Forecaster
 {
+  private static Logger log = Utils.getLogger();
+
   // TODO Calculate overhead
   // TODO Get duration from where??
   private static int overhead = 60;
@@ -117,8 +121,7 @@ public class Forecaster
   private void addJob (Game game, int machineId, long timeStart, long timeEnd)
   {
     if (!isRunnable(game, timeStart, timeEnd)) {
-      // TODO
-      System.out.println("Game " + game.getGameId() + " not runnable!");
+      log.info("Game " + game.getGameId() + " not runnable!");
       return;
     }
 
@@ -128,8 +131,7 @@ public class Forecaster
       Game lastGame = machine.get(machine.size() - 1);
       long lastTimeEnd = forecast.endTimes.get(lastGame.getGameId());
       if (lastTimeEnd >= timeStart) {
-        // TODO
-        System.out.println("Game " + game.getGameId() + " not runnable!\n" +
+        log.info("Game " + game.getGameId() + " not runnable!\n" +
             "Last job not yet finished!");
       }
     }
@@ -158,8 +160,7 @@ public class Forecaster
           return false;
         }
         else if (agentsBusy > maxAgents) {
-          // TODO
-          System.out.println("Too many agents busy!");
+          log.info("Not runnable, too many agents busy : " + game.getGameId());
         }
       }
     }

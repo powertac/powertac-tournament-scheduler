@@ -72,12 +72,12 @@ public class ActionRounds implements InitializingBean
 
   public boolean allowEdit (Round round)
   {
-    return roundId == -1 && round.isPending();
+    return roundId == -1 && round.getState().isPending();
   }
 
   public boolean allowDelete (Round round)
   {
-    if (!round.isPending()) {
+    if (!round.getState().isPending()) {
       return false;
     }
 

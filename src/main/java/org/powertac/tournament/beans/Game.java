@@ -10,6 +10,7 @@ import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Utils;
+import org.powertac.tournament.states.GameState;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,7 +31,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,98 +66,6 @@ public class Game implements Serializable
   private Map<Integer, Agent> agentMap = new HashMap<Integer, Agent>();
 
   private Random random = new Random();
-
-  public enum GameState
-  {
-    boot_pending, boot_in_progress, boot_complete, boot_failed,
-    game_pending, game_ready, game_in_progress, game_complete, game_failed;
-
-    public static final EnumSet<GameState> hasBootstrap = EnumSet.of(
-        boot_complete,
-        game_pending,
-        game_ready,
-        game_in_progress,
-        game_complete);
-
-    public static final EnumSet<GameState> isRunning = EnumSet.of(
-        game_pending,
-        game_ready,
-        game_in_progress);
-
-    public boolean isBooting ()
-    {
-      return equals(GameState.boot_in_progress);
-    }
-
-    public boolean isRunning ()
-    {
-      return isRunning.contains(this);
-    }
-
-    public boolean isBootPending ()
-    {
-      return equals(GameState.boot_pending);
-    }
-
-    public boolean isBootComplete ()
-    {
-      return equals(GameState.boot_complete);
-    }
-
-    public boolean hasBootstrap ()
-    {
-      return GameState.hasBootstrap.contains(this);
-    }
-
-    public boolean isBootFailed ()
-    {
-      return equals(GameState.boot_failed);
-    }
-
-    public boolean isGameFailed ()
-    {
-      return equals(GameState.game_failed);
-    }
-
-    public boolean isFailed ()
-    {
-      return isBootFailed() || isGameFailed();
-    }
-
-    public boolean isComplete ()
-    {
-      return equals(GameState.game_complete);
-    }
-
-    public boolean isReady ()
-    {
-      return equals(GameState.game_ready);
-    }
-  }
-
-  /*
-  - Boot
-    Games are initially set to boot_pending.
-    When the job is sent to Jenkins, the TM sets it to in_progress.
-    When done the Jenkins script sets it to complete or failed, depending on
-    the resulting boot file. When the TM isn't able to send the job to
-    Jenkins, the game is set to failed as well.
-
-  - Game
-    When the job is sent to Jenkins, the TM sets it to game_pending.
-    When the sim is ready, the sim sets the game to game_ready.
-    (This is done before the game is actually started.
-    That's why we delay the login of the visualizers.)
-    It also sets readyTime, to give the visualizer some time to log in before
-    the brokers log in. Brokers are allowed to log in when game_ready and
-    readyTime + 2 minutes (so the viz is logged in).
-    When all the brokers are logged in (or login timeout occurs), the sim sets
-    the game to in_progress.
-
-    When the sim stops, the Jenkins script sets the game to complete.
-    game_failed occurs when the script encounters problems downloading the POM-
-    or boot-file, or when RunGame has problems sending the job to jenkins.
-  */
 
   public Game ()
   {
@@ -204,6 +112,7 @@ public class Game implements Serializable
     return result.toString();
   }
 
+  /*
   public void handleStatus (Session session, String status) throws Exception
   {
     GameState newState = GameState.valueOf(status);
@@ -228,7 +137,7 @@ public class Game implements Serializable
 
         // Reset values for aborted games
         for (Agent agent : agentMap.values()) {
-          agent.setStatePending();
+          agent.setState(AgentState.pending);
           agent.setBalance(0);
           session.update(agent);
         }
@@ -252,7 +161,7 @@ public class Game implements Serializable
 
       case game_complete:
         for (Agent agent : agentMap.values()) {
-          agent.setStateComplete();
+          agent.setState(AgentState.complete);
           session.update(agent);
         }
         log.info("Setting Agents to Complete for game: " + gameId);
@@ -260,14 +169,14 @@ public class Game implements Serializable
         machine = null;
         log.debug("Freeing Machine for game: " + gameId);
         // If all games of round are complete, set round complete
-        round.gameCompleted(gameId);
+        new RoundScheduler(round).gameCompleted(gameId);
         MemStore.removeGameInfo(gameId);
         break;
 
       case game_failed:
         log.warn("GAME " + gameId + " FAILED!");
         for (Agent agent : agentMap.values()) {
-          agent.setStateComplete();
+          agent.setState(AgentState.complete);
           session.update(agent);
         }
         log.info("Setting Agents to Complete for game: " + gameId);
@@ -279,11 +188,13 @@ public class Game implements Serializable
     }
     session.update(this);
   }
+  */
 
   /*
    * This is called when the REST interface receives a heartbeat message (GET)
    * or a end-of-game message (POST)
    */
+  /*
   public String handleStandings (Session session, String standings,
                                  boolean isEndOfGame) throws Exception
   {
@@ -323,6 +234,7 @@ public class Game implements Serializable
     session.getTransaction().commit();
     return "success";
   }
+  */
 
   public void removeBootFile ()
   {
@@ -395,7 +307,7 @@ public class Game implements Serializable
         machine.getMachineName());
   }
 
-  private void saveStandings ()
+  public void saveStandings ()
   {
     try {
       int bootLength = properties.getPropertyInt("bootLength");
@@ -405,21 +317,6 @@ public class Game implements Serializable
     }
     catch (Exception ignored) {
     }
-  }
-
-  public static Game createGame (Round round, String gameName)
-  {
-    Game game = new Game();
-    game.setGameName(gameName);
-    game.setRound(round);
-    game.setState(GameState.boot_pending);
-    game.setStartTime(round.getStartTime());
-    game.setLocation(randomLocation(round));
-    game.setSimStartTime(randomSimStartTime(game.getLocation()));
-    game.setServerQueue(Utils.createQueueName());
-    game.setVisualizerQueue(Utils.createQueueName());
-
-    return game;
   }
 
   private static String randomLocation (Round round)
@@ -452,6 +349,21 @@ public class Game implements Serializable
     }
 
     return Utils.dateToStringSmall(starting);
+  }
+
+  public static Game createGame (Round round, String gameName)
+  {
+    Game game = new Game();
+    game.setGameName(gameName);
+    game.setRound(round);
+    game.setState(GameState.boot_pending);
+    game.setStartTime(round.getStartTime());
+    game.setLocation(randomLocation(round));
+    game.setSimStartTime(randomSimStartTime(game.getLocation()));
+    game.setServerQueue(Utils.createQueueName());
+    game.setVisualizerQueue(Utils.createQueueName());
+
+    return game;
   }
 
   //<editor-fold desc="Collections">

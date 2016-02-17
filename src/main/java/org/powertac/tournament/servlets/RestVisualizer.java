@@ -114,7 +114,7 @@ public class RestVisualizer extends HttpServlet
 
         if ((nowStamp - game.getReadyTime().getTime()) < readyDeadline2) {
           for (Agent agent : game.getAgentMap().values()) {
-            if (!agent.isInProgress()) {
+            if (!agent.getState().isInProgress()) {
               continue gamesLoop;
             }
           }

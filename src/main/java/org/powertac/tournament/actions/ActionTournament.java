@@ -165,7 +165,7 @@ public class ActionTournament implements InitializingBean
     }
 
     // Check if we have an open tournament
-    if (!tournament.isOpen()) {
+    if (!tournament.getState().isOpen()) {
       return allowedBrokers;
     }
 

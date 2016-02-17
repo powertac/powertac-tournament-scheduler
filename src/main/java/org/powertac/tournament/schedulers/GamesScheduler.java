@@ -1,7 +1,8 @@
-package org.powertac.tournament.services;
+package org.powertac.tournament.schedulers;
 
 import org.powertac.tournament.beans.Agent;
 import org.powertac.tournament.beans.Game;
+import org.powertac.tournament.services.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;

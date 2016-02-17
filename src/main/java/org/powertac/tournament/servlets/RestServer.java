@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.constants.Constants;
+import org.powertac.tournament.schedulers.GameHandler;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.runners.SimLogParser;
@@ -190,7 +191,7 @@ public class RestServer extends HttpServlet
       try {
         Game game = (Game) session.get(Game.class, gameId);
         String standings = request.getParameter(Rest.REQ_PARAM_MESSAGE);
-        return game.handleStandings(session, standings, true);
+        return new GameHandler(game).handleStandings(session, standings, true);
       }
       catch (Exception e) {
         transaction.rollback();
@@ -261,7 +262,7 @@ public class RestServer extends HttpServlet
         return "error";
       }
 
-      game.handleStatus(session, statusString);
+      new GameHandler(game).handleStatus(session, statusString);
       transaction.commit();
     }
     catch (Exception e) {
@@ -315,7 +316,8 @@ public class RestServer extends HttpServlet
     try {
       Game game = (Game) session.get(Game.class, gameId);
       String standings = request.getParameter(Rest.REQ_PARAM_STANDINGS);
-      return game.handleStandings(session, standings, false);
+
+      return new GameHandler(game).handleStandings(session, standings, false);
     }
     catch (Exception e) {
       transaction.rollback();

@@ -13,6 +13,8 @@ import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.runners.RunAbort;
 import org.powertac.tournament.runners.RunKill;
 import org.powertac.tournament.services.Utils;
+import org.powertac.tournament.states.AgentState;
+import org.powertac.tournament.states.GameState;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.bean.ManagedBean;
@@ -60,7 +62,8 @@ public class ActionOverview implements InitializingBean
         notCompleteGamesList.add(game);
 
         for (Agent agent : game.getAgentMap().values()) {
-          if (agent.isInProgress() && brokerIds.contains(agent.getBrokerId())) {
+          if (agent.getState().isInProgress() &&
+              brokerIds.contains(agent.getBrokerId())) {
             runningGames.get(agent.getBrokerId()).add(game.getGameId());
           }
         }
@@ -98,18 +101,18 @@ public class ActionOverview implements InitializingBean
       if (game.getState().isBooting()) {
         log.info("Resetting boot game: " + gameId + " on machine: " + machineId);
 
-        game.setState(Game.GameState.boot_pending);
+        game.setState(GameState.boot_pending);
         game.removeBootFile();
       }
       else if (game.getState().isRunning()) {
         log.info("Resetting sim game: " + gameId + " on machine: " + machineId);
 
-        game.setState(Game.GameState.boot_complete);
+        game.setState(GameState.boot_complete);
         for (Agent agent : game.getAgentMap().values()) {
-          if (!agent.isPending()) {
+          if (!agent.getState().isPending()) {
             MemStore.setBrokerState(agent.getBrokerId(), false);
           }
-          agent.setStatePending();
+          agent.setState(AgentState.pending);
           agent.setBalance(0);
           session.update(agent);
         }
@@ -152,14 +155,14 @@ public class ActionOverview implements InitializingBean
       if (game.getState().isBootFailed()) {
         log.info("Resetting boot game: " + gameId);
         game.removeBootFile();
-        game.setState(Game.GameState.boot_pending);
+        game.setState(GameState.boot_pending);
       }
       if (game.getState().isGameFailed()) {
         log.info("Resetting sim game: " + gameId);
-        game.setState(Game.GameState.boot_complete);
+        game.setState(GameState.boot_complete);
 
         for (Agent agent : game.getAgentMap().values()) {
-          agent.setStatePending();
+          agent.setState(AgentState.pending);
           session.update(agent);
         }
         session.flush();

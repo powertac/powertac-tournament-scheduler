@@ -141,7 +141,7 @@ public class Scheduler implements InitializingBean
       for (int roundId : roundIDs) {
         Round round = (Round) session.createQuery(Constants.HQL.GET_ROUND_BY_ID)
             .setInteger("roundId", roundId).uniqueResult();
-        if (round != null && !round.isComplete()) {
+        if (round != null && !round.getState().isComplete()) {
           runningRounds.add(round);
         }
       }

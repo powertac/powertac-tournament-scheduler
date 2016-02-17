@@ -9,9 +9,12 @@ import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Level;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.beans.Tournament;
+import org.powertac.tournament.services.CSV;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
+import org.powertac.tournament.services.Scheduler;
 import org.powertac.tournament.services.Utils;
+import org.powertac.tournament.states.RoundState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,14 +66,14 @@ public class RoundScheduler
       if (brokers.size() == 0) {
         log.info("Round " + round.getRoundName()
             + " has no brokers registered, setting to complete");
-        round.setStateToComplete();
+        round.setState(RoundState.complete);
         session.update(round);
         transaction.commit();
         return true;
       }
 
       doTheKailash();
-      round.setStateToInProgress();
+      round.setState(RoundState.in_progress);
       session.update(round);
 
       transaction.commit();
@@ -88,27 +91,24 @@ public class RoundScheduler
 
   private void setCounter ()
   {
-    // Counter the total numbers in tournament
+    // Count the total number of games already in the tournament
     gameCounter = 1;
-    // TODO Check if needed i.c.m. Forecaster
-    try {
-      // Count the games in previous levels (if any)
-      Tournament tournament = round.getLevel().getTournament();
-      int index = round.getLevel().getLevelNr();
-      while (index-- > 0) {
-        Level prevLevel = tournament.getLevelMap().get(index);
-        for (Round prevRound : prevLevel.getRoundMap().values()) {
-          gameCounter += prevRound.getGameMap().size();
-        }
-      }
 
-      // Count games in previous (sibling) rounds
-      String[] parts = round.getRoundName().split("_");
-      int roundNr = Integer.parseInt(parts[parts.length - 1]);
-      gameCounter += roundNr * getNofGamesPerRound();
+    // Count the games in previous levels (if any)
+    Tournament tournament = round.getLevel().getTournament();
+    int index = round.getLevel().getLevelNr();
+    while (index-- > 0) {
+      Level prevLevel = tournament.getLevelMap().get(index);
+      for (Round prevRound : prevLevel.getRoundMap().values()) {
+        gameCounter += prevRound.getGameMap().size();
+      }
     }
-    catch (Exception e) {
-      e.printStackTrace();
+
+    // Count games in previous (sibling) rounds
+    if (round.getLevel().getRoundMap().size() > 1) {
+      int idx = round.getRoundName().lastIndexOf("_") + 1;
+      int roundNr = Integer.parseInt(round.getRoundName().substring(idx));
+      gameCounter += roundNr * getNofGamesPerRound();
     }
   }
 
@@ -173,8 +173,6 @@ public class RoundScheduler
 
     // Create game and agents for every gameString
 
-    // TODO Start backwards ??
-
     for (String gameString : gameStrings) {
       // Create game name
       String gameName = Game.createGameName(
@@ -237,5 +235,31 @@ public class RoundScheduler
       }
     }
     return count;
+  }
+
+  /**
+   * If a game is complete, check if it was the last one to complete
+   * If so, set round state to complete
+   */
+  public void gameCompleted (int finishedGameId)
+  {
+    boolean allDone = true;
+
+    for (Game game : round.getGameMap().values()) {
+      // The state of the finished game isn't in the db yet.
+      if (game.getGameId() == finishedGameId) {
+        continue;
+      }
+      allDone &= game.getState().isComplete();
+    }
+
+    if (allDone) {
+      round.setState(RoundState.complete);
+      Scheduler scheduler = Scheduler.getScheduler();
+      scheduler.unloadRound(round.getRoundId());
+    }
+
+    // Always generate new CSVs
+    CSV.createRoundCsv(round);
   }
 }

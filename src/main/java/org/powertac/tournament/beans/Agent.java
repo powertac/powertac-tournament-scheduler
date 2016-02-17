@@ -1,6 +1,7 @@
 package org.powertac.tournament.beans;
 
 import org.powertac.tournament.services.Utils;
+import org.powertac.tournament.states.AgentState;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,7 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -30,13 +30,8 @@ public class Agent
   private Broker broker;
   private int brokerId;
   private String brokerQueue;
-  private STATE state;
+  private AgentState state;
   private double balance;
-
-  private enum STATE
-  {
-    pending, in_progress, complete
-  }
 
   public Agent ()
   {
@@ -48,40 +43,11 @@ public class Agent
     agent.setGame(game);
     agent.setBroker(broker);
     agent.setBrokerQueue(Utils.createQueueName());
-    agent.setState(Agent.STATE.pending);
+    agent.setState(AgentState.pending);
     agent.setBalance(0);
 
     return agent;
   }
-
-  //<editor-fold desc="State methods">
-  @Transient
-  public boolean isPending ()
-  {
-    return this.state.equals(STATE.pending);
-  }
-
-  @Transient
-  public boolean isInProgress ()
-  {
-    return this.state.equals(STATE.in_progress);
-  }
-
-  public void setStatePending ()
-  {
-    setState(STATE.pending);
-  }
-
-  public void setStateInProgress ()
-  {
-    setState(STATE.in_progress);
-  }
-
-  public void setStateComplete ()
-  {
-    setState(STATE.complete);
-  }
-  //</editor-fold>
 
   //<editor-fold desc="Getters and Setters">
   @Id
@@ -156,12 +122,12 @@ public class Agent
 
   @Column(name = "state", nullable = false)
   @Enumerated(EnumType.STRING)
-  public STATE getState ()
+  public AgentState getState ()
   {
     return state;
   }
 
-  public void setState (STATE state)
+  public void setState (AgentState state)
   {
     this.state = state;
   }

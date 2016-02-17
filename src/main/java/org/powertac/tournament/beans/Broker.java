@@ -345,10 +345,10 @@ public class Broker
     Set<String> tournaments = new HashSet<String>();
 
     for (Tournament tournament : tournamentMap.values()) {
-      if (!tournament.isComplete() && useId) {
+      if (!tournament.getState().isComplete() && useId) {
         tournaments.add(String.valueOf(tournament.getTournamentId()));
       }
-      else if (!tournament.isComplete() && !useId) {
+      else if (!tournament.getState().isComplete() && !useId) {
         tournaments.add(tournament.getTournamentName());
       }
     }
@@ -362,10 +362,10 @@ public class Broker
     Set<String> rounds = new HashSet<String>();
 
     for (Round round : roundMap.values()) {
-      if (!round.isComplete() && useId) {
+      if (!round.getState().isComplete() && useId) {
         rounds.add(String.valueOf(round.getRoundId()));
       }
-      else if (!round.isComplete() && !useId) {
+      else if (!round.getState().isComplete() && !useId) {
         rounds.add(round.getRoundName());
       }
     }
@@ -380,7 +380,7 @@ public class Broker
     Set<Integer> gameIds = new HashSet<Integer>();
 
     for (Agent agent : agentMap.values()) {
-      if (agent.isInProgress()) {
+      if (agent.getState().isInProgress()) {
         gameIds.add(agent.getGameId());
       }
     }
@@ -422,7 +422,7 @@ public class Broker
         continue;
       }
       // Check if round hasn't started
-      if (!round.isPending()) {
+      if (!round.getState().isPending()) {
         continue;
       }
       // Check if already registered
@@ -448,7 +448,7 @@ public class Broker
     List<Round> registeredRounds = new ArrayList<Round>();
 
     for (Round round : roundMap.values()) {
-      if (round.isComplete()) {
+      if (round.getState().isComplete()) {
         continue;
       }
       if (round.isStarted()) {
@@ -495,7 +495,7 @@ public class Broker
     List<Tournament> registeredTournaments = new ArrayList<Tournament>();
 
     for (Tournament tournament : tournamentMap.values()) {
-      if (tournament.isComplete()) {
+      if (tournament.getState().isComplete()) {
         continue;
       }
 
