@@ -47,6 +47,7 @@ public class Constants
     // Possible Rest Paramenters for Server Interface
     public static final String REQ_PARAM_STATUS = "status";
     public static final String REQ_PARAM_GAMEID = "gameId";
+    public static final String REQ_PARAM_GAMENAME = "gameName";
     public static final String REQ_PARAM_ACTION = "action";
     public static final String REQ_PARAM_FILENAME = "fileName";
     public static final String REQ_PARAM_MESSAGE = "message";

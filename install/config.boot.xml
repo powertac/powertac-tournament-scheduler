@@ -19,24 +19,33 @@ This job is meant to be started via a rest call with certain commandline argumen
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
+          <name>gameName</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
           <name>gameId</name>
           <description></description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
-        <org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition plugin="nodelabelparameter@1.2.1">
+        <org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition plugin="nodelabelparameter@1.7.1">
           <name>machine</name>
           <description></description>
           <allowedSlaves>
             <string>ALL (no restriction)</string>
           </allowedSlaves>
-          <defaultValue>master</defaultValue>
-          <triggerIfResult>multiSelectionDisallowed</triggerIfResult>
-          <allowMultiNodeSelection>false</allowMultiNodeSelection>
-          <triggerConcurrentBuilds>false</triggerConcurrentBuilds>
+          <defaultSlaves>
+            <string>master</string>
+          </defaultSlaves>
+          <triggerIfResult>allowMultiSelectionForConcurrentBuilds</triggerIfResult>
+          <allowMultiNodeSelection>true</allowMultiNodeSelection>
+          <triggerConcurrentBuilds>true</triggerConcurrentBuilds>
+          <ignoreOfflineNodes>false</ignoreOfflineNodes>
+          <nodeEligibility class="org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility"/>
         </org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.7.2">
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.8.4">
       <maxConcurrentPerNode>1</maxConcurrentPerNode>
       <maxConcurrentTotal>0</maxConcurrentTotal>
       <categories>
@@ -52,7 +61,7 @@ This job is meant to be started via a rest call with certain commandline argumen
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers class="vector"/>
+  <triggers/>
   <concurrentBuild>true</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
@@ -63,12 +72,6 @@ This job is meant to be started via a rest call with certain commandline argumen
 ###############################################################################
 LOGFILE=&quot;./log/$(date -u +%y%m%d_%H%M).log&quot;
 MVN_CMD=&quot;mvn&quot;
-#COMP_CMD=&quot;7za a -mx=9&quot; COMP_EXT=&quot;7z&quot;
-#COMP_CMD=&quot;tar -cjvf&quot; #COMP_EXT=&quot;bz2&quot;
-#COMP_CMD=&quot;zip -9&quot; #COMP_EXT=&quot;9.zip&quot;
-#COMP_CMD=&quot;zip&quot; #COMP_EXT=&quot;zip&quot;
-COMP_CMD=&quot;tar -czvf&quot;
-COMP_EXT=&quot;tar.gz&quot;
 
 interfacePath=&quot;faces/serverInterface.jsp&quot;
 pomPath=&quot;faces/download&quot;
@@ -89,16 +92,17 @@ function log () {
 
 function cleanup () {
     # TODO Enable below
-    #log nl &quot;Cleaning up&quot;
-    #rm -fr ./log/init*
-    #rm -fr ./log/powertac*
-    #rm -fr ./game*
-    #rm -f ./pom.xml
+    log nl &quot;Cleaning up&quot;
+    rm -fr ./log/init*
+    rm -fr ./log/powertac*
+    rm -fr ./game*
+    rm -f ./pom.xml
 
-    log nl &quot;Not cleaning up, need to enable this&quot;
+    #log nl &quot;Not cleaning up, need to enable this&quot;
 }
 
 function get_pom () {
+    log nl &quot;Get the pom file from $pomUrl&quot;
     wget -O pom.xml $pomUrl
     SIZE=$(stat -c%s &quot;pom.xml&quot;)
     if [ $SIZE -le 10 ] ; then
@@ -121,7 +125,6 @@ function get_pom () {
 interfaceUrl=&quot;$tourneyUrl$interfacePath&quot;
 pomUrl=&quot;$tourneyUrl$pomPath?pomId=$pomId&quot;
 bootName=&quot;game-$gameId-boot&quot;
-suffix=&quot;boot-&quot;
 
 # Make sure logdir exists
 DIRECTORY=&quot;log&quot;
@@ -135,22 +138,20 @@ log &quot;StartTime     : $(date -u +%F\ %H:%M:%S)&quot;
 log &quot;Nodename      : $NODE_NAME&quot;
 log &quot;BuildNumber   : $BUILD_NUMBER&quot;
 log &quot;Account       : ${USER}&quot;
-log &quot;GameId        : $gameId&quot;
+log &quot;GameName      : $gameName&quot;
 log &quot;PomId         : $pomId&quot;
 log &quot;TourneyUrl    : $tourneyUrl&quot;
 log &quot;MVN_CMD       : $MVN_CMD&quot;
-log &quot;COMP_CMD      : $COMP_CMD&quot;
-log &quot;COMP_EXT      : $COMP_EXT&quot;
 log &quot;interfacePath : $interfacePath&quot;
 log &quot;interfaceUrl  : $interfaceUrl&quot;
 log &quot;pomPath       : $pomPath&quot;
 log &quot;pomUrl        : $pomUrl&quot;
 log &quot;bootName      : $bootName&quot;
 
-log nl &quot;Get the pom file from $pomUrl&quot;
 get_pom
 
-CMD=&quot;$MVN_CMD -U -Pcli -Dexec.args=\&quot;--boot $bootName.xml --game-id $gameId --control $tourneyUrl --log-suffix $suffix$gameId\&quot;&quot;
+CMD=&quot;$MVN_CMD    -Pcli -Dexec.args=\&quot;--boot $bootName.xml --game-id $gameName --control $tourneyUrl \&quot;&quot;
+
 log nl &quot;Run maven : $CMD \n&quot;
 eval $CMD
 
@@ -175,13 +176,14 @@ else
     log nl &quot;Bootstrap took (M:S) $(($RunningTime / 60)):$(($RunningTime % 60))&quot;
 
     log nl &quot;Compressing log files&quot;
-    $COMP_CMD &quot;$bootName-logs.$COMP_EXT&quot; log/powertac-$suffix$gameId.* log/init.*
+    NAME=&quot;$bootName.tar.gz&quot;
+    tar -czvf $NAME log/powertac-boot-$gameName.* log/init.*    
 
     log nl &quot;Sending log file&quot;
-    curl --upload-file &quot;$bootName-logs.$COMP_EXT&quot; &quot;$interfaceUrl?fileName=$bootName-logs.$COMP_EXT&quot;
+    curl --upload-file $NAME &quot;$interfaceUrl?fileName=$NAME&amp;gameName=$gameName&quot;
 
     log nl &quot;Sending boot file&quot;
-    curl --upload-file &quot;$bootName.xml&quot; &quot;$interfaceUrl?fileName=$bootName.xml&quot;
+    curl --upload-file &quot;$bootName.xml&quot; &quot;$interfaceUrl?fileName=$bootName.xml&amp;&amp;gameName=$gameName&quot;
 
     cleanup
 

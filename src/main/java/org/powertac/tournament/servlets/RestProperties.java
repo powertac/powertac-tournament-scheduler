@@ -56,7 +56,8 @@ public class RestProperties extends HttpServlet
 
     int gameId;
     try {
-      gameId = Integer.parseInt(request.getParameter(Rest.REQ_PARAM_GAMEID));
+      String niceName = request.getParameter(Rest.REQ_PARAM_GAMEID);
+      gameId = MemStore.getGameId(niceName);
     }
     catch (Exception ignored) {
       return "";

@@ -1,6 +1,8 @@
 package org.powertac.tournament.services;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Config;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Location;
@@ -36,6 +38,8 @@ public class MemStore
   private static ConcurrentHashMap<Integer, Integer> gameLengths;
   private static ConcurrentHashMap<Integer, Long> elapsedTimes;
 
+  private static ConcurrentHashMap<String, Integer> gameIds;
+
   private static ConcurrentHashMap<Integer, Boolean> brokerState;
   private static List<Location> availableLocations;
 
@@ -50,19 +54,55 @@ public class MemStore
     vizIPs = null;
     localIPs = null;
 
-    brokerCheckins = new ConcurrentHashMap<Integer, List<Long>>(50, 0.9f, 1);
-    vizCheckins = new ConcurrentHashMap<String, Long>(20, 0.9f, 1);
-    machineLoads = new ConcurrentHashMap<String, String>(20, 0.9f, 1);
-    gameHeartbeats = new ConcurrentHashMap<Integer, String[]>(20, 0.9f, 1);
-    gameLengths = new ConcurrentHashMap<Integer, Integer>(20, 0.9f, 1);
-    elapsedTimes = new ConcurrentHashMap<Integer, Long>();
+    brokerCheckins = new ConcurrentHashMap<>(50, 0.9f, 1);
+    vizCheckins = new ConcurrentHashMap<>(20, 0.9f, 1);
+    machineLoads = new ConcurrentHashMap<>(20, 0.9f, 1);
+    gameHeartbeats = new ConcurrentHashMap<>(20, 0.9f, 1);
+    gameLengths = new ConcurrentHashMap<>(20, 0.9f, 1);
+    elapsedTimes = new ConcurrentHashMap<>();
 
-    brokerState = new ConcurrentHashMap<Integer, Boolean>(50, 0.9f, 1);
-    availableLocations = new ArrayList<Location>();
+    brokerState = new ConcurrentHashMap<>(50, 0.9f, 1);
+    availableLocations = new ArrayList<>();
 
-    tournamentContent = new ConcurrentHashMap<Integer, String>(20, 0.9f, 1);
+    tournamentContent = new ConcurrentHashMap<>(20, 0.9f, 1);
 
-    forecasts = new ConcurrentHashMap<Integer, Forecast>(20, 0.9f, 1);
+    forecasts = new ConcurrentHashMap<>(20, 0.9f, 1);
+  }
+
+  public static int getGameId (String niceName)
+  {
+    Integer gameId = gameIds.get(niceName);
+    if (gameId == null) {
+      gameId = 0;
+    }
+    return gameId;
+  }
+
+  public static void getNameMapping (boolean force)
+  {
+    if (gameIds == null) {
+      gameIds = new ConcurrentHashMap<>(200, 0.9f, 1);
+    }
+    else if (!force) {
+      return;
+    }
+
+    Session session = HibernateUtil.getSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      for (Object obj : session.createCriteria(Game.class).list()) {
+        Game game = (Game) obj;
+        gameIds.put(game.getGameName(), game.getGameId());
+      }
+      transaction.commit();
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+    }
+    finally {
+      session.close();
+    }
   }
 
   //<editor-fold desc="IP stuff">

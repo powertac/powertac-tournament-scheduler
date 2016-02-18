@@ -9,6 +9,7 @@ import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.jobs.RunBoot;
 import org.powertac.tournament.jobs.RunGame;
+import org.powertac.tournament.schedulers.GameHandler;
 import org.powertac.tournament.schedulers.RoundScheduler;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,7 @@ public class Scheduler implements InitializingBean
         // Empty line to make logs more readable
         log.info(System.getProperty("line.separator"));
         try {
+          MemStore.getNameMapping(false);
           List<Game> notCompleteGames = Game.getNotCompleteGamesList();
           List<Machine> freeMachines = Machine.checkMachines();
           createGamesForLoadedRounds();
@@ -214,6 +216,7 @@ public class Scheduler implements InitializingBean
     if (roundsChanged) {
       log.info("Some rounds were scheduled, reload rounds.");
       reloadRounds();
+      MemStore.getNameMapping(true);
     }
   }
 

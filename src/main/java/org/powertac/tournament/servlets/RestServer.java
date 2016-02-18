@@ -9,7 +9,6 @@ import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.schedulers.GameHandler;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
-import org.powertac.tournament.jobs.SimLogParser;
 import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Utils;
 
@@ -25,6 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.powertac.tournament.constants.Constants.Rest;
 
@@ -49,7 +52,6 @@ public class RestServer extends HttpServlet
       throws IOException
   {
     String result = handleGET(request);
-
     writeResult(response, result);
   }
 
@@ -58,7 +60,6 @@ public class RestServer extends HttpServlet
       throws IOException
   {
     String result = handlePUT(request);
-
     writeResult(response, result);
   }
 
@@ -67,7 +68,6 @@ public class RestServer extends HttpServlet
       throws IOException
   {
     String result = handlePOST(request);
-
     writeResult(response, result);
   }
 
@@ -95,8 +95,7 @@ public class RestServer extends HttpServlet
         return handleStatus(request);
       }
       else if (actionString.equalsIgnoreCase(Rest.REQ_PARAM_BOOT)) {
-        String gameId = request.getParameter(Rest.REQ_PARAM_GAMEID);
-        return serveBoot(gameId);
+        return serveBoot(getGameId(request));
       }
       else if (actionString.equalsIgnoreCase(Rest.REQ_PARAM_HEARTBEAT)) {
         if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
@@ -122,20 +121,16 @@ public class RestServer extends HttpServlet
 
     try {
       String fileName = request.getParameter(Rest.REQ_PARAM_FILENAME);
-
       log.info("Received a file " + fileName);
 
-      String path;
-      if (fileName.endsWith("boot.xml")) {
-        path = properties.getProperty("bootLocation") + fileName;
-      }
-      else {
-        path = properties.getProperty("logLocation") + fileName;
-      }
+      String logLoc = fileName.endsWith("boot.xml")
+          ? properties.getProperty("bootLocation")
+          : properties.getProperty("logLocation");
+      String pathString = logLoc + fileName;
 
       // Write to file
       InputStream is = request.getInputStream();
-      FileOutputStream fos = new FileOutputStream(path);
+      FileOutputStream fos = new FileOutputStream(pathString);
       byte buf[] = new byte[1024];
       int letti;
       while ((letti = is.read(buf)) > 0) {
@@ -144,17 +139,29 @@ public class RestServer extends HttpServlet
       is.close();
       fos.close();
 
-      // TODO Check if still needed : receiving standings from the game directly
-      // If sim-logs received, extract end-of-game standings
-      if (fileName.contains("sim-logs")) {
-        try {
-          Runnable r = new SimLogParser(
-              properties.getProperty("logLocation"), fileName);
-          new Thread(r).start();
-        }
-        catch (Exception e) {
-          log.error("Error creating LogParser for " + fileName);
-        }
+      // Create softlinks to named versions
+      String gameName = request.getParameter(Rest.REQ_PARAM_GAMENAME);
+      String linkName;
+      if (fileName.endsWith("boot.xml")) {
+        linkName = String.format("%s%s.boot.xml", logLoc, gameName);
+      }
+      else if (fileName.contains("boot")) {
+        linkName = String.format("%s%s.boot.tar.gz", logLoc, gameName);
+      }
+      else {
+        linkName = String.format("%s%s.sim.tar.gz", logLoc, gameName);
+      }
+
+      try {
+        Path link = Paths.get(linkName);
+        Path target = Paths.get(fileName);
+        Files.createSymbolicLink(link, target);
+      }
+      catch (FileAlreadyExistsException faee) {
+        // Ignored
+      }
+      catch (IOException | UnsupportedOperationException e) {
+        e.printStackTrace();
       }
     }
     catch (Exception e) {
@@ -179,8 +186,7 @@ public class RestServer extends HttpServlet
         return "error";
       }
 
-      int gameId = Integer.parseInt(
-          request.getParameter(Constants.Rest.REQ_PARAM_GAMEID));
+      int gameId = getGameId(request);
       if (!(gameId > 0)) {
         log.debug("The message didn't have a gameId!");
         return "error";
@@ -209,7 +215,7 @@ public class RestServer extends HttpServlet
     }
   }
 
-  private String serveBoot (String gameId)
+  private String serveBoot (int gameId)
   {
     StringBuilder result = new StringBuilder();
 
@@ -243,8 +249,7 @@ public class RestServer extends HttpServlet
   private String handleStatus (HttpServletRequest request)
   {
     String statusString = request.getParameter(Rest.REQ_PARAM_STATUS);
-    int gameId = Integer.parseInt(
-        request.getParameter(Rest.REQ_PARAM_GAMEID));
+    int gameId = getGameId(request);
 
     log.info(String.format("Received %s message from game: %s",
         statusString, gameId));
@@ -263,6 +268,7 @@ public class RestServer extends HttpServlet
       }
 
       new GameHandler(game).handleStatus(session, statusString);
+
       transaction.commit();
     }
     catch (Exception e) {
@@ -280,6 +286,7 @@ public class RestServer extends HttpServlet
           gameLength, gameId));
       MemStore.addGameLength(gameId, gameLength);
     }
+
     return "success";
   }
 
@@ -290,8 +297,7 @@ public class RestServer extends HttpServlet
     // Write heartbeat + elapsed time to the MemStore
     try {
       String message = request.getParameter(Rest.REQ_PARAM_MESSAGE);
-      gameId = Integer.parseInt(
-          request.getParameter(Rest.REQ_PARAM_GAMEID));
+      gameId = getGameId(request);
 
       if (!(gameId > 0)) {
         log.debug("The message didn't have a gameId!");
@@ -327,5 +333,20 @@ public class RestServer extends HttpServlet
     finally {
       session.close();
     }
+  }
+
+  private int getGameId (HttpServletRequest request)
+  {
+    int gameId;
+
+    try {
+      gameId = Integer.parseInt(request.getParameter(Rest.REQ_PARAM_GAMEID));
+    }
+    catch (Exception ignored) {
+      String niceName = request.getParameter(Rest.REQ_PARAM_GAMEID);
+      gameId = MemStore.getGameId(niceName);
+    }
+
+    return gameId;
   }
 }

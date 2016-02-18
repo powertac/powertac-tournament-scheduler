@@ -164,17 +164,15 @@
 
           <t:column>
             <f:facet name="header">Heartbeat</f:facet>
-            <t:outputText id="heartbeat" rendered="#{g.state.isRunning()}"
-                          style="float:left; width: 110px;"/>
+            <t:outputText id="heartbeat" rendered="#{g.state.isRunning()}"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">Step</f:facet>
-            <t:outputText id="step" rendered="#{g.state.isRunning()}"
-                          style="float:left; width: 50px;"/>
+            <t:outputText id="step" rendered="#{g.state.isRunning()}"/>
           </t:column>
 
-          <t:column styleClass="left">
+          <t:column>
             <f:facet name="header">Links</f:facet>
             <h:panelGroup>
               <h:outputLink value="properties.jsp?gameId=#{g.gameId}"
@@ -198,7 +196,7 @@
             </h:panelGroup>
           </t:column>
 
-          <t:column styleClass="left">
+          <t:column>
             <f:facet name="header">Actions</f:facet>
             <h:panelGroup>
               <h:commandButton value="Abort"

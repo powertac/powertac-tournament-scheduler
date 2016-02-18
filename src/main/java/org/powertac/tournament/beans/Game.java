@@ -147,14 +147,6 @@ public class Game implements Serializable
     return agentMap.size();
   }
 
-  @Transient
-  public String getNiceName ()
-  {
-    String idx = gameName.substring(gameName.lastIndexOf("_") + 1);
-    return String.format("%s_%s",
-        round.getLevel().getTournament().getTournamentName(), idx);
-  }
-
   // Computes a random game length as outlined in the game specification
   public int computeGameLength ()
   {
@@ -230,10 +222,10 @@ public class Game implements Serializable
     return Utils.dateToStringSmall(starting);
   }
 
-  public static Game createGame (Round round, int type, int counter)
+  public static Game createGame (Round round, int counter)
   {
-    String gameName = String.format("%s_%d_%d",
-        round.getRoundName(), type, counter);
+    String gameName = String.format("%s_%d",
+        round.getLevel().getTournament().getTournamentName(), counter);
 
     Game game = new Game();
     game.setGameName(gameName);

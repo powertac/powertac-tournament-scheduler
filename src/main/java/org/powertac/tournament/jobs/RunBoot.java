@@ -75,7 +75,7 @@ public class RunBoot
             + "job/start-boot-server/buildWithParameters?"
             + "tourneyUrl=" + properties.getProperty("tourneyUrl")
             + "&pomId=" + game.getRound().getPomId()
-            + "&gameName=" + game.getNiceName()
+            + "&gameName=" + game.getGameName()
             + "&gameId=" + game.getGameId()
             + "&machine=" + game.getMachine().getMachineName();
 

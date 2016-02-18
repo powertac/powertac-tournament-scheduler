@@ -108,7 +108,7 @@ public class GameHandler
 
       if (!game.getState().isRunning()) {
         session.getTransaction().rollback();
-        log.warn("Game is not running, aborting!");
+        log.warn("Game is not running, ignoring!");
         return "error";
       }
 

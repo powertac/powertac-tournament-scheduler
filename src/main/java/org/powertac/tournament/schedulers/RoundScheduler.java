@@ -175,7 +175,7 @@ public class RoundScheduler
 
     for (String gameString : gameStrings) {
       // Create game
-      Game game = Game.createGame(round, gameType, gameCounter++);
+      Game game = Game.createGame(round, gameCounter++);
       games.add(game);
 
       // Add agents to the game
