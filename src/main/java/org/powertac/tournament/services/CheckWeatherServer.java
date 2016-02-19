@@ -13,10 +13,10 @@ import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -66,16 +66,15 @@ public class CheckWeatherServer implements InitializingBean
     weatherServerCheckerTimer.schedule(weatherServerChecker, new Date(), 900000);
   }
 
-  public void ping ()
+  private void ping ()
   {
     log.info("Checking WeatherService");
     InputStream is = null;
     try {
-      URL url = new URL(getWeatherServerLocation());
-      URLConnection conn = url.openConnection();
+      HttpURLConnection conn = getConnection("");
       is = conn.getInputStream();
 
-      int status = ((HttpURLConnection) conn).getResponseCode();
+      int status = conn.getResponseCode();
       if (status == 200) {
         setStatus("Server Alive and Well");
         log.info("Server Alive and Well");
@@ -94,7 +93,6 @@ public class CheckWeatherServer implements InitializingBean
       }
     }
     catch (Exception e) {
-      e.printStackTrace();
       setStatus("Server Timeout or Network Error");
       log.info("Server Timeout or Network Error");
 
@@ -121,14 +119,14 @@ public class CheckWeatherServer implements InitializingBean
   {
     // Check the available weather locations at startup
     try {
-      String url = getWeatherServerLocation() + "?type=showLocations";
+      HttpURLConnection conn = getConnection("?type=showLocations");
 
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
       DocumentBuilder docB = dbf.newDocumentBuilder();
-      Document doc = docB.parse(new URL(url).openStream());
+      Document doc = docB.parse(conn.getInputStream());
       NodeList nodeList = doc.getElementsByTagName("location");
 
-      List<Location> availableLocations = new ArrayList<Location>();
+      List<Location> availableLocations = new ArrayList<>();
       for (int i = 0; i < nodeList.getLength(); i++) {
         try {
           Element element = (Element) nodeList.item(i);
@@ -148,8 +146,20 @@ public class CheckWeatherServer implements InitializingBean
       MemStore.setAvailableLocations(availableLocations);
     }
     catch (Exception e) {
-      e.printStackTrace();
+      log.info("Server Timeout or Network Error");
     }
+  }
+
+  private HttpURLConnection getConnection (String path) throws IOException
+  {
+    URL url = new URL(getWeatherServerLocation() + path);
+
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    HttpURLConnection.setFollowRedirects(false);
+    conn.setConnectTimeout(10 * 1000);
+    conn.connect();
+
+    return conn;
   }
 
   @PreDestroy
