@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.constants.Constants;
+import org.powertac.tournament.jobs.ParserSimlog;
 import org.powertac.tournament.schedulers.GameHandler;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
@@ -139,30 +140,12 @@ public class RestServer extends HttpServlet
       is.close();
       fos.close();
 
+      // If sim-logs received, extract end-of-game standings
+      new ParserSimlog(pathString).run();
+
       // Create softlinks to named versions
       String gameName = request.getParameter(Rest.REQ_PARAM_GAMENAME);
-      String linkName;
-      if (fileName.endsWith("boot.xml")) {
-        linkName = String.format("%s%s.boot.xml", logLoc, gameName);
-      }
-      else if (fileName.contains("boot")) {
-        linkName = String.format("%s%s.boot.tar.gz", logLoc, gameName);
-      }
-      else {
-        linkName = String.format("%s%s.sim.tar.gz", logLoc, gameName);
-      }
-
-      try {
-        Path link = Paths.get(linkName);
-        Path target = Paths.get(fileName);
-        Files.createSymbolicLink(link, target);
-      }
-      catch (FileAlreadyExistsException faee) {
-        // Ignored
-      }
-      catch (IOException | UnsupportedOperationException e) {
-        e.printStackTrace();
-      }
+      createSoftLinks (fileName, logLoc, gameName);
     }
     catch (Exception e) {
       return "error";
@@ -348,5 +331,31 @@ public class RestServer extends HttpServlet
     }
 
     return gameId;
+  }
+
+  private void createSoftLinks (String fileName, String logLoc, String gameName)
+  {
+    String linkName;
+    if (fileName.endsWith("boot.xml")) {
+      linkName = String.format("%s%s.boot.xml", logLoc, gameName);
+    }
+    else if (fileName.contains("boot")) {
+      linkName = String.format("%s%s.boot.tar.gz", logLoc, gameName);
+    }
+    else {
+      linkName = String.format("%s%s.sim.tar.gz", logLoc, gameName);
+    }
+
+    try {
+      Path link = Paths.get(linkName);
+      Path target = Paths.get(fileName);
+      Files.createSymbolicLink(link, target);
+    }
+    catch (FileAlreadyExistsException faee) {
+      // Ignored
+    }
+    catch (IOException | UnsupportedOperationException e) {
+      e.printStackTrace();
+    }
   }
 }
