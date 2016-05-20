@@ -50,9 +50,10 @@ public class ParserSimlog extends Thread
   {
     HashMap<String, Double> results = new HashMap<>();
 
-    try {
+    try (
       InputStream is = new GZIPInputStream(new FileInputStream(pathString));
       BufferedReader in = new BufferedReader(new InputStreamReader(is));
+    ) {
 
       String line;
       while ((line = in.readLine()) != null) {
