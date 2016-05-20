@@ -6,10 +6,8 @@ import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.beans.Round;
-import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.jobs.RunBoot;
 import org.powertac.tournament.jobs.RunGame;
-import org.powertac.tournament.schedulers.GameHandler;
 import org.powertac.tournament.schedulers.RoundScheduler;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,10 +136,15 @@ public class Scheduler implements InitializingBean
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
 
+    String foo = "FROM Round AS round "
+        + "LEFT JOIN FETCH round.gameMap AS gameMap "
+        + "WHERE round.roundId =:roundId";
+
     runningRounds = new ArrayList<>();
     try {
       for (int roundId : roundIDs) {
-        Round round = (Round) session.createQuery(Constants.HQL.GET_ROUND_BY_ID)
+        //Round round = (Round) session.createQuery(Constants.HQL.GET_ROUND_BY_ID)
+        Round round = (Round) session.createQuery(foo)
             .setInteger("roundId", roundId).uniqueResult();
         if (round != null && !round.getState().isComplete()) {
           runningRounds.add(round);
@@ -183,11 +186,11 @@ public class Scheduler implements InitializingBean
 
   public void reloadRounds ()
   {
-    if (runningRounds == null) {
+    if (runningRounds == null || runningRounds.isEmpty()) {
       return;
     }
 
-    List<Integer> runningRoundIDs = new ArrayList<Integer>();
+    List<Integer> runningRoundIDs = new ArrayList<>();
     for (Round round : runningRounds) {
       runningRoundIDs.add(round.getRoundId());
     }

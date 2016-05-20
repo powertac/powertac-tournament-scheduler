@@ -6,6 +6,7 @@ import org.powertac.tournament.beans.User;
 import org.powertac.tournament.services.Utils;
 
 import javax.faces.bean.ManagedBean;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -13,7 +14,7 @@ import java.util.regex.Pattern;
 
 
 @ManagedBean
-public class ActionAccount
+public class ActionAccount  implements Serializable
 {
   private User user = User.getCurrentUser();
   private String brokerName;
