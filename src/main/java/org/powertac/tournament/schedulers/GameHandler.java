@@ -84,6 +84,9 @@ public class GameHandler
         log.info("Setting Agents to Complete for game: " + gameId);
         MemStore.removeGameInfo(gameId);
         break;
+
+      default :
+        break;
     }
 
     if (GameState.freeMachine.contains(newState)) {

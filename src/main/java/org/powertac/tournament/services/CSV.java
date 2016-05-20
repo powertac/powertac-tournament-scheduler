@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.channels.Channel;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -326,21 +327,13 @@ public class CSV
       targetFile.createNewFile();
     }
 
-    FileChannel source = null;
-    FileChannel destination = null;
-
-    try {
-      source = new FileInputStream(sourceFile).getChannel();
-      destination = new FileOutputStream(targetFile).getChannel();
-      destination.transferFrom(source, 0, source.size());
-    }
-    finally {
-      if (source != null) {
-        source.close();
-      }
-      if (destination != null) {
-        destination.close();
-      }
+    try (
+      FileInputStream source = new FileInputStream(sourceFile);
+      FileOutputStream destination = new FileOutputStream(targetFile);
+    ) {
+      FileChannel srcChannel = source.getChannel();
+      FileChannel dstChannel = destination.getChannel();
+      dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
     }
   }
 
