@@ -51,7 +51,7 @@ public class Forecaster
   {
     machines = new ArrayList<>();
     for (int i = 0; i < slavesCount; i++) {
-      machines.add(new ArrayList<Game>());
+      machines.add(new ArrayList<>());
     }
 
     forecast.startTimes = new HashMap<>();
@@ -67,7 +67,7 @@ public class Forecaster
       if (game.getState().isRunning() || game.getState().isComplete()) {
         long timeStart = (game.getReadyTime().getTime() / 1000) - overhead;
         long timeEnd = getTimeEnd(game, timeStart);
-        addJob(game, machineIndex++, timeStart, timeEnd);
+        addJob(game, machineIndex++ % slavesCount, timeStart, timeEnd);
       }
     }
   }
@@ -125,10 +125,10 @@ public class Forecaster
       return;
     }
 
-    List<Game> machine = machines.get(machineId);
+    List<Game> machineGames = machines.get(machineId);
 
-    if (machine.size() > 0) {
-      Game lastGame = machine.get(machine.size() - 1);
+    if (machineGames.size() > 0) {
+      Game lastGame = machineGames.get(machineGames.size() - 1);
       long lastTimeEnd = forecast.endTimes.get(lastGame.getGameId());
       if (lastTimeEnd >= timeStart) {
         log.info("Game " + game.getGameId() + " not runnable!\n" +
@@ -136,7 +136,7 @@ public class Forecaster
       }
     }
 
-    machine.add(game);
+    machineGames.add(game);
     forecast.startTimes.put(game.getGameId(), timeStart);
     forecast.endTimes.put(game.getGameId(), timeEnd);
   }
@@ -316,7 +316,7 @@ public class Forecaster
     // Split in a separate forecast for each round
     Map<Integer, Forecast> forecastMap = new HashMap<>();
     for (int roundId : level.getRoundMap().keySet()) {
-      forecastMap.put(roundId, new Forecast(new TreeMap<Integer, Game>()));
+      forecastMap.put(roundId, new Forecast(new TreeMap<>()));
     }
     for (Game game : forecastTotal.gamesMap.values()) {
       int gameId = game.getGameId();
