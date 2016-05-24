@@ -8,6 +8,7 @@ import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.JenkinsConnector;
 import org.powertac.tournament.services.Utils;
+import org.powertac.tournament.states.MachineState;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -39,44 +40,50 @@ public class Machine
   private String machineName;
   private String machineUrl;
   private String vizUrl;
-  private STATE state;
+  private MachineState state;
   private boolean available;
-
-  private static enum STATE
-  {
-    idle, running
-  }
 
   public Machine ()
   {
   }
 
   @Transient
-  public boolean isStateIdle ()
-  {
-    return state.equals(STATE.idle);
-  }
-
-  public void setStateRunning ()
-  {
-    this.state = STATE.running;
-  }
-
-  public void setStateIdle ()
-  {
-    this.state = STATE.idle;
-  }
-
-  @Transient
-  public boolean isInProgress ()
-  {
-    return state.equals(STATE.running);
-  }
-
-  @Transient
   public String getJmsUrl ()
   {
     return "tcp://" + machineUrl + ":61616";
+  }
+
+  public void toggleAvailable ()
+  {
+    Session session = HibernateUtil.getSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      setAvailable(!isAvailable());
+      session.update(this);
+      transaction.commit();
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+    }
+    session.close();
+  }
+
+  public void toggleState ()
+  {
+    Session session = HibernateUtil.getSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      setState(state == MachineState.running
+          ? MachineState.idle : MachineState.running);
+      session.update(this);
+      transaction.commit();
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+    }
+    session.close();
   }
 
   /**
@@ -129,14 +136,14 @@ public class Machine
                   + "Jenkins reports offline", displayName));
             }
 
-            if (machine.isStateIdle() && idle.equals("false")) {
-              machine.setStateRunning();
+            if (machine.getState() == MachineState.idle && idle.equals("false")) {
+              machine.setState(MachineState.running);
               log.warn(String.format("Machine %s has status 'idle', but "
                   + "Jenkins reports 'not idle'", displayName));
             }
             session.saveOrUpdate(machine);
 
-            if (machine.isAvailable() && machine.isStateIdle()) {
+            if (machine.isAvailable() && machine.getState() == MachineState.idle) {
               freeMachines.add(machine);
             }
           }
@@ -197,12 +204,12 @@ public class Machine
     // some time to end the jenkins job. If the check-machines method runs
     // before the jobs end, the machine gets set to not-idle and never recover.
 
-    class updateThread implements Runnable
+    class UpdateThread implements Runnable
     {
       private int machineId;
       private int delay;
 
-      public updateThread (int machineId, int delay)
+      private UpdateThread (int machineId, int delay)
       {
         this.machineId = machineId;
         this.delay = delay;
@@ -217,7 +224,7 @@ public class Machine
         try {
           log.info("Setting machine " + machineId + " to idle");
           Machine machine = (Machine) session.get(Machine.class, machineId);
-          machine.setStateIdle();
+          machine.setState(MachineState.idle);
           transaction.commit();
         }
         catch (Exception e) {
@@ -228,7 +235,7 @@ public class Machine
         session.close();
       }
     }
-    Runnable r = new updateThread(machine.getMachineId(), delay);
+    Runnable r = new UpdateThread(machine.getMachineId(), delay);
     new Thread(r).start();
   }
 
@@ -281,12 +288,12 @@ public class Machine
 
   @Column(name = "state", nullable = false)
   @Enumerated(EnumType.STRING)
-  public STATE getState ()
+  public MachineState getState ()
   {
     return state;
   }
 
-  public void setState (STATE state)
+  public void setState (MachineState state)
   {
     this.state = state;
   }

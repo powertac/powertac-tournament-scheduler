@@ -18,6 +18,7 @@ import org.powertac.tournament.services.SpringApplicationContext;
 import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Upload;
 import org.powertac.tournament.services.Utils;
+import org.powertac.tournament.states.MachineState;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.bean.ManagedBean;
@@ -325,41 +326,19 @@ public class ActionAdmin implements InitializingBean
     return machineList;
   }
 
+  public boolean isIdle (Machine machine)
+  {
+    return machine.getState() == MachineState.idle;
+  }
+
   public void toggleAvailable (Machine machine)
   {
-    Session session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      machine.setAvailable(!machine.isAvailable());
-      session.update(machine);
-      transaction.commit();
-    }
-    catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-    }
-    session.close();
+    machine.toggleAvailable();
   }
 
   public void toggleState (Machine machine)
   {
-    Session session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      if (machine.isInProgress()) {
-        machine.setStateIdle();
-      }
-      else {
-        machine.setStateRunning();
-      }
-      session.update(machine);
-      transaction.commit();
-    }
-    catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-    }
-    session.close();
+    machine.toggleState();
   }
 
   public void editMachine (Machine m)
@@ -399,7 +378,7 @@ public class ActionAdmin implements InitializingBean
     machine.setMachineName(machineName);
     machine.setMachineUrl(machineUrl);
     machine.setVizUrl(machineViz);
-    machine.setStateIdle();
+    machine.setState(MachineState.idle);
     machine.setAvailable(false);
 
     Session session = HibernateUtil.getSession();

@@ -19,41 +19,41 @@
     <div id="nav_ribbon">
       <h:form>
         <!-- Every User permission buttons -->
-        <h:button value="Home" outcome="Home"/>
+        <h:button value="Home" outcome="index"/>
         <!-- -->
-        <h:button value="About" outcome="about.xhtml"/>
+        <h:button value="About" outcome="about"/>
 
         <!-- Login/logout/register  buttons -->
-        <h:button value="Login" outcome="Login"
+        <h:button value="Login" outcome="login"
                   rendered="#{user.isGuest() }"/>
 
         <h:commandButton value="Logout" action="#{actionLogin.logout}"
                          rendered="#{user.isLoggedIn()}"/>
         <!-- -->
-        <h:button value="Register" outcome="Register"
+        <h:button value="Register" outcome="register"
                   rendered="#{user.isGuest()}"/>
 
         <!-- Normal User permission buttons -->
-        <h:button value="Account" outcome="Account"
+        <h:button value="Account" outcome="account"
                   rendered="#{user.isLoggedIn()}"/>
 
         <!-- Admin Level permission buttons -->
-        <h:button value="Tournaments" outcome="Tournaments"
+        <h:button value="Tournaments" outcome="tournaments"
                   rendered="#{user.isAdmin()}"/>
         <!-- -->
-        <h:button value="Levels" outcome="Levels"
+        <h:button value="Levels" outcome="levels"
                   rendered="#{user.isAdmin()}"/>
         <!-- -->
-        <h:button value="Rounds" outcome="Rounds"
+        <h:button value="Rounds" outcome="rounds"
                   rendered="#{user.isAdmin()}"/>
         <!-- -->
-        <h:button value="Timeline" outcome="Timeline"
+        <h:button value="Timeline" outcome="timeline"
                   rendered="#{user.isAdmin()}"/>
         <!-- -->
-        <h:button value="Overview" outcome="Overview"
+        <h:button value="Overview" outcome="overview"
                   rendered="#{user.isAdmin()}"/>
         <!-- -->
-        <h:button value="Admin" outcome="Admin"
+        <h:button value="Admin" outcome="admin"
                   rendered="#{user.isAdmin()}"/>
 
       </h:form>

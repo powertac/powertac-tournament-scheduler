@@ -63,7 +63,7 @@ public class Game implements Serializable
   private Integer lastTick = 0;
   private Integer urgency;
 
-  private Map<Integer, Agent> agentMap = new HashMap<Integer, Agent>();
+  private Map<Integer, Agent> agentMap = new HashMap<>();
 
   private Random random = new Random();
 
@@ -246,9 +246,7 @@ public class Game implements Serializable
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Query query = session.createQuery(Constants.HQL.GET_GAME_BY_ID);
-      query.setInteger("gameId", gameId);
-      game = (Game) query.uniqueResult();
+      game = getGame(session, gameId);
       transaction.commit();
     }
     catch (Exception e) {
@@ -260,6 +258,13 @@ public class Game implements Serializable
     }
 
     return game;
+  }
+
+  public static Game getGame (Session session, int gameId)
+  {
+    Query query = session.createQuery(Constants.HQL.GET_GAME_BY_ID);
+    query.setInteger("gameId", gameId);
+    return (Game) query.uniqueResult();
   }
 
   //<editor-fold desc="Collections">

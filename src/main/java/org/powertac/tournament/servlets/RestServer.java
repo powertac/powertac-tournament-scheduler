@@ -84,25 +84,24 @@ public class RestServer extends HttpServlet
     out.close();
   }
 
+  /**
+   * Handle 'GET' to serverInterface.jsp, server status / heartbeats
+   */
   private String handleGET (HttpServletRequest request)
   {
+    if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
+      return "error";
+    }
+
     try {
       String actionString = request.getParameter(Rest.REQ_PARAM_ACTION);
       if (actionString.equalsIgnoreCase(Rest.REQ_PARAM_STATUS)) {
-        if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
-          return "error";
-        }
-
         return handleStatus(request);
       }
       else if (actionString.equalsIgnoreCase(Rest.REQ_PARAM_BOOT)) {
         return serveBoot(getGameId(request));
       }
       else if (actionString.equalsIgnoreCase(Rest.REQ_PARAM_HEARTBEAT)) {
-        if (!MemStore.checkMachineAllowed(request.getRemoteAddr())) {
-          return "error";
-        }
-
         return handleHeartBeat(request);
       }
     }
@@ -145,7 +144,7 @@ public class RestServer extends HttpServlet
 
       // Create softlinks to named versions
       String gameName = request.getParameter(Rest.REQ_PARAM_GAMENAME);
-      createSoftLinks (fileName, logLoc, gameName);
+      createSoftLinks(fileName, logLoc, gameName);
     }
     catch (Exception e) {
       return "error";
@@ -240,9 +239,7 @@ public class RestServer extends HttpServlet
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Query query = session.createQuery(Constants.HQL.GET_GAME_BY_ID);
-      query.setInteger("gameId", gameId);
-      Game game = (Game) query.uniqueResult();
+      Game game = Game.getGame(session, gameId);
 
       if (game == null) {
         log.warn(String.format("Trying to set status %s on non-existing "

@@ -266,7 +266,7 @@
             <f:facet name="header">
               <h:outputText value="Idle"/>
             </f:facet>
-            <h:outputText value="#{!m.isInProgress()}"/>
+            <h:outputText value="#{actionAdmin.isIdle(m)}"/>
           </t:column>
           <t:column>
             <h:commandButton value="Toggle"

@@ -52,6 +52,12 @@ public class RestWeb extends HttpServlet
       result = parseScheduler();
     }
 
+    writeResult(response, result);
+  }
+
+  private void writeResult (HttpServletResponse response, String result)
+      throws IOException
+  {
     response.setContentType(responseType);
     response.setContentLength(result.length());
 

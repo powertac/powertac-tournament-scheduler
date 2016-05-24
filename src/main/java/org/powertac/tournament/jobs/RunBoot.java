@@ -11,6 +11,7 @@ import org.powertac.tournament.services.JenkinsConnector;
 import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Utils;
 import org.powertac.tournament.states.GameState;
+import org.powertac.tournament.states.MachineState;
 
 import java.util.List;
 
@@ -60,7 +61,8 @@ public class RunBoot
 
     Machine freeMachine = freeMachines.remove(0);
     game.setMachine(freeMachine);
-    freeMachine.setStateRunning();
+    freeMachine.setState(MachineState.running);
+    session.saveOrUpdate(freeMachine);
     log.info(String.format("Game: %s booting on machine: %s",
         game.getGameId(), game.getMachine().getMachineName()));
   }

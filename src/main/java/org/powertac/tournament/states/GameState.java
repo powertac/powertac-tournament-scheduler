@@ -26,7 +26,7 @@ public enum GameState
 
     When the sim stops, the Jenkins script sets the game to complete.
     game_failed occurs when the script encounters problems downloading the POM-
-    or boot-file, or when RunGame has problems sending the job to jenkins.
+    or boot-file, or when RunSim has problems sending the job to jenkins.
   */
 
   boot_pending, boot_in_progress, boot_complete, boot_failed,

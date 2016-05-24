@@ -219,9 +219,13 @@ public class Forecaster
     // Get the games of all running rounds
     TreeMap<Integer, Game> gamesMap = new TreeMap<>();
     Scheduler scheduler = Scheduler.getScheduler();
-    for (Round round : scheduler.getRunningRounds()) {
+
+    for (int roundId : scheduler.getRunningRoundIds()) {
+      Round round = Round.getRoundFromId(roundId, false);
       gamesMap.putAll(round.getGameMap());
     }
+
+    System.gc();
 
     Forecaster forecaster = new Forecaster(gamesMap);
     forecaster.createSchedule();

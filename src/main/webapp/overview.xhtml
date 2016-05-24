@@ -19,7 +19,7 @@
         <br/>
 
         <h3 class="withButton">Registered Brokers</h3>
-        <h:button value="Refresh" outcome="Overview"/>
+        <h:button value="Refresh" outcome="overview"/>
         <h:commandButton id="toggleBrokerViz" value="Hide inactive"
                          onclick="toggleBrokerViz();" type="button"/>
 
@@ -76,7 +76,7 @@
           id="roundForm">
 
         <h3 class="withButton">Pending/Running Rounds</h3>
-        <h:button value="Refresh" outcome="Overview"/>
+        <h:button value="Refresh" outcome="overview"/>
 
         <t:dataTable id="dataRounds" border="1"
                      value="#{actionOverview.notCompleteRoundList}" var="r">
@@ -88,7 +88,7 @@
 
           <t:column>
             <f:facet name="header">Name</f:facet>
-            <h:link value="#{r.roundName}" outcome="Round">
+            <h:link value="#{r.roundName}" outcome="round">
               <f:param name="roundId" value="#{r.roundId}"/>
             </h:link>
           </t:column>
@@ -131,7 +131,7 @@
           id="gamesForm">
 
         <h3 class="withButton" id="gamesFormHeader">Pending/Running Games</h3>
-        <h:button value="Refresh" outcome="Overview"/>
+        <h:button value="Refresh" outcome="overview"/>
         <h:commandButton id="toggleGameViz" value="Hide inactive"
                          onclick="toggleGamesViz();" type="button"/>
 
@@ -144,7 +144,7 @@
 
           <t:column>
             <f:facet name="header">Name</f:facet>
-            <h:link value="#{g.gameName}" outcome="Game"
+            <h:link value="#{g.gameName}" outcome="game"
                     style="white-space: nowrap;">
               <f:param name="gameId" value="#{g.gameId}"/>
             </h:link>

@@ -15,13 +15,19 @@ function toggleStateViz(brokerId) {
   });
 }
 
-function toggleBrokerViz() {
+function updateBrokerViz () {
   var button = $("#brokersForm\\:toggleBrokerViz");
+  var databrokers = $("#brokersForm\\:databrokers");
 
-  if (button.val() == "Hide inactive") {
+  if (localStorage["hideInactiveBrokers"] === "true") {
+    button.val("Hide inactive");
+    databrokers.find(">tbody>tr").each(function () {
+      $(this).css("display", "");
+    });
+  }
+  else {
     button.val("Show inactive");
-
-    $("#brokersForm\\:databrokers").find('>tbody>tr').each(function () {
+    databrokers.find('>tbody>tr').each(function () {
       var sp = $(this).find('td:nth-child(4)')[0];
       var tournaments = $(sp).text();
 
@@ -29,25 +35,37 @@ function toggleBrokerViz() {
         $(this).css("display", "none");
       }
     });
-  } else {
-    button.val("Hide inactive");
-
-    $("#brokersForm\\:databrokers").find(">tbody>tr").each(function () {
-      $(this).css("display", "");
-    });
   }
 }
 
-function toggleGamesViz() {
+function toggleBrokerViz() {
+  if (localStorage["hideInactiveBrokers"] === "true") {
+    localStorage["hideInactiveBrokers"] = false;
+  }
+  else {
+    localStorage["hideInactiveBrokers"] = true;
+  }
+  updateBrokerViz();
+}
+
+function updateGamesViz () {
   var active_statuses = ['boot_in_progress', 'game_pending',
     'game_ready', 'game_in_progress', 'boot_failed', 'game_failed'];
 
   var button = $("#gamesForm\\:toggleGameViz");
+  var dataGames = $("#gamesForm\\:dataGames");
 
-  if (button.val() == "Hide inactive") {
+  if (localStorage["hideInactiveGames"] === "true") {
+    button.val("Hide inactive");
+
+    dataGames.find(">tbody>tr").each(function () {
+      $(this).css("display", "");
+    });
+  }
+  else {
     button.val("Show inactive");
 
-    $("#gamesForm\\:dataGames").find('>tbody>tr').each(function () {
+    dataGames.find('>tbody>tr').each(function () {
       var sp = $(this).find('td:nth-child(3) span')[0];
       var status = $(sp).text();
 
@@ -55,13 +73,17 @@ function toggleGamesViz() {
         $(this).css("display", "none");
       }
     });
-  } else {
-    button.val("Hide inactive");
-
-    $("#gamesForm\\:dataGames").find(">tbody>tr").each(function () {
-      $(this).css("display", "");
-    });
   }
+}
+
+function toggleGamesViz() {
+  if (localStorage["hideInactiveGames"] === "true") {
+    localStorage["hideInactiveGames"] = false;
+  }
+  else {
+    localStorage["hideInactiveGames"] = true;
+  }
+  updateGamesViz();
 }
 
 function updateBrokers(data) {
@@ -122,30 +144,35 @@ function updateTables() {
 }
 
 function resizeTables() {
-  $('[id$=databrokers]').dataTable({
+  var databrokers = $('[id$=databrokers]');
+  databrokers.dataTable({
     "bFilter": false,
     "bInfo": false,
-    "sScrollY": Math.min(400, $("[id$=databrokers]").height()) + "px",
+    "sScrollY": Math.min(400, databrokers.height()) + "px",
     "bPaginate": false,
     "aoColumnDefs": [
       { 'bSortable': false, 'aTargets': [3, 4, 5] },
       { "sType": "natural-nohtml", "aTargets": [0, 1] }
     ]
   });
-  $('[id$=dataRounds]').dataTable({
+
+  var dataRounds = $('[id$=dataRounds]');
+  dataRounds.dataTable({
     "bFilter": false,
     "bInfo": false,
-    "sScrollY": Math.min(400, $("[id$=dataRounds]").height()) + "px",
+    "sScrollY": Math.min(400, dataRounds.height()) + "px",
     "bPaginate": false,
     "aoColumnDefs": [
       { 'bSortable': false, 'aTargets': [4, 5, 6] },
       { "sType": "natural-nohtml", "aTargets": [0] }
     ]
   });
-  $('[id$=dataGames]').dataTable({
+
+  var dataGames = $('[id$=dataGames]');
+  dataGames.dataTable({
     "bFilter": false,
     "bInfo": false,
-    "sScrollY": Math.min(400, $("[id$=dataGames]").height()) + "px",
+    "sScrollY": Math.min(400, dataGames.height()) + "px",
     "bPaginate": false,
     "aoColumnDefs": [
       { 'bSortable': false, 'aTargets': [3, 4, 5, 6, 7] },
@@ -157,8 +184,8 @@ function resizeTables() {
 $(document).ready(function () {
   resizeTables();
 
-  toggleBrokerViz();
-  toggleGamesViz();
+  updateBrokerViz();
+  updateGamesViz();
 
   updateTables();
   setInterval(updateTables, 3000);

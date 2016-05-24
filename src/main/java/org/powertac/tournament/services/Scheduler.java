@@ -6,8 +6,9 @@ import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.beans.Round;
+import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.jobs.RunBoot;
-import org.powertac.tournament.jobs.RunGame;
+import org.powertac.tournament.jobs.RunSim;
 import org.powertac.tournament.schedulers.RoundScheduler;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +90,7 @@ public class Scheduler implements InitializingBean
           List<Game> notCompleteGames = Game.getNotCompleteGamesList();
           List<Machine> freeMachines = Machine.checkMachines();
           createGamesForLoadedRounds();
-          RunGame.startRunnableGames(getRunningRoundIds(), notCompleteGames, freeMachines);
+          RunSim.startRunnableGames(getRunningRoundIds(), notCompleteGames, freeMachines);
           RunBoot.startBootableGames(getRunningRoundIds(), notCompleteGames, freeMachines);
           checkWedgedBoots(notCompleteGames);
           checkWedgedSims(notCompleteGames);
@@ -133,18 +134,25 @@ public class Scheduler implements InitializingBean
 
   public void loadRounds (List<Integer> roundIDs)
   {
+    runningRounds = new ArrayList<>();
+    for (int roundId : roundIDs) {
+      Round round = Round.getRoundFromId(roundId, true);
+      if (round != null && !round.getState().isComplete()) {
+        runningRounds.add(round);
+      }
+    }
+  }
+
+  // TODO Remove
+  public void loadRoundsOrg (List<Integer> roundIDs)
+  {
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
-
-    String foo = "FROM Round AS round "
-        + "LEFT JOIN FETCH round.gameMap AS gameMap "
-        + "WHERE round.roundId =:roundId";
 
     runningRounds = new ArrayList<>();
     try {
       for (int roundId : roundIDs) {
-        //Round round = (Round) session.createQuery(Constants.HQL.GET_ROUND_BY_ID)
-        Round round = (Round) session.createQuery(foo)
+        Round round = (Round) session.createQuery(Constants.HQL.GET_ROUND_BY_ID)
             .setInteger("roundId", roundId).uniqueResult();
         if (round != null && !round.getState().isComplete()) {
           runningRounds.add(round);
@@ -213,7 +221,8 @@ public class Scheduler implements InitializingBean
 
     boolean roundsChanged = false;
     for (Round round : runningRounds) {
-      roundsChanged |= new RoundScheduler(round).createGamesForLoadedRound();
+      Round fatRound = Round.getRoundFromId(round.getRoundId(), false);
+      roundsChanged |= new RoundScheduler(fatRound).createGamesForLoadedRound();
     }
 
     if (roundsChanged) {
@@ -221,6 +230,8 @@ public class Scheduler implements InitializingBean
       reloadRounds();
       MemStore.getNameMapping(true);
     }
+
+    System.gc();
   }
 
   private void checkWedgedBoots (List<Game> notCompleteGames)

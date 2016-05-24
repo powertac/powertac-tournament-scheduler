@@ -54,7 +54,6 @@ public class ParserSimlog extends Thread
       InputStream is = new GZIPInputStream(new FileInputStream(pathString));
       BufferedReader in = new BufferedReader(new InputStreamReader(is));
     ) {
-
       String line;
       while ((line = in.readLine()) != null) {
         handleLine(results, line);

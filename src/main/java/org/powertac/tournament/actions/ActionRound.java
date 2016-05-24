@@ -1,23 +1,19 @@
 package org.powertac.tournament.actions;
 
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Agent;
 import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.beans.Round.Result;
 import org.powertac.tournament.beans.User;
-import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.CSV;
-import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,32 +41,11 @@ public class ActionRound implements InitializingBean
       return;
     }
 
-    Session session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
-      query.setInteger("roundId", roundId);
-      round = (Round) query.uniqueResult();
-
-      if (round == null) {
-        transaction.rollback();
-        Utils.redirect();
-        return;
-      }
-
-      loadRoundInfo();
-      loadParticipantInfo();
-      loadCsvLinks();
-      loadMaps();
-      transaction.commit();
-    }
-    catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-    }
-    finally {
-      session.close();
-    }
+    round = Round.getRoundFromId(roundId, true);
+    loadRoundInfo();
+    loadParticipantInfo();
+    loadCsvLinks();
+    loadMaps();
   }
 
   private int getRoundId ()
@@ -136,7 +111,7 @@ public class ActionRound implements InitializingBean
           broker.getBrokerName(),
           participant.getInstitution(), participant.getContactName()));
     }
-    java.util.Collections.sort(participantInfo);
+    Collections.sort(participantInfo);
   }
 
   private void loadCsvLinks ()

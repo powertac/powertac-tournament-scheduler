@@ -7,6 +7,7 @@ import org.powertac.tournament.beans.Config;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Location;
 import org.powertac.tournament.beans.Machine;
+import org.powertac.tournament.beans.User;
 import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
@@ -139,6 +140,7 @@ public class MemStore
     }
 
     localIPs.put("127.0.0.1", "loopback");
+    localIPs.put("0:0:0:0:0:0:0:1", "loopback_IPv6");
     try {
       for (Enumeration<NetworkInterface> en =
            NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
@@ -174,6 +176,11 @@ public class MemStore
 
   public static boolean checkMachineAllowed (String slaveAddress)
   {
+    User user = User.getCurrentUser();
+    if (user != null && user.isAdmin()) {
+      return true;
+    }
+
     if (machineIPs == null) {
       getIpAddresses();
     }
@@ -232,7 +239,7 @@ public class MemStore
   {
     List<Long> dates = brokerCheckins.get(brokerId);
     if (dates == null) {
-      dates = new ArrayList<Long>();
+      dates = new ArrayList<>();
     }
 
     dates.add(System.currentTimeMillis());

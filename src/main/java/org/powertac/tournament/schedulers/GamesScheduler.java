@@ -17,7 +17,7 @@ public class GamesScheduler
   public static List<Game> getBootableGames (List<Integer> runningRoundIds,
                                              List<Game> notCompleteGames)
   {
-    List<Game> games = new ArrayList<Game>();
+    List<Game> games = new ArrayList<>();
 
     for (Game game : notCompleteGames) {
       if (!game.getState().isBootPending()) {
@@ -46,7 +46,7 @@ public class GamesScheduler
   public static List<Game> getStartableGames (List<Integer> runningRoundIds,
                                               List<Game> notCompleteGames)
   {
-    List<Game> games = new ArrayList<Game>();
+    List<Game> games = new ArrayList<>();
 
     if (runningRoundIds == null || runningRoundIds.size() == 0) {
       return games;
@@ -89,13 +89,13 @@ public class GamesScheduler
   @SuppressWarnings("unchecked")
   private static Map<Integer, Map<Integer, Integer>> countAppearances (List<Game> games)
   {
-    Map<Integer, Map<Integer, Integer>> appearances = new HashMap<Integer, Map<Integer, Integer>>();
+    Map<Integer, Map<Integer, Integer>> appearances = new HashMap<>();
 
     for (Game game : games) {
       int tournamentId = game.getRound().getTournamentId();
       Map<Integer, Integer> innerMap = appearances.get(tournamentId);
       if (innerMap == null) {
-        innerMap = new HashMap<Integer, Integer>();
+        innerMap = new HashMap<>();
       }
 
       for (Agent agent : game.getAgentMap().values()) {

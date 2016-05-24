@@ -44,7 +44,12 @@ public class RestBroker extends HttpServlet
       throws IOException
   {
     String result = parseBrokerLogin(request);
+    writeResult(response, result);
+  }
 
+  private void writeResult (HttpServletResponse response, String result)
+      throws IOException
+  {
     response.setContentType(responseType);
     response.setContentLength(result.length());
 

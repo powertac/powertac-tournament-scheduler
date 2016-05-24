@@ -14,11 +14,12 @@ import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Utils;
 import org.powertac.tournament.states.GameState;
+import org.powertac.tournament.states.MachineState;
 
 import java.util.List;
 
 
-public class RunGame
+public class RunSim
 {
   private static Logger log = Utils.getLogger();
 
@@ -29,7 +30,7 @@ public class RunGame
   private String brokers = "";
   private Session session;
 
-  public RunGame (Game game, List<Machine> freeMachines)
+  public RunSim (Game game, List<Machine> freeMachines)
   {
     this.game = game;
     this.freeMachines = freeMachines;
@@ -134,7 +135,7 @@ public class RunGame
 
     Machine freeMachine = freeMachines.remove(0);
     game.setMachine(freeMachine);
-    freeMachine.setStateRunning();
+    freeMachine.setState(MachineState.running);
     session.update(freeMachine);
     log.info(String.format("Game: %s running on machine: %s",
         game.getGameId(), game.getMachine().getMachineName()));
@@ -204,7 +205,7 @@ public class RunGame
       }
 
       log.info(String.format("Game %s will be started ...", game.getGameId()));
-      new RunGame(game, freeMachines).run();
+      new RunSim(game, freeMachines).run();
     }
   }
 }

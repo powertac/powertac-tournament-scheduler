@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import static org.powertac.tournament.constants.Constants.Props;
+import static org.powertac.tournament.constants.Constants.Prop;
 import static org.powertac.tournament.constants.Constants.Rest;
 
 
@@ -35,7 +35,12 @@ public class RestProperties extends HttpServlet
       throws IOException
   {
     String result = parseProperties(request);
+    writeResult(response, result);
+  }
 
+  private void writeResult (HttpServletResponse response, String result)
+      throws IOException
+  {
     response.setContentType(responseType);
     response.setContentLength(result.length());
 
@@ -87,46 +92,45 @@ public class RestProperties extends HttpServlet
     TournamentProperties properties = TournamentProperties.getProperties();
 
     StringBuilder result = new StringBuilder();
-    result.append(Props.weatherServerURL)
+    result.append(Prop.weatherServerURL)
         .append(properties.getProperty("weatherServerLocation")).append("\n");
-    result.append(Props.weatherLocation).append(game.getLocation()).append("\n");
-    result.append(Props.startTime).append(game.getSimStartTime()).append("\n");
-    result.append(Props.jms);
+    result.append(Prop.weatherLocation).append(game.getLocation()).append("\n");
+    Location location = Location.getLocationByName(game.getLocation());
+    result.append(Prop.timezoneOffset).append(location.getTimezone()).append("\n");
+    result.append(Prop.startTime).append(game.getSimStartTime()).append("\n");
+    result.append(Prop.jms);
     if (game.getMachine() != null) {
       result.append(game.getMachine().getJmsUrl()).append("\n");
     }
     else {
       result.append("tcp://localhost:61616").append("\n");
     }
-    result.append(Props.serverFirstTimeout).append(600000).append("\n");
-    result.append(Props.serverTimeout).append(120000).append("\n");
-    result.append(Props.remote).append(true).append("\n");
-    result.append(Props.vizQ).append(game.getVisualizerQueue()).append("\n");
+    result.append(Prop.serverFirstTimeout).append(600000).append("\n");
+    result.append(Prop.serverTimeout).append(120000).append("\n");
+    result.append(Prop.remote).append(true).append("\n");
+    result.append(Prop.vizQ).append(game.getVisualizerQueue()).append("\n");
 
     if (game.getGameLength() > 0) {
-      result.append(Props.minTimeslot).append(game.getGameLength()).append("\n");
-      result.append(Props.expectedTimeslot).append(game.getGameLength()).append("\n");
+      result.append(Prop.minTimeslot).append(game.getGameLength()).append("\n");
+      result.append(Prop.expectedTimeslot).append(game.getGameLength()).append("\n");
     }
     else {
       boolean test = game.getGameName().toLowerCase().contains("test");
 
-      result.append(Props.minTimeslot);
+      result.append(Prop.minTimeslot);
       if (test)
         result.append(properties.getPropertyInt("test.minimumTimeslotCount"));
       else
         result.append(properties.getPropertyInt("competition.minimumTimeslotCount"));
       result.append("\n");
 
-      result.append(Props.expectedTimeslot);
+      result.append(Prop.expectedTimeslot);
       if (test)
         result.append(properties.getPropertyInt("test.expectedTimeslotCount"));
       else
         result.append(properties.getPropertyInt("competition.expectedTimeslotCount"));
       result.append("\n");
     }
-
-    Location location = Location.getLocationByName(game.getLocation());
-    result.append(Props.timezoneOffset).append(location.getTimezone()).append("\n");
 
     return result.toString();
   }

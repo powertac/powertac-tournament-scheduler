@@ -116,6 +116,10 @@ select.select_wide {
   width: 250px;
 }
 
+input[type="text"].input_huge {
+  width: 400px;
+}
+
 input[type="text"].input_wide {
   width: 250px;
 }

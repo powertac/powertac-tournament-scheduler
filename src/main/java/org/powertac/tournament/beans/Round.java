@@ -1,6 +1,7 @@
 package org.powertac.tournament.beans;
 
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
@@ -262,7 +263,29 @@ public class Round
     Collections.sort(winnerList, new CustomComparator());
     return winnerList;
   }
-  //</editor-fold>
+
+  public static Round getRoundFromId (int roundId, boolean useSlim)
+  {
+    Round round = null;
+    Session session = HibernateUtil.getSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      Query query = session.createQuery(useSlim
+          ? Constants.HQL.GET_ROUND_BY_ID_SLIM : Constants.HQL.GET_ROUND_BY_ID);
+      query.setInteger("roundId", roundId);
+      round = (Round) query.uniqueResult();
+      transaction.commit();
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+    }
+    finally {
+      session.close();
+    }
+
+    return round;
+  }
 
   //<editor-fold desc="Convenience methods">
   @Transient
@@ -356,20 +379,6 @@ public class Round
     session.close();
 
     return rounds;
-  }
-
-  // Extract means and StdDevs
-  public double[] getMeanSigmaArray (Map<Broker, double[]> resultMap)
-  {
-    if (resultMap.size() > 0) {
-      Map.Entry<Broker, double[]> entry = resultMap.entrySet().iterator().next();
-      double[] temp = Arrays.copyOfRange(entry.getValue(), 4, 10);
-      if (!Arrays.equals(temp, new double[6])) {
-        return temp;
-      }
-    }
-
-    return null;
   }
   //</editor-fold>
 
