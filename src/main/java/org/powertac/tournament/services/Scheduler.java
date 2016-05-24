@@ -220,14 +220,17 @@ public class Scheduler implements InitializingBean
     reloadRounds();
 
     boolean roundsChanged = false;
-    for (Round round : runningRounds) {
-      Round fatRound = Round.getRoundFromId(round.getRoundId(), false);
+    List<Integer> runningRoundIds = getRunningRoundIds();
+    unloadRounds(false);
+    for (int roundId : runningRoundIds) {
+      Round fatRound = Round.getRoundFromId(roundId, false);
       roundsChanged |= new RoundScheduler(fatRound).createGamesForLoadedRound();
     }
 
+    loadRounds(runningRoundIds);
+
     if (roundsChanged) {
       log.info("Some rounds were scheduled, reload rounds.");
-      reloadRounds();
       MemStore.getNameMapping(true);
     }
 
