@@ -41,7 +41,7 @@ public class ActionRound implements InitializingBean
       return;
     }
 
-    round = Round.getRoundFromId(roundId, true);
+    round = Round.getRoundFromId(roundId, false);
     loadRoundInfo();
     loadParticipantInfo();
     loadCsvLinks();
