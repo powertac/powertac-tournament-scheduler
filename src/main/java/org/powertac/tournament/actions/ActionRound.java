@@ -41,11 +41,12 @@ public class ActionRound implements InitializingBean
       return;
     }
 
-    round = Round.getRoundFromId(roundId, false);
+    round = Round.getRoundFromId(roundId, true);
     loadRoundInfo();
-    loadParticipantInfo();
+    // TODO
+    //loadParticipantInfo();
     loadCsvLinks();
-    loadMaps();
+    //loadMaps();
   }
 
   private int getRoundId ()
@@ -90,7 +91,7 @@ public class ActionRound implements InitializingBean
     roundInfo.add("Date to : " + round.dateToUTC().substring(0, 10));
 
     roundInfo.add("MaxBrokers : " + round.getMaxBrokers());
-    roundInfo.add("Registered Brokers : " + round.getBrokerMap().size());
+    //roundInfo.add("Registered Brokers : " + round.getBrokerMap().size());
     roundInfo.add("MaxAgents : " + round.getMaxAgents());
 
     roundInfo.add(String.format("Size / multiplier 1 : %s / %s",

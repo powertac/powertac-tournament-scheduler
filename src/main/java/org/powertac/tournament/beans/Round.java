@@ -153,7 +153,7 @@ public class Round
       result.append(size2).append(":").append(multiplier2).append(" ");
     }
     if (size3 > 0 && multiplier3 > 0) {
-      result.append(size2).append(":").append(multiplier3).append(" ");
+      result.append(size3).append(":").append(multiplier3).append(" ");
     }
     return result.toString();
   }

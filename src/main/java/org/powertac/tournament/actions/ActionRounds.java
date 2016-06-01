@@ -13,7 +13,6 @@ import org.powertac.tournament.beans.User;
 import org.powertac.tournament.services.Forecaster;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
-import org.powertac.tournament.services.Scheduler;
 import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -221,9 +220,6 @@ public class ActionRounds implements InitializingBean
       Utils.growlMessage("Failed to start now : " + round.getRoundId());
     }
     session.close();
-
-    // A round might already be loaded
-    Scheduler.getScheduler().reloadRounds();
   }
 
   public void setValues (Round round, boolean changeSingleRound)

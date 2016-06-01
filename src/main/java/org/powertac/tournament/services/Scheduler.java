@@ -1,12 +1,9 @@
 package org.powertac.tournament.services;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.beans.Round;
-import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.jobs.RunBoot;
 import org.powertac.tournament.jobs.RunSim;
 import org.powertac.tournament.schedulers.RoundScheduler;
@@ -18,11 +15,9 @@ import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.stream.Collectors;
 
 
 @Service("scheduler")
@@ -37,7 +32,8 @@ public class Scheduler implements InitializingBean
   private Timer schedulerTimer = null;
   private long schedulerInterval;
 
-  private List<Round> runningRounds;
+  private List<Integer> runningRoundIds;
+
   private long lastSchedulerRun = 0;
 
   public Scheduler ()
@@ -46,7 +42,7 @@ public class Scheduler implements InitializingBean
 
   public void afterPropertiesSet () throws Exception
   {
-    runningRounds = new ArrayList<>();
+    runningRoundIds = new ArrayList<>();
     lazyStart();
   }
 
@@ -89,9 +85,9 @@ public class Scheduler implements InitializingBean
           MemStore.getNameMapping(false);
           List<Game> notCompleteGames = Game.getNotCompleteGamesList();
           List<Machine> freeMachines = Machine.checkMachines();
-          createGamesForLoadedRounds();
-          RunSim.startRunnableGames(getRunningRoundIds(), notCompleteGames, freeMachines);
-          RunBoot.startBootableGames(getRunningRoundIds(), notCompleteGames, freeMachines);
+          //createGamesForLoadedRounds();
+          RunSim.startRunnableGames(runningRoundIds, notCompleteGames, freeMachines);
+          RunBoot.startBootableGames(runningRoundIds, notCompleteGames, freeMachines);
           checkWedgedBoots(notCompleteGames);
           checkWedgedSims(notCompleteGames);
           lastSchedulerRun = System.currentTimeMillis();
@@ -134,76 +130,32 @@ public class Scheduler implements InitializingBean
 
   public void loadRounds (List<Integer> roundIDs)
   {
-    runningRounds = new ArrayList<>();
+    runningRoundIds = new ArrayList<>();
     for (int roundId : roundIDs) {
       Round round = Round.getRoundFromId(roundId, true);
       if (round != null && !round.getState().isComplete()) {
-        runningRounds.add(round);
+        runningRoundIds.add(round.getRoundId());
       }
     }
-  }
-
-  // TODO Remove
-  public void loadRoundsOrg (List<Integer> roundIDs)
-  {
-    Session session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
-
-    runningRounds = new ArrayList<>();
-    try {
-      for (int roundId : roundIDs) {
-        Round round = (Round) session.createQuery(Constants.HQL.GET_ROUND_BY_ID)
-            .setInteger("roundId", roundId).uniqueResult();
-        if (round != null && !round.getState().isComplete()) {
-          runningRounds.add(round);
-        }
-      }
-      transaction.commit();
-    }
-    catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-    }
-    session.close();
   }
 
   public void unloadRounds (boolean logInfo)
   {
     if (logInfo) {
-      for (Round round : runningRounds) {
-        log.info("Unloading Round " + round.getRoundName());
+      for (int roundId : runningRoundIds) {
+        log.info("Unloading Round " + roundId);
       }
       log.info("All rounds are unloaded");
     }
-    runningRounds.clear();
+
+    runningRoundIds.clear();
   }
 
   // This function removes the given round from 'runningRounds'.
   public void unloadRound (Integer roundId)
   {
-    Round round;
-    Iterator<Round> roundIterator = runningRounds.listIterator();
-
-    while (roundIterator.hasNext()) {
-      round = roundIterator.next();
-      if (round.getRoundId() == roundId) {
-        roundIterator.remove();
-      }
-    }
-  }
-
-  public void reloadRounds ()
-  {
-    if (runningRounds == null || runningRounds.isEmpty()) {
-      return;
-    }
-
-    List<Integer> runningRoundIDs = new ArrayList<>();
-    for (Round round : runningRounds) {
-      runningRoundIDs.add(round.getRoundId());
-    }
-    unloadRounds(false);
-    loadRounds(runningRoundIDs);
+    int index = runningRoundIds.indexOf(roundId);
+    runningRoundIds.remove(index);
   }
 
   /**
@@ -211,23 +163,16 @@ public class Scheduler implements InitializingBean
    */
   private void createGamesForLoadedRounds ()
   {
-    if (getRunningRounds().isEmpty()) {
+    if (runningRoundIds.isEmpty()) {
       log.info("No rounds available for scheduling");
       return;
     }
 
-    // Brokers might have (un)registered after the rounds were loaded
-    reloadRounds();
-
     boolean roundsChanged = false;
-    List<Integer> runningRoundIds = getRunningRoundIds();
-    unloadRounds(false);
     for (int roundId : runningRoundIds) {
       Round fatRound = Round.getRoundFromId(roundId, false);
       roundsChanged |= new RoundScheduler(fatRound).createGamesForLoadedRound();
     }
-
-    loadRounds(runningRoundIds);
 
     if (roundsChanged) {
       log.info("Some rounds were scheduled, reload rounds.");
@@ -302,15 +247,9 @@ public class Scheduler implements InitializingBean
     return schedulerTimer != null;
   }
 
-  public List<Round> getRunningRounds ()
-  {
-    return runningRounds;
-  }
-
   public List<Integer> getRunningRoundIds ()
   {
-    return runningRounds.stream().map(Round::getRoundId)
-        .collect(Collectors.toList());
+    return runningRoundIds;
   }
 
   public static Scheduler getScheduler ()

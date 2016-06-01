@@ -50,25 +50,25 @@
           <h:panelGroup>
             <h:outputText value="No Rounds Loaded"
                           style="color:red;"
-                          rendered="#{empty scheduler.runningRounds}"/>
+                          rendered="#{empty scheduler.runningRoundIds}"/>
             <h:dataTable id="loadedRoundTable" border="0"
-                         value="#{scheduler.runningRounds}" var="round"
-                         rendered="#{not empty scheduler.runningRounds}">
+                         value="#{scheduler.runningRoundIds}" var="roundId"
+                         rendered="#{not empty scheduler.runningRoundIds}">
               <h:column>
                 <f:facet name="header">
                   <h:outputText value="Running Rounds:" style="color:green;"/>
                 </f:facet>
-                <h:outputText value="#{round.roundName}" style="color:green;"/>
+                <h:outputText value="#{roundId}" style="color:green;"/>
               </h:column>
             </h:dataTable>
           </h:panelGroup>
           <h:panelGroup>
             <h:commandButton value="Unload"
                              action="#{actionAdmin.unloadRounds()}"
-                             rendered="#{not empty scheduler.runningRounds}"/>
+                             rendered="#{not empty scheduler.runningRoundIds}"/>
             <h:panelGroup rendered="#{actionAdmin.availableRounds.size() > 0}">
               <h:selectManyListbox value="#{actionAdmin.selectedRounds}"
-                                   rendered="#{empty scheduler.runningRounds}"
+                                   rendered="#{empty scheduler.runningRoundIds}"
                                    style="border:1px solid grey;padding:1px;margin:2px;">
                 <f:selectItems value="#{actionAdmin.availableRounds}" var="r"
                                itemValue="#{r.roundId}"
@@ -76,7 +76,7 @@
               </h:selectManyListbox>
               <h:commandButton value="Load"
                                action="#{actionAdmin.loadRounds()}"
-                               rendered="#{empty scheduler.runningRounds}"/>
+                               rendered="#{empty scheduler.runningRoundIds}"/>
             </h:panelGroup>
             <h:panelGroup rendered="#{actionAdmin.availableRounds.size() == 0}">
               <h:outputText>No rounds availble for loading</h:outputText>

@@ -1,11 +1,9 @@
 package org.powertac.tournament.servlets;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Game;
-import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.jobs.ParserSimlog;
 import org.powertac.tournament.schedulers.GameHandler;
 import org.powertac.tournament.services.HibernateUtil;
