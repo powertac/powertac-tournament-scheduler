@@ -264,14 +264,13 @@ public class Round
     return winnerList;
   }
 
-  public static Round getRoundFromId (int roundId, boolean useSlim)
+  public static Round getRoundFromId (int roundId)
   {
     Round round = null;
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      Query query = session.createQuery(useSlim
-          ? Constants.HQL.GET_ROUND_BY_ID_SLIM : Constants.HQL.GET_ROUND_BY_ID);
+      Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
       query.setInteger("roundId", roundId);
       round = (Round) query.uniqueResult();
       transaction.commit();

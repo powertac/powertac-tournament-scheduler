@@ -1,12 +1,17 @@
 package org.powertac.tournament.actions;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Agent;
 import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.beans.Round.Result;
 import org.powertac.tournament.beans.User;
+import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.CSV;
+import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -41,12 +46,25 @@ public class ActionRound implements InitializingBean
       return;
     }
 
-    round = Round.getRoundFromId(roundId, true);
-    loadRoundInfo();
-    // TODO
-    //loadParticipantInfo();
-    loadCsvLinks();
-    //loadMaps();
+    Session session = HibernateUtil.getSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
+      query.setInteger("roundId", roundId);
+      round = (Round) query.uniqueResult();
+      loadRoundInfo();
+      loadParticipantInfo();
+      loadCsvLinks();
+      loadMaps();
+      transaction.commit();
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+    }
+    finally {
+      session.close();
+    }
   }
 
   private int getRoundId ()

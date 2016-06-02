@@ -2,7 +2,6 @@ package org.powertac.tournament.schedulers;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Agent;
 import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.Game;
@@ -10,7 +9,6 @@ import org.powertac.tournament.beans.Level;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.beans.Tournament;
 import org.powertac.tournament.services.CSV;
-import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.services.Scheduler;
 import org.powertac.tournament.services.Utils;
@@ -42,9 +40,9 @@ public class RoundScheduler
     this.round = round;
   }
 
-  public boolean createGamesForLoadedRound ()
+  public boolean createGamesForRound (Session session)
   {
-    if (round.getSize() > 0) {
+    if (round.getSize() > 0 || round.getState() != RoundState.pending) {
       log.info("Round already scheduled : " + round.getRoundName());
       return false;
     }
@@ -54,37 +52,23 @@ public class RoundScheduler
     }
     log.info("Round available : " + round.getRoundName());
 
+    this.session = session;
+
     brokers = new ArrayList<>(round.getBrokerMap().values());
     gameTypes = new int[]{round.getSize1(), round.getSize2(), round.getSize3()};
     multipliers = new int[]{
         round.getMultiplier1(), round.getMultiplier2(), round.getMultiplier3()};
     setCounter();
 
-    session = HibernateUtil.getSession();
-    Transaction transaction = session.beginTransaction();
-    try {
-      if (brokers.size() == 0) {
-        log.info("Round " + round.getRoundName()
-            + " has no brokers registered, setting to complete");
-        round.setState(RoundState.complete);
-        session.update(round);
-        transaction.commit();
-        return true;
-      }
+    if (brokers.size() == 0) {
+      log.info("Round " + round.getRoundName()
+          + " has no brokers registered, setting to complete");
+      round.setState(RoundState.complete);
+      return true;
+    }
 
-      doTheKailash();
-      round.setState(RoundState.in_progress);
-      session.update(round);
-
-      transaction.commit();
-    }
-    catch (Exception e) {
-      transaction.rollback();
-      e.printStackTrace();
-    }
-    finally {
-      session.close();
-    }
+    doTheKailash();
+    round.setState(RoundState.in_progress);
 
     return true;
   }

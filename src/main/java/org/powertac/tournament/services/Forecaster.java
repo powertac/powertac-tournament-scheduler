@@ -1,6 +1,9 @@
 package org.powertac.tournament.services;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.powertac.tournament.actions.ActionTimeline;
 import org.powertac.tournament.beans.Agent;
 import org.powertac.tournament.beans.Broker;
@@ -10,6 +13,7 @@ import org.powertac.tournament.beans.Location;
 import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.beans.Round;
 import org.powertac.tournament.beans.Tournament;
+import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.schedulers.GamesScheduler;
 import org.powertac.tournament.schedulers.RoundScheduler;
 
@@ -216,20 +220,39 @@ public class Forecaster
 
   public static Forecast createForRunning ()
   {
+    Forecaster forecaster = null;
+
     // Get the games of all running rounds
     TreeMap<Integer, Game> gamesMap = new TreeMap<>();
     Scheduler scheduler = Scheduler.getScheduler();
 
-    for (int roundId : scheduler.getRunningRoundIds()) {
-      Round round = Round.getRoundFromId(roundId, false);
-      gamesMap.putAll(round.getGameMap());
+    Session session = HibernateUtil.getSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      for (int roundId : scheduler.getRunningRoundIds()) {
+        Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
+        query.setInteger("roundId", roundId);
+        Round round = (Round) query.uniqueResult();
+        gamesMap.putAll(round.getGameMap());
+      }
+
+      forecaster = new Forecaster(gamesMap);
+      forecaster.createSchedule();
+
+      transaction.commit();
+    }
+    catch (Exception e) {
+      transaction.rollback();
+      e.printStackTrace();
+    }
+    finally {
+      session.close();
     }
 
-    System.gc();
-
-    Forecaster forecaster = new Forecaster(gamesMap);
-    forecaster.createSchedule();
-    return forecaster.forecast;
+    if (forecaster != null) {
+      return forecaster.forecast;
+    }
+    return null;
   }
 
   public static Forecast createForRound (Integer roundId, String paramsString,

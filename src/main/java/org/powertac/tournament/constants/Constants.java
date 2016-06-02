@@ -133,19 +133,6 @@ public class Constants
     public static final String GET_ROUND_BY_ID =
         "FROM Round AS round "
             + "LEFT JOIN FETCH round.gameMap AS gameMap "
-            + "LEFT JOIN FETCH round.brokerMap AS brokerMap "
-            //+ "LEFT JOIN FETCH brokerMap.user "
-            + "LEFT JOIN FETCH gameMap.agentMap AS agentMap "
-            + "LEFT JOIN FETCH round.level AS level "
-            + "LEFT JOIN FETCH level.tournament AS tournament "
-            + "LEFT JOIN FETCH tournament.levelMap AS levelMap "
-            + "LEFT JOIN FETCH levelMap.roundMap AS roundMap "
-            + "LEFT JOIN FETCH roundMap.gameMap "
-            + "WHERE round.roundId =:roundId";
-
-    public static final String GET_ROUND_BY_ID_SLIM =
-        "FROM Round AS round "
-            + "LEFT JOIN FETCH round.gameMap AS gameMap "
             + "WHERE round.roundId =:roundId";
 
     public static final String GET_ROUNDS_NOT_COMPLETE =

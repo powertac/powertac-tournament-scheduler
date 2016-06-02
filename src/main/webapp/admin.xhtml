@@ -51,16 +51,15 @@
             <h:outputText value="No Rounds Loaded"
                           style="color:red;"
                           rendered="#{empty scheduler.runningRoundIds}"/>
-            <h:dataTable id="loadedRoundTable" border="0"
-                         value="#{scheduler.runningRoundIds}" var="roundId"
+            <ul style="padding: 0; margin: 0;">
+              <ui:repeat value="#{scheduler.runningRoundIds}" var="roundId"
                          rendered="#{not empty scheduler.runningRoundIds}">
-              <h:column>
-                <f:facet name="header">
-                  <h:outputText value="Running Rounds:" style="color:green;"/>
-                </f:facet>
-                <h:outputText value="#{roundId}" style="color:green;"/>
-              </h:column>
-            </h:dataTable>
+                <li style="display: inline;">
+                  <h:outputText value="#{round.getRoundFromId(roundId).roundName}"
+                                style="color:green;"/>
+                </li>
+              </ui:repeat>
+            </ul>
           </h:panelGroup>
           <h:panelGroup>
             <h:commandButton value="Unload"
@@ -74,7 +73,7 @@
                                itemValue="#{r.roundId}"
                                itemLabel="#{r.roundName}"/>
               </h:selectManyListbox>
-              <h:commandButton value="Load"
+              <h:commandButton value="Load" style="vertical-align: top;"
                                action="#{actionAdmin.loadRounds()}"
                                rendered="#{empty scheduler.runningRoundIds}"/>
             </h:panelGroup>

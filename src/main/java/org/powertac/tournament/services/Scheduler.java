@@ -1,9 +1,13 @@
 package org.powertac.tournament.services;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.beans.Round;
+import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.jobs.RunBoot;
 import org.powertac.tournament.jobs.RunSim;
 import org.powertac.tournament.schedulers.RoundScheduler;
@@ -85,7 +89,7 @@ public class Scheduler implements InitializingBean
           MemStore.getNameMapping(false);
           List<Game> notCompleteGames = Game.getNotCompleteGamesList();
           List<Machine> freeMachines = Machine.checkMachines();
-          //createGamesForLoadedRounds();
+          createGamesForLoadedRounds();
           RunSim.startRunnableGames(runningRoundIds, notCompleteGames, freeMachines);
           RunBoot.startBootableGames(runningRoundIds, notCompleteGames, freeMachines);
           checkWedgedBoots(notCompleteGames);
@@ -132,7 +136,7 @@ public class Scheduler implements InitializingBean
   {
     runningRoundIds = new ArrayList<>();
     for (int roundId : roundIDs) {
-      Round round = Round.getRoundFromId(roundId, true);
+      Round round = Round.getRoundFromId(roundId);
       if (round != null && !round.getState().isComplete()) {
         runningRoundIds.add(round.getRoundId());
       }
@@ -170,16 +174,28 @@ public class Scheduler implements InitializingBean
 
     boolean roundsChanged = false;
     for (int roundId : runningRoundIds) {
-      Round fatRound = Round.getRoundFromId(roundId, false);
-      roundsChanged |= new RoundScheduler(fatRound).createGamesForLoadedRound();
+      Session session = HibernateUtil.getSession();
+      Transaction transaction = session.beginTransaction();
+      try {
+        Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
+        query.setInteger("roundId", roundId);
+        Round round = (Round) query.uniqueResult();
+        roundsChanged |= new RoundScheduler(round).createGamesForRound(session);
+        transaction.commit();
+      }
+      catch (Exception e) {
+        transaction.rollback();
+        e.printStackTrace();
+      }
+      finally {
+        session.close();
+      }
     }
 
     if (roundsChanged) {
       log.info("Some rounds were scheduled, reload rounds.");
       MemStore.getNameMapping(true);
     }
-
-    System.gc();
   }
 
   private void checkWedgedBoots (List<Game> notCompleteGames)
