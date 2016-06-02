@@ -106,7 +106,7 @@
             <h:outputText value="#{broker.getTournamentsString(false)}"/>
           </t:column>
 
-          <t:column style="text-align: right">
+          <t:column styleClass="right">
             <f:facet name="header">Add</f:facet>
             <h:selectOneMenu value="#{broker.registerTournamentId}"
                              styleClass="smallButton">
@@ -120,7 +120,7 @@
                              action="#{actionTournaments.register(broker)}"/>
           </t:column>
 
-          <t:column style="text-align: right">
+          <t:column styleClass="right">
             <f:facet name="header">Remove</f:facet>
             <h:selectOneMenu value="#{broker.unregisterTournamentId}"
                              styleClass="smallButton">

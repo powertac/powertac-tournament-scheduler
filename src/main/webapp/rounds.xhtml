@@ -67,7 +67,7 @@
             <h:outputText value="#{r.getParamString2()}"/>
           </t:column>
 
-          <t:column style="text-align: left">
+          <t:column styleClass="left">
             <f:facet name="header">Actions</f:facet>
             <h:commandButton value="Delete"
                              action="#{actionRounds.deleteRound(r)}"
@@ -115,7 +115,7 @@
             <h:outputText value="#{broker.getRoundsString(false)}"/>
           </t:column>
 
-          <t:column style="text-align: right">
+          <t:column styleClass="right">
             <f:facet name="header">Add</f:facet>
             <h:selectOneMenu value="#{broker.registerRoundId}"
                              styleClass="smallButton">
@@ -129,7 +129,7 @@
                              action="#{actionRounds.register(broker)}"/>
           </t:column>
 
-          <t:column style="text-align: right">
+          <t:column styleClass="right">
             <f:facet name="header">Remove</f:facet>
             <h:selectOneMenu value="#{broker.unregisterRoundId}"
                              styleClass="smallButton">

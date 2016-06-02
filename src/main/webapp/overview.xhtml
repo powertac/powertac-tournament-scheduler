@@ -145,7 +145,7 @@
           <t:column>
             <f:facet name="header">Name</f:facet>
             <h:link value="#{g.gameName}" outcome="game"
-                    style="white-space: nowrap;">
+                    styleClass="nowrap">
               <f:param name="gameId" value="#{g.gameId}"/>
             </h:link>
           </t:column>
@@ -153,13 +153,13 @@
           <t:column>
             <f:facet name="header">Status</f:facet>
             <h:outputText value="#{g.state}"
-                          style="#{g.state.isRunning() ? 'font-weight:bold;' : '' }"/>
+                          styleClass="#{g.state.isRunning() ? 'bold' : '' }"/>
           </t:column>
 
           <t:column>
             <f:facet name="header">Brokers</f:facet>
             <h:outputText value="#{g.getBrokerIdsInGameString()}"
-                          style="white-space: nowrap;"/>
+                          styleClass="nowrap"/>
           </t:column>
 
           <t:column>

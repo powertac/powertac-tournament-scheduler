@@ -22,7 +22,7 @@
 
       <h:form rendered="#{user.isAdmin()}">
         <h:panelGroup rendered="#{!actionAdmin.getConfigErrors().isEmpty()}">
-          <h:outputText value="There are config errors!" style="color: red;"/>
+          <h:outputText value="There are config errors!" styleClass="red"/>
           <t:dataList var="infoEntry" value="#{actionAdmin.getConfigErrors()}"
                       layout="unorderedList">
             <h:commandButton value="Hide"
@@ -37,10 +37,10 @@
         <t:panelGrid columns="3">
           <h4>Scheduler Status</h4>
           <h:panelGroup>
-            <h:outputText style="color:green;" id="scheduler"
+            <h:outputText styleClass="green" id="scheduler"
                           rendered="#{scheduler.running}"/>
             <h:outputText value="Scheduler not running"
-                          style="color:red;"
+                          styleClass="red"
                           rendered="#{!scheduler.running}"/>
           </h:panelGroup>
           <h:commandButton value="Restart"
@@ -49,14 +49,14 @@
           <h4>Round Status</h4>
           <h:panelGroup>
             <h:outputText value="No Rounds Loaded"
-                          style="color:red;"
+                          styleClass="red"
                           rendered="#{empty scheduler.runningRoundIds}"/>
-            <ul style="padding: 0; margin: 0;">
+            <ul id="loadedRounds">
               <ui:repeat value="#{scheduler.runningRoundIds}" var="roundId"
                          rendered="#{not empty scheduler.runningRoundIds}">
-                <li style="display: inline;">
+                <li>
                   <h:outputText value="#{round.getRoundFromId(roundId).roundName}"
-                                style="color:green;"/>
+                                styleClass="green"/>
                 </li>
               </ui:repeat>
             </ul>
@@ -73,7 +73,7 @@
                                itemValue="#{r.roundId}"
                                itemLabel="#{r.roundName}"/>
               </h:selectManyListbox>
-              <h:commandButton value="Load" style="vertical-align: top;"
+              <h:commandButton value="Load" styleClass="top"
                                action="#{actionAdmin.loadRounds()}"
                                rendered="#{empty scheduler.runningRoundIds}"/>
             </h:panelGroup>
@@ -85,13 +85,13 @@
           <h4>Weather Server Status</h4>
           <t:panelGroup colspan="2">
             <h:outputText value="#{checkWeatherServer.status}"
-                          style="color:green;"
+                          styleClass="green"
                           rendered="#{checkWeatherServer.status == 'Server Alive and Well'}"/>
             <h:outputText value="#{checkWeatherServer.status}"
-                          style="color:red;"
+                          styleClass="red"
                           rendered="#{checkWeatherServer.status == 'Server is Down'}"/>
             <h:outputText value="#{checkWeatherServer.status}"
-                          style="color:orange;"
+                          styleClass="orange"
                           rendered="#{checkWeatherServer.status == 'Server Timeout or Network Error'}"/>
           </t:panelGroup>
 

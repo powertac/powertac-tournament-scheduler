@@ -96,6 +96,10 @@ table.left td {
   text-align: left;
 }
 
+.right {
+  text-align: right;
+}
+
 table.fixed_height td {
   height: 26px;
 }
@@ -198,4 +202,32 @@ textarea.contentInput {
   DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
   font-size: 14px;
   white-space: pre;
+}
+
+.red {
+  color: red;
+}
+
+.green {
+  color: green;
+}
+
+.oranje {
+  color: orange;
+}
+
+.top {
+  vertical-align: top;
+}
+
+.bold {
+  font-weight:bold;
+}
+
+ul#loadedRounds {
+  padding: 0; margin: 0;
+}
+
+ul#loadedRounds li {
+  display: inline;
 }
