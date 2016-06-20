@@ -52,10 +52,12 @@ public class ActionRound implements InitializingBean
       Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
       query.setInteger("roundId", roundId);
       round = (Round) query.uniqueResult();
-      loadRoundInfo();
-      loadParticipantInfo();
-      loadCsvLinks();
-      loadMaps();
+      if (round != null) {
+        loadRoundInfo();
+        loadParticipantInfo();
+        loadCsvLinks();
+        loadMaps();
+      }
       transaction.commit();
     }
     catch (Exception e) {
