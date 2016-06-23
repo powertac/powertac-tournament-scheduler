@@ -84,11 +84,8 @@
           </t:column>
 
           <t:column>
-            <f:facet name="header">Round</f:facet>
-            <h:link value="#{g.round.roundName}" outcome="Round">
-              <f:param name="roundId"
-                       value="#{g.round.roundId}"/>
-            </h:link>
+            <f:facet name="header">Name</f:facet>
+            <h:outputText value="#{g.gameName}"/>
           </t:column>
 
           <t:column>
