@@ -61,8 +61,8 @@ public class Round
   private int multiplier3;
   private String locations;
 
-  private Map<Integer, Game> gameMap = new HashMap<Integer, Game>();
-  private Map<Integer, Broker> brokerMap = new HashMap<Integer, Broker>();
+  private Map<Integer, Game> gameMap = new HashMap<>();
+  private Map<Integer, Broker> brokerMap = new HashMap<>();
 
   public Round ()
   {
@@ -167,7 +167,7 @@ public class Round
   @Transient
   public Map<Broker, Result> getResultMap ()
   {
-    Map<Broker, Result> resultMapRename = new HashMap<>();
+    Map<Broker, Result> resultMap = new HashMap<>();
     boolean dataAvailable = false;
 
     // Get the types in the last array
@@ -190,10 +190,10 @@ public class Round
 
       for (Agent agent : game.getAgentMap().values()) {
         Broker broker = agent.getBroker();
-        Result brokerResult = resultMapRename.get(broker);
+        Result brokerResult = resultMap.get(broker);
         if (brokerResult == null) {
           brokerResult = new Result(broker.getBrokerName());
-          resultMapRename.put(broker, brokerResult);
+          resultMap.put(broker, brokerResult);
         }
 
         brokerResult.getArray0()[gameSizeIndex] += agent.getBalance();
@@ -207,8 +207,8 @@ public class Round
     }
 
     // Get SD per game size
-    for (Broker broker : resultMapRename.keySet()) {
-      Result brokerResult = resultMapRename.get(broker);
+    for (Broker broker : resultMap.keySet()) {
+      Result brokerResult = resultMap.get(broker);
       for (int i = 0; i < 3; i++) {
         sdevArr[i] += Math.pow(meanArr[i] - brokerResult.getArray0()[i], 2);
       }
@@ -218,10 +218,10 @@ public class Round
       sdevArr[i] = Math.sqrt(sdevArr[i] / brokerMap.size());
     }
 
-    for (Broker broker : resultMapRename.keySet()) {
-      double[] notNorm = resultMapRename.get(broker).getArray0();
-      double[] norm = resultMapRename.get(broker).getArray1();
-      double[] totals = resultMapRename.get(broker).getArray2();
+    for (Broker broker : resultMap.keySet()) {
+      double[] notNorm = resultMap.get(broker).getArray0();
+      double[] norm = resultMap.get(broker).getArray1();
+      double[] totals = resultMap.get(broker).getArray2();
 
       // Calculate normalized
       for (int i = 0; i < 3; i++) {
@@ -235,10 +235,10 @@ public class Round
 
     // Hijack broker 'null' for round results
     if (dataAvailable) {
-      resultMapRename.put(null, new Result(types, meanArr, sdevArr));
+      resultMap.put(null, new Result(types, meanArr, sdevArr));
     }
 
-    return resultMapRename;
+    return resultMap;
   }
 
   public List<Broker> rankList ()
@@ -344,7 +344,7 @@ public class Round
   @Transient
   public List<String> getLocationsList ()
   {
-    List<String> locationList = new ArrayList<String>();
+    List<String> locationList = new ArrayList<>();
     for (String location : locations.split(",")) {
       locationList.add(location.trim());
     }
@@ -354,7 +354,7 @@ public class Round
   @SuppressWarnings("unchecked")
   public static List<Round> getNotCompleteRoundList ()
   {
-    List<Round> rounds = new ArrayList<Round>();
+    List<Round> rounds = new ArrayList<>();
 
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
@@ -574,12 +574,12 @@ public class Round
     private double[] array1 = new double[3];
     private double[] array2 = new double[3];
 
-    public Result (String name)
+    private Result (String name)
     {
       this.name = name;
     }
 
-    public Result (Integer[] types, double[] meanArr, double[] sdevArr)
+    private Result (Integer[] types, double[] meanArr, double[] sdevArr)
     {
       array0 = meanArr;
       array1 = sdevArr;
