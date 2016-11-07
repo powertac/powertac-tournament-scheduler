@@ -3,9 +3,12 @@ package org.powertac.tournament.services;
 import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -38,6 +41,9 @@ public class JenkinsConnector
 
       is = conn.getInputStream();
     }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
     finally {
       if (is != null) {
         try {
@@ -50,14 +56,19 @@ public class JenkinsConnector
     }
   }
 
-  public static NodeList getNodeList () throws Exception
+  public static NodeList getNodeList ()
   {
-    String url = properties.getProperty("jenkins.location")
-        + "computer/api/xml";
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    DocumentBuilder docB = dbf.newDocumentBuilder();
-    Document doc = docB.parse(new URL(url).openStream());
-    return doc.getElementsByTagName("computer");
+    try {
+      String url = properties.getProperty("jenkins.location")
+          + "computer/api/xml";
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilder docB = dbf.newDocumentBuilder();
+      Document doc = docB.parse(new URL(url).openStream());
+      return doc.getElementsByTagName("computer");
+    }
+    catch (IOException | ParserConfigurationException | SAXException ignored) {
+    }
+    return null;
   }
 
   public static NodeList getExecutorList (String machineName, int number)

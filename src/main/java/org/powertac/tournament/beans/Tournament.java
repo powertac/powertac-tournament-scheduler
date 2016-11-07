@@ -21,6 +21,7 @@ import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +33,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @ManagedBean
 @Entity
 @Table(name = "tournaments")
-public class Tournament
+public class Tournament implements Serializable
 {
   private int tournamentId;
   private String tournamentName;

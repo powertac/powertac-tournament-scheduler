@@ -21,7 +21,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,20 +93,24 @@ public class Machine
   {
     log.info("SchedulerTimer Checking Machine States..");
 
+    NodeList nList = JenkinsConnector.getNodeList();
+    if (nList == null) {
+      log.info("Jenkins isn't ready, no machines available");
+      return new ArrayList<>();
+    }
+
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
 
-    Map<String, Machine> machines = new HashMap<String, Machine>();
+    Map<String, Machine> machines = new HashMap<>();
     for (Object obj : session.createQuery(Constants.HQL.GET_MACHINES).list()) {
       Machine machine = (Machine) obj;
       machines.put(machine.getMachineName(), machine);
     }
 
-    List<Machine> freeMachines = new ArrayList<Machine>();
+    List<Machine> freeMachines = new ArrayList<>();
 
     try {
-      NodeList nList = JenkinsConnector.getNodeList();
-
       for (int temp = 0; temp < nList.getLength(); temp++) {
         try {
           Node nNode = nList.item(temp);
@@ -156,10 +159,6 @@ public class Machine
       if (session.isDirty()) {
         transaction.commit();
       }
-    }
-    catch (IOException ioe) {
-      transaction.rollback();
-      ioe.printStackTrace();
     }
     catch (Exception e) {
       transaction.rollback();
@@ -235,6 +234,7 @@ public class Machine
         session.close();
       }
     }
+
     Runnable r = new UpdateThread(machine.getMachineId(), delay);
     new Thread(r).start();
   }

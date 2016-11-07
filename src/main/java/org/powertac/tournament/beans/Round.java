@@ -27,6 +27,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,7 +43,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @ManagedBean
 @Entity
 @Table(name = "rounds")
-public class Round
+public class Round implements Serializable
 {
   private int roundId;
   private String roundName;
@@ -570,8 +571,11 @@ public class Round
   public class Result
   {
     private String name;
+    // Not-normalized results for the broker
     private double[] array0 = new double[3];
+    // Normalized results for the broker
     private double[] array1 = new double[3];
+    // Totals of normalized and not-normalized, 3th value used by 'null-broker'
     private double[] array2 = new double[3];
 
     private Result (String name)
