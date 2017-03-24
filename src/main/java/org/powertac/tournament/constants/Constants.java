@@ -58,7 +58,10 @@ public class Constants
     public static final String REQ_PARAM_STANDINGS = "standings";
     public static final String REQ_PARAM_ELAPSED_TIME = "elapsedTime";
 
-    // Possible Rest Parameters for pom service
+    // Possible Rest Parameters for download service
+    public static final String REQ_PARAM_GAME_ID = "game";
+    public static final String REQ_PARAM_BOOT_ID = "boot";
+    public static final String REQ_PARAM_CSV_NAME = "csv";
     public static final String REQ_PARAM_POM_ID = "pomId";
   }
 

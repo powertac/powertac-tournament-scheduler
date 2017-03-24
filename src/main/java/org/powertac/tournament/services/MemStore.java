@@ -79,6 +79,21 @@ public class MemStore
     return gameId;
   }
 
+  public static String getGameName (int gameId)
+  {
+    if (gameIds == null) {
+      return null;
+    }
+
+    for (String name : gameIds.keySet()) {
+      if (gameIds.get(name) == gameId) {
+        return name;
+      }
+    }
+
+    return null;
+  }
+
   public static void getNameMapping (boolean force)
   {
     if (gameIds == null) {

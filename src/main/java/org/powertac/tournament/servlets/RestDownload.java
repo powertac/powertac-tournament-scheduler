@@ -1,6 +1,7 @@
 package org.powertac.tournament.servlets;
 
 import org.apache.log4j.Logger;
+import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Utils;
 
@@ -31,19 +32,21 @@ public class RestDownload extends HttpServlet
   {
     String downloadFile;
     String absolutePath;
-    String gameId = request.getParameter("game");
-    String bootId = request.getParameter("boot");
-    String csvName = request.getParameter("csv");
+    String gameId = request.getParameter(Rest.REQ_PARAM_GAME_ID);
+    String bootId = request.getParameter(Rest.REQ_PARAM_BOOT_ID);
+    String csvName = request.getParameter(Rest.REQ_PARAM_CSV_NAME);
     String pomId = request.getParameter(Rest.REQ_PARAM_POM_ID);
 
     if (gameId != null) {
+      String gameName = MemStore.getGameName(Integer.parseInt(gameId));
       absolutePath = properties.getProperty("logLocation");
-      downloadFile = "game-" + gameId + "-sim-logs.tar.gz";
+      downloadFile = gameName + ".tar.gz";
       response.setContentType("application/x-tar; x-gzip");
     }
     else if (bootId != null) {
+      String gameName = MemStore.getGameName(Integer.parseInt(bootId));
       absolutePath = properties.getProperty("bootLocation");
-      downloadFile = "game-" + bootId + "-boot.xml";
+      downloadFile = gameName + ".xml";
       response.setContentType("application/xml");
     }
     else if (csvName != null) {

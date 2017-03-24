@@ -71,7 +71,6 @@ This job is meant to be started via a rest call with certain commandline argumen
 # You might want or need to change these
 ###############################################################################
 LOGFILE=&quot;./log/$(date -u +%y%m%d_%H%M).log&quot;
-MVN_CMD=&quot;mvn&quot;
 
 interfacePath=&quot;faces/serverInterface.jsp&quot;
 pomPath=&quot;faces/download&quot;
@@ -93,10 +92,9 @@ function log () {
 function cleanup () {
     # TODO Enable below
     log nl &quot;Cleaning up&quot;
-    rm -fr ./log/init*
-    rm -fr ./log/powertac*
-    rm -fr ./game*
-    rm -f ./pom.xml
+    rm -fr ./boot-log/
+    rm -fr ./*.tar.gz
+    rm -f ./*.xml
 
     #log nl &quot;Not cleaning up, need to enable this&quot;
 }
@@ -108,7 +106,7 @@ function get_pom () {
     if [ $SIZE -le 10 ] ; then
         log nl &quot;Error getting pom : $pomUrl&quot;
         log nl &quot;Notify TS we&apos;re boot_failed&quot;
-        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_failed&quot;
+        wget --spider -q &quot;$interfaceUrl?action=status&amp;status=boot_failed&amp;gameId=$gameId&quot;
         cleanup
         exit 1
     else
@@ -141,7 +139,6 @@ log &quot;Account       : ${USER}&quot;
 log &quot;GameName      : $gameName&quot;
 log &quot;PomId         : $pomId&quot;
 log &quot;TourneyUrl    : $tourneyUrl&quot;
-log &quot;MVN_CMD       : $MVN_CMD&quot;
 log &quot;interfacePath : $interfacePath&quot;
 log &quot;interfaceUrl  : $interfaceUrl&quot;
 log &quot;pomPath       : $pomPath&quot;
@@ -150,15 +147,15 @@ log &quot;bootName      : $bootName&quot;
 
 get_pom
 
-CMD=&quot;$MVN_CMD    -Pcli -Dexec.args=\&quot;--boot $bootName.xml --game-id $gameName --control $tourneyUrl \&quot;&quot;
+CMD=&quot;mvn -Pcli -Dexec.args=\&quot;--boot $gameName.xml --game-id $gameName --control $tourneyUrl \&quot;&quot;
 
 log nl &quot;Run maven : $CMD \n&quot;
 eval $CMD
 
 log nl &quot;Bootstrap complete!&quot;
 
-if [ -e &quot;$bootName.xml&quot; ] ; then
-    FILESIZE=$(stat -c%s &quot;$bootName.xml&quot;)
+if [ -e &quot;$gameName.xml&quot; ] ; then
+    FILESIZE=$(stat -c%s &quot;$gameName.xml&quot;)
 else
     FILESIZE=0
 fi
@@ -167,7 +164,7 @@ if [ &quot;$FILESIZE&quot; -eq 0 ] ; then
     cleanup
 
     log nl &quot;Notify TS we&apos;re boot_failed&quot;
-    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_failed&quot;
+    wget --spider -q &quot;$interfaceUrl?action=status&amp;status=boot_failed&amp;gameId=$gameId&quot;
 
     exit 1
 else
@@ -176,19 +173,23 @@ else
     log nl &quot;Bootstrap took (M:S) $(($RunningTime / 60)):$(($RunningTime % 60))&quot;
 
     log nl &quot;Compressing log files&quot;
-    NAME=&quot;$bootName.tar.gz&quot;
-    tar -czvf $NAME log/powertac-boot-$gameName.* log/init.*    
+    NAME=&quot;$gameName.boot.tar.gz&quot;
+    mkdir -p boot-log
+    mv log/powertac-boot-$gameName.trace boot-log/$gameName.trace
+    mv log/powertac-boot-$gameName.state boot-log/$gameName.state
+    mv log/init.* boot-log/.
+    tar -czvf $NAME boot-log/$gameName.* boot-log/init.*    
 
     log nl &quot;Sending log file&quot;
     curl --upload-file $NAME &quot;$interfaceUrl?fileName=$NAME&amp;gameName=$gameName&quot;
 
     log nl &quot;Sending boot file&quot;
-    curl --upload-file &quot;$bootName.xml&quot; &quot;$interfaceUrl?fileName=$bootName.xml&amp;&amp;gameName=$gameName&quot;
+    curl --upload-file &quot;$gameName.xml&quot; &quot;$interfaceUrl?fileName=$gameName.xml&amp;&amp;gameName=$gameName&quot;
 
     cleanup
 
     log nl &quot;Notify TS we&apos;re boot_complete&quot;
-    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_complete&quot;
+    wget --spider -q &quot;$interfaceUrl?action=status&amp;status=boot_complete&amp;gameId=$gameId&quot;
 fi
 
 exit 0

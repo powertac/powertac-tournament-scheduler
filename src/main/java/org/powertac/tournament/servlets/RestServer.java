@@ -23,10 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.powertac.tournament.constants.Constants.Rest;
 
@@ -121,7 +117,7 @@ public class RestServer extends HttpServlet
       String fileName = request.getParameter(Rest.REQ_PARAM_FILENAME);
       log.info("Received a file " + fileName);
 
-      String logLoc = fileName.endsWith("boot.xml")
+      String logLoc = fileName.endsWith(".xml")
           ? properties.getProperty("bootLocation")
           : properties.getProperty("logLocation");
       String pathString = logLoc + fileName;
@@ -139,10 +135,6 @@ public class RestServer extends HttpServlet
 
       // If sim-logs received, extract end-of-game standings
       new ParserSimlog(pathString).run();
-
-      // Create softlinks to named versions
-      String gameName = request.getParameter(Rest.REQ_PARAM_GAMENAME);
-      createSoftLinks(fileName, logLoc, gameName);
     }
     catch (Exception e) {
       return "error";
@@ -201,8 +193,9 @@ public class RestServer extends HttpServlet
 
     try {
       // Determine boot-file location
+      String gameName = MemStore.getGameName(gameId);
       String bootLocation = properties.getProperty("bootLocation") +
-          "game-" + gameId + "-boot.xml";
+          gameName + ".xml";
 
       // Read the file
       FileInputStream fstream = new FileInputStream(bootLocation);
@@ -326,31 +319,5 @@ public class RestServer extends HttpServlet
     }
 
     return gameId;
-  }
-
-  private void createSoftLinks (String fileName, String logLoc, String gameName)
-  {
-    String linkName;
-    if (fileName.endsWith("boot.xml")) {
-      linkName = String.format("%s%s.boot.xml", logLoc, gameName);
-    }
-    else if (fileName.contains("boot")) {
-      linkName = String.format("%s%s.boot.tar.gz", logLoc, gameName);
-    }
-    else {
-      linkName = String.format("%s%s.sim.tar.gz", logLoc, gameName);
-    }
-
-    try {
-      Path link = Paths.get(linkName);
-      Path target = Paths.get(fileName);
-      Files.createSymbolicLink(link, target);
-    }
-    catch (FileAlreadyExistsException faee) {
-      // Ignored
-    }
-    catch (IOException | UnsupportedOperationException e) {
-      e.printStackTrace();
-    }
   }
 }

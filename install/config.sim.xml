@@ -52,6 +52,11 @@
           <ignoreOfflineNodes>false</ignoreOfflineNodes>
           <nodeEligibility class="org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility"/>
         </org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>seedUrl</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
     <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.8.4">
@@ -80,7 +85,6 @@
 # You might want or need to change these
 ###############################################################################
 LOGFILE=&quot;./log/$(date -u +%y%m%d_%H%M).log&quot;
-MVN_CMD=&quot;mvn&quot;
 
 interfacePath=&quot;faces/serverInterface.jsp&quot;
 pomPath=&quot;faces/download&quot;
@@ -117,7 +121,7 @@ function get_pom () {
     if [ $SIZE -le 10 ] ; then
         log nl &quot;Error getting pom : $pomUrl&quot;
         log nl &quot;Notify TS we&apos;re game_failed&quot;
-        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_failed&quot;
+        wget --spider -q &quot;$interfaceUrl?action=status&amp;status=game_failed&amp;gameId=$gameId&quot;
         cleanup
         exit 1
     else
@@ -126,22 +130,32 @@ function get_pom () {
 }
 
 function detect_aborts () {
-    COUNT=$(grep -c &apos;Abort file detected - shutting down&apos; log/powertac-sim-$gameId.trace)
+    COUNT=$(grep -c &apos;Abort file detected - shutting down&apos; log/powertac-sim-$gameName.trace)
     if [ $COUNT -eq 1 ] ; then
         log nl &quot;We detected an abort&quot;
         log nl &quot;Notify TS we&apos;re boot_complete&quot;
-        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_complete&quot;
+        wget --spider -q &quot;$interfaceUrl?action=status&amp;status=boot_complete&amp;gameId=$gameId&quot;
         cleanup
         exit 1
     fi
 
-    COUNT=$(grep -c &apos;Missed .* ticks - adjusting&apos; log/powertac-sim-$gameId.trace)
+    COUNT=$(grep -c &apos;Missed .* ticks - adjusting&apos; log/powertac-sim-$gameName.trace)
     if [ $COUNT -eq 1 ] ; then
         log nl &quot;We detected a clock slip&quot;
         log nl &quot;Notify TS we&apos;re boot_complete&quot;
-        wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_complete&quot;
+        wget --spider -q &quot;$interfaceUrl?action=status&amp;status=boot_complete&amp;gameId=$gameId&quot;
         cleanup
         exit 1
+    fi
+}
+
+function get_seed_data () {
+    log nl &quot;Get the seed data from $seedUrl&quot;
+    seedFile=&quot;seed.state&quot;
+    wget -O $seedFile $seedUrl
+    num=`wc -l $seedFile | awk &apos;{print $1}&apos;`
+    if [ &quot;$num&quot; -gt 1 ] ; then
+        seedData=&quot;--random-seeds $seedFile&quot;
     fi
 }
 
@@ -153,7 +167,7 @@ function detect_aborts () {
 # Some intermediate variables
 interfaceUrl=&quot;$tourneyUrl$interfacePath&quot;
 pomUrl=&quot;$tourneyUrl$pomPath?pomId=$pomId&quot;
-simName=&quot;game-$gameId-sim&quot;
+seedUrl=&quot;$interfaceUrl?action=seed&amp;gameId=$gameId&quot;
 
 # Make sure logdir exists
 DIRECTORY=&quot;log&quot;
@@ -161,27 +175,29 @@ if [ ! -d &quot;$DIRECTORY&quot; ]; then
     mkdir $DIRECTORY
 fi
 
-log &quot;&quot;
+get_pom
+get_seed_data
+
 StartTime=$(date +%s)
+
+log &quot;&quot;
 log &quot;StartTime     : $(date -u +%F\ %H:%M:%S)&quot;
 log &quot;Nodename      : $NODE_NAME&quot;
 log &quot;BuildNumber   : $BUILD_NUMBER&quot;
 log &quot;Account       : ${USER}&quot;
+log &quot;GameId        : $gameId&quot;
 log &quot;GameName      : $gameName&quot;
 log &quot;PomId         : $pomId&quot;
+log &quot;seedData      : $seedData&quot;
 log &quot;TourneyUrl    : $tourneyUrl&quot;
 log &quot;Brokers       : $brokers&quot;
 log &quot;serverQueue   : $serverQueue&quot;
-log &quot;MVN_CMD       : $MVN_CMD&quot;
 log &quot;interfacePath : $interfacePath&quot;
 log &quot;interfaceUrl  : $interfaceUrl&quot;
 log &quot;pomPath       : $pomPath&quot;
 log &quot;pomUrl        : $pomUrl&quot;
-log &quot;simName       : $simName&quot;
 
-get_pom
-
-CMD=&quot;$MVN_CMD    -Pcli -Dexec.args=\&quot;-sim --game-id $gameName --control $tourneyUrl --brokers $brokers --input-queue $serverQueue\&quot;&quot;
+CMD=&quot;mvn -Pcli -Dexec.args=\&quot;-sim --game-id $gameName --control $tourneyUrl --brokers $brokers --input-queue $serverQueue $seedData\&quot;&quot;
 
 log nl &quot;Run maven : $CMD \n&quot;
 eval $CMD
@@ -196,8 +212,10 @@ S=$(($RunningTime % 60))
 log nl &quot;Game took (H:M:S) $H:$M:$S&quot;
 
 log nl &quot;Compressing log files&quot;
-NAME=&quot;$simName.tar.gz&quot;
-tar -czvf $NAME log/powertac-sim-$gameName.* log/init.*
+NAME=&quot;$gameName.tar.gz&quot;
+mv log/powertac-sim-$gameName.trace log/$gameName.trace
+mv log/powertac-sim-$gameName.state log/$gameName.state
+tar -czvf $NAME log/$gameName.* log/init.*
 
 size=$(stat -c %s &quot;$NAME&quot;)
 if [ &quot;$size&quot; -gt &quot;45&quot; ]; then
@@ -207,11 +225,7 @@ if [ &quot;$size&quot; -gt &quot;45&quot; ]; then
     cleanup
 
     log nl &quot;Notify TS we&apos;re game_complete&quot;
-    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=game_complete&quot;
-
-    # This is only for development purposes : the viz log tends to grow beyond the disk size of the VMs
-    cat /dev/null &gt; /home/govert/Projects/tomcat/latest/logs/$NODE_NAME-viz.log
-    cat /dev/null &gt; /home/scidev/Projects/tomcat/latest/logs/$NODE_NAME-viz.log
+    wget --spider -q &quot;$interfaceUrl?action=status&amp;status=game_complete&amp;gameId=$gameId&quot;
 
     exit 0
 else
@@ -220,15 +234,10 @@ else
     cleanup
 
     log nl &quot;Notify TS we&apos;re boot_complete&quot;
-    wget --spider -q &quot;$interfaceUrl?action=status&amp;gameId=$gameId&amp;status=boot_complete&quot;
-
-    # This is only for development purposes : the viz log tends to grow beyond the disk size of the VMs
-    cat /dev/null &gt; /home/govert/Projects/tomcat/latest/logs/$NODE_NAME-viz.log
-    cat /dev/null &gt; /home/scidev/Projects/tomcat/latest/logs/$NODE_NAME-viz.log
+    wget --spider -q &quot;$interfaceUrl?action=status&amp;status=boot_complete&amp;gameId=$gameId&quot;
 
     exit 1
 fi
-
 
       </command>
     </hudson.tasks.Shell>
