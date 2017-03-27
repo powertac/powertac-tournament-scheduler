@@ -2,7 +2,6 @@ package org.powertac.tournament.actions;
 
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.services.MemStore;
-import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -37,24 +36,6 @@ public class ActionIndex implements InitializingBean
   public List<Game> getCompleteGamesList ()
   {
     return completeGamesList;
-  }
-
-  public String getLogUrl (Game g)
-  {
-    TournamentProperties properties = TournamentProperties.getProperties();
-    String baseUrl = properties.getProperty("actionIndex.logUrl",
-        "download?game=%d");
-
-    return String.format(baseUrl, g.getGameId());
-  }
-
-  public String getBootUrl (Game g)
-  {
-    TournamentProperties properties = TournamentProperties.getProperties();
-    String baseUrl = properties.getProperty("actionIndex.bootUrl",
-        "download?boot=%d");
-
-    return String.format(baseUrl, g.getGameId());
   }
 
   public void edit ()

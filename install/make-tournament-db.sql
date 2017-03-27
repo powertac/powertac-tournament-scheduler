@@ -46,7 +46,7 @@ DROP TABLE IF EXISTS `powertac_tournament`.`tournaments`;
 CREATE TABLE `powertac_tournament`.`tournaments` (
   `tournamentId`   INT(11)                                                                                                                                            NOT NULL AUTO_INCREMENT,
   `tournamentName` VARCHAR(256) UNIQUE                                                                                                                                NOT NULL,
-  `state`          ENUM('open', 'closed', 'scheduled0', 'completed0', 'scheduled1', 'completed1', 'scheduled2', 'completed2', 'scheduled3', 'completed3', 'complete') NOT NULL,
+  `state`          ENUM('open', 'cllosed', 'scheduled0', 'completed0', 'scheduled1', 'completed1', 'scheduled2', 'completed2', 'scheduled3', 'completed3', 'complete') NOT NULL,
   `pomId`          INT(11)                                                                                                                                            NOT NULL,
   `maxAgents`      INT(11)                                                                                                                                            NOT NULL DEFAULT 2,
   PRIMARY KEY (`tournamentId`),
