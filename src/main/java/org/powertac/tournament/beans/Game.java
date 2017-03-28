@@ -271,6 +271,7 @@ public class Game implements Serializable
   public String getLogURL ()
   {
     String baseUrl = properties.getProperty("actionIndex.logUrl");
+
     if (baseUrl.isEmpty()) {
       return String.format("download?game=%d", gameId);
     }
@@ -282,6 +283,7 @@ public class Game implements Serializable
   public String getBootURL ()
   {
     String baseUrl = properties.getProperty("actionIndex.bootUrl");
+
     if (baseUrl.isEmpty()) {
       return String.format("download?boot=%d", gameId);
     }

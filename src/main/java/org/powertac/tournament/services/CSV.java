@@ -13,7 +13,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.channels.Channel;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +32,14 @@ public class CSV
     properties = TournamentProperties.getProperties();
     sep = ";" + System.getProperty("line.separator");
     logLocation = properties.getProperty("logLocation");
-    baseUrl = properties.getProperty("actionIndex.logUrl",
-        "download?game=%d");
-    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("game"));
+
+    baseUrl = properties.getProperty("actionIndex.logUrl");
+    if (baseUrl.isEmpty()) {
+      baseUrl = "download?csv=";
+    }
+    else if (baseUrl.contains("/")) {
+      baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/") + 1);
+    }
 
     if (t != null) {
       String name = "%stournament.%s.csv";
@@ -208,24 +212,11 @@ public class CSV
       writer.print("gameId;gameName;status;gameSize;gameLength;lastTick;");
       writer.println("weatherLocation;weatherDate;logUrl;brokerId;brokerBalance;");
 
-      String tourneyUrl = properties.getProperty("tourneyUrl");
-      String baseUrl = properties.getProperty("actionIndex.logUrl",
-          "download?game=%d");
       for (Game game : round.getGameMap().values()) {
-        String logUrl = "";
-        if (game.getState().isComplete()) {
-          if (baseUrl.startsWith("http://")) {
-            logUrl = String.format(baseUrl, game.getGameId());
-          }
-          else {
-            logUrl = tourneyUrl + String.format(baseUrl, game.getGameId());
-          }
-        }
-
         String content = String.format("%d;%s;%s;%d;%d;%d;%s;%s;%s;",
             game.getGameId(), game.getGameName(), game.getState(),
             game.getSize(), game.getGameLength(), game.getLastTick(),
-            game.getLocation(), game.getSimStartTime(), logUrl);
+            game.getLocation(), game.getSimStartTime(), game.getLogURL());
         for (Agent agent : game.getAgentMap().values()) {
           content = String.format("%s%d;%f;", content,
               agent.getBrokerId(), agent.getBalance());
@@ -347,23 +338,16 @@ public class CSV
     File tournamentFile = new File(names[0]);
     File roundsFile = new File(names[2]);
 
+    if (baseUrl.equals("download?csv=")) {
+      tournamentCsv = tournamentCsv.replace(".csv", "");
+      roundsCsv = roundsCsv.replace(".csv", "");
+    }
+
     if (tournamentFile.exists()) {
-      if (baseUrl.endsWith("?")) {
-        tournamentCsv = "csv=" + tournamentCsv.replace(".csv", "");
-      }
-      else if (!baseUrl.endsWith("/")) {
-        baseUrl += "/";
-      }
       csvLinks.add(String.format(
           "Tournament csv : <a href=\"%s\">link</a>", baseUrl + tournamentCsv));
     }
     if (roundsFile.exists()) {
-      if (baseUrl.endsWith("?")) {
-        roundsCsv = "csv=" + roundsCsv.replace(".csv", "");
-      }
-      else if (!baseUrl.endsWith("/")) {
-        baseUrl += "/";
-      }
       csvLinks.add(String.format(
           "Rounds csv : <a href=\"%s\">link</a>", baseUrl + roundsCsv));
     }
@@ -380,26 +364,20 @@ public class CSV
     File roundFile = new File(names[0]);
     File gamesFile = new File(names[2]);
 
+    if (baseUrl.equals("download?csv=")) {
+      roundCsv = roundCsv.replace(".csv", "");
+      gamesCsv = gamesCsv.replace(".csv", "");
+    }
+
     if (roundFile.exists()) {
-      if (baseUrl.endsWith("?")) {
-        roundCsv = "csv=" + roundCsv.replace(".csv", "");
-      }
-      else if (!baseUrl.endsWith("/")) {
-        baseUrl += "/";
-      }
       csvLinks.add(String.format(
           "Round csv : <a href=\"%s\">link</a>", baseUrl + roundCsv));
     }
     if (gamesFile.exists()) {
-      if (baseUrl.endsWith("?")) {
-        gamesCsv = "csv=" + gamesCsv.replace(".csv", "");
-      }
-      else if (!baseUrl.endsWith("/")) {
-        baseUrl += "/";
-      }
       csvLinks.add(String.format(
           "Games csv : <a href=\"%s\">link</a>", baseUrl + gamesCsv));
     }
+
     return csvLinks;
   }
 }
