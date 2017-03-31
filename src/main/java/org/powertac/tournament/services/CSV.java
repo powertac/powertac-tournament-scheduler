@@ -33,7 +33,7 @@ public class CSV
     sep = ";" + System.getProperty("line.separator");
     logLocation = properties.getProperty("logLocation");
 
-    baseUrl = properties.getProperty("actionIndex.logUrl");
+    baseUrl = properties.getProperty("logUrl");
     if (baseUrl.isEmpty()) {
       baseUrl = "download?csv=";
     }

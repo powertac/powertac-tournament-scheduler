@@ -267,10 +267,15 @@ public class Game implements Serializable
     return (Game) query.uniqueResult();
   }
 
+  public static String getBootLocation (String gameName)
+  {
+    return properties.getProperty("bootLocation") + gameName + ".xml";
+  }
+
   @Transient
   public String getLogURL ()
   {
-    String baseUrl = properties.getProperty("actionIndex.logUrl");
+    String baseUrl = properties.getProperty("logUrl");
 
     if (baseUrl.isEmpty()) {
       return String.format("download?game=%d", gameId);
@@ -282,7 +287,7 @@ public class Game implements Serializable
   @Transient
   public String getBootURL ()
   {
-    String baseUrl = properties.getProperty("actionIndex.bootUrl");
+    String baseUrl = properties.getProperty("bootUrl");
 
     if (baseUrl.isEmpty()) {
       return String.format("download?boot=%d", gameId);

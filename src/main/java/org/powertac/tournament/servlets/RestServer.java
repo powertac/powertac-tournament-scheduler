@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Game;
-import org.powertac.tournament.jobs.ParserSimlog;
+import org.powertac.tournament.jobs.LogJob;
 import org.powertac.tournament.schedulers.GameHandler;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
@@ -134,7 +134,9 @@ public class RestServer extends HttpServlet
       fos.close();
 
       // If sim-logs received, extract end-of-game standings
-      new ParserSimlog(pathString).run();
+      LogJob logJob = new LogJob(logLoc, fileName);
+      logJob.setDaemon(true);
+      logJob.start();
     }
     catch (Exception e) {
       return "error";
@@ -194,8 +196,7 @@ public class RestServer extends HttpServlet
     try {
       // Determine boot-file location
       String gameName = MemStore.getGameName(gameId);
-      String bootLocation = properties.getProperty("bootLocation") +
-          gameName + ".xml";
+      String bootLocation = Game.getBootLocation(gameName);
 
       // Read the file
       FileInputStream fstream = new FileInputStream(bootLocation);
