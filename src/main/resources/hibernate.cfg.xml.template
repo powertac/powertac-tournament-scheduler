@@ -15,6 +15,9 @@
     <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect
     </property>
     <property name="show_sql">false</property>
+    <property name="connection.useUnicode">true</property>
+    <property name="connection.characterEncoding">utf8</property>
+    <property name="connection.CharSet">utf8</property>
 
     <!-- c3p0 config http://www.hibernate.org/214.html -->
     <property name="hibernate.onnection.provider_class">
