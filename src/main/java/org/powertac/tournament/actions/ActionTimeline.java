@@ -3,9 +3,9 @@ package org.powertac.tournament.actions;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.services.Forecaster;
 import org.powertac.tournament.services.Utils;
-import org.primefaces.extensions.event.timeline.TimelineSelectEvent;
-import org.primefaces.extensions.model.timeline.TimelineEvent;
-import org.primefaces.extensions.model.timeline.TimelineModel;
+import org.primefaces.event.timeline.TimelineSelectEvent;
+import org.primefaces.model.timeline.TimelineEvent;
+import org.primefaces.model.timeline.TimelineModel;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;

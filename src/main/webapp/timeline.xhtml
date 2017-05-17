@@ -2,16 +2,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://java.sun.com/jsf/html"
+<html xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:pe="http://primefaces.org/ui/extensions">
+      xmlns:p="http://primefaces.org/ui">
 
 <h:head>
   <title>PowerTac Tournament Scheduler</title>
   <script type="text/javascript" charset="utf8"
-          src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+          src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+  <script type="text/javascript" charset="utf8"
+          src="//code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
   <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
 </h:head>
 
@@ -42,11 +42,11 @@
 
   <p:spacer width="100%" height="10"/>
 
-  <pe:timeline id="timeline" value="#{actionTimeline.model}" height="500px"
+  <p:timeline id="timeline" value="#{actionTimeline.model}" height="500px"
                zoomMin="600000" animate="false" animateZoom="false"
                timeZone="UTS" browserTimeZone="UTS" showCurrentTime="true"
                rendered="#{user.isAdmin()}">
     <p:ajax event="select" listener="#{actionTimeline.onSelect}"/>
-  </pe:timeline>
+  </p:timeline>
 </h:body>
 </html>
