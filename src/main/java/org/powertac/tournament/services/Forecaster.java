@@ -45,7 +45,7 @@ public class Forecaster
   {
     this.forecast = new Forecast(gamesMap);
 
-    TournamentProperties properties = TournamentProperties.getProperties();
+    Properties properties = Properties.getProperties();
     forecastMax = properties.getPropertyInt("forecastMax");
 
     init();

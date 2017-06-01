@@ -332,7 +332,7 @@ public class MemStore
   {
     try {
       gameLengths.put(gameId, Integer.parseInt(gameLength) +
-          TournamentProperties.getProperties().getPropertyInt("bootLength"));
+          Properties.getProperties().getPropertyInt("bootLength"));
     }
     catch (Exception ignored) {
     }

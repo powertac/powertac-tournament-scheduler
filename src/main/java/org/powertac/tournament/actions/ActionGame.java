@@ -2,7 +2,6 @@ package org.powertac.tournament.actions;
 
 import org.powertac.tournament.beans.Agent;
 import org.powertac.tournament.beans.Game;
-import org.powertac.tournament.services.TournamentProperties;
 import org.powertac.tournament.services.Utils;
 import org.springframework.beans.factory.InitializingBean;
 

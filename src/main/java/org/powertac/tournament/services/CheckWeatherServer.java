@@ -31,7 +31,7 @@ public class CheckWeatherServer implements InitializingBean
   private static Logger log = Utils.getLogger();
 
   @Autowired
-  private TournamentProperties properties;
+  private Properties properties;
 
   private String weatherServerLocation = "";
   private static String status = "";

@@ -46,7 +46,7 @@
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 
-PIDS=$(ps ax | grep start-server-instance | grep -v grep | awk &apos;{print $1}&apos;)
+PIDS=$(ps ax | grep start-agent | grep -v grep | awk &apos;{print $1}&apos;)
 echo &quot;PIDS : $PIDS&quot;
 if [ &quot;$PIDS&quot; != &quot;&quot; ]; then
 for PID in $PIDS

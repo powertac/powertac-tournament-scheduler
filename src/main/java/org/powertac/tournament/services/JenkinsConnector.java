@@ -16,8 +16,7 @@ import java.net.URL;
 
 public class JenkinsConnector
 {
-  private static TournamentProperties properties =
-      TournamentProperties.getProperties();
+  private static Properties properties = Properties.getProperties();
 
   public static void sendJob (String jobUrl) throws Exception
   {
@@ -40,9 +39,6 @@ public class JenkinsConnector
       }
 
       is = conn.getInputStream();
-    }
-    catch (Exception e) {
-      e.printStackTrace();
     }
     finally {
       if (is != null) {

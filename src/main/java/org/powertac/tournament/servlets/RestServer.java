@@ -8,7 +8,7 @@ import org.powertac.tournament.jobs.LogJob;
 import org.powertac.tournament.schedulers.GameHandler;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
-import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Properties;
 import org.powertac.tournament.services.Utils;
 
 import javax.servlet.annotation.WebServlet;
@@ -35,7 +35,7 @@ public class RestServer extends HttpServlet
 
   private static String responseType = "text/plain; charset=UTF-8";
 
-  private TournamentProperties properties = TournamentProperties.getProperties();
+  private Properties properties = Properties.getProperties();
 
   public RestServer ()
   {

@@ -2,7 +2,7 @@ package org.powertac.tournament.jobs;
 
 import org.apache.log4j.Logger;
 import org.powertac.tournament.services.JenkinsConnector;
-import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Properties;
 import org.powertac.tournament.services.Utils;
 
 
@@ -23,7 +23,7 @@ public class RunAbort
       return;
     }
 
-    TournamentProperties properties = TournamentProperties.getProperties();
+    Properties properties = Properties.getProperties();
 
     // Abort the job on the slave
     String abortUrl = properties.getProperty("jenkins.location")
@@ -33,7 +33,6 @@ public class RunAbort
 
     try {
       JenkinsConnector.sendJob(abortUrl);
-
       log.info("Aborted job on slave " + machineName);
     }
     catch (Exception ignored) {

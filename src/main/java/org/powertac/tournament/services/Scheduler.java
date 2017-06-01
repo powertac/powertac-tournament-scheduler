@@ -31,7 +31,7 @@ public class Scheduler implements InitializingBean
   private static Logger log = Utils.getLogger();
 
   @Autowired
-  private TournamentProperties properties;
+  private Properties properties;
 
   private Timer schedulerTimer = null;
   private long schedulerInterval;

@@ -7,7 +7,7 @@ import org.powertac.tournament.beans.Location;
 import org.powertac.tournament.beans.User;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
-import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Properties;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -89,7 +89,7 @@ public class RestProperties extends HttpServlet
 
   private String getPropertiesString (Game game)
   {
-    TournamentProperties properties = TournamentProperties.getProperties();
+    Properties properties = Properties.getProperties();
 
     StringBuilder result = new StringBuilder();
     result.append(Prop.weatherServerURL)

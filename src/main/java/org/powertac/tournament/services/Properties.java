@@ -28,7 +28,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Properties;
 
 
 /**
@@ -37,12 +36,12 @@ import java.util.Properties;
  * @author John Collins
  */
 @Component("tournamentProperties")
-public class TournamentProperties
+public class Properties
 {
   private static Logger log = Utils.getLogger();
 
   private String resourceName = "tournament.properties";
-  private Properties properties = new Properties();
+  private java.util.Properties properties = new java.util.Properties();
   private boolean loaded = false;
   private List<String> messages = new ArrayList<String>();
 
@@ -70,7 +69,7 @@ public class TournamentProperties
   {
     if (!loaded) {
       try {
-        properties.load(TournamentProperties.class.getClassLoader()
+        properties.load(Properties.class.getClassLoader()
             .getResourceAsStream(resourceName));
         checkProperties();
         loaded = true;
@@ -248,9 +247,8 @@ public class TournamentProperties
     }
   }
 
-  public static TournamentProperties getProperties ()
+  public static Properties getProperties ()
   {
-    return (TournamentProperties) SpringApplicationContext
-        .getBean("tournamentProperties");
+    return (Properties) SpringApplicationContext.getBean("tournamentProperties");
   }
 }

@@ -12,8 +12,7 @@ public class Upload
 {
   private static Logger log = Utils.getLogger();
 
-  private static TournamentProperties properties =
-      TournamentProperties.getProperties();
+  private static Properties properties = Properties.getProperties();
 
   private UploadedFile uploadedFile;
 

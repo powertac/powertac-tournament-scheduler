@@ -2,7 +2,7 @@ package org.powertac.tournament.servlets;
 
 import org.apache.log4j.Logger;
 import org.powertac.tournament.services.MemStore;
-import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Properties;
 import org.powertac.tournament.services.Utils;
 
 import javax.servlet.ServletOutputStream;
@@ -26,7 +26,7 @@ public class RestDownload extends HttpServlet
 {
   private static Logger log = Utils.getLogger();
 
-  private TournamentProperties properties = TournamentProperties.getProperties();
+  private Properties properties = Properties.getProperties();
 
   protected void doGet (HttpServletRequest request, HttpServletResponse response)
   {

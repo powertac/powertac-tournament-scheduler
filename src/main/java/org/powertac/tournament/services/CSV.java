@@ -23,13 +23,13 @@ public class CSV
 {
   private String logLocation;
   private String baseUrl;
-  private TournamentProperties properties;
+  private Properties properties;
   private String sep;
   private String[] names;
 
   public CSV (Tournament t, Round r)
   {
-    properties = TournamentProperties.getProperties();
+    properties = Properties.getProperties();
     sep = ";" + System.getProperty("line.separator");
     logLocation = properties.getProperty("logLocation");
 

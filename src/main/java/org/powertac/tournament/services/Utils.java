@@ -16,7 +16,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Properties;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -41,7 +40,7 @@ public class Utils
 
   public static void sendMail (String sub, String msg, String recipient)
   {
-    TournamentProperties properties = TournamentProperties.getProperties();
+    Properties properties = Properties.getProperties();
     final String username = properties.getProperty("gmail.username");
     final String password = properties.getProperty("gmail.password");
 
@@ -49,7 +48,7 @@ public class Utils
       return;
     }
 
-    Properties props = new Properties();
+    java.util.Properties props = new java.util.Properties();
     props.put("mail.smtp.auth", "true");
     props.put("mail.smtp.starttls.enable", "true");
     props.put("mail.smtp.host", "smtp.gmail.com");

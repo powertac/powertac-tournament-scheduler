@@ -11,7 +11,7 @@ import org.powertac.tournament.schedulers.GamesScheduler;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.JenkinsConnector;
 import org.powertac.tournament.services.MemStore;
-import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Properties;
 import org.powertac.tournament.services.Utils;
 import org.powertac.tournament.states.GameState;
 import org.powertac.tournament.states.MachineState;
@@ -23,7 +23,7 @@ public class RunSim
 {
   private static Logger log = Utils.getLogger();
 
-  private TournamentProperties properties = TournamentProperties.getProperties();
+  private Properties properties = Properties.getProperties();
 
   private Game game;
   private List<Machine> freeMachines;

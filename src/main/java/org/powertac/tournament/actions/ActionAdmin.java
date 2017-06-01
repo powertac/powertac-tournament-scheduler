@@ -15,7 +15,7 @@ import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
 import org.powertac.tournament.services.Scheduler;
 import org.powertac.tournament.services.SpringApplicationContext;
-import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Properties;
 import org.powertac.tournament.services.Upload;
 import org.powertac.tournament.services.Utils;
 import org.powertac.tournament.states.MachineState;
@@ -34,7 +34,7 @@ public class ActionAdmin implements InitializingBean
 {
   private static Logger log = Utils.getLogger();
 
-  private TournamentProperties properties = TournamentProperties.getProperties();
+  private Properties properties = Properties.getProperties();
 
   private List<Integer> selectedRounds;
 

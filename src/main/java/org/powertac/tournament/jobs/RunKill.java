@@ -2,7 +2,7 @@ package org.powertac.tournament.jobs;
 
 import org.apache.log4j.Logger;
 import org.powertac.tournament.services.JenkinsConnector;
-import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Properties;
 import org.powertac.tournament.services.Utils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -25,6 +25,8 @@ public class RunKill
       return;
     }
 
+    Properties properties = Properties.getProperties();
+
     // Stop the job on Jenkins, only work on when host = localhost
     for (int count = 0; count < 2; count++) {
       try {
@@ -33,7 +35,7 @@ public class RunKill
         boolean idle = Boolean.parseBoolean(nNode.getTextContent());
 
         if (!idle) {
-          String stopUrl = "http://localhost:8080/jenkins/"
+          String stopUrl = properties.getProperty("jenkins.location")
               + "computer/" + machineName + "/executors/" + count + "/stop";
           log.info("Stop url: " + stopUrl);
 
@@ -51,9 +53,8 @@ public class RunKill
     }
 
     // Actually kill the job on the slave, it doesn't always get done above
-    TournamentProperties properties = TournamentProperties.getProperties();
     String killUrl = properties.getProperty("jenkins.location")
-        + "job/kill-server-instance/buildWithParameters?"
+        + "job/kill-server-agent/buildWithParameters?"
         + "machine=" + machineName;
     log.info("Kill url: " + killUrl);
 

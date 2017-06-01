@@ -8,7 +8,7 @@ import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.schedulers.GamesScheduler;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.JenkinsConnector;
-import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Properties;
 import org.powertac.tournament.services.Utils;
 import org.powertac.tournament.states.GameState;
 import org.powertac.tournament.states.MachineState;
@@ -20,7 +20,7 @@ public class RunBoot
 {
   private static Logger log = Utils.getLogger();
 
-  private TournamentProperties properties = TournamentProperties.getProperties();
+  private Properties properties = Properties.getProperties();
 
   private Game game;
   private List<Machine> freeMachines;
@@ -85,8 +85,8 @@ public class RunBoot
 
     try {
       JenkinsConnector.sendJob(finalUrl);
-
       log.info("Jenkins request to bootstrap game: " + game.getGameId());
+
       game.setState(GameState.boot_in_progress);
       game.setReadyTime(Utils.offsetDate());
       log.debug(String.format("Update game: %s to %s", game.getGameId(),

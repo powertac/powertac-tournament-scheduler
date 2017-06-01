@@ -8,7 +8,7 @@ import org.hibernate.Transaction;
 import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.MemStore;
-import org.powertac.tournament.services.TournamentProperties;
+import org.powertac.tournament.services.Properties;
 import org.powertac.tournament.services.Utils;
 import org.powertac.tournament.states.GameState;
 
@@ -45,8 +45,7 @@ public class Game implements Serializable
 {
   private static Logger log = Utils.getLogger();
 
-  private static TournamentProperties properties =
-      TournamentProperties.getProperties();
+  private static Properties properties = Properties.getProperties();
 
   private Integer gameId = 0;
   private String gameName;
