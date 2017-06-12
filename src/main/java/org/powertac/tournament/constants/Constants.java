@@ -16,7 +16,8 @@ public class Constants
     public static final String startTime =
         "common.competition.simulationBaseTime = ";
     public static final String jms =
-        "server.jmsManagementService.jmsBrokerUrl = ";
+        "server.jmsManagementService.jmsBrokerUrl = " +
+            "tcp://0.0.0.0:61616?wireFormat.maxInactivityDuration=120000";
     public static final String serverFirstTimeout =
         "server.competitionControlService.firstLoginTimeout = ";
     public static final String serverTimeout =

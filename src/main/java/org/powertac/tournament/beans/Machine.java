@@ -49,7 +49,8 @@ public class Machine
   @Transient
   public String getJmsUrl ()
   {
-    return "tcp://" + machineUrl + ":61616";
+    return "tcp://" + machineUrl + ":61616" +
+        "?wireFormat.maxInactivityDuration=120000";
   }
 
   public void toggleAvailable ()

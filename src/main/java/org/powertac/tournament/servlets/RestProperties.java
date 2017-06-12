@@ -98,7 +98,9 @@ public class RestProperties extends HttpServlet
     Location location = Location.getLocationByName(game.getLocation());
     result.append(Prop.timezoneOffset).append(location.getTimezone()).append("\n");
     result.append(Prop.startTime).append(game.getSimStartTime()).append("\n");
-    result.append(Prop.jms).append("tcp://0.0.0.0:61616\n");
+    result.append(Prop.jms).append("\n");
+    // TODO Remove when fixed in server code
+    result.append("server.jmsManagementService.maxQueueDepth = 10000\n");
     result.append(Prop.serverFirstTimeout).append(600000).append("\n");
     result.append(Prop.serverTimeout).append(120000).append("\n");
     result.append(Prop.remote).append(true).append("\n");

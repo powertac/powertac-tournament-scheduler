@@ -69,9 +69,15 @@ public class Forecaster
     int machineIndex = 0;
     for (Game game : forecast.gamesMap.values()) {
       if (game.getState().isRunning() || game.getState().isComplete()) {
-        long timeStart = (game.getReadyTime().getTime() / 1000) - overhead;
-        long timeEnd = getTimeEnd(game, timeStart);
-        addJob(game, machineIndex++ % slavesCount, timeStart, timeEnd);
+        // If we set a game to 'game_complete' there's no readyTime
+        try {
+          long timeStart = (game.getReadyTime().getTime() / 1000) - overhead;
+          long timeEnd = getTimeEnd(game, timeStart);
+          addJob(game, machineIndex++ % slavesCount, timeStart, timeEnd);
+        }
+        catch (NullPointerException ignored) {
+
+        }
       }
     }
   }
