@@ -312,7 +312,7 @@ public class Game implements Serializable
   @SuppressWarnings("unchecked")
   public static List<Game> getNotCompleteGamesList ()
   {
-    List<Game> games = new ArrayList<Game>();
+    List<Game> games = new ArrayList<>();
 
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
@@ -334,7 +334,7 @@ public class Game implements Serializable
   @SuppressWarnings("unchecked")
   public static List<Game> getCompleteGamesList ()
   {
-    List<Game> games = new ArrayList<Game>();
+    List<Game> games = new ArrayList<>();
 
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();

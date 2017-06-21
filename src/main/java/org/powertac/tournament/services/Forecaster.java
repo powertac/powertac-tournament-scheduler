@@ -16,6 +16,7 @@ import org.powertac.tournament.beans.Tournament;
 import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.schedulers.GamesScheduler;
 import org.powertac.tournament.schedulers.RoundScheduler;
+import org.powertac.tournament.states.GameState;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -140,7 +141,7 @@ public class Forecaster
     if (machineGames.size() > 0) {
       Game lastGame = machineGames.get(machineGames.size() - 1);
       long lastTimeEnd = forecast.endTimes.get(lastGame.getGameId());
-      if (lastTimeEnd >= timeStart) {
+      if (lastTimeEnd >= timeStart && game.getState() != GameState.game_complete) {
         log.info("Game " + game.getGameId() + " not runnable!\n" +
             "Last job not yet finished!");
       }
