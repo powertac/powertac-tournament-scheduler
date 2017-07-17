@@ -240,7 +240,6 @@ public class RestServer extends HttpServlet
       }
 
       new GameHandler(game).handleStatus(session, statusString);
-
       transaction.commit();
     }
     catch (Exception e) {

@@ -22,13 +22,13 @@ public class ActionRegister
   private String contactEmail;
   private String contactPhone;
 
-  public String register ()
+  public void register ()
   {
-    if (nameExists(username)) {
-      return "Failure";
+    if (!nameAvailable(username)) {
+      return;
     }
-    if (passwordMismatch(password1, password2)) {
-      return "Failure";
+    if (!passwordMatch(password1, password2)) {
+      return;
     }
 
     User user = new User();
@@ -41,25 +41,31 @@ public class ActionRegister
     user.setPasswordAndSalt(password1);
 
     log.info("Registring user " + username);
-    return user.save();
+    boolean saved = user.save();
+    if (saved) {
+      Utils.redirect("login.xhtml");
+    }
+    else {
+      Utils.growlMessage("Register Failure");
+    }
   }
 
-  private boolean nameExists (String username)
+  private boolean nameAvailable (String username)
   {
     User user = User.getUserByName(username);
-    if (user != null) {
-      Utils.growlMessage("User Name taken, please select a new name.");
+    if (user == null) {
       return true;
     }
+    Utils.growlMessage("User Name taken, please select a new name.");
     return false;
   }
 
-  private boolean passwordMismatch (String password1, String password2)
+  private boolean passwordMatch (String password1, String password2)
   {
-    if (!password1.equals(password2)) {
-      Utils.growlMessage("Passwords do not match.");
+    if (password1.equals(password2)) {
       return true;
     }
+    Utils.growlMessage("Passwords do not match.");
     return false;
   }
 

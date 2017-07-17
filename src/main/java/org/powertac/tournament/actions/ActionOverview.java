@@ -79,9 +79,7 @@ public class ActionOverview implements InitializingBean
   public void abortGame (Game game)
   {
     log.info("Trying to abort game: " + game.getGameId());
-
     new RunAbort(game.getMachine().getMachineName()).run();
-
     Utils.growlMessage("Notice", "Aborting games takes some time, please wait");
   }
 

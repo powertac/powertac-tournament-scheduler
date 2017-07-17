@@ -152,19 +152,19 @@ public class User implements Serializable
     FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
   }
 
-  public String save ()
+  public boolean save ()
   {
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
       session.saveOrUpdate(this);
       transaction.commit();
-      return "Success";
+      return true;
     }
     catch (Exception e) {
       transaction.rollback();
       e.printStackTrace();
-      return "Failure";
+      return false;
     }
     finally {
       session.close();

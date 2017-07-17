@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 
 @ManagedBean
-public class ActionAccount  implements Serializable
+public class ActionAccount implements Serializable
 {
   private User user = User.getCurrentUser();
   private String brokerName;
