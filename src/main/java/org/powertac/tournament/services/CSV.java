@@ -15,8 +15,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 
 public class CSV
@@ -207,19 +211,40 @@ public class CSV
     try {
       gamesCSV.createNewFile();
 
+      // Start with the header
       PrintWriter writer = new PrintWriter(gamesCSV, "UTF-8");
+      writer.print("gameId,gameName,status,gameSize,gameLength,lastTick,");
+      writer.print("weatherLocation,weatherDate,logUrl,");
 
-      writer.print("gameId;gameName;status;gameSize;gameLength;lastTick;");
-      writer.println("weatherLocation;weatherDate;logUrl;brokerId;brokerBalance;");
+      // Add broker names, keep for later
+      Set<String> brokerNames = new TreeSet<>(
+          Comparator.comparing(String::toLowerCase));
+      for (Game game : round.getGameMap().values()) {
+        for (Agent agent : game.getAgentMap().values()) {
+          brokerNames.add(agent.getBroker().getBrokerName());
+        }
+      }
+      for (String brokerName : brokerNames) {
+        writer.print(brokerName + ",");
+      }
+      writer.println();
 
       for (Game game : round.getGameMap().values()) {
-        String content = String.format("%d;%s;%s;%d;%d;%d;%s;%s;%s;",
-            game.getGameId(), game.getGameName(), game.getState(),
-            game.getSize(), game.getGameLength(), game.getLastTick(),
-            game.getLocation(), game.getSimStartTime(), game.getLogURL());
-        for (Agent agent : game.getAgentMap().values()) {
-          content = String.format("%s%d;%f;", content,
-              agent.getBrokerId(), agent.getBalance());
+        StringBuilder content = new StringBuilder(
+            String.format("%d,%s,%s,%d,%d,%d,%s,%s,%s,",
+                game.getGameId(), game.getGameName(), game.getState(),
+                game.getSize(), game.getGameLength(), game.getLastTick(),
+                game.getLocation(), game.getSimStartTime(), game.getLogURL()));
+
+        Map<String, Agent> gameAgents = new TreeMap<>(
+            Comparator.comparing(String::toLowerCase));
+        game.getAgentMap().values().forEach(
+            agent -> gameAgents.put(agent.getBroker().getBrokerName(), agent));
+        for (String brokerName : brokerNames) {
+          if (gameAgents.keySet().contains(brokerName)) {
+            content.append(gameAgents.get(brokerName).getBalance());
+          }
+          content.append(",");
         }
 
         writer.println(content);
@@ -239,13 +264,13 @@ public class CSV
                             Round round, Map<Broker, Result> resultMap)
       throws IOException
   {
-    writeRoundParams (writer, prefix, round);
+    writeRoundParams(writer, prefix, round);
 
     if (resultMap == null || resultMap.size() == 0) {
       return;
     }
 
-    writeRoundBrokers (writer, prefix, round, resultMap);
+    writeRoundBrokers(writer, prefix, round, resultMap);
   }
 
   private void writeRoundParams (PrintWriter writer, String prefix, Round round)

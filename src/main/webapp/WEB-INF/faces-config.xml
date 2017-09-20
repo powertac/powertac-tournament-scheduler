@@ -12,20 +12,6 @@
     </el-resolver>
   </application>
 
-  <!-- Error Code
-  <error-page>
-      <exception-type>javax.faces.application.ViewExpiredException</exception-type>
-      <location>/sessionExpired.jsf</location>
-  </error-page>-->
-
-  <!-- Objects -->
-
-  <!-- Application Scoped Objects -->
-
-  <!-- Actions -->
-
-  <!-- Services -->
-
   <!-- Navigation rules -->
   <navigation-rule>
     <from-view-id>/*</from-view-id>
