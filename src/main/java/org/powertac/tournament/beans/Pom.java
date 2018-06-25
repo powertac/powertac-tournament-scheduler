@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @ManagedBean
 @Entity
 @Table(name = "poms")
-public class Pom
+public class Pom implements Serializable
 {
   private int pomId;
   private String pomName;

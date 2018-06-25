@@ -10,6 +10,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import java.io.Serializable;
+
 import static javax.persistence.GenerationType.IDENTITY;
 
 
@@ -17,7 +19,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "round_brokers", uniqueConstraints =
     @UniqueConstraint(columnNames = {"roundId", "brokerId"}))
-public class RoundBroker
+public class RoundBroker implements Serializable
 {
   private int roundBrokerId;
   private Round round;

@@ -10,14 +10,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import java.io.Serializable;
+
 import static javax.persistence.GenerationType.IDENTITY;
 
 
 @ManagedBean
 @Entity
 @Table(name = "tournament_brokers", uniqueConstraints =
-    @UniqueConstraint(columnNames = {"tournamentId", "brokerId"}))
-public class TournamentBroker
+@UniqueConstraint(columnNames = {"tournamentId", "brokerId"}))
+public class TournamentBroker implements Serializable
 {
   private int tournamentBrokerId;
   private Tournament tournament;
