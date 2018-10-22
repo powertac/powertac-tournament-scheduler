@@ -204,7 +204,7 @@ public class Round implements Serializable
 
     // Get mean per game size
     for (int i = 0; i < 3; i++) {
-      meanArr[i] = types[i] > 0 ? meanArr[i] / types[i] : 0;
+      meanArr[i] = resultMap.size() > 0 ? meanArr[i] / resultMap.size() : 0;
     }
 
     // Get SD per game size
