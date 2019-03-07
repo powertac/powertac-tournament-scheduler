@@ -13,8 +13,10 @@ import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -73,6 +75,10 @@ public class CheckWeatherServer implements InitializingBean
     try {
       HttpURLConnection conn = getConnection("");
       is = conn.getInputStream();
+      BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+      while (rd.readLine() != null) {
+      }
+      rd.close();
 
       int status = conn.getResponseCode();
       if (status == 200) {

@@ -274,7 +274,7 @@ public class Scheduler implements InitializingBean
   }
 
   @PreDestroy
-  private void cleanUp () throws Exception
+  private void cleanUp ()
   {
     log.info("Spring Container is destroyed! Scheduler clean up");
 
@@ -282,16 +282,6 @@ public class Scheduler implements InitializingBean
   }
 
   //<editor-fold desc="Setters and Getters">
-  public long getSchedulerInterval ()
-  {
-    return schedulerInterval;
-  }
-
-  public void setSchedulerInterval (long schedulerInterval)
-  {
-    this.schedulerInterval = schedulerInterval;
-  }
-
   public String getLastSchedulerRun ()
   {
     if (lastSchedulerRun == 0) {

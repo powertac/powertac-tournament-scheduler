@@ -21,13 +21,10 @@ public class JenkinsConnector
   public static void sendJob (String jobUrl) throws Exception
   {
     InputStream is = null;
-
     try {
       URL url = new URL(jobUrl);
       HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
       conn.setInstanceFollowRedirects(false);
-      conn.setRequestMethod("POST");
 
       String user = properties.getProperty("jenkins.username", "");
       String token = properties.getProperty("jenkins.token", "");
@@ -36,6 +33,10 @@ public class JenkinsConnector
         String basicAuth = "Basic " +
             new String(new Base64().encode(userpass.getBytes()));
         conn.setRequestProperty("Authorization", basicAuth);
+        conn.setRequestMethod("POST");
+      }
+      else {
+        conn.setRequestMethod("GET");
       }
 
       is = conn.getInputStream();

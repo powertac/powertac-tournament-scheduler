@@ -18,9 +18,11 @@ package org.powertac.tournament.services;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
@@ -195,9 +197,10 @@ public class Properties
       URL url = new URL(properties.getProperty("jenkins.location"));
       URLConnection conn = url.openConnection();
       is = conn.getInputStream();
-      if (is == null) {
-        throw new Exception("Couldn't open Jenkins Location");
+      BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+      while (rd.readLine() != null) {
       }
+      rd.close();
     }
     catch (Exception e) {
       e.printStackTrace();
