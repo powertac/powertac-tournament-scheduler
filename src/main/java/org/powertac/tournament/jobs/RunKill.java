@@ -29,26 +29,24 @@ public class RunKill
 
     // Stop the job on Jenkins, only work on when host = localhost
     for (int count = 0; count < 2; count++) {
-      try {
-        NodeList nList = JenkinsConnector.getExecutorList(machineName, count);
-        Node nNode = nList.item(0);
-        boolean idle = Boolean.parseBoolean(nNode.getTextContent());
-
-        if (!idle) {
-          String stopUrl = properties.getProperty("jenkins.location")
-              + "computer/" + machineName + "/executors/" + count + "/stop";
-          log.info("Stop url: " + stopUrl);
-
-          try {
-            JenkinsConnector.sendJob(stopUrl);
-          }
-          catch (Exception ignored) {
-          }
-          log.info("Stopped job on Jenkins");
-        }
+      NodeList nList = JenkinsConnector.getExecutorList(machineName, count);
+      if (nList == null) {
+        continue;
       }
-      catch (Exception e) {
-        e.printStackTrace();
+      Node nNode = nList.item(0);
+      boolean idle = Boolean.parseBoolean(nNode.getTextContent());
+
+      if (!idle) {
+        String stopUrl = properties.getProperty("jenkins.location")
+            + "computer/" + machineName + "/executors/" + count + "/stop";
+        log.info("Stop url: " + stopUrl);
+
+        try {
+          JenkinsConnector.sendJob(stopUrl);
+        }
+        catch (Exception ignored) {
+        }
+        log.info("Stopped job on Jenkins");
       }
     }
 

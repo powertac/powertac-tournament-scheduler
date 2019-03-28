@@ -32,6 +32,6 @@ fi
 
 rm jenkins.war
 
-if [ "$result" != "OK - Deployed application at context path /jenkins" ]; then
-    echo -e "\nError uploading jenkins at context path /jenkins"
+if [ "$result" != "OK - Deployed application at context path [/jenkins]" ]; then
+    echo -e "$result"
 fi

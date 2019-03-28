@@ -18,15 +18,10 @@ package org.powertac.tournament.services;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -192,32 +187,9 @@ public class Properties
 
   private void checkJenkinsLocation ()
   {
-    InputStream is = null;
-    try {
-      URL url = new URL(properties.getProperty("jenkins.location"));
-      URLConnection conn = url.openConnection();
-      is = conn.getInputStream();
-      BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-      while (rd.readLine() != null) {
-      }
-      rd.close();
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      String msg = "Jenkins Location could not be reached!";
-      if (!messages.contains(msg)) {
-        messages.add(msg);
-      }
-    }
-    finally {
-      if (is != null) {
-        try {
-          is.close();
-        }
-        catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
+    String msg = JenkinsConnector.checkJenkinsLocation();
+    if (msg != null && !messages.contains(msg)) {
+      messages.add(msg);
     }
   }
 
