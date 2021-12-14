@@ -351,6 +351,9 @@ public class CSV
       FileChannel dstChannel = destination.getChannel();
       dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
     }
+
+    sourceFile.setReadable(true, false);
+    targetFile.setReadable(true, false);
   }
 
   private List<String> getTournamentCsvLinks ()

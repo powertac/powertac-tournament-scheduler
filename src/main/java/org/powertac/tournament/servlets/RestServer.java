@@ -125,7 +125,7 @@ public class RestServer extends HttpServlet
       // Write to file
       InputStream is = request.getInputStream();
       FileOutputStream fos = new FileOutputStream(pathString);
-      byte buf[] = new byte[1024];
+      byte[] buf = new byte[1024];
       int letti;
       while ((letti = is.read(buf)) > 0) {
         fos.write(buf, 0, letti);

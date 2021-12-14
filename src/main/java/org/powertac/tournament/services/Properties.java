@@ -40,7 +40,7 @@ public class Properties
   private String resourceName = "tournament.properties";
   private java.util.Properties properties = new java.util.Properties();
   private boolean loaded = false;
-  private List<String> messages = new ArrayList<String>();
+  private List<String> messages = new ArrayList<>();
 
   // delegate to props
   public String getProperty (String key)

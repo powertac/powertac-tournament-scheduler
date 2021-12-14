@@ -104,7 +104,7 @@ public class RunBoot
    * If a round is loaded (runningRound != null) we only look for
    * games in that round. If no round loaded, we look for games in
    * all singleGame rounds.
-  **/
+   */
   public static void startBootableGames (List<Integer> runningRoundIds,
                                          List<Game> notCompleteGames,
                                          List<Machine> freeMachines)

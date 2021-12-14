@@ -224,7 +224,7 @@ public class LogJob extends Thread
       while ((entry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
         // If the entry is a file, write to disk
         int count;
-        byte data[] = new byte[BUFFER];
+        byte[] data = new byte[BUFFER];
 
         FileOutputStream fos = new FileOutputStream(tmpPath + entry.getName());
         BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER);
@@ -248,6 +248,8 @@ public class LogJob extends Thread
       addFileToTarGz(tOut, tmpPath + "log", "log");
       addFileToTarGz(tOut, tmpPath + "boot-log", "boot-log");
       addFileToTarGz(tOut, xmlPath, "");
+
+      new File(tarGz).setReadable(true, false);
     }
     catch (Exception e) {
       e.printStackTrace();

@@ -103,7 +103,7 @@ public class CheckWeatherServer implements InitializingBean
       log.info("Server Timeout or Network Error");
 
       if (!mailed) {
-        String msg = "Server Timeour or Network Error during Weather Server ping";
+        String msg = "Server Timeout or Network Error during Weather Server ping";
         Utils.sendMail("WeatherServer Timeout or Network Error", msg,
             properties.getProperty("scheduler.mailRecipient"));
         mailed = true;
