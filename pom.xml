@@ -14,7 +14,7 @@
     <spring-web>4.3.20.RELEASE</spring-web>
     <hibernate.version>4.3.11.Final</hibernate.version>
     <junit.version>4.13.1</junit.version>
-    <mysql-connector>5.1.38</mysql-connector>
+    <mysql-connector>8.0.16</mysql-connector>
   </properties>
 
   <repositories>
