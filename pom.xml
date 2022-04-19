@@ -13,7 +13,7 @@
     <spring.version>5.3.18</spring.version>
     <junit.version>4.13.2</junit.version>
     <mysql-connector>8.0.27</mysql-connector>
-    <hibernate.version>4.3.11.Final</hibernate.version>
+    <hibernate.version>5.4.24.Final</hibernate.version>
     <myfaces-version>2.1.18</myfaces-version>
   </properties>
 
