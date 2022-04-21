@@ -422,10 +422,10 @@ public class MemStore
     Forecast forecast = forecasts.get(roundId);
 
     if (forecast == null) {
-      return new ArrayList<Integer>();
+      return new ArrayList<>();
     }
 
-    List<Integer> result = new ArrayList<Integer>();
+    List<Integer> result = new ArrayList<>();
     for (Game game : forecast.getGamesMap().values()) {
       result.add(game.getGameLength());
     }

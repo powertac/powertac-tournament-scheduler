@@ -1,7 +1,7 @@
 package org.powertac.tournament.beans;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.constants.Constants;
@@ -174,7 +174,7 @@ public class Machine implements Serializable
   @SuppressWarnings("unchecked")
   public static List<Machine> getMachineList ()
   {
-    List<Machine> machines = new ArrayList<Machine>();
+    List<Machine> machines = new ArrayList<>();
 
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();

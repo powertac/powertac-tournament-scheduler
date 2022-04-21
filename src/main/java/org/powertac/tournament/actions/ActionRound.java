@@ -1,6 +1,6 @@
 package org.powertac.tournament.actions;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Agent;
@@ -50,7 +50,7 @@ public class ActionRound implements InitializingBean
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
-      query.setInteger("roundId", roundId);
+      query.setParameter("roundId", roundId);
       round = (Round) query.uniqueResult();
       if (round != null) {
         loadRoundInfo();

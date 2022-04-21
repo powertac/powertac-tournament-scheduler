@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.Level;
 import org.powertac.tournament.beans.Location;
@@ -55,7 +56,7 @@ public class TournamentScheduler
       log.error("Error creating tournament");
     }
     finally {
-      if (transaction.wasCommitted()) {
+      if (transaction.getStatus() == TransactionStatus.COMMITTED) {
         log.info(String.format("Created tournament %s", tournamentId));
         reset = true;
       }
@@ -89,7 +90,7 @@ public class TournamentScheduler
       Utils.growlMessage("Failed to schedule next tournament level.");
     }
     finally {
-      if (transaction.wasCommitted()) {
+      if (transaction.getStatus() == TransactionStatus.COMMITTED) {
         log.info("Next level scheduled for tournament " + tournamentId);
         Utils.growlMessage("Notice",
             "Level scheduled, edit and then manually load the rounds(s).");
@@ -121,7 +122,7 @@ public class TournamentScheduler
       Utils.growlMessage("Failed to close the tournament.");
     }
     finally {
-      if (transaction.wasCommitted()) {
+      if (transaction.getStatus() == TransactionStatus.COMMITTED) {
         Utils.growlMessage("Notice",
             "Tournament closed, schedule next level when done editing");
         reset = true;
@@ -155,7 +156,7 @@ public class TournamentScheduler
       log.error("Error completing tournament level");
     }
     finally {
-      if (transaction.wasCommitted()) {
+      if (transaction.getStatus() == TransactionStatus.COMMITTED) {
         log.info(String.format("Level completed for tournament %s",
             tournamentId));
         if (tournament.getState().isComplete()) {
@@ -313,7 +314,7 @@ public class TournamentScheduler
     // Loop through rounds, pick top winners
     int winnersPerRound =
         previousLevel.getNofWinners() / previousLevel.getNofRounds();
-    List<Broker> winners = new ArrayList<Broker>();
+    List<Broker> winners = new ArrayList<>();
     for (Round round : previousLevel.getRoundMap().values()) {
       List<Broker> roundWinners = round.rankList();
       winners.addAll(roundWinners.subList(0,

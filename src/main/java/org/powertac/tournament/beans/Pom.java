@@ -1,6 +1,6 @@
 package org.powertac.tournament.beans;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.constants.Constants;
@@ -35,7 +35,7 @@ public class Pom implements Serializable
   @SuppressWarnings("unchecked")
   public static List<Pom> getPomList ()
   {
-    List<Pom> poms = new ArrayList<Pom>();
+    List<Pom> poms = new ArrayList<>();
 
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();

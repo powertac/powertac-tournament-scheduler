@@ -1,7 +1,7 @@
 package org.powertac.tournament.services;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Game;
@@ -178,7 +178,7 @@ public class Scheduler implements InitializingBean
       Transaction transaction = session.beginTransaction();
       try {
         Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
-        query.setInteger("roundId", roundId);
+        query.setParameter("roundId", roundId);
         Round round = (Round) query.uniqueResult();
         roundsChanged |= new RoundScheduler(round).createGamesForRound(session);
         transaction.commit();

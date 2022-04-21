@@ -290,10 +290,8 @@ public class LogJob extends Thread
           removeDirectory(aFile);
         }
       }
-      dir.delete();
     }
-    else {
-      dir.delete();
-    }
+
+    dir.delete();
   }
 }

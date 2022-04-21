@@ -2,7 +2,7 @@ package org.powertac.tournament.servlets;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Agent;
@@ -83,7 +83,7 @@ public class RestBroker extends HttpServlet
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_BROKER_BY_BROKERAUTH);
-      query.setString("brokerAuth", brokerAuth);
+      query.setParameter("brokerAuth", brokerAuth);
       Broker broker = (Broker) query.uniqueResult();
 
       if (broker == null) {
@@ -130,7 +130,7 @@ public class RestBroker extends HttpServlet
                                     String joinName)
   {
     Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_NAME);
-    query.setString("tournamentName", joinName);
+    query.setParameter("tournamentName", joinName);
     Tournament tournament = (Tournament) query.uniqueResult();
 
     if (tournament == null) {

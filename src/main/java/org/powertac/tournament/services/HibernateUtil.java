@@ -5,9 +5,7 @@ import com.mchange.v2.c3p0.PooledDataSource;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.service.ServiceRegistry;
 
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -23,13 +21,7 @@ public class HibernateUtil
   private static SessionFactory buildSessionFactory ()
   {
     try {
-      // Create the SessionFactory from hibernate.cfg.xml
-      Configuration configuration = new Configuration();
-      configuration.configure();
-      ServiceRegistry serviceRegistry =
-          new StandardServiceRegistryBuilder().applySettings(
-          configuration.getProperties()).build();
-      return configuration.buildSessionFactory(serviceRegistry);
+      return new Configuration().configure().buildSessionFactory();
     }
     catch (Throwable ex) {
       // Make sure you log the exception, as it might be swallowed

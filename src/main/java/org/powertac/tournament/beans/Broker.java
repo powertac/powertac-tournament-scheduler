@@ -2,7 +2,7 @@ package org.powertac.tournament.beans;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
@@ -115,7 +115,7 @@ public class Broker implements Serializable
     try {
       Broker broker = (Broker) session
           .createQuery(Constants.HQL.GET_BROKER_BY_ID)
-          .setInteger("brokerId", brokerId).uniqueResult();
+          .setParameter("brokerId", brokerId).uniqueResult();
 
       // Delete all agent belonging to this broker
       for (Agent agent : broker.agentMap.values()) {
@@ -270,7 +270,7 @@ public class Broker implements Serializable
         session.delete(tournamentBroker);
       }
 
-      List<Integer> deleteAgents = new ArrayList<Integer>();
+      List<Integer> deleteAgents = new ArrayList<>();
       for (Level level : tournament.getLevelMap().values()) {
         for (Round round : level.getRoundMap().values()) {
           // Delete link between broker and round
@@ -415,7 +415,7 @@ public class Broker implements Serializable
   @Transient
   public List<Round> getAvailableRounds (List<Round> roundList)
   {
-    List<Round> registrableRounds = new ArrayList<Round>();
+    List<Round> registrableRounds = new ArrayList<>();
 
     for (Round round : roundList) {
       // Check if maxNofBrokers reached
@@ -446,7 +446,7 @@ public class Broker implements Serializable
   @Transient
   public List<Round> getRegisteredRounds ()
   {
-    List<Round> registeredRounds = new ArrayList<Round>();
+    List<Round> registeredRounds = new ArrayList<>();
 
     for (Round round : roundMap.values()) {
       if (round.getState().isComplete()) {
@@ -465,7 +465,7 @@ public class Broker implements Serializable
   @Transient
   public List<Tournament> getAvailableTournaments (List<Tournament> tournamentList)
   {
-    List<Tournament> registrableTournaments = new ArrayList<Tournament>();
+    List<Tournament> registrableTournaments = new ArrayList<>();
 
     for (Tournament tournament : tournamentList) {
       // Can't register if already started
@@ -493,7 +493,7 @@ public class Broker implements Serializable
   @Transient
   public List<Tournament> getRegisteredTournaments ()
   {
-    List<Tournament> registeredTournaments = new ArrayList<Tournament>();
+    List<Tournament> registeredTournaments = new ArrayList<>();
 
     for (Tournament tournament : tournamentMap.values()) {
       if (tournament.getState().isComplete()) {
@@ -517,7 +517,7 @@ public class Broker implements Serializable
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_BROKER_BY_NAME);
-      query.setString("brokerName", brokerName);
+      query.setParameter("brokerName", brokerName);
       broker = (Broker) query.uniqueResult();
       transaction.commit();
     }

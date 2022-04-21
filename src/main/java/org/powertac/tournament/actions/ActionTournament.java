@@ -1,6 +1,6 @@
 package org.powertac.tournament.actions;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.beans.Broker;
@@ -25,9 +25,9 @@ import java.util.List;
 public class ActionTournament implements InitializingBean
 {
   private Tournament tournament;
-  private List<String> tournamentInfo = new ArrayList<String>();
-  private List<String> participantInfo = new ArrayList<String>();
-  private List<String> csvLinks = new ArrayList<String>();
+  private List<String> tournamentInfo = new ArrayList<>();
+  private List<String> participantInfo = new ArrayList<>();
+  private List<String> csvLinks = new ArrayList<>();
 
   private static boolean editing;
   private String content;
@@ -47,7 +47,7 @@ public class ActionTournament implements InitializingBean
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_TOURNAMENT_BY_ID);
-      query.setInteger("tournamentId", tournamentId);
+      query.setParameter("tournamentId", tournamentId);
       tournament = (Tournament) query.uniqueResult();
 
       if (tournament == null) {
@@ -145,7 +145,7 @@ public class ActionTournament implements InitializingBean
 
   public List<Broker> getAllowedBrokers ()
   {
-    List<Broker> allowedBrokers = new ArrayList<Broker>();
+    List<Broker> allowedBrokers = new ArrayList<>();
 
     if (tournament == null) {
       Utils.redirect();
@@ -170,7 +170,7 @@ public class ActionTournament implements InitializingBean
     }
 
     // Find before-deadline round
-    List<Round> rounds = new ArrayList<Round>();
+    List<Round> rounds = new ArrayList<>();
     for (Level level : tournament.getLevelMap().values()) {
       for (Round round : level.getRoundMap().values()) {
         if (round.getStartTime().before(Utils.offsetDate(-2))) {

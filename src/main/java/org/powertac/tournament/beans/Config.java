@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.Type;
+import org.hibernate.query.Query;
 import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.HibernateUtil;
 import org.powertac.tournament.services.Utils;
@@ -69,8 +70,8 @@ public class Config
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      org.hibernate.Query query = session.createQuery(Constants.HQL.GET_CONFIG);
-      query.setString("configKey", "index_content");
+      Query query = session.createQuery(Constants.HQL.GET_CONFIG);
+      query.setParameter("configKey", "index_content");
       Config config = (Config) query.uniqueResult();
 
       if (config == null) {
@@ -101,8 +102,8 @@ public class Config
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      org.hibernate.Query query = session.createQuery(Constants.HQL.GET_CONFIG);
-      query.setString("configKey", "index_content");
+      Query query = session.createQuery(Constants.HQL.GET_CONFIG);
+      query.setParameter("configKey", "index_content");
       Config config = (Config) query.uniqueResult();
       config.setConfigValue(newContent);
       session.update(config);
@@ -127,8 +128,8 @@ public class Config
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      org.hibernate.Query query = session.createQuery(Constants.HQL.GET_CONFIG);
-      query.setString("configKey", "tournament_content_" + tournamentId);
+      Query query = session.createQuery(Constants.HQL.GET_CONFIG);
+      query.setParameter("configKey", "tournament_content_" + tournamentId);
       Config config = (Config) query.uniqueResult();
       config.setConfigValue(newContent);
       session.update(config);
@@ -153,8 +154,8 @@ public class Config
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      org.hibernate.Query query = session.createQuery(Constants.HQL.GET_CONFIG);
-      query.setString("configKey", "tournament_content_" + tournamentId);
+      Query query = session.createQuery(Constants.HQL.GET_CONFIG);
+      query.setParameter("configKey", "tournament_content_" + tournamentId);
       Config config = (Config) query.uniqueResult();
 
       if (config == null) {

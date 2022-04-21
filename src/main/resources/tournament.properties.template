@@ -1,7 +1,7 @@
 # This is the Tournament Scheduler properties file
 
 # Configuration information for the weather server, for now this is the only one
-weatherServerLocation = http://wolf31.ict.eur.nl:8080/WeatherServer/faces/index.xhtml
+weatherServerLocation = https://ts.powertac.org:8080/WeatherServer/faces/index.xhtml
 
 # URL, user/token of the Jenkins server.
 # If user or token is empty, assume no authentication needed

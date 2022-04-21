@@ -1,7 +1,7 @@
 package org.powertac.tournament.beans;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.constants.Constants;
@@ -105,7 +105,7 @@ public class User implements Serializable
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_USER_BY_NAME);
-      query.setString("userName", userName);
+      query.setParameter("userName", userName);
       user = (User) query.uniqueResult();
       transaction.commit();
     }
@@ -197,7 +197,7 @@ public class User implements Serializable
   @SuppressWarnings("unchecked")
   public List<Broker> getBrokers ()
   {
-    List<Broker> brokers = new ArrayList<Broker>(brokerMap.values());
+    List<Broker> brokers = new ArrayList<>(brokerMap.values());
     Collections.sort(brokers, new Utils.AlphanumComparator());
     return brokers;
   }
@@ -205,7 +205,7 @@ public class User implements Serializable
   @SuppressWarnings("unchecked")
   public static List<User> getUserList ()
   {
-    List<User> users = new ArrayList<User>();
+    List<User> users = new ArrayList<>();
 
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();

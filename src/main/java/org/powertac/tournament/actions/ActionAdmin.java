@@ -5,6 +5,7 @@ import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.powertac.tournament.beans.Location;
 import org.powertac.tournament.beans.Machine;
 import org.powertac.tournament.beans.Pom;
@@ -66,7 +67,7 @@ public class ActionAdmin implements InitializingBean
   @SuppressWarnings("unchecked")
   public void afterPropertiesSet () throws Exception
   {
-    availableRounds = new ArrayList<Round>(Round.getNotCompleteRoundList());
+    availableRounds = new ArrayList<>(Round.getNotCompleteRoundList());
 
     Collections.sort(availableRounds, new Utils.AlphanumComparator());
     // If only one round, select it for the user
@@ -208,7 +209,7 @@ public class ActionAdmin implements InitializingBean
       transaction.rollback();
       e.printStackTrace();
     }
-    if (transaction.wasCommitted()) {
+    if (transaction.getStatus() == TransactionStatus.COMMITTED) {
       log.info("Added new location " + locationName);
       resetLocationData();
     }
@@ -235,7 +236,7 @@ public class ActionAdmin implements InitializingBean
       e.printStackTrace();
       Utils.growlMessage("Location not edited.<br/>" + e.getMessage());
     }
-    if (transaction.wasCommitted()) {
+    if (transaction.getStatus() == TransactionStatus.COMMITTED) {
       log.info("Edited location " + locationName);
       resetLocationData();
     }
@@ -392,7 +393,7 @@ public class ActionAdmin implements InitializingBean
       e.printStackTrace();
       Utils.growlMessage("Machine not added.<br/>" + e.getMessage());
     }
-    if (transaction.wasCommitted()) {
+    if (transaction.getStatus() == TransactionStatus.COMMITTED) {
       log.info("Added new machine " + machineName);
       resetMachineData();
     }
@@ -418,7 +419,7 @@ public class ActionAdmin implements InitializingBean
       e.printStackTrace();
       Utils.growlMessage("Machine not edited.<br/>" + e.getMessage());
     }
-    if (transaction.wasCommitted()) {
+    if (transaction.getStatus() == TransactionStatus.COMMITTED) {
       log.info("Edited machine " + machineName);
       resetMachineData();
     }
@@ -473,7 +474,7 @@ public class ActionAdmin implements InitializingBean
       log.warn("Error increasing permissions for : " + user.getUserId());
       e.printStackTrace();
     }
-    if (transaction.wasCommitted()) {
+    if (transaction.getStatus() == TransactionStatus.COMMITTED) {
       log.info("Increased permissions for : " + user.getUserName());
     }
 
@@ -494,7 +495,7 @@ public class ActionAdmin implements InitializingBean
       log.warn("Error decreasing permissions for : " + user.getUserId());
       e.printStackTrace();
     }
-    if (transaction.wasCommitted()) {
+    if (transaction.getStatus() == TransactionStatus.COMMITTED) {
       log.info("decreased permissions for : " + user.getUserName());
     }
 

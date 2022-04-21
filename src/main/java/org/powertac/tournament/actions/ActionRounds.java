@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.Level;
 import org.powertac.tournament.beans.Location;
@@ -172,7 +173,7 @@ public class ActionRounds implements InitializingBean
       log.error("Error saving round");
     }
     finally {
-      if (transaction.wasCommitted()) {
+      if (transaction.getStatus() == TransactionStatus.COMMITTED) {
         resetValues();
       }
       session.close();
@@ -375,7 +376,7 @@ public class ActionRounds implements InitializingBean
 
   private boolean inputsValidated ()
   {
-    List<String> messages = new ArrayList<String>();
+    List<String> messages = new ArrayList<>();
 
     if (roundName.trim().isEmpty()) {
       messages.add("The round name cannot be empty");

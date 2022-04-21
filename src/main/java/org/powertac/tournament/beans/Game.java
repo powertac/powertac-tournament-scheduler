@@ -2,7 +2,7 @@ package org.powertac.tournament.beans;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.constants.Constants;
@@ -262,7 +262,7 @@ public class Game implements Serializable
   public static Game getGame (Session session, int gameId)
   {
     Query query = session.createQuery(Constants.HQL.GET_GAME_BY_ID);
-    query.setInteger("gameId", gameId);
+    query.setParameter("gameId", gameId);
     return (Game) query.uniqueResult();
   }
 

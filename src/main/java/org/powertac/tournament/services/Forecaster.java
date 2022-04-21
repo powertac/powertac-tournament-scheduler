@@ -1,7 +1,7 @@
 package org.powertac.tournament.services;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.powertac.tournament.actions.ActionTimeline;
@@ -238,7 +238,7 @@ public class Forecaster
     try {
       for (int roundId : scheduler.getRunningRoundIds()) {
         Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
-        query.setInteger("roundId", roundId);
+        query.setParameter("roundId", roundId);
         Round round = (Round) query.uniqueResult();
         gamesMap.putAll(round.getGameMap());
       }

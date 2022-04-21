@@ -1,7 +1,7 @@
 package org.powertac.tournament.beans;
 
 import org.hibernate.Criteria;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
@@ -77,7 +77,7 @@ public class Round implements Serializable
     try {
       Round round = (Round) session
           .createQuery(Constants.HQL.GET_ROUND_BY_ID)
-          .setInteger("roundId", roundId).uniqueResult();
+          .setParameter("roundId", roundId).uniqueResult();
 
       Level level = round.getLevel();
       level.setNofRounds(level.getNofRounds() - 1);
@@ -272,7 +272,7 @@ public class Round implements Serializable
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.createQuery(Constants.HQL.GET_ROUND_BY_ID);
-      query.setInteger("roundId", roundId);
+      query.setParameter("roundId", roundId);
       round = (Round) query.uniqueResult();
       transaction.commit();
     }

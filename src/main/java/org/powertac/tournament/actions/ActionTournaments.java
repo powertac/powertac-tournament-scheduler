@@ -3,6 +3,7 @@ package org.powertac.tournament.actions;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.powertac.tournament.beans.Broker;
 import org.powertac.tournament.beans.Level;
 import org.powertac.tournament.beans.Pom;
@@ -196,7 +197,7 @@ public class ActionTournaments implements InitializingBean
       Utils.growlMessage("Failed to update tournament.");
     }
     finally {
-      if (transaction.wasCommitted()) {
+      if (transaction.getStatus() == TransactionStatus.COMMITTED) {
         resetValues();
       }
       session.close();

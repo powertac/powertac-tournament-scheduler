@@ -3,6 +3,7 @@ package org.powertac.tournament.servlets;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.powertac.tournament.beans.Game;
 import org.powertac.tournament.jobs.LogJob;
 import org.powertac.tournament.schedulers.GameHandler;
@@ -252,7 +253,8 @@ public class RestServer extends HttpServlet
     }
 
     String gameLength = request.getParameter(Rest.REQ_PARAM_GAMELENGTH);
-    if (gameLength != null && transaction.wasCommitted()) {
+    if (gameLength != null &&
+        transaction.getStatus() == TransactionStatus.COMMITTED) {
       log.info(String.format("Received gamelength %s for game %s",
           gameLength, gameId));
       MemStore.addGameLength(gameId, gameLength);

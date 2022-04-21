@@ -2,6 +2,7 @@ package org.powertac.tournament.beans;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import org.powertac.tournament.constants.Constants;
 import org.powertac.tournament.services.HibernateUtil;
 
@@ -53,7 +54,7 @@ public class Location implements Serializable
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      org.hibernate.Query query = session.createQuery(Constants.HQL.GET_LOCATIONS);
+      Query query = session.createQuery(Constants.HQL.GET_LOCATIONS);
       locations = (List<Location>) query.list();
       transaction.commit();
     }
@@ -73,9 +74,8 @@ public class Location implements Serializable
     Session session = HibernateUtil.getSession();
     Transaction transaction = session.beginTransaction();
     try {
-      org.hibernate.Query query = session.
-          createQuery(Constants.HQL.GET_LOCATION_BY_NAME);
-      query.setString("locationName", name);
+      Query query = session.createQuery(Constants.HQL.GET_LOCATION_BY_NAME);
+      query.setParameter("locationName", name);
       location = (Location) query.uniqueResult();
       transaction.commit();
     }
