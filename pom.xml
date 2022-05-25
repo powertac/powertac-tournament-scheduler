@@ -10,7 +10,7 @@
   <url>https://maven.apache.org</url>
 
   <properties>
-    <spring.version>5.3.18</spring.version>
+    <spring.version>5.3.20</spring.version>
     <junit.version>4.13.2</junit.version>
     <mysql-connector>8.0.27</mysql-connector>
     <hibernate.version>5.4.24.Final</hibernate.version>
